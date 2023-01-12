@@ -10,12 +10,12 @@ namespace EVIL.ExecutionEngine
 {
     public class EVM
     {
-        public const string DefaultImportPattern 
+        public const string DefaultImportPattern
             = "?.vil;" +
               "?/init.vil;" +
               "?/?.vil" +
               "?";
-        
+
         private List<ExecutionContext> ExecutionContexts { get; } = new();
         public ExecutionContext MainExecutionContext => ExecutionContexts[0];
 
@@ -33,7 +33,7 @@ namespace EVIL.ExecutionEngine
             if (globalTable == null)
             {
                 throw new ArgumentNullException(
-                    nameof(globalTable), 
+                    nameof(globalTable),
                     "A global table is required."
                 );
             }
@@ -106,7 +106,7 @@ namespace EVIL.ExecutionEngine
                                 isAnyContextActive = true;
                                 ctx.Step();
                             }
-                            else if(ctx.IsVolatile)
+                            else if (ctx.IsVolatile)
                             {
                                 DeleteExecutionContext(ctx);
                             }
@@ -128,7 +128,7 @@ namespace EVIL.ExecutionEngine
             {
                 for (var i = 0; i < ExecutionContexts.Count; i++)
                     ExecutionContexts[i].Halt();
-                
+
                 Running = false;
             }
         }
@@ -192,7 +192,14 @@ namespace EVIL.ExecutionEngine
 
                     if (ec.CallStack.TryPeek(out var frame))
                     {
-                        sb.AppendLine($"--- === EC {i} : {frame.Chunk.Name} @ {frame.IP:X8} === ---");
+                        if (frame.Chunk != null)
+                        {
+                            sb.AppendLine($"--- === EC {i} : {frame.Chunk.Name} @ {frame.IP:X8} === ---");
+                        }
+                        else if (frame.ClrFunction != null)
+                        {
+                            sb.AppendLine($"--- === EC {i} : [CLR boundary {frame.ClrFunction}] === ---");
+                        }
                     }
                     else
                     {

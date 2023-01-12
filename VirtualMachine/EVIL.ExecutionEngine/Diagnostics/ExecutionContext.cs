@@ -19,12 +19,12 @@ namespace EVIL.ExecutionEngine.Diagnostics
         internal Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
         public int ID { get; }
-        
+
         public EVM VirtualMachine { get; }
         public int CallStackLimit { get; set; } = 256;
         public bool SuppressClrExceptions { get; set; }
         public bool Running { get; private set; }
-        
+
         /// <summary>
         /// Volatile contexts are destroyed by their owner EVM upon running out of scheduled chunks.
         /// </summary>
@@ -319,7 +319,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             {
                                 throw new DivideByZeroException();
                             }
-                            
+
                             evstack.Push(new(a.Number / b.Number));
                             break;
                         }
@@ -333,7 +333,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             {
                                 throw new DivideByZeroException();
                             }
-                            
+
                             evstack.Push(
                                 new(a.Number - b.Number * Math.Floor(a.Number / b.Number))
                             );
@@ -698,7 +698,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             evstack.Push(new(frame.Chunk.Parameters[btmp]));
                             break;
                         }
-                        
+
                         case OpCode.TYPE:
                         {
                             a = evstack.Pop();
@@ -736,13 +736,14 @@ namespace EVIL.ExecutionEngine.Diagnostics
                                     evstack.Push(iterState.CurrentPair.Key);
                                 }
                             }
-
+                            
                             evstack.Push(new(result));
                             break;
                         }
 
                         case OpCode.ENDE:
                         {
+                            evstack.Pop();
                             IteratorStates.Pop();
                             break;
                         }
@@ -797,7 +798,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
         private void InvokeClrFunction(ClrFunction clrFunction, int argc)
         {
-            lock(CallStack)
+            lock (CallStack)
             lock (EvaluationStack)
             {
                 if (CallStack.Count >= CallStackLimit)

@@ -1,7 +1,7 @@
 ﻿loc order = 4;
 
 if (_ARGS && #_ARGS) {
-  order = str.s2n(args[0]);
+  order = str.s2n(_ARGS[0]);
 }
 
 loc size = 1 << order;

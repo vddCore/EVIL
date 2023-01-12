@@ -18,7 +18,7 @@ namespace EVIL.Runtime.Library
             {
                 if (args[i].IsNull)
                 {
-                    sb.Append("null");
+                    sb.Append("<null>");
                 }
                 else
                 {

@@ -15,12 +15,32 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
         public ClrFunction ClrFunction { get; }
 
+        public string ClrFunctionName
+        {
+            get
+            {
+                var attribs = ClrFunction.Method.GetCustomAttributes(typeof(ClrFunctionAttribute), false);
+
+                if (attribs.Length > 0 
+                    && attribs[0] is ClrFunctionAttribute clrFuncAttrib
+                    && !string.IsNullOrEmpty(clrFuncAttrib.RuntimeAlias))
+                {
+                    return $"CLR!{clrFuncAttrib.RuntimeAlias}";
+                }
+                else
+                {
+                    return $"CLR!{ClrFunction.Method.Name}";
+                }
+            }
+        }
+
         public ExecutionContext ExecutionContext { get; }
         public Chunk Chunk { get; }
         
         public DynamicValue[] Locals { get; }
         public DynamicValue[] FormalArguments { get; }
         public DynamicValue[] ExtraArguments { get; }
+        
 
         public StackFrame(ExecutionContext ctx, Chunk chunk, int argCount)
         {
@@ -80,18 +100,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
             else if (ClrFunction != null)
             {
-                var attribs = ClrFunction.Method.GetCustomAttributes(typeof(ClrFunctionAttribute), false);
-
-                if (attribs.Length > 0 
-                    && attribs[0] is ClrFunctionAttribute clrFuncAttrib
-                    && !string.IsNullOrEmpty(clrFuncAttrib.RuntimeAlias))
-                {
-                    sb.Append($"CLR!{clrFuncAttrib.RuntimeAlias}");
-                }
-                else
-                {
-                    sb.Append($"CLR!{ClrFunction.Method.Name}");
-                }
+                sb.Append(ClrFunctionName);
             }
 
             return sb.ToString();
