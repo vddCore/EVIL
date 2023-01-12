@@ -2,11 +2,11 @@
 {
     public class ReturnNode : AstNode
     {
-        public AstNode Expression { get; }
+        public AstNode Right { get; }
 
-        public ReturnNode(AstNode expression)
+        public ReturnNode(AstNode right)
         {
-            Expression = expression;
+            Right = right;
         }
     }
 }

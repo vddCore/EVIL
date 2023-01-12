@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(UndefNode undefNode)
         {
-            if (undefNode.Symbol is IndexingNode indexingNode)
+            if (undefNode.Right is IndexingNode indexingNode)
             {
                 var indexable = Visit(indexingNode.Indexable);
                 var key = Visit(indexingNode.KeyExpression);
@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Execution
                 
                 indexable.Table.Remove(indexable.Table.GetKeyByDynValue(key));
             }
-            else if (undefNode.Symbol is VariableNode variable)
+            else if (undefNode.Right is VariableNode variable)
             {
                 Environment.LocalScope.UnSetInChain(variable.Identifier);
             }

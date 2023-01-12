@@ -2,7 +2,7 @@
   var order = 5
 
   if (#args) {
-    order = str->s2n(args[0])
+    order = str.s2n(args[0])
   }
 
   for (var i = 0; i < order; i++) {
@@ -17,7 +17,7 @@
 
 fn carpet(l, f) {
   var n = l
-  io->println("n = " + @n)
+  io.println("n = " + @n)
 
   var S = fn(x, y) {
     if (x == 0 || y == 0) { ret true }
@@ -28,9 +28,9 @@ fn carpet(l, f) {
 
   for (var y = 0; y < math.pow(3, n-1); y++) {
     for (var x = 0; x < math.pow(3, n-1); x++) {
-      io->print(f(S(x, y)))
+      io.print(f(S(x, y)))
     }
-    io->println()
+    io.println()
   }
-  io->println()
+  io.println()
 }

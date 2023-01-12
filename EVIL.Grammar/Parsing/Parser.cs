@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
             Scanner.LoadSource(source);
         }
 
-        public RootNode Parse()
+        public ProgramNode Parse()
             => new(RootStatementList());
 
         private List<AstNode> RootStatementList()

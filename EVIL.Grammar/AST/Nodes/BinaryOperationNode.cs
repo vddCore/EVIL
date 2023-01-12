@@ -2,15 +2,17 @@
 {
     public class BinaryOperationNode : AstNode
     {
-        public AstNode LeftOperand { get; }
+        public AstNode Left { get; }
+        public AstNode Right { get; }
+        
         public BinaryOperationType Type { get; }
-        public AstNode RightOperand { get; }
 
-        public BinaryOperationNode(AstNode leftOperand, BinaryOperationType type, AstNode rightOperand)
+        public BinaryOperationNode(AstNode left, AstNode right, BinaryOperationType type)
         {
-            LeftOperand = leftOperand;
+            Left = left;
+            Right = right;
+            
             Type = type;
-            RightOperand = rightOperand;
         }
     }
 }

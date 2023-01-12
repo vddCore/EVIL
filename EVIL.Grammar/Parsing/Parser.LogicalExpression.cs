@@ -25,12 +25,12 @@ namespace EVIL.Grammar.Parsing
                 if (token.Type == TokenType.Or)
                 {
                     var line = Match(TokenType.Or);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Or, Comparison()) { Line = line };
+                    node = new BinaryOperationNode(node, Comparison(), BinaryOperationType.Or) { Line = line };
                 }
                 else if (token.Type == TokenType.And)
                 {
                     var line = Match(TokenType.And);
-                    node = new BinaryOperationNode(node, BinaryOperationType.And, Comparison()) { Line = line };
+                    node = new BinaryOperationNode(node, Comparison(), BinaryOperationType.And) { Line = line };
                 }
             }
             

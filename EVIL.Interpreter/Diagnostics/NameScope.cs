@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Diagnostics
 
         public DynValue Set(string identifier, DynValue dynValue)
         {
-            if (Members.ContainsKey(identifier))
+            if (HasMember(identifier))
             {
                 Members[identifier] = dynValue;
             }
@@ -41,7 +41,7 @@ namespace EVIL.Interpreter.Diagnostics
 
             while (current != null)
             {
-                if (!current.Members.ContainsKey(identifier))
+                if (!current.HasMember(identifier))
                 {
                     if (current.ParentScope == null)
                     {
@@ -68,7 +68,7 @@ namespace EVIL.Interpreter.Diagnostics
 
             while (current != null)
             {
-                if (current.Members.ContainsKey(identifier))
+                if (current.HasMember(identifier))
                     return current.Members[identifier];
 
                 current = current.ParentScope;

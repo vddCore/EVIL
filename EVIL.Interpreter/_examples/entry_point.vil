@@ -3,8 +3,8 @@
 // 
 // assumes the top-level statements are restricted.
 //
-// io->print("this shouldn't execute...")
+// io.print("this shouldn't execute...")
 
 fn main(args) {
-    io->print("hello, world")
+    io.print("hello, world")
 }

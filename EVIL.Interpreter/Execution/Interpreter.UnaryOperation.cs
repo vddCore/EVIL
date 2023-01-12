@@ -9,7 +9,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(UnaryOperationNode unaryOperationNode)
         {
-            var operand = Visit(unaryOperationNode.Operand);
+            var operand = Visit(unaryOperationNode.Right);
             
             switch (unaryOperationNode.Type)
             {
@@ -60,7 +60,7 @@ namespace EVIL.Interpreter.Execution
                     return operand.AsString();
 
                 case UnaryOperationType.NameOf:
-                    if (unaryOperationNode.Operand is VariableNode variable)
+                    if (unaryOperationNode.Right is VariableNode variable)
                         return new DynValue(variable.Identifier);
 
                     throw new RuntimeException(

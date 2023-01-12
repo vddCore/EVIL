@@ -5,21 +5,21 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(VariableDefinitionNode variableDefinitionNode)
+        public override DynValue Visit(VarNode varNode)
         {
-            var identifier = variableDefinitionNode.Variable.Identifier;
+            var identifier = varNode.Identifier;
 
             if (Environment.LocalScope.HasMember(identifier))
             {
                 throw new RuntimeException(
                     $"Variable '{identifier}' was already defined in the current scope.", 
                     Environment,
-                    variableDefinitionNode.Line
+                    varNode.Line
                 );
             }
 
-            var dynValue = Environment.LocalScope.Set(identifier, new DynValue(0));
-            dynValue.CopyFrom(Visit(variableDefinitionNode.Right));
+            var dynValue = Visit(varNode.Right);
+            Environment.LocalScope.Set(identifier, dynValue);
 
             return dynValue;
         }

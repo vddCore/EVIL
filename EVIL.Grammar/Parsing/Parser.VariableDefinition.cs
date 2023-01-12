@@ -10,10 +10,12 @@ namespace EVIL.Grammar.Parsing
         {
             var line = Match(TokenType.Var);
 
-            var variable = Variable();
-            var assignment = Assignment(variable);
+            var identifier = Scanner.State.CurrentToken.Value.ToString();
+            Match(TokenType.Identifier);
+            
+            var assignment = Assignment(new VariableNode(identifier));
 
-            return new VariableDefinitionNode(variable, assignment) { Line = line };
+            return new VarNode(identifier, assignment) { Line = line };
         }
     }
 }

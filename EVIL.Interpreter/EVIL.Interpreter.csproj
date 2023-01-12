@@ -18,55 +18,55 @@
     <Folder Include="_resources" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Execution\Interpreter.AssignmentLogic.cs">
+    <Compile Update="Execution\Interpreter.Assignment.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.BinaryOperationLogic.cs">
+    <Compile Update="Execution\Interpreter.BinaryOperation.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.BreakLogic.cs">
+    <Compile Update="Execution\Interpreter.Break.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.ConditionLogic.cs">
+    <Compile Update="Execution\Interpreter.Condition.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.DecrementationLogic.cs">
+    <Compile Update="Execution\Interpreter.Decrementation.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.EachLoopLogic.cs">
+    <Compile Update="Execution\Interpreter.Each.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.ExitLogic.cs">
+    <Compile Update="Execution\Interpreter.Exit.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.ForLoopLogic.cs">
+    <Compile Update="Execution\Interpreter.For.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.FunctionCallLogic.cs">
+    <Compile Update="Execution\Interpreter.FunctionCall.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.FunctionDefinitionLogic.cs">
+    <Compile Update="Execution\Interpreter.FunctionDefinition.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.IncrementationLogic.cs">
+    <Compile Update="Execution\Interpreter.Incrementation.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.IndexingLogic.cs">
+    <Compile Update="Execution\Interpreter.Indexing.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.ReturnLogic.cs">
+    <Compile Update="Execution\Interpreter.Return.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.SkipLogic.cs">
+    <Compile Update="Execution\Interpreter.Skip.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.UnaryOperationLogic.cs">
+    <Compile Update="Execution\Interpreter.UnaryOperation.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.UndefinitionLogic.cs">
+    <Compile Update="Execution\Interpreter.Undef.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.ValueLogic.cs">
+    <Compile Update="Execution\Interpreter.Number.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.VariableDefinitionLogic.cs">
@@ -75,7 +75,13 @@
     <Compile Update="Execution\Interpreter.VariableLogic.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.WhileLoopLogic.cs">
+    <Compile Update="Execution\Interpreter.While.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Execution\Interpreter.String.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Execution\Interpreter.Table.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
   </ItemGroup>

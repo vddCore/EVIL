@@ -1,6 +1,6 @@
 ﻿fn main(args) {
   for(var i = 1; i < 25; i++) {
-    io->println(@fib(i))
+    io.println(@fib(i))
   }
 }
 
