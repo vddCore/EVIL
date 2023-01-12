@@ -22,10 +22,10 @@
     </list>
     <list name="keywords">
       <item>in</item>
-      <item>undef</item>
       <item>loc</item>
       <item>fn</item>
       <item>null</item>
+      <item>typeof</item>
     </list>
     <list name="aliases">
       <item>true</item>
