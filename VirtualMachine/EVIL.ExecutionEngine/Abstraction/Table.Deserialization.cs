@@ -64,6 +64,9 @@ namespace EVIL.ExecutionEngine.Abstraction
                 case DynamicValueType.Table:
                     return new(ReadTable(br));
                 
+                case DynamicValueType.Null:
+                    return DynamicValue.Null;
+                
                 default: 
                     throw new InvalidDataException($"Unknown type '{type}'.");
             }

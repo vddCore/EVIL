@@ -52,12 +52,12 @@ namespace EVIL.Intermediate.Storage
             var linkerData = br.ReadBytes(32);
         }
 
-        private static void ReadChunks(BinaryReader br, Executable exe)
+        private static void ReadChunks(BinaryReader br, Executable executable)
         {
             var chunkCount = br.ReadInt32();
             for (var i = 0; i < chunkCount; i++)
             {
-                exe.Chunks.Add(
+                executable.Chunks.Add(
                     Deserializer.ReadChunk(br)
                 );
             }

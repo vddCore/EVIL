@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
@@ -97,6 +97,9 @@
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
       <Compile Update="CodeGeneration\Compiler.Utilities.SequenceEmitters.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="CodeGeneration\Compiler.Expressions.Null.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
     </ItemGroup>

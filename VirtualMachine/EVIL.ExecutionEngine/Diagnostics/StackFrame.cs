@@ -38,12 +38,12 @@ namespace EVIL.ExecutionEngine.Diagnostics
             
             for (var i = 0; i < Locals.Length; i++)
             {
-                Locals[i] = DynamicValue.Zero;
+                Locals[i] = DynamicValue.Null;
             }
             
             for (var i = 0; i < FormalArguments.Length; i++)
             {
-                FormalArguments[i] = DynamicValue.Zero;
+                FormalArguments[i] = DynamicValue.Null;
             }
         }
 

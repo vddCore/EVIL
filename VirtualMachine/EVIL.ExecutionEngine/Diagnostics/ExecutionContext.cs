@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
 {
     public class ExecutionContext
     {
+        private ConcurrentQueue<ChunkExecInfo> _scheduledChunks = new();
+        
         internal Stack<IteratorState> IteratorStates { get; } = new();
         internal Stack<StackFrame> CallStack { get; } = new();
         internal Stack<DynamicValue> EvaluationStack { get; } = new();
@@ -26,7 +29,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             {
                 if (!EvaluationStack.TryPeek(out var ret))
                 {
-                    return DynamicValue.Zero;
+                    return DynamicValue.Null;
                 }
 
                 return ret;
@@ -40,19 +43,15 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
         public void ScheduleChunk(Chunk chunk, params DynamicValue[] args)
         {
-            if (Running)
-                Reset();
-            
-            for (var i = 0; i < args.Length; i++)
-                EvaluationStack.Push(args[i]);
-            
-            InvokeChunk(chunk, (byte)args.Length);
-            Resume();
+            _scheduledChunks.Enqueue(new ChunkExecInfo(chunk, args));
+            Running = true;
         }
 
         public void Reset()
         {
             Pause();
+            
+            _scheduledChunks.Clear();
             
             IteratorStates.Clear();
             EvaluationStack.Clear();
@@ -99,8 +98,21 @@ namespace EVIL.ExecutionEngine.Diagnostics
         {
             if (!CallStack.TryPeek(out var frame))
             {
-                Pause();
-                return;
+                if (_scheduledChunks.TryDequeue(out var execInfo))
+                {
+                    for (var i = 0; i < execInfo.Arguments.Length; i++)
+                    {
+                        EvaluationStack.Push(execInfo.Arguments[i]);
+                    }
+                    
+                    InvokeChunk(execInfo.Chunk, (byte)execInfo.Arguments.Length);
+                    frame = CallStack.Peek();
+                }
+                else
+                {
+                    Reset();
+                    return;
+                }
             }
 
             if (!frame.CanExecute)
@@ -404,6 +416,12 @@ namespace EVIL.ExecutionEngine.Diagnostics
                         break;
                     }
 
+                    case OpCode.LDNUL:
+                    {
+                        evstack.Push(DynamicValue.Null);
+                        break;
+                    }
+
                     case OpCode.CALL:
                     {
                         btmp = frame.FetchByte();
@@ -484,10 +502,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
                     case OpCode.RETN:
                     {
                         CallStack.Pop();
-
-                        if (!CallStack.TryPeek(out _))
-                            Pause();
-
                         break;
                     }
 
@@ -610,7 +624,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                         if (!VirtualMachine.GlobalTable.IsSet(a))
                         {
-                            a = DynamicValue.Zero;
+                            a = DynamicValue.Null;
                         }
 
                         evstack.Push(a);
@@ -764,13 +778,12 @@ namespace EVIL.ExecutionEngine.Diagnostics
                 }
                 catch
                 {
-                    EvaluationStack.Push(DynamicValue.Zero);
+                    EvaluationStack.Push(DynamicValue.Null);
 
                     if (!SwallowClrExceptions)
                         throw;
                 }
             }
-
             CallStack.Pop();
         }
     }

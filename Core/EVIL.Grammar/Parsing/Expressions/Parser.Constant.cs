@@ -48,6 +48,13 @@ namespace EVIL.Grammar.Parsing
                     return new StringConstant(token.Value) 
                         { Line = line, Column = col };
                 }
+                case TokenType.Null:
+                {
+                    var (line, col) = Match(Token.Null);
+
+                    return new NullConstant
+                        { Line = line, Column = col };
+                }
                 default:
                 {
                     throw new ParserException(

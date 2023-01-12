@@ -108,7 +108,7 @@ namespace EVIL.CILE
 
             try
             {
-                _evm.Run(programArguments);
+                _evm.RunChunk("main", null, programArguments);
             }
             catch (VirtualMachineException e)
             {

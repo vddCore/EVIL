@@ -25,6 +25,7 @@
       <item>undef</item>
       <item>loc</item>
       <item>fn</item>
+      <item>null</item>
     </list>
     <list name="aliases">
       <item>true</item>

@@ -1,0 +1,29 @@
+fn main() {
+  io.println(@(null == "null")); // false
+  io.println(@(null == 0)); // false
+  io.println(@(null == {})); // false
+  io.println(@(null == main)); // false
+  io.println(@(null == null)); // true
+  
+  if (null) { // false
+  
+  }
+  
+  if (0) { // false
+  
+  }
+  
+  if (1) { // true 
+  
+  }
+  
+  loc obj = {
+    null => "100", // runtime error, cannot use as key
+    "blah" => null,
+    0 => 21,
+    false => 37,
+    [420+69] => "fun times"
+  };
+
+  io.println(obj[null]); // also runtime error, cannot use as key
+}

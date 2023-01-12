@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,14 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Tests" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="test_asgn2.vil">
+      <None Update="Tests\callbacks.vil">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="test_ext.vil">
+      <None Update="Tests\null.vil">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

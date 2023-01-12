@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using EVIL.ExecutionEngine.Interop;
-using EVIL.Intermediate;
 using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine.Abstraction
@@ -14,10 +13,10 @@ namespace EVIL.ExecutionEngine.Abstraction
         private Table _table;
         private ClrFunction _clrFunction;
 
-        public static readonly DynamicValue Zero
-            = new(0) { IsReadOnly = true };
+        public static readonly DynamicValue Null
+            = new();
 
-        public bool IsReadOnly { get; set; }
+        public bool IsReadOnly { get; init; }
         public DynamicValueType Type { get; private set; }
 
         public string String
@@ -139,15 +138,32 @@ namespace EVIL.ExecutionEngine.Abstraction
             }
         }
 
+        public bool IsNull => Type == DynamicValueType.Null;
+        
         public bool IsTruth
         {
             get
             {
+                if (Type == DynamicValueType.Null)
+                    return false;
+                
                 if (Type == DynamicValueType.Number)
                     return _number != 0;
 
                 return true;
             }
+        }
+        
+        private DynamicValue()
+        {
+            _string = null;
+            _number = 0;
+            _chunk = null;
+            _table = null;
+            _clrFunction = null;
+
+            Type = DynamicValueType.Null;
+            IsReadOnly = true;
         }
 
         public DynamicValue(bool nativeBoolValue)
@@ -391,6 +407,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.Function => _chunk == other._chunk,
                 DynamicValueType.Table => _table == other._table,
                 DynamicValueType.ClrFunction => _clrFunction == other._clrFunction,
+                DynamicValueType.Null => Type == DynamicValueType.Null,
                 _ => false
             };
         }
@@ -409,6 +426,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.Function => _chunk.Instructions.GetHashCode(),
                 DynamicValueType.Table => _table.GetHashCode(),
                 DynamicValueType.ClrFunction => _clrFunction.GetHashCode(),
+                DynamicValueType.Null => Null.GetHashCode(),
                 _ => 0
             };
         }

@@ -75,7 +75,7 @@ namespace EVIL.VirtualMachine.TestDriver
             var evm = new EVM(_globalTable);
             evm.ImportLookupPaths.Add(AppContext.BaseDirectory);
             
-            var exe = BuildExecutable("./test_asgn2.vil");
+            var exe = BuildExecutable("./Tests/null.vil");
 
             if (exe != null)
             {
@@ -87,17 +87,7 @@ namespace EVIL.VirtualMachine.TestDriver
                 try
                 {
                     evm.Load(exe);
-                    evm.Run();
-
-                    using (var fs = new FileStream("ser.tbl", FileMode.Create))
-                    {
-                        _globalTable.Get("t").Table.Serialize(fs);
-                    }
-
-                    using (var fs = File.OpenRead("ser.tbl"))
-                    {
-                        var t = Table.Deserialize(fs);
-                    }
+                    evm.RunChunk("main");
                 }
                 catch (VirtualMachineException e)
                 {

@@ -9,19 +9,22 @@ namespace EVIL.ExecutionEngine.Abstraction
     public partial class Table
     {
         private static readonly byte[] Magic = { 0x45, 0x54, 0x42, 0x46 };
-        
+
         public void Serialize(Stream outStream)
         {
-            using (var bw = new BinaryWriter(outStream))
+            lock (_lock)
             {
-                bw.Write(Magic);
-                bw.Write(Entries.Count);
-
-                foreach (var kvp in Entries)
+                using (var bw = new BinaryWriter(outStream))
                 {
-                    var (key, val) = kvp;
-                    WriteDynamicValue(bw, key);
-                    WriteDynamicValue(bw, val);
+                    bw.Write(Magic);
+                    bw.Write(Entries.Count);
+
+                    foreach (var kvp in Entries)
+                    {
+                        var (key, val) = kvp;
+                        WriteDynamicValue(bw, key);
+                        WriteDynamicValue(bw, val);
+                    }
                 }
             }
         }
@@ -33,21 +36,25 @@ namespace EVIL.ExecutionEngine.Abstraction
                 case DynamicValueType.Number:
                     WriteMember(bw, value.Number);
                     break;
-                
+
                 case DynamicValueType.String:
                     WriteMember(bw, value.String);
                     break;
-                
+
                 case DynamicValueType.Function:
                     WriteMember(bw, value.Function);
                     break;
-                
+
                 case DynamicValueType.ClrFunction:
                     WriteMember(bw, value.ClrFunction);
                     break;
-                
+
                 case DynamicValueType.Table:
                     WriteMember(bw, value.Table);
+                    break;
+                
+                case DynamicValueType.Null:
+                    WriteMember(bw);
                     break;
             }
         }
@@ -64,6 +71,11 @@ namespace EVIL.ExecutionEngine.Abstraction
             Serializer.WriteString(bw, str);
         }
 
+        private static void WriteMember(BinaryWriter bw)
+        {
+            bw.Write((byte)DynamicValueType.Null);
+        }
+
         private static void WriteMember(BinaryWriter bw, Chunk chunk)
         {
             bw.Write((byte)DynamicValueType.Function);
@@ -75,7 +87,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             bw.Write((byte)DynamicValueType.ClrFunction);
             var declaringTypeName = clrFunction.Method.DeclaringType!.FullName;
             var methodName = clrFunction.Method.Name;
-            
+
             Serializer.WriteString(bw, declaringTypeName);
             Serializer.WriteString(bw, methodName);
         }
