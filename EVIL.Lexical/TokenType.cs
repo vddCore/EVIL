@@ -21,6 +21,7 @@
         ShiftLeft,
         
         Dot,
+        QuestionMark,
 
         Assign,
         AssignAdd,
