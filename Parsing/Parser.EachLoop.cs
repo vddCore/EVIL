@@ -17,18 +17,7 @@ namespace EVIL.Parsing
 
             Match(TokenType.Colon);
 
-            AstNode tableNode;
-            var identifier = Scanner.State.CurrentToken.Value as string;
-
-            Match(TokenType.Identifier);
-            if (Scanner.State.CurrentToken.Type == TokenType.LParenthesis)
-            {
-                tableNode = FunctionCall(identifier);
-            }
-            else
-            {
-                tableNode = Variable(identifier);
-            }
+            var tableNode = Operator();
             
             Match(TokenType.RParenthesis);
             Match(TokenType.LBrace);

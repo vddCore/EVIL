@@ -5,12 +5,12 @@ namespace EVIL.AST.Nodes
 {
     public class FunctionCallNode : AstNode
     {
-        public string MemberName { get; }
+        public AstNode Left { get; }
         public List<AstNode> Parameters { get; }
 
-        public FunctionCallNode(string memberName, List<AstNode> parameters)
+        public FunctionCallNode(AstNode left, List<AstNode> parameters)
         {
-            MemberName = memberName;
+            Left = left;
             Parameters = parameters;
         }
     }

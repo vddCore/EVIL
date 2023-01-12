@@ -39,10 +39,6 @@ namespace EVIL
                 return Visit(forLoopNode);
             else if (node is WhileLoopNode whileLoopNode)
                 return Visit(whileLoopNode);
-            else if (node is MemoryGetNode memoryCellNode)
-                return Visit(memoryCellNode);
-            else if (node is MemorySetNode memorySetNode)
-                return Visit(memorySetNode);
             else if (node is ReturnNode returnNode)
                 return Visit(returnNode);
             else if (node is BreakNode breakNode)
@@ -79,8 +75,6 @@ namespace EVIL
         public abstract DynValue Visit(ExitNode exitNode);
         public abstract DynValue Visit(ForLoopNode forLoopNode);
         public abstract DynValue Visit(WhileLoopNode whileLoopNode);
-        public abstract DynValue Visit(MemoryGetNode memoryCellNode);
-        public abstract DynValue Visit(MemorySetNode memorySetNode);
         public abstract DynValue Visit(ReturnNode returnNode);
         public abstract DynValue Visit(BreakNode breakNode);
         public abstract DynValue Visit(SkipNode nextNode);

@@ -7,9 +7,9 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(VariableDefinitionNode variableDefinitionNode)
         {
-            var identifier = variableDefinitionNode.Identifier;
+            var identifier = variableDefinitionNode.Variable.Identifier;
             
-            if (Environment.LocalScope.FindInScopeChain(variableDefinitionNode.Identifier) != null)
+            if (Environment.LocalScope.FindInScopeChain(identifier) != null)
             {
                 throw new RuntimeException(
                     $"Variable '{identifier}' was already defined in this scope.", variableDefinitionNode.Line
@@ -17,7 +17,7 @@ namespace EVIL.Execution
             }
 
             var dynValue = Environment.LocalScope.Set(identifier, new DynValue(0));
-            dynValue.CopyFrom(Visit(variableDefinitionNode.Right));
+            dynValue.CopyFrom(Visit(variableDefinitionNode.Assignment));
 
             return dynValue;
         }

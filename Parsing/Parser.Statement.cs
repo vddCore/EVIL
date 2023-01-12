@@ -18,7 +18,7 @@ namespace EVIL.Parsing
                 token = Scanner.State.CurrentToken;
 
                 if (token.Type == TokenType.Assign || token.Type == TokenType.LBracket)
-                    return Assignment(identifier);
+                    return Assignment(Variable(identifier));
                 else if (token.Type == TokenType.CompoundAdd)
                     return CompoundAssignment(identifier, CompoundAssignmentType.Add);
                 else if (token.Type == TokenType.CompoundSubtract)
@@ -36,17 +36,15 @@ namespace EVIL.Parsing
                 else if (token.Type == TokenType.CompoundBitwiseXor)
                     return CompoundAssignment(identifier, CompoundAssignmentType.BitwiseXor);
                 else if (token.Type == TokenType.LParenthesis)
-                    return FunctionCall(identifier);
+                    return FunctionCall(Variable(identifier));
                 else if (token.Type == TokenType.Increment)
-                    return PostIncrementation(identifier);
+                    return PostIncrementation(Variable(identifier));
                 else if (token.Type == TokenType.Decrement)
-                    return PostDecrementation(identifier);
+                    return PostDecrementation(Variable(identifier));
                 else throw new ParserException($"Expected an assignment or a function call, found '{token.Value}'.", Scanner.State);
             }
             else if (token.Type == TokenType.Var)
                 return VariableDefinition();
-            else if (token.Type == TokenType.LBracket)
-                return MemorySet();
             else if (token.Type == TokenType.Fn)
                 return FunctionDefinition();
             else if (token.Type == TokenType.If)
