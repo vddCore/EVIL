@@ -21,7 +21,7 @@ class Program
   private static Interpreter _interpreter;
   private static Environment _environment;
   
-  private static readonly string _source = "fn main() { print("hello, world!") }"
+  private static readonly string _source = "fn main() { print(\"hello, world!\") }"
   
   static async Task Main(string[] args)
   {
@@ -43,8 +43,67 @@ class Program
 No. But here's the gist:
 
 #### Data types
-Number (double-precision), string, table, function.
+Number, string, table, function.
 
+Strings support basic control codes and unicode character inserts.  
+Numbers are double-precision floating point numbers, hexadecimal format integers are supported.
+
+#### Operators
+##### Precedence (probably not final)
+&nbsp;&nbsp; 4. `||` and `&&`  
+&nbsp;&nbsp; 3. `>`, `<`, `>=`, `<=`, `==` and `!=`  
+&nbsp;&nbsp; 2. `+`, `-`, `<<` and `>>`  
+&nbsp;&nbsp; 1. `*`, `/`, `&`, `|`, `^` and `%`  
+
+##### Utility
+`@` - converts whatever's after it to a string representation  
+`#` - returns a variable's length - valid for strings and tables  
+`?` - returns a symbol's name
+
+##### Arithmetic
+`+` - addition (concatenation for strings)  
+`-` - subtraction  
+`/` - division  
+`*` - multiplication  
+
+All arithmetic operators support compound versions of themselves (e.g. `+=`)  
+
+##### Bitwise
+`<<` - shift left  
+`>>` - shift right  
+`^` - XOR  
+`&` - AND  
+`|` - OR  
+`~` - NOT  
+
+##### Logical
+`||` - Alternative  
+`&&` - Conjunction  
+
+##### Comparison
+`>` - greater than ('longer than' for strings)  
+`<` - lesser than ('shorter than' for strings)  
+`>=` greater than or equal to (analogous for string)   
+`<=` lesser than or equal to (analogous for string)  
+`==` equal to  
+`!=` not equal to  
+
+#### Keywords
+`fn` - define a function  
+`for` - c-style for-loop  
+`each` - foreach-loop  
+`undef` - undefine a previously defined symbol  
+`while` - while-loop  
+`local` - local variable definition  
+`if` - condition  
+`elif` - else-if  
+`else` - else  
+`break` - break out of a loop  
+`skip` - continue in normal languages  
+`ret` - return a value and finish function execution  
+`true` - interpreter alias for `1`  
+`false` - interpreter alias for `0`  
+`exit` - terminate script execution immediately  
 
 ```
 // All names functions must be top-level.
