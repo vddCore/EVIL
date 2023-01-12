@@ -16,6 +16,7 @@ namespace EVIL.Parsing
             TokenType.BitwiseOr,
             TokenType.BitwiseXor,
             TokenType.Modulo,
+            TokenType.ExistsIn
         };
 
         private AstNode Term()
@@ -56,6 +57,11 @@ namespace EVIL.Parsing
                 {
                     var line = Match(TokenType.Modulo);
                     node = new BinaryOperationNode(node, BinaryOperationType.Modulo, Factor()) { Line = line };
+                }
+                else if (token.Type == TokenType.ExistsIn)
+                {
+                    var line = Match(TokenType.ExistsIn);
+                    node = new BinaryOperationNode(node, BinaryOperationType.ExistsIn, Factor()) { Line = line };
                 }
             }
             return node;

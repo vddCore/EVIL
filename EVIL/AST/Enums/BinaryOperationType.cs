@@ -19,6 +19,7 @@
         Or,
         And,
         ShiftRight,
-        ShiftLeft
+        ShiftLeft,
+        ExistsIn
     }
 }
