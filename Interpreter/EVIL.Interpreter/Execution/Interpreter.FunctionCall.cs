@@ -66,11 +66,7 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                Environment.EnterScope();
-                {
-                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, args, functionCallExpression);
-                }
-                Environment.ExitScope();
+                retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, args, functionCallExpression);
             }
 
             return retVal;
@@ -79,11 +75,12 @@ namespace EVIL.Interpreter.Execution
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
             AstNode node)
         {
-            var scope = Environment.LocalScope;
+            var scope = new NameScope(Environment, null);
             var stackFrame = new StackFrame(name)
             {
                 InvokedAtLine = node.Line,
                 DefinedAtLine = scriptFunction.DefinedAtLine,
+                PreviousScope = Environment.LocalScope,
             };
 
             var iterator = 0;
@@ -92,6 +89,7 @@ namespace EVIL.Interpreter.Execution
             {
                 scope.Set(closure.Key, closure.Value);
             }
+
 
             for (var i = 0; i < scriptFunction.Parameters.Count; i++)
             {
@@ -120,7 +118,8 @@ namespace EVIL.Interpreter.Execution
             DynValue retVal;
 
             try
-            {
+            {                
+                Environment.LocalScope = scope;
                 Visit(scriptFunction.Statements);
                 retVal = Environment.CallStack.Peek().ReturnValue;
             }
@@ -143,6 +142,7 @@ namespace EVIL.Interpreter.Execution
             }
             finally
             {
+                Environment.LocalScope = Environment.StackTop.PreviousScope;
                 Environment.CallStack.Pop();
             }
 

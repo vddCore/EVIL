@@ -11,17 +11,34 @@ namespace EVIL.Interpreter.Execution
             {
                 var identifier = kvp.Key;
                 var initializer = kvp.Value;
-                
-                if (Environment.LocalScope.HasMember(identifier))
-                {
-                    throw new RuntimeException(
-                        $"Variable '{identifier}' was already defined in the current scope.",
-                        Environment,
-                        variableDefinition.Line
-                    );
-                }
 
-                var dynValue = Environment.LocalScope.Set(identifier, DynValue.Zero);
+                DynValue dynValue;
+                if (Environment.LocalScope != null)
+                {
+                    if (Environment.LocalScope.HasMember(identifier))
+                    {
+                        throw new RuntimeException(
+                            $"Variable '{identifier}' was already defined in the current scope.",
+                            Environment,
+                            variableDefinition.Line
+                        );
+                    }
+
+                    dynValue = Environment.LocalScope.Set(identifier, DynValue.Zero);
+                }
+                else
+                {
+                    if (Environment.GlobalScope.HasMember(identifier))
+                    {
+                        throw new RuntimeException(
+                            $"Variable '{identifier}' was already defined in the current scope.",
+                            Environment,
+                            variableDefinition.Line
+                        );
+                    }
+
+                    dynValue = Environment.GlobalScope.Set(identifier, DynValue.Zero);
+                }
 
                 if (initializer != null)
                 {
