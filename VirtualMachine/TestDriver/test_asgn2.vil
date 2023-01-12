@@ -1,11 +1,3 @@
-var x = {};
-x.test = 1;
+var ext = import("./test_ext.vil");
 
-fn do_thing() {
-  var a = x.test++;
-  io.println(a);
-}
-
-do_thing();
-io.println(++x.test);
-io.println(x.test);
+io.println(ext.add(2, 3));

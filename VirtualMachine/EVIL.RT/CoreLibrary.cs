@@ -1,13 +1,99 @@
-﻿using EVIL.ExecutionEngine;
+﻿using System.IO;
+using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
+using EVIL.Grammar;
+using EVIL.Grammar.Parsing;
+using EVIL.Intermediate.CodeGeneration;
+using EVIL.Lexical;
 using EVIL.RT;
 
 namespace EVIL.Interpreter.Runtime.Library
 {
     public class CoreLibrary
     {
+        [ClrFunction("import")]
+        public static DynamicValue Import(ExecutionContext ctx, params DynamicValue[] args)
+        {
+            args.ExpectExactly(1)
+                .ExpectStringAtIndex(0);
+
+            var relativeFilePath = args[0].String;
+            string targetPath = null;
+            
+            foreach (var path in ctx.VirtualMachine.ImportLookupPaths)
+            {
+                var tempPath = Path.Combine(path, relativeFilePath);
+
+                if (File.Exists(tempPath))
+                {
+                    targetPath = tempPath;
+                    break;
+                }
+            }
+
+            if (targetPath == null)
+            {
+                throw new EvilRuntimeException(
+                    $"Could not find '{relativeFilePath}' in any of the known lookup paths."
+                );
+            }
+
+            try
+            {
+                var lexer = new Lexer();
+                var parser = new Parser(lexer, false);
+                var compiler = new Compiler();
+
+                lexer.LoadSource(File.ReadAllText(targetPath));
+                var program = parser.Parse();
+                var exe = compiler.Compile(program);
+                
+                var tempVm = new EVM(new Table());
+                var rt = new EvilRuntime(tempVm.GlobalTable);
+                rt.LoadCoreRuntime();
+                
+                tempVm.ImportLookupPaths.Add(Path.GetDirectoryName(targetPath));
+                tempVm.Load(exe);
+
+                var chunk = tempVm.FindExposedChunk("export");
+
+                if (chunk == null)
+                {
+                    throw new EvilRuntimeException(
+                        $"Error during import: '{targetPath}' has no function named 'export'."
+                    );
+                }
+
+                tempVm.InvokeCallback(chunk, null);
+                tempVm.Start();
+                
+                var retVal = new DynamicValue(tempVm.MainExecutionContext.EvaluationStackTop, false);
+
+                tempVm.Stop();
+                tempVm.MainExecutionContext.Reset();
+                tempVm.GlobalTable.Entries.Clear();
+
+                return retVal;
+            }
+            catch (LexerException le)
+            {
+                throw new EvilRuntimeException($"Error while importing '{relativeFilePath}': {le.Message} (" +
+                                               $"line {le.Line}, column {le.Column})");
+            }
+            catch (ParserException pe)
+            {
+                throw new EvilRuntimeException($"Error while importing '{relativeFilePath}': {pe.Message} (" +
+                                               $"line {pe.Line}, column {pe.Column})");
+            }
+            catch (CompilerException ce)
+            {
+                throw new EvilRuntimeException($"Error while importing '{relativeFilePath}': {ce.Message} (" +
+                                               $"line {ce.Line}, column {ce.Column})");
+            }
+        }
+        
         [ClrFunction("type")]
         public static DynamicValue Type(ExecutionContext ctx, params DynamicValue[] args)
         {
