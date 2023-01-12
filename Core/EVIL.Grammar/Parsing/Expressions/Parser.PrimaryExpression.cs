@@ -26,11 +26,11 @@ namespace EVIL.Grammar.Parsing
             }
             else if (token.Type == TokenType.LBrace)
             {
-                return TableCreation();
+                return TableExpression();
             }
             else if (token.Type == TokenType.Identifier)
             {
-                return Variable();
+                return VariableReference();
             }
             else if (token.Type == TokenType.ExtraArguments)
             {

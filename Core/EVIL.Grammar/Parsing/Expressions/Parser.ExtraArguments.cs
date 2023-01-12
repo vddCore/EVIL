@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
         {
             if (_functionDescent == 0)
             {
-                throw new ParserException("Unexpected function arguments operator outside of a function.");
+                throw new ParserException("Unexpected '...' operator outside of a function.");
             }
 
             Match(Token.ExtraArguments);

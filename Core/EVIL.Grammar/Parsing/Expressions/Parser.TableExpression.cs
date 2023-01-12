@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private TableExpression TableCreation()
+        private TableExpression TableExpression()
         {
             var line = Match(Token.LBrace);
             var initializers = new List<Expression>();

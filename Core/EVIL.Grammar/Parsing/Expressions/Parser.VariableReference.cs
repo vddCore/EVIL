@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private VariableReference Variable()
+        private VariableReference VariableReference()
         {
             var identifier = CurrentToken.Value;
             var line = Match(Token.Identifier);
