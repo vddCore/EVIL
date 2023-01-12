@@ -4,8 +4,8 @@ namespace EVIL.ExecutionEngine
 {
     public class InvalidKeyTypeException : VirtualMachineException
     {
-        public InvalidKeyTypeException(DynamicValueType type) 
-            : base($"Type {type} cannot be used as a table key.")
+        public InvalidKeyTypeException(DynamicValueType indexedType, DynamicValueType indexingType) 
+            : base($"Type {indexingType} cannot be used as a key to index {indexedType}.")
         {
         }
     }

@@ -53,54 +53,8 @@ namespace EVIL.Intermediate
             
             base.Visit(node);
         }
-
-        public override void Visit(Program program)
-        {
-            foreach (var node in program.Statements)
-                Visit(node);
-
-            _executable.MainChunk
-                .GetCodeGenerator()
-                .Emit(OpCode.HLT);
-        }
-
-        public override void Visit(ConditionalExpression conditionalExpression)
-        {
-        }
-
-        public override void Visit(NumberConstant numberConstant)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            EmitConstantLoad(cg, numberConstant.Value);
-        }
-
-        public override void Visit(StringConstant stringConstant)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            EmitConstantLoad(cg, stringConstant.Value);
-        }
-
+        
         public override void Visit(FunctionExpression functionExpression)
-        {
-        }
-
-        public override void Visit(BreakStatement breakStatement)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            cg.Emit(OpCode.JUMP, LoopEndLabels.Peek());
-        }
-
-        public override void Visit(SkipStatement nextStatement)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            cg.Emit(OpCode.JUMP, LoopContinueLabels.Peek());
-        }
-
-        public override void Visit(TableExpression tableExpression)
-        {
-        }
-
-        public override void Visit(IndexerExpression indexerExpression)
         {
         }
 
@@ -114,19 +68,6 @@ namespace EVIL.Intermediate
 
         public override void Visit(NameOfExpression nameOfExpression)
         {
-        }
-
-        public override void Visit(ExpressionStatement expressionStatement)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            Visit(expressionStatement.Expression);
-            cg.Emit(OpCode.POP);
-        }
-
-        public override void Visit(ExtraArgumentsExpression extraArgumentsExpression)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            cg.Emit(OpCode.XARGS);
         }
 
         private void EnterScope()

@@ -3,13 +3,13 @@
     public enum OpCode : byte
     {
         // ---------- [ GENERIC
-        NOP   = 0x00,
-        POP   = 0x01,
-        HLT   = 0x02,
-        DUP   = 0x03,
+        NOP   = 0x00, // [N]o [OP]eration
+        POP   = 0x01, // [POP] from evaluation stack
+        HLT   = 0x02, // [H]a[LT] execution
+        DUP   = 0x03, // [DUP]licate the top of evaluation stack
         
         // ---------- [ ARITHMETIC
-        ADD   = 0x10,  //
+        ADD   = 0x10,  // [ADD]
         SUB   = 0x11,  // [SUB]tract
         MUL   = 0x12,  // [MUL]tiply
         DIV   = 0x13,  // [DIV]ivide
@@ -20,20 +20,20 @@
         SHL   = 0x18,  // [SH]ift [L]eft
         
         // ---------- [ LOGICAL
-        AND   = 0x20,
-        NOT   = 0x21,
-        OR    = 0x22,
-        XOR   = 0x23,
+        AND   = 0x20,  // Bitwise [AND]
+        NOT   = 0x21,  // Bitwise [NOT]
+        OR    = 0x22,  // Bitwise [OR]
+        XOR   = 0x23,  // Bitwise [XOR]
         CEQ   = 0x24,  // [C]ompare ([EQ]ual)
         CNE   = 0x25,  // [C]ompare ([N]ot [E]qual)
         CGT   = 0x26,  // [C]ompare ([G]reater [T]han)
         CLT   = 0x27,  // [C]ompare ([L]ess [T]han)
         CGE   = 0x28,  // [C]ompare ([G]reater or [E]qual)
         CLE   = 0x29,  // [C]ompare ([L]ess or [E]qual)
-        LOR   = 0x2A,
-        LAND  = 0x2B,
-        LNOT  = 0x2C,
-        XINT  = 0x2D,
+        LOR   = 0x2A,  // [L]ogical [OR]
+        LAND  = 0x2B,  // [L]ogical [AND]
+        LNOT  = 0x2C,  // [L]ogical [NOT]
+        XIST  = 0x2D,  // Check if A e[XIST]s in B 
         
         // ---------- [ BRANCHING
         JUMP  = 0x30, // Unconditionally [JUMP]
@@ -53,12 +53,12 @@
         LDG = 0x51,   // [L]oa[D] [G]lobal
         LDL = 0x52,   // [L]oa[D] [L]ocal
         LDA = 0x53,   // [L]oa[D] [A]rgument
-        LTE = 0x54,   // [L]oad [T]able [E]ntry
         
         // ---------- [ MISCELLANEOUS
         NEWTB = 0x60, // Create a [NEW] [T]a[B]le
-        TONUM = 0x61, // 
-        TOSTR = 0x62,
-        XARGS = 0x63,
+        INDEX = 0x61, // Attempt to [INDEX] a type
+        TONUM = 0x62, // Convert [TO] [NUM]ber
+        TOSTR = 0x63, // Convert [TO] [STR]ing
+        XARGS = 0x64, // Load e[X]tra [ARG]ument[S]
     }
 }

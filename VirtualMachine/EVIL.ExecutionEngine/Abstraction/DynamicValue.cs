@@ -269,6 +269,29 @@ namespace EVIL.ExecutionEngine.Abstraction
             };
         }
 
+        public DynamicValue Index(DynamicValue key)
+        {
+            switch (Type)
+            {
+                case DynamicValueType.String:
+                    if (key.Type != DynamicValueType.Number)
+                        throw new InvalidKeyTypeException(Type, key.Type);
+
+                    var index = key.AsInteger();
+
+                    if (index >= _string.Length)
+                        throw new IndexOutOfBoundsException(index, Type);
+
+                    return new DynamicValue(_string[index].ToString());
+                
+                case DynamicValueType.Table:
+                    return _table.Get(key);
+                
+                default: 
+                    throw new UnindexableTypeException(Type);
+            }
+        }
+
         public DynamicValue CopyToString()
             => new(AsString());
 

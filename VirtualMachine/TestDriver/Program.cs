@@ -1,8 +1,7 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
 using EVIL.Intermediate;
@@ -11,7 +10,7 @@ namespace EVIL.VirtualMachine.TestDriver
 {
     public static class Program
     {
-        private static DynamicValue TestClrFunction(EVM evm, params DynamicValue[] args)
+        private static DynamicValue PrintClrFunction(EVM evm, params DynamicValue[] args)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -20,6 +19,18 @@ namespace EVIL.VirtualMachine.TestDriver
             
             return DynamicValue.Zero;
         }
+        
+        private static DynamicValue PrintLnClrFunction(EVM evm, params DynamicValue[] args)
+        {
+            for (var i = 0; i < args.Length; i++)
+            {
+                Console.Write(args[i].AsString());
+            }
+            Console.WriteLine();
+            
+            return DynamicValue.Zero;
+        }
+
         
         public static void Main(string[] args)
         {
@@ -30,14 +41,28 @@ namespace EVIL.VirtualMachine.TestDriver
             var compiler = new Compiler();
             var disasm = new Disassembler();
 
-            var source = File.ReadAllText("./test_asgn2.vil");
-            lexer.LoadSource(source);
-            var programTreeRoot = parser.Parse();
+            EVIL.Grammar.AST.Nodes.Program program;
+            try
+            {
+                var source = File.ReadAllText("./test_asgn2.vil");
+                lexer.LoadSource(source);
+                program = parser.Parse();
+            }
+            catch (LexerException le)
+            {
+                Console.WriteLine($"Parsing error on line {le.Line}: {le.Message}");
+                return;
+            }
+            catch (ParserException pe)
+            {
+                Console.WriteLine($"Parsing error on line {pe.LexerState.Line}: {pe.Message}");
+                return;
+            }
             
             Executable executable;
             try
             {
-                executable = compiler.Compile(programTreeRoot);
+                executable = compiler.Compile(program);
             }
             catch (CompilerException e)
             {
@@ -49,7 +74,12 @@ namespace EVIL.VirtualMachine.TestDriver
             
             Console.WriteLine("-[progRUN]------------");
             var evm = new EVM(executable);
-            evm.SetGlobal("print", new DynamicValue(TestClrFunction));
+
+            var ioTable = new Table();
+            ioTable.Set(new("print"), new DynamicValue(PrintClrFunction));
+            ioTable.Set(new("println"), new DynamicValue(PrintLnClrFunction));
+            evm.SetGlobal("io", new(ioTable));
+            
             evm.Run();
             Console.WriteLine("-[evSTACK]------------");
             Console.WriteLine(evm.DumpEvaluationStack());

@@ -87,7 +87,7 @@ namespace EVIL.Intermediate
                     break;
 
                 case BinaryOperationType.ExistsIn:
-                    cg.Emit(OpCode.XINT);
+                    cg.Emit(OpCode.XIST);
                     break;
 
                 default:
