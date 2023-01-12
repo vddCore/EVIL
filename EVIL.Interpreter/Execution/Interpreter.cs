@@ -11,7 +11,9 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter : AstVisitor<DynValue>
     {
-        private List<Constraint> _constraints = new();
+        private readonly List<Constraint> _constraints = new();
+        private readonly Stack<StackFrame> _preCallStack = new();
+        private readonly Stack<FunctionArguments> _argumentStack = new();
 
         public string MainFilePath { get; private set; }
         
@@ -92,14 +94,17 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
 
-                var csi = new StackFrame(entryNode.Identifier, entryNode.ParameterNames)
+                _preCallStack.Push(new StackFrame(entryNode.Identifier)
                 {
                     DefinedAtLine = entryNode.Line
-                };
+                });
+                var preCallStackFrame = _preCallStack.Peek();
+
+                Visit(entryNode.Parameters);
 
                 var scope = Environment.EnterScope(true);
                 {
-                    if (entryNode.ParameterNames.Count == 1)
+                    if (preCallStackFrame.Parameters.Count == 1)
                     {
                         var tbl = new Table();
                         for (var i = 0; i < args.Length; i++)
@@ -107,9 +112,9 @@ namespace EVIL.Interpreter.Execution
                             tbl[i] = new DynValue(args[i]);
                         }
 
-                        scope.Set(entryNode.ParameterNames[0], new DynValue(tbl));
+                        scope.Set(preCallStackFrame.Parameters[0], new DynValue(tbl));
                     }
-                    else if (entryNode.ParameterNames.Count > 1)
+                    else if (preCallStackFrame.Parameters.Count > 1)
                     {
                         throw new RuntimeException(
                             "Entry point function can only have 1 argument.",
@@ -118,7 +123,7 @@ namespace EVIL.Interpreter.Execution
                         );
                     }
 
-                    Environment.CallStack.Push(csi);
+                    Environment.CallStack.Push(_preCallStack.Pop());
                     result = Visit(entryNode.Statements);
 
                     if (Environment.CallStack.Count > 0)
@@ -149,20 +154,23 @@ namespace EVIL.Interpreter.Execution
 
         public DynValue ExecuteScriptFunction(string frameName, ScriptFunction function, FunctionArguments args)
         {
-            var frame = new StackFrame(frameName, function.ParameterNames);
+            _preCallStack.Push(new StackFrame(frameName));
+            var preCallStackFrame = _preCallStack.Peek();
+            
+            Visit(function.Parameters);
             DynValue retval;
 
             Environment.EnterScope(true);
             {
-                for (var i = 0; i < function.ParameterNames.Count; i++)
+                for (var i = 0; i < preCallStackFrame.Parameters.Count; i++)
                 {
                     if (i >= args.Count)
                         break;
 
-                    Environment.LocalScope.Set(function.ParameterNames[i], args[i]);
+                    Environment.LocalScope.Set(preCallStackFrame.Parameters[i], args[i]);
                 }
 
-                Environment.CallStack.Push(frame);
+                Environment.CallStack.Push(preCallStackFrame);
                 retval = Visit(function.Statements);
             }
             Environment.CallStack.Pop();

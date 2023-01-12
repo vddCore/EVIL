@@ -83,6 +83,7 @@ namespace EVIL.Interpreter.Execution
                     return new DynValue(!operand.IsTruth);
 
                 case UnaryOperationType.BitwiseNot:
+                {
                     if (operand.Type != DynValueType.Number)
                     {
                         throw new RuntimeException(
@@ -93,8 +94,10 @@ namespace EVIL.Interpreter.Execution
                     }
 
                     return new DynValue(~(int)operand.Number);
-
+                }
+                
                 case UnaryOperationType.Floor:
+                {
                     if (operand.Type != DynValueType.Number)
                     {
                         throw new RuntimeException(
@@ -103,8 +106,9 @@ namespace EVIL.Interpreter.Execution
                             unaryOperationNode.Line
                         );
                     }
-                    
+
                     return new DynValue(Math.Floor(operand.Number));
+                }
 
                 default:
                 {

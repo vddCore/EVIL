@@ -11,7 +11,7 @@ namespace EVIL.Interpreter.Execution
 
             var fn = new ScriptFunction(
                 scriptFunctionDefinitionNode.Statements,
-                scriptFunctionDefinitionNode.ParameterNames,
+                scriptFunctionDefinitionNode.Parameters,
                 scriptFunctionDefinitionNode.Line
             );
 

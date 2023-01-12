@@ -169,7 +169,7 @@ namespace EVIL.REPL
             foreach (var frame in stackTrace)
             {
                 sb.AppendLine(
-                    $"at {frame.FunctionName}({string.Join(',', frame.ParameterNames)})\n" +
+                    $"at {frame.FunctionName}({string.Join(',', frame.Parameters)})\n" +
                     $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
                     $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
                 );

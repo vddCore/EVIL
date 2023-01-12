@@ -96,5 +96,11 @@
     <Compile Update="Execution\Interpreter.ConditionalExpression.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
+    <Compile Update="Execution\Interpreter.ParameterList.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Execution\Interpreter.ArgumentList.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

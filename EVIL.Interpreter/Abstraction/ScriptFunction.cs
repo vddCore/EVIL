@@ -9,13 +9,15 @@ namespace EVIL.Interpreter.Abstraction
         public Dictionary<string, DynValue> Closures { get; } = new();
 
         public BlockStatementNode Statements { get; }
-        public List<string> ParameterNames { get; }
+        public ParameterListNode Parameters { get; }
+        
         public int DefinedAtLine { get; }
 
-        public ScriptFunction(BlockStatementNode statements, List<string> parameterNames, int definedAtLine)
+        public ScriptFunction(BlockStatementNode statements,ParameterListNode parameters, int definedAtLine)
         {
             Statements = statements;
-            ParameterNames = parameterNames;
+            Parameters = parameters;
+            
             DefinedAtLine = definedAtLine;
         }
     }

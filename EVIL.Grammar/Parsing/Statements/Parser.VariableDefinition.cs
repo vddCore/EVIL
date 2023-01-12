@@ -12,10 +12,16 @@ namespace EVIL.Grammar.Parsing
 
             var identifier = CurrentToken.Value;
             Match(TokenType.Identifier);
-            
-            var assignment = AssignmentExpression(new VariableNode(identifier));
 
-            return new VariableDefinitionNode(identifier, assignment) { Line = line };
+            AstNode initializer = null;
+            
+            if (CurrentToken.Type == TokenType.Assign)
+            {
+                Match(TokenType.Assign);
+                initializer = AssignmentExpression();
+            }
+
+            return new VariableDefinitionNode(identifier, initializer) { Line = line };
         }
     }
 }

@@ -19,7 +19,13 @@ namespace EVIL.Interpreter.Execution
             }
 
             var dynValue = Environment.LocalScope.Set(identifier, DynValue.Zero);
-            dynValue.CopyFrom(Visit(variableDefinitionNode.Right));
+
+            if (variableDefinitionNode.Initializer != null)
+            {
+                dynValue.CopyFrom(
+                    Visit(variableDefinitionNode.Initializer)
+                );
+            }
 
             return dynValue;
         }
