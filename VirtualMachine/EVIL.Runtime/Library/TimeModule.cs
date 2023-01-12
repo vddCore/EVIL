@@ -1,13 +1,12 @@
 ﻿using System;
-using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 
-namespace EVIL.Interpreter.Runtime.Library
+namespace EVIL.Runtime.Library
 {
     [ClrLibrary("time")]
-    public class TimeLibrary
+    public class TimeModule
     {
         [ClrFunction("stamp", RuntimeAlias = "time.stamp")]
         public static DynamicValue Stamp(ExecutionContext ctx, params DynamicValue[] args)

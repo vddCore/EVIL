@@ -1,13 +1,12 @@
 using System;
-using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 
-namespace EVIL.RT
+namespace EVIL.Runtime.Library
 {
     [ClrLibrary("str")]
-    public class StringLibrary
+    public class StringModule
     {
         [ClrFunction("len")]
         public static DynamicValue Length(ExecutionContext ctx, params DynamicValue[] args)

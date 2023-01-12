@@ -1,7 +1,7 @@
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 
-namespace EVIL.RT
+namespace EVIL.Runtime
 {
     public static class ArgsExtensions
     {

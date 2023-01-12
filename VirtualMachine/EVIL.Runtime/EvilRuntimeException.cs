@@ -1,6 +1,6 @@
 using System;
 
-namespace EVIL.RT
+namespace EVIL.Runtime
 {
     public class EvilRuntimeException : Exception
     {

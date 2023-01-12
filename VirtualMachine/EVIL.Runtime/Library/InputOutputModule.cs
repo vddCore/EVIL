@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Text;
-using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 
-namespace EVIL.RT
+namespace EVIL.Runtime.Library
 {
     [ClrLibrary("io")]
-    public class IoLibrary
+    public class InputOutputModule
     {
         [ClrFunction("print", RuntimeAlias = "io.print")]
         public static DynamicValue Print(ExecutionContext ctx, params DynamicValue[] args)
