@@ -1,7 +1,5 @@
-var i = 99;
-do {
-  print(i);
-  
-  if (i == 50)
-    break;
-} while(i--);
+var i = 1;
+
+while ((i -= 0.01) > 0) {
+  print(i, "\n");
+}

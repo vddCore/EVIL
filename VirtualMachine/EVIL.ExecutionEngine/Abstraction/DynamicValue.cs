@@ -4,10 +4,10 @@ using EVIL.Intermediate;
 
 namespace EVIL.ExecutionEngine.Abstraction
 {
-    public class DynamicValue
+    public struct DynamicValue
     {
         private string _string;
-        private double? _number;
+        private double _number;
         private Chunk _chunk;
         private Table _table;
         private ClrFunction _clrFunction;
@@ -30,7 +30,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return;
 
                 _string = value;
-                _number = null;
+                _number = 0;
                 _chunk = null;
                 _table = null;
                 _clrFunction = null;
@@ -41,9 +41,14 @@ namespace EVIL.ExecutionEngine.Abstraction
 
         public double Number
         {
-            get => _number ??
-                   throw new UnexpectedTypeException(
-                       $"Attempted to use a {Type} as Number");
+            get
+            {
+                if (Type != DynamicValueType.Number)
+                    throw new UnexpectedTypeException(
+                        $"Attempted to use a {Type} as Number");
+
+                return _number;
+            }
 
             set
             {
@@ -72,7 +77,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return;
 
                 _string = null;
-                _number = null;
+                _number = 0;
                 _chunk = value;
                 _table = null;
                 _clrFunction = null;
@@ -93,7 +98,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return;
 
                 _string = null;
-                _number = null;
+                _number = 0;
                 _chunk = null;
                 _table = value;
                 _clrFunction = null;
@@ -114,7 +119,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return;
 
                 _string = null;
-                _number = null;
+                _number = 0;
                 _chunk = null;
                 _table = null;
                 _clrFunction = value;
@@ -159,7 +164,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             IsReadOnly = other.IsReadOnly && copyReadOnlyState;
 
             _string = null;
-            _number = null;
+            _number = 0;
             _chunk = null;
             _table = null;
             _clrFunction = null;
@@ -191,7 +196,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public DynamicValue(string str)
         {
             _string = str;
-            _number = null;
+            _number = 0;
             _chunk = null;
             _table = null;
             _clrFunction = null;
@@ -215,7 +220,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public DynamicValue(Chunk chunk)
         {
             _string = null;
-            _number = null;
+            _number = 0;
             _chunk = chunk;
             _table = null;
             _clrFunction = null;
@@ -227,7 +232,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public DynamicValue(Table table)
         {
             _string = null;
-            _number = null;
+            _number = 0;
             _chunk = null;
             _table = table;
             _clrFunction = null;
@@ -239,7 +244,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public DynamicValue(ClrFunction clrFunction)
         {
             _string = null;
-            _number = null;
+            _number = 0;
             _chunk = null;
             _table = null;
             _clrFunction = clrFunction;
@@ -255,7 +260,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         {
             return Type switch
             {
-                DynamicValueType.Number => _number.ToString(),
+                DynamicValueType.Number => _number.ToString(CultureInfo.InvariantCulture),
                 DynamicValueType.String => _string,
                 DynamicValueType.Table => $"Table[{_table.Entries.Count}]",
                 DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.ParameterCount}]",
@@ -284,7 +289,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return new DynamicValue(dbl);
                 
                 case DynamicValueType.Number:
-                    return new DynamicValue(_number!.Value);
+                    return new DynamicValue(_number);
                 
                 default: 
                     throw new TypeConversionException(Type, DynamicValueType.Number);   
@@ -317,7 +322,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             return Type switch
             {
                 DynamicValueType.String => _string.GetHashCode(),
-                DynamicValueType.Number => _number!.Value.GetHashCode(),
+                DynamicValueType.Number => _number.GetHashCode(),
                 DynamicValueType.Function => _chunk.Instructions.GetHashCode(),
                 DynamicValueType.Table => _table.GetHashCode(),
                 DynamicValueType.ClrFunction => _clrFunction.GetHashCode(),
@@ -326,9 +331,9 @@ namespace EVIL.ExecutionEngine.Abstraction
         }
 
         public static bool operator ==(DynamicValue left, DynamicValue right)
-            => left != null && left.Equals(right);
+            => left.Equals(right);
 
         public static bool operator !=(DynamicValue left, DynamicValue right)
-            => left != null && !left.Equals(right);
+            => !left.Equals(right);
     }
 }

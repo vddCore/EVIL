@@ -43,11 +43,11 @@ namespace EVIL.Intermediate
         {
             if (node.Line != _lastLine)
             {
-                if (node.Line == 0)
-                {
-                    Console.WriteLine(node.GetType().Name);
-                }
-                Console.WriteLine(node.Line);
+                // if (node.Line == 0)
+                // {
+                //     //Console.WriteLine(node.GetType().Name);
+                // }
+                // //Console.WriteLine(node.Line);
                 _lastLine = node.Line;
             }
             
@@ -71,13 +71,13 @@ namespace EVIL.Intermediate
         public override void Visit(NumberConstant numberConstant)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            EmitConstantLoadSequence(cg, numberConstant.Value);
+            EmitConstantLoad(cg, numberConstant.Value);
         }
 
         public override void Visit(StringConstant stringConstant)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            EmitConstantLoadSequence(cg, stringConstant.Value);
+            EmitConstantLoad(cg, stringConstant.Value);
         }
 
         public override void Visit(FunctionExpression functionExpression)

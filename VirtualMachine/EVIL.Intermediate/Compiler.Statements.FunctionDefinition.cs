@@ -44,7 +44,7 @@ namespace EVIL.Intermediate
             if (CurrentChunk.Instructions.Count == 0 || 
                 CurrentChunk.Instructions[^1] != (byte)OpCode.RETN)
             {
-                EmitConstantLoadSequence(cg, 0);
+                EmitConstantLoad(cg, 0);
                 cg.Emit(OpCode.RETN);
             }
             LeaveScope();

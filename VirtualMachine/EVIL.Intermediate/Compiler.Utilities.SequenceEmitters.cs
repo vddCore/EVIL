@@ -6,7 +6,7 @@ namespace EVIL.Intermediate
 {
     public partial class Compiler
     {
-        private void EmitConstantLoadSequence(CodeGenerator cg, string constant)
+        private void EmitConstantLoad(CodeGenerator cg, string constant)
         {
             cg.Emit(
                 OpCode.LDC,
@@ -14,7 +14,7 @@ namespace EVIL.Intermediate
             );
         }
 
-        private void EmitConstantLoadSequence(CodeGenerator cg, double constant)
+        private void EmitConstantLoad(CodeGenerator cg, double constant)
         {
             cg.Emit(
                 OpCode.LDC,
@@ -22,7 +22,7 @@ namespace EVIL.Intermediate
             );
         }
         
-        private void EmitGlobalStoreSequence(CodeGenerator cg, string identifier)
+        private void EmitGlobalStore(CodeGenerator cg, string identifier)
         {
             cg.Emit(
                 OpCode.STG,
@@ -32,7 +32,7 @@ namespace EVIL.Intermediate
             );
         }
 
-        private void EmitGlobalLoadSequence(CodeGenerator cg, string identifier)
+        private void EmitGlobalLoad(CodeGenerator cg, string identifier)
         {
             cg.Emit(
                 OpCode.LDG,
@@ -42,7 +42,7 @@ namespace EVIL.Intermediate
             );
         }
 
-        private void EmitVariableStoreSequence(CodeGenerator cg, VariableReferenceExpression varRef)
+        private void EmitVariableStore(CodeGenerator cg, VariableReferenceExpression varRef)
         {
             Scope localScope = null;
 
@@ -73,16 +73,16 @@ namespace EVIL.Intermediate
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Global)
                 {
-                    EmitGlobalStoreSequence(cg, varRef.Identifier);
+                    EmitGlobalStore(cg, varRef.Identifier);
                 }
             }
             else
             {
-                EmitGlobalStoreSequence(cg, varRef.Identifier);
+                EmitGlobalStore(cg, varRef.Identifier);
             }
         }
 
-        private void EmitVariableLoadSequence(CodeGenerator cg, VariableReferenceExpression varRef)
+        private void EmitVariableLoad(CodeGenerator cg, VariableReferenceExpression varRef)
         {
             Scope localScope = null;
 
@@ -105,17 +105,16 @@ namespace EVIL.Intermediate
                 }
                 else if (sym == SymbolInfo.Undefined || sym == SymbolInfo.Global)
                 {
-                    EmitGlobalLoadSequence(cg, varRef.Identifier);
+                    EmitGlobalLoad(cg, varRef.Identifier);
                 }
             }
             else
             {
-                EmitGlobalLoadSequence(cg, varRef.Identifier);
+                EmitGlobalLoad(cg, varRef.Identifier);
             }
         }
 
-        private void EmitCompoundAssignmentSequence(CodeGenerator cg, VariableReferenceExpression varRef,
-            AssignmentOperationType op)
+        private void EmitCompoundAssignment(CodeGenerator cg, AssignmentOperationType op)
         {
             switch (op)
             {
@@ -123,52 +122,42 @@ namespace EVIL.Intermediate
                     break;
 
                 case AssignmentOperationType.Add:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.ADD);
                     break;
 
                 case AssignmentOperationType.Subtract:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.SUB);
                     break;
 
                 case AssignmentOperationType.Divide:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.DIV);
                     break;
 
                 case AssignmentOperationType.Multiply:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.MUL);
                     break;
 
                 case AssignmentOperationType.Modulo:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.MOD);
                     break;
 
                 case AssignmentOperationType.BitwiseAnd:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.AND);
                     break;
 
                 case AssignmentOperationType.BitwiseOr:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.OR);
                     break;
 
                 case AssignmentOperationType.BitwiseXor:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.XOR);
                     break;
 
                 case AssignmentOperationType.ShiftRight:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.SHR);
                     break;
 
                 case AssignmentOperationType.ShiftLeft:
-                    EmitVariableLoadSequence(cg, varRef);
                     cg.Emit(OpCode.SHL);
                     break;
             }

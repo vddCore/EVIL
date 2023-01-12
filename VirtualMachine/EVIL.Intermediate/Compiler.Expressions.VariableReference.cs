@@ -7,7 +7,7 @@ namespace EVIL.Intermediate
         public override void Visit(VariableReferenceExpression variableReferenceExpression)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            EmitVariableLoadSequence(cg, variableReferenceExpression);
+            EmitVariableLoad(cg, variableReferenceExpression);
         }
     }
 }
