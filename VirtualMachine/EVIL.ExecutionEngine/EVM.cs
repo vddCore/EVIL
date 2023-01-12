@@ -684,12 +684,14 @@ namespace EVIL.ExecutionEngine
                             evstack.Push(iterState.CurrentPair.Key);
                         }
                     }
-                    else
-                    {
-                        IteratorStates.Pop();
-                    }
 
                     evstack.Push(new(result));
+                    break;
+                }
+
+                case OpCode.ENDE:
+                {
+                    IteratorStates.Pop();
                     break;
                 }
 
