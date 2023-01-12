@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Intermediate;
+using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine.Diagnostics
 {

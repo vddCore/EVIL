@@ -5,6 +5,7 @@ using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.Intermediate;
+using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine
 {
