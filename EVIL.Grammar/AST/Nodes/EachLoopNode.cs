@@ -5,17 +5,16 @@
         public AstNode KeyNode { get; }
         public AstNode ValueNode { get; }
         public AstNode TableNode { get; }
-        public BlockStatementNode Statements { get; }
+        public AstNode Statement { get; }
 
-        public EachLoopNode(AstNode keyNode, AstNode valueNode, AstNode tableNode, BlockStatementNode statements)
+        public EachLoopNode(AstNode keyNode, AstNode valueNode, AstNode tableNode, AstNode statement)
         {
             KeyNode = keyNode;
             ValueNode = valueNode;
             TableNode = tableNode;
+            Statement = statement;
 
-            Statements = statements;
-
-            Reparent(KeyNode, ValueNode, TableNode, Statements);
+            Reparent(KeyNode, ValueNode, TableNode, Statement);
         }
     }
 }

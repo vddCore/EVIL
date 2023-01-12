@@ -30,7 +30,7 @@ namespace EVIL.Interpreter.Execution
                        
                         if (!loopStackTop.SkipThisIteration)
                         {
-                            Visit(forLoopNode.Statements);
+                            Visit(forLoopNode.Statement);
                         }
                         
                         if (loopStackTop.BreakLoop)

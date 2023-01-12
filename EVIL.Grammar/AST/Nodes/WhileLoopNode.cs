@@ -3,14 +3,14 @@
     public class WhileLoopNode : AstNode
     {
         public AstNode Expression { get; }
-        public BlockStatementNode Statements { get; }
+        public AstNode Statement { get; }
 
-        public WhileLoopNode(AstNode expression, BlockStatementNode statements)
+        public WhileLoopNode(AstNode expression, AstNode statement)
         {
             Expression = expression;
-            Statements = statements;
+            Statement = statement;
 
-            Reparent(Expression, Statements);
+            Reparent(Expression, Statement);
         }
     }
 }

@@ -39,7 +39,7 @@ namespace EVIL.Interpreter.Execution
                             keyValue.CopyFrom(element.Key);
                             valueValue.CopyFrom(element.Value);
 
-                            Visit(eachLoopNode.Statements);
+                            Visit(eachLoopNode.Statement);
                         }
                     }
                     catch (InvalidOperationException)

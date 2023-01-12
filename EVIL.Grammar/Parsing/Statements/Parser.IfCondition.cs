@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
             Match(Token.RParenthesis);
             var node = new ConditionNode { Line = line };
 
-            node.IfElifBranches.Add(expression, BlockStatement());
+            node.IfElifBranches.Add(expression, Statement());
 
             while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
             {
@@ -28,12 +28,12 @@ namespace EVIL.Grammar.Parsing
                     expression = AssignmentExpression();
 
                     Match(Token.RParenthesis);
-                    node.IfElifBranches.Add(expression, BlockStatement());
+                    node.IfElifBranches.Add(expression, Statement());
                 }
                 else if (CurrentToken.Type == TokenType.Else)
                 {
                     Match(Token.Else);
-                    node.ElseBranch = BlockStatement();
+                    node.ElseBranch = Statement();
                 }
                 else throw new ParserException($"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'", Lexer.State);
             }

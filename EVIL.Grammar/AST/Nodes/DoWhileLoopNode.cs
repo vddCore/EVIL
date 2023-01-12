@@ -3,14 +3,14 @@
     public class DoWhileLoopNode : AstNode
     {
         public AstNode ConditionExpression { get; }
-        public BlockStatementNode Statements { get; }
+        public AstNode Statement { get; }
 
-        public DoWhileLoopNode(AstNode conditionExpression, BlockStatementNode statements)
+        public DoWhileLoopNode(AstNode conditionExpression, AstNode statement)
         {
             ConditionExpression = conditionExpression;
-            Statements = statements;
+            Statement = statement;
 
-            Reparent(ConditionExpression, Statements);
+            Reparent(ConditionExpression, Statement);
         }
     }
 }

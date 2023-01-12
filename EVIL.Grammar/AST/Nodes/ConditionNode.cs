@@ -4,7 +4,7 @@ namespace EVIL.Grammar.AST.Nodes
 {
     public class ConditionNode : AstNode
     {
-        public Dictionary<AstNode, BlockStatementNode> IfElifBranches { get; } = new();
-        public BlockStatementNode ElseBranch { get; set; }
+        public Dictionary<AstNode, AstNode> IfElifBranches { get; } = new();
+        public AstNode ElseBranch { get; set; }
     }
 }
