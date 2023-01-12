@@ -10,9 +10,8 @@ namespace EVIL.Execution
 {
     public partial class Interpreter : AstVisitor
     {
-        public bool Terminate { get; set; }
+        public List<Constraint> Constraints { get; } = new();
         public Environment Environment { get; set; }
-
         public Parser Parser { get; }
 
         public Interpreter()
@@ -27,14 +26,8 @@ namespace EVIL.Execution
             Environment = env;
         }
         
-        protected override void ConstraintCheck()
-        {
-            if (Terminate)
-            {
-                Terminate = false;
-                throw new ProgramTerminationException("Execution stopped by user.");
-            }
-        }
+        public void ImposeConstraint(Constraint constraint)
+            => Constraints.Add(constraint);
 
         public DynValue Execute(string sourceCode)
         {
@@ -161,6 +154,21 @@ namespace EVIL.Execution
             }
 
             return retVal;
+        }
+        
+        protected override void ConstraintCheck(AstNode node)
+        {
+            for (var i = 0; i < Constraints.Count; i++)
+            {
+                var c = Constraints[i];
+                
+                if (!c.Check(this, node))
+                {
+                    throw new ConstraintUnsatisfiedException(
+                        "An imposed execution constraint was unsatisfied.", c
+                    );
+                }
+            }
         }
     }
 }

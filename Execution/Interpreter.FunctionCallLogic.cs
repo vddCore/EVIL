@@ -46,13 +46,13 @@ namespace EVIL.Execution
             DynValue retVal;
             if (funcValue.IsClrFunction)
             {
-                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters, functionCallNode);
             }
             else
             {
                 Environment.EnterScope();
                 {
-                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, parameters);
+                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, parameters, functionCallNode);
                 }
                 Environment.ExitScope();
             }
@@ -60,7 +60,7 @@ namespace EVIL.Execution
             return retVal;
         }
 
-        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, ClrFunctionArguments args)
+        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, ClrFunctionArguments args, FunctionCallNode node)
         {
             var callStackItem = new StackFrame(name);
             var iterator = 0;
@@ -83,10 +83,6 @@ namespace EVIL.Execution
             {
                 retval = ExecuteStatementList(scriptFunction.StatementList);
             }
-            catch (ProgramTerminationException)
-            {
-                throw;
-            }
             catch (RuntimeException)
             {
                 throw;
@@ -96,7 +92,7 @@ namespace EVIL.Execution
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e.Message, null);
+                throw new RuntimeException(e.Message, node.Line);
             }
             finally
             {
@@ -106,12 +102,12 @@ namespace EVIL.Execution
             return retval;
         }
 
-        private DynValue ExecuteClrFunction(IFunction function, string name, ClrFunctionArguments args)
+        private DynValue ExecuteClrFunction(IFunction function, string name, ClrFunctionArguments args, FunctionCallNode node)
         {
             var clrFunction = function as ClrFunction;
 
             if (clrFunction == null)
-                throw new RuntimeException("Failed to interpret IFunction as ClrFunction.", null);
+                throw new RuntimeException("Failed to interpret IFunction as ClrFunction.", node.Line);
 
             var csi = new StackFrame($"CLR!{name}");
             Environment.CallStack.Push(csi);

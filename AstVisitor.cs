@@ -7,11 +7,11 @@ namespace EVIL
 {
     public abstract class AstVisitor
     {
-        protected abstract void ConstraintCheck();
+        protected abstract void ConstraintCheck(AstNode node);
         
         public DynValue Visit(AstNode node)
         {
-            ConstraintCheck();
+            ConstraintCheck(node);
             
             if (node is RootNode rootNode)
                 return Visit(rootNode);
