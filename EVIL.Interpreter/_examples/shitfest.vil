@@ -1,0 +1,41 @@
+var t = { 
+  "func2" = fn(arg) {
+    ret arg;
+  },
+  "a number" = 0xDEAD,
+  [2 * 3] = 10
+};
+
+var t2 = { 1, 2, 3, 4 };
+
+t.func = fn() {
+  ret 10;
+};
+
+io.println(?t.func);
+io.println(@t.func());
+io.println(@t.func2(30));
+io.println(@t["a number"]);
+
+for(var a = 10; a; a--) {
+  io.println("hello");
+}
+
+var exists = "a number" in t;
+if(exists) {
+  io.println("a number exists in t");
+}
+
+var exists2 = "lol" in "trololo";
+if(exists2) {
+  io.println("lol exists in trololo");
+}
+
+var exists3 = 3 in t2;
+if(exists3) {
+  io.println("3 exists in t2");
+}
+
+if(!(4 in t2)) {
+  io.println("4 does not exist in t2");
+}

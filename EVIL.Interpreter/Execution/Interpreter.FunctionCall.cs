@@ -109,10 +109,9 @@ namespace EVIL.Interpreter.Execution
 
             Environment.CallStack.Push(callStackItem);
 
-            var retval = DynValue.Zero;
             try
             {
-                retval = ExecuteStatementList(scriptFunction.StatementList);
+                return ExecuteStatementList(scriptFunction.StatementList);
             }
             catch (RuntimeException)
             {
@@ -120,6 +119,7 @@ namespace EVIL.Interpreter.Execution
             }
             catch (ExitStatementException)
             {
+                throw;
             }
             catch (Exception e)
             {
@@ -133,8 +133,6 @@ namespace EVIL.Interpreter.Execution
             {
                 Environment.CallStack.Pop();
             }
-
-            return retval;
         }
 
         private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)

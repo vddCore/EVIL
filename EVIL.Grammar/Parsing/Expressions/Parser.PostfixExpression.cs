@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -9,8 +8,6 @@ namespace EVIL.Grammar.Parsing
     {
         private List<TokenType> _postfixOperators = new()
         {
-            TokenType.Increment,
-            TokenType.Decrement,
             TokenType.LParenthesis,
             TokenType.LBracket,
             TokenType.Dot
@@ -31,21 +28,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     node = Indexing(node);
                 }
-                else if (token.Type == TokenType.Increment)
-                {
-                    DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
-                    var line = Match(TokenType.Increment);
-                    node = new IncrementationNode(node, false) {Line = line};
-                }
-                else if (token.Type == TokenType.Decrement)
-                {
-                    DisallowPrevious(TokenType.Decrement, TokenType.Increment);
-
-                    var line = Match(TokenType.Decrement);
-                    node = new DecrementationNode(node, false) {Line = line};
-                }
-                
                 token = Scanner.State.CurrentToken;
             }
 

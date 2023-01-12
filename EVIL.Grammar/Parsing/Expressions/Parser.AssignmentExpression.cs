@@ -27,60 +27,72 @@ namespace EVIL.Grammar.Parsing
             
             while (_assignmentOperators.Contains(token.Type))
             {
-                if (token.Type == TokenType.Assign)
+                switch (token.Type)
                 {
-                    var line = Match(TokenType.Assign);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Direct)
-                        {Line = line};
+                    case TokenType.Assign:
+                    {
+                        var line = Match(TokenType.Assign);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Direct)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignAdd:
+                    {
+                        var line = Match(TokenType.AssignAdd);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Add) {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignSubtract:
+                    {
+                        var line = Match(TokenType.AssignSubtract);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Subtract)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignMultiply:
+                    {
+                        var line = Match(TokenType.AssignMultiply);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Multiply)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignDivide:
+                    {
+                        var line = Match(TokenType.AssignDivide);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Divide)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignModulo:
+                    {
+                        var line = Match(TokenType.AssignModulo);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Modulo)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignBitwiseAnd:
+                    {
+                        var line = Match(TokenType.AssignBitwiseAnd);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.BitwiseAnd)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignBitwiseOr:
+                    {
+                        var line = Match(TokenType.AssignBitwiseOr);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.BitwiseOr)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignBitwiseXor:
+                    {
+                        var line = Match(TokenType.AssignBitwiseXor);
+                        node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.BitwiseXor)
+                            {Line = line};
+                        break;
+                    }
                 }
-                else if (token.Type == TokenType.AssignAdd)
-                {
-                    var line = Match(TokenType.AssignAdd);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Add) {Line = line};
-                }
-                else if (token.Type == TokenType.AssignSubtract)
-                {
-                    var line = Match(TokenType.AssignSubtract);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Subtract)
-                        {Line = line};
-                }
-                else if (token.Type == TokenType.AssignMultiply)
-                {
-                    var line = Match(TokenType.AssignMultiply);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Multiply)
-                        {Line = line};
-                }
-                else if (token.Type == TokenType.AssignDivide)
-                {
-                    var line = Match(TokenType.AssignDivide);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Divide)
-                        {Line = line};
-                }
-                else if (token.Type == TokenType.AssignModulo)
-                {
-                    var line = Match(TokenType.AssignModulo);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.Modulo)
-                        {Line = line};
-                }
-                else if (token.Type == TokenType.AssignBitwiseAnd)
-                {
-                    var line = Match(TokenType.AssignBitwiseAnd);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.BitwiseAnd)
-                        {Line = line};
-                }
-                else if (token.Type == TokenType.AssignBitwiseOr)
-                {
-                    var line = Match(TokenType.AssignBitwiseOr);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.BitwiseOr)
-                        {Line = line};
-                }
-                else if (token.Type == TokenType.AssignBitwiseXor)
-                {
-                    var line = Match(TokenType.AssignBitwiseXor);
-                    node = new AssignmentNode(node, LogicalOrExpression(), AssignmentOperationType.BitwiseXor)
-                        {Line = line};
-                }
-                
+
                 token = Scanner.State.CurrentToken;
             }
 

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
@@ -20,7 +22,6 @@ namespace EVIL.Grammar.Parsing
         {
             var programNode = new ProgramNode(RootStatementList());
             Match(TokenType.EOF);
-
             return programNode;
         }
 

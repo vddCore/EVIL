@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
 using EVIL.Interpreter.Runtime;
@@ -11,7 +12,7 @@ namespace EVIL.Interpreter
     public class Environment
     {
         private Stack<NameScope> EnclosedScopes { get; } = new();
-        
+
         public int CallStackLimit { get; set; } = 72;
 
         public Stack<StackFrame> CallStack { get; }
@@ -105,7 +106,7 @@ namespace EVIL.Interpreter
                     "Internal failure. Tried to register a function inside a non-existent library-defined table."
                 );
             }
-            
+
             GlobalScope.Members[libraryName].Table[functionName] = new DynValue(function);
         }
 
