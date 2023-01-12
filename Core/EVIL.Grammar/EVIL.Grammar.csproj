@@ -8,4 +8,10 @@
       <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Parsing\Parser.Statement.cs">
+        <DependentUpon>Parser.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>
