@@ -6,6 +6,7 @@
         NOP   = 0x00,
         POP   = 0x01,
         HLT   = 0x02,
+        DUP   = 0x03,
         
         // ---------- [ ARITHMETIC
         ADD   = 0x10,
@@ -41,15 +42,15 @@
         RETN  = 0x33,
         
         // ---------- [ STORAGE
-        LDCONST = 0x40,
-        LDCHUNK = 0x41,
-        LDGLOBAL = 0x42,
-        STGLOBAL = 0x43,
-        LDLOCAL = 0x44,
-        STLOCAL = 0x45,
-        LDARG = 0x46,
-        STARG = 0x47,
-        NEWTABLE = 0x48,
+        LDC = 0x40,
+        LDF = 0x41,
+        LDG = 0x42,
+        STG = 0x43,
+        LDL = 0x44,
+        STL = 0x45,
+        LDA = 0x46,
+        STA = 0x47,
+        NEWTB = 0x48,
         CLOSE = 0x49,
         LDCLS = 0x4A,
         STCLS = 0x4B,

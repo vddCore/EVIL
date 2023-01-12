@@ -95,7 +95,7 @@ namespace EVIL.REPL
                                 if (_measure)
                                     _stopwatch.Start();
 
-                                _interpreter.Execute(sr.ReadToEnd());
+                                _interpreter.Execute(sr.ReadToEnd(), true);
                             }
                         }
                         catch (ExitStatementException)
@@ -193,7 +193,7 @@ namespace EVIL.REPL
 
                 try
                 {
-                    _interpreter.Execute(input);
+                    _interpreter.Execute(input, true);
                 }
                 catch (Exception e)
                 {

@@ -19,16 +19,18 @@ namespace EVIL.ExecutionEngine
                 if (str != null)
                 {
                     _constants.Add(
-                        i, 
+                        i,
                         new DynamicValue(str)
+                            { IsReadOnly = true }
                     );
                 }
                 else
                 {
                     _constants.Add(
-                        i, 
+                        i,
                         new DynamicValue(constPool.GetNumberConstant(i)!.Value)
-                     );
+                            { IsReadOnly = true }
+                    );
                 }
             }
         }

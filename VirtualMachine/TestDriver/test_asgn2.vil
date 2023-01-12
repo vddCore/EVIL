@@ -1,0 +1,9 @@
+fn main()
+{
+  var a = 10, b = 20, c = 30;
+  a = b += c;
+  
+  ret a;
+}
+
+main();

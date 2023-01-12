@@ -18,13 +18,13 @@ namespace EVIL.Intermediate
             {
                 IP = 0;
                 CurrentChunk = chunk;
-                _disasm.Append(chunk.Name);
+                _disasm.Append($"{chunk.Name} [{chunk.LocalCount} local(s)] [{chunk.ParameterCount} parameter(s)]");
                 _disasm.AppendLine(":");
-                
+
                 while (IP < chunk.Instructions.Count)
                 {
                     AppendCurrentIP();
-                    
+
                     var op = (OpCode)FetchByte();
 
                     switch (op)
@@ -38,18 +38,19 @@ namespace EVIL.Intermediate
                             DecodeJump(op);
                             break;
 
-                        case OpCode.LDCONST:
+                        case OpCode.LDC:
+                        case OpCode.LDG:
+                        case OpCode.STG:
                             DecodeLdConst(op, executable.ConstPool);
                             break;
 
-                        case OpCode.LDLOCAL:
-                        case OpCode.STLOCAL:
-                        case OpCode.STARG:
-                        case OpCode.LDARG:
+                        case OpCode.LDL:
+                        case OpCode.STL:
+                        case OpCode.STA:
+                        case OpCode.LDA:
                         case OpCode.CALL:
                             DecodeParametrizedLoad(op);
                             break;
-                        
                     }
                 }
             }
@@ -61,7 +62,7 @@ namespace EVIL.Intermediate
         {
             _disasm.Append($"  {IP:X8}");
         }
-        
+
         private void Decode(OpCode opCode)
         {
             _disasm.Append($" {((int)opCode):X2} {opCode}");
@@ -88,7 +89,7 @@ namespace EVIL.Intermediate
             string dereferenced;
             string str;
             double? num;
-            
+
             str = constPool.GetStringConstant(index);
             if (str != null)
             {

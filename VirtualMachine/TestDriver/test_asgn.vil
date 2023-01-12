@@ -1,0 +1,27 @@
+fn compound() {
+  var a = 10;
+  var b = 20;
+  var c = 30;
+  var d = 40;
+  var e;
+
+  a += b;    // Should be 30 now.
+  b -= 5;    // Should be 15 now.
+  c /= 3;    // Should be 10 now.
+  d *= 2;    // Should be 80 now.
+  e = d / 4; // Should be 20 now.
+  e %= 3;    // Should be 2 now.
+
+  a = 1;
+  a <<= 1;   // Should be 2 now.
+  a >>= 1;   // Should be 1 back again.
+
+  a = 0;
+  a |= 0x10; // Should be 16 now.
+  a &= ~(0x10); // Should be back to 0;
+  
+  a ^= 8; // Should be 8 now...
+  a ^= 8; // And back to 0 again.
+}
+
+compound();
