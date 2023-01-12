@@ -5,12 +5,12 @@ namespace EVIL.AST.Nodes
     public class VariableDefinitionNode : AstNode
     {
         public VariableNode Variable { get; }
-        public AssignmentNode Assignment { get; }
+        public AstNode Right { get; }
 
-        public VariableDefinitionNode(VariableNode variable, AssignmentNode assignment)
+        public VariableDefinitionNode(VariableNode variable, AstNode right)
         {
             Variable = variable;
-            Assignment = assignment;
+            Right = right;
         }
     }
 }

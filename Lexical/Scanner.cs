@@ -56,7 +56,7 @@ namespace EVIL.Lexical
                 else if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompoundSubtract, "-=");
+                    State.CurrentToken = new Token(TokenType.AssignSubtract, "-=");
                 }
                 else
                 {
@@ -73,7 +73,7 @@ namespace EVIL.Lexical
                 else if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompoundAdd, "+=");
+                    State.CurrentToken = new Token(TokenType.AssignAdd, "+=");
                 }
                 else
                 {
@@ -85,7 +85,7 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompoundMultiply, "*=");
+                    State.CurrentToken = new Token(TokenType.AssignMultiply, "*=");
                 }
                 else
                 {
@@ -106,7 +106,7 @@ namespace EVIL.Lexical
                 else if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompoundDivide, "/=");
+                    State.CurrentToken = new Token(TokenType.AssignDivide, "/=");
                 }
                 else
                 {
@@ -122,7 +122,7 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompoundModulo, "%=");
+                    State.CurrentToken = new Token(TokenType.AssignModulo, "%=");
                 }
                 else
                 {
@@ -187,7 +187,7 @@ namespace EVIL.Lexical
                     if (Peek() == '=')
                     {
                         Advance();
-                        State.CurrentToken = new Token(TokenType.CompoundBitwiseAnd, "&=");
+                        State.CurrentToken = new Token(TokenType.AssignBitwiseAnd, "&=");
                     }
                     else
                     {
@@ -207,7 +207,7 @@ namespace EVIL.Lexical
                     if (Peek() == '=')
                     {
                         Advance();
-                        State.CurrentToken = new Token(TokenType.CompoundBitwiseOr, "|=");
+                        State.CurrentToken = new Token(TokenType.AssignBitwiseOr, "|=");
                     }
                     else
                     {
@@ -220,7 +220,7 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompoundBitwiseXor, "^=");
+                    State.CurrentToken = new Token(TokenType.AssignBitwiseXor, "^=");
                 }
                 else
                 {

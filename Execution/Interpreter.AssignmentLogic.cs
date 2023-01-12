@@ -1,5 +1,5 @@
 ﻿using EVIL.Abstraction;
-using EVIL.AST.Base;
+using EVIL.AST.Enums;
 using EVIL.AST.Nodes;
 
 namespace EVIL.Execution
@@ -8,37 +8,55 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(AssignmentNode assignmentNode)
         {
-            if (assignmentNode.Left is VariableNode varNode)
-            {
-                return VariableAssignment(varNode, assignmentNode.Right);
-            }
-            else if (assignmentNode.Left is IndexingNode)
-            {
-                var indexable = Visit(assignmentNode.Left);
-                var newValue = Visit(assignmentNode.Right);
+            var leftValue = Visit(assignmentNode.Left);
+            var rightValue = Visit(assignmentNode.Right);
 
-                indexable.CopyFrom(newValue);
-                return indexable;
-            }
-            else
+            switch (assignmentNode.OperationType)
             {
-                throw new RuntimeException("Unexpected assignment.", assignmentNode.Line);
+                case AssignmentOperationType.Direct:
+                    break;
+                
+                case AssignmentOperationType.Add:
+                    rightValue = new DynValue(leftValue.Number + rightValue.Number);
+                    break;
+                    
+                case AssignmentOperationType.Subtract:
+                    rightValue = new DynValue(leftValue.Number - rightValue.Number);
+                    break;
+
+                case AssignmentOperationType.Multiply:
+                    rightValue = new DynValue(leftValue.Number * rightValue.Number);
+                    break;
+
+                case AssignmentOperationType.Divide:
+                    if (rightValue.Number == 0)
+                        throw new RuntimeException("Cannot divide by zero.", null);
+
+                    rightValue = new DynValue(leftValue.Number / rightValue.Number);
+                    break;
+
+                case AssignmentOperationType.Modulo:
+                    rightValue = new DynValue(leftValue.Number % rightValue.Number);
+                    break;
+
+                case AssignmentOperationType.BitwiseAnd:
+                    rightValue = new DynValue((int)leftValue.Number & (int)rightValue.Number);
+                    break;
+
+                case AssignmentOperationType.BitwiseOr:
+                    rightValue = new DynValue((int)leftValue.Number | (int)rightValue.Number);
+                    break;
+
+                case AssignmentOperationType.BitwiseXor:
+                    rightValue = new DynValue((int)leftValue.Number ^ (int)rightValue.Number);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unexpected compound assignment type??", null);
             }
-        }
 
-        private DynValue VariableAssignment(VariableNode left, AstNode right)
-        {
-            var dynValue = Environment.LocalScope.FindInScopeChain(left.Identifier);
-
-            if (dynValue == null)
-            {
-                throw new RuntimeException($"'{left.Identifier}' was not found in the current scope.", left.Line);
-            }
-            
-            var retVal = Visit(right);
-            dynValue.CopyFrom(retVal);
-
-            return retVal;
+            leftValue.CopyFrom(rightValue);
+            return rightValue;
         }
     }
 }

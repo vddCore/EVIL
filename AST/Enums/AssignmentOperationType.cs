@@ -1,7 +1,8 @@
 ﻿namespace EVIL.AST.Enums
 {
-    public enum CompoundAssignmentType
+    public enum AssignmentOperationType
     {
+        Direct,
         Add,
         Subtract,
         Divide,
