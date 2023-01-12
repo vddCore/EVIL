@@ -30,51 +30,51 @@ namespace EVIL.Grammar.Parsing
                 DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
                 var line = Match(Token.Increment);
-                return new IncrementationExpression(PostModificationExpression(), true) {Line = line};
+                return new IncrementationExpression(PostModificationExpression(), true) { Line = line };
             }
             else if (token.Type == TokenType.Decrement)
             {
                 DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
                 var line = Match(Token.Decrement);
-                return new DecrementationExpression(PostModificationExpression(), true) {Line = line};
+                return new DecrementationExpression(PostModificationExpression(), true) { Line = line };
             }
             else if (token.Type == TokenType.Length)
             {
                 var line = Match(Token.Length);
-                return new UnaryExpression(PostModificationExpression(), UnaryOperationType.Length) {Line = line};
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Length) { Line = line };
             }
             else if (token.Type == TokenType.AsString)
             {
                 var line = Match(Token.AsString);
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToString) {Line = line};
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToString) { Line = line };
             }
             else if (token.Type == TokenType.Plus)
             {
                 var line = Match(Token.Plus);
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Plus) {Line = line};
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Plus) { Line = line };
             }
             else if (token.Type == TokenType.Minus)
             {
                 var line = Match(Token.Minus);
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Minus) {Line = line};
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Minus) { Line = line };
             }
             else if (token.Type == TokenType.LogicalNot)
             {
                 var line = Match(Token.LogicalNot);
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Negation)
-                    {Line = line};
+                    { Line = line };
             }
             else if (token.Type == TokenType.BitwiseNot)
             {
                 var line = Match(Token.BitwiseNot);
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.BitwiseNot)
-                    {Line = line};
+                    { Line = line };
             }
             else if (token.Type == TokenType.AsNumber)
             {
                 var line = Match(Token.AsNumber);
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber) {Line = line};
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber) { Line = line };
             }
 
             return PostModificationExpression();
