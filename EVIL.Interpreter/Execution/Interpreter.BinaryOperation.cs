@@ -12,8 +12,8 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(BinaryOperationNode binaryOperationNode)
         {
-            var left = Visit(binaryOperationNode.LeftOperand);
-            var right = Visit(binaryOperationNode.RightOperand);
+            var left = Visit(binaryOperationNode.Left);
+            var right = Visit(binaryOperationNode.Right);
 
             switch (binaryOperationNode.Type)
             {

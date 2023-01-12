@@ -29,32 +29,32 @@ namespace EVIL.Grammar.Parsing
                 if (token.Type == TokenType.CompareLessThan)
                 {
                     var line = Match(TokenType.CompareLessThan);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Less, Expression()) {Line = line};
+                    node = new BinaryOperationNode(node, Expression(), BinaryOperationType.Less) {Line = line};
                 }
                 else if (token.Type == TokenType.CompareGreaterThan)
                 {
                     var line = Match(TokenType.CompareGreaterThan);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Greater, Expression()) {Line = line};
+                    node = new BinaryOperationNode(node, Expression(), BinaryOperationType.Greater) {Line = line};
                 }
                 else if (token.Type == TokenType.CompareLessOrEqualTo)
                 {
                     var line = Match(TokenType.CompareLessOrEqualTo);
-                    node = new BinaryOperationNode(node, BinaryOperationType.LessOrEqual, Expression()) {Line = line};
+                    node = new BinaryOperationNode(node, Expression(), BinaryOperationType.LessOrEqual) {Line = line};
                 }
                 else if (token.Type == TokenType.CompareGreaterOrEqualTo)
                 {
                     var line = Match(TokenType.CompareGreaterOrEqualTo);
-                    node = new BinaryOperationNode(node, BinaryOperationType.GreaterOrEqual, Expression()) {Line = line};
+                    node = new BinaryOperationNode(node, Expression(), BinaryOperationType.GreaterOrEqual) {Line = line};
                 }
                 else if (token.Type == TokenType.CompareEqual)
                 {
                     var line = Match(TokenType.CompareEqual);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Equal, Expression()) {Line = line};
+                    node = new BinaryOperationNode(node, Expression(), BinaryOperationType.Equal) {Line = line};
                 }
                 else if (token.Type == TokenType.CompareNotEqual)
                 {
                     var line = Match(TokenType.CompareNotEqual);
-                    node = new BinaryOperationNode(node, BinaryOperationType.NotEqual, Expression()) {Line = line};
+                    node = new BinaryOperationNode(node, Expression(), BinaryOperationType.NotEqual) {Line = line};
                 }
             }
 

@@ -16,14 +16,14 @@ namespace EVIL.Interpreter
         {
             _handlers = new()
             {
-                {typeof(RootNode), (n) => Visit(n as RootNode)},
+                {typeof(ProgramNode), (n) => Visit(n as ProgramNode)},
                 {typeof(NumberNode), (n) => Visit(n as NumberNode)},
                 {typeof(StringNode), (n) => Visit(n as StringNode)},
                 {typeof(AssignmentNode), (n) => Visit(n as AssignmentNode)},
                 {typeof(BinaryOperationNode), (n) => Visit(n as BinaryOperationNode)},
                 {typeof(UnaryOperationNode), (n) => Visit(n as UnaryOperationNode)},
                 {typeof(VariableNode), (n) => Visit(n as VariableNode)},
-                {typeof(VariableDefinitionNode), (n) => Visit(n as VariableDefinitionNode)},
+                {typeof(VarNode), (n) => Visit(n as VarNode)},
                 {typeof(FunctionDefinitionNode), (n) => Visit(n as FunctionDefinitionNode)},
                 {typeof(FunctionCallNode), (n) => Visit(n as FunctionCallNode)},
                 {typeof(ConditionNode), (n) => Visit(n as ConditionNode)},
@@ -56,14 +56,14 @@ namespace EVIL.Interpreter
 
         protected abstract void ConstraintCheck(AstNode node);
 
-        public abstract DynValue Visit(RootNode rootNode);
+        public abstract DynValue Visit(ProgramNode programNode);
         public abstract DynValue Visit(NumberNode numberNode);
         public abstract DynValue Visit(StringNode stringNode);
         public abstract DynValue Visit(AssignmentNode assignmentNode);
         public abstract DynValue Visit(BinaryOperationNode binaryOperationNode);
         public abstract DynValue Visit(UnaryOperationNode unaryOperationNode);
         public abstract DynValue Visit(VariableNode variableNode);
-        public abstract DynValue Visit(VariableDefinitionNode variableDefinitionNode);
+        public abstract DynValue Visit(VarNode varNode);
         public abstract DynValue Visit(FunctionDefinitionNode scriptFunctionDefinitionNode);
         public abstract DynValue Visit(FunctionCallNode functionCallNode);
         public abstract DynValue Visit(ConditionNode conditionNode);

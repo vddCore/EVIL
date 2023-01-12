@@ -30,37 +30,37 @@ namespace EVIL.Grammar.Parsing
                 if (token.Type == TokenType.Multiply)
                 {
                     var line = Match(TokenType.Multiply);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Multiply, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.Multiply) { Line = line };
                 }
                 else if (token.Type == TokenType.Divide)
                 {
                     var line = Match(TokenType.Divide);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Divide, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.Divide) { Line = line };
                 }
                 else if (token.Type == TokenType.BitwiseAnd)
                 {
                     var line = Match(TokenType.BitwiseAnd);
-                    node = new BinaryOperationNode(node, BinaryOperationType.BitwiseAnd, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.BitwiseAnd) { Line = line };
                 }
                 else if (token.Type == TokenType.BitwiseOr)
                 {
                     var line = Match(TokenType.BitwiseOr);
-                    node = new BinaryOperationNode(node, BinaryOperationType.BitwiseOr, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.BitwiseOr) { Line = line };
                 }
                 else if (token.Type == TokenType.BitwiseXor)
                 {
                     var line = Match(TokenType.BitwiseXor);
-                    node = new BinaryOperationNode(node, BinaryOperationType.BitwiseXor, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.BitwiseXor) { Line = line };
                 }
                 else if (token.Type == TokenType.Modulo)
                 {
                     var line = Match(TokenType.Modulo);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Modulo, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.Modulo) { Line = line };
                 }
                 else if (token.Type == TokenType.ExistsIn)
                 {
                     var line = Match(TokenType.ExistsIn);
-                    node = new BinaryOperationNode(node, BinaryOperationType.ExistsIn, Factor()) { Line = line };
+                    node = new BinaryOperationNode(node, Factor(), BinaryOperationType.ExistsIn) { Line = line };
                 }
             }
             return node;

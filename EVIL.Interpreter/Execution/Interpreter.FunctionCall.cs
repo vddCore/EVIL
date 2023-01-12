@@ -34,22 +34,6 @@ namespace EVIL.Interpreter.Execution
         private DynValue InvokeFunction(FunctionCallNode functionCallNode, DynValue funcValue)
         {
             var funcName = "<anonymous>";
-
-            if (functionCallNode.Left is VariableNode vn)
-            {
-                funcName = vn.Identifier;
-                funcValue = Environment.LocalScope.FindInScopeChain(vn.Identifier);
-
-                if (funcValue == null)
-                {
-                    throw new RuntimeException(
-                        $"'{funcName}' was not found in the current scope.",
-                        Environment,
-                        functionCallNode.Line
-                    );
-                }
-            }
-
             var parameters = new FunctionArguments();
 
             foreach (var node in functionCallNode.Parameters)

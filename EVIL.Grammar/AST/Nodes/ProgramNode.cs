@@ -2,22 +2,22 @@
 
 namespace EVIL.Grammar.AST.Nodes
 {
-    public class RootNode : AstNode
+    public class ProgramNode : AstNode
     {
-        public List<AstNode> Children { get; } 
+        public List<AstNode> Statements { get; } 
 
-        public RootNode(List<AstNode> children)
+        public ProgramNode(List<AstNode> statements)
         {
-            Children = children;
+            Statements = statements;
         }
 
         public FunctionDefinitionNode FindChildFunctionDefinition(string fnName)
         {
-            for (var i = 0; i < Children.Count; i++)
+            for (var i = 0; i < Statements.Count; i++)
             {
-                if (Children[i] is FunctionDefinitionNode fdn)
+                if (Statements[i] is FunctionDefinitionNode fdn)
                 {
-                    if (fdn.Name == fnName)
+                    if (fdn.Identifier == fnName)
                     {
                         return fdn;
                     }

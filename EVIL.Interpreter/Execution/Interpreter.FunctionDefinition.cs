@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(FunctionDefinitionNode scriptFunctionDefinitionNode)
         {
-            var name = scriptFunctionDefinitionNode.Name;
+            var name = scriptFunctionDefinitionNode.Identifier;
 
             var fn = new ScriptFunction(
                 scriptFunctionDefinitionNode.StatementList,

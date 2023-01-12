@@ -17,8 +17,14 @@
 }
 
 fn print_table(t) {
-  each(var k, var v : t) {
-    io->print(@v + " ")
+  if (type(t) != "Table") {
+    io.println("Attempt to print out something that's not a table.")
+    exit
   }
-  io->println()
+  
+  each(var k, var v : t) {
+    io.print(@v + " ")
+  }
+  
+  io.println()
 }

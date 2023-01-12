@@ -16,7 +16,7 @@ namespace EVIL.Interpreter.Execution
             }
 
             var stackTop = Environment.StackTop;
-            stackTop.ReturnValue = Visit(returnNode.Expression);
+            stackTop.ReturnValue = Visit(returnNode.Right);
             stackTop.Return();
 
             return stackTop.ReturnValue;

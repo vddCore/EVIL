@@ -90,7 +90,7 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
 
-                var csi = new StackFrame(entryNode.Name, entryNode.ParameterNames)
+                var csi = new StackFrame(entryNode.Identifier, entryNode.ParameterNames)
                 {
                     DefinedAtLine = entryNode.Line
                 };
@@ -145,9 +145,9 @@ namespace EVIL.Interpreter.Execution
             );
         }
 
-        public override DynValue Visit(RootNode rootNode)
+        public override DynValue Visit(ProgramNode programNode)
         {
-            var statements = rootNode.Children;
+            var statements = programNode.Statements;
 
             foreach (var filter in _nodeRestrictions)
             {

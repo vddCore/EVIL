@@ -2,21 +2,21 @@
   var order = 4
 
   if (#args) {
-    order = str->s2n(args[0])    
+    order = str.s2n(args[0])    
   }
 
   var size = 1 << order
   
-  for (var y = size - 1; y >= 0; y--, io->println()) {
+  for (var y = size - 1; y >= 0; y--, io.println()) {
     for (var i = 0; i < y; i++) {
-      io->print(" ")
+      io.print(" ")
     }
 
     for (var x = 0; x + y < size; x++) {
-      if (x & y) { io->print("  ") } 
-      else { io->print("* ") }
+      if (x & y) { io.print("  ") } 
+      else { io.print("* ") }
     }
   }
 
-  io->println()
+  io.println()
 }

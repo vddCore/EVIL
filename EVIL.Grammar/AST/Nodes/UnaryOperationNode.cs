@@ -2,12 +2,12 @@
 {
     public class UnaryOperationNode : AstNode
     {
-        public AstNode Operand { get; }
+        public AstNode Right { get; }
         public UnaryOperationType Type { get; }
 
-        public UnaryOperationNode(AstNode operand, UnaryOperationType type)
+        public UnaryOperationNode(AstNode right, UnaryOperationType type)
         {
-            Operand = operand;
+            Right = right;
             Type = type;
         }
     }

@@ -4,13 +4,13 @@ namespace EVIL.Grammar.AST.Nodes
 {
     public class FunctionDefinitionNode : AstNode
     {
-        public string Name { get; }
+        public string Identifier { get; }
         public List<AstNode> StatementList { get; }
         public List<string> ParameterNames { get; }
 
-        public FunctionDefinitionNode(string name, List<AstNode> statementList, List<string> parameterNames)
+        public FunctionDefinitionNode(string identifier, List<AstNode> statementList, List<string> parameterNames)
         {
-            Name = name;
+            Identifier = identifier;
             StatementList = statementList;
             ParameterNames = parameterNames;
         }

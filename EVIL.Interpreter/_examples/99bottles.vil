@@ -1,14 +1,14 @@
 ﻿fn main(args) {
-  for(var i = 99; i >= 0; i--) {
+  for (var i = 99; i >= 0; i--) {
     if (i > 1) {
-      io->println(@i + " bottles of beer on the wall, " + @i + " bottles of beer.")
-      io->println("Take one down and pass it around, " + @(i - 1) + " bottles of beer on the wall.\n")
+      io.println(@i + " bottles of beer on the wall, " + @i + " bottles of beer.")
+      io.println("Take one down and pass it around, " + @(i - 1) + " bottles of beer on the wall.\n")
     } elif (i == 1) {
-      io->println(@i + " bottle of beer on the wall, " + @i + " bottle of beer.")
-      io->println("Take one down and pass it around, no more bottles of beer on the wall.\n")
+      io.println(@i + " bottle of beer on the wall, " + @i + " bottle of beer.")
+      io.println("Take one down and pass it around, no more bottles of beer on the wall.\n")
     } elif (i == 0) {
-      io->println("No more bottles of beer on the wall, no more bottles of beer.")
-      io->println("Go to the store and buy some more, 99 bottles of beer on the wall.\n")
+      io.println("No more bottles of beer on the wall, no more bottles of beer.")
+      io.println("Go to the store and buy some more, 99 bottles of beer on the wall.\n")
     }
   }
 }

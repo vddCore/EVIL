@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
         public AstNode Break()
         {
             var line = Match(TokenType.Break);
-            return new BreakNode() { Line = line };
+            return new BreakNode { Line = line };
         }
     }
 }

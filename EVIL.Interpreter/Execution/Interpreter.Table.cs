@@ -4,21 +4,10 @@ using EVIL.Interpreter.Abstraction;
 namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
-    {        
-        public override DynValue Visit(NumberNode numberNode)
-        {
-            return new(numberNode.Value);
-        }
-
-        public override DynValue Visit(StringNode stringNode)
-        {
-            return new(stringNode.Value);
-        }
-
+    {
         public override DynValue Visit(TableNode tableNode)
         {
             var tbl = new Table();
-            var value = new DynValue(tbl);
 
             if (tableNode.Keyed)
             {
@@ -47,7 +36,7 @@ namespace EVIL.Interpreter.Execution
                 }
             }
 
-            return value;
+            return new DynValue(tbl);
         }
     }
 }

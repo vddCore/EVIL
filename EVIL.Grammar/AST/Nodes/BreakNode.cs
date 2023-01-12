@@ -1,7 +1,4 @@
 ﻿namespace EVIL.Grammar.AST.Nodes
 {
-    public class BreakNode : AstNode
-    {
-        // control flow
-    }
+    public class BreakNode : AstNode { }
 }
