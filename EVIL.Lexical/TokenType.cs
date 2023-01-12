@@ -32,6 +32,8 @@
         AssignBitwiseAnd,
         AssignBitwiseOr,
         AssignBitwiseXor,
+        AssignShiftRight,
+        AssignShiftLeft,
 
         Equal,
         NotEqual,

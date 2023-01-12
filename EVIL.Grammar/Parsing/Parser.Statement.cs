@@ -13,15 +13,24 @@ namespace EVIL.Grammar.Parsing
             switch (token.Type)
             {
                 case TokenType.Fn:
-                    return FunctionDefinition();
+                    node = FunctionDefinition();
+                    break;
                 case TokenType.If:
-                    return IfCondition();
+                    node = IfCondition();
+                    break;
                 case TokenType.For:
-                    return ForLoop();
+                    node = ForLoop();
+                    break;
                 case TokenType.While:
-                    return WhileLoop();
+                    node = WhileLoop();
+                    break;
                 case TokenType.Each:
-                    return EachLoop();
+                    node = EachLoop();
+                    break;
+                case TokenType.Do:
+                    node = DoWhileLoop();
+                    Match(TokenType.Semicolon);
+                    break;
                 case TokenType.Var:
                     node = VariableDefinition();
                     Match(TokenType.Semicolon);
@@ -48,10 +57,6 @@ namespace EVIL.Grammar.Parsing
                     break;
                 case TokenType.Identifier:
                     node = AssignmentExpression();
-                    Match(TokenType.Semicolon);
-                    break;
-                case TokenType.Do:
-                    node = DoWhileLoop();
                     Match(TokenType.Semicolon);
                     break;
                 case TokenType.LBrace:

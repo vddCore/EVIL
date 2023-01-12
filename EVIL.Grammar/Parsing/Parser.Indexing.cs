@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             if (CurrentToken.Type == TokenType.Dot)
             {
                 line = Match(TokenType.Dot);
-                indexer = new StringNode(CurrentToken.Value.ToString());
+                indexer = new StringNode(CurrentToken.Value);
                 Match(TokenType.Identifier);
             }
             else // must be bracket then

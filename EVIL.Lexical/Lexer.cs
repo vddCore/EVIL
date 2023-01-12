@@ -115,9 +115,19 @@ namespace EVIL.Lexical
                     State.CurrentToken = new Token(TokenType.LessThanOrEqual, "<=");
                     break;
                 case '<' when Peek() == '<':
+                {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.ShiftLeft, "<<");
+                    if (Peek() == '=')
+                    {
+                        Advance();
+                        State.CurrentToken = new Token(TokenType.AssignShiftLeft, "<<=");
+                    }
+                    else
+                    {
+                        State.CurrentToken = new Token(TokenType.ShiftLeft, "<<");
+                    }
                     break;
+                }
                 case '<':
                     State.CurrentToken = new Token(TokenType.LessThan, "<");
                     break;
@@ -126,9 +136,19 @@ namespace EVIL.Lexical
                     State.CurrentToken = new Token(TokenType.GreaterThanOrEqual, ">=");
                     break;
                 case '>' when Peek() == '>':
+                {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.ShiftRight, ">>");
+                    if (Peek() == '=')
+                    {
+                        Advance();
+                        State.CurrentToken = new Token(TokenType.AssignShiftRight, ">>=");
+                    }
+                    else
+                    {
+                        State.CurrentToken = new Token(TokenType.ShiftRight, ">>");
+                    }
                     break;
+                }
                 case '>':
                     State.CurrentToken = new Token(TokenType.GreaterThan, ">");
                     break;
@@ -251,8 +271,8 @@ namespace EVIL.Lexical
                                 return;
                             }
                         }
-                            
-                        throw new LexerException($"Unexpected token '{State.Character}'", State.Column, State.Line);
+
+                            throw new LexerException($"Unexpected token '{State.Character}'", State.Column, State.Line);
                     }
                 }
             }

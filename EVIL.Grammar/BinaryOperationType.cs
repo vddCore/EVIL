@@ -16,8 +16,8 @@
         GreaterOrEqual,
         Equal,
         NotEqual,
-        Or,
-        And,
+        LogicalOr,
+        LogicalAnd,
         ShiftRight,
         ShiftLeft,
         ExistsIn

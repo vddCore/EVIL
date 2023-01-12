@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             while (token.Type == TokenType.LogicalAnd)
             {
                 var line = Match(TokenType.LogicalAnd);
-                node = new BinaryOperationNode(node, InclusiveOrExpression(), BinaryOperationType.And) {Line = line};
+                node = new BinaryOperationNode(node, InclusiveOrExpression(), BinaryOperationType.LogicalAnd) {Line = line};
                 
                 token = CurrentToken;
             }

@@ -17,7 +17,9 @@ namespace EVIL.Grammar.Parsing
             TokenType.AssignModulo,
             TokenType.AssignBitwiseAnd,
             TokenType.AssignBitwiseOr,
-            TokenType.AssignBitwiseXor
+            TokenType.AssignBitwiseXor,
+            TokenType.AssignShiftLeft,
+            TokenType.AssignShiftRight
         };
 
         private AstNode AssignmentExpression(AstNode left = null)
@@ -88,6 +90,20 @@ namespace EVIL.Grammar.Parsing
                     {
                         var line = Match(TokenType.AssignBitwiseXor);
                         node = new AssignmentNode(node, ConditionalExpression(), AssignmentOperationType.BitwiseXor)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignShiftRight:
+                    {
+                        var line = Match(TokenType.AssignShiftRight);
+                        node = new AssignmentNode(node, ConditionalExpression(), AssignmentOperationType.ShiftRight)
+                            {Line = line};
+                        break;
+                    }
+                    case TokenType.AssignShiftLeft:
+                    {
+                        var line = Match(TokenType.AssignShiftLeft);
+                        node = new AssignmentNode(node, ConditionalExpression(), AssignmentOperationType.ShiftLeft)
                             {Line = line};
                         break;
                     }
