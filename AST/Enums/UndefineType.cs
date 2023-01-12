@@ -2,7 +2,6 @@
 {
     public enum UndefineType
     {
-        Function,
         Local,
         Global
     }

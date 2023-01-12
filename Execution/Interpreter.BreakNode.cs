@@ -7,13 +7,11 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(BreakNode breakNode)
         {
-            if (LoopStack.Count <= 0)
+            if (!Environment.IsInsideLoop)
                 throw new RuntimeException("Unexpected 'break' outside a loop.", breakNode.Line);
 
-            LoopStack.Peek().BreakLoop = true;
-
+            Environment.LoopStackTop.Break();
             return DynValue.Zero;
         }
-
     }
 }

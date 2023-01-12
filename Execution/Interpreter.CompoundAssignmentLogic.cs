@@ -8,45 +8,39 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(CompoundAssignmentNode compoundAssignmentNode)
         {
-            DynValue val;
+            var name = compoundAssignmentNode.Variable.Name;
+            var val = Visit(compoundAssignmentNode.Right);
 
-            if (CallStack.Count > 0)
+            if (Environment.IsInScriptFunctionScope)
             {
-                var stackTop = CallStack.Peek();
-                val = Visit(compoundAssignmentNode.Right);
+                var stackTop = Environment.CallStackTop;
 
-                if (stackTop.ParameterScope.ContainsKey(compoundAssignmentNode.Variable.Name))
+                if (stackTop.HasParameter(name))
                 {
-
-                    stackTop.ParameterScope[compoundAssignmentNode.Variable.Name] = HandleCompoundOperation(
-                        stackTop.ParameterScope[compoundAssignmentNode.Variable.Name],
-                        val,
-                        compoundAssignmentNode.Operation
-                    );
-
-                    return DynValue.Zero;
-                }
-                else if (stackTop.LocalVariableScope.ContainsKey(compoundAssignmentNode.Variable.Name))
-                {
-                    stackTop.LocalVariableScope[compoundAssignmentNode.Variable.Name] = HandleCompoundOperation(
-                        stackTop.LocalVariableScope[compoundAssignmentNode.Variable.Name],
-                        val,
-                        compoundAssignmentNode.Operation
+                    var parameter = stackTop.Parameters[compoundAssignmentNode.Variable.Name];
+                    stackTop.SetParameter(
+                        name,
+                        HandleCompoundOperation(
+                            parameter,
+                            val,
+                            compoundAssignmentNode.Operation
+                        )
                     );
 
                     return DynValue.Zero;
                 }
             }
 
-            if (!Environment.Globals.ContainsKey(compoundAssignmentNode.Variable.Name))
-                throw new RuntimeException($"Variable '{compoundAssignmentNode.Variable.Name}' was not found in current scope.", null);
+            var dynValue = Environment.LocalScope.FindInScopeChain(compoundAssignmentNode.Variable.Name);
 
-            val = Visit(compoundAssignmentNode.Right);
+            if (dynValue == null)
+            {
+                throw new RuntimeException(
+                    $"Variable '{compoundAssignmentNode.Variable.Name}' was not found in current scope.", null);
+            }
 
-            Environment.Globals[compoundAssignmentNode.Variable.Name] = HandleCompoundOperation(
-                Environment.Globals[compoundAssignmentNode.Variable.Name],
-                val,
-                compoundAssignmentNode.Operation
+            dynValue.CopyFrom(
+                HandleCompoundOperation(dynValue, val, compoundAssignmentNode.Operation)
             );
 
             return DynValue.Zero;
@@ -73,13 +67,13 @@ namespace EVIL.Execution
 
                 case CompoundAssignmentType.Modulo:
                     return new DynValue(variable.Number % operand.Number);
-                
+
                 case CompoundAssignmentType.BitwiseAnd:
                     return new DynValue((int)variable.Number & (int)operand.Number);
-                
+
                 case CompoundAssignmentType.BitwiseOr:
                     return new DynValue((int)variable.Number | (int)operand.Number);
-                
+
                 case CompoundAssignmentType.BitwiseXor:
                     return new DynValue((int)variable.Number ^ (int)operand.Number);
 

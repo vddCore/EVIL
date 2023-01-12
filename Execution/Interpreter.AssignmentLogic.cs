@@ -30,14 +30,12 @@ namespace EVIL.Execution
         {
             DynValue val;
 
-            if (CallStack.Count > 0)
+            if (Environment.IsInScriptFunctionScope)
             {
-                var stackTop = CallStack.Peek();
-
-                if (stackTop.ParameterScope.ContainsKey(left.Name))
+                if (Environment.CallStackTop.HasParameter(left.Name))
                 {
                     val = Visit(right);
-                    stackTop.ParameterScope[left.Name] = val;
+                    Environment.CallStackTop.SetParameter(left.Name, val);
 
                     return val;
                 }
@@ -45,39 +43,26 @@ namespace EVIL.Execution
 
             if (isLocal)
             {
-                if (CallStack.Count > 0)
+                if (Environment.IsInScriptFunctionScope)
                 {
-                    var stackTop = CallStack.Peek();
-                    val = Visit(right);
-
-                    if (stackTop.LocalVariableScope.ContainsKey(left.Name))
-                        stackTop.LocalVariableScope[left.Name] = val;
-                    else
-                        stackTop.LocalVariableScope.Add(left.Name, val);
-
-                    return val;
+                    return Environment.LocalScope.Set(left.Name, Visit(right));
                 }
 
                 throw new RuntimeException("Local variable assignment outside of a function.", left.Line);
             }
-            else if (CallStack.Count > 0)
+            else if (Environment.IsInScriptFunctionScope)
             {
                 val = Visit(right);
 
-                var stackTop = CallStack.Peek();
-
-                if (stackTop.LocalVariableScope.ContainsKey(left.Name))
+                if (Environment.LocalScope.HasMember(left.Name))
                 {
-                    stackTop.LocalVariableScope[left.Name] = val;
+                    Environment.LocalScope.Set(left.Name, val);
                     return val;
                 }
             }
 
-            if (!Environment.Globals.ContainsKey(left.Name))
-                Environment.Globals.Add(left.Name, DynValue.Zero);
-
             val = Visit(right);
-            Environment.Globals[left.Name] = val;
+            Environment.GlobalScope.Set(left.Name, val);
 
             return val;
         }

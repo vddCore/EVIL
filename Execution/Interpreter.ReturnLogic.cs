@@ -7,12 +7,12 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(ReturnNode returnNode)
         {
-            if (CallStack.Count <= 0)
+            if (!Environment.IsInScriptFunctionScope)
                 throw new RuntimeException("Return statement outside of a function.", returnNode.Line);
 
-            var stackTop = CallStack.Peek();
-            stackTop.ReturnNow = true;
+            var stackTop = Environment.CallStackTop;
             stackTop.ReturnValue = Visit(returnNode.Expression);
+            stackTop.Return();
 
             return stackTop.ReturnValue;
         }

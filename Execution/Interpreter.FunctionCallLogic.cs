@@ -1,5 +1,6 @@
 ﻿using System;
 using EVIL.Abstraction;
+using EVIL.Abstraction.Base;
 using EVIL.AST.Nodes;
 using EVIL.Diagnostics;
 
@@ -10,195 +11,110 @@ namespace EVIL.Execution
         public override DynValue Visit(FunctionCallNode functionCallNode)
         {
             var name = functionCallNode.MemberName;
+            var funcValue = Environment.LocalScope.FindInScopeChain(name);
+
+            if (funcValue == null)
+            {
+                throw new RuntimeException(
+                    $"'{name} was not found in the current scope.", functionCallNode.Line
+                );
+            }
+
+            if (funcValue.Type != DynValueType.Function)
+            {
+                throw new RuntimeException(
+                    $"'{name}' cannot be invoked because it is not a function.", functionCallNode.Line
+                );
+            }
+
             var parameters = new ClrFunctionArguments();
 
             foreach (var node in functionCallNode.Parameters)
                 parameters.Add(Visit(node));
 
-            if (Environment.Functions.ContainsKey(name))
+            if (Environment.CallStack.Count > Environment.CallStackLimit)
             {
-                var scriptFunction = Environment.Functions[name];
-
-                if (CallStack.Count > CallStackLimit)
-                {
-                    CallStack.Pop();
-                    throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
-                }
-
-                var callStackItem = new CallStackItem(name);
-                var iterator = 0;
-                foreach (var parameterName in scriptFunction.ParameterNames)
-                {
-                    if (callStackItem.ParameterScope.ContainsKey(parameterName))
-                        throw new RuntimeException($"Parameter {parameterName} already defined.", functionCallNode.Line);
-
-                    if (iterator < parameters.Count)
-                        callStackItem.ParameterScope.Add(parameterName, parameters[iterator++]);
-                    else
-                        callStackItem.ParameterScope.Add(parameterName, DynValue.Zero);
-                }
-
-                CallStack.Push(callStackItem);
-
-                var retval = DynValue.Zero;
-                try
-                {
-                    retval = ExecuteStatementList(scriptFunction.StatementList);
-                }
-                catch (ProgramTerminationException)
-                {
-                    throw;
-                }
-                catch (RuntimeException)
-                {
-                    throw;
-                }
-                catch (ExitStatementException) { }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e.Message, functionCallNode.Line);
-                }
-                finally
-                {
-                    CallStack.Pop();
-                }
-
-                return retval;
+                throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
             }
-            else if (Environment.BuiltIns.ContainsKey(name))
+
+            if (funcValue.IsClrFunction)
             {
-                var clrFunction = Environment.BuiltIns[name];
-
-                if (CallStack.Count > CallStackLimit)
-                {
-                    CallStack.Pop();
-                    throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
-                }
-
-                var callStackitem = new CallStackItem($"CLR!{name}");
-
-                CallStack.Push(callStackitem);
-
-                DynValue retVal;
-                try
-                {
-                    retVal = clrFunction(this, parameters);
-                }
-                finally
-                {
-                    CallStack.Pop();
-                }
-
-                return retVal;
+                return ExecuteClrFunction(funcValue.ClrFunction, name, parameters);
             }
-            else if (Environment.Globals.ContainsKey(name))
+            else
             {
-                var scriptFunction = Environment.Globals[name].Function;
-
-                if (CallStack.Count > CallStackLimit)
-                {
-                    CallStack.Pop();
-                    throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
-                }
-
-                var callStackItem = new CallStackItem(name);
-                var iterator = 0;
-                foreach (var parameterName in scriptFunction.ParameterNames)
-                {
-                    if (callStackItem.ParameterScope.ContainsKey(parameterName))
-                        throw new RuntimeException($"Duplicate parameter name '{parameterName}'.", functionCallNode.Line);
-
-                    if (iterator < parameters.Count)
-                        callStackItem.ParameterScope.Add(parameterName, parameters[iterator++]);
-                    else
-                        callStackItem.ParameterScope.Add(parameterName, DynValue.Zero);
-                }
-
-                CallStack.Push(callStackItem);
-
-                var retval = DynValue.Zero;
-                try
-                {
-                    retval = ExecuteStatementList(scriptFunction.StatementList);
-                }
-                catch (ProgramTerminationException)
-                {
-                    throw;
-                }
-                catch (RuntimeException)
-                {
-                    throw;
-                }
-                catch (ExitStatementException) { }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e.Message, functionCallNode.Line);
-                }
-                finally
-                {
-                    CallStack.Pop();
-                }
-
-                return retval;
+                return ExecuteScriptFunction(funcValue.ScriptFunction, parameters, name);
             }
-            else if (CallStack.Count > 0)
-            {
-                var csi = CallStack.Peek();
-                var scriptFunction = csi.LocalVariableScope[name].Function;
-
-                if (CallStack.Count > CallStackLimit)
-                {
-                    CallStack.Pop();
-                    throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
-                }
-
-                var callStackItem = new CallStackItem("LOCAL!" + name);
-                var iterator = 0;
-                foreach (var parameterName in scriptFunction.ParameterNames)
-                {
-                    if (callStackItem.ParameterScope.ContainsKey(parameterName))
-                        throw new RuntimeException($"Duplicate parameter name '{parameterName}'.", functionCallNode.Line);
-
-                    if (iterator < parameters.Count)
-                        callStackItem.ParameterScope.Add(parameterName, parameters[iterator++]);
-                    else
-                        callStackItem.ParameterScope.Add(parameterName, DynValue.Zero);
-                }
-
-                CallStack.Push(callStackItem);
-
-                var retval = DynValue.Zero;
-                try
-                {
-                    retval = ExecuteStatementList(scriptFunction.StatementList);
-                }
-                catch (ProgramTerminationException)
-                {
-                    throw;
-                }
-                catch (RuntimeException)
-                {
-                    throw;
-                }
-                catch (ExitStatementException) { }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e.Message, functionCallNode.Line);
-                }
-                finally
-                {
-                    CallStack.Pop();
-                }
-
-                return retval;
-            }
-            else throw new RuntimeException($"'{name}' is not a top-level nor a variable function.", functionCallNode.Line);
         }
 
-        private void EmptyStack()
+        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, ClrFunctionArguments args, string name)
         {
-            while (CallStack.Count != 0)
-                CallStack.Pop();
+            var callStackItem = new CallStackItem(name);
+            var iterator = 0;
+            foreach (var parameterName in scriptFunction.ParameterNames)
+            {
+                if (callStackItem.Parameters.ContainsKey(parameterName))
+                    throw new RuntimeException($"Duplicate parameter name '{parameterName}'.", null);
+
+                if (iterator < args.Count)
+                    callStackItem.Parameters.Add(parameterName, args[iterator++]);
+                else
+                    callStackItem.Parameters.Add(parameterName, DynValue.Zero);
+            }
+
+            Environment.CallStack.Push(callStackItem);
+
+            var retval = DynValue.Zero;
+            try
+            {
+                Environment.EnterScope();
+                retval = ExecuteStatementList(scriptFunction.StatementList);
+            }
+            catch (ProgramTerminationException)
+            {
+                throw;
+            }
+            catch (RuntimeException)
+            {
+                throw;
+            }
+            catch (ExitStatementException)
+            {
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException(e.Message, null);
+            }
+            finally
+            {
+                Environment.ExitScope();
+                Environment.CallStack.Pop();
+            }
+
+            return retval;
+        }
+
+        private DynValue ExecuteClrFunction(IFunction function, string name, ClrFunctionArguments args)
+        {
+            var clrFunction = function as ClrFunction;
+
+            if (clrFunction == null)
+                throw new RuntimeException("Failed to interpret IFunction as ClrFunction.", null);
+
+            var csi = new CallStackItem($"CLR!{name}");
+            Environment.CallStack.Push(csi);
+
+            DynValue retVal;
+            try
+            {
+                retVal = clrFunction.Invokable(this, args);
+            }
+            finally
+            {
+                Environment.CallStack.Pop();
+            }
+
+            return retVal;
         }
     }
 }

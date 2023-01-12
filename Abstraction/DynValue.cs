@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using EVIL.Abstraction.Base;
 
 namespace EVIL.Abstraction
 {
@@ -9,9 +10,11 @@ namespace EVIL.Abstraction
         private double _numberValue;
         private string _stringValue;
         private Table _tableValue;
-        private ScriptFunction _functionValue;
+        private IFunction _functionValue;
 
         public DynValueType Type { get; private set; }
+
+        public bool IsClrFunction => Type == DynValueType.Function && _functionValue is ClrFunction;
 
         public double Number
         {
@@ -46,15 +49,27 @@ namespace EVIL.Abstraction
             }
         }
 
-        public ScriptFunction Function
+        public ScriptFunction ScriptFunction
         {
             get
             {
                 if (Type != DynValueType.Function)
-                    throw new InvalidDynValueTypeException($"This value is not a function.", DynValueType.Function,
-                        Type);
+                    throw new InvalidDynValueTypeException(
+                        $"This value is not a function.", DynValueType.Function, Type);
 
-                return _functionValue;
+                return (ScriptFunction)_functionValue;
+            }
+        }
+
+        public ClrFunction ClrFunction
+        {
+            get
+            {
+                if (Type != DynValueType.Function)
+                    throw new InvalidDynValueTypeException(
+                        $"This value is not a function.", DynValueType.Function, Type);
+
+                return (ClrFunction)_functionValue;
             }
         }
 
@@ -87,6 +102,12 @@ namespace EVIL.Abstraction
             _functionValue = function;
         }
 
+        public DynValue(ClrFunction function)
+        {
+            Type = DynValueType.Function;
+            _functionValue = function;
+        }
+
         public DynValue AsNumber()
         {
             if (Type == DynValueType.Number)
@@ -107,7 +128,16 @@ namespace EVIL.Abstraction
             else if (Type == DynValueType.Table)
                 return new DynValue($"Table (count: {_tableValue.Count})");
             else if (Type == DynValueType.Function)
-                return new DynValue($"fn({_functionValue.ParameterNames.Count})");
+            {
+                if (_functionValue is ScriptFunction sf)
+                {
+                    return new DynValue($"fn({sf.ParameterNames.Count})");
+                }
+                else if (_functionValue is ClrFunction cf)
+                {
+                    return new DynValue($"clr_fn({cf.Invokable.Method.GetParameters().Length})");
+                }
+            }
             return new DynValue(_numberValue.ToString(CultureInfo.InvariantCulture));
         }
 
@@ -142,9 +172,9 @@ namespace EVIL.Abstraction
                 case DynValueType.Table:
                     _tableValue = dynValue.Table;
                     break;
-                
+
                 case DynValueType.Function:
-                    _functionValue = dynValue.Function;
+                    _functionValue = dynValue.ScriptFunction;
                     break;
             }
         }

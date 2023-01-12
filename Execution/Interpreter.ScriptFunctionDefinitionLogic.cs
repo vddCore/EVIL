@@ -11,13 +11,6 @@ namespace EVIL.Execution
 
             if (name != null)
             {
-                if (Environment.BuiltIns.ContainsKey(name))
-                {
-                    throw new RuntimeException($"Function '{name}' is a built-in function and cannot be redefined.",
-                        scriptFunctionDefinitionNode.Line);
-                }
-
-                // RegisterFunction allows redefinition
                 Environment.RegisterFunction(
                     name,
                     new ScriptFunction(
