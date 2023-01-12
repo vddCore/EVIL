@@ -1,18 +1,14 @@
 using System.Collections.Generic;
-using EVIL.Intermediate;
 
-namespace EVIL.Compiler
+namespace EVIL.Intermediate
 {
     public class CodeGenerator
     {
-        private List<byte> _instructions = new();
-        
-        public Prototype Prototype { get; }
-        public IReadOnlyList<byte> Instructions => _instructions;
+        private List<byte> _instructions;
 
-        public CodeGenerator(Prototype prototype)
+        internal CodeGenerator(Chunk chunk)
         {
-            Prototype = prototype;
+            _instructions = chunk.Instructions;
         }
 
         public void Emit(OpCode opCode, double operand)

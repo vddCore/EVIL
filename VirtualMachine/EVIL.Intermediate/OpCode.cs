@@ -8,49 +8,54 @@
         HLT   = 0x02,
         
         // ---------- [ ARITHMETIC
-        
         ADD   = 0x10,
         SUB   = 0x11,
         MUL   = 0x12,
         DIV   = 0x13,
         MOD   = 0x14,
         LEN   = 0x15,
-        FLR   = 0x16,
+        UNM   = 0x16,
         
         // ---------- [ LOGICAL
-       
         AND   = 0x20,
         NOT   = 0x21,
         OR    = 0x22,
         XOR   = 0x23,
         CEQ   = 0x24,
-        CGT   = 0x25,
-        CLT   = 0x26,
-        CGE   = 0x27,
-        CLE   = 0x28,
-        SHR   = 0x29,
-        SHL   = 0x2A,
+        CNE   = 0x25,
+        CGT   = 0x26,
+        CLT   = 0x27,
+        CGE   = 0x28,
+        CLE   = 0x29,
+        SHR   = 0x2A,
+        SHL   = 0x2B,
+        LOR   = 0x2C,
+        LAND  = 0x2D,
+        LNOT  = 0x2E,
+        XINT  = 0x2F,
         
         // ---------- [ BRANCHING
-        JUMP  = 0x31,
-        FJMP  = 0x32,
-        TJMP  = 0x33,
-        CALL  = 0x34,
-        RETN  = 0x35,
+        JUMP  = 0x30,
+        TJMP  = 0x31,
+        CALL  = 0x32,
+        RETN  = 0x33,
         
         // ---------- [ STORAGE
-
-        LDSTR = 0x40,
-        LDNUM = 0x41,
-        LDVAR = 0x42,
-        STVAR = 0x43,
-        LDLOC = 0x44,
-        STLOC = 0x45,
-        NETBL = 0x46,
+        LDCONST = 0x40,
+        LDGLOBAL = 0x41,
+        STGLOBAL = 0x42,
+        LDLOCAL = 0x43,
+        STLOCAL = 0x44,
+        LDARG = 0x45,
+        STARG = 0x46,
+        NEWTABLE = 0x47,
+        CLOSE = 0x48,
+        LDCLS = 0x49,
+        STCLS = 0x4A,
         
         // ---------- [ DATA MANIPULATION
-        
-        CNCAT = 0x50,
-        INDEX = 0x51,
+        INDEX = 0x50,
+        TONUM = 0x51,
+        TOSTR = 0x52
     }
 }

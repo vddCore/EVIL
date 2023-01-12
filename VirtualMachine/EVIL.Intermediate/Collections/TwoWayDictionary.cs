@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace EVIL.Compiler.Collections
+namespace EVIL.Intermediate.Collections
 {
     public class TwoWayDictionary<TKey, TValue> : IEnumerable<TwoWayDictionary<TKey, TValue>.KeyValuePair>
     {
@@ -49,7 +49,7 @@ namespace EVIL.Compiler.Collections
 
             private Dictionary<TKey, TValue>.Enumerator _dictEnumerator;
         }
-        
+
         private Dictionary<TKey, TValue> _keyToValue = new();
         private Dictionary<TValue, TKey> _valueToKey = new();
 
