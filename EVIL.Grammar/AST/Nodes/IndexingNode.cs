@@ -42,7 +42,7 @@ namespace EVIL.Grammar.AST.Nodes
         {
             return KeyExpression switch
             {
-                NumberNode num => num.Value.ToString(),
+                DecimalNode num => num.Value.ToString(),
                 StringNode str => str.Value,
                 VariableNode vn => vn.Identifier,
                 _ => "???"

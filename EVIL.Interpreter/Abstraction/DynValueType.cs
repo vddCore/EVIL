@@ -3,7 +3,8 @@
     public enum DynValueType
     {
         String,
-        Number,
+        Decimal,
+        Integer,
         Table,
         Function,
         ClrFunction

@@ -7,31 +7,57 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(DecrementationNode decrementationNode)
         {
-            var numValue = Visit(decrementationNode.Target);
-
-            if (numValue.Type != DynValueType.Number)
+            if (!(decrementationNode.Target is VariableNode) && !(decrementationNode.Target is IndexingNode))
             {
                 throw new RuntimeException(
-                    "Cannot decrement this value because it's not a number.", 
+                    "A variable value is required as decrement operand",
                     Environment,
                     decrementationNode.Line
                 );
             }
+            
+            var numValue = Visit(decrementationNode.Target);
 
-            if (decrementationNode.IsPrefix)
+            if (numValue.Type == DynValueType.Decimal)
             {
-                var retVal = new DynValue(numValue.Number - 1);
-                numValue.CopyFrom(retVal);
+                if (decrementationNode.IsPrefix)
+                {
+                    var retVal = new DynValue(numValue.Decimal - 1);
+                    numValue.CopyFrom(retVal);
                 
-                return retVal;
-            }
-            else
-            {
-                var retVal = numValue.Copy();
-                numValue.CopyFrom(new DynValue(numValue.Number - 1));
+                    return retVal;
+                }
+                else
+                {
+                    var retVal = numValue.Copy();
+                    numValue.CopyFrom(new DynValue(numValue.Decimal - 1));
 
-                return retVal;
+                    return retVal;
+                }
             }
+            else if (numValue.Type == DynValueType.Integer)
+            {
+                if (decrementationNode.IsPrefix)
+                {
+                    var retVal = new DynValue(numValue.Integer - 1);
+                    numValue.CopyFrom(retVal);
+                
+                    return retVal;
+                }
+                else
+                {
+                    var retVal = numValue.Copy();
+                    numValue.CopyFrom(new DynValue(numValue.Integer - 1));
+
+                    return retVal;
+                }
+            }
+            
+            throw new RuntimeException(
+                "Cannot decrement this value because it's not a number.", 
+                Environment,
+                decrementationNode.Line
+            );
         }
     }
 }

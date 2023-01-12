@@ -7,7 +7,8 @@ namespace EVIL.Interpreter.Abstraction
     {
         public static DynValue Zero => new(0);
 
-        private decimal _numberValue;
+        private decimal _decimalValue;
+        private int _integerValue;
         private string _stringValue;
         private Table _tableValue;
         private ClrFunction _clrFunctionValue;
@@ -15,16 +16,38 @@ namespace EVIL.Interpreter.Abstraction
 
         public DynValueType Type { get; private set; }
 
-        public bool IsTruth => Type != DynValueType.Number || Number != 0;
-
-        public decimal Number
+        public bool IsTruth
         {
             get
             {
-                if (Type != DynValueType.Number)
-                    throw new InvalidDynValueTypeException("This value is not a number.", DynValueType.Number, Type);
+                if (Type == DynValueType.Decimal)
+                    return Decimal != 0;
+                else if (Type == DynValueType.Integer)
+                    return Integer != 0;
 
-                return _numberValue;
+                return true;
+            }
+        }
+
+        public decimal Decimal
+        {
+            get
+            {
+                if (Type != DynValueType.Decimal)
+                    throw new InvalidDynValueTypeException("This value is not a decimal.", DynValueType.Decimal, Type);
+
+                return _decimalValue;
+            }
+        }
+
+        public int Integer
+        {
+            get
+            {
+                if (Type != DynValueType.Integer)
+                    throw new InvalidDynValueTypeException("This value is not an integer.", DynValueType.Integer, Type);
+
+                return _integerValue;
             }
         }
 
@@ -81,14 +104,20 @@ namespace EVIL.Interpreter.Abstraction
 
         public DynValue(bool value)
         {
-            Type = DynValueType.Number;
-            _numberValue = value ? 1 : 0;
+            Type = DynValueType.Integer;
+            _integerValue = value ? 1 : 0;
+        }
+
+        public DynValue(int value)
+        {
+            Type = DynValueType.Integer;
+            _integerValue = value;
         }
 
         public DynValue(decimal value)
         {
-            Type = DynValueType.Number;
-            _numberValue = value;
+            Type = DynValueType.Decimal;
+            _decimalValue = value;
         }
 
         public DynValue(string value)
@@ -115,15 +144,28 @@ namespace EVIL.Interpreter.Abstraction
             _clrFunctionValue = function;
         }
 
-        public DynValue AsNumber()
+        public DynValue AsDecimal()
         {
-            if (Type == DynValueType.Number)
-                return new DynValue(_numberValue);
+            if (Type == DynValueType.Decimal)
+                return new DynValue(_decimalValue);
 
             var success = decimal.TryParse(_stringValue, out var result);
 
             if (!success)
-                throw new DynValueConversionException($"Cannot convert string value '{_stringValue}' to number.");
+                throw new DynValueConversionException($"Cannot convert value of type '{Type}' to a decimal.");
+
+            return new DynValue(result);
+        }
+
+        public DynValue AsInteger()
+        {
+            if (Type == DynValueType.Integer)
+                return new DynValue(_integerValue);
+
+            var success = int.TryParse(_stringValue, out var result);
+
+            if (!success)
+                throw new DynValueConversionException($"Cannot convert value of type '{Type}' to an integer.");
 
             return new DynValue(result);
         }
@@ -144,7 +186,11 @@ namespace EVIL.Interpreter.Abstraction
             {
                 return new DynValue($"ClrFunction({_clrFunctionValue.Invokable.Method.GetParameters().Length})");
             }
-            return new DynValue(_numberValue.ToString(CultureInfo.InvariantCulture));
+            else if (Type == DynValueType.Decimal)
+            {
+                return new DynValue(_decimalValue.ToString(CultureInfo.InvariantCulture));
+            }
+            else return new DynValue(_integerValue.ToString(CultureInfo.InvariantCulture));
         }
 
         public DynValue AsTable()
@@ -153,7 +199,7 @@ namespace EVIL.Interpreter.Abstraction
                 return new DynValue(Table.FromString(_stringValue));
             else if (Type == DynValueType.Table)
                 return new DynValue(_tableValue);
-            else throw new DynValueConversionException($"Cannot convert a value type '{Type}' to a table.");
+            else throw new DynValueConversionException($"Cannot convert value of type '{Type}' to a table.");
         }
 
         public DynValue Copy()
@@ -167,8 +213,12 @@ namespace EVIL.Interpreter.Abstraction
 
             switch (dynValue.Type)
             {
-                case DynValueType.Number:
-                    _numberValue = dynValue.Number;
+                case DynValueType.Decimal:
+                    _decimalValue = dynValue.Decimal;
+                    break;
+                
+                case DynValueType.Integer:
+                    _integerValue = dynValue.Integer;
                     break;
 
                 case DynValueType.String:

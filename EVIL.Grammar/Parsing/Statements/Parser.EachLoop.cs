@@ -17,7 +17,7 @@ namespace EVIL.Grammar.Parsing
 
             Match(TokenType.Colon);
 
-            var tableNode = Assignment();
+            var tableNode = AssignmentExpression();
             
             Match(TokenType.RParenthesis);
             Match(TokenType.LBrace);

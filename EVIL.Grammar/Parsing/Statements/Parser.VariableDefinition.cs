@@ -13,9 +13,9 @@ namespace EVIL.Grammar.Parsing
             var identifier = Scanner.State.CurrentToken.Value.ToString();
             Match(TokenType.Identifier);
             
-            var assignment = Assignment(new VariableNode(identifier));
+            var assignment = AssignmentExpression(new VariableNode(identifier));
 
-            return new VarNode(identifier, assignment) { Line = line };
+            return new VariableDefinitionNode(identifier, assignment) { Line = line };
         }
     }
 }

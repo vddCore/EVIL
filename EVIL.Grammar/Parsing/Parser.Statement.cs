@@ -8,10 +8,8 @@ namespace EVIL.Grammar.Parsing
         private AstNode Statement()
         {
             var token = Scanner.State.CurrentToken;
-
-            if (token.Type == TokenType.Var)
-                return VariableDefinition();
-            else if (token.Type == TokenType.Fn)
+            AstNode node;
+            if (token.Type == TokenType.Fn)
                 return FunctionDefinition();
             else if (token.Type == TokenType.If)
                 return IfCondition();
@@ -21,19 +19,44 @@ namespace EVIL.Grammar.Parsing
                 return WhileLoop();
             else if (token.Type == TokenType.Each)
                 return EachLoop();
+            else if (token.Type == TokenType.Var)
+            {
+                node = VariableDefinition();
+                Match(TokenType.Semicolon);
+            }
             else if (token.Type == TokenType.Ret)
-                return Return();
+            {
+                node = Return();
+                Match(TokenType.Semicolon);
+            }
             else if (token.Type == TokenType.Skip)
-                return Skip();
+            {
+                node = Skip();
+                Match(TokenType.Semicolon);
+            }
             else if (token.Type == TokenType.Break)
-                return Break();
+            {
+                node = Break();
+                Match(TokenType.Semicolon);
+            }
             else if (token.Type == TokenType.Undef)
-                return UndefineSymbol();
+            {
+                node = UndefineSymbol();
+                Match(TokenType.Semicolon);
+            }
             else if (token.Type == TokenType.Exit)
-                return Exit();
+            {
+                node = Exit();
+                Match(TokenType.Semicolon);
+            }
             else if (token.Type == TokenType.Identifier)
-                return Assignment();
+            {
+                node = AssignmentExpression();
+                Match(TokenType.Semicolon);
+            }
             else throw new ParserException($"Expected a statement, found '{token.Value}'.", Scanner.State);
+
+            return node;
         }
     }
 }
