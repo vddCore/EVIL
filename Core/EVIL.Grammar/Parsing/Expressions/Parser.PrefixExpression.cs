@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private Expression NameOfExpression()
+        private Expression PrefixExpression()
         {
             var token = CurrentToken;
             
@@ -14,6 +14,11 @@ namespace EVIL.Grammar.Parsing
             {
                 var line = Match(Token.NameOf);
                 return new NameOfExpression(UnaryExpression()) {Line = line};
+            }
+            else if (token.Type == TokenType.Length)
+            {
+                var line = Match(Token.Length);
+                return new UnaryExpression(UnaryExpression(), UnaryOperationType.Length) { Line = line };
             }
 
             return UnaryExpression();
