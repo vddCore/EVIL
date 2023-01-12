@@ -35,7 +35,7 @@ class Program
     await _interpreter.ExecuteAsync(_source, "main", new string[0]);
   }
 }
-
+```
 # There any syntax reference?
 No. But here's the gist:
 
@@ -114,3 +114,4 @@ fn print_global() {
 fn util.thing() {
   ret 69*0x420 // hex numbers are supported
 }
+```
