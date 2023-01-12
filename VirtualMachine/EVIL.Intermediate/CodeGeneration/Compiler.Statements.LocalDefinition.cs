@@ -7,16 +7,6 @@ namespace EVIL.Intermediate.CodeGeneration
         public override void Visit(LocalDefinition localDefinition)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-
-            if (ScopeStack.Count <= 0)
-            {
-                throw new CompilerException(
-                    "`loc` is only valid in a local scope.",
-                    CurrentLine,
-                    CurrentColumn
-                );
-            }
-            
             var localScope = ScopeStack.Peek();
 
             foreach (var kvp in localDefinition.Definitions)
