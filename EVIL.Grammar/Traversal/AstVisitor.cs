@@ -25,7 +25,8 @@ namespace EVIL.Grammar.Traversal
                 {typeof(UnaryOperationNode), (n) => Visit(n as UnaryOperationNode)},
                 {typeof(VariableNode), (n) => Visit(n as VariableNode)},
                 {typeof(VariableDefinitionNode), (n) => Visit(n as VariableDefinitionNode)},
-                {typeof(FunctionDefinitionNode), (n) => Visit(n as FunctionDefinitionNode)},
+                {typeof(FunctionDefinitionNamedNode), (n) => Visit(n as FunctionDefinitionNamedNode)},
+                {typeof(FunctionDefinitionAnonymousNode), (n) => Visit(n as FunctionDefinitionAnonymousNode)},
                 {typeof(FunctionCallNode), (n) => Visit(n as FunctionCallNode)},
                 {typeof(ConditionNode), (n) => Visit(n as ConditionNode)},
                 {typeof(ExitNode), (n) => Visit(n as ExitNode)},
@@ -66,7 +67,8 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(UnaryOperationNode unaryOperationNode);
         public abstract void Visit(VariableNode variableNode);
         public abstract void Visit(VariableDefinitionNode variableDefinitionNode);
-        public abstract void Visit(FunctionDefinitionNode scriptFunctionDefinitionNode);
+        public abstract void Visit(FunctionDefinitionNamedNode functionDefinitionNamedNode);
+        public abstract void Visit(FunctionDefinitionAnonymousNode functionDefinitionAnonymousNode);
         public abstract void Visit(FunctionCallNode functionCallNode);
         public abstract void Visit(ConditionNode conditionNode);
         public abstract void Visit(ExitNode exitNode);

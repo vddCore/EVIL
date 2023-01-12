@@ -12,11 +12,11 @@ namespace EVIL.Grammar.AST.Nodes
             Reparent(Statements.ToArray());
         }
 
-        public FunctionDefinitionNode FindChildFunctionDefinition(string fnName)
+        public FunctionDefinitionNamedNode FindChildFunctionDefinition(string fnName)
         {
             for (var i = 0; i < Statements.Count; i++)
             {
-                if (Statements[i] is FunctionDefinitionNode fdn)
+                if (Statements[i] is FunctionDefinitionNamedNode fdn)
                 {
                     if (fdn.Identifier == fnName)
                     {

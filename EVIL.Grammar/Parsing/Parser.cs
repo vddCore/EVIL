@@ -72,22 +72,20 @@ namespace EVIL.Grammar.Parsing
 
             if (!CurrentToken.Equals(token))
             {
-                string actual;
-
-                if (CurrentToken.Value != null)
+                var expected = $"'{token.Value}'";
+                if (string.IsNullOrEmpty(token.Value))
                 {
-                    actual = $"'{CurrentToken.Value}'";
+                    expected = WithArticle(token.Type.ToString());
                 }
-                else
+
+                var actual = $"'{CurrentToken.Value}'";
+                if(string.IsNullOrEmpty(CurrentToken.Value))
                 {
-                    actual = CurrentToken.Type.ToString().ToLower();
-                    actual = "aeiou".Contains(actual[0])
-                        ? $"an {actual}"
-                        : $"a {actual}";
+                    actual = WithArticle(CurrentToken.Type.ToString());
                 }
 
                 throw new ParserException(
-                    $"Expected '{token.Value}', got {actual}.",
+                    $"Expected {expected}, got {actual}.",
                     Lexer.State
                 );
             }
@@ -95,6 +93,15 @@ namespace EVIL.Grammar.Parsing
             Lexer.NextToken();
 
             return line;
+        }
+
+        private string WithArticle(string word)
+        {
+            var result = word.ToLower();
+            
+            return "aeiou".Contains(result[0])
+                ? $"an {result}"
+                : $"a {result}";
         }
 
         private void DisallowPrevious(params TokenType[] types)
