@@ -11,18 +11,10 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(IndexingNode indexingNode)
         {
-            var q = new Queue<AstNode>(indexingNode.KeyExpressions);
-
             var indexable = Visit(indexingNode.Indexable);
-            DynValue keyValue;
+            var keyValue = Visit(indexingNode.KeyExpression);
 
-            do
-            {
-                keyValue = Visit(q.Dequeue());
-                indexable = IndexDynValue(indexable, keyValue, indexingNode);
-            } while (q.Any());
-
-            return indexable;
+            return IndexDynValue(indexable, keyValue, indexingNode);
         }
 
         private DynValue IndexDynValue(DynValue indexable, DynValue keyValue, IndexingNode indexingNode)

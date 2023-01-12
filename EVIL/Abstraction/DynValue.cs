@@ -177,7 +177,14 @@ namespace EVIL.Abstraction
                     break;
 
                 case DynValueType.Function:
-                    _functionValue = dynValue.ScriptFunction;
+                    if (dynValue.IsClrFunction)
+                    {
+                        _functionValue = dynValue.ClrFunction;
+                    }
+                    else
+                    {
+                        _functionValue = dynValue.ScriptFunction;
+                    }
                     break;
             }
         }

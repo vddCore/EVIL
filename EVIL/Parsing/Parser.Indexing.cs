@@ -9,20 +9,11 @@ namespace EVIL.Parsing
     {
         public AstNode Indexing(AstNode indexable)
         {
-            var line = -1;
-            var keyExpressions = new Queue<AstNode>();
+            var line = Match(TokenType.LBracket);
+            var expr = Assignment();
+            Match(TokenType.RBracket);
 
-            while (Scanner.State.CurrentToken.Type == TokenType.LBracket)
-            {
-                if (line < 0)
-                    line = Match(TokenType.LBracket);
-                else Match(TokenType.LBracket);
-
-                keyExpressions.Enqueue(Assignment());
-                Match(TokenType.RBracket);
-            }
-
-            return new IndexingNode(indexable, keyExpressions, Scanner.State.CurrentToken.Type == TokenType.Assign) {Line = line};
+            return new IndexingNode(indexable, expr, Scanner.State.CurrentToken.Type == TokenType.Assign) {Line = line};
         }
     }
 }
