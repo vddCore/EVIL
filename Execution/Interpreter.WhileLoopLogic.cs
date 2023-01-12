@@ -14,7 +14,7 @@ namespace EVIL.Execution
                 {
                     Environment.LoopStack.Push(new LoopFrame());
 
-                    while (Visit(whileLoopNode.Expression).Number != 0)
+                    while (Visit(whileLoopNode.Expression).IsTruth)
                     {
                         Environment.EnterScope();
                         {

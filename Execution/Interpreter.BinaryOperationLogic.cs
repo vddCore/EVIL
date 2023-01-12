@@ -34,7 +34,7 @@ namespace EVIL.Execution
                     return Division(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Modulo:
-                    return new DynValue(left.Number % right.Number);
+                    return Modulus(left, right, binaryOperationNode);
 
                 case BinaryOperationType.ShiftLeft:
                     return ShiftLeft(left, right, binaryOperationNode);
@@ -178,6 +178,21 @@ namespace EVIL.Execution
             else
             {
                 throw new RuntimeException($"Attempt to divide {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue Modulus(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (right.Number == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", node.Line);
+
+                return new DynValue(left.Number % right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt of modulo operation on {left.Type} by {right.Type}.", node.Line);
             }
         }
 
@@ -415,7 +430,7 @@ namespace EVIL.Execution
         {
             if (left.IsTruth && right.IsTruth)
             {
-                return new DynValue(1);
+                return right.Copy();
             }
             else
             {

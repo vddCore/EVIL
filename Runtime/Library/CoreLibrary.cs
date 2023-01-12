@@ -1,4 +1,6 @@
-﻿using EVIL.Abstraction;
+﻿using System;
+using System.Linq;
+using EVIL.Abstraction;
 using EVIL.Execution;
 
 namespace EVIL.Runtime.Library
@@ -55,6 +57,24 @@ namespace EVIL.Runtime.Library
                 return new DynValue(1);
 
             return new DynValue(0);
+        }
+
+        [ClrFunction("io.print")]
+        public static DynValue Print(Interpreter interpreter, ClrFunctionArguments args)
+        {
+            var output = string.Join(' ', args.Select(x => x.AsString().String));
+            Console.Write(output);
+
+            return new DynValue(output.Length);
+        }
+
+        [ClrFunction("io.println")]
+        public static DynValue PrintLine(Interpreter interpreter, ClrFunctionArguments args)
+        {
+            var output = Print(interpreter, args);
+            Console.WriteLine();
+
+            return output;
         }
     }
 }

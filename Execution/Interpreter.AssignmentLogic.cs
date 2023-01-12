@@ -8,8 +8,8 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(AssignmentNode assignmentNode)
         {
-            var leftValue = Visit(assignmentNode.Left);
-            var rightValue = Visit(assignmentNode.Right);
+            var left = Visit(assignmentNode.Left);
+            var right = Visit(assignmentNode.Right);
 
             switch (assignmentNode.OperationType)
             {
@@ -17,46 +17,46 @@ namespace EVIL.Execution
                     break;
                 
                 case AssignmentOperationType.Add:
-                    rightValue = new DynValue(leftValue.Number + rightValue.Number);
+                    right = Addition(left, right, assignmentNode);
                     break;
                     
                 case AssignmentOperationType.Subtract:
-                    rightValue = new DynValue(leftValue.Number - rightValue.Number);
+                    right = Subtraction(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.Multiply:
-                    rightValue = new DynValue(leftValue.Number * rightValue.Number);
+                    if (left.Type == DynValueType.Number)
+                        right = Multiplication(right, left, assignmentNode);
+                    else
+                        right = Multiplication(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.Divide:
-                    if (rightValue.Number == 0)
-                        throw new RuntimeException("Cannot divide by zero.", null);
-
-                    rightValue = new DynValue(leftValue.Number / rightValue.Number);
+                    right = Division(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.Modulo:
-                    rightValue = new DynValue(leftValue.Number % rightValue.Number);
+                    right = Modulus(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.BitwiseAnd:
-                    rightValue = new DynValue((int)leftValue.Number & (int)rightValue.Number);
+                    right = BitwiseAnd(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.BitwiseOr:
-                    rightValue = new DynValue((int)leftValue.Number | (int)rightValue.Number);
+                    right = BitwiseOr(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.BitwiseXor:
-                    rightValue = new DynValue((int)leftValue.Number ^ (int)rightValue.Number);
+                    right = BitwiseXor(left, right, assignmentNode);
                     break;
 
                 default:
                     throw new RuntimeException("Unexpected compound assignment type??", null);
             }
 
-            leftValue.CopyFrom(rightValue);
-            return rightValue;
+            left.CopyFrom(right);
+            return right;
         }
     }
 }

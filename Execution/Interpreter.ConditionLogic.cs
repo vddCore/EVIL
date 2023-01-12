@@ -11,7 +11,7 @@ namespace EVIL.Execution
             {
                 var exprResult = Visit(branch.Key);
 
-                if (exprResult.Number != 0)
+                if (exprResult.IsTruth)
                 {
                     Environment.EnterScope();
                     {
