@@ -29,13 +29,9 @@ namespace EVIL.Grammar.Parsing
                 {
                     node = FunctionCall(node);
                 }
-                else if (token.Type == TokenType.LBracket)
+                else if (token.Type == TokenType.LBracket || token.Type == TokenType.Dot)
                 {
                     node = Indexing(node);
-                }
-                else if (token.Type == TokenType.Dot)
-                {
-                    node = MemberAccess(node);
                 }
                 else if (token.Type == TokenType.Increment)
                 {

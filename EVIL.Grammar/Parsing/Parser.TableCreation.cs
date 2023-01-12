@@ -30,7 +30,6 @@ namespace EVIL.Grammar.Parsing
                 Match(TokenType.Comma);
             }
 
-
             Match(TokenType.RBrace);
             return new TableNode(initializers, keyed) {Line = line};
         }

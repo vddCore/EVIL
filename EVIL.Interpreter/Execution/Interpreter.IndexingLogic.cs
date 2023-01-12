@@ -70,15 +70,6 @@ namespace EVIL.Interpreter.Execution
                     }
                 }
 
-                case DynValueType.Number:
-                {
-                    throw new RuntimeException(
-                        $"Attempt to index a {DynValueType.Number}", 
-                        Environment,
-                        indexingNode.Line
-                    );
-                }
-
                 case DynValueType.Table:
                 {
                     try
@@ -108,7 +99,6 @@ namespace EVIL.Interpreter.Execution
                         }
                         
                         indexable.Table[keyValue] = new DynValue(0);
-
                         return indexable.Table[keyValue];
                     }
                 }

@@ -88,6 +88,7 @@ namespace EVIL.Interpreter.Execution
         private DynValue Construct(FunctionCallNode functionCallNode, DynValue tableValue)
         {
             var table = tableValue.Table;
+            var instance = new DynValue(new Table());
             
             if (!table.ContainsKey(table.GetKeyByString(Environment.ConstructorName)))
             {
@@ -113,7 +114,16 @@ namespace EVIL.Interpreter.Execution
             foreach (var node in functionCallNode.Parameters)
                 parameters.Add(Visit(node));
 
-            return ExecuteScriptFunction(constructor, Environment.ConstructorName, parameters, functionCallNode);
+            var prev = constructor.Closures["this"];
+            constructor.Closures["this"] = instance;
+            Environment.EnterScope();
+            {
+                ExecuteScriptFunction(constructor, Environment.ConstructorName, parameters, functionCallNode);
+            }
+            Environment.ExitScope();
+            constructor.Closures["this"] = prev;
+            
+            return instance;
         }
 
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
