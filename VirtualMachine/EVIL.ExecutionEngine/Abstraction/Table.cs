@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace EVIL.ExecutionEngine.Abstraction
 {
     public class Table
     {
-        public bool Frozen { get; set; }
-
         public Dictionary<DynamicValue, DynamicValue> Entries = new();
 
+        public bool Frozen { get; set; }
         public static readonly Table Empty = new() { Frozen = true };
 
         public DynamicValue this[string key]

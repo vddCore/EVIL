@@ -1,3 +1,0 @@
-﻿fn main(args) {
-  io.println("hello, world!")
-}

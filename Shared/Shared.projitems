@@ -12,21 +12,10 @@
     <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_katepart.xml" />
     <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_npp.xml" />
     <Content Include="$(MSBuildThisFileDirectory)samples\99bottles.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\brainfuck.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\bubblesort.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\each_test.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\entry_point.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\fibonacci.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\fizzbuzz.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\fn_test.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\for_test.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\hello.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\helloworld.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\if_test.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\libs\arch.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\megatest.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\quicksort.vil" />
-    <Content Include="$(MSBuildThisFileDirectory)samples\shitfest.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\sierpinski_triangle.vil" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
 using EVIL.Intermediate.Analysis;
 using EVIL.Intermediate.CodeGeneration;
+using EVIL.Intermediate.Storage;
 using EVIL.Lexical;
 using EVIL.RT;
 
@@ -22,6 +23,7 @@ namespace EVIL.CILE
         private static EVM _evm = new(_globals);
         
         private static bool _disassembleCompiledProgram;
+        private static bool _compileOnly;
 
         internal static void Main(string[] args)
         {
@@ -35,7 +37,9 @@ namespace EVIL.CILE
                 TerminateWithError($"Path '{args[0]}' does not exist.");
             }
 
+            var absolutePath = Path.GetFullPath(args[0]);
             var text = File.ReadAllText(args[0]);
+            
             var programArguments = args.Skip(1)
                 .Where(x => !x.StartsWith("-"))
                 .Select(x => new DynamicValue(x))
@@ -46,6 +50,11 @@ namespace EVIL.CILE
                 if (args[i] == "-d")
                 {
                     _disassembleCompiledProgram = true;
+                }
+                
+                if (args[i] == "-c")
+                {
+                    _compileOnly = true;
                 }
             }
 
@@ -69,18 +78,27 @@ namespace EVIL.CILE
             {
                 TerminateWithError($"Compiler error at ({ce.Line}:{ce.Column}): {ce.Message}");
             }
+            
+            if (_disassembleCompiledProgram)
+            {
+                var disasm = new Disassembler();
+                Console.WriteLine(disasm.Disassemble(exe));
+            }
 
+            if (_compileOnly)
+            {
+                var outDir = Path.GetDirectoryName(absolutePath);
+                var outFileName = Path.GetFileNameWithoutExtension(absolutePath);
+                EvxLinker.Link(exe, Path.Combine(outDir, outFileName + ".evx"));
+                return;
+            }
+            
             var rt = new EvilRuntime(_globals);
             rt.LoadCoreRuntime();
             
             try
             {
-                if (_disassembleCompiledProgram)
-                {
-                    var disasm = new Disassembler();
-                    Console.WriteLine(disasm.Disassemble(exe));
-                }
-
+                _evm.ImportLookupPaths.Add(Path.GetDirectoryName(absolutePath));
                 _evm.Load(exe);
             }
             catch (Exception e)

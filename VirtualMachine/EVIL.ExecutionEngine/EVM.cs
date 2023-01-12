@@ -9,9 +9,10 @@ namespace EVIL.ExecutionEngine
     public class EVM
     {
         private Executable Executable { get; set; }
+        private List<ExecutionContext> ExecutionContexts { get; } = new();
 
-        public List<ExecutionContext> ExecutionContexts { get; } = new();
-        public ExecutionContext MainExecutionContext { get; private set; }
+        public ExecutionContext MainExecutionContext => ExecutionContexts[0];
+        public List<string> ImportLookupPaths { get; set; } = new();
 
         public bool Running { get; private set; }
         public Table GlobalTable { get; }
@@ -19,6 +20,24 @@ namespace EVIL.ExecutionEngine
         public EVM(Table globalTable)
         {
             GlobalTable = globalTable ?? new Table();
+            ExecutionContexts.Add(new ExecutionContext(this));
+            ImportLookupPaths.Add(AppContext.BaseDirectory);
+        }
+
+        public void ImportPublicFunctions(Executable executable)
+        {
+            for (var i = 1; i < executable.Chunks.Count; i++)
+            {
+                var c = executable.Chunks[i];
+
+                if (!c.IsPublic)
+                    continue;
+
+                GlobalTable.Set(
+                    new DynamicValue(c.Name),
+                    new DynamicValue(c)
+                );
+            }
         }
 
         public void Load(Executable executable)
@@ -38,59 +57,52 @@ namespace EVIL.ExecutionEngine
                 );
             }
 
-            for (var i = 1; i < executable.Chunks.Count; i++)
-            {
-                var c = executable.Chunks[i];
-
-                if (!c.IsPublic)
-                    continue;
-
-                GlobalTable.Set(
-                    new DynamicValue(c.Name),
-                    new DynamicValue(c)
-                );
-            }
+            ImportPublicFunctions(executable);
         }
 
+        public void Run(params DynamicValue[] args)
+        {
+            InvokeCallback(
+                Executable.RootChunk, 
+                MainExecutionContext, 
+                args
+            );
+            
+            Start();
+        }
+        
         public void Start()
         {
             Running = true;
 
             while (Running)
             {
-                if (ExecutionContexts.Count <= 0)
-                {
-                    Running = false;
-                    continue;
-                }
-                
+                var isAnyContextActive = false;
                 for (var i = 0; i < ExecutionContexts.Count; i++)
                 {
                     if (!Running)
                         break;
-                    
+
                     var ctx = ExecutionContexts[i];
 
                     if (ctx.Running)
                     {
+                        isAnyContextActive = true;
                         ctx.Step();
                     }
-                    else
-                    {
-                        ExecutionContexts.RemoveAt(i);
-                    }
+                }
+
+                if (!isAnyContextActive)
+                {
+                    Running = false;
                 }
             }
-
-            ExecutionContexts.Clear();
         }
 
         public void Stop()
         {
             for (var i = 0; i < ExecutionContexts.Count; i++)
                 ExecutionContexts[i].Pause();
-
-            Running = false;
         }
 
         public void SetGlobal(string key, DynamicValue value)
@@ -103,9 +115,32 @@ namespace EVIL.ExecutionEngine
             GlobalTable.Set(new(key), value);
         }
 
-        public ExecutionContext InvokeCallback(Chunk chunk, params DynamicValue[] args)
+        public ExecutionContext CreateNewExecutionContext()
         {
-            var exeContext = new ExecutionContext(this, chunk, args);
+            var ctxt = new ExecutionContext(this);
+            ExecutionContexts.Add(ctxt);
+
+            return ctxt;
+        }
+
+        public void DeleteExecutionContext(ExecutionContext ctx)
+        {
+            if (ctx == MainExecutionContext)
+            {
+                throw new InvalidOperationException("Unable to delete main execution context.");
+            }
+            
+            ctx.Pause();
+            ExecutionContexts.Remove(ctx);
+        }
+
+        public void InvokeCallback(Chunk chunk, ExecutionContext ctx, params DynamicValue[] args)
+        {
+            if (ctx == null)
+                ctx = MainExecutionContext;
+            
+            if (!ExecutionContexts.Contains(ctx))
+                throw new InvalidOperationException("Execution context provided is not owned by this EVM.");
 
             if (chunk == null)
                 throw new InvalidOperationException($"Chunk was null.");
@@ -113,10 +148,7 @@ namespace EVIL.ExecutionEngine
             if (args.Length > 255)
                 throw new InvalidOperationException("Too many arguments passed to the chunk (max. 255).");
 
-            ExecutionContexts.Add(exeContext);
-            exeContext.Resume();
-
-            return exeContext;
+            ctx.ScheduleChunk(chunk, args);
         }
 
         public Chunk FindExposedChunk(string funcName)
@@ -137,12 +169,6 @@ namespace EVIL.ExecutionEngine
             }
 
             return c;
-        }
-
-        public void Run(params DynamicValue[] args)
-        {
-            MainExecutionContext = InvokeCallback(Executable.RootChunk, args);
-            Start();
         }
     }
 }

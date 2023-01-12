@@ -10,36 +10,64 @@ namespace EVIL.ExecutionEngine.Diagnostics
 {
     public class ExecutionContext
     {
+        internal Stack<IteratorState> IteratorStates { get; } = new();
+        internal Stack<StackFrame> CallStack { get; } = new();
+        internal Stack<DynamicValue> EvaluationStack { get; } = new();
+        internal Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
+
         public EVM VirtualMachine { get; }
-        public Chunk Chunk { get; }
-
-        public Stack<IteratorState> IteratorStates { get; } = new();
-        public Stack<StackFrame> CallStack { get; } = new();
-        public Stack<DynamicValue> EvaluationStack { get; } = new();
-        public Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
-
         public int CallStackLimit { get; set; } = 256;
         public bool SwallowClrExceptions { get; set; }
-
         public bool Running { get; private set; }
 
-        public ExecutionContext(EVM virtualMachine, Chunk chunk, params DynamicValue[] args)
+        public DynamicValue EvaluationStackTop
+        {
+            get
+            {
+                if (!EvaluationStack.TryPeek(out var ret))
+                {
+                    return DynamicValue.Zero;
+                }
+
+                return ret;
+            }
+        }
+
+        public ExecutionContext(EVM virtualMachine)
         {
             VirtualMachine = virtualMachine;
-            Chunk = chunk;
+        }
+
+        public void ScheduleChunk(Chunk chunk, params DynamicValue[] args)
+        {
+            if (Running)
+                Reset();
             
             for (var i = 0; i < args.Length; i++)
                 EvaluationStack.Push(args[i]);
             
             InvokeChunk(chunk, (byte)args.Length);
+            Resume();
         }
 
         public void Reset()
         {
+            Pause();
+            
             IteratorStates.Clear();
             EvaluationStack.Clear();
             ExternContexts.Clear();
             CallStack.Clear();
+        }
+        
+        public void Pause()
+        {
+            Running = false;
+        }
+        
+        public void Resume()
+        {
+            Running = true;
         }
 
         public string DumpCallStack()
@@ -67,17 +95,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             return sb.ToString();
         }
         
-        public void Pause()
-        {
-            Running = false;
-        }
-        
-        public void Resume()
-        {
-            Running = true;
-        }
-        
-        public void Step()
+        internal void Step()
         {
             if (!CallStack.TryPeek(out var frame))
             {
@@ -692,7 +710,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
             catch (Exception e)
             {
-                throw new VirtualMachineException(this, "One of the execution contexts has thrown an exception", e);
+                throw new VirtualMachineException(this, "Exception has been thrown by an execution context", e);
             }
         }
 

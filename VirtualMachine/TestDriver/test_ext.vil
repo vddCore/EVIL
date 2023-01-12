@@ -1,3 +1,27 @@
-fn ext_chunk(arg1, arg2) {
-  ret arg1 + arg2;
+fn add(a, b) {
+  ret a + b;
+}
+
+fn sub(a, b) {
+  ret a - b;
+}
+
+fn div(a, b) {
+  ret a / b;
+}
+
+fn export() {
+    ret {
+        "add" => add,
+        "sub" => sub,
+        "div" => div,
+        
+        "mul" => fn(a, b) {
+            ret a * b;
+        },
+        
+        "pow" => fn(a) {
+            ret a * a;
+        }
+    };
 }

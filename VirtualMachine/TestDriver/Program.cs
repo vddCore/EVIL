@@ -73,6 +73,8 @@ namespace EVIL.VirtualMachine.TestDriver
             rt.LoadCoreRuntime();
             
             var evm = new EVM(_globalTable);
+            evm.ImportLookupPaths.Add(AppContext.BaseDirectory);
+            
             var exe = BuildExecutable("./test_asgn2.vil");
 
             EvxLinker.Link(exe, "a.evx");

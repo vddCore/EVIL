@@ -42,7 +42,8 @@ namespace ScriptingEngineExample
 
             if (_initCallback != null)
             {
-                _evm.InvokeCallback(_initCallback);
+                _evm.InvokeCallback(_initCallback, null);
+                _evm.Start();
             }
         }
 
@@ -50,7 +51,8 @@ namespace ScriptingEngineExample
         {
             if (_updateCallback != null)
             {
-                _evm.InvokeCallback(_updateCallback, new DynamicValue(delta));
+                _evm.InvokeCallback(_updateCallback, null, new DynamicValue(delta));
+                _evm.Start();
             }
         }
 
@@ -61,7 +63,8 @@ namespace ScriptingEngineExample
 
             if (_drawCallback != null)
             {
-                _evm.InvokeCallback(_drawCallback);
+                _evm.InvokeCallback(_drawCallback, null);
+                _evm.Start();
             }
         }
 

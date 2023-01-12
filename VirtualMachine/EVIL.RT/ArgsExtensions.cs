@@ -54,7 +54,8 @@ namespace EVIL.RT
             return args;
         }
 
-        public static DynamicValue[] ExpectTableAtIndex(this DynamicValue[] args, int index, int size, DynamicValueType acceptedType)
+        public static DynamicValue[] ExpectTableAtIndex(this DynamicValue[] args, int index, int size,
+            DynamicValueType acceptedType)
         {
             ExpectTableAtIndex(args, index);
             var tbl = args[index].Table;
@@ -63,7 +64,7 @@ namespace EVIL.RT
                 throw new EvilRuntimeException(
                     $"Expected a table of size {size} at index {index}. Actual size was {tbl.Entries.Count}");
 
-            foreach(var kvp in tbl.Entries)
+            foreach (var kvp in tbl.Entries)
             {
                 if (kvp.Value.Type != acceptedType)
                 {
