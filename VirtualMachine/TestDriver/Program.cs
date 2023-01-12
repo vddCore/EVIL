@@ -1,43 +1,18 @@
-﻿using System.Runtime.CompilerServices;
-using EVIL.ExecutionEngine;
+﻿using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
-using EVIL.Intermediate;
 using EVIL.Intermediate.Analysis;
 using EVIL.Intermediate.CodeGeneration;
 using EVIL.Intermediate.Storage;
+using EVIL.RT;
 
 namespace EVIL.VirtualMachine.TestDriver
 {
     public static class Program
     {
-        private static DynamicValue PrintClrFunction(EVM evm, params DynamicValue[] args)
-        {
-            for (var i = 0; i < args.Length; i++)
-            {
-                Console.Write(args[i].AsString());
-            }
-            
-            return DynamicValue.Zero;
-        }
-        
-        private static DynamicValue PrintLnClrFunction(EVM evm, params DynamicValue[] args)
-        {
-            for (var i = 0; i < args.Length; i++)
-            {
-                Console.Write(args[i].AsString());
-            }
-            Console.WriteLine();
-            
-            return DynamicValue.Zero;
-        }
-
-        private static DynamicValue StrChrFunction(EVM evm, params DynamicValue[] args)
-        {
-            return new DynamicValue(((char)args[0].Number).ToString());
-        }
+        private static Table _globalTable = new();
 
         public static void Main(string[] args)
         {
@@ -65,12 +40,12 @@ namespace EVIL.VirtualMachine.TestDriver
             }
             catch (LexerException le)
             {
-                Console.WriteLine($"Parsing error at ({le.Line}, {le.Column}): {le.Message}");
+                Console.WriteLine($"Parsing error at ({le.Line}:{le.Column}): {le.Message}");
                 return;
             }
             catch (ParserException pe)
             {
-                Console.WriteLine($"Parsing error at {pe.Line}, {pe.Column}): {pe.Message}");
+                Console.WriteLine($"Parsing error at ({pe.Line}:{pe.Column}): {pe.Message}");
                 return;
             }
             
@@ -81,30 +56,22 @@ namespace EVIL.VirtualMachine.TestDriver
             }
             catch (CompilerException e)
             {
-                Console.WriteLine($"Compilation error at ({e.Line}, {e.Column}): {e.Message}");
+                Console.WriteLine($"Compilation error at ({e.Line}:{e.Column}): {e.Message}");
                 return;
             }
             Console.WriteLine("-[disASM]-------------");
             Console.Write(disasm.Disassemble(executable));
             
-            Linker.Link(executable, "a.evx");
+            EvxLinker.Link(executable, "a.evx");
             var exe2 = EvxLoader.Load("a.evx");
             
-            // Console.WriteLine("-[progRUN]------------");
-            var evm = new EVM(exe2);
+            Console.WriteLine("-[progRUN]------------");
+            var rt = new EvilRuntime(_globalTable);
+            rt.LoadCoreRuntime();
             
-            var ioTable = new Table();
-            ioTable.Set(new("print"), new DynamicValue(PrintClrFunction));
-            ioTable.Set(new("println"), new DynamicValue(PrintLnClrFunction));
-            evm.SetGlobal("io", new(ioTable));
-            
-            var strtable = new Table();
-            strtable.Set(new("chr"), new DynamicValue(StrChrFunction));
-            evm.SetGlobal("str", new(strtable));
-            
-            evm.Run();
-            // Console.WriteLine("-[evSTACK]------------");
-            // Console.WriteLine(evm.DumpEvaluationStack());
+            var evm = new EVM(exe2, _globalTable);
+            var callback = evm.FindExposedChunk("callback_a");
+            evm.InvokeCallback(callback, new DynamicValue(1234));
         }
     }
 }

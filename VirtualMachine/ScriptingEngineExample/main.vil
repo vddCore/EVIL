@@ -1,0 +1,28 @@
+// note to self:
+//
+// performance of this is 
+//   absolutely
+//     undeniably
+//       completely
+//        D O G S H I T
+//
+// probably warrants a lot of optimization.
+// ... later.
+
+fn init()
+{
+  chroma.log(0, "hello from EVIL world!");
+}
+
+fn update(delta) {
+  chroma.win_set_title(
+    @chroma.get_fps()
+  );
+}
+
+fn draw(context) {
+  for (var i = 0; i < 1000; i++)
+  {
+    chroma.fillrect(20, 20, 30, 30);
+  }
+}

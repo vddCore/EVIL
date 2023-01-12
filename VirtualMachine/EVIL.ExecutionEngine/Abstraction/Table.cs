@@ -19,8 +19,20 @@ namespace EVIL.ExecutionEngine.Abstraction
             }
         }
 
+        public bool IsSet(string key)
+            => IsSet(new DynamicValue(key));
+
+        public bool IsSet(double key)
+            => IsSet(new DynamicValue(key));
+
         public bool IsSet(DynamicValue key)
             => Entries.ContainsKey(key);
+
+        public DynamicValue Get(string key)
+            => Get(new DynamicValue(key));
+
+        public DynamicValue Get(double key)
+            => Get(new DynamicValue(key));
         
         public DynamicValue Get(DynamicValue key)
         {
@@ -31,6 +43,12 @@ namespace EVIL.ExecutionEngine.Abstraction
             
             return DynamicValue.Zero;
         }
+
+        public void SetByString(string key, DynamicValue value)
+            => Set(new DynamicValue(key), value);
+
+        public void SetByNumber(double key, DynamicValue value)
+            => Set(new DynamicValue(key), value);
 
         public void Set(DynamicValue key, DynamicValue value)
         {

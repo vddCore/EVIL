@@ -1,7 +1,6 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using EVIL.ExecutionEngine.Abstraction;
-using EVIL.Intermediate;
+using EVIL.ExecutionEngine.Interop;
 using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine.Diagnostics
@@ -109,7 +108,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal byte FetchByte()
         {
-            Debug.Assert(IP < Chunk.Instructions.Count);
             return Chunk.Instructions[IP++];
         }
     }

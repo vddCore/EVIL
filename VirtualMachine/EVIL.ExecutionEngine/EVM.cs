@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
+using EVIL.ExecutionEngine.Interop;
 using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine
@@ -20,6 +21,9 @@ namespace EVIL.ExecutionEngine
         private Stack<DynamicValue> EvaluationStack { get; } = new();
         private Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
+        public int CallStackLimit { get; set; } = 30;
+
+        public bool SwallowClrExceptions { get; set; }
         public Table GlobalTable { get; }
 
         public bool Running { get; private set; }
@@ -78,16 +82,82 @@ namespace EVIL.ExecutionEngine
             GlobalTable.Set(new(key), value);
         }
 
-        public void Run()
+        public DynamicValue InvokeCallback(Chunk chunk, params DynamicValue[] args)
         {
+            if (Running)
+                throw new InvalidOperationException("EVM is busy.");
+
+            if (chunk == null)
+                throw new InvalidOperationException($"Chunk was null.");
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                EvaluationStack.Push(args[i]);
+            }
+
+            InvokeChunk(chunk, args.Length);
+
             Running = true;
 
-            InvokeChunk(Executable.RootChunk, 0);
+            Resume();
+            var ret = EvaluationStack.Pop();
+            Halt();
+            
+            return ret;
+        }
 
+        public Chunk FindExposedChunk(string funcName)
+        {
+            Chunk c = null;
+            for (var i = 0; i < Executable.Chunks.Count; i++)
+            {
+                var ch = Executable.Chunks[i];
+
+                if (ch.Name.StartsWith("!"))
+                    continue;
+                
+                if (ch.Name == funcName)
+                {
+                    c = ch;
+                    break;
+                }
+            }
+
+            return c;
+        }
+        
+        public void Pause()
+        {
+            Running = false;
+        }
+
+        public void Resume()
+        {
             while (Running)
             {
                 Step();
             }
+        }
+
+        public void Halt()
+        {
+            Pause();
+            
+            ExternContexts.Clear();
+            EvaluationStack.Clear();
+            CallStack.Clear();
+            _currentStackFrame = null;
+        }
+
+        public void Run()
+        {
+            if (Running)
+                Halt();
+            
+            Running = true;
+            InvokeChunk(Executable.RootChunk, 0);
+            
+            Resume();
         }
 
         public void Step()
@@ -492,7 +562,11 @@ namespace EVIL.ExecutionEngine
                 case OpCode.RETN:
                 {
                     CallStack.Pop();
-                    _currentStackFrame = CallStack.Peek();
+                    
+                    if (!CallStack.TryPeek(out _currentStackFrame))
+                    {
+                        Pause();
+                    }
                     break;
                 }
 
@@ -705,14 +779,6 @@ namespace EVIL.ExecutionEngine
             }
         }
 
-        public void Halt()
-        {
-            Running = false;
-
-            ExternContexts.Clear();
-            EvaluationStack.Clear();
-        }
-
         private void InvokeClrFunction(ClrFunction clrFunction, int argc)
         {
             var args = new DynamicValue[argc];
@@ -726,9 +792,19 @@ namespace EVIL.ExecutionEngine
             CallStack.Push(newFrame);
             _currentStackFrame = newFrame;
             {
-                EvaluationStack.Push(
-                    clrFunction.Invoke(this, args)
-                );
+                try
+                {
+                    EvaluationStack.Push(
+                        clrFunction.Invoke(this, args)
+                    );
+                }
+                catch
+                {
+                    EvaluationStack.Push(DynamicValue.Zero);
+
+                    if (!SwallowClrExceptions)
+                        throw;
+                }
             }
             CallStack.Pop();
             _currentStackFrame = CallStack.Peek();
@@ -736,6 +812,15 @@ namespace EVIL.ExecutionEngine
 
         private void InvokeChunk(Chunk chunk, int argc)
         {
+            if (CallStack.Count + 1 > CallStackLimit)
+            {
+                foreach (var f in CallStack)
+                {
+                    Console.WriteLine($"{f.Chunk.Name}:{f.IP:X8}");
+                }
+                Environment.Exit(1);    
+            }
+            
             var newFrame = new StackFrame(chunk, argc);
 
             var extraArgs = newFrame.ExtraArguments;
