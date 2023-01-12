@@ -1,25 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using EVIL.Abstraction;
+using EVIL.Abstraction.Base;
+using EVIL.Diagnostics;
+using EVIL.Execution;
 using EVIL.Runtime;
 using EVIL.Runtime.Library;
-using static EVIL.Execution.Interpreter;
 
 namespace EVIL
 {
     public class Environment
     {
-        public Dictionary<string, DynValue> Globals { get; }
-        public Dictionary<string, ClrFunction> BuiltIns { get; }
-        public Dictionary<string, ScriptFunction> Functions { get; }
+        public int CallStackLimit { get; set; } = 256;
+
+        public Stack<CallStackItem> CallStack { get; }
+        public Stack<LoopStackItem> LoopStack { get; }
+        public Stack<NameScope> NameScopes { get; }
+
+        public bool IsInScriptFunctionScope => CallStack.Count > 0;
+        public bool IsInsideLoop => LoopStack.Count > 0;
+
+        public CallStackItem CallStackTop => CallStack.Peek();
+        public LoopStackItem LoopStackTop => LoopStack.Peek();
+
+        public NameScope LocalScope => NameScopes.Peek();
+        public NameScope GlobalScope => NameScopes.ElementAt(NameScopes.Count - 1);
 
         public Environment()
         {
-            Globals = new Dictionary<string, DynValue>();
+            CallStack = new Stack<CallStackItem>();
+            LoopStack = new Stack<LoopStackItem>();
 
-            BuiltIns = new Dictionary<string, ClrFunction>();
-            Functions = new Dictionary<string, ScriptFunction>();
+            NameScopes = new Stack<NameScope>();
+            NameScopes.Push(new NameScope(null));
         }
 
         public void LoadCoreRuntime()
@@ -37,8 +52,8 @@ namespace EVIL
 
             foreach (var m in type.GetMethods())
             {
-                if (!m.IsPublic 
-                    || m.Name == "GetType" 
+                if (!m.IsPublic
+                    || m.Name == "GetType"
                     || m.Name == "ToString"
                     || m.Name == "Equals"
                     || m.Name == "GetHashCode")
@@ -56,29 +71,54 @@ namespace EVIL
                 if (attr == null)
                     continue;
 
-                RegisterBuiltIn(
+                var d = m.CreateDelegate<Func<Interpreter, ClrFunctionArguments, DynValue>>();
+
+                RegisterFunction(
                     attr.Name,
-                    m.CreateDelegate<ClrFunction>()
+                    new ClrFunction(d)
                 );
             }
         }
 
-        public void RegisterBuiltIn(string name, ClrFunction clrFunction)
+        public void RegisterFunction(string name, IFunction function)
         {
-            if (BuiltIns.ContainsKey(name))
-                throw new InvalidOperationException($"Built-in function '{name}' has already been registered.");
-            BuiltIns.Add(name, clrFunction);
+            if (function is ClrFunction clrFunction)
+            {
+                GlobalScope.Set(name, new DynValue(clrFunction));
+            }
+            else if (function is ScriptFunction scriptFunction)
+            {
+                if (IsInScriptFunctionScope)
+                {
+                    LocalScope.Set(name, new DynValue(scriptFunction));
+                }
+                else
+                {
+                    GlobalScope.Set(name, new DynValue(scriptFunction));
+                }
+            }
+        }
+        
+        public void Clear()
+        {
+            LoopStack.Clear();
+            CallStack.Clear();
         }
 
-        public void RegisterFunction(string name, ScriptFunction function)
+        public List<CallStackItem> StackTrace()
         {
-            if (Functions.ContainsKey(name))
-            {
-                Functions[name] = function;
-                return;
-            }
+            return new(CallStack);
+        }
 
-            Functions.Add(name, function);
+        public NameScope EnterScope()
+        {
+            NameScopes.Push(new NameScope(LocalScope));
+            return NameScopes.Peek();
+        }
+
+        public void ExitScope()
+        {
+            NameScopes.Pop();
         }
     }
 }

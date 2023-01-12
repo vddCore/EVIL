@@ -10,15 +10,7 @@ namespace EVIL.Execution
 {
     public partial class Interpreter : AstVisitor
     {
-        public delegate DynValue ClrFunction(Interpreter interpreter, ClrFunctionArguments args);
-
         public bool BreakExecution { get; set; }
-
-        public int CallStackLimit { get; set; } = 256;
-
-        public Stack<CallStackItem> CallStack { get; }
-        public Stack<LoopStackItem> LoopStack { get; }
-
         public Environment Environment { get; set; }
 
         public IMemory Memory { get; set; }
@@ -26,9 +18,6 @@ namespace EVIL.Execution
 
         public Interpreter()
         {
-            CallStack = new Stack<CallStackItem>();
-            LoopStack = new Stack<LoopStackItem>();
-
             Environment = new Environment();
             Parser = new Parser();
         }
@@ -50,9 +39,7 @@ namespace EVIL.Execution
             }
             catch (ExitStatementException)
             {
-                CallStack.Clear();
-                LoopStack.Clear();
-
+                Environment.Clear();
                 return DynValue.Zero;
             }
         }
@@ -68,9 +55,56 @@ namespace EVIL.Execution
             }
             catch (ExitStatementException)
             {
-                CallStack.Clear();
-                LoopStack.Clear();
+                Environment.Clear();
+                return DynValue.Zero;
+            }
+        }
+        
+        public DynValue Execute(string sourceCode, string entryPoint, string[] args)
+        {
+            Parser.LoadSource(sourceCode);
+            var node = Parser.Parse();
 
+            try
+            {
+                Visit(node);
+                var entryNode = node.FindChildFunctionDefinition(entryPoint);
+
+                if (entryNode == null)
+                {
+                    throw new RuntimeException($"Entry point '{entryPoint}' missing.", null);
+                }
+
+                var csi = new CallStackItem(entryNode.Name);
+                if (entryNode.ParameterNames.Count >= 1)
+                {
+                    var tbl = new Table();
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        tbl[i] = new DynValue(args[i]);
+                    }
+
+                    csi.Parameters.Add(entryNode.ParameterNames[0], new DynValue(tbl));
+                }
+
+                DynValue result;
+                Environment.EnterScope();
+                {
+                    Environment.CallStack.Push(csi);
+                    result = ExecuteStatementList(entryNode.StatementList);
+
+                    if (Environment.CallStack.Count > 0)
+                    {
+                        Environment.CallStack.Pop();
+                    }
+                }
+                Environment.ExitScope();
+
+                return result;
+            }
+            catch (ExitStatementException)
+            {
+                Environment.Clear();
                 return DynValue.Zero;
             }
         }
@@ -99,23 +133,27 @@ namespace EVIL.Execution
                         tbl[i] = new DynValue(args[i]);
                     }
 
-                    csi.ParameterScope.Add(entryNode.ParameterNames[0], new DynValue(tbl));
+                    csi.Parameters.Add(entryNode.ParameterNames[0], new DynValue(tbl));
                 }
-                CallStack.Push(csi);
-                var result = ExecuteStatementList(entryNode.StatementList);
 
-                if (CallStack.Count > 0)
+                DynValue result;
+                Environment.EnterScope();
                 {
-                    CallStack.Pop();
+                    Environment.CallStack.Push(csi);
+                    result = ExecuteStatementList(entryNode.StatementList);
+
+                    if (Environment.CallStack.Count > 0)
+                    {
+                        Environment.CallStack.Pop();
+                    }
                 }
+                Environment.ExitScope();
 
                 return result;
             }
             catch (ExitStatementException)
             {
-                CallStack.Clear();
-                LoopStack.Clear();
-
+                Environment.Clear();
                 return DynValue.Zero;
             }
         }
@@ -124,11 +162,6 @@ namespace EVIL.Execution
         {
             ExecuteStatementList(rootNode.Children);
             return DynValue.Zero;
-        }
-
-        public List<CallStackItem> StackTrace()
-        {
-            return new(CallStack);
         }
 
         private DynValue ExecuteStatementList(List<AstNode> statements)
@@ -149,17 +182,17 @@ namespace EVIL.Execution
                     throw new ProgramTerminationException("Execution stopped by user.");
                 }
 
-                if (LoopStack.Count > 0)
+                if (Environment.IsInsideLoop)
                 {
-                    var loopStackTop = LoopStack.Peek();
+                    var loopStackTop = Environment.LoopStackTop;
 
                     if (loopStackTop.BreakLoop || loopStackTop.SkipThisIteration)
                         break;
                 }
 
-                if (CallStack.Count > 0)
+                if (Environment.IsInScriptFunctionScope)
                 {
-                    var callStackTop = CallStack.Peek();
+                    var callStackTop = Environment.CallStackTop;
 
                     if (callStackTop.ReturnNow)
                     {

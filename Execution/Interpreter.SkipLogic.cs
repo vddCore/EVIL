@@ -7,11 +7,10 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(SkipNode skipNode)
         {
-            if (LoopStack.Count <= 0)
+            if (!Environment.IsInsideLoop)
                 throw new RuntimeException("Unexpected 'skip' outside of a loop.", skipNode.Line);
 
-            LoopStack.Peek().SkipThisIteration = true;
-
+            Environment.LoopStackTop.SkipThisIteration = true;
             return DynValue.Zero;
         }
     }

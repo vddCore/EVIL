@@ -13,12 +13,7 @@ namespace EVIL.Parsing
 
             var node = new UndefNode { Type = UndefineType.Global, Line = line };
 
-            if (Scanner.State.CurrentToken.Type == TokenType.Fn)
-            {
-                Match(TokenType.Fn);
-                node.Type = UndefineType.Function;
-            }
-            else if (Scanner.State.CurrentToken.Type == TokenType.LocalVar)
+            if (Scanner.State.CurrentToken.Type == TokenType.LocalVar)
             {
                 Match(TokenType.LocalVar);
                 node.Type = UndefineType.Local;

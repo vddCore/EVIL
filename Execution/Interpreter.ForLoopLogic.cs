@@ -15,7 +15,7 @@ namespace EVIL.Execution
 
             try
             {
-                LoopStack.Push(new LoopStackItem());
+                Environment.LoopStack.Push(new LoopStackItem());
                 while (true)
                 {
                     var conditionEvaluation = Visit(forLoopNode.Condition);
@@ -24,7 +24,7 @@ namespace EVIL.Execution
                         break;
                     }
                     
-                    var loopStackTop = LoopStack.Peek();
+                    var loopStackTop = Environment.LoopStack.Peek();
 
                     if (loopStackTop.BreakLoop)
                     {
@@ -49,7 +49,7 @@ namespace EVIL.Execution
             }
             finally
             {
-                LoopStack.Pop();
+                Environment.LoopStack.Pop();
             }
 
             return DynValue.Zero;

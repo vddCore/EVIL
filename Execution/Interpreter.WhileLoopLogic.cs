@@ -10,13 +10,13 @@ namespace EVIL.Execution
         {
             try
             {
-                LoopStack.Push(new LoopStackItem());
+                Environment.LoopStack.Push(new LoopStackItem());
 
                 while (Visit(whileLoopNode.Expression).Number != 0)
                 {
                     ExecuteStatementList(whileLoopNode.StatementList);
 
-                    var stackTop = LoopStack.Peek();
+                    var stackTop = Environment.LoopStackTop;
 
                     if (stackTop.BreakLoop)
                         break;
@@ -29,7 +29,7 @@ namespace EVIL.Execution
             }
             finally
             {
-                LoopStack.Pop();
+                Environment.LoopStack.Pop();
             }
 
             return DynValue.Zero;

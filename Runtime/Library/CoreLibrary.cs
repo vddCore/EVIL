@@ -17,7 +17,7 @@ namespace EVIL.Runtime.Library
         {
             args.ExpectNone();
 
-            var trace = interpreter.StackTrace();
+            var trace = interpreter.Environment.StackTrace();
             var tbl = new Table();
 
             for (var i = 0; i < trace.Count; i++)
@@ -34,7 +34,7 @@ namespace EVIL.Runtime.Library
 
             var name = args[0].String;
 
-            if (interpreter.Environment.Globals.ContainsKey(name))
+            if (interpreter.Environment.GlobalScope.HasMember(name))
                 return new DynValue(1);
 
             return new DynValue(0);
@@ -48,12 +48,10 @@ namespace EVIL.Runtime.Library
 
             var name = args[0].String;
 
-            if (interpreter.CallStack.Count - 1 <= 0)
+            if (interpreter.Environment.CallStack.Count - 1 <= 0)
                 return new DynValue(0);
 
-            var stackTrace = interpreter.StackTrace();
-
-            if (stackTrace[stackTrace.Count - 1].LocalVariableScope.ContainsKey(name))
+            if (interpreter.Environment.LocalScope.HasMember(name))
                 return new DynValue(1);
 
             return new DynValue(0);
@@ -67,26 +65,12 @@ namespace EVIL.Runtime.Library
 
             var name = args[0].String;
 
-            if (interpreter.CallStack.Count == 0)
+            if (interpreter.Environment.CallStack.Count == 0)
                 return new DynValue(0);
 
-            var stackTrace = interpreter.StackTrace();
+            var stackTrace = interpreter.Environment.StackTrace();
 
-            if (stackTrace[stackTrace.Count - 1].ParameterScope.ContainsKey(name))
-                return new DynValue(1);
-
-            return new DynValue(0);
-        }
-
-        [ClrFunction("isfunc")]
-        public static DynValue IsFunction(Interpreter interpreter, ClrFunctionArguments args)
-        {
-            args.ExpectExactly(1)
-                .ExpectTypeAtIndex(0, DynValueType.String);
-
-            var name = args[0].String;
-
-            if (interpreter.Environment.Functions.ContainsKey(name))
+            if (stackTrace[stackTrace.Count - 1].HasParameter(name))
                 return new DynValue(1);
 
             return new DynValue(0);
