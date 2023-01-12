@@ -1,0 +1,38 @@
+var sierpinski = {}
+sierpinski["new"] = fn(n, f) {
+  var t = {}
+  t["order"] = n
+  t["func"] = f
+
+  t["S"] = fn(x, y) {
+    if (x == 0 || y == 0) { ret true }
+    elif (x % 3 == 1 && y % 3 == 1) { ret false }
+
+    ret t->S(math.floor(x/3), math.floor(y/3))
+  }
+
+  t["evaluate"] = fn() {
+    io.println("order = " + @t->order)
+
+    for (var y = 0; y < math.pow(3, t->order-1); y++) {
+      for (var x = 0; x < math.pow(3, t->order-1); x++) {
+        io.print(t->func(t->S(x, y)))
+      }
+      io.println()
+    }
+    io.println()
+  }
+
+  ret t
+}
+
+fn main(args) {
+  var order = 3
+
+  if (#args) {
+    order = str.s2n(args[0])
+  }
+
+  var s = sierpinski->new(order,  fn(b) { ret b && "##" || "  " })
+  s->evaluate()
+}
