@@ -11,6 +11,12 @@ namespace EVIL.Execution
 
             if (name != null)
             {
+                if (Environment.LocalScope != Environment.GlobalScope)
+                {
+                    throw new RuntimeException("Attempt to define a named function in local scope.",
+                        scriptFunctionDefinitionNode.Line);
+                }
+                
                 Environment.RegisterFunction(
                     name,
                     new ScriptFunction(

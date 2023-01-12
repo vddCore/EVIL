@@ -79,7 +79,7 @@ namespace EVIL.Execution
                 }
 
                 var csi = new StackFrame(entryNode.Name);
-                var scope = Environment.EnterScope();
+                var scope = Environment.EnterScope(true);
                 {
                     if (entryNode.ParameterNames.Count == 1)
                     {
