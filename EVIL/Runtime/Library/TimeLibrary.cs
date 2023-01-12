@@ -11,7 +11,7 @@ namespace EVIL.Runtime.Library
         {
             args.ExpectNone();
 
-            var stamp = (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
+            var stamp = (decimal)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
 
             return new DynValue(stamp);
         }

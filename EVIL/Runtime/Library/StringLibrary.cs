@@ -99,7 +99,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
 
-            if (!double.TryParse(args[0].String, out var result))
+            if (!decimal.TryParse(args[0].String, out var result))
                 throw new ClrFunctionException("The number was in an invalid format.");
 
             return new DynValue(result);

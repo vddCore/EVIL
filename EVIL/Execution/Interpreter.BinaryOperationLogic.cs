@@ -389,13 +389,13 @@ namespace EVIL.Execution
         {
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
-                if (!left.Number.Equals(right.Number))
+                if (left.Number != right.Number)
                     return new DynValue(1);
                 else return new DynValue(0);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String.Length != right.String.Length && right.String != left.String)
+                if (left.String != right.String)
                     return new DynValue(1);
                 else return new DynValue(0);
             }
@@ -409,13 +409,13 @@ namespace EVIL.Execution
         {
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
-                if (left.Number.Equals(right.Number))
+                if (left.Number == right.Number)
                     return new DynValue(1);
                 else return new DynValue(0);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String.Length == right.String.Length && right.String == left.String)
+                if (left.String == right.String)
                     return new DynValue(1);
 
                 else return new DynValue(0);

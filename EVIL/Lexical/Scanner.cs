@@ -352,7 +352,7 @@ namespace EVIL.Lexical
 
             try
             {
-                return new Token(TokenType.DecimalNumber, double.Parse(number));
+                return new Token(TokenType.DecimalNumber, decimal.Parse(number));
             }
             catch (FormatException)
             {
