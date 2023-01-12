@@ -4,12 +4,12 @@ namespace EVIL.AST.Nodes
 {
     public class IndexingNode : AstNode
     {
-        public VariableNode Variable { get; }
+        public AstNode Indexable { get; }
         public AstNode KeyExpression { get; }
 
-        public IndexingNode(VariableNode variable, AstNode keyExpression)
+        public IndexingNode(AstNode indexable, AstNode keyExpression)
         {
-            Variable = variable;
+            Indexable = indexable;
             KeyExpression = keyExpression;
         }
     }

@@ -7,10 +7,10 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(IndexingNode indexingNode)
         {
-            var variable = Visit(indexingNode.Variable);
+            var indexable = Visit(indexingNode.Indexable);
             var keyValue = Visit(indexingNode.KeyExpression);
 
-            switch (variable.Type)
+            switch (indexable.Type)
             {
                 case DynValueType.String:
                 {
@@ -21,24 +21,24 @@ namespace EVIL.Execution
 
                     if (index < 0)
                     {
-                        if (variable.String.Length + index < 0)
+                        if (indexable.String.Length + index < 0)
                         {
                             throw new RuntimeException("String index out of bounds.", indexingNode.Line);
                         }
 
                         return new DynValue(
-                            variable.String[^(-index)]
+                            indexable.String[^(-index)]
                         );
                     }
                     else
                     {
-                        if (index >= variable.String.Length)
+                        if (index >= indexable.String.Length)
                         {
                             throw new RuntimeException("String index out of bounds.", indexingNode.Line);
                         }
                         
                         return new DynValue(
-                            variable.String[index].ToString()
+                            indexable.String[index].ToString()
                         );
                     }
                 }
@@ -51,9 +51,9 @@ namespace EVIL.Execution
                 case DynValueType.Table:
                 {
                     if (keyValue.Type == DynValueType.String)
-                        return variable.Table[keyValue.String];
+                        return indexable.Table[keyValue.String];
                     else if (keyValue.Type == DynValueType.Number)
-                        return variable.Table[keyValue.Number];
+                        return indexable.Table[keyValue.Number];
                     else
                         throw new RuntimeException($"Type '{keyValue.Type}' cannot be used as a key.",
                             indexingNode.Line);

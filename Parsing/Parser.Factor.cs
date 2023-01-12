@@ -87,7 +87,7 @@ namespace EVIL.Parsing
             {
                 var state = Scanner.CopyState();
                 var node = MemoryGet();
-
+            
                 if (Scanner.State.CurrentToken.Type == TokenType.Increment || Scanner.State.CurrentToken.Type == TokenType.Decrement)
                 {
                     Scanner.State = state;
@@ -114,7 +114,7 @@ namespace EVIL.Parsing
                 else if (token.Type == TokenType.LParenthesis)
                     return FunctionCall(identifier);
                 else if (token.Type == TokenType.LBracket)
-                    return Indexing(identifier);
+                    return Indexing(Variable(identifier));
                 else if (token.Type == TokenType.Increment)
                     return PostIncrementation(identifier);
                 else if (token.Type == TokenType.Decrement)

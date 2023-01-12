@@ -6,14 +6,13 @@ namespace EVIL.Parsing
 {
     public partial class Parser
     {
-        public AstNode Indexing(string identifier)
+        public AstNode Indexing(AstNode indexable)
         {
-            var variableNode = Variable(identifier);
             var line = Match(TokenType.LBracket);
             var keyExpression = LogicalExpression();
             Match(TokenType.RBracket);
 
-            return new IndexingNode(variableNode, keyExpression) { Line = line };
+            return new IndexingNode(indexable, keyExpression) { Line = line };
         }
     }
 }
