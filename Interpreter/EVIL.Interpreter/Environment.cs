@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
+using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Runtime;
 using EVIL.Interpreter.Runtime.Library;
 
@@ -127,38 +128,24 @@ namespace EVIL.Interpreter
 
         public void RegisterFunction(string name, ScriptFunction scriptFunction)
         {
-            if (IsInScriptFunctionScope)
-            {
-                LocalScope.Set(name, new DynValue(scriptFunction));
-            }
-            else
-            {
-                GlobalScope.Set(name, new DynValue(scriptFunction));
-            }
+            var scope = LocalScope ?? GlobalScope;
+            scope.Set(name, new DynValue(scriptFunction));
         }
 
         public void Clear()
         {
             LoopStack.Clear();
             CallStack.Clear();
-
-            LocalScope = GlobalScope;
+            LocalScope = null;
         }
 
         public List<StackFrame> StackTrace()
-        {
-            return new(CallStack);
-        }
+            => new(CallStack);
 
         public NameScope EnterScope()
-        {
-            LocalScope = new NameScope(this, LocalScope);
-            return LocalScope;
-        }
+            => (LocalScope = new NameScope(this, LocalScope));
 
         public void ExitScope()
-        {
-            LocalScope = LocalScope.ParentScope;
-        }
+            => LocalScope = LocalScope?.ParentScope;
     }
 }
