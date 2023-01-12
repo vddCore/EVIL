@@ -122,6 +122,11 @@ namespace EVIL.Execution
         {
             var callStackItem = new StackFrame(name);
             var iterator = 0;
+            
+            foreach (var closure in scriptFunction.Closures)
+            {
+                Environment.LocalScope.Set(closure.Key, closure.Value);
+            }
 
             foreach (var parameterName in scriptFunction.ParameterNames)
             {

@@ -5,6 +5,7 @@ namespace EVIL.Abstraction
 {
     public class ScriptFunction
     {
+        public Dictionary<string, DynValue> Closures { get; } = new();
         public List<AstNode> StatementList { get; }
         public List<string> ParameterNames { get; }
 

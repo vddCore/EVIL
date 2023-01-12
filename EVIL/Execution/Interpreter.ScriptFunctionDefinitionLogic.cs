@@ -9,6 +9,11 @@ namespace EVIL.Execution
         {
             var name = scriptFunctionDefinitionNode.Name;
 
+            var fn = new ScriptFunction(
+                scriptFunctionDefinitionNode.StatementList,
+                scriptFunctionDefinitionNode.ParameterNames
+            );
+
             if (name != null)
             {
                 if (Environment.LocalScope != Environment.GlobalScope)
@@ -16,24 +21,19 @@ namespace EVIL.Execution
                     throw new RuntimeException("Attempt to define a named function in local scope.",
                         scriptFunctionDefinitionNode.Line);
                 }
-                
+
                 Environment.RegisterFunction(
                     name,
-                    new ScriptFunction(
-                        scriptFunctionDefinitionNode.StatementList,
-                        scriptFunctionDefinitionNode.ParameterNames
-                    )
+                    fn
                 );
-
-                return DynValue.Zero;
             }
 
-            return new DynValue(
-                new ScriptFunction(
-                    scriptFunctionDefinitionNode.StatementList,
-                    scriptFunctionDefinitionNode.ParameterNames
-                )
-            );
+            foreach (var kvp in Environment.LocalScope.Members)
+            {
+                fn.Closures.Add(kvp.Key, kvp.Value);
+            }
+
+            return new DynValue(fn);
         }
     }
 }
