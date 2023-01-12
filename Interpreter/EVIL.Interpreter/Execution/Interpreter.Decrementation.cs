@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(DecrementationExpression decrementationExpression)
         {
-            if (!(decrementationExpression.Target is VariableReference) && !(decrementationExpression.Target is IndexerExpression))
+            if (!(decrementationExpression.Target is VariableReferenceExpression) && !(decrementationExpression.Target is IndexerExpression))
             {
                 throw new RuntimeException(
                     "A variable value is required as decrement operand",

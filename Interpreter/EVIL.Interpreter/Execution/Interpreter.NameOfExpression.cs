@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(NameOfExpression nameOfExpression)
         {
-            if (nameOfExpression.Right is VariableReference variable)
+            if (nameOfExpression.Right is VariableReferenceExpression variable)
             {
                 var dynValue = Environment.LocalScope?.FindInScope(variable.Identifier)
                                ?? Environment.GlobalScope.FindInScope(variable.Identifier);

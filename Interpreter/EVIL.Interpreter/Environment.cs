@@ -124,12 +124,12 @@ namespace EVIL.Interpreter
 
         public void Clear()
         {
-            CallStack.Clear();            
+            CallStack.Clear();
             LocalScope = null;
             GlobalScope = new NameScope(this, null);
         }
 
-        public void Begin()
+        public void Begin(string internalChunkName = "!root_chunk!")
         {
             CallStack.Push(new StackFrame("!root_chunk!"));
         }

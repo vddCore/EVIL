@@ -75,7 +75,10 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
+                Environment.Begin();
                 Visit(node);
+                Environment.End();
+                
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
 
                 if (entryNode == null)
