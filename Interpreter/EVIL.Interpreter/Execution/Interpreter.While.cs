@@ -13,7 +13,7 @@ namespace EVIL.Interpreter.Execution
                 try
                 {
                     var stackTop = new LoopFrame();
-                    Environment.CallStack.Peek().LoopStack.Push(stackTop);
+                    CallStack.Peek().LoopStack.Push(stackTop);
 
                     while (Visit(whileStatement.Expression).IsTruth)
                     {
@@ -32,7 +32,7 @@ namespace EVIL.Interpreter.Execution
                 }
                 finally
                 {
-                    Environment.CallStack.Peek().LoopStack.Pop();
+                    CallStack.Peek().LoopStack.Pop();
                 }
             }
             Environment.ExitScope();

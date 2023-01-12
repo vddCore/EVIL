@@ -1,5 +1,8 @@
-﻿namespace EVIL.Interpreter.Diagnostics
+﻿using System;
+
+namespace EVIL.Interpreter.Diagnostics
 {
+    [Serializable]
     public class LoopFrame
     {
         public bool BreakLoop { get; private set; }

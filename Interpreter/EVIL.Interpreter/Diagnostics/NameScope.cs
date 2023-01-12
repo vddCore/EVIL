@@ -1,20 +1,17 @@
+using System;
 using System.Collections.Generic;
 using EVIL.Interpreter.Abstraction;
-using EVIL.Interpreter.Execution;
 
 namespace EVIL.Interpreter.Diagnostics
 {
+    [Serializable]
     public class NameScope
     {
-        private readonly Environment _env;
-
         public Dictionary<string, DynValue> Members { get; } = new();
         public NameScope ParentScope { get; }
 
-        public NameScope(Environment env, NameScope parentScope)
+        public NameScope(NameScope parentScope)
         {
-            _env = env;
-
             ParentScope = parentScope;
         }
 
@@ -35,7 +32,7 @@ namespace EVIL.Interpreter.Diagnostics
             return dynValue;
         }
 
-        public void FindAndUndefine(string identifier)
+        public bool FindAndUndefine(string identifier)
         {
             var current = this;
 
@@ -44,14 +41,13 @@ namespace EVIL.Interpreter.Diagnostics
                 if (current.HasMember(identifier))
                 {
                     current.Members.Remove(identifier);
-                    return;
+                    return true;
                 }
                 
                 current = current.ParentScope;
             }
 
-
-            throw new RuntimeException($"'{identifier}' was not found in current scope.", _env, null);
+            return false;
         }
 
         public DynValue FindInScope(string identifier)

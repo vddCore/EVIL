@@ -8,16 +8,12 @@ using EVIL.Interpreter.Runtime.Library;
 
 namespace EVIL.Interpreter
 {
+    [Serializable]
     public class Environment
     {
-        public int CallStackLimit { get; set; } = 72;
-
-        public Stack<StackFrame> CallStack { get; } = new();
-        public StackFrame StackTop => CallStack.Peek();
-
         public NameScope LocalScope { get; set; }
         public NameScope GlobalScope { get; private set; }
-
+        
         public Environment()
         {
             Clear();
@@ -124,26 +120,12 @@ namespace EVIL.Interpreter
 
         public void Clear()
         {
-            CallStack.Clear();
             LocalScope = null;
-            GlobalScope = new NameScope(this, null);
+            GlobalScope = new NameScope(null);
         }
-
-        public void Begin(string internalChunkName = "!root_chunk!")
-        {
-            CallStack.Push(new StackFrame("!root_chunk!"));
-        }
-
-        public void End()
-        {
-            CallStack.Pop();
-        }
-
-        public List<StackFrame> StackTrace()
-            => new(CallStack);
 
         public NameScope EnterScope()
-            => (LocalScope = new NameScope(this, LocalScope));
+            => (LocalScope = new NameScope(LocalScope));
 
         public void ExitScope()
             => LocalScope = LocalScope?.ParentScope;

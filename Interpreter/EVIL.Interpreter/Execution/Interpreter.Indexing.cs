@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         $"Attempt to index a string using {keyValue.Type}.",
-                        Environment,
+                        this,
                         indexerExpression.Line
                     );
                 }
@@ -36,7 +36,7 @@ namespace EVIL.Interpreter.Execution
                     {
                         throw new RuntimeException(
                             "String index out of bounds.",
-                            Environment,
+                            this,
                             indexerExpression.Line
                         );
                     }
@@ -51,7 +51,7 @@ namespace EVIL.Interpreter.Execution
                     {
                         throw new RuntimeException(
                             "String index out of bounds.",
-                            Environment,
+                            this,
                             indexerExpression.Line
                         );
                     }
@@ -73,7 +73,7 @@ namespace EVIL.Interpreter.Execution
 
                     return indexable.Table[keyValue.String]
                            ?? throw new RuntimeException(
-                               $"'{keyValue.String}' does not exist in the table.", Environment, indexerExpression.Line
+                               $"'{keyValue.String}' does not exist in the table.", this, indexerExpression.Line
                            );
                 }
                 else if (keyValue.Type == DynValueType.Number)
@@ -86,14 +86,14 @@ namespace EVIL.Interpreter.Execution
 
                     return indexable.Table[keyValue.Number]
                            ?? throw new RuntimeException(
-                               $"'{keyValue.Number}' does not exist in the table.", Environment, indexerExpression.Line
+                               $"'{keyValue.Number}' does not exist in the table.", this, indexerExpression.Line
                            );
                 }
                 else
                 {
                     throw new RuntimeException(
                         $"Attempt to use {keyValue.Type} as a key.",
-                        Environment,
+                        this,
                         indexerExpression.Line
                     );
                 }
@@ -101,7 +101,7 @@ namespace EVIL.Interpreter.Execution
 
             throw new RuntimeException(
                 $"Attempt to index a {indexable.Type}.",
-                Environment,
+                this,
                 indexerExpression.Line
             );
         }

@@ -24,7 +24,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to invoke an un-invokable value {invokable.Type}.",
-                    Environment,
+                    this,
                     functionCallExpression.Line
                 );
             }
@@ -32,11 +32,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue InvokeFunction(FunctionCallExpression functionCallExpression, DynValue funcValue)
         {
-            if (Environment.CallStack.Count > Environment.CallStackLimit)
+            if (CallStack.Count > CallStackLimit)
             {
                 throw new RuntimeException(
                     "Call stack overflow.",
-                    Environment,
+                    this,
                     functionCallExpression.Line
                 );
             }
@@ -75,7 +75,7 @@ namespace EVIL.Interpreter.Execution
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
             AstNode node)
         {
-            var scope = new NameScope(Environment, null);
+            var scope = new NameScope(null);
             var stackFrame = new StackFrame(name)
             {
                 InvokedAtLine = node.Line,
@@ -98,7 +98,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         $"'{parameterName}' was already declared in this scope.",
-                        Environment,
+                        this,
                         node.Line
                     );
                 }
@@ -112,7 +112,7 @@ namespace EVIL.Interpreter.Execution
             stackFrame.Parameters.AddRange(scriptFunction.Parameters);
             stackFrame.Arguments.AddRange(args);
 
-            Environment.CallStack.Push(stackFrame);
+            CallStack.Push(stackFrame);
 
             DynValue retVal;
 
@@ -120,7 +120,7 @@ namespace EVIL.Interpreter.Execution
             {
                 Environment.LocalScope = scope;
                 Visit(scriptFunction.Statements);
-                retVal = Environment.CallStack.Peek().ReturnValue;
+                retVal = CallStack.Peek().ReturnValue;
             }
             catch (RuntimeException)
             {
@@ -134,15 +134,15 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     e.Message,
-                    Environment,
+                    this,
                     node.Line,
                     e
                 );
             }
             finally
             {
-                Environment.LocalScope = Environment.StackTop.PreviousScope;
-                Environment.CallStack.Pop();
+                Environment.LocalScope = StackTop.PreviousScope;
+                CallStack.Pop();
             }
 
             return retVal;
@@ -162,7 +162,7 @@ namespace EVIL.Interpreter.Execution
                 frame.Parameters.Add(parameters[i].Name);
             }
 
-            Environment.CallStack.Push(frame);
+            CallStack.Push(frame);
 
             DynValue retval;
             try
@@ -171,11 +171,11 @@ namespace EVIL.Interpreter.Execution
             }
             catch (ClrFunctionException e)
             {
-                throw new RuntimeException(e.Message, Environment, node.Line, e);
+                throw new RuntimeException(e.Message, this, node.Line, e);
             }
             finally
             {
-                Environment.CallStack.Pop();
+                CallStack.Pop();
             }
 
             return retval;

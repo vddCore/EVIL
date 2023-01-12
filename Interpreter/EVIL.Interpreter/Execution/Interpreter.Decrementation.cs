@@ -11,7 +11,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     "A variable value is required as decrement operand",
-                    Environment,
+                    this,
                     decrementationExpression.Line
                 );
             }
@@ -38,7 +38,7 @@ namespace EVIL.Interpreter.Execution
 
             throw new RuntimeException(
                 "Cannot decrement this value because it's not a number.",
-                Environment,
+                this,
                 decrementationExpression.Line
             );
         }

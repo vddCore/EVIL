@@ -33,7 +33,7 @@ namespace EVIL.Interpreter.Execution
 
             throw new RuntimeException(
                 "Attempt to get a name of a non-variable symbol.",
-                Environment,
+                this,
                 nameOfExpression.Line
             );
         }

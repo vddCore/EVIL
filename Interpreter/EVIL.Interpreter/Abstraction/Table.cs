@@ -4,6 +4,7 @@ using EVIL.Interpreter.Execution;
 
 namespace EVIL.Interpreter.Abstraction
 {
+    [Serializable]
     public class Table
     {
         private Dictionary<double, DynValue> _doubles = new();

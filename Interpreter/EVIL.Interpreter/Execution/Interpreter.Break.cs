@@ -6,7 +6,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override void Visit(BreakStatement breakStatement)
         {
-            Environment.CallStack.Peek()
+            CallStack.Peek()
                 .LoopStackTop.Break();
         }
     }
