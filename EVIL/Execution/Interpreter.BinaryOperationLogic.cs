@@ -75,6 +75,9 @@ namespace EVIL.Execution
                 case BinaryOperationType.Or:
                     return LogicalOr(left, right);
 
+                case BinaryOperationType.ExistsIn:
+                    return ExistsIn(left, right, binaryOperationNode);
+
                 default: throw new RuntimeException("Unknown binary operation.", binaryOperationNode.Line);
             }
         }
@@ -445,6 +448,23 @@ namespace EVIL.Execution
                 return right.Copy();
             }
             else return DynValue.Zero;
+        }
+
+        private DynValue ExistsIn(DynValue left, DynValue right, BinaryOperationNode node)
+        {
+            if (right.Type == DynValueType.Table)
+            {
+                if (left.Type == DynValueType.String || left.Type == DynValueType.Number)
+                {
+                    return new DynValue(right.Table.ContainsKey(left));
+                }
+            }
+            else if (right.Type == DynValueType.String)
+            {
+                return new DynValue(right.String.Contains(left.AsString().String));
+            }
+
+            throw new RuntimeException($"Attempt to check existence of {left.Type} in {right.Type}.", node.Line);
         }
     }
 }

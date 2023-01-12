@@ -17,6 +17,7 @@
         Decrement,
         Floor,
         NameOf,
+        ExistsIn,
         Negation,
         ShiftRight,
         ShiftLeft,

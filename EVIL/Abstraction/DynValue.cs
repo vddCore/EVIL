@@ -78,6 +78,12 @@ namespace EVIL.Abstraction
             CopyFrom(dynValue);
         }
 
+        public DynValue(bool value)
+        {
+            Type = DynValueType.Number;
+            _numberValue = value ? 1 : 0;
+        }
+        
         public DynValue(decimal value)
         {
             Type = DynValueType.Number;

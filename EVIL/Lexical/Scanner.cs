@@ -120,7 +120,15 @@ namespace EVIL.Lexical
             }
             else if (State.Character == '?')
             {
-                State.CurrentToken = new Token(TokenType.NameOf, '?');
+                if (Peek() == '?')
+                {
+                    Advance();
+                    State.CurrentToken = new Token(TokenType.ExistsIn, "??");
+                }
+                else
+                {
+                    State.CurrentToken = new Token(TokenType.NameOf, '?');
+                }
             }
             else if (State.Character == '%')
             {
