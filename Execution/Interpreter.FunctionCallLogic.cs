@@ -75,7 +75,7 @@ namespace EVIL.Execution
                     throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
                 }
 
-                var callStackitem = new CallStackItem($"kernel![{name}]");
+                var callStackitem = new CallStackItem($"CLR!{name}");
 
                 CallStack.Push(callStackitem);
 
@@ -101,7 +101,7 @@ namespace EVIL.Execution
                     throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
                 }
 
-                var callStackItem = new CallStackItem("!<" + name + ">!");
+                var callStackItem = new CallStackItem(name);
                 var iterator = 0;
                 foreach (var parameterName in scriptFunction.ParameterNames)
                 {
@@ -152,7 +152,7 @@ namespace EVIL.Execution
                     throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
                 }
 
-                var callStackItem = new CallStackItem("[LOCAL] !<" + name + ">!");
+                var callStackItem = new CallStackItem("LOCAL!" + name);
                 var iterator = 0;
                 foreach (var parameterName in scriptFunction.ParameterNames)
                 {

@@ -1,25 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using EVIL.Abstraction;
-using EVIL.Execution;
-using EVIL.RuntimeLibrary;
-using EVIL.RuntimeLibrary.Base;
+using EVIL.Runtime;
+using EVIL.Runtime.Library;
 using static EVIL.Execution.Interpreter;
 
 namespace EVIL
 {
     public class Environment
     {
-        private readonly Interpreter _interpreter;
-
         public Dictionary<string, DynValue> Globals { get; }
         public Dictionary<string, ClrFunction> BuiltIns { get; }
         public Dictionary<string, ScriptFunction> Functions { get; }
 
-        public Environment(Interpreter interpreter)
+        public Environment()
         {
-            _interpreter = interpreter;
-
             Globals = new Dictionary<string, DynValue>();
 
             BuiltIns = new Dictionary<string, ClrFunction>();
@@ -35,17 +31,42 @@ namespace EVIL
             RegisterPackage<TimeLibrary>();
         }
 
-        public void RegisterPackage<T>() where T: ClrPackage
+        public void RegisterPackage<T>()
         {
-            var packageInstance = Activator.CreateInstance<T>();
-            packageInstance.Register(this, _interpreter);
+            var type = typeof(T);
+
+            foreach (var m in type.GetMethods())
+            {
+                if (!m.IsPublic 
+                    || m.Name == "GetType" 
+                    || m.Name == "ToString"
+                    || m.Name == "Equals"
+                    || m.Name == "GetHashCode")
+                    continue;
+
+                if (!m.IsStatic)
+                {
+                    throw new InvalidOperationException(
+                        $"Cannot register method '{m.Name}' from package '{type.Name}' - it's not static."
+                    );
+                }
+
+                var attr = m.GetCustomAttribute(typeof(ClrFunctionAttribute)) as ClrFunctionAttribute;
+
+                if (attr == null)
+                    continue;
+
+                RegisterBuiltIn(
+                    attr.Name,
+                    m.CreateDelegate<ClrFunction>()
+                );
+            }
         }
 
         public void RegisterBuiltIn(string name, ClrFunction clrFunction)
         {
             if (BuiltIns.ContainsKey(name))
                 throw new InvalidOperationException($"Built-in function '{name}' has already been registered.");
-
             BuiltIns.Add(name, clrFunction);
         }
 

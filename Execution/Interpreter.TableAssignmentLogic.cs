@@ -13,10 +13,6 @@ namespace EVIL.Execution
                 throw new RuntimeException("Attempt to index a non-table value.", tableAssignmentNode.Line);
 
             var expressionValue = Visit(tableAssignmentNode.ValueExpression);
-
-            if (expressionValue.Type == DynValueType.Table)
-                throw new RuntimeException("Cannot nest tables inside tables.", tableAssignmentNode.Line);
-
             var keyValue = Visit(tableAssignmentNode.KeyExpression);
 
             variable.Table[keyValue] = expressionValue;
