@@ -10,7 +10,9 @@ namespace EVIL.Interpreter.Execution
             if (!(incrementationNode.Target is VariableNode) && !(incrementationNode.Target is IndexingNode))
             {
                 throw new RuntimeException(
-                    "A variable value is required as increment operand", incrementationNode.Line
+                    "A variable value is required as increment operand",
+                    Environment,
+                    incrementationNode.Line
                 );
             }
             
@@ -19,7 +21,9 @@ namespace EVIL.Interpreter.Execution
             if (numValue.Type != DynValueType.Number)
             {
                 throw new RuntimeException(
-                    "Cannot increment this value because it's not a number.", incrementationNode.Line
+                    "Cannot increment this value because it's not a number.",
+                    Environment,
+                    incrementationNode.Line
                 );
             }
 

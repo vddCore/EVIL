@@ -22,9 +22,14 @@ namespace EVIL.Interpreter.Execution
                     var tableValue = Visit(eachLoopNode.TableNode);
 
                     if (tableValue.Type != DynValueType.Table)
-                        throw new RuntimeException($"Expected a Table, got {tableValue.Type}.",
-                            eachLoopNode.TableNode.Line);
-
+                    {
+                        throw new RuntimeException(
+                            $"Expected a Table, got {tableValue.Type}.",
+                            Environment,
+                            eachLoopNode.TableNode.Line
+                        );
+                    }
+                    
                     var actualTable = tableValue.Table;
 
                     try
@@ -43,8 +48,11 @@ namespace EVIL.Interpreter.Execution
                     }
                     catch (InvalidOperationException)
                     {
-                        throw new RuntimeException("The table was modified, cannot continue execution.",
-                            eachLoopNode.Line);
+                        throw new RuntimeException(
+                            "The table was modified, cannot continue execution.",
+                            Environment,
+                            eachLoopNode.Line
+                        );
                     }
                 }
                 finally

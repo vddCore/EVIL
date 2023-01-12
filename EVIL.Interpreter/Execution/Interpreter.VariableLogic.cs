@@ -11,7 +11,11 @@ namespace EVIL.Interpreter.Execution
 
             if (dynValue == null)
             {
-                throw new RuntimeException($"'{variableNode.Identifier}' does not exist in the current scope.", variableNode.Line);
+                throw new RuntimeException(
+                    $"'{variableNode.Identifier}' does not exist in the current scope.",
+                    Environment,
+                    variableNode.Line
+                );
             }
 
             return dynValue;

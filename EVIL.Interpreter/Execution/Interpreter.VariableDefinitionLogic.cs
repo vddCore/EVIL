@@ -12,7 +12,9 @@ namespace EVIL.Interpreter.Execution
             if (Environment.LocalScope.HasMember(identifier))
             {
                 throw new RuntimeException(
-                    $"Variable '{identifier}' was already defined in the current scope.", variableDefinitionNode.Line
+                    $"Variable '{identifier}' was already defined in the current scope.", 
+                    Environment,
+                    variableDefinitionNode.Line
                 );
             }
 

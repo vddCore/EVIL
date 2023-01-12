@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
@@ -28,6 +29,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to invoke an un-invokable value {invokable.Type}.",
+                    Environment,
                     functionCallNode.Line
                 );
             }
@@ -45,7 +47,9 @@ namespace EVIL.Interpreter.Execution
                 if (funcValue == null)
                 {
                     throw new RuntimeException(
-                        $"'{funcName}' was not found in the current scope.", functionCallNode.Line
+                        $"'{funcName}' was not found in the current scope.",
+                        Environment,
+                        functionCallNode.Line
                     );
                 }
             }
@@ -57,13 +61,17 @@ namespace EVIL.Interpreter.Execution
 
             if (Environment.CallStack.Count > Environment.CallStackLimit)
             {
-                throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
+                throw new RuntimeException(
+                    "Call stack overflow.", 
+                    Environment,
+                    functionCallNode.Line
+                );
             }
 
             DynValue retVal;
             if (funcValue.Type == DynValueType.ClrFunction)
             {
-                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters, functionCallNode);
             }
             else
             {
@@ -85,7 +93,11 @@ namespace EVIL.Interpreter.Execution
 
                 if (count.Type != DynValueType.Number || count.Number % 1 != 0)
                 {
-                    throw new RuntimeException("Table initializer must be an integer.", functionCallNode.Line);
+                    throw new RuntimeException(
+                        "Table initializer must be an integer.", 
+                        Environment,
+                        functionCallNode.Line
+                    );
                 }
 
                 tableValue.Table.Clear();
@@ -99,11 +111,15 @@ namespace EVIL.Interpreter.Execution
                 var count = Visit(functionCallNode.Parameters[0]);
                 if (count.Type != DynValueType.Number || count.Number % 1 != 0)
                 {
-                    throw new RuntimeException("Table initializer must be an integer.", functionCallNode.Line);
+                    throw new RuntimeException(
+                        "Table initializer must be an integer.", 
+                        Environment,
+                        functionCallNode.Line
+                    );
                 }
 
                 var value = Visit(functionCallNode.Parameters[1]);
-                for(var i = 0; i < (int)count.Number; i++)
+                for (var i = 0; i < (int)count.Number; i++)
                 {
                     tableValue.Table[i] = value.Copy();
                 }
@@ -112,6 +128,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to initialize a table using {functionCallNode.Parameters.Count} parameters.",
+                    Environment,
                     functionCallNode.Line
                 );
             }
@@ -119,11 +136,17 @@ namespace EVIL.Interpreter.Execution
             return tableValue;
         }
 
-        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args, AstNode node)
+        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
+            AstNode node)
         {
-            var callStackItem = new StackFrame(name);
+            var callStackItem = new StackFrame(name, scriptFunction.ParameterNames)
+            {
+                InvokedAtLine = node.Line,
+                DefinedAtLine = scriptFunction.DefinedAtLine
+            };
+
             var iterator = 0;
-            
+
             foreach (var closure in scriptFunction.Closures)
             {
                 Environment.LocalScope.Set(closure.Key, closure.Value);
@@ -132,8 +155,14 @@ namespace EVIL.Interpreter.Execution
             foreach (var parameterName in scriptFunction.ParameterNames)
             {
                 if (Environment.LocalScope.HasMember(parameterName))
-                    throw new RuntimeException($"Duplicate parameter name '{parameterName}'.", null);
-
+                {
+                    throw new RuntimeException(
+                        $"Duplicate parameter name '{parameterName}'.", 
+                        Environment,
+                        null
+                    );
+                }
+                
                 if (iterator < args.Count)
                     Environment.LocalScope.Set(parameterName, args[iterator++]);
                 else
@@ -156,7 +185,11 @@ namespace EVIL.Interpreter.Execution
             }
             catch (Exception e)
             {
-                throw new RuntimeException(e.Message, node.Line);
+                throw new RuntimeException(
+                    e.Message,
+                    Environment,
+                    node.Line
+                );
             }
             finally
             {
@@ -166,22 +199,31 @@ namespace EVIL.Interpreter.Execution
             return retval;
         }
 
-        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args)
+        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
         {
-            var csi = new StackFrame($"CLR!{name}");
-            Environment.CallStack.Push(csi);
+            var frame = new StackFrame(
+                $"CLR!{name}",
+                clrFunction.Invokable
+                    .Method
+                    .GetParameters()
+                    .Select(x => x.Name)
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .ToList()
+            ) {InvokedAtLine = node.Line};
 
-            DynValue retVal;
+            Environment.CallStack.Push(frame);
+
+            DynValue retval;
             try
             {
-                retVal = clrFunction.Invokable(this, args);
+                retval = clrFunction.Invokable(this, args);
             }
             finally
             {
                 Environment.CallStack.Pop();
             }
 
-            return retVal;
+            return retval;
         }
     }
 }

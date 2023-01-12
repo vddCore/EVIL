@@ -11,15 +11,19 @@ namespace EVIL.Interpreter.Execution
 
             var fn = new ScriptFunction(
                 scriptFunctionDefinitionNode.StatementList,
-                scriptFunctionDefinitionNode.ParameterNames
+                scriptFunctionDefinitionNode.ParameterNames,
+                scriptFunctionDefinitionNode.Line
             );
 
             if (name != null)
             {
                 if (Environment.LocalScope != Environment.GlobalScope)
                 {
-                    throw new RuntimeException("Attempt to define a named function in local scope.",
-                        scriptFunctionDefinitionNode.Line);
+                    throw new RuntimeException(
+                        "Attempt to define a named function in local scope.",
+                        Environment,
+                        scriptFunctionDefinitionNode.Line
+                    );
                 }
 
                 Environment.RegisterFunction(

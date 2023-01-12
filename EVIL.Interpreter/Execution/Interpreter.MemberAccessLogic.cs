@@ -13,6 +13,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to access named member '{memberAccessNode.Identifier}' of non-indexable type {indexable.Type}",
+                    Environment,
                     memberAccessNode.Line
                 );
             }
@@ -25,6 +26,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Member '{memberAccessNode.Identifier}' does not exist in this table.",
+                    Environment,
                     memberAccessNode.Line
                 );
             }

@@ -13,7 +13,7 @@ namespace EVIL.Interpreter.Execution
     {
         private List<Constraint> _constraints = new();
         private List<Predicate<AstNode>> _nodeFilters = new();
-
+        
         public IReadOnlyList<Constraint> Constraints => _constraints;
         public Environment Environment { get; set; } = new();
         public Parser Parser { get; } = new();
@@ -78,10 +78,18 @@ namespace EVIL.Interpreter.Execution
 
                 if (entryNode == null)
                 {
-                    throw new RuntimeException($"Entry point '{entryPoint}' missing.", null);
+                    throw new RuntimeException(
+                        $"Entry point '{entryPoint}' missing.", 
+                        Environment,
+                        null
+                    );
                 }
 
-                var csi = new StackFrame(entryNode.Name);
+                var csi = new StackFrame(entryNode.Name, entryNode.ParameterNames)
+                {
+                    DefinedAtLine = entryNode.Line
+                };
+                
                 var scope = Environment.EnterScope(true);
                 {
                     if (entryNode.ParameterNames.Count == 1)
@@ -96,7 +104,11 @@ namespace EVIL.Interpreter.Execution
                     }
                     else if (entryNode.ParameterNames.Count > 1)
                     {
-                        throw new RuntimeException("Entry point function can only have 1 argument.", entryNode.Line);
+                        throw new RuntimeException(
+                            "Entry point function can only have 1 argument.",
+                            Environment,
+                            entryNode.Line
+                        );
                     }
 
                     Environment.CallStack.Push(csi);
@@ -121,8 +133,11 @@ namespace EVIL.Interpreter.Execution
         public Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
         {
             return Task.Factory.StartNew(
-                () => Execute(sourceCode, entryPoint, args
-                ), TaskCreationOptions.LongRunning);
+                () => Execute(
+                    sourceCode, entryPoint, args
+                ), 
+                TaskCreationOptions.LongRunning
+            );
         }
 
         public override DynValue Visit(RootNode rootNode)
@@ -131,11 +146,13 @@ namespace EVIL.Interpreter.Execution
 
             foreach (var filter in _nodeFilters)
             {
-                if (statements.Find(filter) != null)
+                var stmt = statements.Find(filter);
+                if (stmt != null)
                 {
                     throw new RuntimeException(
                         "Top-level statements are not legal when executing with an entry point.",
-                        null
+                        Environment,
+                        stmt.Line
                     );
                 }
             }
@@ -145,7 +162,7 @@ namespace EVIL.Interpreter.Execution
 
         public DynValue ExecuteScriptFunction(string frameName, ScriptFunction function, FunctionArguments args)
         {
-            var frame = new StackFrame(frameName);
+            var frame = new StackFrame(frameName, function.ParameterNames);
             DynValue retval;
 
             Environment.EnterScope(true);
@@ -165,11 +182,6 @@ namespace EVIL.Interpreter.Execution
             Environment.ExitScope();
 
             return retval;
-        }
-
-        public void ExecuteClrFunction(ClrFunction func, FunctionArguments args)
-        {
-            func.Invokable?.Invoke(this, args);
         }
 
         private DynValue ExecuteStatementList(List<AstNode> statements, Environment env = null)

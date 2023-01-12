@@ -50,7 +50,7 @@ namespace EVIL.Interpreter.Diagnostics
                             current = _env.GlobalScope;
                             break;
                         }
-                        throw new RuntimeException($"'{identifier}' was not found in current scope.", null);
+                        throw new RuntimeException($"'{identifier}' was not found in current scope.", _env, null);
                     }
 
                     current = current.ParentScope;
