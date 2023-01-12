@@ -1,6 +1,7 @@
 ﻿using System;
 using EVIL.Abstraction;
 using EVIL.Execution;
+using EVIL.Internal;
 
 namespace EVIL.Runtime.Library
 {
@@ -36,7 +37,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Sin(args[0].Number));
+            return new DynValue(DecimalMath.Sin(args[0].Number));
         }
 
         [ClrFunction("math.cos")]
@@ -45,7 +46,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Cos(args[0].Number));
+            return new DynValue(DecimalMath.Cos(args[0].Number));
         }
 
         [ClrFunction("math.tan")]
@@ -54,7 +55,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Tan(args[0].Number));
+            return new DynValue(DecimalMath.Tan(args[0].Number));
         }
 
         [ClrFunction("math.cot")]
@@ -63,7 +64,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(1 / Math.Tan(args[0].Number));
+            return new DynValue(1 / DecimalMath.Tan(args[0].Number));
         }
 
         [ClrFunction("math.atan")]
@@ -72,7 +73,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Atan(args[0].Number));
+            return new DynValue(DecimalMath.Atan(args[0].Number));
         }
 
         [ClrFunction("math.atan2")]
@@ -82,7 +83,7 @@ namespace EVIL.Runtime.Library
                 .ExpectTypeAtIndex(0, DynValueType.Number)
                 .ExpectTypeAtIndex(1, DynValueType.Number);
 
-            return new DynValue(Math.Atan2(args[0].Number, args[1].Number));
+            return new DynValue(DecimalMath.Atan2(args[0].Number, args[1].Number));
         }
 
         [ClrFunction("math.floor")]
@@ -91,7 +92,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Floor(args[0].Number));
+            return new DynValue(decimal.Floor(args[0].Number));
         }
 
         [ClrFunction("math.ceil")]
@@ -100,7 +101,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Ceiling(args[0].Number));
+            return new DynValue(decimal.Ceiling(args[0].Number));
         }
 
         [ClrFunction("math.abs")]
@@ -109,7 +110,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Abs(args[0].Number));
+            return new DynValue(DecimalMath.Abs(args[0].Number));
         }
 
         [ClrFunction("math.sign")]
@@ -118,7 +119,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Sign(args[0].Number));
+            return new DynValue(DecimalMath.Sign(args[0].Number));
         }
 
         [ClrFunction("math.pow")]
@@ -128,7 +129,7 @@ namespace EVIL.Runtime.Library
                 .ExpectTypeAtIndex(0, DynValueType.Number)
                 .ExpectTypeAtIndex(1, DynValueType.Number);
 
-            return new DynValue(Math.Pow(args[0].Number, args[1].Number));
+            return new DynValue(DecimalMath.Pow(args[0].Number, args[1].Number));
         }
 
         [ClrFunction("math.sqrt")]
@@ -137,7 +138,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Sqrt(args[0].Number));
+            return new DynValue(DecimalMath.Sqrt(args[0].Number));
         }
 
         [ClrFunction("math.log")]
@@ -147,7 +148,7 @@ namespace EVIL.Runtime.Library
                 .ExpectTypeAtIndex(0, DynValueType.Number)
                 .ExpectTypeAtIndex(1, DynValueType.Number);
 
-            return new DynValue(Math.Log(args[0].Number, args[1].Number));
+            return new DynValue((decimal)Math.Log((double)args[0].Number, (double)args[1].Number));
         }
 
         [ClrFunction("math.ln")]
@@ -156,7 +157,7 @@ namespace EVIL.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
-            return new DynValue(Math.Log10(args[0].Number));
+            return new DynValue(DecimalMath.Log10(args[0].Number));
         }
     }
 }

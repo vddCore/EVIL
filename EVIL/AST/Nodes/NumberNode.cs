@@ -7,7 +7,7 @@ namespace EVIL.AST.Nodes
     {
         public DynValue Value { get; }
 
-        public NumberNode(double number)
+        public NumberNode(decimal number)
         {
             Value = new DynValue(number);
         }

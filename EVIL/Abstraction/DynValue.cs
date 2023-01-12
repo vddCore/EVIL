@@ -7,7 +7,7 @@ namespace EVIL.Abstraction
     {
         public static DynValue Zero => new(0);
 
-        private double _numberValue;
+        private decimal _numberValue;
         private string _stringValue;
         private Table _tableValue;
         private IFunction _functionValue;
@@ -17,7 +17,7 @@ namespace EVIL.Abstraction
         public bool IsClrFunction => Type == DynValueType.Function && _functionValue is ClrFunction;
         public bool IsTruth => Type != DynValueType.Number || Number != 0;
 
-        public double Number
+        public decimal Number
         {
             get
             {
@@ -79,7 +79,7 @@ namespace EVIL.Abstraction
             CopyFrom(dynValue);
         }
 
-        public DynValue(double value)
+        public DynValue(decimal value)
         {
             Type = DynValueType.Number;
             _numberValue = value;
@@ -114,7 +114,7 @@ namespace EVIL.Abstraction
             if (Type == DynValueType.Number)
                 return new DynValue(_numberValue);
 
-            var success = double.TryParse(_stringValue, out var result);
+            var success = decimal.TryParse(_stringValue, out var result);
 
             if (!success)
                 throw new DynValueConversionException($"Cannot convert string value '{_stringValue}' to number.");

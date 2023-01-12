@@ -1,4 +1,5 @@
-﻿using EVIL.AST.Base;
+﻿using System;
+using EVIL.AST.Base;
 using EVIL.AST.Enums;
 using EVIL.AST.Nodes;
 using EVIL.Lexical;
@@ -63,7 +64,7 @@ namespace EVIL.Parsing
             else if (token.Type == TokenType.DecimalNumber)
             {
                 var line = Match(TokenType.DecimalNumber);
-                return new NumberNode((double)token.Value) { Line = line };
+                return new NumberNode((decimal)token.Value) { Line = line };
             }
             else if (token.Type == TokenType.HexNumber)
             {

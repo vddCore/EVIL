@@ -21,7 +21,7 @@ namespace EVIL.Abstraction
             }
         }
 
-        public DynValue this[double key]
+        public DynValue this[decimal key]
         {
             get => GetValueByNumber(key);
 
@@ -85,10 +85,10 @@ namespace EVIL.Abstraction
             throw new KeyNotFoundException($"Key '{key}' was not found in the table.");
         }
 
-        public DynValue GetKeyByNumber(double key)
-            => Keys.FirstOrDefault(k => k.Type == DynValueType.Number && k.Number.Equals(key));
+        public DynValue GetKeyByNumber(decimal key)
+            => Keys.FirstOrDefault(k => k.Type == DynValueType.Number && k.Number == key);
 
-        public DynValue GetValueByNumber(double key)
+        public DynValue GetValueByNumber(decimal key)
         {
             var dynKey = GetKeyByNumber(key);
 
