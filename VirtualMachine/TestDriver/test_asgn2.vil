@@ -1,8 +1,5 @@
-fn fact (n, acc) {
-  if (n < 2) ret acc;
-  ret fact(n - 1, n * acc);
-}
+var a = fn() {
+  io.println("test");
+};
 
-for (var i = 0; i < 100; i++) {
-  io.println(fact(i, 1));
-}
+a();

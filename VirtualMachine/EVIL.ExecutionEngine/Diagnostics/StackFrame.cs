@@ -19,8 +19,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
         public DynamicValue[] FormalArguments { get; }
         public DynamicValue[] ExtraArguments { get; }
 
-        public DynamicValue ReturnValue { get; set; }
-
         public StackFrame(Chunk chunk, int argCount)
         {
             Chunk = chunk;
@@ -32,8 +30,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
             {
                 ExtraArguments = new DynamicValue[extraArgCount];
             }
-            
-            ReturnValue = DynamicValue.Zero;
             
             for (var i = 0; i < Locals.Length; i++)
             {

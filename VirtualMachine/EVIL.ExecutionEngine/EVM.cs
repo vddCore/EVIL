@@ -11,52 +11,60 @@ namespace EVIL.ExecutionEngine
 {
     public class EVM
     {
-        private Executable Executable { get; }
-        private RuntimeConstPool RuntimeConstPool { get; }
-        
+        private Executable Executable { get; set; }
+
         private Stack<IteratorState> IteratorStates { get; } = new();
         private Stack<StackFrame> CallStack { get; } = new();
         private Stack<DynamicValue> EvaluationStack { get; } = new();
         private Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
-        public int CallStackLimit { get; set; } = 30;
+        public int CallStackLimit { get; set; } = 256;
 
         public bool SwallowClrExceptions { get; set; }
         public Table GlobalTable { get; }
 
         public bool Running { get; private set; }
 
-        public EVM(Executable executable, Table globalTable)
+        public EVM(Table globalTable)
         {
             GlobalTable = globalTable ?? new Table();
-            
+        }
+
+        public void Load(Executable executable)
+        {
+            if (Running)
+            {
+                throw new InvalidOperationException(
+                    "Attempt to load an executable while another one is running."
+                );
+            }
+
             Executable = executable;
-            RuntimeConstPool = new RuntimeConstPool(Executable.ConstPool);
 
             for (var i = 0; i < executable.Globals.Count; i++)
             {
                 var name = executable.Globals[i];
-                
+
                 GlobalTable.Set(
                     new DynamicValue(name),
                     DynamicValue.Zero
                 );
             }
 
-            for (var i = 0; i < executable.Chunks.Count; i++)
+            for (var i = 1; i < executable.Chunks.Count; i++)
             {
                 var c = executable.Chunks[i];
                 
-                if (!c.Name.StartsWith('!'))
-                {
-                    GlobalTable.Set(
-                        new DynamicValue(c.Name),
-                        new DynamicValue(c)
-                    );
-                }
+                if (!c.IsPublic)
+                    continue;
+                
+                GlobalTable.Set(
+                    new DynamicValue(c.Name),
+                    new DynamicValue(c)
+                );
             }
         }
-        
+
         public string DumpEvaluationStack()
         {
             var sb = new StringBuilder();
@@ -65,6 +73,20 @@ namespace EVIL.ExecutionEngine
             {
                 var v = EvaluationStack.ElementAt(i);
                 sb.AppendLine($"{i}: {v.Type} {v.CopyToString().String}");
+            }
+
+            return sb.ToString();
+        }
+
+        public string DumpCallStack()
+        {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < CallStack.Count; i++)
+            {
+                var v = CallStack.ElementAt(i);
+                sb.AppendLine(
+                    $"{v.Chunk.Name}:{v.IP:X8} | {v.Locals.Length} local(s) | {v.FormalArguments} formal parameter(s) | {v.ExtraArguments} extra argument(s)");
             }
 
             return sb.ToString();
@@ -89,7 +111,7 @@ namespace EVIL.ExecutionEngine
                 throw new InvalidOperationException($"Chunk was null.");
 
             if (args.Length > 255)
-                throw new InvalidOperationException("Too many arguments passed to an EVIL function.");
+                throw new InvalidOperationException("Too many arguments passed to the chunk (max. 255).");
 
             for (var i = 0; i < args.Length; i++)
             {
@@ -103,7 +125,7 @@ namespace EVIL.ExecutionEngine
             Resume();
             var ret = EvaluationStack.Pop();
             Halt();
-            
+
             return ret;
         }
 
@@ -116,7 +138,7 @@ namespace EVIL.ExecutionEngine
 
                 if (ch.Name.StartsWith("!"))
                     continue;
-                
+
                 if (ch.Name == funcName)
                 {
                     c = ch;
@@ -126,7 +148,7 @@ namespace EVIL.ExecutionEngine
 
             return c;
         }
-        
+
         public void Pause()
         {
             Running = false;
@@ -143,7 +165,7 @@ namespace EVIL.ExecutionEngine
         public void Halt()
         {
             Pause();
-            
+
             ExternContexts.Clear();
             EvaluationStack.Clear();
             CallStack.Clear();
@@ -153,10 +175,10 @@ namespace EVIL.ExecutionEngine
         {
             if (Running)
                 Halt();
-            
+
             Running = true;
             InvokeChunk(Executable.RootChunk, 0);
-            
+
             Resume();
         }
 
@@ -167,7 +189,7 @@ namespace EVIL.ExecutionEngine
                 Pause();
                 return;
             }
-            
+
             var chunk = frame.Chunk;
             var evstack = EvaluationStack;
 
@@ -430,10 +452,17 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.LDC:
+                case OpCode.LDCS:
                 {
                     itmp = frame.FetchInt32();
-                    evstack.Push(RuntimeConstPool.FetchConst(itmp));
+                    evstack.Push(new(chunk.Constants.GetStringConstant(itmp)));
+                    break;
+                }
+
+                case OpCode.LDCN:
+                {
+                    itmp = frame.FetchInt32();
+                    evstack.Push(new(chunk.Constants.GetNumberConstant(itmp)));
                     break;
                 }
 
@@ -456,7 +485,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LDG:
                 {
                     itmp = frame.FetchInt32();
-                    a = RuntimeConstPool.FetchConst(itmp);
+                    a = new DynamicValue(chunk.Constants.GetStringConstant(itmp));
 
                     if (!GlobalTable.IsSet(a))
                     {
@@ -470,7 +499,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.STG:
                 {
                     itmp = frame.FetchInt32();
-                    a = RuntimeConstPool.FetchConst(itmp);
+                    a = new DynamicValue(chunk.Constants.GetStringConstant(itmp));
                     b = evstack.Pop();
                     GlobalTable.Set(a, b);
                     break;
@@ -561,10 +590,10 @@ namespace EVIL.ExecutionEngine
                 case OpCode.RETN:
                 {
                     CallStack.Pop();
-                    
+
                     if (!CallStack.TryPeek(out _))
                         Pause();
-                    
+
                     break;
                 }
 
@@ -630,7 +659,7 @@ namespace EVIL.ExecutionEngine
                 {
                     itmp = frame.FetchInt32();
 
-                    var chunkClone = Executable.Chunks[itmp].ShallowClone();
+                    var chunkClone = frame.Chunk.SubChunks[itmp].ShallowClone();
 
                     if (chunkClone.Externs.Count > 0)
                     {
@@ -680,7 +709,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.GNAME:
                 {
                     itmp = frame.FetchInt32();
-                    a = RuntimeConstPool.FetchConst(itmp);
+                    a = new DynamicValue(chunk.Constants.GetStringConstant(itmp));
 
                     if (!GlobalTable.IsSet(a))
                     {
@@ -716,7 +745,7 @@ namespace EVIL.ExecutionEngine
                 {
                     itmp = frame.FetchInt32();
 
-                    GlobalTable.Unset(RuntimeConstPool.FetchConst(itmp));
+                    GlobalTable.Unset(new DynamicValue(chunk.Constants.GetStringConstant(itmp)));
                     break;
                 }
 
@@ -782,7 +811,6 @@ namespace EVIL.ExecutionEngine
             if (a.Type == DynamicValueType.String)
             {
                 return string.Compare(a.String, b.String, StringComparison.Ordinal);
-
             }
             else if (a.Type == DynamicValueType.Number)
             {
@@ -794,6 +822,11 @@ namespace EVIL.ExecutionEngine
 
         private void InvokeClrFunction(ClrFunction clrFunction, int argc)
         {
+            if (CallStack.Count >= CallStackLimit)
+            {
+                throw new EvmCallStackOverflowException();
+            }
+
             var args = new DynamicValue[argc];
             for (var i = 0; i < argc; i++)
             {
@@ -823,15 +856,11 @@ namespace EVIL.ExecutionEngine
 
         private void InvokeChunk(Chunk chunk, byte argc)
         {
-            if (CallStack.Count + 1 > CallStackLimit)
+            if (CallStack.Count >= CallStackLimit)
             {
-                foreach (var f in CallStack)
-                {
-                    Console.WriteLine($"{f.Chunk.Name}:{f.IP:X8}");
-                }
-                Environment.Exit(1);    
+                throw new EvmCallStackOverflowException();
             }
-            
+
             var newFrame = new StackFrame(chunk, argc);
 
             var extraArgs = newFrame.ExtraArguments;

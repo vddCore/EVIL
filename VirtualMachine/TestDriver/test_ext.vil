@@ -1,0 +1,3 @@
+fn ext_chunk(arg1, arg2) {
+  ret arg1 + arg2;
+}

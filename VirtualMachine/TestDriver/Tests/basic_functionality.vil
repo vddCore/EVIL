@@ -1,0 +1,104 @@
+var test_props = {
+  "name" => "basic functionality tests",
+  "version" => 1.0
+}
+
+fn assignment_operators() {
+  var a = 10;
+  assert.equal(a, 10);
+
+  a += 10;
+  assert.equal(a, 20);
+
+  a -= 5;
+  assert.equal(a, 15);
+
+  a /= 3;
+  assert.equal(a, 5);
+
+  a *= 9;
+  assert.equal(a, 27);
+
+  a %= 4;
+  assert.equal(a, 3);
+  
+  a <<= 2;
+  assert.equal(a, 12);
+  
+  a >>= 1;
+  assert.equal(a, 6);
+  
+  a |= 0x200;
+  assert.equal(a, 518);
+  
+  a &= ~(0x200);
+  assert.equal(a, 6);
+  
+  a ^= 0x6;
+  assert.equal(a, 2);
+}
+
+fn equality_op() {
+  assert.is_true(10 == 10);
+  
+  var b = 25;
+  assert.is_true(a == 25);
+}
+
+fn inequality_op() {
+  assert.is_true(10 != 3);
+  
+  var c = 25;
+  assert.is_false(a != 58);
+}
+
+fn comparison_gt() {
+  assert.is_true(20 > 10);
+  
+  var d = 25;
+  assert.is_true(a > 20);
+}
+
+fn comparison_gte() {
+  assert.is_true(20 >= 20);
+  assert.is_true(20 >= 15);
+  
+  var e = 25;
+  assert.is_true(e >= 25);
+  assert.is_true(e >= 15);
+}
+
+fn comparison_lt() {
+  assert.is_true(50 < 90);
+  
+  var f = 25;
+  assert.is_true(e < 50);
+}
+
+fn comparison_lte() {
+  assert.is_true(50 <= 50);
+  assert.is_true(50 <= 90);
+  
+  var g = 25;
+  assert.is_true(g <= 25)
+  assert.is_true(g <= 30)
+}
+
+fn chain_assign() {
+  var a = 10;
+  var b = 20;
+  var c = a = b;
+  
+  assert.equal(a, 20);
+  assert.equal(b, 20);
+  assert.equal(c, 20);
+}
+
+fn len_string() {
+  var h = "hello, world";
+  assert.equal(#f, 12);
+}
+
+fn str_to_number() {
+
+}

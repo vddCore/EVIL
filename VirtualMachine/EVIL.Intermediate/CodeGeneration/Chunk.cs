@@ -7,21 +7,35 @@ namespace EVIL.Intermediate.CodeGeneration
         private CodeGenerator _codeGenerator;
 
         public string Name { get; private set; }
+        public bool IsPublic { get; private set; }
         public List<int> Labels { get; private set; } = new();
         public List<string> Parameters { get; private set; } = new();
         public List<string> Locals { get; private set; } = new();
         public List<ExternInfo> Externs { get; private set; } = new();
+        public List<Chunk> SubChunks { get; private set; } = new();
         public List<byte> Instructions { get; private set; } = new();
+        public ConstPool Constants { get; private set; } = new();
 
         private Chunk()
         {
         }
-        
-        public Chunk(string name)
+
+        public Chunk(string name, bool isPublic = true)
         {
             Name = name;
+            IsPublic = isPublic;
         }
-                
+
+        public (int, Chunk) CreateSubChunk()
+        {
+            var id = SubChunks.Count;
+            var chunk = new Chunk($"!{Name}_sub<{id}>", false);
+
+            SubChunks.Add(chunk);
+
+            return (id, chunk);
+        }
+        
         public int DefineLabel(int address = 0)
         {
             Labels.Add(address);
@@ -45,7 +59,9 @@ namespace EVIL.Intermediate.CodeGeneration
                 Labels = Labels,
                 Parameters = Parameters,
                 Locals = Locals,
-                Externs = Externs
+                Externs = Externs,
+                Constants = Constants,
+                SubChunks = SubChunks
             };
 
             return c;

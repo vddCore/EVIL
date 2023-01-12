@@ -143,7 +143,8 @@ namespace ScriptingEngineExample
             _compiler = new Compiler();
             _exe = _compiler.Compile(_parser.Parse());
 
-            _evm = new EVM(_exe, _globalTable);
+            _evm = new EVM(_globalTable);
+            _evm.Load(_exe);
 
             _updateCallback = _evm.FindExposedChunk("update");
             _drawCallback = _evm.FindExposedChunk("draw");

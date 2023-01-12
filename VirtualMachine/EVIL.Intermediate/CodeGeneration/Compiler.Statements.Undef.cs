@@ -20,7 +20,7 @@ namespace EVIL.Intermediate.CodeGeneration
                         case SymbolInfo.SymbolType.Undefined:
                             cg.Emit(
                                 OpCode.RGL,
-                                _executable.ConstPool.FetchOrAddConstant(varRef.Identifier)
+                                CurrentChunk.Constants.FetchOrAddConstant(varRef.Identifier)
                             );
                             break;
 
@@ -38,7 +38,7 @@ namespace EVIL.Intermediate.CodeGeneration
                 {
                     cg.Emit(
                         OpCode.RGL,
-                        _executable.ConstPool.FetchOrAddConstant(varRef.Identifier)
+                        CurrentChunk.Constants.FetchOrAddConstant(varRef.Identifier)
                     );
                 }
             }

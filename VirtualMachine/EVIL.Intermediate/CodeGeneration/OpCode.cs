@@ -51,12 +51,13 @@
         STX = 0x45,   // [S]e[T] e[X]ternal local
         
         // ---------- [ STORAGE: LOAD
-        LDC = 0x50,   // [L]oa[D] [C]onstant
-        LDG = 0x51,   // [L]oa[D] [G]lobal
-        LDL = 0x52,   // [L]oa[D] [L]ocal
-        LDA = 0x53,   // [L]oa[D] [A]rgument
-        LDF = 0x54,   // [L]oa[D] [F]unction
-        LDX = 0x55,   // [L]oa[D] e[X]ternal local
+        LDCN = 0x50,  // [L]oa[D] [C]onstant [N]umber
+        LDCS = 0x51,  // [L]oa[D] [C]onstant [S]tring
+        LDG = 0x52,   // [L]oa[D] [G]lobal
+        LDL = 0x53,   // [L]oa[D] [L]ocal
+        LDA = 0x54,   // [L]oa[D] [A]rgument
+        LDF = 0x55,   // [L]oa[D] [F]unction
+        LDX = 0x56,   // [L]oa[D] e[X]ternal local
         
         // ---------- [ STORAGE: REMOVE
         RTE = 0x60,   // [R]emove [T]able [E]ntry
