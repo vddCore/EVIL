@@ -41,7 +41,7 @@ namespace EVIL.Intermediate
                     cg.Emit(OpCode.STL, valueLocalSym.Id);
                     Visit(eachStatement.Body);
                     CurrentChunk.UpdateLabel(iterLabel, cg.IP);
-                    cg.Emit(OpCode.ITER, 0);
+                    cg.Emit(OpCode.ITER, (byte)0);
                     cg.Emit(OpCode.TJMP, loopLabel);
                     CurrentChunk.UpdateLabel(endLabel, cg.IP);
                     cg.Emit(OpCode.ENDE);
@@ -93,7 +93,7 @@ namespace EVIL.Intermediate
                     cg.Emit(OpCode.STL, valueLocalSym.Id);
                     Visit(eachStatement.Body);
                     CurrentChunk.UpdateLabel(iterLabel, cg.IP);
-                    cg.Emit(OpCode.ITER, 1);
+                    cg.Emit(OpCode.ITER, (byte)1);
                     cg.Emit(OpCode.TJMP, loopLabel);
                     CurrentChunk.UpdateLabel(endLabel, cg.IP);
                     cg.Emit(OpCode.ENDE);

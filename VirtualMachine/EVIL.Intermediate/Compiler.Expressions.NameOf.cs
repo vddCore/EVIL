@@ -19,7 +19,7 @@ namespace EVIL.Intermediate
                         case SymbolInfo.SymbolType.Parameter:
                             cg.Emit(
                                 OpCode.PNAME,
-                                sym.Id
+                                (byte)sym.Id
                             );
                             break;
                         case SymbolInfo.SymbolType.Local:

@@ -39,13 +39,13 @@ namespace EVIL.VirtualMachine.TestDriver
             var compiler = new Compiler();
             var disasm = new Disassembler(new DisassemblerOptions
             {
-                EmitExternHints = false,
-                EmitParamTable = false,
+                EmitExternHints = true,
+                EmitParamTable = true,
                 EmitFunctionHints = true,
-                EmitLocalHints = false,
-                EmitLocalTable = false,
-                EmitExternTable = false,
-                EmitFunctionParameters = false,
+                EmitLocalHints = true,
+                EmitLocalTable = true,
+                EmitExternTable = true,
+                EmitFunctionParameters = true,
                 EmitFunctionNames = true
             });
 

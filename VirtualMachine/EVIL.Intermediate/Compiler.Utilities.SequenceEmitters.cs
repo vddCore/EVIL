@@ -69,7 +69,7 @@ namespace EVIL.Intermediate
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Parameter)
                 {
-                    cg.Emit(OpCode.STA, sym.Id);
+                    cg.Emit(OpCode.STA, (byte)sym.Id);
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Global)
                 {
@@ -105,7 +105,7 @@ namespace EVIL.Intermediate
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Parameter)
                 {
-                    cg.Emit(OpCode.LDA, sym.Id);
+                    cg.Emit(OpCode.LDA, (byte)sym.Id);
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Extern)
                 {

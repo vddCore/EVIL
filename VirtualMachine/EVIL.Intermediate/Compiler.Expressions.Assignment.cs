@@ -23,7 +23,7 @@ namespace EVIL.Intermediate
                 Visit(indExpr.Indexable);
                 Visit(indExpr.KeyExpression);
                 Visit(assignmentExpression.Right);
-                cg.Emit(OpCode.STE, 1);
+                cg.Emit(OpCode.STE, (byte)1);
             }
             else
             {

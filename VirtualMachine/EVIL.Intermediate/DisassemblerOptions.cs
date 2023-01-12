@@ -12,5 +12,6 @@ namespace EVIL.Intermediate
         public bool EmitExternHints { get; set; } = true;
         public bool EmitFunctionNames { get; set; } = true;
         public bool EmitParamTable { get; set; } = true;
+        public bool EmitParameterHints { get; set; } = true;
     }
 }
