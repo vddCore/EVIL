@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Grammar.Traversal;
@@ -8,6 +9,7 @@ namespace EVIL.Intermediate
     public partial class Compiler : AstVisitor
     {
         private int _nextAnonymousChunkId;
+        private int _nextIteratorChunkId;
 
         internal int CurrentLine = -1;
         internal int CurrentColumn = -1;
@@ -47,10 +49,8 @@ namespace EVIL.Intermediate
             base.Visit(node);
         }
 
-        public override void Visit(EachStatement eachStatement)
-        {
-        }
 
+        
         internal (int, Chunk) CreateAnonymousChunk()
         {
             var id = _executable.Chunks.Count;

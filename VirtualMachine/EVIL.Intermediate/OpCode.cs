@@ -70,6 +70,8 @@
         GNAME = 0x75, // [G]lobal [NAME]
         LNAME = 0x76, // [L]ocal [NAME]
         XNAME = 0x77, // e[X]tern [NAME]
-        PNAME = 0x78  // [P]arameter [NAME]
+        PNAME = 0x78, // [P]arameter [NAME]
+        EACH = 0x79,  // Begin [EACH] loop
+        ITER = 0x7A,  // [ITER]ate over a table
     }
 }

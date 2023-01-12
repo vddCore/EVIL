@@ -13,6 +13,7 @@ namespace EVIL.ExecutionEngine
     {
         private StackFrame _currentStackFrame;
 
+        private Stack<IteratorState> IteratorStates { get; } = new();
         private RuntimeConstPool RuntimeConstPool { get; }
         private Stack<StackFrame> CallStack { get; } = new();
         private Executable Executable { get; }
@@ -654,6 +655,41 @@ namespace EVIL.ExecutionEngine
                     a = evstack.Pop();
 
                     a.Table.Unset(b);
+                    break;
+                }
+
+                case OpCode.EACH:
+                {
+                    a = evstack.Pop();
+                    var iterState = new IteratorState(a.Table);
+                    IteratorStates.Push(iterState);
+                    break;
+                }
+
+                case OpCode.ITER:
+                {
+                    itmp = frame.FetchInt32();
+                    var iterState = IteratorStates.Peek();
+                    var result = iterState.MoveNext();
+
+                    if (result)
+                    {
+                        if (itmp == 0)
+                        {
+                            evstack.Push(iterState.CurrentPair.Value);
+                        }
+                        else if (itmp == 1)
+                        {
+                            evstack.Push(iterState.CurrentPair.Value);
+                            evstack.Push(iterState.CurrentPair.Key);
+                        }
+                    }
+                    else
+                    {
+                        IteratorStates.Pop();
+                    }
+
+                    evstack.Push(new(result));
                     break;
                 }
 
