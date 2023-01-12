@@ -200,12 +200,15 @@ namespace EVIL.Intermediate.Analysis
         private int _lastLine;
         private void AppendCurrentIP()
         {
-            var (line, col) = Chunk.GetCodeCoordinatesForInstructionPointer(IP);
-
-            if (line > 0 && col > 0 && _lastLine != line)
+            if (Options.EmitLineNumbers)
             {
-                _disasm.AppendLine($"[L:{line}]");
-                _lastLine = line;
+                var (line, col) = Chunk.GetCodeCoordinatesForInstructionPointer(IP);
+
+                if (line > 0 && col > 0 && _lastLine != line)
+                {
+                    _disasm.AppendLine($"[L:{line}]");
+                    _lastLine = line;
+                }
             }
 
             _disasm.Append($"    {IP:X8}");

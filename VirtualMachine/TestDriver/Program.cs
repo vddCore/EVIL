@@ -23,7 +23,8 @@ namespace EVIL.VirtualMachine.TestDriver
             EmitLocalTable = true,
             EmitExternTable = true,
             EmitFunctionParameters = true,
-            EmitFunctionNames = true
+            EmitFunctionNames = true,
+            EmitLineNumbers = false
         });
         
         private static Table _globalTable = new();
@@ -72,7 +73,7 @@ namespace EVIL.VirtualMachine.TestDriver
             rt.LoadCoreRuntime();
             
             var evm = new EVM(_globalTable);
-            var exe = BuildExecutable("/codespace/code/evil/testing.vil");
+            var exe = BuildExecutable("./test_asgn2.vil");
 
             EvxLinker.Link(exe, "a.evx");
             exe = EvxLoader.Load("a.evx");
