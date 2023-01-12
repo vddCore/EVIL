@@ -23,7 +23,7 @@ namespace EVIL.Grammar.Traversal.Generic
                 {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
                 {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
                 {typeof(UnaryExpression), (n) => Visit(n as UnaryExpression)},
-                {typeof(VariableReference), (n) => Visit(n as VariableReference)},
+                {typeof(VariableReferenceExpression), (n) => Visit(n as VariableReferenceExpression)},
                 {typeof(FunctionExpression), (n) => Visit(n as FunctionExpression)},
                 {typeof(FunctionCallExpression), (n) => Visit(n as FunctionCallExpression)},
                 {typeof(TableExpression), (n) => Visit(n as TableExpression)},
@@ -80,7 +80,7 @@ namespace EVIL.Grammar.Traversal.Generic
         public abstract T Visit(AssignmentExpression assignmentExpression);
         public abstract T Visit(BinaryExpression binaryExpression);
         public abstract T Visit(UnaryExpression unaryExpression);
-        public abstract T Visit(VariableReference variableReference);
+        public abstract T Visit(VariableReferenceExpression variableReferenceExpression);
         public abstract T Visit(FunctionExpression functionExpression);
         public abstract T Visit(FunctionCallExpression functionCallExpression);
         public abstract T Visit(TableExpression tableExpression);

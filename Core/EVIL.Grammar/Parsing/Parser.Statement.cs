@@ -50,6 +50,11 @@ namespace EVIL.Grammar.Parsing
                      node = new ExpressionStatement(AssignmentExpression());
                      break;
                 
+                case TokenType.Increment:
+                case TokenType.Decrement:
+                    node = new ExpressionStatement(PrefixExpression());
+                    break;
+                
                 case TokenType.Ret:
                     node = Return();
                     break;

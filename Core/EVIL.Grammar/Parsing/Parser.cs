@@ -123,16 +123,5 @@ namespace EVIL.Grammar.Parsing
                 ? $"an {result}"
                 : $"a {result}";
         }
-
-        private void DisallowPrevious(params TokenType[] types)
-        {
-            if (types.Contains(Lexer.State.PreviousToken.Type))
-            {
-                throw new ParserException(
-                    "Disallowed token sequence.",
-                    Lexer.State
-                );
-            }
-        }
     }
 }

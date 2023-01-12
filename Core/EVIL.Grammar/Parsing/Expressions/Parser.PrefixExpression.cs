@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
         private Expression PrefixExpression()
         {
             var token = CurrentToken;
-            
+           
             if (token.Type == TokenType.NameOf)
             {
                 var line = Match(Token.NameOf);
@@ -19,6 +19,16 @@ namespace EVIL.Grammar.Parsing
             {
                 var line = Match(Token.Length);
                 return new UnaryExpression(UnaryExpression(), UnaryOperationType.Length) { Line = line };
+            }
+            else if (token.Type == TokenType.Increment)
+            {
+                var line = Match(Token.Increment);
+                return new IncrementationExpression(UnaryExpression(), true) { Line = line };
+            }
+            else if (token.Type == TokenType.Decrement)
+            {
+                var line = Match(Token.Decrement);
+                return new DecrementationExpression(UnaryExpression(), true) { Line = line };
             }
 
             return UnaryExpression();

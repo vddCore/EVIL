@@ -1,10 +1,10 @@
 ﻿namespace EVIL.Grammar.AST.Nodes
 {
-    public class VariableReference : Expression
+    public class VariableReferenceExpression : Expression
     {
         public string Identifier { get; }
 
-        public VariableReference(string identifier)
+        public VariableReferenceExpression(string identifier)
         {
             Identifier = identifier;
         }

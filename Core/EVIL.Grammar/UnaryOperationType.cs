@@ -8,6 +8,6 @@
         ToString,
         Length,
         Negation,
-        BitwiseNot,
+        BitwiseNot
     }
 }
