@@ -13,7 +13,7 @@ namespace EVIL.Interpreter.Execution
             {
                 stackTop.ReturnValue = Visit(returnNode.Right);
             }
-            
+
             stackTop.Return();
             return stackTop.ReturnValue;
         }

@@ -14,14 +14,14 @@ namespace EVIL.Interpreter.Execution
             {
                 Environment.LoopStack.Push(new LoopFrame());
                 var loopStackTop = Environment.LoopStack.Peek();
-                
+
                 try
                 {
                     if (!loopStackTop.SkipThisIteration)
                     {
                         Visit(doWhileLoopNode.Statement);
                     }
-                        
+
                     if (loopStackTop.BreakLoop)
                     {
                         break;
@@ -37,7 +37,7 @@ namespace EVIL.Interpreter.Execution
                     Environment.LoopStack.Pop();
                 }
             }
-            
+
             return DynValue.Zero;
         }
     }

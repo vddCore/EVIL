@@ -15,7 +15,7 @@ namespace EVIL.Interpreter.Execution
             }
 
             _argumentStack.Push(arguments);
-            
+
             return DynValue.Zero;
         }
     }

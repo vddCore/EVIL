@@ -52,19 +52,20 @@ namespace EVIL.Interpreter.Abstraction
         public FunctionArguments ExpectTableAtIndex(int index, int size, DynValueType acceptedType)
         {
             ExpectTableAtIndex(index);
-
-            if (this[index].Table.Count != size)
+            var tbl = this[index].Table;
+            
+            if (tbl.Count != size)
                 throw new ClrFunctionException(
                     $"Expected a table of size {size} at index {index}. Actual size was {this[index].Table.Count}");
 
-            foreach (var value in this[index].Table.Values)
+            tbl.ForEach((k, v) =>
             {
-                if (value.Type != acceptedType)
+                if (v.Type != acceptedType)
                 {
                     throw new ClrFunctionException(
                         $"Expected a table containing only {acceptedType}(s).");
                 }
-            }
+            });
 
             return this;
         }

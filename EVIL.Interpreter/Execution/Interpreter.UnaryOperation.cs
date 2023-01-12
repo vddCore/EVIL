@@ -10,7 +10,7 @@ namespace EVIL.Interpreter.Execution
         public override DynValue Visit(UnaryOperationNode unaryOperationNode)
         {
             var operand = Visit(unaryOperationNode.Right);
-            
+
             switch (unaryOperationNode.Type)
             {
                 case UnaryOperationType.Plus:
@@ -33,14 +33,14 @@ namespace EVIL.Interpreter.Execution
                     {
                         return new DynValue(-operand.Number);
                     }
-                    
+
                     throw new RuntimeException(
                         $"Attempt to apply unary - on {operand.Type}.",
                         Environment,
                         unaryOperationNode.Line
                     );
                 }
-                
+
                 case UnaryOperationType.Length:
                 {
                     switch (operand.Type)
@@ -95,7 +95,7 @@ namespace EVIL.Interpreter.Execution
 
                     return new DynValue(~(int)operand.Number);
                 }
-                
+
                 case UnaryOperationType.Floor:
                 {
                     if (operand.Type != DynValueType.Number)
@@ -113,7 +113,7 @@ namespace EVIL.Interpreter.Execution
                 default:
                 {
                     throw new RuntimeException(
-                        "Unknown unary operation type.", 
+                        "Unknown unary operation type.",
                         Environment,
                         unaryOperationNode.Line
                     );

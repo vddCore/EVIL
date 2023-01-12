@@ -7,12 +7,12 @@ namespace EVIL.Interpreter.Execution
     public partial class Interpreter
     {
         public override DynValue Visit(ForLoopNode forLoopNode)
-        {           
+        {
             Environment.EnterScope();
             {
-                foreach (var assignment in forLoopNode.Assignments)
+                for (var i = 0; i < forLoopNode.Assignments.Count; i++)
                 {
-                    Visit(assignment);
+                    Visit(forLoopNode.Assignments[i]);
                 }
 
                 try
@@ -27,12 +27,12 @@ namespace EVIL.Interpreter.Execution
                         {
                             break;
                         }
-                       
+
                         if (!loopStackTop.SkipThisIteration)
                         {
                             Visit(forLoopNode.Statement);
                         }
-                        
+
                         if (loopStackTop.BreakLoop)
                         {
                             break;
@@ -43,9 +43,9 @@ namespace EVIL.Interpreter.Execution
                             loopStackTop.SkipThisIteration = false;
                         }
 
-                        foreach (var iterationStatement in forLoopNode.IterationStatements)
+                        for (var i = 0; i < forLoopNode.IterationStatements.Count; i++)
                         {
-                            Visit(iterationStatement);
+                            Visit(forLoopNode.IterationStatements[i]);
                         }
                     }
                 }

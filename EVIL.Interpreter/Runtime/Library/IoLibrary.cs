@@ -14,7 +14,7 @@ namespace EVIL.Interpreter.Runtime.Library
             {
                 output = args[0].AsString().String;
             }
-            
+
             Console.Write(output);
 
             return new(output.Length);

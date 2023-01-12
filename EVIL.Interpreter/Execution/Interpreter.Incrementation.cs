@@ -35,7 +35,7 @@ namespace EVIL.Interpreter.Execution
                     return retVal;
                 }
             }
-            
+
             throw new RuntimeException(
                 "Cannot increment this value because it's not a number.",
                 Environment,

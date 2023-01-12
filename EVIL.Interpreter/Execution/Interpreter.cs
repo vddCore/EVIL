@@ -11,13 +11,11 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter : AstVisitor<DynValue>
     {
-        private readonly List<Constraint> _constraints = new();
         private readonly Stack<StackFrame> _preCallStack = new();
         private readonly Stack<FunctionArguments> _argumentStack = new();
 
         public string MainFilePath { get; private set; }
-        
-        public IReadOnlyList<Constraint> Constraints => _constraints;
+
         public Environment Environment { get; set; } = new();
 
         public Lexer Lexer { get; private set; } = new();
@@ -30,14 +28,11 @@ namespace EVIL.Interpreter.Execution
         public Interpreter(Environment env)
             => Environment = env;
 
-        public void ImposeConstraint(Constraint constraint)
-            => _constraints.Add(constraint);
-
         public DynValue Execute(string sourceCode)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
-            
+
             var node = Parser.Parse();
 
             try
@@ -55,7 +50,7 @@ namespace EVIL.Interpreter.Execution
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
-            
+
             var node = Parser.Parse();
 
             try
@@ -69,15 +64,16 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false, string filePath = null)
+        public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false,
+            string filePath = null)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
-            
+
             var node = Parser.Parse();
 
             MainFilePath = filePath;
-            
+
             try
             {
                 DynValue result;
@@ -156,7 +152,7 @@ namespace EVIL.Interpreter.Execution
         {
             _preCallStack.Push(new StackFrame(frameName));
             var preCallStackFrame = _preCallStack.Peek();
-            
+
             Visit(function.Parameters);
             DynValue retval;
 
@@ -177,28 +173,6 @@ namespace EVIL.Interpreter.Execution
             Environment.ExitScope();
 
             return retval;
-        }
-
-        public override DynValue Visit(AstNode node)
-        {
-            ConstraintCheck(node);
-            return base.Visit(node);
-        }
-
-        protected void ConstraintCheck(AstNode node)
-        {
-            for (var i = 0; i < Constraints.Count; i++)
-            {
-                var constraint = Constraints[i];
-
-                if (!constraint.Check(this, node))
-                {
-                    throw new ConstraintUnsatisfiedException(
-                        "An imposed execution constraint was unsatisfied.",
-                        constraint
-                    );
-                }
-            }
         }
     }
 }
