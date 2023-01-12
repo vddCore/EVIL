@@ -11,9 +11,9 @@ namespace EVIL.Parsing
             var line = Match(TokenType.Each);
 
             Match(TokenType.LParenthesis);
-            var keyVar = Variable();
+            var keyVar = VariableDefinition();
             Match(TokenType.Comma);
-            var valueVar = Variable();
+            var valueVar = VariableDefinition();
 
             Match(TokenType.Colon);
 

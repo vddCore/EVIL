@@ -5,12 +5,12 @@ namespace EVIL.AST.Nodes
 {
     public class EachLoopNode : AstNode
     {
-        public VariableNode KeyNode { get; }
-        public VariableNode ValueNode { get; }
+        public AstNode KeyNode { get; }
+        public AstNode ValueNode { get; }
         public AstNode TableNode { get; }
         public List<AstNode> StatementList { get; }
 
-        public EachLoopNode(VariableNode keyNode, VariableNode valueNode, AstNode tableNode, List<AstNode> statementList)
+        public EachLoopNode(AstNode keyNode, AstNode valueNode, AstNode tableNode, List<AstNode> statementList)
         {
             KeyNode = keyNode;
             ValueNode = valueNode;

@@ -9,11 +9,11 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(EachLoopNode eachLoopNode)
         {
-            var keyName = eachLoopNode.KeyNode.Identifier;
-            var valueName = eachLoopNode.ValueNode.Identifier;
-
             Environment.EnterScope();
             {
+                var keyValue = Visit(eachLoopNode.KeyNode);
+                var valueValue = Visit(eachLoopNode.ValueNode);
+                
                 try
                 {
                     var loopFrame = new LoopFrame();
@@ -31,8 +31,8 @@ namespace EVIL.Execution
                     {
                         foreach (var element in actualTable)
                         {
-                            Environment.LocalScope.Set(keyName, element.Key);
-                            Environment.LocalScope.Set(valueName, element.Value);
+                            keyValue.CopyFrom(element.Key);
+                            valueValue.CopyFrom(element.Value);
 
                             ExecuteStatementList(eachLoopNode.StatementList);
                         }
