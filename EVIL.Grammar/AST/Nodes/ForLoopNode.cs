@@ -7,20 +7,19 @@ namespace EVIL.Grammar.AST.Nodes
         public List<AstNode> Assignments { get; }
         public AstNode Condition { get; }
         public List<AstNode> IterationStatements { get; }
-        
-        public BlockStatementNode Statements { get; }
+        public AstNode Statement { get; }
 
-        public ForLoopNode(List<AstNode> assignments, AstNode condition, List<AstNode> iterationStatements, BlockStatementNode statements)
+        public ForLoopNode(List<AstNode> assignments, AstNode condition, List<AstNode> iterationStatements, AstNode statement)
         {
             Assignments = assignments;
             Condition = condition;
             IterationStatements = iterationStatements;
-            Statements = statements;
+            Statement = statement;
 
             Reparent(Assignments.ToArray());
             Reparent(Condition);
             Reparent(IterationStatements.ToArray());
-            Reparent(Statements);
+            Reparent(Statement);
         }
     }
 }

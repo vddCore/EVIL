@@ -10,7 +10,7 @@ namespace EVIL.Grammar.Parsing
         {
             Match(Token.Do);
 
-            var statements = LoopDescent(BlockStatement);
+            var statements = LoopDescent(() => Statement());
             
             Match(Token.While);
             Match(Token.LParenthesis);

@@ -29,7 +29,7 @@ namespace EVIL.Grammar.Parsing
             }
             Match(Token.RParenthesis);
 
-            var statements = LoopDescent(BlockStatement);
+            var statements = LoopDescent(() => Statement());
             
             return new ForLoopNode(
                 assignments,

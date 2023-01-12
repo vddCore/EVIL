@@ -21,7 +21,7 @@ namespace EVIL.Grammar.Parsing
             
             Match(Token.RParenthesis);
 
-            var statements = LoopDescent(BlockStatement);
+            var statements = LoopDescent(() => Statement());
             
             return new EachLoopNode(keyVar, valueVar, tableNode, statements) { Line = line };
         }

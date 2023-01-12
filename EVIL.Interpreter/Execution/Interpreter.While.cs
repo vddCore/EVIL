@@ -17,7 +17,7 @@ namespace EVIL.Interpreter.Execution
 
                     while (Visit(whileLoopNode.Expression).IsTruth)
                     {
-                        Visit(whileLoopNode.Statements);
+                        Visit(whileLoopNode.Statement);
 
                         if (stackTop.BreakLoop)
                         {

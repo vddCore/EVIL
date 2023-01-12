@@ -8,7 +8,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(DoWhileLoopNode doWhileLoopNode)
         {
-            Visit(doWhileLoopNode.Statements);
+            Visit(doWhileLoopNode.Statement);
 
             while (Visit(doWhileLoopNode.ConditionExpression).IsTruth)
             {
@@ -19,7 +19,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     if (!loopStackTop.SkipThisIteration)
                     {
-                        Visit(doWhileLoopNode.Statements);
+                        Visit(doWhileLoopNode.Statement);
                     }
                         
                     if (loopStackTop.BreakLoop)
