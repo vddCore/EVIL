@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST.Nodes;
+﻿using System.Linq;
+using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Execution
@@ -16,7 +17,7 @@ namespace EVIL.Interpreter.Execution
             var scope = Environment.LocalScope 
                         ?? Environment.GlobalScope;
             
-            while (scope.ParentScope != null)
+            while (scope != null)
             {
                 foreach (var kvp in scope.Members)
                 {

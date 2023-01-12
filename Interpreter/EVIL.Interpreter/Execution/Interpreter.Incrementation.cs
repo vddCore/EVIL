@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(IncrementationExpression incrementationExpression)
         {
-            if (!(incrementationExpression.Target is VariableReference) && !(incrementationExpression.Target is IndexerExpression))
+            if (!(incrementationExpression.Target is VariableReferenceExpression) && !(incrementationExpression.Target is IndexerExpression))
             {
                 throw new RuntimeException(
                     "A variable value is required as increment operand",

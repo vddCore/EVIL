@@ -47,7 +47,7 @@ namespace EVIL.Interpreter.Execution
             {
                 funcName = indexingNode.BuildChainStringRepresentation();
             }
-            else if (functionCallExpression.Callee is VariableReference variableNode)
+            else if (functionCallExpression.Callee is VariableReferenceExpression variableNode)
             {
                 funcName = variableNode.Identifier;
             }
@@ -90,7 +90,6 @@ namespace EVIL.Interpreter.Execution
                 scope.Set(closure.Key, closure.Value);
             }
 
-
             for (var i = 0; i < scriptFunction.Parameters.Count; i++)
             {
                 var parameterName = scriptFunction.Parameters[i];
@@ -109,16 +108,16 @@ namespace EVIL.Interpreter.Execution
                 else
                     scope.Set(parameterName, DynValue.Zero);
             }
-            
+
             stackFrame.Parameters.AddRange(scriptFunction.Parameters);
             stackFrame.Arguments.AddRange(args);
-            
+
             Environment.CallStack.Push(stackFrame);
 
             DynValue retVal;
 
             try
-            {                
+            {
                 Environment.LocalScope = scope;
                 Visit(scriptFunction.Statements);
                 retVal = Environment.CallStack.Peek().ReturnValue;

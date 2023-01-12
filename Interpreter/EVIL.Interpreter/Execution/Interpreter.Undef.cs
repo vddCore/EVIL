@@ -23,18 +23,10 @@ namespace EVIL.Interpreter.Execution
 
                 indexable.Table.Remove(key);
             }
-            else if (undefStatement.Right is VariableReference variable)
+            else if (undefStatement.Right is VariableReferenceExpression variable)
             {
                 var scope = Environment.LocalScope ?? Environment.GlobalScope;
                 scope.FindAndUndefine(variable.Identifier);
-            }
-            else
-            {
-                throw new RuntimeException(
-                    "Expected a variable or an indexer.",
-                    Environment,
-                    undefStatement.Line
-                );
             }
         }
     }
