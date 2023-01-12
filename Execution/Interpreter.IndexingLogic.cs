@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EVIL.Abstraction;
 using EVIL.AST.Base;
@@ -76,9 +77,13 @@ namespace EVIL.Execution
                         else
                             throw new RuntimeException($"Attempt to use {keyValue.Type} as a key.", indexingNode.Line);
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        if (!indexingNode.WillBeAssigned) throw;
+                        if (!indexingNode.WillBeAssigned)
+                        {
+                            throw new RuntimeException(e.Message, indexingNode.Line);
+                        }
+                        
                         indexable.Table[keyValue] = new DynValue(0);
 
                         return indexable.Table[keyValue];

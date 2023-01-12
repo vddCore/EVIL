@@ -35,7 +35,11 @@ namespace EVIL.Execution
 
                         if (!loopStackTop.SkipThisIteration)
                         {
-                            ExecuteStatementList(forLoopNode.StatementList);
+                            Environment.EnterScope();
+                            {
+                                ExecuteStatementList(forLoopNode.StatementList);
+                            }
+                            Environment.ExitScope();
                         }
 
                         foreach (var iterationStatement in forLoopNode.IterationStatements)

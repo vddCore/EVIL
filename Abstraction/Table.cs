@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using EVIL.Execution;
 
 namespace EVIL.Abstraction
 {
@@ -44,7 +44,7 @@ namespace EVIL.Abstraction
                     return this[key.Number];
                 else if (key.Type == DynValueType.String)
                     return this[key.String];
-                else throw new RuntimeException($"A value type '{key}' cannot be used to index a table.", null);
+                else throw new Exception($"A {key.Type} cannot be used to index a table.");
             }
 
             set
@@ -53,7 +53,7 @@ namespace EVIL.Abstraction
                     this[key.Number] = value;
                 else if (key.Type == DynValueType.String)
                     this[key.String] = value;
-                else throw new RuntimeException($"A value type '{key}' cannot be used to index a table.", null);
+                else throw new Exception($"A {key.Type} cannot be used to index a table.");
             }
         }
 
@@ -65,7 +65,7 @@ namespace EVIL.Abstraction
                     return GetKeyByNumber(key.Number);
                 case DynValueType.String:
                     return GetKeyByString(key.String);
-                default: return null;
+                default: throw new KeyNotFoundException($"The key '{key.AsString()}' was not found in the dictionary.");
             }
         }
 
@@ -82,11 +82,11 @@ namespace EVIL.Abstraction
             if (dynKey != null)
                 return base[dynKey];
 
-            throw new RuntimeException($"Could not find a value with key of '{key}'.", null);
+            throw new KeyNotFoundException($"Key '{key}' was not found in the table.");
         }
 
         public DynValue GetKeyByNumber(double key)
-            => Keys.FirstOrDefault(k => k.Type == DynValueType.Number && k.Number == key);
+            => Keys.FirstOrDefault(k => k.Type == DynValueType.Number && k.Number.Equals(key));
 
         public DynValue GetValueByNumber(double key)
         {
@@ -95,7 +95,7 @@ namespace EVIL.Abstraction
             if (dynKey != null)
                 return base[dynKey];
 
-            throw new RuntimeException($"Could not find a value with key of '{key}'.", null);
+            throw new KeyNotFoundException($"Key '{key}' was not found in the table.");
         }
 
         public static Table FromString(string s)

@@ -16,8 +16,11 @@ namespace EVIL.Execution
 
                     while (Visit(whileLoopNode.Expression).Number != 0)
                     {
-                        ExecuteStatementList(whileLoopNode.StatementList);
-
+                        Environment.EnterScope();
+                        {
+                            ExecuteStatementList(whileLoopNode.StatementList);
+                        }
+                        Environment.ExitScope();
                         var stackTop = Environment.LoopStackTop;
 
                         if (stackTop.BreakLoop)
