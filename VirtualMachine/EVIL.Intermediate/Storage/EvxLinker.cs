@@ -61,16 +61,8 @@ namespace EVIL.Intermediate.Storage
         private static void WriteChecksum(BinaryWriter bw, Stream outStream)
         {
             outStream.Seek(EvxHeaderOffsets.TimeStamp, SeekOrigin.Begin);
-            
-            var hash = 0xCBF29CE484222325;
-            using (var br = new BinaryReader(outStream, Encoding.UTF8, true))
-            {
-                while (outStream.Position < outStream.Length)
-                {
-                    hash ^= br.ReadByte();
-                    hash *= 0x00000100000001B3;
-                }
-            }
+
+            var hash = Hash.FNV1A64(outStream);
 
             outStream.Seek(
                 EvxHeaderOffsets.Checksum,

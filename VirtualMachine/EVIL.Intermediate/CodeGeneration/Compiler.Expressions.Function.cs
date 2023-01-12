@@ -22,6 +22,8 @@ namespace EVIL.Intermediate.CodeGeneration
             }
             LeaveScope();
 
+            CurrentChunk.Rename(Hash.FNV1A64(CurrentChunk.Instructions).ToString("X16"));
+
             ChunkDefinitionStack.Pop();
             prevCg.Emit(OpCode.LDF, id);
         }

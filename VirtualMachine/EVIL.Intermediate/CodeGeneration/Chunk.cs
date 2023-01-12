@@ -44,11 +44,16 @@ namespace EVIL.Intermediate.CodeGeneration
         public (int, Chunk) CreateSubChunk()
         {
             var id = SubChunks.Count;
-            var chunk = new Chunk($"!{Name}_sub<{id}>", false);
+            var chunk = new Chunk($"<unnamed_anon_chunk>", false);
 
             SubChunks.Add(chunk);
 
             return (id, chunk);
+        }
+
+        public void Rename(string newName)
+        {
+            Name = newName;
         }
         
         public int DefineLabel(int address = 0)
