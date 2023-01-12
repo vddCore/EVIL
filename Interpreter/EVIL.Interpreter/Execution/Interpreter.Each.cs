@@ -33,7 +33,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         $"Expected at least 1 and at most 2 loop variables, found {definitions.Count}.",
-                        Environment,
+                        this,
                         eachStatement.Line
                     );
                 }
@@ -41,7 +41,7 @@ namespace EVIL.Interpreter.Execution
                 try
                 {
                     var loopFrame = new LoopFrame();
-                    Environment.CallStack.Peek().LoopStack.Push(loopFrame);
+                    CallStack.Peek().LoopStack.Push(loopFrame);
 
                     var tableValue = Visit(eachStatement.Iterable);
 
@@ -49,7 +49,7 @@ namespace EVIL.Interpreter.Execution
                     {
                         throw new RuntimeException(
                             $"Expected a Table, got {tableValue.Type}.",
-                            Environment,
+                            this,
                             eachStatement.Iterable.Line
                         );
                     }
@@ -68,7 +68,7 @@ namespace EVIL.Interpreter.Execution
                 }
                 finally
                 {
-                    Environment.CallStack.Peek().LoopStack.Pop();
+                    CallStack.Peek().LoopStack.Pop();
                 }
             }
             Environment.ExitScope();

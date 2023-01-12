@@ -72,7 +72,7 @@ namespace EVIL.Interpreter.Execution
                 case BinaryOperationType.ExistsIn:
                     return ExistsIn(left, right, binaryExpression);
 
-                default: throw new RuntimeException("Unknown binary operation.", Environment, binaryExpression.Line);
+                default: throw new RuntimeException("Unknown binary operation.", this, binaryExpression.Line);
             }
         }
 
@@ -84,7 +84,7 @@ namespace EVIL.Interpreter.Execution
                 return new DynValue(left.Number + right.Number);
             else
             {
-                throw new RuntimeException($"Attempt to add {left.Type} and {right.Type}.", Environment, node.Line);
+                throw new RuntimeException($"Attempt to add {left.Type} and {right.Type}.", this, node.Line);
             }
         }
 
@@ -94,7 +94,7 @@ namespace EVIL.Interpreter.Execution
                 return new DynValue(left.Number - right.Number);
             else
             {
-                throw new RuntimeException($"Attempt to subtract {left.Type} and {right.Type}.", Environment,
+                throw new RuntimeException($"Attempt to subtract {left.Type} and {right.Type}.", this,
                     node.Line);
             }
         }
@@ -108,7 +108,7 @@ namespace EVIL.Interpreter.Execution
 
             throw new RuntimeException(
                 $"Attempt to multiply {left.Type} and {right.Type}.",
-                Environment,
+                this,
                 node.Line);
         }
 
@@ -117,13 +117,13 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (right.Number == 0)
-                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+                    throw new RuntimeException("Attempt to divide by zero.", this, node.Line);
 
                 return new DynValue(left.Number / right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt to divide {left.Type} and {right.Type}.", Environment, node.Line);
+                throw new RuntimeException($"Attempt to divide {left.Type} and {right.Type}.", this, node.Line);
             }
         }
 
@@ -132,7 +132,7 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (right.Number == 0)
-                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+                    throw new RuntimeException("Attempt to divide by zero.", this, node.Line);
 
                 return new DynValue(
                     left.Number - right.Number * Math.Floor(left.Number / right.Number)
@@ -142,7 +142,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt of modulo operation on {left.Type} by {right.Type}.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -156,7 +156,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         $"Attempt to left-shift a string using {right.Type}.",
-                        Environment,
+                        this,
                         node.Line
                     );
                 }
@@ -179,7 +179,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt of bitwise left-shift on {left.Type} using {right.Type}.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -193,7 +193,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         $"Attempt to right-shift a string using {right.Type}.",
-                        Environment,
+                        this,
                         node.Line
                     );
                 }
@@ -215,7 +215,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to right-shift a {left.Type} using {right.Type}.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -231,7 +231,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to bitwise AND {left.Type} and {right.Type}.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -247,7 +247,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to bitwise OR {left.Type} and {right.Type}.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -263,7 +263,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to bitwise XOR {left.Type} and {right.Type}.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -283,7 +283,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to compare {left.Type} and {right.Type} using '<'.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -303,7 +303,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to compare {left.Type} and {right.Type} using '>'.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -323,7 +323,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to compare {left.Type} and {right.Type} using '<='.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -343,7 +343,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to compare {left.Type} and {right.Type} using '>='.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -362,7 +362,7 @@ namespace EVIL.Interpreter.Execution
 
             throw new RuntimeException(
                 $"Attempt to check existence of {left.Type} in {right.Type}.",
-                Environment,
+                this,
                 node.Line
             );
         }
@@ -381,7 +381,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to compare {left.Type} and {right.Type} using '!='.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }
@@ -401,7 +401,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"Attempt to compare {left.Type} and {right.Type} using '=='.",
-                    Environment,
+                    this,
                     node.Line
                 );
             }

@@ -99,7 +99,7 @@ namespace EVIL.Interpreter.Runtime.Library
         {
             args.ExpectNone();
 
-            var trace = interpreter.Environment.StackTrace();
+            var trace = interpreter.StackTrace();
 
             if (!trace.Any())
                 return DynValue.Zero;
@@ -134,7 +134,7 @@ namespace EVIL.Interpreter.Runtime.Library
 
             var sb = new StringBuilder();
 
-            foreach (var frame in interpreter.Environment.StackTrace())
+            foreach (var frame in interpreter.StackTrace())
             {
                 sb.AppendLine(
                     $"at {frame.FunctionName}({string.Join(',', frame.Parameters)})\n" +

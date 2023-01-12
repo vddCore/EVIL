@@ -9,6 +9,11 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
             Statement node;
+
+            if (!_allowTopLevelStatements && _functionDescent == 0 && token.Type != TokenType.Fn)
+            {
+                throw new ParserException("Top-level statements are disallowed.", Lexer.State);
+            }
             
             switch (token.Type)
             {

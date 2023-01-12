@@ -20,7 +20,7 @@ namespace EVIL.Interpreter.Execution
 
                     throw new RuntimeException(
                         $"Attempt to apply unary + on {operand.Type}.",
-                        Environment,
+                        this,
                         unaryExpression.Line
                     );
                 }
@@ -34,7 +34,7 @@ namespace EVIL.Interpreter.Execution
 
                     throw new RuntimeException(
                         $"Attempt to apply unary - on {operand.Type}.",
-                        Environment,
+                        this,
                         unaryExpression.Line
                     );
                 }
@@ -51,7 +51,7 @@ namespace EVIL.Interpreter.Execution
                         {
                             throw new RuntimeException(
                                 $"Attempt to retrieve the length of {operand.Type}.",
-                                Environment,
+                                this,
                                 unaryExpression.Line
                             );
                         }
@@ -74,7 +74,7 @@ namespace EVIL.Interpreter.Execution
                     {
                         throw new RuntimeException(
                             $"Attempt to negate a {operand.Type}.",
-                            Environment,
+                            this,
                             unaryExpression.Line
                         );
                     }
@@ -91,7 +91,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         "Unknown unary operation type.",
-                        Environment,
+                        this,
                         unaryExpression.Line
                     );
                 }

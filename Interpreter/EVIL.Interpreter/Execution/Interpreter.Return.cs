@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override void Visit(ReturnStatement returnStatement)
         {
-            var stackTop = Environment.StackTop;
+            var stackTop = StackTop;
 
             if (returnStatement.Expression != null)
             {
