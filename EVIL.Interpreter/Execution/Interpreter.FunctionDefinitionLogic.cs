@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using EVIL.Grammar.AST.Nodes;
+﻿using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Execution
@@ -36,7 +35,7 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
             }
-            else if (!_currentThisContextStack.Any())
+            else if (_currentThisContextStack.Count == 0)
             {
                 throw new RuntimeException(
                     "Attempt to define a constructor outside a table initializer.",
@@ -50,7 +49,7 @@ namespace EVIL.Interpreter.Execution
                 fn.Closures.Add(kvp.Key, kvp.Value);
             }
             
-            if (_currentThisContextStack.Any())
+            if (_currentThisContextStack.Count > 0)
             {
                 if (fn.Closures.ContainsKey("this"))
                 {

@@ -13,18 +13,23 @@ namespace EVIL.Interpreter.Execution
                 try
                 {
                     Environment.LoopStack.Push(new LoopFrame());
+                    var stackTop = Environment.LoopStackTop;
 
                     while (Visit(whileLoopNode.Expression).IsTruth)
                     {
-                        Environment.EnterScope();
+                        if (whileLoopNode.StatementList.Count > 0)
                         {
-                            ExecuteStatementList(whileLoopNode.StatementList);
+                            Environment.EnterScope();
+                            {
+                                ExecuteStatementList(whileLoopNode.StatementList);
+                            }
+                            Environment.ExitScope();
                         }
-                        Environment.ExitScope();
-                        var stackTop = Environment.LoopStackTop;
 
                         if (stackTop.BreakLoop)
+                        {
                             break;
+                        }
 
                         if (stackTop.SkipThisIteration)
                         {

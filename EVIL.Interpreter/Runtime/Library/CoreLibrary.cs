@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using EVIL.Interpreter.Execution;
-using EVIL.Interpreter.Abstraction;
+﻿using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library
 {

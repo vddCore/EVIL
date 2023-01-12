@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EVIL.Interpreter.Abstraction
 {
@@ -74,7 +73,15 @@ namespace EVIL.Interpreter.Abstraction
             => GetKeyByDynValue(key) != null;
 
         public DynValue GetKeyByString(string key)
-            => Keys.FirstOrDefault(k => k.Type == DynValueType.String && k.String == key);
+        {
+            foreach (var k in Keys)
+            {
+                if (k.Type == DynValueType.String && k.String == key)
+                    return k;
+            }
+
+            return null;
+        }
 
         public DynValue GetValueByString(string key)
         {
@@ -87,7 +94,15 @@ namespace EVIL.Interpreter.Abstraction
         }
 
         public DynValue GetKeyByNumber(decimal key)
-            => Keys.FirstOrDefault(k => k.Type == DynValueType.Number && k.Number == key);
+        {
+            foreach (var k in Keys)
+            {
+                if (k.Type == DynValueType.Number && k.Number == key)
+                    return k;
+            }
+
+            return null;
+        }
 
         public DynValue GetValueByNumber(decimal key)
         {

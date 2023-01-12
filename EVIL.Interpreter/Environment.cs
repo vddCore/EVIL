@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
@@ -162,7 +161,7 @@ namespace EVIL.Interpreter
 
             if (LocalScope == null)
             {
-                if (EnclosedScopes.Any())
+                if (EnclosedScopes.Count > 0)
                 {
                     LocalScope = EnclosedScopes.Pop();
                 }
