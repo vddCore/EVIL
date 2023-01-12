@@ -37,29 +37,37 @@ namespace EVIL.Execution
                 throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
             }
 
+            DynValue retVal;
             if (funcValue.IsClrFunction)
             {
-                return ExecuteClrFunction(funcValue.ClrFunction, name, parameters);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, name, parameters);
             }
             else
             {
-                return ExecuteScriptFunction(funcValue.ScriptFunction, parameters, name);
+                Environment.EnterScope();
+                {
+                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, parameters, name);
+                }
+                Environment.ExitScope();
             }
+
+            return retVal;
         }
 
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, ClrFunctionArguments args, string name)
         {
-            var callStackItem = new CallStackItem(name);
+            var callStackItem = new StackFrame(name);
             var iterator = 0;
+            
             foreach (var parameterName in scriptFunction.ParameterNames)
             {
-                if (callStackItem.Parameters.ContainsKey(parameterName))
+                if (Environment.LocalScope.HasMember(parameterName))
                     throw new RuntimeException($"Duplicate parameter name '{parameterName}'.", null);
 
                 if (iterator < args.Count)
-                    callStackItem.Parameters.Add(parameterName, args[iterator++]);
+                    Environment.LocalScope.Set(parameterName, args[iterator++]);
                 else
-                    callStackItem.Parameters.Add(parameterName, DynValue.Zero);
+                    Environment.LocalScope.Set(parameterName, DynValue.Zero);
             }
 
             Environment.CallStack.Push(callStackItem);
@@ -67,7 +75,6 @@ namespace EVIL.Execution
             var retval = DynValue.Zero;
             try
             {
-                Environment.EnterScope();
                 retval = ExecuteStatementList(scriptFunction.StatementList);
             }
             catch (ProgramTerminationException)
@@ -87,7 +94,6 @@ namespace EVIL.Execution
             }
             finally
             {
-                Environment.ExitScope();
                 Environment.CallStack.Pop();
             }
 
@@ -101,7 +107,7 @@ namespace EVIL.Execution
             if (clrFunction == null)
                 throw new RuntimeException("Failed to interpret IFunction as ClrFunction.", null);
 
-            var csi = new CallStackItem($"CLR!{name}");
+            var csi = new StackFrame($"CLR!{name}");
             Environment.CallStack.Push(csi);
 
             DynValue retVal;

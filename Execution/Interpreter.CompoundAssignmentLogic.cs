@@ -11,32 +11,12 @@ namespace EVIL.Execution
             var name = compoundAssignmentNode.Variable.Name;
             var val = Visit(compoundAssignmentNode.Right);
 
-            if (Environment.IsInScriptFunctionScope)
-            {
-                var stackTop = Environment.CallStackTop;
-
-                if (stackTop.HasParameter(name))
-                {
-                    var parameter = stackTop.Parameters[compoundAssignmentNode.Variable.Name];
-                    stackTop.SetParameter(
-                        name,
-                        HandleCompoundOperation(
-                            parameter,
-                            val,
-                            compoundAssignmentNode.Operation
-                        )
-                    );
-
-                    return DynValue.Zero;
-                }
-            }
-
-            var dynValue = Environment.LocalScope.FindInScopeChain(compoundAssignmentNode.Variable.Name);
+            var dynValue = Environment.LocalScope.FindInScopeChain(name);
 
             if (dynValue == null)
             {
                 throw new RuntimeException(
-                    $"Variable '{compoundAssignmentNode.Variable.Name}' was not found in current scope.", null);
+                    $"Variable '{name}' was not found in current scope.", null);
             }
 
             dynValue.CopyFrom(

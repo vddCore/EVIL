@@ -28,18 +28,7 @@ namespace EVIL.Execution
 
         private DynValue VariableAssignment(VariableNode left, AstNode right, bool isLocal)
         {
-            DynValue val;
-
-            if (Environment.IsInScriptFunctionScope)
-            {
-                if (Environment.CallStackTop.HasParameter(left.Name))
-                {
-                    val = Visit(right);
-                    Environment.CallStackTop.SetParameter(left.Name, val);
-
-                    return val;
-                }
-            }
+            var retVal = Visit(right);
 
             if (isLocal)
             {
@@ -52,19 +41,17 @@ namespace EVIL.Execution
             }
             else if (Environment.IsInScriptFunctionScope)
             {
-                val = Visit(right);
-
                 if (Environment.LocalScope.HasMember(left.Name))
                 {
-                    Environment.LocalScope.Set(left.Name, val);
-                    return val;
+                    Environment.LocalScope.Set(left.Name, retVal);
+                    return retVal;
                 }
             }
 
-            val = Visit(right);
-            Environment.GlobalScope.Set(left.Name, val);
+            retVal = Visit(right);
+            Environment.GlobalScope.Set(left.Name, retVal);
 
-            return val;
+            return retVal;
         }
     }
 }

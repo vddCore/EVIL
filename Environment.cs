@@ -15,26 +15,24 @@ namespace EVIL
     {
         public int CallStackLimit { get; set; } = 256;
 
-        public Stack<CallStackItem> CallStack { get; }
-        public Stack<LoopStackItem> LoopStack { get; }
-        public Stack<NameScope> NameScopes { get; }
-
+        public Stack<StackFrame> CallStack { get; }
+        public Stack<LoopFrame> LoopStack { get; }
+        
         public bool IsInScriptFunctionScope => CallStack.Count > 0;
         public bool IsInsideLoop => LoopStack.Count > 0;
 
-        public CallStackItem CallStackTop => CallStack.Peek();
-        public LoopStackItem LoopStackTop => LoopStack.Peek();
+        public StackFrame StackTop => CallStack.Peek();
+        public LoopFrame LoopStackTop => LoopStack.Peek();
 
-        public NameScope LocalScope => NameScopes.Peek();
-        public NameScope GlobalScope => NameScopes.ElementAt(NameScopes.Count - 1);
+        public NameScope LocalScope { get; private set; }
+        public NameScope GlobalScope { get; } = new(null);
 
         public Environment()
         {
-            CallStack = new Stack<CallStackItem>();
-            LoopStack = new Stack<LoopStackItem>();
+            CallStack = new Stack<StackFrame>();
+            LoopStack = new Stack<LoopFrame>();
 
-            NameScopes = new Stack<NameScope>();
-            NameScopes.Push(new NameScope(null));
+            LocalScope = GlobalScope;
         }
 
         public void LoadCoreRuntime()
@@ -103,22 +101,24 @@ namespace EVIL
         {
             LoopStack.Clear();
             CallStack.Clear();
+
+            LocalScope = GlobalScope;
         }
 
-        public List<CallStackItem> StackTrace()
+        public List<StackFrame> StackTrace()
         {
             return new(CallStack);
         }
 
         public NameScope EnterScope()
         {
-            NameScopes.Push(new NameScope(LocalScope));
-            return NameScopes.Peek();
+            LocalScope = new NameScope(LocalScope);
+            return LocalScope;
         }
 
         public void ExitScope()
         {
-            NameScopes.Pop();
+            LocalScope = LocalScope.ParentScope;
         }
     }
 }

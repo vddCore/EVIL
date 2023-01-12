@@ -56,24 +56,5 @@ namespace EVIL.Runtime.Library
 
             return new DynValue(0);
         }
-
-        [ClrFunction("isparam")]
-        public static DynValue IsParam(Interpreter interpreter, ClrFunctionArguments args)
-        {
-            args.ExpectExactly(1)
-                .ExpectTypeAtIndex(0, DynValueType.String);
-
-            var name = args[0].String;
-
-            if (interpreter.Environment.CallStack.Count == 0)
-                return new DynValue(0);
-
-            var stackTrace = interpreter.Environment.StackTrace();
-
-            if (stackTrace[stackTrace.Count - 1].HasParameter(name))
-                return new DynValue(1);
-
-            return new DynValue(0);
-        }
     }
 }

@@ -7,15 +7,14 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(VariableNode variableNode)
         {
-            if (Environment.IsInScriptFunctionScope)
-            {
-                var stackTop = Environment.CallStackTop;
+            var dynValue = Environment.LocalScope.FindInScopeChain(variableNode.Name);
 
-                if (stackTop.HasParameter(variableNode.Name))
-                    return stackTop.Parameters[variableNode.Name];
+            if (dynValue == null)
+            {
+                throw new RuntimeException($"'{variableNode.Name}' does not exist in the current scope.", variableNode.Line);
             }
 
-            return Environment.LocalScope.FindInScopeChain(variableNode.Name);
+            return dynValue;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace EVIL.Execution
         {
             try
             {
-                Environment.LoopStack.Push(new LoopStackItem());
+                Environment.LoopStack.Push(new LoopFrame());
 
                 while (Visit(whileLoopNode.Expression).Number != 0)
                 {
