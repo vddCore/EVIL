@@ -39,6 +39,14 @@ namespace EVIL.Intermediate.CodeGeneration
                 case UnaryOperationType.ToNumber:
                     cg.Emit(OpCode.TONUM);
                     break;
+                
+                case UnaryOperationType.TypeOf:
+                    cg.Emit(OpCode.TYPE);
+                    break;
+                
+                case UnaryOperationType.NameOf:
+                    UnaryNameOf(unaryExpression, cg);
+                    break;
 
                 default:
                     throw new CompilerException(

@@ -22,6 +22,14 @@ namespace EVIL.UnitTests
         }
 
         [Test]
+        public void BinaryLengthFails()
+        {
+            XAssert.ThrowsWithInner<VirtualMachineException, UnexpectedTypeException>(
+                () => EVM.Evaluate("ret #\"7 chars\" + \"7 chars\";")
+            );
+        }
+
+        [Test]
         public void NumberLengthFails()
         {
             XAssert.ThrowsWithInner<VirtualMachineException, UnmeasurableTypeException>(

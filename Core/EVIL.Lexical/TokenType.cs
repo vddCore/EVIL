@@ -85,6 +85,7 @@
         Loc,
         In,
         Null,
+        TypeOf,
 
         EOF
     }

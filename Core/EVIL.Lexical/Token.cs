@@ -118,6 +118,7 @@
         public static readonly Token False = new(TokenType.False, "false");
         public static readonly Token True = new(TokenType.True, "true");
         public static readonly Token Null = new(TokenType.Null, "null");
+        public static readonly Token TypeOf = new(TokenType.TypeOf, "typeof");
 
         public static readonly Token EOF = new(TokenType.EOF, "<EOF>");
 
