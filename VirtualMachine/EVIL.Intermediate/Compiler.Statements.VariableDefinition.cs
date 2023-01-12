@@ -34,10 +34,16 @@ namespace EVIL.Intermediate
                     if (kvp.Value != null)
                     {
                         Visit(kvp.Value);
-
-                        var keyId = _executable.ConstPool.FetchOrAddConstant(kvp.Key);
-                        cg.Emit(OpCode.STG, keyId);
                     }
+                    else
+                    {
+                        EmitConstantLoad(cg, 0);
+                    }
+                    
+                    cg.Emit(
+                        OpCode.STG, 
+                        _executable.ConstPool.FetchOrAddConstant(kvp.Key)
+                    );
                 }
             }
         }
