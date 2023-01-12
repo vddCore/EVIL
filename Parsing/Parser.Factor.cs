@@ -14,7 +14,7 @@ namespace EVIL.Parsing
             TokenType.LParenthesis,
             TokenType.LBracket
         };
-        
+
         private AstNode Factor()
         {
             var node = Terminal();
@@ -23,7 +23,7 @@ namespace EVIL.Parsing
             while (_suffixOperators.Contains(token.Type))
             {
                 token = Scanner.State.CurrentToken;
-                
+
                 if (token.Type == TokenType.LParenthesis)
                 {
                     node = FunctionCall(node);
@@ -35,16 +35,16 @@ namespace EVIL.Parsing
                 else if (token.Type == TokenType.Increment)
                 {
                     DisallowPrevious(TokenType.Decrement, TokenType.Increment);
-                    
+
                     var line = Match(TokenType.Increment);
                     node = new IncrementationNode(node, false) {Line = line};
                 }
-                else if(token.Type == TokenType.Decrement)
+                else if (token.Type == TokenType.Decrement)
                 {
                     DisallowPrevious(TokenType.Decrement, TokenType.Increment);
-                    
-                    var line = Match(TokenType.Increment);
-                    node = new IncrementationNode(node, false) {Line = line};
+
+                    var line = Match(TokenType.Decrement);
+                    node = new DecrementationNode(node, false) {Line = line};
                 }
             }
 
