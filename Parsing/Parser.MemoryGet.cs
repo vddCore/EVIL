@@ -11,22 +11,21 @@ namespace EVIL.Parsing
 
             var size = 0;
 
-            if (Scanner.State.CurrentToken.Type == TokenType.Colon)
+            while (Scanner.State.CurrentToken.Type == TokenType.Colon)
             {
+                if (size + 1 > (int)MemoryGetNode.OperandSize.Dword)
+                {
+                    throw new ParserException("Maximum supported operand size is DWORD.");
+                }
+
                 Match(TokenType.Colon);
                 size++;
             }
 
             var expression = LogicalExpression();
 
-            if (Scanner.State.CurrentToken.Type == TokenType.Colon)
-            {
-                Match(TokenType.Colon);
-                size++;
-            }
-
             Match(TokenType.RBracket);
-            return new MemoryGetNode(expression, (MemoryGetNode.OperandSize)size) { Line = line };
+            return new MemoryGetNode(expression, (MemoryGetNode.OperandSize)size) {Line = line};
         }
     }
 }

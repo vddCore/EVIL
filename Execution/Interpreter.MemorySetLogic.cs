@@ -19,7 +19,7 @@ namespace EVIL.Execution
                 }
                 else if (size == MemoryGetNode.OperandSize.Word)
                 {
-                    if (value > short.MaxValue)
+                    if (value > ushort.MaxValue)
                         throw new RuntimeException("Operand size mismatch, expected at most a word.",
                             memorySetNode.Line);
 

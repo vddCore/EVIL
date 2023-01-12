@@ -26,7 +26,12 @@ namespace EVIL.Execution
                     return new DynValue(left.Number * right.Number);
 
                 case BinaryOperationType.Divide:
+                {
+                    if (right.Number == 0)
+                        throw new RuntimeException("Trying to divide by zero.", binaryOperationNode.Line);
+                    
                     return new DynValue(left.Number / right.Number);
+                }
 
                 case BinaryOperationType.ShiftLeft:
                 {
@@ -38,6 +43,7 @@ namespace EVIL.Execution
 
                     return new DynValue((int)left.Number << (int)right.Number);
                 }
+                
                 case BinaryOperationType.ShiftRight:
                 {
                     if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
@@ -49,6 +55,7 @@ namespace EVIL.Execution
 
                     return new DynValue((int)left.Number >> (int)right.Number);
                 }
+                
                 case BinaryOperationType.Nand:
                 {
                     if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
