@@ -34,8 +34,6 @@ namespace EVIL.VirtualMachine.TestDriver
         
         public static void Main(string[] args)
         {
-            Console.WriteLine(Unsafe.SizeOf<DynamicValue>());
-            
             var lexer = new Lexer();
             var parser = new Parser(lexer, true);
             var compiler = new Compiler();

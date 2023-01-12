@@ -12,14 +12,15 @@ namespace EVIL.Grammar.Parsing
 
             if (CurrentToken.Type == TokenType.QuestionMark)
             {
-                Match(Token.QuestionMark);
+                var (line, col) = Match(Token.QuestionMark);
                 var trueExpression = AssignmentExpression();
                 Match(Token.Colon);
                 var falseExpression = ConditionalExpression();
 
-                return new ConditionalExpression(node, trueExpression, falseExpression);
+                return new ConditionalExpression(node, trueExpression, falseExpression)
+                    { Line = line, Column = col };
             }
-            
+
             return node;
         }
     }

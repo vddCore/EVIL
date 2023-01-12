@@ -54,6 +54,7 @@
         LDG = 0x51,   // [L]oa[D] [G]lobal
         LDL = 0x52,   // [L]oa[D] [L]ocal
         LDA = 0x53,   // [L]oa[D] [A]rgument
+        LDF = 0x54,   // [L]oa[D] [F]unction
         
         // ---------- [ MISCELLANEOUS
         NEWTB = 0x60, // Create a [NEW] [T]a[B]le

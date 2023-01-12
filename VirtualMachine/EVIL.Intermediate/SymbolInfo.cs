@@ -9,7 +9,7 @@ namespace EVIL.Intermediate
             Undefined = -1,
             Global,
             Local,
-            Parameter
+            Parameter,
         }
 
         public static readonly SymbolInfo Undefined = new(-1, SymbolType.Undefined);
