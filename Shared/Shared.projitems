@@ -9,8 +9,8 @@
     <Import_RootNamespace>Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)evil_katepart.xml" />
-    <Content Include="$(MSBuildThisFileDirectory)evil_npp.xml" />
+    <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_katepart.xml" />
+    <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_npp.xml" />
     <Content Include="$(MSBuildThisFileDirectory)samples\99bottles.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\brainfuck.vil" />
     <Content Include="$(MSBuildThisFileDirectory)samples\bubblesort.vil" />
