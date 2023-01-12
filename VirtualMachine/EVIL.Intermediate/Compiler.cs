@@ -10,28 +10,28 @@ namespace EVIL.Intermediate
     {
         private Executable _executable;
 
-        private int _currentLocalFunctionIndex = 0;
-        
+        private int _currentLocalFunctionIndex;
+
         private Stack<Scope> ScopeStack { get; } = new();
         private Stack<Chunk> ChunkDefinitionStack { get; } = new();
-        
+
         private Chunk CurrentChunk => ChunkDefinitionStack.Peek();
 
         public Executable Compile(Program program)
         {
             ChunkDefinitionStack.Clear();
             ScopeStack.Clear();
-            
+            Scope.ClearGlobals();
+
             _executable = new Executable();
+            _currentLocalFunctionIndex = 0;
+
             ChunkDefinitionStack.Push(_executable.MainChunk);
             {
                 Visit(program);
             }
-
-            _executable.MainChunk.GetCodeGenerator()
-                                 .Emit(OpCode.HLT);
-            
             ChunkDefinitionStack.Pop();
+
             return _executable;
         }
 
@@ -39,6 +39,10 @@ namespace EVIL.Intermediate
         {
             foreach (var node in program.Statements)
                 Visit(node);
+
+            _executable.MainChunk
+                .GetCodeGenerator()
+                .Emit(OpCode.HLT);
         }
 
         public override void Visit(BlockStatement blockStatement)
@@ -58,7 +62,7 @@ namespace EVIL.Intermediate
         public override void Visit(NumberExpression numberExpression)
         {
             var constId = _executable.ConstPool.FetchOrAddConstant(numberExpression.Value);
-            
+
             var cg = CurrentChunk.GetCodeGenerator();
             cg.Emit(OpCode.LDCONST, constId);
         }
@@ -73,13 +77,64 @@ namespace EVIL.Intermediate
 
         private void AssingmentToVariable(AssignmentExpression assignmentExpression)
         {
-            Visit(assignmentExpression.Left);
+            var cg = CurrentChunk.GetCodeGenerator();
+            
             Visit(assignmentExpression.Right);
-
+            
             switch (assignmentExpression.OperationType)
             {
                 case AssignmentOperationType.Direct:
                     break;
+            }
+
+            var varRef = (VariableReferenceExpression)assignmentExpression.Left;
+            Scope localScope = null;
+
+            if (ScopeStack.Count > 0)
+            {
+                localScope = ScopeStack.Peek();
+            }
+
+            if (localScope != null)
+            {
+                var sym = localScope.Find(varRef.Identifier);
+
+                if (sym == SymbolInfo.Undefined)
+                {
+                    throw new CompilerException(
+                        $"Unknown symbol '{varRef}'.",
+                        varRef.Line
+                    );
+                }
+
+                if (sym.Type == SymbolInfo.SymbolType.Local)
+                {
+                    cg.Emit(OpCode.STLOCAL, sym.Id);
+                }
+                else if (sym.Type == SymbolInfo.SymbolType.Parameter)
+                {
+                    cg.Emit(OpCode.STARG, sym.Id);
+                }
+                else if (sym.Type == SymbolInfo.SymbolType.Global)
+                {
+                    cg.Emit(
+                        OpCode.LDCONST,
+                        _executable.ConstPool.FetchOrAddConstant(
+                            varRef.Identifier
+                         )
+                    );
+                    cg.Emit(OpCode.STGLOBAL);
+                }
+            }
+            else
+            {
+                cg.Emit(
+                    OpCode.LDCONST,
+                    _executable.ConstPool.FetchOrAddConstant(
+                        varRef.Identifier
+                    )
+                );
+                cg.Emit(OpCode.STGLOBAL);
             }
         }
 
@@ -187,39 +242,38 @@ namespace EVIL.Intermediate
         public override void Visit(UnaryExpression unaryExpression)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            
+
             Visit(unaryExpression.Right);
-            
+
             switch (unaryExpression.Type)
             {
                 case UnaryOperationType.Minus:
                     cg.Emit(OpCode.UNM);
                     break;
-                
+
                 case UnaryOperationType.Length:
                     cg.Emit(OpCode.LEN);
                     break;
-                
+
                 case UnaryOperationType.BitwiseNot:
                     cg.Emit(OpCode.NOT);
-
                     break;
-                
+
                 case UnaryOperationType.Plus:
                     break;
-                
+
                 case UnaryOperationType.Negation:
                     cg.Emit(OpCode.LNOT);
                     break;
-                
+
                 case UnaryOperationType.ToString:
                     cg.Emit(OpCode.TOSTR);
                     break;
-                
+
                 case UnaryOperationType.ToNumber:
                     cg.Emit(OpCode.TONUM);
                     break;
-                
+
                 default:
                     throw new CompilerException(
                         $"Unrecognized unary operation type '{unaryExpression.Type}'",
@@ -231,7 +285,7 @@ namespace EVIL.Intermediate
         public override void Visit(VariableReferenceExpression variableReferenceExpression)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            
+
             Scope localScope = null;
 
             if (ScopeStack.Count > 0)
@@ -246,7 +300,7 @@ namespace EVIL.Intermediate
                 if (sym == SymbolInfo.Undefined)
                 {
                     throw new CompilerException(
-                        $"Unknown symbol '{variableReferenceExpression}'.",
+                        $"Unknown symbol '{variableReferenceExpression.Identifier}'.",
                         variableReferenceExpression.Line
                     );
                 }
@@ -259,10 +313,25 @@ namespace EVIL.Intermediate
                 {
                     cg.Emit(OpCode.LDARG, sym.Id);
                 }
+                else if (sym.Type == SymbolInfo.SymbolType.Global)
+                {
+                    cg.Emit(
+                        OpCode.LDCONST,
+                        _executable.ConstPool.FetchOrAddConstant(
+                            variableReferenceExpression.Identifier
+                        )
+                    );
+                    cg.Emit(OpCode.LDGLOBAL);
+                }
             }
             else
             {
-                cg.Emit(OpCode.LDCONST, _executable.ConstPool.FetchOrAddConstant(variableReferenceExpression.Identifier));
+                cg.Emit(
+                    OpCode.LDCONST,
+                    _executable.ConstPool.FetchOrAddConstant(
+                        variableReferenceExpression.Identifier
+                    )
+                );
                 cg.Emit(OpCode.LDGLOBAL);
             }
         }
@@ -270,29 +339,48 @@ namespace EVIL.Intermediate
         public override void Visit(VariableDefinition variableDefinition)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            
+
             Scope localScope = null;
 
             if (ScopeStack.Count > 0)
             {
                 localScope = ScopeStack.Peek();
             }
-            
+
             foreach (var kvp in variableDefinition.Definitions)
             {
                 if (localScope != null)
                 {
                     var sym = localScope.DefineLocal(kvp.Key);
-                    cg.Emit(OpCode.LDLOCAL, sym.Id);
-                    Visit(kvp.Value);
-                    cg.Emit(OpCode.STLOCAL);
+
+                    if (kvp.Value != null)
+                    {
+                        Visit(kvp.Value);
+                    }
+                    else
+                    {
+                        var id = _executable.ConstPool.FetchOrAddConstant(0);
+                        cg.Emit(OpCode.LDCONST, id);
+                    }
+                    
+                    cg.Emit(OpCode.STLOCAL, sym.Id);
                 }
                 else
                 {
-                    var id = _executable.ConstPool.FetchOrAddConstant(kvp.Key);
-                    cg.Emit(OpCode.LDCONST, id);
-
-                    Visit(kvp.Value);
+                    Scope.DefineGlobal(kvp.Key);
+                    
+                    var keyId = _executable.ConstPool.FetchOrAddConstant(kvp.Key);
+                    cg.Emit(OpCode.LDCONST, keyId);
+                    
+                    if (kvp.Value != null)
+                    {
+                        Visit(kvp.Value);
+                    }
+                    else
+                    {
+                        var zeroId = _executable.ConstPool.FetchOrAddConstant(0);
+                        cg.Emit(OpCode.LDCONST, zeroId);
+                    }
                     cg.Emit(OpCode.STGLOBAL);
                 }
             }
@@ -300,30 +388,31 @@ namespace EVIL.Intermediate
 
         public override void Visit(FunctionDefinition functionDefinition)
         {
+            Scope.DefineGlobal(functionDefinition.Identifier);
+            
             var chunk = new Chunk(functionDefinition.Identifier);
             ChunkDefinitionStack.Push(chunk);
-
-            chunk.ParameterCount = functionDefinition.Parameters.Count;
-            var cg = CurrentChunk.GetCodeGenerator();
             
+            var cg = CurrentChunk.GetCodeGenerator();
+            var paramCount = functionDefinition.Parameters.Count;
+
+
             EnterScope();
             {
                 var localScope = ScopeStack.Peek();
-                
-                for (var i = 0; i < chunk.ParameterCount; i++)
+
+                for (var i = 0; i < paramCount; i++)
                 {
                     var param = functionDefinition.Parameters[i];
-                    localScope.DefineLocal(param);
-                    
-                    cg.Emit(OpCode.STARG, chunk.ParameterCount - i - 1);
+                    localScope.DefineParameter(param);
+
+                    cg.Emit(OpCode.STARG, paramCount - i - 1);
                 }
 
                 foreach (var stmt in functionDefinition.Statements.Statements)
                 {
                     Visit(stmt);
                 }
-                
-                cg.Emit(OpCode.RETN);
             }
             LeaveScope();
             _executable.Chunks.Add(ChunkDefinitionStack.Pop());
@@ -336,12 +425,12 @@ namespace EVIL.Intermediate
         public override void Visit(FunctionCallExpression functionCallExpression)
         {
             var cg = CurrentChunk.GetCodeGenerator();
-            
+
             foreach (var expr in functionCallExpression.Arguments)
                 Visit(expr);
 
             Visit(functionCallExpression.Callee);
-            cg.Emit(OpCode.CALL);
+            cg.Emit(OpCode.CALL, functionCallExpression.Arguments.Count);
         }
 
         public override void Visit(IfStatement ifStatement)
@@ -366,6 +455,14 @@ namespace EVIL.Intermediate
 
         public override void Visit(ReturnStatement returnStatement)
         {
+            var cg = CurrentChunk.GetCodeGenerator();
+
+            if (returnStatement.Expression != null)
+            {
+                Visit(returnStatement.Expression);
+            }
+
+            cg.Emit(OpCode.RETN);
         }
 
         public override void Visit(BreakStatement breakStatement)
@@ -406,7 +503,7 @@ namespace EVIL.Intermediate
 
         public override void Visit(ExpressionStatement expressionStatement)
         {
-            var cg = CurrentChunk.GetCodeGenerator();
+            // var cg = CurrentChunk.GetCodeGenerator();
             Visit(expressionStatement.Expression);
             // cg.Emit(OpCode.POP);
         }
@@ -421,7 +518,7 @@ namespace EVIL.Intermediate
 
             if (ScopeStack.Count > 0)
                 localScope = ScopeStack.Peek();
-            
+
             var scope = new Scope(CurrentChunk, localScope);
             ScopeStack.Push(scope);
         }

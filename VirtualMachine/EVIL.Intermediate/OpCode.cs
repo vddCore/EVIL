@@ -42,16 +42,17 @@
         
         // ---------- [ STORAGE
         LDCONST = 0x40,
-        LDGLOBAL = 0x41,
-        STGLOBAL = 0x42,
-        LDLOCAL = 0x43,
-        STLOCAL = 0x44,
-        LDARG = 0x45,
-        STARG = 0x46,
-        NEWTABLE = 0x47,
-        CLOSE = 0x48,
-        LDCLS = 0x49,
-        STCLS = 0x4A,
+        LDCHUNK = 0x41,
+        LDGLOBAL = 0x42,
+        STGLOBAL = 0x43,
+        LDLOCAL = 0x44,
+        STLOCAL = 0x45,
+        LDARG = 0x46,
+        STARG = 0x47,
+        NEWTABLE = 0x48,
+        CLOSE = 0x49,
+        LDCLS = 0x4A,
+        STCLS = 0x4B,
         
         // ---------- [ DATA MANIPULATION
         INDEX = 0x50,

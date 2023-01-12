@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.Intermediate;
@@ -14,7 +16,7 @@ namespace EVIL.ExecutionEngine
 
         private Stack<StackFrame> CallStack { get; } = new();
         private StackFrame CurrentStackFrame => CallStack.Peek();
-        
+
         public Executable Executable { get; }
 
         public bool Running { get; private set; }
@@ -26,33 +28,52 @@ namespace EVIL.ExecutionEngine
 
             foreach (var c in executable.Chunks)
             {
-                if(!c.Name.StartsWith('!'))
-                    GlobalTable.Set(new DynamicValue(c.Name), new DynamicValue(c));
+                if (!c.Name.StartsWith('!'))
+                {
+                    GlobalTable.Set(
+                        new DynamicValue(c.Name),
+                        new DynamicValue(c)
+                    );
+                }
             }
         }
 
-        public void JumpToChunk(Chunk chunk)
+        public string DumpEvaluationStack()
         {
-            CallStack.Push(new StackFrame(this, chunk));
-        }
+            var sb = new StringBuilder();
 
-        public void Return()
-        {
-            EvaluationStack.Push(
-                CurrentStackFrame.ReturnValue
-            );
+            for (var i = 0; i < EvaluationStack.Count; i++)
+            {
+                var v = EvaluationStack.ElementAt(i);
+                sb.AppendLine($"{i}: {v.Type} {v.CopyToString().String}");
+            }
 
-            CallStack.Pop();
+            return sb.ToString();
         }
 
         public void Run()
         {
             Running = true;
+            CallStack.Push(new StackFrame(this, Executable.MainChunk, 0));
 
-            CallStack.Push(new StackFrame(this, Executable.MainChunk));
-            
             while (Running)
-                Step();
+            {
+                if (!CurrentStackFrame.CanExecute)
+                {
+                    if (CurrentStackFrame.Chunk == Executable.MainChunk)
+                    {
+                        Halt();
+                    }
+                    else
+                    {
+                        CallStack.Pop();
+                    }
+                }
+                else
+                {
+                    Step();
+                }
+            }
         }
 
         public void Step()
@@ -62,14 +83,15 @@ namespace EVIL.ExecutionEngine
 
             DynamicValue a;
             DynamicValue b;
-            
-            uint utmp;
+
             int itmp;
 
             switch (opCode)
             {
                 case OpCode.NOP:
+                {
                     break;
+                }
 
                 case OpCode.POP:
                 {
@@ -189,18 +211,17 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.LDLOCAL:
                 {
-                    utmp = frame.FetchUInt32();
-                    a = frame.Locals[utmp];
+                    itmp = frame.FetchInt32();
+                    a = frame.Locals[itmp];
                     EvaluationStack.Push(a);
                     break;
                 }
 
                 case OpCode.STLOCAL:
                 {
-                    utmp = frame.FetchUInt32();
+                    itmp = frame.FetchInt32();
                     a = EvaluationStack.Pop();
-                    
-                    frame.Locals[utmp] = a;
+                    frame.Locals[itmp] = a;
                     break;
                 }
 
@@ -221,12 +242,22 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.CALL:
                 {
+                    var argc = CurrentStackFrame.FetchInt32();
                     a = EvaluationStack.Pop();
 
                     if (a.Type != DynamicValueType.Function)
                         throw new NonInvokableValueException(a);
-                    
-                    JumpToChunk(a.Function);
+
+                    CallStack.Push(new StackFrame(this, a.Function, argc));
+                    var extraArgs = CurrentStackFrame.ExtraArguments;
+
+                    if (extraArgs != null)
+                    {
+                        for (var i = 0; i < extraArgs.Length; i++)
+                        {
+                            extraArgs[extraArgs.Length - i - 1] = EvaluationStack.Pop();
+                        }
+                    }
                     break;
                 }
 
@@ -234,20 +265,27 @@ namespace EVIL.ExecutionEngine
                 {
                     itmp = CurrentStackFrame.FetchInt32();
                     a = EvaluationStack.Pop();
-
-                    CurrentStackFrame.Parameters[itmp] = a;
+                    CurrentStackFrame.FormalArguments[itmp] = a;
                     break;
                 }
 
                 case OpCode.LDARG:
                 {
                     itmp = CurrentStackFrame.FetchInt32();
-                    EvaluationStack.Push(CurrentStackFrame.Parameters[itmp]);
+                    EvaluationStack.Push(CurrentStackFrame.FormalArguments[itmp]);
                     break;
                 }
-                
+
+                case OpCode.RETN:
+                {
+                    CallStack.Pop();
+                    break;
+                }
+
                 default:
+                {
                     throw new VirtualMachineException("Invalid op-code.");
+                }
             }
         }
 
