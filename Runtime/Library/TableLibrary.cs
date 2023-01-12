@@ -1,12 +1,12 @@
 ﻿using EVIL.Abstraction;
 using EVIL.Execution;
-using EVIL.RuntimeLibrary.Base;
 
-namespace EVIL.RuntimeLibrary
+namespace EVIL.Runtime.Library
 {
-    public class TableLibrary : ClrPackage
+    public class TableLibrary
     {
-        public DynValue Insert(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("tbl.ins")]
+        public static DynValue Insert(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(3)
                 .ExpectTypeAtIndex(0, DynValueType.Table);
@@ -21,7 +21,8 @@ namespace EVIL.RuntimeLibrary
             return DynValue.Zero;
         }
 
-        public DynValue Remove(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("tbl.rm")]
+        public static DynValue Remove(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.Table);
@@ -35,12 +36,6 @@ namespace EVIL.RuntimeLibrary
             tbl.Remove(key);
 
             return DynValue.Zero;
-        }
-
-        public override void Register(Environment env, Interpreter interpreter)
-        {
-            env.RegisterBuiltIn("tbl.ins", Insert);
-            env.RegisterBuiltIn("tbl.rm", Remove);
         }
     }
 }

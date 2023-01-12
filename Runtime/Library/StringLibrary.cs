@@ -1,13 +1,13 @@
 ﻿using System;
 using EVIL.Abstraction;
 using EVIL.Execution;
-using EVIL.RuntimeLibrary.Base;
 
-namespace EVIL.RuntimeLibrary
+namespace EVIL.Runtime.Library
 {
-    public class StringLibrary : ClrPackage
+    public class StringLibrary
     {
-        private DynValue Length(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.len")]
+        public static DynValue Length(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -15,15 +15,17 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(args[0].String.Length);
         }
 
-        private DynValue ToChar(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.chr")]
+        public static DynValue ToChar(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectIntegerAtIndex(0);
 
             return new DynValue(((char)args[0].Number).ToString());
         }
-
-        private DynValue ToCharCode(Interpreter interpreter, ClrFunctionArguments args)
+        
+        [ClrFunction("str.code")]
+        public static DynValue ToCharCode(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -35,8 +37,9 @@ namespace EVIL.RuntimeLibrary
 
             return new DynValue(str[0]);
         }
-
-        private DynValue CharAt(Interpreter interpreter, ClrFunctionArguments args)
+        
+        [ClrFunction("str.at")]
+        public static DynValue CharAt(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.String)
@@ -51,7 +54,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(str[index].ToString());
         }
 
-        public DynValue Substring(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.sub")]
+        public static DynValue Substring(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectAtLeast(2)
                 .ExpectAtMost(3);
@@ -88,22 +92,9 @@ namespace EVIL.RuntimeLibrary
                 return new DynValue(str.Substring(startIndex, length));
             }
         }
-
-        public DynValue ToCharTable(Interpreter interpreter, ClrFunctionArguments args)
-        {
-            args.ExpectExactly(1)
-                .ExpectTypeAtIndex(0, DynValueType.String);
-
-            var str = args[0].String;
-            var table = new Table();
-
-            for (var i = 0; i < str.Length; i++)
-                table[i] = new DynValue(str[i].ToString());
-
-            return new DynValue(table);
-        }
-
-        public DynValue ToNumber(Interpreter interpreter, ClrFunctionArguments args)
+        
+        [ClrFunction("str.s2n")]
+        public static DynValue ToNumber(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -114,7 +105,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(result);
         }
 
-        public DynValue NumberToString(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.n2s")]
+        public static DynValue NumberToString(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectAtLeast(1)
                 .ExpectIntegerAtIndex(0);
@@ -131,7 +123,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(Convert.ToString(number, toBase));
         }
 
-        public DynValue Split(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.spl")]
+        public static DynValue Split(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.String)
@@ -154,7 +147,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(retTable);
         }
 
-        public DynValue UpperCase(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.uc")]
+        public static DynValue UpperCase(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -164,7 +158,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(str.ToUpperInvariant());
         }
         
-        public DynValue LowerCase(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("str.lc")]
+        public static DynValue LowerCase(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -172,21 +167,6 @@ namespace EVIL.RuntimeLibrary
             var str = args[0].String;
 
             return new DynValue(str.ToLowerInvariant());
-        }
-        
-        public override void Register(Environment env, Interpreter interpreter)
-        {
-            env.RegisterBuiltIn("str.len", Length);
-            env.RegisterBuiltIn("str.chr", ToChar);
-            env.RegisterBuiltIn("str.code", ToCharCode);
-            env.RegisterBuiltIn("str.at", CharAt);
-            env.RegisterBuiltIn("str.sub", Substring);
-            env.RegisterBuiltIn("str.tbl", ToCharTable);
-            env.RegisterBuiltIn("str.s2n", ToNumber);
-            env.RegisterBuiltIn("str.n2s", NumberToString);
-            env.RegisterBuiltIn("str.spl", Split);
-            env.RegisterBuiltIn("str.uc", UpperCase);
-            env.RegisterBuiltIn("str.lc", LowerCase);
         }
     }
 }

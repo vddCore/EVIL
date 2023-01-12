@@ -29,11 +29,12 @@ namespace EVIL.Execution
             CallStack = new Stack<CallStackItem>();
             LoopStack = new Stack<LoopStackItem>();
 
-            Environment = new Environment(this);
+            Environment = new Environment();
             Parser = new Parser();
         }
 
         public Interpreter(Environment env)
+            : this()
         {
             Environment = env;
         }

@@ -1,18 +1,19 @@
 ﻿using EVIL.Abstraction;
 using EVIL.Execution;
-using EVIL.RuntimeLibrary.Base;
 
-namespace EVIL.RuntimeLibrary
+namespace EVIL.Runtime.Library
 {
-    public class CoreLibrary : ClrPackage
+    public class CoreLibrary
     {
-        public DynValue Type(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("type")]
+        public static DynValue Type(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1);
             return new DynValue(args[0].Type.ToString().ToLower());
         }
 
-        public DynValue Strace(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("strace")]
+        public static DynValue Strace(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectNone();
 
@@ -25,7 +26,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(tbl);
         }
 
-        public DynValue IsGlobal(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("isglobal")]
+        public static DynValue IsGlobal(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -38,7 +40,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(0);
         }
 
-        public DynValue IsLocal(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("islocal")]
+        public static DynValue IsLocal(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -56,7 +59,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(0);
         }
 
-        public DynValue IsParam(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("isparam")]
+        public static DynValue IsParam(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -74,7 +78,8 @@ namespace EVIL.RuntimeLibrary
             return new DynValue(0);
         }
 
-        public DynValue IsFunction(Interpreter interpreter, ClrFunctionArguments args)
+        [ClrFunction("isfunc")]
+        public static DynValue IsFunction(Interpreter interpreter, ClrFunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -85,16 +90,6 @@ namespace EVIL.RuntimeLibrary
                 return new DynValue(1);
 
             return new DynValue(0);
-        }
-
-        public override void Register(Environment env, Interpreter interpreter)
-        {
-            env.RegisterBuiltIn("type", Type);
-            env.RegisterBuiltIn("strace", Strace);
-            env.RegisterBuiltIn("isglobal", IsGlobal);
-            env.RegisterBuiltIn("islocal", IsLocal);
-            env.RegisterBuiltIn("isparam", IsParam);
-            env.RegisterBuiltIn("isfunc", IsFunction);
         }
     }
 }
