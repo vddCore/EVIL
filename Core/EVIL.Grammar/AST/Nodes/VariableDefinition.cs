@@ -1,18 +1,19 @@
-﻿namespace EVIL.Grammar.AST.Nodes
+﻿using System.Collections.Generic;
+
+namespace EVIL.Grammar.AST.Nodes
 {
     public class VariableDefinition : Statement
     {
-        public string Identifier { get; }
-        public Expression Initializer { get; }
+        public Dictionary<string, Expression> Definitions { get; }
 
-        public VariableDefinition(string identifier, Expression initializer)
+        public VariableDefinition(Dictionary<string, Expression> definitions)
         {
-            Identifier = identifier;
-            Initializer = initializer;
+            Definitions = definitions;
 
-            if (Initializer != null)
+            foreach (var kvp in Definitions)
             {
-                Reparent(Initializer);
+                if (kvp.Value != null)
+                    Reparent(kvp.Value);
             }
         }
     }

@@ -12,12 +12,32 @@ namespace EVIL.Interpreter.Execution
         {
             Environment.EnterScope();
             {
-                Visit(eachStatement.KeyDefinition);
-                Visit(eachStatement.ValueDefinition);
+                Visit(eachStatement.Initialization);
 
-                var keyValue = Environment.LocalScope.Members[eachStatement.KeyDefinition.Identifier];
-                var valueValue = Environment.LocalScope.Members[eachStatement.ValueDefinition.Identifier];
-                
+                var localScope = Environment.LocalScope.Members;
+                var definitions = eachStatement.Initialization.Definitions;
+
+                DynValue keyValue = null;
+                DynValue valueValue;
+
+                if (definitions.Count == 1)
+                {
+                    valueValue = localScope[definitions.Keys.ElementAt(0)];
+                }
+                else if (definitions.Count == 2)
+                {
+                    keyValue = localScope[definitions.Keys.ElementAt(0)];
+                    valueValue = localScope[definitions.Keys.ElementAt(1)];
+                }
+                else
+                {
+                    throw new RuntimeException(
+                        $"Expected at least 1 and at most 2 loop variables, found {definitions.Count}.",
+                        Environment,
+                        eachStatement.Line
+                    );
+                }
+
                 try
                 {
                     var loopFrame = new LoopFrame();
@@ -38,7 +58,9 @@ namespace EVIL.Interpreter.Execution
 
                     actualTable.ForEach((k, v) =>
                     {
-                        keyValue.CopyFrom(k);
+                        if (keyValue != null)
+                            keyValue.CopyFrom(k);
+
                         valueValue.CopyFrom(v);
 
                         Visit(eachStatement.Body);

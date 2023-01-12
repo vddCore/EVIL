@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST;
+﻿using System.Collections.Generic;
+using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Lexical;
 
@@ -10,18 +11,32 @@ namespace EVIL.Grammar.Parsing
         {
             var line = Match(Token.Var);
 
-            var identifier = CurrentToken.Value;
-            Match(Token.Identifier);
-
-            Expression initializer = null;
+            var definitions = new Dictionary<string, Expression>();
             
-            if (CurrentToken.Type == TokenType.Assign)
+            while (true)
             {
-                Match(Token.Assign);
-                initializer = AssignmentExpression();
+                var identifier = CurrentToken.Value;
+                Match(Token.Identifier);
+                
+                Expression initializer = null;
+                if (CurrentToken.Type == TokenType.Assign)
+                {
+                    Match(Token.Assign);
+                    initializer = AssignmentExpression();
+                }
+
+                definitions.Add(identifier, initializer);
+
+                if (CurrentToken.Type == TokenType.Comma)
+                {
+                    Match(Token.Comma);
+                    continue;
+                }
+
+                break;
             }
 
-            return new VariableDefinition(identifier, initializer) { Line = line };
+            return new VariableDefinition(definitions) { Line = line };
         }
     }
 }
