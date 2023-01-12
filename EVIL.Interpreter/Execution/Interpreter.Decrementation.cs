@@ -15,7 +15,7 @@ namespace EVIL.Interpreter.Execution
                     decrementationNode.Line
                 );
             }
-            
+
             var numValue = Visit(decrementationNode.Target);
 
             if (numValue.Type == DynValueType.Number)
@@ -24,7 +24,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     var retVal = new DynValue(numValue.Number - 1);
                     numValue.CopyFrom(retVal);
-                
+
                     return retVal;
                 }
                 else
@@ -35,9 +35,9 @@ namespace EVIL.Interpreter.Execution
                     return retVal;
                 }
             }
-            
+
             throw new RuntimeException(
-                "Cannot decrement this value because it's not a number.", 
+                "Cannot decrement this value because it's not a number.",
                 Environment,
                 decrementationNode.Line
             );

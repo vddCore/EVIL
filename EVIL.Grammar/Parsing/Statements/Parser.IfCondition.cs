@@ -14,9 +14,10 @@ namespace EVIL.Grammar.Parsing
             var expression = AssignmentExpression();
 
             Match(Token.RParenthesis);
-            var node = new ConditionNode { Line = line };
+            var node = new DecisionNode { Line = line };
 
-            node.IfElifBranches.Add(expression, Statement());
+            node.Conditions.Add(expression);
+            node.Statements.Add(Statement());
 
             while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
             {
@@ -28,7 +29,8 @@ namespace EVIL.Grammar.Parsing
                     expression = AssignmentExpression();
 
                     Match(Token.RParenthesis);
-                    node.IfElifBranches.Add(expression, Statement());
+                    node.Conditions.Add(expression);
+                    node.Statements.Add(Statement());
                 }
                 else if (CurrentToken.Type == TokenType.Else)
                 {

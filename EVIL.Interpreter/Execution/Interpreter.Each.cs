@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
@@ -13,7 +14,7 @@ namespace EVIL.Interpreter.Execution
             {
                 var keyValue = Visit(eachLoopNode.KeyNode);
                 var valueValue = Visit(eachLoopNode.ValueNode);
-                
+
                 try
                 {
                     var loopFrame = new LoopFrame();
@@ -29,27 +30,16 @@ namespace EVIL.Interpreter.Execution
                             eachLoopNode.TableNode.Line
                         );
                     }
-                    
+
                     var actualTable = tableValue.Table;
 
-                    try
+                    actualTable.ForEach((k, v) =>
                     {
-                        foreach (var element in actualTable)
-                        {
-                            keyValue.CopyFrom(element.Key);
-                            valueValue.CopyFrom(element.Value);
+                        keyValue.CopyFrom(k);
+                        valueValue.CopyFrom(v);
 
-                            Visit(eachLoopNode.Statement);
-                        }
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        throw new RuntimeException(
-                            "The table was modified, cannot continue execution.",
-                            Environment,
-                            eachLoopNode.Line
-                        );
-                    }
+                        Visit(eachLoopNode.Statement);
+                    });
                 }
                 finally
                 {
@@ -57,7 +47,7 @@ namespace EVIL.Interpreter.Execution
                 }
             }
             Environment.ExitScope();
-            
+
             return DynValue.Zero;
         }
     }

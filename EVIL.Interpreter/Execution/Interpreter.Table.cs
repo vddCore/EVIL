@@ -24,7 +24,7 @@ namespace EVIL.Interpreter.Execution
                             node.Line
                         );
                     }
-                    
+
                     tbl[key] = Visit(node.ValueNode);
                 }
             }

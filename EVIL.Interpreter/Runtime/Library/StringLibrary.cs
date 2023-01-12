@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Runtime.Library
 
             return new DynValue(((char)args[0].Number).ToString());
         }
-        
+
         [ClrFunction("code")]
         public static DynValue ToCharCode(Execution.Interpreter interpreter, FunctionArguments args)
         {
@@ -37,7 +37,7 @@ namespace EVIL.Interpreter.Runtime.Library
 
             return new DynValue(str[0]);
         }
-        
+
         [ClrFunction("at")]
         public static DynValue CharAt(Execution.Interpreter interpreter, FunctionArguments args)
         {
@@ -92,7 +92,7 @@ namespace EVIL.Interpreter.Runtime.Library
                 return new DynValue(str.Substring(startIndex, length));
             }
         }
-        
+
         [ClrFunction("s2n")]
         public static DynValue ToInteger(Execution.Interpreter interpreter, FunctionArguments args)
         {
@@ -157,7 +157,7 @@ namespace EVIL.Interpreter.Runtime.Library
 
             return new DynValue(str.ToUpperInvariant());
         }
-        
+
         [ClrFunction("lc")]
         public static DynValue LowerCase(Execution.Interpreter interpreter, FunctionArguments args)
         {

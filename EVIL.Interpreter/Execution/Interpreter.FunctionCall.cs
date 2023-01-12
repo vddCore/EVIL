@@ -63,7 +63,8 @@ namespace EVIL.Interpreter.Execution
             {
                 Environment.EnterScope(true);
                 {
-                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, _argumentStack.Pop(), functionCallNode);
+                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, _argumentStack.Pop(),
+                        functionCallNode);
                 }
                 Environment.ExitScope();
             }
@@ -79,7 +80,7 @@ namespace EVIL.Interpreter.Execution
                 InvokedAtLine = node.Line,
                 DefinedAtLine = scriptFunction.DefinedAtLine
             };
-            
+
             var iterator = 0;
 
             foreach (var closure in scriptFunction.Closures)
@@ -87,8 +88,10 @@ namespace EVIL.Interpreter.Execution
                 Environment.LocalScope.Set(closure.Key, closure.Value);
             }
 
-            foreach (var parameterName in scriptFunction.Parameters.Identifiers)
+            for (var i = 0; i < scriptFunction.Parameters.Identifiers.Count; i++)
             {
+                var parameterName = scriptFunction.Parameters.Identifiers[i];
+
                 if (Environment.LocalScope.HasMember(parameterName))
                 {
                     throw new RuntimeException(
@@ -136,11 +139,11 @@ namespace EVIL.Interpreter.Execution
         {
             var parameters = clrFunction.Invokable.Method.GetParameters();
 
-            
+
             var frame = new StackFrame(
                 $"CLR!<{name}>"
-            ) {InvokedAtLine = node.Line};
-            
+            ) { InvokedAtLine = node.Line };
+
             for (var i = 0; i < parameters.Length; i++)
             {
                 frame.Parameters.Add(parameters[i].Name);

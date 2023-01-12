@@ -20,8 +20,8 @@ namespace EVIL.Interpreter.Execution
                         undefNode.Line
                     );
                 }
-                
-                indexable.Table.Remove(indexable.Table[key]);
+
+                indexable.Table.Remove(key);
             }
             else if (undefNode.Right is VariableNode variable)
             {

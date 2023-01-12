@@ -63,34 +63,39 @@ namespace EVIL.Interpreter.Execution
             }
             else if (indexable.Type == DynValueType.Table)
             {
-                try
+                if (keyValue.Type == DynValueType.String)
                 {
-                    if (keyValue.Type == DynValueType.String)
-                        return indexable.Table[keyValue.String];
-                    else if (keyValue.Type == DynValueType.Number)
-                        return indexable.Table[keyValue.Number];
-                    else
+                    if (indexingNode.WillBeAssigned)
                     {
-                        throw new RuntimeException(
-                            $"Attempt to use {keyValue.Type} as a key.",
-                            Environment,
-                            indexingNode.Line
-                        );
-                    }
-                }
-                catch (Exception e)
-                {
-                    if (!indexingNode.WillBeAssigned)
-                    {
-                        throw new RuntimeException(
-                            e.Message,
-                            Environment,
-                            indexingNode.Line
-                        );
+                        indexable.Table[keyValue] = DynValue.Zero;
+                        return indexable.Table[keyValue];
                     }
 
-                    indexable.Table[keyValue] = new DynValue(0);
-                    return indexable.Table[keyValue];
+                    return indexable.Table[keyValue.String]
+                           ?? throw new RuntimeException(
+                               $"'{keyValue.String}' does not exist in the table.", Environment, indexingNode.Line
+                           );
+                }
+                else if (keyValue.Type == DynValueType.Number)
+                {
+                    if (indexingNode.WillBeAssigned)
+                    {
+                        indexable.Table[keyValue] = DynValue.Zero;
+                        return indexable.Table[keyValue];
+                    }
+
+                    return indexable.Table[keyValue.Number]
+                           ?? throw new RuntimeException(
+                               $"'{keyValue.String}' does not exist in the table.", Environment, indexingNode.Line
+                           );
+                }
+                else
+                {
+                    throw new RuntimeException(
+                        $"Attempt to use {keyValue.Type} as a key.",
+                        Environment,
+                        indexingNode.Line
+                    );
                 }
             }
 

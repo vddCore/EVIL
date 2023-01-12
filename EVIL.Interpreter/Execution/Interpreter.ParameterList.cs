@@ -21,7 +21,7 @@ namespace EVIL.Interpreter.Execution
             {
                 preCallStackFrame.Parameters.Add(parameterListNode.Identifiers[i]);
             }
-            
+
             return DynValue.Zero;
         }
     }

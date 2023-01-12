@@ -108,19 +108,19 @@ namespace EVIL.Interpreter.Runtime.Library
 
             if (!trace.Any())
                 return DynValue.Zero;
-            
+
             var tbl = new Table();
-            
+
             for (var i = 0; i < trace.Count; i++)
             {
                 var frame = new Table();
                 var parameters = new Table();
-                
+
                 for (var j = 0; j < trace[i].Parameters.Count; j++)
                 {
                     parameters[j] = new DynValue(trace[i].Parameters[j]);
                 }
-                
+
                 frame["fn_name"] = new DynValue(trace[i].FunctionName);
                 frame["def_at"] = new DynValue(trace[i].DefinedAtLine);
                 frame["inv_at"] = new DynValue(trace[i].InvokedAtLine);
@@ -136,7 +136,7 @@ namespace EVIL.Interpreter.Runtime.Library
         public static DynValue StraceString(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectNone();
-            
+
             var sb = new StringBuilder();
 
             foreach (var frame in interpreter.Environment.StackTrace())

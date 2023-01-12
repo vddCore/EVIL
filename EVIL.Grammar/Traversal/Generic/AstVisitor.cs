@@ -28,7 +28,7 @@ namespace EVIL.Grammar.Traversal.Generic
                 {typeof(FunctionDefinitionNamedNode), (n) => Visit(n as FunctionDefinitionNamedNode)},
                 {typeof(FunctionDefinitionAnonymousNode), (n) => Visit(n as FunctionDefinitionAnonymousNode)},
                 {typeof(FunctionCallNode), (n) => Visit(n as FunctionCallNode)},
-                {typeof(ConditionNode), (n) => Visit(n as ConditionNode)},
+                {typeof(DecisionNode), (n) => Visit(n as DecisionNode)},
                 {typeof(ExitNode), (n) => Visit(n as ExitNode)},
                 {typeof(ForLoopNode), (n) => Visit(n as ForLoopNode)},
                 {typeof(DoWhileLoopNode), (n) => Visit(n as DoWhileLoopNode)},
@@ -70,7 +70,7 @@ namespace EVIL.Grammar.Traversal.Generic
         public abstract T Visit(FunctionDefinitionNamedNode functionDefinitionNamedNode);
         public abstract T Visit(FunctionDefinitionAnonymousNode functionDefinitionAnonymousNode);
         public abstract T Visit(FunctionCallNode functionCallNode);
-        public abstract T Visit(ConditionNode conditionNode);
+        public abstract T Visit(DecisionNode decisionNode);
         public abstract T Visit(ExitNode exitNode);
         public abstract T Visit(ForLoopNode forLoopNode);
         public abstract T Visit(DoWhileLoopNode doWhileLoopNode);

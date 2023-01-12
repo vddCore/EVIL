@@ -68,7 +68,7 @@ namespace EVIL.Interpreter.Execution
 
                 case BinaryOperationType.LogicalOr:
                     return LogicalOr(left, right);
-                
+
                 case BinaryOperationType.ExistsIn:
                     return ExistsIn(left, right, binaryOperationNode);
 
