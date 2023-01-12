@@ -31,6 +31,7 @@ namespace EVIL.Interpreter
                 {typeof(ConditionNode), (n) => Visit(n as ConditionNode)},
                 {typeof(ExitNode), (n) => Visit(n as ExitNode)},
                 {typeof(ForLoopNode), (n) => Visit(n as ForLoopNode)},
+                {typeof(DoWhileLoopNode), (n) => Visit(n as DoWhileLoopNode)},
                 {typeof(WhileLoopNode), (n) => Visit(n as WhileLoopNode)},
                 {typeof(ReturnNode), (n) => Visit(n as ReturnNode)},
                 {typeof(BreakNode), (n) => Visit(n as BreakNode)},
@@ -73,6 +74,7 @@ namespace EVIL.Interpreter
         public abstract DynValue Visit(ConditionNode conditionNode);
         public abstract DynValue Visit(ExitNode exitNode);
         public abstract DynValue Visit(ForLoopNode forLoopNode);
+        public abstract DynValue Visit(DoWhileLoopNode doWhileLoopNode);
         public abstract DynValue Visit(WhileLoopNode whileLoopNode);
         public abstract DynValue Visit(ReturnNode returnNode);
         public abstract DynValue Visit(BreakNode breakNode);

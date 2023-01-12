@@ -50,6 +50,10 @@ namespace EVIL.Grammar.Parsing
                     node = AssignmentExpression();
                     Match(TokenType.Semicolon);
                     break;
+                case TokenType.Do:
+                    node = DoWhileLoop();
+                    Match(TokenType.Semicolon);
+                    break;
                 case TokenType.LBrace:
                     node = BlockStatement();
                     break;

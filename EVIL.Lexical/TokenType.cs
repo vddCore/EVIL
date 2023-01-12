@@ -66,6 +66,7 @@
         Fn,
         Undef,
         For,
+        Do,
         While,
         Each,
         If,
