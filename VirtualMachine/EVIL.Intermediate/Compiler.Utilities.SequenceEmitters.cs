@@ -52,7 +52,7 @@ namespace EVIL.Intermediate
 
             if (localScope != null)
             {
-                var (scope, sym) = localScope.Find(varRef.Identifier);
+                var (_, sym) = localScope.Find(varRef.Identifier);
 
                 if (sym == SymbolInfo.Undefined)
                 {

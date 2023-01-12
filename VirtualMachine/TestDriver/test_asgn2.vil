@@ -1,9 +1,16 @@
-fn test(a, b, c, d, e, f, g, h) {
-  io.println(??a);
-  io.println(b + c);
-  io.println(d * e);
-  io.println(f * g);
-  io.println(h + 30);
+var a = 10;
+
+fn test() {
+  for (a = 15; a < 20; a++) {
+    io.println(a);
+  }
+  
+  undef a;
 }
 
-test(0, 10, 20, 30, 40, 50, 60, 70);
+test();
+
+io.println(a);
+undef a;
+
+io.println(??a);

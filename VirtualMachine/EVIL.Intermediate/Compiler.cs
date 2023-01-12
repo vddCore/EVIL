@@ -47,8 +47,6 @@ namespace EVIL.Intermediate
             base.Visit(node);
         }
 
-
-        
         internal (int, Chunk) CreateAnonymousChunk()
         {
             var id = _executable.Chunks.Count;
@@ -61,12 +59,10 @@ namespace EVIL.Intermediate
 
         internal void DefineGlobal(string name)
         {
-            if (IsGlobalDefined(name))
-                throw new DuplicateSymbolException(name, CurrentLine, CurrentColumn);
-
-            _executable.Globals.Add(name);
+            if (!_executable.Globals.Contains(name))
+                _executable.Globals.Add(name);
         }
-
+        
         internal bool IsGlobalDefined(string name)
         {
             return _executable.Globals.Contains(name);
