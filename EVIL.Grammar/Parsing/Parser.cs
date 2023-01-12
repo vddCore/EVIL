@@ -17,23 +17,23 @@ namespace EVIL.Grammar.Parsing
         }
 
         public RootNode Parse()
-        {
-            var rootNode = new RootNode();
-            rootNode.Children.AddRange(RootStatementList());
-
-            return rootNode;
-        }
+            => new(RootStatementList());
 
         private List<AstNode> RootStatementList()
         {
             var statementList = new List<AstNode>();
 
             if (Scanner.State.CurrentToken == null)
-                throw new ParserException("Internal error: scanner is in invalid state (current token is null?).");
-
+            {
+                throw new ParserException(
+                    "Internal error: scanner is in invalid state (current token is null?).",
+                    Scanner.State
+                );
+            }
+            
             while (Scanner.State.CurrentToken.Type != TokenType.EOF)
                 statementList.Add(Statement());
-
+            
             return statementList;
         }
 
@@ -44,7 +44,12 @@ namespace EVIL.Grammar.Parsing
             while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
-                    throw new ParserException("Unexpected EOF in a loop block.", Scanner.State);
+                {
+                    throw new ParserException(
+                        "Unexpected EOF in a loop block.", 
+                        Scanner.State
+                    );
+                }
 
                 statementList.Add(Statement());
             }
@@ -61,7 +66,12 @@ namespace EVIL.Grammar.Parsing
                    Scanner.State.CurrentToken.Type != TokenType.Elif)
             {
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
-                    throw new ParserException("Unexpected EOF in condition block.", Scanner.State);
+                {
+                    throw new ParserException(
+                        "Unexpected EOF in condition block.", 
+                        Scanner.State
+                    );
+                }
 
                 statementList.Add(Statement());
             }
@@ -76,7 +86,12 @@ namespace EVIL.Grammar.Parsing
             while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
-                    throw new ParserException("Unexpected EOF in function definition.", Scanner.State);
+                {
+                    throw new ParserException(
+                        "Unexpected EOF in function definition.", 
+                        Scanner.State
+                    );
+                }
 
                 statementList.Add(Statement());
             }
@@ -89,7 +104,12 @@ namespace EVIL.Grammar.Parsing
             var line = Scanner.State.Line;
 
             if (Scanner.State.CurrentToken.Type != tokenType)
-                throw new ParserException($"Expected '{Token.StringRepresentation(tokenType)}', got '{Scanner.State.CurrentToken.Value}'.", Scanner.State);
+            {
+                throw new ParserException(
+                    $"Expected '{Token.StringRepresentation(tokenType)}', got '{Scanner.State.CurrentToken.Value}'.", 
+                    Scanner.State
+                );
+            }
 
             Scanner.NextToken();
 
@@ -98,8 +118,13 @@ namespace EVIL.Grammar.Parsing
 
         private void DisallowPrevious(params TokenType[] types)
         {
-            if(types.Contains(Scanner.State.PreviousToken.Type))
-                throw new ParserException("Syntax error.", Scanner.State);
+            if (types.Contains(Scanner.State.PreviousToken.Type))
+            {
+                throw new ParserException(
+                    "Disallowed token sequence.", 
+                    Scanner.State
+                );
+            }
         }
     }
 }
