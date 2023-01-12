@@ -1,6 +1,7 @@
 using System.IO;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 using EVIL.RT;
 
@@ -10,7 +11,7 @@ namespace EVIL.Interpreter.Runtime.Library
     public class FileSystemLibrary
     {
         [ClrFunction("get_lines", RuntimeAlias = "fs.get_lines")]
-        public static DynamicValue GetLines(EVM evm, params DynamicValue[] args)
+        public static DynamicValue GetLines(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);
@@ -40,7 +41,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("fex", RuntimeAlias = "fs.fex")]
-        public static DynamicValue FileExists(EVM evm, params DynamicValue[] args)
+        public static DynamicValue FileExists(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);
@@ -51,7 +52,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("dex", RuntimeAlias = "fs.dex")]
-        public static DynamicValue DirectoryExists(EVM evm, params DynamicValue[] args)
+        public static DynamicValue DirectoryExists(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);

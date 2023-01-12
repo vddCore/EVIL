@@ -1,6 +1,7 @@
 using System;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 
 namespace EVIL.RT
@@ -9,7 +10,7 @@ namespace EVIL.RT
     public class StringLibrary
     {
         [ClrFunction("len")]
-        public static DynamicValue Length(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Length(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);
@@ -18,7 +19,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("chr", RuntimeAlias = "str.chr")]
-        public static DynamicValue ToChar(EVM evm, params DynamicValue[] args)
+        public static DynamicValue ToChar(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectIntegerAtIndex(0);
@@ -27,7 +28,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("code", RuntimeAlias = "str.code")]
-        public static DynamicValue ToCharCode(EVM evm, params DynamicValue[] args)
+        public static DynamicValue ToCharCode(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);
@@ -41,7 +42,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("at", RuntimeAlias = "str.at")]
-        public static DynamicValue CharAt(EVM evm, params DynamicValue[] args)
+        public static DynamicValue CharAt(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynamicValueType.String)
@@ -57,7 +58,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("sub", RuntimeAlias = "str.sub")]
-        public static DynamicValue Substring(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Substring(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
                 .ExpectAtMost(3);
@@ -96,7 +97,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("s2n", RuntimeAlias = "str.s2n")]
-        public static DynamicValue ToInteger(EVM evm, params DynamicValue[] args)
+        public static DynamicValue ToInteger(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);
@@ -108,7 +109,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("n2s", RuntimeAlias = "str.n2s")]
-        public static DynamicValue NumberToString(EVM evm, params DynamicValue[] args)
+        public static DynamicValue NumberToString(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
                 .ExpectIntegerAtIndex(0);
@@ -126,7 +127,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("spl", RuntimeAlias = "str.spl")]
-        public static DynamicValue Split(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Split(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
                 .ExpectAtMost(3)
@@ -170,7 +171,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("uc", RuntimeAlias = "str.uc")]
-        public static DynamicValue UpperCase(EVM evm, params DynamicValue[] args)
+        public static DynamicValue UpperCase(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);
@@ -181,7 +182,7 @@ namespace EVIL.RT
         }
 
         [ClrFunction("lc", RuntimeAlias = "str.lc")]
-        public static DynamicValue LowerCase(EVM evm, params DynamicValue[] args)
+        public static DynamicValue LowerCase(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.String);

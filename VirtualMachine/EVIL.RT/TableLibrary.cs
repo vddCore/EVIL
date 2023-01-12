@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 using EVIL.RT;
 
@@ -10,7 +11,7 @@ namespace EVIL.Interpreter.Runtime.Library
     public class TableLibrary
     {
         [ClrFunction("ins", RuntimeAlias = "tbl.ins")]
-        public static DynamicValue Insert(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Insert(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
                 .ExpectTypeAtIndex(0, DynamicValueType.Table);
@@ -28,7 +29,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("rm", RuntimeAlias = "tbl.rm")]
-        public static DynamicValue Remove(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Remove(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynamicValueType.Table);
@@ -46,7 +47,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
         
         [ClrFunction("at", RuntimeAlias = "tbl.at")]
-        public static DynamicValue At(EVM evm, params DynamicValue[] args)
+        public static DynamicValue At(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynamicValueType.Table)

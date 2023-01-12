@@ -1,6 +1,7 @@
 ﻿using System;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 using EVIL.RT;
 
@@ -12,7 +13,7 @@ namespace EVIL.Interpreter.Runtime.Library
         internal static Random Random { get; } = new();
 
         [ClrFunction("rnd", RuntimeAlias = "math.rnd")]
-        public static DynamicValue Rnd(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Rnd(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
                 .ExpectAtMost(2)
@@ -34,7 +35,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("sin", RuntimeAlias = "math.sin")]
-        public static DynamicValue Sin(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Sin(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -43,7 +44,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("cos", RuntimeAlias = "math.cos")]
-        public static DynamicValue Cos(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Cos(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -52,7 +53,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("tan", RuntimeAlias = "math.tan")]
-        public static DynamicValue Tan(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Tan(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -61,7 +62,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("cot", RuntimeAlias = "math.cot")]
-        public static DynamicValue Cot(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Cot(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -70,7 +71,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("atan", RuntimeAlias = "math.atan")]
-        public static DynamicValue Atan(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Atan(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -79,7 +80,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("atan2", RuntimeAlias = "math.atan2")]
-        public static DynamicValue Atan2(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Atan2(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number)
@@ -89,7 +90,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("floor", RuntimeAlias = "math.floor")]
-        public static DynamicValue Floor(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Floor(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -98,7 +99,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("ceil", RuntimeAlias = "math.ceil")]
-        public static DynamicValue Ceil(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Ceil(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -107,7 +108,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("abs", RuntimeAlias = "math.abs")]
-        public static DynamicValue Abs(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Abs(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -116,7 +117,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("sign", RuntimeAlias = "math.sign")]
-        public static DynamicValue Sign(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Sign(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -125,7 +126,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("pow", RuntimeAlias = "math.pow")]
-        public static DynamicValue Pow(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Pow(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number)
@@ -135,7 +136,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("sqrt", RuntimeAlias = "math.sqrt")]
-        public static DynamicValue Sqrt(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Sqrt(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
@@ -144,7 +145,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("log", RuntimeAlias = "math.log")]
-        public static DynamicValue Log(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Log(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number)
@@ -154,7 +155,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("ln", RuntimeAlias = "math.ln")]
-        public static DynamicValue Ln(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Ln(ExecutionContext ctx, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynamicValueType.Number);
