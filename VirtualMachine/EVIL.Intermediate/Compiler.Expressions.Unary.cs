@@ -43,7 +43,8 @@ namespace EVIL.Intermediate
                 default:
                     throw new CompilerException(
                         $"Unrecognized unary operation type '{unaryExpression.Type}'",
-                        unaryExpression.Line
+                        unaryExpression.Line,
+                        unaryExpression.Column
                     );
             }
         }

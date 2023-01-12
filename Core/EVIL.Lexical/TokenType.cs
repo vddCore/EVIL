@@ -2,6 +2,8 @@
 {
     public enum TokenType
     {
+        Empty = -1,
+        
         Minus,
         Plus,
         Multiply,

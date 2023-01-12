@@ -83,11 +83,6 @@ namespace EVIL.Intermediate
 
         private void LeaveScope()
         {
-            if (ScopeStack.Count == 0)
-            {
-                throw new CompilerException("Cannot leave global scope.");
-            }
-
             ScopeStack.Pop();
         }
     }

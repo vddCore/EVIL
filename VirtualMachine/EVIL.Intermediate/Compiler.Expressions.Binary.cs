@@ -93,7 +93,8 @@ namespace EVIL.Intermediate
                 default:
                     throw new CompilerException(
                         $"Unrecognized binary operation type '{binaryExpression.Type}'",
-                        binaryExpression.Line
+                        binaryExpression.Line,
+                        binaryExpression.Column
                     );
             }
         }

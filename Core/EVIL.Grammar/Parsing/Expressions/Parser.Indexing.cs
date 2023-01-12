@@ -8,23 +8,26 @@ namespace EVIL.Grammar.Parsing
     {
         private IndexerExpression Indexing(Expression indexable)
         {
-            int line;
+            int line, col;
             Expression indexer;
-            
+
             if (CurrentToken.Type == TokenType.Dot)
             {
-                line = Match(Token.Dot);
+                (line, col) = Match(Token.Dot);
+
                 indexer = new StringConstant(CurrentToken.Value);
                 Match(Token.Identifier);
             }
             else // must be bracket then
             {
-                line = Match(Token.LBracket);
+                (line, col) = Match(Token.LBracket);
+
                 indexer = AssignmentExpression();
                 Match(Token.RBracket);
             }
 
-            return new IndexerExpression(indexable, indexer, CurrentToken.Type == TokenType.Assign) {Line = line};
+            return new IndexerExpression(indexable, indexer, CurrentToken.Type == TokenType.Assign)
+                { Line = line, Column = col };
         }
     }
 }

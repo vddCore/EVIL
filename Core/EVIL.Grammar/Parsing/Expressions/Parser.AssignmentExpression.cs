@@ -33,7 +33,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     throw new ParserException(
                         "Left-hand side of an assignment must be an assignable entity.",
-                        Lexer.State
+                        (Lexer.State.Line, Lexer.State.Column)
                     );
                 }
 
@@ -41,82 +41,90 @@ namespace EVIL.Grammar.Parsing
                 {
                     case TokenType.Assign:
                     {
-                        var line = Match(Token.Assign);
+                        var (line, col) = Match(Token.Assign);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Direct)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignAdd:
                     {
-                        var line = Match(Token.AssignAdd);
+                        var (line, col) = Match(Token.AssignAdd);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Add)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignSubtract:
                     {
-                        var line = Match(Token.AssignSubtract);
+                        var (line, col) = Match(Token.AssignSubtract);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Subtract)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignMultiply:
                     {
-                        var line = Match(Token.AssignMultiply);
+                        var (line, col) = Match(Token.AssignMultiply);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Multiply)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignDivide:
                     {
-                        var line = Match(Token.AssignDivide);
+                        var (line, col) = Match(Token.AssignDivide);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Divide)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignModulo:
                     {
-                        var line = Match(Token.AssignModulo);
+                        var (line, col) = Match(Token.AssignModulo);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Modulo)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignBitwiseAnd:
                     {
-                        var line = Match(Token.AssignBitwiseAnd);
-                        node = new AssignmentExpression(node, AssignmentExpression(),
-                                AssignmentOperationType.BitwiseAnd)
-                            { Line = line };
+                        var (line, col) = Match(Token.AssignBitwiseAnd);
+                        
+                        node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.BitwiseAnd)
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignBitwiseOr:
                     {
-                        var line = Match(Token.AssignBitwiseOr);
+                        var (line, col) = Match(Token.AssignBitwiseOr);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.BitwiseOr)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignBitwiseXor:
                     {
-                        var line = Match(Token.AssignBitwiseXor);
-                        node = new AssignmentExpression(node, AssignmentExpression(),
-                                AssignmentOperationType.BitwiseXor)
-                            { Line = line };
+                        var (line, col) = Match(Token.AssignBitwiseXor);
+                        
+                        node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.BitwiseXor)
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignShiftRight:
                     {
-                        var line = Match(Token.AssignShiftRight);
-                        node = new AssignmentExpression(node, AssignmentExpression(),
-                                AssignmentOperationType.ShiftRight)
-                            { Line = line };
+                        var (line, col) = Match(Token.AssignShiftRight);
+                        
+                        node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.ShiftRight)
+                            { Line = line, Column = col };
                         break;
                     }
                     case TokenType.AssignShiftLeft:
                     {
-                        var line = Match(Token.AssignShiftLeft);
+                        var (line, col) = Match(Token.AssignShiftLeft);
+                        
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.ShiftLeft)
-                            { Line = line };
+                            { Line = line, Column = col };
                         break;
                     }
                 }

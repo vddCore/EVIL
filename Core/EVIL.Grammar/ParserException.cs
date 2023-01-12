@@ -5,11 +5,15 @@ namespace EVIL.Grammar
 {
     public class ParserException : Exception
     {
-        public LexerState LexerState { get; }
+        public int Line { get; }
+        public int Column { get; }
 
         public ParserException(string message) : base(message) { }
 
-        public ParserException(string message, LexerState lexerState) : base(message)
-            => LexerState = lexerState;
+        public ParserException(string message, (int line, int col) location)
+            : base(message)
+        {
+            (Line, Column) = location;
+        }
     }
 }

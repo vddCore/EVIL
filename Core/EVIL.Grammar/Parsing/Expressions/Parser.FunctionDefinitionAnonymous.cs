@@ -8,12 +8,13 @@ namespace EVIL.Grammar.Parsing
     {
         private FunctionExpression FunctionDefinitionAnonymous()
         {
-            var line = Match(Token.Fn);
+            var (line, col) = Match(Token.Fn);
 
             var parameters = ParseParameters();
             var statements = FunctionDescent(BlockStatement);
 
-            return new FunctionExpression(parameters, statements) {Line = line};
+            return new FunctionExpression(parameters, statements)
+                { Line = line, Column = col };
         }
     }
 }

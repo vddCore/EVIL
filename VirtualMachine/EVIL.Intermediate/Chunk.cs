@@ -8,6 +8,7 @@ namespace EVIL.Intermediate
 
         public string Name { get; }
         public List<byte> Instructions { get; } = new();
+        public List<int> Labels { get; } = new();
 
         public int ParameterCount { get; internal set; }
         public int LocalCount { get; internal set; }
@@ -15,6 +16,17 @@ namespace EVIL.Intermediate
         public Chunk(string name)
         {
             Name = name;
+        }
+        
+        public int DefineLabel(int address = 0)
+        {
+            Labels.Add(address);
+            return Labels.Count - 1;
+        }
+
+        public void UpdateLabel(int id, int address)
+        {
+            Labels[id] = address;
         }
 
         public CodeGenerator GetCodeGenerator()

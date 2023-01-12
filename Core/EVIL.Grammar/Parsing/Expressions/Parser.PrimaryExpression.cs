@@ -11,10 +11,11 @@ namespace EVIL.Grammar.Parsing
 
             if (token.Type == TokenType.LParenthesis)
             {
-                var line = Match(Token.LParenthesis);
+                var (line, col) = Match(Token.LParenthesis);
 
                 var node = AssignmentExpression();
                 node.Line = line;
+                node.Column = col;
 
                 Match(Token.RParenthesis);
 

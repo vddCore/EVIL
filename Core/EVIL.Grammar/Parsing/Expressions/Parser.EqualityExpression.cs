@@ -12,7 +12,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.Equal,
             TokenType.NotEqual
         };
-        
+
         private Expression EqualityExpression()
         {
             var node = RelationalExpression();
@@ -22,15 +22,19 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.Equal)
                 {
-                    var line = Match(Token.Equal);
-                    node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.Equal) {Line = line};
+                    var (line, col) = Match(Token.Equal);
+
+                    node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.Equal)
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.NotEqual)
                 {
-                    var line = Match(Token.NotEqual);
-                    node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.NotEqual) {Line = line};
+                    var (line, col) = Match(Token.NotEqual);
+
+                    node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.NotEqual)
+                        { Line = line, Column = col };
                 }
-                
+
                 token = CurrentToken;
             }
 

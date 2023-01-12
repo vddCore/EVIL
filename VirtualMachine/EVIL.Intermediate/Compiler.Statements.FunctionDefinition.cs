@@ -11,7 +11,8 @@ namespace EVIL.Intermediate
                 throw new CompilerException(
                     "Function definition statements are not allowed in a local scope. " +
                     "Perhaps you should use a function expression instead.",
-                    functionDefinition.Line
+                    functionDefinition.Line,
+                    functionDefinition.Column
                 );
             }
             

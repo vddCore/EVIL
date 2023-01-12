@@ -8,13 +8,15 @@ namespace EVIL.Grammar.Parsing
     {
         private IfStatement IfCondition()
         {
-            var line = Match(Token.If);
+            var (line, col) = Match(Token.If);
             Match(Token.LParenthesis);
 
             var expression = AssignmentExpression();
 
             Match(Token.RParenthesis);
-            var node = new IfStatement { Line = line };
+            
+            var node = new IfStatement 
+                { Line = line, Column = col };
 
             node.Conditions.Add(expression);
             node.Statements.Add(Statement());
@@ -37,7 +39,10 @@ namespace EVIL.Grammar.Parsing
                     Match(Token.Else);
                     node.ElseBranch = Statement();
                 }
-                else throw new ParserException($"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'", Lexer.State);
+                else throw new ParserException(
+                    $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",
+                    (Lexer.State.Line, Lexer.State.Column)
+                );
             }
             
             return node;

@@ -9,8 +9,8 @@ namespace EVIL.Grammar.Parsing
     {
         private ForStatement ForLoop()
         {
-            var line = Match(Token.For);
-            
+            var (line, col) = Match(Token.For);
+
             List<Statement> assignments;
             Expression condition;
             List<Expression> iterationExpressions;
@@ -18,31 +18,31 @@ namespace EVIL.Grammar.Parsing
             Match(Token.LParenthesis);
             {
                 assignments = ForDeclarationList();
-                
+
                 Match(Token.Semicolon);
-                
+
                 condition = AssignmentExpression();
-                
+
                 Match(Token.Semicolon);
-                
+
                 iterationExpressions = ForExpressionList();
             }
             Match(Token.RParenthesis);
 
             var statements = LoopDescent(() => Statement());
-            
+
             return new ForStatement(
                 assignments,
                 condition,
                 iterationExpressions,
                 statements
-            ) {Line = line};
+            ) { Line = line, Column = col };
         }
 
         private List<Statement> ForDeclarationList()
         {
-            var nodes = new List<Statement> {ForDeclaration()};
-            
+            var nodes = new List<Statement> { ForDeclaration() };
+
             while (CurrentToken.Type == TokenType.Comma)
             {
                 Match(Token.Comma);
@@ -55,7 +55,7 @@ namespace EVIL.Grammar.Parsing
         private Statement ForDeclaration()
         {
             var token = CurrentToken;
-            
+
             if (token.Type == TokenType.Var)
             {
                 return VariableDefinition();
@@ -64,12 +64,15 @@ namespace EVIL.Grammar.Parsing
             {
                 return new ExpressionStatement(AssignmentExpression());
             }
-            else throw new ParserException("Expected a variable definition or an expression.", Lexer.State);
+            else throw new ParserException(
+                "Expected a variable definition or an expression.", 
+                (Lexer.State.Line, Lexer.State.Column)
+            );
         }
 
         private List<Expression> ForExpressionList()
         {
-            var list = new List<Expression> {AssignmentExpression()};
+            var list = new List<Expression> { AssignmentExpression() };
 
             while (CurrentToken.Type == TokenType.Comma)
             {

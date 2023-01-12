@@ -11,14 +11,14 @@ namespace EVIL.Intermediate
 
             var cg = CurrentChunk.GetCodeGenerator();
 
-            var endLabel = _executable.DefineLabel();
+            var endLabel = CurrentChunk.DefineLabel();
             for (var i = 0; i < ifStatement.Conditions.Count; i++)
             {
                 var cond = ifStatement.Conditions[i];
                 var stmt = ifStatement.Statements[i];
 
                 Visit(cond);
-                var label = _executable.DefineLabel();
+                var label = CurrentChunk.DefineLabel();
                 cg.Emit(OpCode.FJMP, label);
                 Visit(stmt);
 
@@ -34,7 +34,7 @@ namespace EVIL.Intermediate
                     }
                 }
 
-                _executable.UpdateLabel(label, cg.IP);
+                CurrentChunk.UpdateLabel(label, cg.IP);
             }
 
             if (ifStatement.ElseBranch != null)
@@ -42,7 +42,7 @@ namespace EVIL.Intermediate
                 Visit(ifStatement.ElseBranch);
             }
 
-            _executable.UpdateLabel(endLabel, cg.IP);
+            CurrentChunk.UpdateLabel(endLabel, cg.IP);
         }
     }
 }

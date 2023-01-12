@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private BlockStatement BlockStatement()
         {
-            var line = Match(Token.LBrace);
+            var (line, col) = Match(Token.LBrace);
 
             var statements = new List<Statement>();
             while (CurrentToken.Type != TokenType.RBrace)
@@ -17,8 +17,8 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken.Type == TokenType.EOF)
                 {
                     throw new ParserException(
-                        "Unexpected EOF in a statement block.", 
-                        Lexer.State
+                        $"Unexpected EOF in a block statement. Unmatched '{{' on line {line}, column {col}.",
+                        (Lexer.State.Column, Lexer.State.Line)
                     );
                 }
 
@@ -26,7 +26,8 @@ namespace EVIL.Grammar.Parsing
             }
             Match(Token.RBrace);
 
-            return new BlockStatement(statements) { Line = line };
+            return new BlockStatement(statements)
+                { Line = line, Column = col };
         }
     }
 }

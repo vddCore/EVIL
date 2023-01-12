@@ -6,4 +6,7 @@
     <ItemGroup>
       <ProjectReference Include="..\EVIL.Intermediate\EVIL.Intermediate.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Interop" />
+    </ItemGroup>
 </Project>

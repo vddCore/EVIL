@@ -8,9 +8,10 @@ namespace EVIL.Grammar.Parsing
         private VariableReferenceExpression VariableReference()
         {
             var identifier = CurrentToken.Value;
-            var line = Match(Token.Identifier);
+            var (line, col) = Match(Token.Identifier);
 
-            return new VariableReferenceExpression(identifier) {Line = line};
+            return new VariableReferenceExpression(identifier)
+                { Line = line, Column = col };
         }
     }
 }

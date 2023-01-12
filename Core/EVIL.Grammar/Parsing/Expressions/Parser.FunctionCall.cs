@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private FunctionCallExpression FunctionCall(Expression callee)
         {
-            var line = Match(Token.LParenthesis);
+            var (line, col) = Match(Token.LParenthesis);
             var arguments = new List<Expression>();
 
             while (CurrentToken.Type != TokenType.RParenthesis)
@@ -17,8 +17,8 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken.Type == TokenType.EOF)
                 {
                     throw new ParserException(
-                        $"Unexpected EOF in argument list on line {line}.",
-                        Lexer.State
+                        $"Unexpected EOF in argument list.",
+                        (line, col)
                     );
                 }
 

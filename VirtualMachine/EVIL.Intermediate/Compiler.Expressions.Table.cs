@@ -16,8 +16,14 @@ namespace EVIL.Intermediate
                     foreach (var expr in tableExpression.Initializers)
                     {
                         if (expr is not KeyValuePairExpression kvp)
-                            throw new CompilerException($"Unexpected table initializer '{expr.GetType().Name}'.");
-                        
+                        {
+                            throw new CompilerException(
+                                $"Invalid table initializer.",
+                                expr.Line,
+                                expr.Column
+                            );
+                        }
+
                         cg.Emit(OpCode.DUP);
                         Visit(kvp.KeyNode);
                         Visit(kvp.ValueNode);

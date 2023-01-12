@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
     {
         private DoWhileStatement DoWhileLoop()
         {
-            var line = Match(Token.Do);
+            var (line, col) = Match(Token.Do);
 
             var statements = LoopDescent(() => Statement());
             
@@ -17,7 +17,8 @@ namespace EVIL.Grammar.Parsing
             var conditionExpression = AssignmentExpression();
             Match(Token.RParenthesis);
 
-            return new DoWhileStatement(conditionExpression, statements) { Line = line };
+            return new DoWhileStatement(conditionExpression, statements) 
+                { Line = line, Column = col };
         }
     }
 }

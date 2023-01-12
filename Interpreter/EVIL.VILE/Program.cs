@@ -59,11 +59,11 @@ namespace EVIL.VILE
             }
             catch (ParserException pe)
             {
-                Console.WriteLine($"Syntax error on line {pe.LexerState.Line}: {pe.Message}");
+                Console.WriteLine($"Syntax error at ({pe.Line}, {pe.Column}): {pe.Message}");
             }
             catch (LexerException le)
             {
-                Console.WriteLine($"Lexical error on line {le.Line}: {le.Message}");
+                Console.WriteLine($"Lexical error at ({le.Line}, {le.Column}): {le.Message}");
             }
             catch (ExitStatementException)
             {

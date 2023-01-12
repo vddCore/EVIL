@@ -7,8 +7,8 @@ namespace EVIL.Grammar.Parsing
     {
         private ExitStatement Exit()
         {
-            var line = Match(Token.Exit);
-            return new ExitStatement { Line = line };
+            var (line, col) = Match(Token.Exit);
+            return new ExitStatement { Line = line, Column = col };
         }
     }
 }

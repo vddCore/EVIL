@@ -59,7 +59,8 @@ namespace EVIL.Intermediate
                 {
                     throw new CompilerException(
                         $"Undefined symbol '{varRef.Identifier}'.",
-                        varRef.Line
+                        varRef.Line,
+                        varRef.Column
                     );
                 }
 

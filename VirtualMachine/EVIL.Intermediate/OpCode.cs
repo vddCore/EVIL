@@ -9,31 +9,31 @@
         DUP   = 0x03, // [DUP]licate the top of evaluation stack
         
         // ---------- [ ARITHMETIC
-        ADD   = 0x10,  // [ADD]
-        SUB   = 0x11,  // [SUB]tract
-        MUL   = 0x12,  // [MUL]tiply
-        DIV   = 0x13,  // [DIV]ivide
-        MOD   = 0x14,  // [MOD]ulo
-        LEN   = 0x15,  // [LEN]gth
-        UNM   = 0x16,  // [UN]ary [M]inus
-        SHR   = 0x17,  // [SH]ift [R]ight
-        SHL   = 0x18,  // [SH]ift [L]eft
+        ADD   = 0x10, // [ADD]
+        SUB   = 0x11, // [SUB]tract
+        MUL   = 0x12, // [MUL]tiply
+        DIV   = 0x13, // [DIV]ivide
+        MOD   = 0x14, // [MOD]ulo
+        LEN   = 0x15, // [LEN]gth
+        UNM   = 0x16, // [UN]ary [M]inus
+        SHR   = 0x17, // [SH]ift [R]ight
+        SHL   = 0x18, // [SH]ift [L]eft
         
         // ---------- [ LOGICAL
-        AND   = 0x20,  // Bitwise [AND]
-        NOT   = 0x21,  // Bitwise [NOT]
-        OR    = 0x22,  // Bitwise [OR]
-        XOR   = 0x23,  // Bitwise [XOR]
-        CEQ   = 0x24,  // [C]ompare ([EQ]ual)
-        CNE   = 0x25,  // [C]ompare ([N]ot [E]qual)
-        CGT   = 0x26,  // [C]ompare ([G]reater [T]han)
-        CLT   = 0x27,  // [C]ompare ([L]ess [T]han)
-        CGE   = 0x28,  // [C]ompare ([G]reater or [E]qual)
-        CLE   = 0x29,  // [C]ompare ([L]ess or [E]qual)
-        LOR   = 0x2A,  // [L]ogical [OR]
-        LAND  = 0x2B,  // [L]ogical [AND]
-        LNOT  = 0x2C,  // [L]ogical [NOT]
-        XIST  = 0x2D,  // Check if A e[XIST]s in B 
+        AND   = 0x20, // Bitwise [AND]
+        NOT   = 0x21, // Bitwise [NOT]
+        OR    = 0x22, // Bitwise [OR]
+        XOR   = 0x23, // Bitwise [XOR]
+        CEQ   = 0x24, // [C]ompare ([EQ]ual)
+        CNE   = 0x25, // [C]ompare ([N]ot [E]qual)
+        CGT   = 0x26, // [C]ompare ([G]reater [T]han)
+        CLT   = 0x27, // [C]ompare ([L]ess [T]han)
+        CGE   = 0x28, // [C]ompare ([G]reater or [E]qual)
+        CLE   = 0x29, // [C]ompare ([L]ess or [E]qual)
+        LOR   = 0x2A, // [L]ogical [OR]
+        LAND  = 0x2B, // [L]ogical [AND]
+        LNOT  = 0x2C, // [L]ogical [NOT]
+        XIST  = 0x2D, // Check if A e[XIST]s in B 
         
         // ---------- [ BRANCHING
         JUMP  = 0x30, // Unconditionally [JUMP]

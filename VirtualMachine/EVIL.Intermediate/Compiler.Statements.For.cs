@@ -8,9 +8,9 @@ namespace EVIL.Intermediate
         {
             var cg = CurrentChunk.GetCodeGenerator();
 
-            var startLabel = _executable.DefineLabel();
-            var continueLabel = _executable.DefineLabel();
-            var endLabel = _executable.DefineLabel();
+            var startLabel = CurrentChunk.DefineLabel();
+            var continueLabel = CurrentChunk.DefineLabel();
+            var endLabel = CurrentChunk.DefineLabel();
 
             LoopContinueLabels.Push(continueLabel);
             LoopEndLabels.Push(endLabel);
@@ -20,12 +20,12 @@ namespace EVIL.Intermediate
                 foreach (var asgn in forStatement.Assignments)
                     Visit(asgn);
                 
-                _executable.UpdateLabel(startLabel, cg.IP);
+                CurrentChunk.UpdateLabel(startLabel, cg.IP);
                 Visit(forStatement.Condition);
                 cg.Emit(OpCode.FJMP, endLabel);
                 Visit(forStatement.Statement);
 
-                _executable.UpdateLabel(continueLabel, cg.IP);
+                CurrentChunk.UpdateLabel(continueLabel, cg.IP);
                 foreach (var expr in forStatement.IterationExpressions)
                 {
                     Visit(expr);
@@ -33,7 +33,7 @@ namespace EVIL.Intermediate
                 }
 
                 cg.Emit(OpCode.JUMP, startLabel);
-                _executable.UpdateLabel(endLabel, cg.IP);
+                CurrentChunk.UpdateLabel(endLabel, cg.IP);
             }
 
             LoopContinueLabels.Pop();

@@ -9,9 +9,9 @@ namespace EVIL.Grammar.Parsing
     {
         private TableExpression TableExpression()
         {
-            var line = Match(Token.LBrace);
+            var (line, col) = Match(Token.LBrace);
             var initializers = new List<Expression>();
-            
+
             var keyed = false;
 
             while (CurrentToken.Type != TokenType.RBrace)
@@ -25,7 +25,7 @@ namespace EVIL.Grammar.Parsing
                     else
                     {
                         var ahead = Lexer.PeekToken(1);
-                        
+
                         if (ahead.Type == TokenType.Associate)
                         {
                             keyed = true;
@@ -36,7 +36,7 @@ namespace EVIL.Grammar.Parsing
                 if (keyed)
                 {
                     Expression key, value;
-                    
+
                     if (CurrentToken.Type == TokenType.LBracket)
                     {
                         key = ComputedKeyExpression();
@@ -50,7 +50,7 @@ namespace EVIL.Grammar.Parsing
                         key = Constant();
                         Match(Token.Associate);
                         value = AssignmentExpression();
-                        
+
                         initializers.Add(new KeyValuePairExpression(key, value));
                     }
                 }
@@ -58,7 +58,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     initializers.Add(AssignmentExpression());
                 }
-                
+
                 if (CurrentToken.Type == TokenType.RBrace)
                     break;
 
@@ -66,7 +66,8 @@ namespace EVIL.Grammar.Parsing
             }
 
             Match(Token.RBrace);
-            return new TableExpression(initializers, keyed) {Line = line};
+            return new TableExpression(initializers, keyed)
+                { Line = line, Column = col };
         }
 
         private Expression ComputedKeyExpression()

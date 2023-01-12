@@ -127,11 +127,11 @@ namespace EVIL.REPL
                         }
                         catch (ParserException pe)
                         {
-                            Console.WriteLine($"Parser error on line {pe.LexerState?.Line}: {pe.Message}");
+                            Console.WriteLine($"Parser error at ({pe.Line}, {pe.Column}): {pe.Message}");
                         }
-                        catch (LexerException se)
+                        catch (LexerException le)
                         {
-                            Console.WriteLine($"Lexer error on line {se.Line}: {se.Message}");
+                            Console.WriteLine($"Lexer error at ({le.Line}, {le.Column}): {le.Message}");
                         }
                         finally
                         {

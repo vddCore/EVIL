@@ -12,8 +12,8 @@
 
         internal void Reset()
         {
-            PreviousToken = null;
-            CurrentToken = null;
+            PreviousToken = Token.Empty;
+            CurrentToken = Token.Empty;
             Character = (char)0;
             Pointer = 0;
             Column = 1;

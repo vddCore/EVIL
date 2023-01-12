@@ -86,6 +86,9 @@ namespace EVIL.ExecutionEngine
         public void Step()
         {
             var frame = _currentStackFrame;
+            var chunk = _currentStackFrame.Chunk;
+            var evstack = EvaluationStack;
+
             var opCode = frame.FetchOpCode();
 
             DynamicValue a;
@@ -102,7 +105,7 @@ namespace EVIL.ExecutionEngine
                 {
                     break;
                 }
-                
+
                 case OpCode.HLT:
                 {
                     Halt();
@@ -111,80 +114,80 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.CNE:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     var comparer = ValueComparers.RetrieveComparer(a, b);
                     var compResult = comparer(a, b);
 
-                    EvaluationStack.Push(new(compResult != 0));
+                    evstack.Push(new(compResult != 0));
                     break;
                 }
 
                 case OpCode.CEQ:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     var comparer = ValueComparers.RetrieveComparer(a, b);
                     var compResult = comparer(a, b);
 
-                    EvaluationStack.Push(new(compResult == 0));
+                    evstack.Push(new(compResult == 0));
                     break;
                 }
 
                 case OpCode.CGE:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     var comparer = ValueComparers.RetrieveComparer(a, b);
                     var compResult = comparer(a, b);
 
-                    EvaluationStack.Push(new(compResult >= 0));
+                    evstack.Push(new(compResult >= 0));
                     break;
                 }
 
                 case OpCode.CGT:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     var comparer = ValueComparers.RetrieveComparer(a, b);
                     var compResult = comparer(a, b);
 
-                    EvaluationStack.Push(new(compResult > 0));
+                    evstack.Push(new(compResult > 0));
                     break;
                 }
 
                 case OpCode.CLE:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     var comparer = ValueComparers.RetrieveComparer(a, b);
                     var compResult = comparer(a, b);
 
-                    EvaluationStack.Push(new(compResult <= 0));
+                    evstack.Push(new(compResult <= 0));
                     break;
                 }
 
                 case OpCode.CLT:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     var comparer = ValueComparers.RetrieveComparer(a, b);
                     var compResult = comparer(a, b);
 
-                    EvaluationStack.Push(new(compResult < 0));
+                    evstack.Push(new(compResult < 0));
                     break;
                 }
 
                 case OpCode.DUP:
                 {
-                    EvaluationStack.Push(
-                        new(EvaluationStack.Peek(), false)
+                    evstack.Push(
+                        new(evstack.Peek(), false)
                     );
 
                     break;
@@ -192,81 +195,97 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.POP:
                 {
-                    Debug.Assert(EvaluationStack.Count >= 0);
+                    Debug.Assert(evstack.Count >= 0);
 
-                    EvaluationStack.Pop();
+                    evstack.Pop();
                     break;
                 }
 
                 case OpCode.UNM:
                 {
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(new(-a.Number));
+                    a = evstack.Pop();
+                    evstack.Push(new(-a.Number));
                     break;
                 }
 
                 case OpCode.TOSTR:
                 {
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(a.CopyToString());
+                    a = evstack.Pop();
+                    evstack.Push(a.CopyToString());
                     break;
                 }
 
                 case OpCode.TONUM:
                 {
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(a.CopyToNumber());
+                    a = evstack.Pop();
+                    evstack.Push(a.CopyToNumber());
                     break;
                 }
 
                 case OpCode.ADD:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
-                    EvaluationStack.Push(new(a.Number + b.Number));
-                    break;
+                    if (a.Type == DynamicValueType.String)
+                    {
+                        if (b.Type != DynamicValueType.String)
+                            throw new UnexpectedTypeException(b.Type, DynamicValueType.String);
+
+                        evstack.Push(new(a.String + b.String));
+                        return;
+                    }
+                    else if (a.Type == DynamicValueType.Number)
+                    {
+                        if (b.Type != DynamicValueType.Number)
+                            throw new UnexpectedTypeException(b.Type, DynamicValueType.Number);
+
+                        evstack.Push(new(a.Number + b.Number));
+                        return;
+                    }
+                    
+                    throw new UnexpectedTypeException(a.Type);
                 }
 
                 case OpCode.SUB:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
-                    EvaluationStack.Push(new(a.Number - b.Number));
+                    evstack.Push(new(a.Number - b.Number));
                     break;
                 }
 
                 case OpCode.MUL:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
-                    EvaluationStack.Push(new(a.Number * b.Number));
+                    evstack.Push(new(a.Number * b.Number));
                     break;
                 }
 
                 case OpCode.DIV:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     if (b.Number == 0)
                         throw new VirtualMachineException("Attempt to divide by zero.");
 
-                    EvaluationStack.Push(new(a.Number / b.Number));
+                    evstack.Push(new(a.Number / b.Number));
                     break;
                 }
 
                 case OpCode.MOD:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     if (b.Number == 0)
                         throw new VirtualMachineException("Attempt to divide by zero.");
 
-                    EvaluationStack.Push(
+                    evstack.Push(
                         new(a.Number - b.Number * Math.Floor(a.Number / b.Number))
                     );
                     break;
@@ -274,84 +293,84 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.AND:
                 {
-                    ib = EvaluationStack.Pop().AsInteger();
-                    ia = EvaluationStack.Pop().AsInteger();
+                    ib = evstack.Pop().AsInteger();
+                    ia = evstack.Pop().AsInteger();
 
-                    EvaluationStack.Push(new(ia & ib));
+                    evstack.Push(new(ia & ib));
                     break;
                 }
 
                 case OpCode.OR:
                 {
-                    ib = EvaluationStack.Pop().AsInteger();
-                    ia = EvaluationStack.Pop().AsInteger();
+                    ib = evstack.Pop().AsInteger();
+                    ia = evstack.Pop().AsInteger();
 
-                    EvaluationStack.Push(new(ia | ib));
+                    evstack.Push(new(ia | ib));
                     break;
                 }
 
                 case OpCode.XOR:
                 {
-                    ib = EvaluationStack.Pop().AsInteger();
-                    ia = EvaluationStack.Pop().AsInteger();
+                    ib = evstack.Pop().AsInteger();
+                    ia = evstack.Pop().AsInteger();
 
-                    EvaluationStack.Push(new(ia ^ ib));
+                    evstack.Push(new(ia ^ ib));
                     break;
                 }
 
                 case OpCode.NOT:
                 {
-                    ia = EvaluationStack.Pop().AsInteger();
+                    ia = evstack.Pop().AsInteger();
 
-                    EvaluationStack.Push(new(~ia));
+                    evstack.Push(new(~ia));
                     break;
                 }
 
                 case OpCode.LNOT:
                 {
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(new(!a.IsTruth));
+                    a = evstack.Pop();
+                    evstack.Push(new(!a.IsTruth));
                     break;
                 }
 
                 case OpCode.LAND:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(new(a.IsTruth && b.IsTruth));
+                    b = evstack.Pop();
+                    a = evstack.Pop();
+                    evstack.Push(new(a.IsTruth && b.IsTruth));
                     break;
                 }
 
                 case OpCode.LOR:
                 {
-                    b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(new(a.IsTruth || b.IsTruth));
+                    b = evstack.Pop();
+                    a = evstack.Pop();
+                    evstack.Push(new(a.IsTruth || b.IsTruth));
                     break;
                 }
 
                 case OpCode.SHL:
                 {
-                    ib = EvaluationStack.Pop().AsInteger();
-                    ia = EvaluationStack.Pop().AsInteger();
+                    ib = evstack.Pop().AsInteger();
+                    ia = evstack.Pop().AsInteger();
 
-                    EvaluationStack.Push(new(ia << ib));
+                    evstack.Push(new(ia << ib));
                     break;
                 }
 
                 case OpCode.SHR:
                 {
-                    ib = EvaluationStack.Pop().AsInteger();
-                    ia = EvaluationStack.Pop().AsInteger();
+                    ib = evstack.Pop().AsInteger();
+                    ia = evstack.Pop().AsInteger();
 
-                    EvaluationStack.Push(new(ia >> ib));
+                    evstack.Push(new(ia >> ib));
                     break;
                 }
 
                 case OpCode.LDC:
                 {
                     itmp = frame.FetchInt32();
-                    EvaluationStack.Push(
+                    evstack.Push(
                         new(RuntimeConstPool.FetchConst(itmp), true)
                     );
                     break;
@@ -361,14 +380,14 @@ namespace EVIL.ExecutionEngine
                 {
                     itmp = frame.FetchInt32();
                     a = frame.Locals[itmp];
-                    EvaluationStack.Push(a);
+                    evstack.Push(a);
                     break;
                 }
 
                 case OpCode.STL:
                 {
                     itmp = frame.FetchInt32();
-                    a = EvaluationStack.Pop();
+                    a = evstack.Pop();
                     frame.Locals[itmp] = a;
                     break;
                 }
@@ -383,7 +402,7 @@ namespace EVIL.ExecutionEngine
                         throw new GlobalNotFoundException(a);
                     }
 
-                    EvaluationStack.Push(GlobalTable.Get(a));
+                    evstack.Push(GlobalTable.Get(a));
                     break;
                 }
 
@@ -391,15 +410,15 @@ namespace EVIL.ExecutionEngine
                 {
                     itmp = frame.FetchInt32();
                     a = RuntimeConstPool.FetchConst(itmp);
-                    b = EvaluationStack.Pop();
+                    b = evstack.Pop();
                     GlobalTable.Set(a, b);
                     break;
                 }
 
                 case OpCode.CALL:
                 {
-                    itmp  = frame.FetchInt32();
-                    a = EvaluationStack.Pop();
+                    itmp = frame.FetchInt32();
+                    a = evstack.Pop();
 
                     switch (a.Type)
                     {
@@ -421,7 +440,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.STA:
                 {
                     itmp = frame.FetchInt32();
-                    a = EvaluationStack.Pop();
+                    a = evstack.Pop();
                     frame.FormalArguments[itmp] = a;
                     break;
                 }
@@ -429,36 +448,36 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LDA:
                 {
                     itmp = frame.FetchInt32();
-                    EvaluationStack.Push(frame.FormalArguments[itmp]);
+                    evstack.Push(frame.FormalArguments[itmp]);
                     break;
                 }
 
                 case OpCode.STE:
                 {
                     itmp = frame.FetchInt32();
-                    var value = EvaluationStack.Pop();
-                    var key = EvaluationStack.Pop();
-                    var indexable = EvaluationStack.Pop();
+                    var value = evstack.Pop();
+                    var key = evstack.Pop();
+                    var indexable = evstack.Pop();
 
                     if (indexable.Type != DynamicValueType.Table)
                     {
                         throw new UnindexableTypeException(indexable.Type);
                     }
-                    
+
                     indexable.Table.Set(key, value);
                     if (itmp != 0)
                     {
-                        EvaluationStack.Push(new(value, false));
+                        evstack.Push(new(value, false));
                     }
                     break;
                 }
 
                 case OpCode.INDEX:
                 {
-                    var key = EvaluationStack.Pop();
-                    var indexable = EvaluationStack.Pop();
+                    var key = evstack.Pop();
+                    var indexable = evstack.Pop();
 
-                    EvaluationStack.Push(
+                    evstack.Push(
                         indexable.Index(key)
                     );
                     break;
@@ -466,7 +485,7 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.NEWTB:
                 {
-                    EvaluationStack.Push(new(new Table()));
+                    evstack.Push(new(new Table()));
                     break;
                 }
 
@@ -480,18 +499,18 @@ namespace EVIL.ExecutionEngine
                 case OpCode.XARGS:
                 {
                     var argTable = new Table(frame.ExtraArguments);
-                    EvaluationStack.Push(new(argTable));
+                    evstack.Push(new(argTable));
                     break;
                 }
 
                 case OpCode.FJMP:
                 {
                     itmp = frame.FetchInt32();
-                    a = EvaluationStack.Pop();
+                    a = evstack.Pop();
 
                     if (!a.IsTruth)
                     {
-                        var addr = Executable.Labels[itmp];
+                        var addr = chunk.Labels[itmp];
                         frame.Jump(addr);
                     }
                     break;
@@ -500,11 +519,11 @@ namespace EVIL.ExecutionEngine
                 case OpCode.TJMP:
                 {
                     itmp = frame.FetchInt32();
-                    a = EvaluationStack.Pop();
+                    a = evstack.Pop();
 
                     if (a.IsTruth)
                     {
-                        var addr = Executable.Labels[itmp];
+                        var addr = chunk.Labels[itmp];
                         frame.Jump(addr);
                     }
                     break;
@@ -513,7 +532,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.JUMP:
                 {
                     itmp = frame.FetchInt32();
-                    itmp = Executable.Labels[itmp];
+                    itmp = chunk.Labels[itmp];
                     frame.Jump(itmp);
 
                     break;
@@ -521,11 +540,19 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.LEN:
                 {
-                    a = EvaluationStack.Pop();
-                    EvaluationStack.Push(new(a.Length));
+                    a = evstack.Pop();
+                    evstack.Push(new(a.Length));
                     break;
                 }
 
+                case OpCode.XIST:
+                {
+                    b = evstack.Pop();
+                    a = evstack.Pop();
+
+                    evstack.Push(new(a.Contains(b)));
+                    break;
+                }
                 default:
                 {
                     throw new VirtualMachineException("Invalid op-code.");
