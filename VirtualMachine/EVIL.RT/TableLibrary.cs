@@ -9,7 +9,7 @@ namespace EVIL.Interpreter.Runtime.Library
     [ClrLibrary("tbl")]
     public class TableLibrary
     {
-        [ClrFunction("ins")]
+        [ClrFunction("ins", RuntimeAlias = "tbl.ins")]
         public static DynamicValue Insert(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -27,7 +27,7 @@ namespace EVIL.Interpreter.Runtime.Library
             return new DynamicValue(ret);
         }
 
-        [ClrFunction("rm")]
+        [ClrFunction("rm", RuntimeAlias = "tbl.rm")]
         public static DynamicValue Remove(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -45,7 +45,7 @@ namespace EVIL.Interpreter.Runtime.Library
             return new DynamicValue(ret);
         }
         
-        [ClrFunction("at")]
+        [ClrFunction("at", RuntimeAlias = "tbl.at")]
         public static DynamicValue At(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(2)

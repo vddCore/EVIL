@@ -17,7 +17,7 @@ namespace EVIL.RT
             return new DynamicValue(args[0].String.Length);
         }
 
-        [ClrFunction("chr")]
+        [ClrFunction("chr", RuntimeAlias = "str.chr")]
         public static DynamicValue ToChar(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -26,7 +26,7 @@ namespace EVIL.RT
             return new DynamicValue(((char)args[0].Number).ToString());
         }
 
-        [ClrFunction("code")]
+        [ClrFunction("code", RuntimeAlias = "str.code")]
         public static DynamicValue ToCharCode(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -40,7 +40,7 @@ namespace EVIL.RT
             return new DynamicValue(str[0]);
         }
 
-        [ClrFunction("at")]
+        [ClrFunction("at", RuntimeAlias = "str.at")]
         public static DynamicValue CharAt(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -56,7 +56,7 @@ namespace EVIL.RT
             return new DynamicValue(str[index].ToString());
         }
 
-        [ClrFunction("sub")]
+        [ClrFunction("sub", RuntimeAlias = "str.sub")]
         public static DynamicValue Substring(EVM evm, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
@@ -95,7 +95,7 @@ namespace EVIL.RT
             }
         }
 
-        [ClrFunction("s2n")]
+        [ClrFunction("s2n", RuntimeAlias = "str.s2n")]
         public static DynamicValue ToInteger(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -107,7 +107,7 @@ namespace EVIL.RT
             return new DynamicValue(result);
         }
 
-        [ClrFunction("n2s")]
+        [ClrFunction("n2s", RuntimeAlias = "str.n2s")]
         public static DynamicValue NumberToString(EVM evm, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -125,7 +125,7 @@ namespace EVIL.RT
             return new DynamicValue(Convert.ToString(number, toBase));
         }
 
-        [ClrFunction("spl")]
+        [ClrFunction("spl", RuntimeAlias = "str.spl")]
         public static DynamicValue Split(EVM evm, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
@@ -169,7 +169,7 @@ namespace EVIL.RT
             return new DynamicValue(retTable);
         }
 
-        [ClrFunction("uc")]
+        [ClrFunction("uc", RuntimeAlias = "str.uc")]
         public static DynamicValue UpperCase(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -180,7 +180,7 @@ namespace EVIL.RT
             return new DynamicValue(str.ToUpperInvariant());
         }
 
-        [ClrFunction("lc")]
+        [ClrFunction("lc", RuntimeAlias = "str.lc")]
         public static DynamicValue LowerCase(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)

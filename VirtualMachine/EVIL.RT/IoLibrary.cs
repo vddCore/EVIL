@@ -9,7 +9,7 @@ namespace EVIL.RT
     [ClrLibrary("io")]
     public class IoLibrary
     {
-        [ClrFunction("print")]
+        [ClrFunction("print", RuntimeAlias = "io.print")]
         public static DynamicValue Print(EVM evm, params DynamicValue[] args)
         {
             var sb = new StringBuilder();
@@ -25,7 +25,7 @@ namespace EVIL.RT
             return new(sb.Length);
         }
 
-        [ClrFunction("println")]
+        [ClrFunction("println", RuntimeAlias = "io.println")]
         public static DynamicValue PrintLine(EVM evm, params DynamicValue[] args)
         {
             var output = Print(evm, args);
@@ -33,15 +33,15 @@ namespace EVIL.RT
             return output;
         }
 
-        [ClrFunction("readln")]
+        [ClrFunction("readln", RuntimeAlias = "io.readln")]
         public static DynamicValue ReadLine(EVM evm, params DynamicValue[] args)
             => new(Console.ReadLine() ?? string.Empty);
 
-        [ClrFunction("read")]
+        [ClrFunction("read", RuntimeAlias = "io.read")]
         public static DynamicValue Read(EVM evm, params DynamicValue[] args)
             => new(Console.Read());
 
-        [ClrFunction("readkey")]
+        [ClrFunction("readkey", RuntimeAlias = "io.readkey")]
         public static DynamicValue ReadKey(EVM evm, params DynamicValue[] args)
             => new((int)Console.ReadKey().Key);
     }

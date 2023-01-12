@@ -28,22 +28,31 @@ namespace EVIL.Intermediate.CodeGeneration
 
             _executable = new Executable();
             _executable.Chunks.Add(new Chunk("!root"));
-
-            ChunkDefinitionStack.Push(_executable.RootChunk);
             {
-                Visit(program);
+                ChunkDefinitionStack.Push(_executable.RootChunk);
+                {
+                    Visit(program);
+                }
+                ChunkDefinitionStack.Pop();
             }
-            ChunkDefinitionStack.Pop();
-
             return _executable;
         }
 
         public override void Visit(AstNode node)
         {
+            var cg = CurrentChunk.GetCodeGenerator();
+
+            var line = CurrentLine;
+            var col = CurrentColumn;
+            
             CurrentLine = node.Line;
             CurrentColumn = node.Column;
 
             base.Visit(node);
+            
+            CurrentChunk.DebugInfo.Add(
+                new DebugEntry(line, col, cg.IP)
+            );
         }
 
         internal void DefineGlobal(string name)
@@ -51,7 +60,7 @@ namespace EVIL.Intermediate.CodeGeneration
             if (!_executable.Globals.Contains(name))
                 _executable.Globals.Add(name);
         }
-        
+
         internal bool IsGlobalDefined(string name)
         {
             return _executable.Globals.Contains(name);

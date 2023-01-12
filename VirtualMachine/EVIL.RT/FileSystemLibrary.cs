@@ -9,7 +9,7 @@ namespace EVIL.Interpreter.Runtime.Library
     [ClrLibrary("fs")]
     public class FileSystemLibrary
     {
-        [ClrFunction("get_lines")]
+        [ClrFunction("get_lines", RuntimeAlias = "fs.get_lines")]
         public static DynamicValue GetLines(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -39,7 +39,7 @@ namespace EVIL.Interpreter.Runtime.Library
             }
         }
 
-        [ClrFunction("file_exists")]
+        [ClrFunction("fex", RuntimeAlias = "fs.fex")]
         public static DynamicValue FileExists(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -50,7 +50,7 @@ namespace EVIL.Interpreter.Runtime.Library
             return new DynamicValue(File.Exists(filePath));
         }
 
-        [ClrFunction("dir_exists")]
+        [ClrFunction("dex", RuntimeAlias = "fs.dex")]
         public static DynamicValue DirectoryExists(EVM evm, params DynamicValue[] args)
         {
             args.ExpectExactly(1)

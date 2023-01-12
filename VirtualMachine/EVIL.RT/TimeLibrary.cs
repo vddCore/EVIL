@@ -8,7 +8,7 @@ namespace EVIL.Interpreter.Runtime.Library
     [ClrLibrary("time")]
     public class TimeLibrary
     {
-        [ClrFunction("stamp")]
+        [ClrFunction("stamp", RuntimeAlias = "time.stamp")]
         public static DynamicValue Stamp(EVM evm, params DynamicValue[] args)
         {
             return new(
@@ -16,7 +16,7 @@ namespace EVIL.Interpreter.Runtime.Library
             );
         }
 
-        [ClrFunction("ticks")]
+        [ClrFunction("ticks", RuntimeAlias = "ticks")]
         public static DynamicValue Ticks(EVM evm, params DynamicValue[] args)
         {
             return new(

@@ -72,17 +72,25 @@ namespace EVIL.VirtualMachine.TestDriver
             rt.LoadCoreRuntime();
             
             var evm = new EVM(_globalTable);
-            var exe = BuildExecutable("/codespace/code/evil/b64.vil");
+            var exe = BuildExecutable("/codespace/code/evil/testing.vil");
 
-            EvxLinker.Link(exe, "a.evx");
-            exe = EvxLoader.Load("a.evx");
+            //EvxLinker.Link(exe, "a.evx");
+            //exe = EvxLoader.Load("a.evx");
 
             if (exe != null)
             {
                 DisassembleExecutable(exe);
                 Console.WriteLine("-[progRUN]------------");
-                evm.Load(exe);
-                evm.Run();
+                try
+                {
+                    evm.Load(exe);
+                    evm.Run();
+                }
+                catch (VirtualMachineException e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.WriteLine(evm.DumpCallStack());
+                }
             }
         }
 
