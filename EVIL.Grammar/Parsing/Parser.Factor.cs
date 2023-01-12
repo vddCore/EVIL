@@ -13,8 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.Decrement,
             TokenType.LParenthesis,
             TokenType.LBracket,
-            TokenType.MemberAccess,
-            TokenType.Meta
+            TokenType.MemberAccess
         };
 
         private AstNode Factor(AstNode node = null)
@@ -37,10 +36,6 @@ namespace EVIL.Grammar.Parsing
                 else if (token.Type == TokenType.MemberAccess)
                 {
                     node = MemberAccess(node);
-                }
-                else if (token.Type == TokenType.Meta)
-                {
-                    node = Meta(node);
                 }
                 else if (token.Type == TokenType.Increment)
                 {

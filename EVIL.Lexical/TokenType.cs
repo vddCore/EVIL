@@ -25,8 +25,6 @@
         MemberAccess,
         KeyInitializer,
 
-        Meta,
-        
         Assign,
         AssignAdd,
         AssignSubtract,

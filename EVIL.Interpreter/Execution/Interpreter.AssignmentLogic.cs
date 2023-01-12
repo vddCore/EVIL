@@ -55,7 +55,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException("Unexpected compound assignment type??", null);
             }
 
-            left.CopyFrom(right, true);
+            left.CopyFrom(right);
             return right;
         }
     }
