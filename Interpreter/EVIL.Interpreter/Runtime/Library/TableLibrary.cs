@@ -37,5 +37,18 @@ namespace EVIL.Interpreter.Runtime.Library
 
             return DynValue.Zero;
         }
+        
+        [ClrFunction("at")]
+        public static DynValue At(Execution.Interpreter interpreter, FunctionArguments args)
+        {
+            args.ExpectExactly(2)
+                .ExpectTypeAtIndex(0, DynValueType.Table)
+                .ExpectIntegerAtIndex(1);
+
+            var tbl = args[0].Table;
+            var index = (int)args[1].Number;
+
+            return tbl.ElementAt(index);
+        }
     }
 }

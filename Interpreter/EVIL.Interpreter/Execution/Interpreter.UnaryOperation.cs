@@ -96,19 +96,8 @@ namespace EVIL.Interpreter.Execution
                     return new DynValue(~(int)operand.Number);
                 }
 
-                case UnaryOperationType.Floor:
-                {
-                    if (operand.Type != DynValueType.Number)
-                    {
-                        throw new RuntimeException(
-                            $"Attempt to retrieve floor value of {operand.Type}.",
-                            Environment,
-                            unaryExpression.Line
-                        );
-                    }
-
-                    return new DynValue(Math.Floor(operand.Number));
-                }
+                case UnaryOperationType.ToNumber:
+                    return operand.AsNumber();
 
                 default:
                 {

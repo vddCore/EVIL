@@ -240,7 +240,7 @@ namespace EVIL.Lexical
                     State.CurrentToken = Token.AsString;
                     break;
                 case '$':
-                    State.CurrentToken = Token.Floor;
+                    State.CurrentToken = Token.AsNumber;
                     break;
 
                 default:
