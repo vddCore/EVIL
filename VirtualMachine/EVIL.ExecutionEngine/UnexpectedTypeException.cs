@@ -2,7 +2,7 @@ using EVIL.ExecutionEngine.Abstraction;
 
 namespace EVIL.ExecutionEngine
 {
-    public class UnexpectedTypeException : VirtualMachineException
+    public class UnexpectedTypeException : TypeSystemException
     {
         public UnexpectedTypeException(DynamicValueType actual)
             : base($"Type '{actual}' was unexpected at this time.")

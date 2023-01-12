@@ -170,7 +170,16 @@ namespace EVIL.Intermediate.Storage
 
             var insnCount = br.ReadInt32();
             chunk.Instructions.AddRange(br.ReadBytes(insnCount));
-            
+
+            var debugEntryCount = br.ReadInt32();
+            for (var i = 0; i < debugEntryCount; i++)
+            {
+                var line = br.ReadInt32();
+                var column = br.ReadInt32();
+                var ip = br.ReadInt32();
+
+                chunk.DebugInfo.Add(new(line, column, ip));
+            }
             return chunk;
         }
 

@@ -66,9 +66,13 @@ namespace EVIL.ExecutionEngine
                     var ctx = ExecutionContexts[i];
 
                     if (ctx.Running)
-                        ExecutionContexts[i].Step();
+                    {
+                        ctx.Step();
+                    }
                     else
+                    {
                         ExecutionContexts.RemoveAt(i);
+                    }
                 }
             }
 
@@ -142,6 +146,7 @@ namespace EVIL.ExecutionEngine
         public void Run(params DynamicValue[] args)
         {
             MainExecutionContext = InvokeCallback(Executable.RootChunk, args);
+            Start();
         }
     }
 }

@@ -21,13 +21,20 @@ namespace EVIL.Intermediate.CodeGeneration
         private Chunk CurrentChunk => ChunkDefinitionStack.Peek();
         private bool IsLocalScope => ScopeStack.Count > 0;
 
+        public CompilerOptions Options { get; }
+
+        public Compiler(CompilerOptions options = null)
+        {
+            Options = options ?? new CompilerOptions();
+        }
+        
         public Executable Compile(Program program)
         {
             ChunkDefinitionStack.Clear();
             ScopeStack.Clear();
 
             _executable = new Executable();
-            _executable.Chunks.Add(new Chunk("!root"));
+            _executable.Chunks.Add(new Chunk("!root", false));
             {
                 ChunkDefinitionStack.Push(_executable.RootChunk);
                 {
@@ -49,10 +56,13 @@ namespace EVIL.Intermediate.CodeGeneration
             CurrentColumn = node.Column;
 
             base.Visit(node);
-            
-            CurrentChunk.DebugInfo.Add(
-                new DebugEntry(line, col, cg.IP)
-            );
+
+            if (Options.GenerateDebugInformation)
+            {
+                CurrentChunk.DebugInfo.Add(
+                    new DebugEntry(line, col, cg.IP)
+                );
+            }
         }
 
         internal void DefineGlobal(string name)
