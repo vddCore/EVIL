@@ -13,12 +13,19 @@ namespace EVIL.Lexical
             Value = value;
         }
 
+        public Token Copy()
+            => new(Type, Value);
+
         public static string StringRepresentation(TokenType type)
         {
             switch (type)
             {
                 case TokenType.And: return "&&";
                 case TokenType.Assign: return "=";
+                case TokenType.BitwiseAnd: return "&";
+                case TokenType.BitwiseOr: return "|";
+                case TokenType.BitwiseXor: return "^";
+                case TokenType.BitwiseNot: return "~";
                 case TokenType.Break: return "break";
                 case TokenType.Colon: return ":";
                 case TokenType.Semicolon: return ";";
@@ -42,26 +49,24 @@ namespace EVIL.Lexical
                 case TokenType.Each: return "each";
                 case TokenType.Elif: return "elif";
                 case TokenType.Else: return "else";
+                case TokenType.ExistsIn: return "??";
                 case TokenType.Exit: return "exit";
                 case TokenType.False: return "false";
+                case TokenType.Floor: return "$";
                 case TokenType.Fn: return "fn";
                 case TokenType.For: return "for";
                 case TokenType.If: return "if";
                 case TokenType.Increment: return "++";
+                case TokenType.KeyInitializer: return "<-";
                 case TokenType.LBrace: return "{";
                 case TokenType.LBracket: return "[";
                 case TokenType.Length: return "#";
-                case TokenType.Var: return "var";
                 case TokenType.LParenthesis: return "(";
+                case TokenType.MemberAccess: return "->";
                 case TokenType.Minus: return "-";
                 case TokenType.Modulo: return "%";
                 case TokenType.Multiply: return "*";
                 case TokenType.NameOf: return "?";
-                case TokenType.BitwiseAnd: return "&";
-                case TokenType.BitwiseOr: return "|";
-                case TokenType.BitwiseXor: return "^";
-                case TokenType.BitwiseNot: return "~";
-                case TokenType.Floor: return "$";
                 case TokenType.Negation: return "!";
                 case TokenType.Or: return "||";
                 case TokenType.Plus: return "+";
@@ -75,9 +80,8 @@ namespace EVIL.Lexical
                 case TokenType.ToString: return "@";
                 case TokenType.True: return "true";
                 case TokenType.Undef: return "undef";
+                case TokenType.Var: return "var";
                 case TokenType.While: return "while";
-                case TokenType.ExistsIn: return "??";
-                case TokenType.MemberAccess: return "->";
                 default: return Convert.ToString(type);
             }
         }
