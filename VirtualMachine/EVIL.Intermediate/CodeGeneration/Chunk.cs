@@ -54,7 +54,7 @@ namespace EVIL.Intermediate.CodeGeneration
         public (int, Chunk) CreateSubChunk()
         {
             var id = SubChunks.Count;
-            var chunk = new Chunk($"<unnamed_anon_chunk>", false);
+            var chunk = new Chunk($"anon_subchunk${id}", false);
 
             SubChunks.Add(chunk);
 

@@ -19,7 +19,7 @@ namespace EVIL.Intermediate.CodeGeneration
         private Stack<Chunk> ChunkDefinitionStack { get; } = new();
 
         private Chunk CurrentChunk => ChunkDefinitionStack.Peek();
-        private bool IsLocalScope => ScopeStack.Count > 0;
+        private bool IsLocalScope => ScopeStack.Count > 1;
 
         public CompilerOptions Options { get; }
 
@@ -32,16 +32,21 @@ namespace EVIL.Intermediate.CodeGeneration
         {
             ChunkDefinitionStack.Clear();
             ScopeStack.Clear();
-
             _executable = new Executable();
+
             _executable.Chunks.Add(Chunk.CreateRoot());
             {
                 ChunkDefinitionStack.Push(_executable.RootChunk);
                 {
-                    Visit(program);
+                    EnterScope();
+                    {
+                        Visit(program);
+                    }
+                    LeaveScope();
                 }
                 ChunkDefinitionStack.Pop();
             }
+            
             return _executable;
         }
 
