@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace EVIL.Abstraction
 {
@@ -26,7 +27,40 @@ namespace EVIL.Abstraction
                 throw new ClrFunctionException($"Expected type '{type}' at argument index {index}, found no value.");
 
             if (this[index].Type != type)
-                throw new ClrFunctionException($"Expected type '{type}' at argument index {index}, found '{this[index].Type}");
+                throw new ClrFunctionException(
+                    $"Expected type '{type}' at argument index {index}, found '{this[index].Type}");
+
+            return this;
+        }
+
+        public ClrFunctionArguments ExpectTableAtIndex(int index)
+        {
+            ExpectTypeAtIndex(index, DynValueType.Table);
+            return this;
+        }
+
+        public ClrFunctionArguments ExpectTableAtIndex(int index, int size)
+        {
+            ExpectTableAtIndex(index);
+
+            if (this[index].Table.Count != size)
+                throw new ClrFunctionException(
+                    $"Expected a table of size {size} at index {index}. Actual size was {this[index].Table.Count}");
+
+            return this;
+        }
+
+        public ClrFunctionArguments ExpectTableAtIndex(int index, int size, DynValueType acceptedType)
+        {
+            ExpectTableAtIndex(index);
+
+            if (this[index].Table.Count != size)
+                throw new ClrFunctionException(
+                    $"Expected a table of size {size} at index {index}. Actual size was {this[index].Table.Count}");
+
+            if (!this[index].Table.All(x => x.Value.Type == acceptedType))
+                throw new ClrFunctionException(
+                    $"Expected a table containing only {acceptedType}(s).");
 
             return this;
         }
@@ -71,6 +105,16 @@ namespace EVIL.Abstraction
 
             if (this[index].Number < 0 || this[index].Number > 255)
                 throw new ClrFunctionException($"Expected a value limited between 0 and 255.");
+
+            return this;
+        }
+
+        public ClrFunctionArguments ExpectCharAtIndex(int index)
+        {
+            ExpectTypeAtIndex(index, DynValueType.String);
+
+            if (this[index].String.Length > 1)
+                throw new ClrFunctionException($"Expected a single character.");
 
             return this;
         }
