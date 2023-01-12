@@ -1,3 +1,4 @@
+using System.Linq;
 using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Intermediate.CodeGeneration
@@ -15,8 +16,24 @@ namespace EVIL.Intermediate.CodeGeneration
                     functionDefinition.Column
                 );
             }
+
+            var previousDefinition = _executable.Chunks.FirstOrDefault(x => x.Name == functionDefinition.Identifier);
             
-            var chunk = new Chunk(functionDefinition.Identifier);
+            if (previousDefinition != null)
+            {
+                throw new CompilerException(
+                    $"Duplicate '{functionDefinition.Identifier}' function definition, previously defined on line {previousDefinition.DefinedOnLine}.",
+                    functionDefinition.Line,
+                    functionDefinition.Column
+                );
+            }
+            
+            var chunk = new Chunk(
+                functionDefinition.Identifier, 
+                true, 
+                functionDefinition.Line
+            );
+            
             ChunkDefinitionStack.Push(chunk);
             var cg = CurrentChunk.GetCodeGenerator();
             

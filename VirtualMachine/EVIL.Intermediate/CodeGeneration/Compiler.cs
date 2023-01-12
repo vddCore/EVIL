@@ -34,7 +34,7 @@ namespace EVIL.Intermediate.CodeGeneration
             ScopeStack.Clear();
 
             _executable = new Executable();
-            _executable.Chunks.Add(new Chunk("!root", false));
+            _executable.Chunks.Add(Chunk.CreateRoot());
             {
                 ChunkDefinitionStack.Push(_executable.RootChunk);
                 {

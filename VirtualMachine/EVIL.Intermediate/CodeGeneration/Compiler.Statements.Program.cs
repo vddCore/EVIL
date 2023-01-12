@@ -8,10 +8,6 @@ namespace EVIL.Intermediate.CodeGeneration
         {
             foreach (var node in program.Statements)
                 Visit(node);
-
-            _executable.RootChunk
-                .GetCodeGenerator()
-                .Emit(OpCode.HLT);
         }
     }
 }
