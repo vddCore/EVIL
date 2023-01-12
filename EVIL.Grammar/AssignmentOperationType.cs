@@ -10,6 +10,8 @@
         Modulo,
         BitwiseAnd,
         BitwiseOr,
-        BitwiseXor
+        BitwiseXor,
+        ShiftRight,
+        ShiftLeft
     }
 }

@@ -47,6 +47,14 @@ namespace EVIL.Interpreter.Execution
                 case AssignmentOperationType.BitwiseXor:
                     right = BitwiseXor(left, right, assignmentNode);
                     break;
+                
+                case AssignmentOperationType.ShiftLeft:
+                    right = ShiftLeft(left, right, assignmentNode);
+                    break;
+                
+                case AssignmentOperationType.ShiftRight:
+                    right = ShiftRight(left, right, assignmentNode);
+                    break;
 
                 default:
                     throw new RuntimeException("Unexpected compound assignment type??", Environment, null);

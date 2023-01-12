@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             
             if (CurrentToken.Type == TokenType.Identifier)
             {
-                procName = CurrentToken.Value.ToString();                
+                procName = CurrentToken.Value;                
                 Match(TokenType.Identifier);
             }
 
@@ -23,7 +23,7 @@ namespace EVIL.Grammar.Parsing
 
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
-                parameterList.Add(CurrentToken.Value.ToString());
+                parameterList.Add(CurrentToken.Value);
                 Match(TokenType.Identifier);
 
                 if (CurrentToken.Type == TokenType.RParenthesis)

@@ -65,10 +65,10 @@ namespace EVIL.Interpreter.Execution
                 case BinaryOperationType.Equal:
                     return CompareEqual(left, right, binaryOperationNode);
 
-                case BinaryOperationType.And:
+                case BinaryOperationType.LogicalAnd:
                     return LogicalAnd(left, right);
 
-                case BinaryOperationType.Or:
+                case BinaryOperationType.LogicalOr:
                     return LogicalOr(left, right);
                 
                 case BinaryOperationType.ExistsIn:

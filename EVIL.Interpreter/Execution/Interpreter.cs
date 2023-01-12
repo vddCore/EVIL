@@ -26,9 +26,7 @@ namespace EVIL.Interpreter.Execution
         }
 
         public Interpreter(Environment env)
-        {
-            Environment = env;
-        }
+            => Environment = env;
 
         public void ImposeConstraint(Constraint constraint)
             => _constraints.Add(constraint);

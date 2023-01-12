@@ -39,7 +39,7 @@ namespace EVIL.Grammar.Parsing
             else if (token.Type == TokenType.String)
             {
                 var line = Match(TokenType.String);
-                return new StringNode(token.Value.ToString()) {Line = line};
+                return new StringNode(token.Value) {Line = line};
             }
             else throw new ParserException($"Unexpected token [{token}]", Lexer.State);
         }
