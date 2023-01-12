@@ -91,7 +91,7 @@ namespace EVIL.Grammar.Parsing
             else if (token.Type == TokenType.String)
             {
                 var line = Match(TokenType.String);
-                return new StringNode((string)token.Value) {Line = line};
+                return new StringNode(token.Value.ToString()) {Line = line};
             }
             else if (token.Type == TokenType.LParenthesis)
             {

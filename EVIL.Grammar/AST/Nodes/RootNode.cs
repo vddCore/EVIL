@@ -4,11 +4,11 @@ namespace EVIL.Grammar.AST.Nodes
 {
     public class RootNode : AstNode
     {
-        public List<AstNode> Children { get; }
+        public List<AstNode> Children { get; } 
 
-        public RootNode()
+        public RootNode(List<AstNode> children)
         {
-            Children = new List<AstNode>();
+            Children = children;
         }
 
         public FunctionDefinitionNode FindChildFunctionDefinition(string fnName)
