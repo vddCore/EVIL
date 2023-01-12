@@ -22,8 +22,7 @@
         ShiftRight,
         ShiftLeft,
         
-        MemberAccess,
-        KeyInitializer,
+        Dot,
 
         Assign,
         AssignAdd,

@@ -11,6 +11,8 @@ namespace EVIL.Interpreter
 {
     public class Environment
     {
+        private Stack<NameScope> EnclosedScopes { get; } = new();
+        
         public int CallStackLimit { get; set; } = 72;
 
         public Stack<StackFrame> CallStack { get; }
@@ -24,7 +26,7 @@ namespace EVIL.Interpreter
 
         public NameScope LocalScope { get; private set; }
         public NameScope GlobalScope { get; }
-        private Stack<NameScope> EnclosedScopes { get; } = new();
+        public string ConstructorName { get; set; } = "new";
 
         public Environment()
         {

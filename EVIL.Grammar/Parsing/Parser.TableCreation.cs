@@ -17,19 +17,13 @@ namespace EVIL.Grammar.Parsing
             {
                 var value = Assignment();
 
-                if (Scanner.State.CurrentToken.Type == TokenType.KeyInitializer)
+                if (value is AssignmentNode)
                 {
-                    var l = Match(TokenType.KeyInitializer);
                     keyed = true;
-                    var key = value;
-                    value = Assignment();
-                    initializers.Add(new KeyedInitializerNode(key, value) {Line = l});
-                }
-                else if (!keyed)
-                {
-                    initializers.Add(value);
                 }
 
+                initializers.Add(value);
+                
                 if (Scanner.State.CurrentToken.Type == TokenType.RBrace)
                     break;
 
