@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.Grammar\EVIL.Grammar.csproj" />
+    <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
+  </ItemGroup>
+</Project>
