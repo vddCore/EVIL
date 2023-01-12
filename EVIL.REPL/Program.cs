@@ -20,7 +20,6 @@ namespace EVIL.REPL
         private static Stopwatch _stopwatch = new();
 
         private static string _entryPointFunctionName;
-        private static bool _refuseToRunTopLevelCode;
         private static bool _measure;
 
         private static List<string> _entryPointArgs = new();
@@ -67,10 +66,6 @@ namespace EVIL.REPL
                         case "-c":
                             break;
 
-                        case "-r":
-                            _refuseToRunTopLevelCode = true;
-                            continue;
-
                         default:
                             _entryPointArgs.Add(args[i]);
                             break;
@@ -92,7 +87,6 @@ namespace EVIL.REPL
                                     sr.ReadToEnd(),
                                     _entryPointFunctionName,
                                     _entryPointArgs.ToArray(),
-                                    _refuseToRunTopLevelCode,
                                     Path.GetFullPath(args[0])
                                 );
                             }

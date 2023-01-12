@@ -63,8 +63,7 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false,
-            string filePath = null)
+        public DynValue Execute(string sourceCode, string entryPoint, string[] args, string filePath = null)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
