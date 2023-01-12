@@ -7,11 +7,10 @@ using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
 using EVIL.Intermediate.CodeGeneration;
 using EVIL.Lexical;
-using EVIL.RT;
 
-namespace EVIL.Interpreter.Runtime.Library
+namespace EVIL.Runtime.Library
 {
-    public class CoreLibrary
+    public class CoreModule
     {
         [ClrFunction("import")]
         public static DynamicValue Import(ExecutionContext ctx, params DynamicValue[] args)

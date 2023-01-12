@@ -1,14 +1,12 @@
 ﻿using System;
-using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
-using EVIL.RT;
 
-namespace EVIL.Interpreter.Runtime.Library
+namespace EVIL.Runtime.Library
 {
     [ClrLibrary("math")]
-    public class MathLibrary
+    public class MathModule
     {
         internal static Random Random { get; } = new();
 

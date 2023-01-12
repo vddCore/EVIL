@@ -1,14 +1,12 @@
 using System.IO;
-using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
-using EVIL.RT;
 
-namespace EVIL.Interpreter.Runtime.Library
+namespace EVIL.Runtime.Library
 {
     [ClrLibrary("fs")]
-    public class FileSystemLibrary
+    public class FileSystemModule
     {
         [ClrFunction("get_lines", RuntimeAlias = "fs.get_lines")]
         public static DynamicValue GetLines(ExecutionContext ctx, params DynamicValue[] args)

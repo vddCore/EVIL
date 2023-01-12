@@ -1,14 +1,12 @@
 ﻿using System.Linq;
-using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
-using EVIL.RT;
 
-namespace EVIL.Interpreter.Runtime.Library
+namespace EVIL.Runtime.Library
 {
     [ClrLibrary("tbl")]
-    public class TableLibrary
+    public class TableModule
     {
         [ClrFunction("ins", RuntimeAlias = "tbl.ins")]
         public static DynamicValue Insert(ExecutionContext ctx, params DynamicValue[] args)
