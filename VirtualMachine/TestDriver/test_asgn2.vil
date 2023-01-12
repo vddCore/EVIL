@@ -1,5 +1,21 @@
-var a = fn() {
-  io.println("test");
-};
+fn main() {
+  var a = 10;
+  
+  while(true) {
+    io.println(a++);
+    
+    if (a > 40) {
+      break;
+    }
+  }
+  
+  a = fn(c, d) {
+    for (var i = 0; i < 123; i++) {
+      io.println("what the dog doin? " + @c + " " + @d);
+    }
+  };
+  
+  ret a;
+} 
 
-a();
+main()(13, 46);

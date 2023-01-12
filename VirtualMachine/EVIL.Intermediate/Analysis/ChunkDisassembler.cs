@@ -65,6 +65,7 @@ namespace EVIL.Intermediate.Analysis
             {
                 for (var i = 0; i < chunk.Locals.Count; i++)
                 {
+                    Indent();
                     _disasm.AppendLine($" .LOCAL {i} ; {chunk.Locals[i]}");
                 }
             }

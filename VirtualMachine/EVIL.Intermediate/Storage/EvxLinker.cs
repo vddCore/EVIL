@@ -95,7 +95,7 @@ namespace EVIL.Intermediate.Storage
             var endOffset = bw.BaseStream.Position;
 
             bw.BaseStream.Seek(
-                EvxKnownFileOffsets.Header.ChunkTableOffset,
+                EvxHeaderOffsets.ChunkTableOffset,
                 SeekOrigin.Begin
             );
             bw.Write(chunkTableOffset);
@@ -169,7 +169,7 @@ namespace EVIL.Intermediate.Storage
 
             var endOffset = bw.BaseStream.Position;
 
-            bw.BaseStream.Seek(EvxKnownFileOffsets.Header.GlobalListOffset, SeekOrigin.Begin);
+            bw.BaseStream.Seek(EvxHeaderOffsets.GlobalListOffset, SeekOrigin.Begin);
             bw.Write((int)offset);
             bw.BaseStream.Seek(endOffset, SeekOrigin.Begin);
         }
@@ -213,7 +213,7 @@ namespace EVIL.Intermediate.Storage
 
         private static void WriteChecksum(BinaryWriter bw, Stream outStream)
         {
-            outStream.Seek(EvxKnownFileOffsets.Header.TimeStamp, SeekOrigin.Begin);
+            outStream.Seek(EvxHeaderOffsets.TimeStamp, SeekOrigin.Begin);
             
             var hash = 0xCBF29CE484222325;
             using (var br = new BinaryReader(outStream, Encoding.UTF8, true))
@@ -226,7 +226,7 @@ namespace EVIL.Intermediate.Storage
             }
 
             outStream.Seek(
-                EvxKnownFileOffsets.Header.Checksum,
+                EvxHeaderOffsets.Checksum,
                 SeekOrigin.Begin
             );
 
