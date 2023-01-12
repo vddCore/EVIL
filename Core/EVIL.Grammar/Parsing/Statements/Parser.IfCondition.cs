@@ -18,8 +18,8 @@ namespace EVIL.Grammar.Parsing
             var node = new IfStatement 
                 { Line = line, Column = col };
 
-            node.Conditions.Add(expression);
-            node.Statements.Add(Statement());
+            node.AddCondition(expression);
+            node.AddStatement(Statement());
 
             while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
             {
@@ -31,13 +31,13 @@ namespace EVIL.Grammar.Parsing
                     expression = AssignmentExpression();
 
                     Match(Token.RParenthesis);
-                    node.Conditions.Add(expression);
-                    node.Statements.Add(Statement());
+                    node.AddCondition(expression);
+                    node.AddStatement(Statement());
                 }
                 else if (CurrentToken.Type == TokenType.Else)
                 {
                     Match(Token.Else);
-                    node.ElseBranch = Statement();
+                    node.SetElseBranch(Statement());
                 }
                 else throw new ParserException(
                     $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",

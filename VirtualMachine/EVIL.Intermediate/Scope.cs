@@ -4,20 +4,24 @@ namespace EVIL.Intermediate
 {
     public class Scope
     {
+        private Compiler _compiler;
+        
         public Executable Executable { get; }
         public Chunk Chunk { get; }
         public Scope Parent { get; }
         
         public TwoWayDictionary<string, SymbolInfo> Symbols { get; } = new();
 
-        public Scope(Executable executable, Chunk chunk)
+        public Scope(Compiler compiler, Executable executable, Chunk chunk)
         {
+            _compiler = compiler;
+            
             Executable = executable;
             Chunk = chunk;
         }
 
-        public Scope(Executable executable, Chunk chunk, Scope parent)
-            : this(executable, chunk)
+        public Scope(Compiler compiler, Executable executable, Chunk chunk, Scope parent)
+            : this(compiler, executable, chunk)
         {
             Parent = parent;
         }
@@ -35,7 +39,7 @@ namespace EVIL.Intermediate
                 scope = scope.Parent;
             }
 
-            if (Executable.IsGlobalDefined(name))
+            if (_compiler.IsGlobalDefined(name))
                 return (null, SymbolInfo.Global);
             
             return (null, SymbolInfo.Undefined);
@@ -44,7 +48,7 @@ namespace EVIL.Intermediate
         public SymbolInfo DefineExtern(string name, string ownerChunkName, int ownerLocalId, bool isParam)
         {
             if (IsLocalDefined(name))
-                throw new DuplicateSymbolException(name);
+                throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             var sym = new SymbolInfo(Chunk.Externs.Count, SymbolInfo.SymbolType.Extern);
             Chunk.Externs.Add(new ExternInfo(name, ownerChunkName, ownerLocalId, isParam));
@@ -57,7 +61,7 @@ namespace EVIL.Intermediate
         public SymbolInfo DefineLocal(string name)
         {
             if (IsLocalDefined(name))
-                throw new DuplicateSymbolException(name);
+                throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             var sym = new SymbolInfo(Chunk.Locals.Count, SymbolInfo.SymbolType.Local);
             Chunk.Locals.Add(name);
@@ -70,7 +74,7 @@ namespace EVIL.Intermediate
         public SymbolInfo DefineParameter(string name)
         {
             if (IsLocalDefined(name))
-                throw new DuplicateSymbolException(name);
+                throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             var sym = new SymbolInfo(Chunk.Parameters.Count, SymbolInfo.SymbolType.Parameter);
             Chunk.Parameters.Add(name);
@@ -83,7 +87,7 @@ namespace EVIL.Intermediate
         public void UndefineLocal(string name)
         {
             if (!IsLocalDefined(name))
-                throw new DuplicateSymbolException(name);
+                throw new MissingSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             Symbols.RemoveByKey(name);
         }

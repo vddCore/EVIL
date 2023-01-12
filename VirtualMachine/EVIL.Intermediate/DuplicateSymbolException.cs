@@ -1,13 +1,11 @@
-using System;
-
 namespace EVIL.Intermediate
 {
-    public class DuplicateSymbolException : Exception
+    public class DuplicateSymbolException : CompilerException
     {
         public string SymbolName { get; }
 
-        public DuplicateSymbolException(string symbolName)
-            : base($"Symbol '{symbolName}' was already defined in the current scope.")
+        public DuplicateSymbolException(string symbolName, int line, int col)
+            : base($"Symbol '{symbolName}' was already defined in the current scope.", line, col)
         {
             SymbolName = symbolName;
         }

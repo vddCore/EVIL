@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Intermediate;
@@ -560,7 +559,7 @@ namespace EVIL.ExecutionEngine
                     itmp = frame.FetchInt32();
 
                     var chunkClone = Executable.Chunks[itmp].ShallowClone();
-                    
+
                     if (chunkClone.Externs.Count > 0)
                     {
                         var externs = new DynamicValue[chunkClone.Externs.Count];
@@ -606,6 +605,41 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
+                case OpCode.GNAME:
+                {
+                    itmp = frame.FetchInt32();
+                    a = RuntimeConstPool.FetchConst(itmp);
+
+                    if (!GlobalTable.IsSet(a))
+                    {
+                        a = DynamicValue.Zero;
+                    }
+
+                    evstack.Push(a);
+                    break;
+                }
+
+                case OpCode.LNAME:
+                {
+                    itmp = frame.FetchInt32();
+                    evstack.Push(new(frame.Chunk.Locals[itmp]));
+                    break;
+                }
+
+                case OpCode.XNAME:
+                {
+                    itmp = frame.FetchInt32();
+                    evstack.Push(new(frame.Chunk.Externs[itmp].Name));
+                    break;
+                }
+
+                case OpCode.PNAME:
+                {
+                    itmp = frame.FetchInt32();
+                    evstack.Push(new(frame.Chunk.Parameters[itmp]));
+                    break;
+                }
+
                 default:
                 {
                     throw new VirtualMachineException("Invalid op-code.");
@@ -616,6 +650,9 @@ namespace EVIL.ExecutionEngine
         public void Halt()
         {
             Running = false;
+
+            ExternContexts.Clear();
+            EvaluationStack.Clear();
         }
 
         private void InvokeClrFunction(ClrFunction clrFunction, int argc)

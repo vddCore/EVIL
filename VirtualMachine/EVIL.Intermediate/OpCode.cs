@@ -64,5 +64,9 @@
         TONUM = 0x62, // Convert [TO] [NUM]ber
         TOSTR = 0x63, // Convert [TO] [STR]ing
         XARGS = 0x64, // Load e[X]tra [ARG]ument[S]
+        GNAME = 0x65, // [G]lobal [NAME]
+        LNAME = 0x66, // [L]ocal [NAME]
+        XNAME = 0x67, // e[X]tern [NAME]
+        PNAME = 0x68  // [P]arameter [NAME]
     }
 }

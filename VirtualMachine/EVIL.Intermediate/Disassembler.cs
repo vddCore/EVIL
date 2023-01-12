@@ -14,8 +14,12 @@ namespace EVIL.Intermediate
         private int IP { get; set; }
         private Chunk CurrentChunk { get; set; }
 
-        public Disassembler()
+        public DisassemblerOptions Options { get; }
+
+        public Disassembler(DisassemblerOptions options = null)
         {
+            Options = options ?? new DisassemblerOptions();
+
             _longestOpCodeLength = Enum.GetNames<OpCode>()
                 .Max(x => x.Length);
         }
@@ -24,25 +28,58 @@ namespace EVIL.Intermediate
         {
             _disasm.Clear();
 
-            foreach (var chunk in executable.Chunks)
+            for(var ci = 0; ci < executable.Chunks.Count; ci++)
             {
+                var chunk = executable.Chunks[ci];
+                
                 IP = 0;
                 CurrentChunk = chunk;
-                _disasm.Append($"FUNC {chunk.Name}");
+                _disasm.Append($"FUNC__{ci}");
 
-                _disasm.Append("(");
-                for (var i = 0; i < chunk.Parameters.Count; i++)
+                if (Options.EmitFunctionNames)
                 {
-                    _disasm.Append(chunk.Parameters[i]);
-
-                    if (i + 1 < chunk.Parameters.Count)
-                        _disasm.Append(", ");
+                    _disasm.Append($" {chunk.Name}");
                 }
-                _disasm.AppendLine(") {");
-
-                for (var i = 0; i < chunk.Locals.Count; i++)
+                
+                if (Options.EmitFunctionParameters)
                 {
-                    _disasm.AppendLine($" .LOCAL {i} ; {chunk.Locals[i]}");
+                    _disasm.Append("(");
+                    for (var i = 0; i < chunk.Parameters.Count; i++)
+                    {
+                        _disasm.Append(chunk.Parameters[i]);
+
+                        if (i + 1 < chunk.Parameters.Count)
+                            _disasm.Append(", ");
+                    }
+                    _disasm.Append(")");
+                }
+                _disasm.AppendLine(" {");
+
+                if (Options.EmitLocalTable)
+                {
+                    for (var i = 0; i < chunk.Locals.Count; i++)
+                    {
+                        _disasm.AppendLine($" .LOCAL {i} ; {chunk.Locals[i]}");
+                    }
+                }
+
+                if (Options.EmitExternTable)
+                {
+                    for (var i = 0; i < chunk.Externs.Count; i++)
+                    {
+                        var e = chunk.Externs[i];
+                        
+                        _disasm.AppendLine(
+                            $" .EXTERN {i} ; {e.Name} ({(e.IsParameter ? "parameter" : "local")} {e.SymbolId} from {e.OwnerChunkName})");
+                    }
+                }
+
+                if (Options.EmitParamTable)
+                {
+                    for (var i = 0; i < chunk.Parameters.Count; i++)
+                    {
+                        _disasm.AppendLine($" .PARAM {i} ; {chunk.Parameters[i]}");
+                    }
                 }
 
                 _disasm.AppendLine(" .TEXT {");
@@ -67,21 +104,25 @@ namespace EVIL.Intermediate
                         case OpCode.LDC:
                         case OpCode.LDG:
                         case OpCode.STG:
+                        case OpCode.GNAME:
                             DecodeLdConst(op, executable.ConstPool);
                             break;
 
                         case OpCode.LDL:
                         case OpCode.STL:
+                        case OpCode.LNAME:
                             DecodeLocalOp(op, chunk.Locals);
                             break;
 
                         case OpCode.LDA:
                         case OpCode.STA:
+                        case OpCode.PNAME:
                             DecodeLocalOp(op, chunk.Parameters);
                             break;
 
                         case OpCode.LDX:
                         case OpCode.STX:
+                        case OpCode.XNAME:
                             DecodeExternOp(op, chunk.Externs);
                             break;
 
@@ -152,14 +193,26 @@ namespace EVIL.Intermediate
                 dereferenced = $"{num}";
             }
 
-            _disasm.AppendLine($" {index:X8} ; {dereferenced}");
+            _disasm.Append($" {index:X8}");
+            if (Options.EmitGlobalHints)
+            {
+                _disasm.Append($" ; {dereferenced}");
+            }
+            _disasm.AppendLine();
         }
 
         private void DecodeLocalOp(OpCode opCode, List<string> locals)
         {
             Decode(opCode);
             var index = FetchInt32();
-            _disasm.AppendLine($" {index:X8} ; {locals[index]}");
+            _disasm.Append($" {index:X8}");
+
+            if (Options.EmitLocalHints)
+            {
+                _disasm.Append($" ; {locals[index]}");
+            }
+
+            _disasm.AppendLine();
         }
 
         private void DecodeExternOp(OpCode opCode, List<ExternInfo> externs)
@@ -167,15 +220,29 @@ namespace EVIL.Intermediate
             Decode(opCode);
             var index = FetchInt32();
             var e = externs[index];
-            
-            _disasm.AppendLine($" {index:X8} ; {e.Name} (local {e.OwnerLocalId} in {e.OwnerChunkName})");
+
+            _disasm.Append($" {index:X8}");
+
+            if (Options.EmitExternHints)
+            {
+                _disasm.Append($" ; {e.Name} ({(e.IsParameter ? "parameter" : "local")} {e.SymbolId} in {e.OwnerChunkName})");
+            }
+
+            _disasm.AppendLine();
         }
 
         private void DecodeLoadFunc(OpCode opCode, List<Chunk> chunks)
         {
             Decode(opCode);
             var index = FetchInt32();
-            _disasm.AppendLine($" {index:X8} ; {chunks[index].Name}");
+            _disasm.Append($" {index:X8}");
+
+            if (Options.EmitFunctionHints)
+            {
+                _disasm.Append($" ; {chunks[index].Name}");
+            }
+
+            _disasm.AppendLine();
         }
 
         private void DecodeParametrizedLoad(OpCode opCode)
