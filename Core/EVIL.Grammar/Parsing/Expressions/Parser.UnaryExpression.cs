@@ -25,21 +25,7 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
 
-            if (token.Type == TokenType.Increment)
-            {
-                DisallowPrevious(TokenType.Decrement, TokenType.Increment);
-
-                var line = Match(Token.Increment);
-                return new IncrementationExpression(PostModificationExpression(), true) { Line = line };
-            }
-            else if (token.Type == TokenType.Decrement)
-            {
-                DisallowPrevious(TokenType.Decrement, TokenType.Increment);
-
-                var line = Match(Token.Decrement);
-                return new DecrementationExpression(PostModificationExpression(), true) { Line = line };
-            }
-            else if (token.Type == TokenType.AsString)
+            if (token.Type == TokenType.AsString)
             {
                 var line = Match(Token.AsString);
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToString) { Line = line };
@@ -72,7 +58,7 @@ namespace EVIL.Grammar.Parsing
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber) { Line = line };
             }
 
-            return PostModificationExpression();
+            return PostfixExpression();
         }
     }
 }

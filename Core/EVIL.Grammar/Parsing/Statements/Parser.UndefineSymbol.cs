@@ -9,7 +9,17 @@ namespace EVIL.Grammar.Parsing
         private UndefStatement UndefineSymbol()
         {
             var line = Match(Token.Undef);
-            return new UndefStatement(PostfixExpression()) {Line = line};
+            var expr = PostfixExpression();
+
+            if (expr is not IndexerExpression && expr is not VariableReferenceExpression)
+            {
+                throw new ParserException(
+                    "`undef' is only valid for indexing and variable reference expressions.",
+                    Lexer.State
+                );
+            }
+            
+            return new UndefStatement(expr) {Line = line};
         }
     }
 }
