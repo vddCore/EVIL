@@ -188,7 +188,9 @@ namespace EVIL.Execution
                 if (right.Number == 0)
                     throw new RuntimeException("Attempt to divide by zero.", node.Line);
 
-                return new DynValue(left.Number % right.Number);
+                return new DynValue(
+                    left.Number - right.Number * decimal.Floor(left.Number / right.Number)
+                );
             }
             else
             {
