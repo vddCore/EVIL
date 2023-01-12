@@ -342,15 +342,23 @@ namespace EVIL.ExecutionEngine.Abstraction
 
         public int Compare(DynamicValue b)
         {
-            if (Type == DynamicValueType.String)
+            try
             {
-                return string.Compare(String, b.String, StringComparison.Ordinal);
+                if (Type == DynamicValueType.String)
+                {
+                    return String.Length - b.String.Length;
+                }
+                else if (Type == DynamicValueType.Number)
+                {
+                    return Math.Sign(Number - b.Number);
+                }
             }
-            else if (Type == DynamicValueType.Number)
+            catch
             {
-                return Math.Sign(Number - b.Number);
+                // Ignore whatever happened. If we reach this point
+                // we're likely comparing to different types.
             }
-
+            
             throw new TypeComparisonException(this, b);
         }
 
@@ -406,7 +414,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             return Type switch
             {
                 DynamicValueType.String => _string == other.String,
-                DynamicValueType.Number => Nullable.Equals(_number, other._number),
+                DynamicValueType.Number => Equals(_number, other._number),
                 DynamicValueType.Function => _chunk == other._chunk,
                 DynamicValueType.Table => _table == other._table,
                 DynamicValueType.ClrFunction => _clrFunction == other._clrFunction,

@@ -33,7 +33,7 @@
         LOR   = 0x2A, // [L]ogical [OR]
         LAND  = 0x2B, // [L]ogical [AND]
         LNOT  = 0x2C, // [L]ogical [NOT]
-        XIST  = 0x2D, // Check if A e[XIST]s in B 
+        XIST  = 0x2D, // Check if A e[XIST]s in B
         
         // ---------- [ BRANCHING
         JUMP  = 0x30, // Unconditionally [JUMP]
@@ -60,9 +60,7 @@
         LDX = 0x56,   // [L]oa[D] e[X]ternal local
         LDNUL = 0x57, // [L]oa[D] [NULL]
         
-        // ---------- [ STORAGE: REMOVE
-        RTE = 0x60,   // [R]emove [T]able [E]ntry
-        RGL = 0x61,   // [R]emove [GL]obal
+        // ---------- [ RESERVED: 0x6x
         
         // ---------- [ MISCELLANEOUS
         NEWTB = 0x70, // Create a [NEW] [T]a[B]le
