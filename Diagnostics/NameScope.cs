@@ -14,41 +14,53 @@ namespace EVIL.Diagnostics
             ParentScope = parentScope;
         }
 
-        public bool HasMember(string name)
-            => Members.ContainsKey(name);
+        public bool HasMember(string identifier)
+            => Members.ContainsKey(identifier);
         
-        public DynValue Set(string name, DynValue dynValue)
+        public DynValue Set(string identifier, DynValue dynValue)
         {
-            if (Members.ContainsKey(name))
+            if (Members.ContainsKey(identifier))
             {
-                Members[name] = dynValue;
+                Members[identifier] = dynValue;
             }
             else
             {
-                Members.Add(name, dynValue);
+                Members.Add(identifier, dynValue);
             }
 
             return dynValue;
         }
 
-        public void UnSet(string name)
-        {
-            if (!Members.ContainsKey(name))
-            {
-                throw new RuntimeException($"'{name}' was not found in current scope.", null);
-            }
-
-            Members.Remove(name);
-        }
-
-        public DynValue FindInScopeChain(string name)
+        public void UnSetInChain(string identifier)
         {
             var current = this;
 
             while (current != null)
             {
-                if (current.Members.ContainsKey(name))
-                    return current.Members[name];
+                if (!current.Members.ContainsKey(identifier))
+                {
+                    if (current.ParentScope == null)
+                    {
+                        throw new RuntimeException($"'{identifier}' was not found in current scope.", null);
+                    }
+                    
+                    current = current.ParentScope;
+                    continue;
+                }
+
+                current.Members.Remove(identifier);
+                break;
+            }
+        }
+
+        public DynValue FindInScopeChain(string identifier)
+        {
+            var current = this;
+
+            while (current != null)
+            {
+                if (current.Members.ContainsKey(identifier))
+                    return current.Members[identifier];
                 
                 current = current.ParentScope;
             }

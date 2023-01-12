@@ -5,7 +5,11 @@ namespace EVIL.AST.Nodes
 {
     public class UndefNode : AstNode
     {
-        public string Name { get; set; }
-        public UndefineType Type { get; set; }
+        public string Identifier { get; }
+
+        public UndefNode(string identifier)
+        {
+            Identifier = identifier;
+        }
     }
 }

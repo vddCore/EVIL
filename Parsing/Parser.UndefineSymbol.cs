@@ -11,15 +11,7 @@ namespace EVIL.Parsing
         {
             var line = Match(TokenType.Undef);
 
-            var node = new UndefNode { Type = UndefineType.Global, Line = line };
-
-            if (Scanner.State.CurrentToken.Type == TokenType.LocalVar)
-            {
-                Match(TokenType.LocalVar);
-                node.Type = UndefineType.Local;
-            }
-
-            node.Name = (string)Scanner.State.CurrentToken.Value;
+            var node = new UndefNode((string)Scanner.State.CurrentToken.Value) {Line = line};
             Match(TokenType.Identifier);
 
             return node;

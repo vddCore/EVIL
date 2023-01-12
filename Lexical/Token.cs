@@ -51,7 +51,7 @@ namespace EVIL.Lexical
                 case TokenType.LBrace: return "{";
                 case TokenType.LBracket: return "[";
                 case TokenType.Length: return "#";
-                case TokenType.LocalVar: return "local";
+                case TokenType.Var: return "var";
                 case TokenType.LParenthesis: return "(";
                 case TokenType.Minus: return "-";
                 case TokenType.Modulo: return "%";

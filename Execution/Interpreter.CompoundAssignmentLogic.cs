@@ -8,7 +8,7 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(CompoundAssignmentNode compoundAssignmentNode)
         {
-            var name = compoundAssignmentNode.Variable.Name;
+            var name = compoundAssignmentNode.Variable.Identifier;
             var val = Visit(compoundAssignmentNode.Right);
 
             var dynValue = Environment.LocalScope.FindInScopeChain(name);

@@ -8,49 +8,53 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(ForLoopNode forLoopNode)
         {
-            foreach (var assignment in forLoopNode.Assignments)
+            Environment.EnterScope();
             {
-                Visit(assignment);
-            }
-
-            try
-            {
-                Environment.LoopStack.Push(new LoopFrame());
-                while (true)
+                foreach (var assignment in forLoopNode.Assignments)
                 {
-                    var conditionEvaluation = Visit(forLoopNode.Condition);
-                    if (conditionEvaluation.Number == 0)
-                    {
-                        break;
-                    }
-                    
-                    var loopStackTop = Environment.LoopStack.Peek();
+                    Visit(assignment);
+                }
 
-                    if (loopStackTop.BreakLoop)
+                try
+                {
+                    Environment.LoopStack.Push(new LoopFrame());
+                    while (true)
                     {
-                        break;
-                    }
-                    
-                    if (!loopStackTop.SkipThisIteration)
-                    {
-                        ExecuteStatementList(forLoopNode.StatementList);
-                    }
+                        var conditionEvaluation = Visit(forLoopNode.Condition);
+                        if (conditionEvaluation.Number == 0)
+                        {
+                            break;
+                        }
 
-                    foreach (var iterationStatement in forLoopNode.IterationStatements)
-                    {
-                        Visit(iterationStatement);
-                    }
+                        var loopStackTop = Environment.LoopStack.Peek();
 
-                    if (loopStackTop.SkipThisIteration)
-                    {
-                        loopStackTop.SkipThisIteration = false;
+                        if (loopStackTop.BreakLoop)
+                        {
+                            break;
+                        }
+
+                        if (!loopStackTop.SkipThisIteration)
+                        {
+                            ExecuteStatementList(forLoopNode.StatementList);
+                        }
+
+                        foreach (var iterationStatement in forLoopNode.IterationStatements)
+                        {
+                            Visit(iterationStatement);
+                        }
+
+                        if (loopStackTop.SkipThisIteration)
+                        {
+                            loopStackTop.SkipThisIteration = false;
+                        }
                     }
                 }
+                finally
+                {
+                    Environment.LoopStack.Pop();
+                }
             }
-            finally
-            {
-                Environment.LoopStack.Pop();
-            }
+            Environment.ExitScope();
 
             return DynValue.Zero;
         }

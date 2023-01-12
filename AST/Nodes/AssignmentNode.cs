@@ -6,14 +6,11 @@ namespace EVIL.AST.Nodes
     {
         public AstNode Left { get; }
         public AstNode Right { get; }
-        public bool LocalScope { get; }
 
-        public AssignmentNode(AstNode left, AstNode right, bool localScope)
+        public AssignmentNode(AstNode left, AstNode right)
         {
             Left = left;
             Right = right;
-            
-            LocalScope = localScope;
         }
     }
 }

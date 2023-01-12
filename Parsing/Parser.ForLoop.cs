@@ -16,11 +16,11 @@ namespace EVIL.Parsing
             
             Match(TokenType.LParenthesis);
             {
-                assignments.Add(Assignment());
+                assignments.Add(VariableDefinition());
                 while (Scanner.State.CurrentToken.Type == TokenType.Comma)
                 {
                     Match(TokenType.Comma);
-                    assignments.Add(Assignment());
+                    assignments.Add(VariableDefinition());
                 }
                 Match(TokenType.Semicolon);
 

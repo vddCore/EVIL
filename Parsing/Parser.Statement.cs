@@ -43,8 +43,8 @@ namespace EVIL.Parsing
                     return PostDecrementation(identifier);
                 else throw new ParserException($"Expected an assignment or a function call, found '{token.Value}'.", Scanner.State);
             }
-            else if (token.Type == TokenType.LocalVar)
-                return Assignment(null, true);
+            else if (token.Type == TokenType.Var)
+                return VariableDefinition();
             else if (token.Type == TokenType.LBracket)
                 return MemorySet();
             else if (token.Type == TokenType.Fn)

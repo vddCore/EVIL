@@ -25,6 +25,8 @@ namespace EVIL
                 return Visit(unaryOperationNode);
             else if (node is VariableNode variableNode)
                 return Visit(variableNode);
+            else if (node is VariableDefinitionNode variableDefinitionNode)
+                return Visit(variableDefinitionNode);
             else if (node is FunctionDefinitionNode scriptFunctionDefinitionNode)
                 return Visit(scriptFunctionDefinitionNode);
             else if (node is FunctionCallNode functionCallNode)
@@ -70,6 +72,7 @@ namespace EVIL
         public abstract DynValue Visit(BinaryOperationNode binaryOperationNode);
         public abstract DynValue Visit(UnaryOperationNode unaryOperationNode);
         public abstract DynValue Visit(VariableNode variableNode);
+        public abstract DynValue Visit(VariableDefinitionNode variableDefinitionNode);
         public abstract DynValue Visit(FunctionDefinitionNode scriptFunctionDefinitionNode);
         public abstract DynValue Visit(FunctionCallNode functionCallNode);
         public abstract DynValue Visit(ConditionNode conditionNode);

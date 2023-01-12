@@ -6,12 +6,9 @@ namespace EVIL.Parsing
 {
     public partial class Parser
     {
-        private AstNode Assignment(string identifier = null, bool isLocal = false)
-        {
-            if (isLocal)
-                Match(TokenType.LocalVar);
-
-            AstNode left = Variable(identifier);;
+        private AstNode Assignment(string identifier = null)
+        {           
+            AstNode left = Variable(identifier);
             if (Scanner.State.CurrentToken.Type == TokenType.LBracket)
             {
                 left = Indexing(left);
@@ -20,7 +17,7 @@ namespace EVIL.Parsing
             var line = Match(TokenType.Assign);
             var right = LogicalExpression();
 
-            return new AssignmentNode(left, right, isLocal) {Line = line};
+            return new AssignmentNode(left, right) {Line = line};
         }
     }
 }

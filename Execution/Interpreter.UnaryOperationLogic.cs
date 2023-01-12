@@ -36,7 +36,7 @@ namespace EVIL.Execution
                 case UnaryOperationType.NameOf:
                 {
                     if (unaryOperationNode.Operand is VariableNode variable)
-                        return new DynValue(variable.Name);
+                        return new DynValue(variable.Identifier);
                     
                     throw new RuntimeException("Attempt to get a name of a non-variable symbol.", unaryOperationNode.Line);
                 }
