@@ -9,7 +9,10 @@ namespace EVIL.Interpreter.Execution
         {
             if (nameOfExpression.Right is VariableReference variable)
             {
-                if (Environment.LocalScope.FindInScope(variable.Identifier) != null)
+                var dynValue = Environment.LocalScope?.FindInScope(variable.Identifier)
+                               ?? Environment.GlobalScope.FindInScope(variable.Identifier);
+
+                if (dynValue != null)
                     return new DynValue(variable.Identifier);
 
                 return DynValue.Zero;

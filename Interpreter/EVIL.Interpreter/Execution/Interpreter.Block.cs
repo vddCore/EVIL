@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Execution
                         if (Environment.IsInScriptFunctionScope)
                         {
                             var callStackTop = Environment.StackTop;
-
+                            
                             if (callStackTop.ReturnNow)
                             {
                                 break;

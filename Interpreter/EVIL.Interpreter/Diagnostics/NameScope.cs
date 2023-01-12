@@ -65,7 +65,7 @@ namespace EVIL.Interpreter.Diagnostics
 
                 current = current.ParentScope;
             }
-
+            
             return null;
         }
     }

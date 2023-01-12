@@ -21,7 +21,7 @@ namespace EVIL.Interpreter
         public StackFrame StackTop => CallStack.Peek();
         public LoopFrame LoopStackTop => LoopStack.Peek();
 
-        public NameScope LocalScope { get; private set; }
+        public NameScope LocalScope { get; set; }
         public NameScope GlobalScope { get; }
 
         public Environment()
@@ -30,7 +30,6 @@ namespace EVIL.Interpreter
             LoopStack = new Stack<LoopFrame>();
 
             GlobalScope = new NameScope(this, null);
-            LocalScope = GlobalScope;
         }
 
         public void LoadCoreRuntime()
@@ -160,11 +159,6 @@ namespace EVIL.Interpreter
         public void ExitScope()
         {
             LocalScope = LocalScope.ParentScope;
-
-            if (LocalScope == null)
-            {
-                LocalScope = GlobalScope;
-            }
         }
     }
 }

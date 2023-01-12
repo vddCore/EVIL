@@ -70,7 +70,7 @@ namespace EVIL.VILE
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Unexpected error: {e.Message}");
+                Console.WriteLine($"Unexpected error: {e}");
             }
         }
 

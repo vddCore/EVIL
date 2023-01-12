@@ -13,7 +13,9 @@ namespace EVIL.Interpreter.Execution
                 functionExpression.Line
             );
 
-            var scope = Environment.LocalScope;
+            var scope = Environment.LocalScope 
+                        ?? Environment.GlobalScope;
+            
             while (scope.ParentScope != null)
             {
                 foreach (var kvp in scope.Members)
