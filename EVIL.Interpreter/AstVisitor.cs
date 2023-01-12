@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
@@ -7,62 +9,53 @@ namespace EVIL.Interpreter
 {
     public abstract class AstVisitor
     {
-        protected abstract void ConstraintCheck(AstNode node);
-        
+        private Dictionary<Type, NodeHandler> _handlers;
+
+        protected delegate DynValue NodeHandler(AstNode node);
+
+        protected AstVisitor()
+        {
+            _handlers = new()
+            {
+                {typeof(RootNode), (n) => Visit(n as RootNode)},
+                {typeof(NumberNode), (n) => Visit(n as NumberNode)},
+                {typeof(StringNode), (n) => Visit(n as StringNode)},
+                {typeof(AssignmentNode), (n) => Visit(n as AssignmentNode)},
+                {typeof(BinaryOperationNode), (n) => Visit(n as BinaryOperationNode)},
+                {typeof(UnaryOperationNode), (n) => Visit(n as UnaryOperationNode)},
+                {typeof(VariableNode), (n) => Visit(n as VariableNode)},
+                {typeof(VariableDefinitionNode), (n) => Visit(n as VariableDefinitionNode)},
+                {typeof(FunctionDefinitionNode), (n) => Visit(n as FunctionDefinitionNode)},
+                {typeof(FunctionCallNode), (n) => Visit(n as FunctionCallNode)},
+                {typeof(ConditionNode), (n) => Visit(n as ConditionNode)},
+                {typeof(ExitNode), (n) => Visit(n as ExitNode)},
+                {typeof(ForLoopNode), (n) => Visit(n as ForLoopNode)},
+                {typeof(WhileLoopNode), (n) => Visit(n as WhileLoopNode)},
+                {typeof(ReturnNode), (n) => Visit(n as ReturnNode)},
+                {typeof(BreakNode), (n) => Visit(n as BreakNode)},
+                {typeof(SkipNode), (n) => Visit(n as SkipNode)},
+                {typeof(TableNode), (n) => Visit(n as TableNode)},
+                {typeof(IndexingNode), (n) => Visit(n as IndexingNode)},
+                {typeof(IncrementationNode), (n) => Visit(n as IncrementationNode)},
+                {typeof(DecrementationNode), (n) => Visit(n as DecrementationNode)},
+                {typeof(UndefNode), (n) => Visit(n as UndefNode)},
+                {typeof(EachLoopNode), (n) => Visit(n as EachLoopNode)},
+            };
+        }
+
         public DynValue Visit(AstNode node)
         {
+            var type = node.GetType();
+
+            if (!_handlers.ContainsKey(type))
+                throw new Exception("Forgot to add a node type, idiot.");
+
             ConstraintCheck(node);
-            
-            if (node is RootNode rootNode)
-                return Visit(rootNode);
-            else if (node is NumberNode numberNode)
-                return Visit(numberNode);
-            else if (node is StringNode stringNode)
-                return Visit(stringNode);
-            else if (node is AssignmentNode assignmentNode)
-                return Visit(assignmentNode);
-            else if (node is BinaryOperationNode binaryOperationNode)
-                return Visit(binaryOperationNode);
-            else if (node is UnaryOperationNode unaryOperationNode)
-                return Visit(unaryOperationNode);
-            else if (node is VariableNode variableNode)
-                return Visit(variableNode);
-            else if (node is VariableDefinitionNode variableDefinitionNode)
-                return Visit(variableDefinitionNode);
-            else if (node is FunctionDefinitionNode scriptFunctionDefinitionNode)
-                return Visit(scriptFunctionDefinitionNode);
-            else if (node is FunctionCallNode functionCallNode)
-                return Visit(functionCallNode);
-            else if (node is ConditionNode conditionNode)
-                return Visit(conditionNode);
-            else if (node is ExitNode exitNode)
-                return Visit(exitNode);
-            else if (node is ForLoopNode forLoopNode)
-                return Visit(forLoopNode);
-            else if (node is WhileLoopNode whileLoopNode)
-                return Visit(whileLoopNode);
-            else if (node is ReturnNode returnNode)
-                return Visit(returnNode);
-            else if (node is BreakNode breakNode)
-                return Visit(breakNode);
-            else if (node is SkipNode skipNode)
-                return Visit(skipNode);
-            else if (node is TableNode tableNode)
-                return Visit(tableNode);
-            else if (node is IndexingNode tableIndexingNode)
-                return Visit(tableIndexingNode);
-            else if (node is MemberAccessNode memberAccessNode)
-                return Visit(memberAccessNode);
-            else if (node is IncrementationNode incrementationNode)
-                return Visit(incrementationNode);
-            else if (node is DecrementationNode decrementationNode)
-                return Visit(decrementationNode);
-            else if (node is UndefNode undefNode)
-                return Visit(undefNode);
-            else if (node is EachLoopNode eachLoopNode)
-                return Visit(eachLoopNode);
-            else throw new Exception("Forgot to add a node type, idiot.");
+
+            return _handlers[type](node);
         }
+
+        protected abstract void ConstraintCheck(AstNode node);
 
         public abstract DynValue Visit(RootNode rootNode);
         public abstract DynValue Visit(NumberNode numberNode);
@@ -83,7 +76,6 @@ namespace EVIL.Interpreter
         public abstract DynValue Visit(SkipNode nextNode);
         public abstract DynValue Visit(TableNode tableNode);
         public abstract DynValue Visit(IndexingNode indexingNode);
-        public abstract DynValue Visit(MemberAccessNode memberAccessNode);
         public abstract DynValue Visit(IncrementationNode incrementationNode);
         public abstract DynValue Visit(DecrementationNode decrementationNode);
         public abstract DynValue Visit(UndefNode undefNode);

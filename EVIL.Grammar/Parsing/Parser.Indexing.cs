@@ -8,11 +8,23 @@ namespace EVIL.Grammar.Parsing
     {
         public AstNode Indexing(AstNode indexable)
         {
-            var line = Match(TokenType.LBracket);
-            var expr = Assignment();
-            Match(TokenType.RBracket);
+            int line;
+            AstNode indexer;
+            
+            if (Scanner.State.CurrentToken.Type == TokenType.Dot)
+            {
+                line = Match(TokenType.Dot);
+                indexer = new StringNode(Scanner.State.CurrentToken.Value.ToString());
+                Match(TokenType.Identifier);
+            }
+            else // must be bracket then
+            {
+                line = Match(TokenType.LBracket);
+                indexer = Assignment();
+                Match(TokenType.RBracket);
+            }
 
-            return new IndexingNode(indexable, expr, Scanner.State.CurrentToken.Type == TokenType.Assign) {Line = line};
+            return new IndexingNode(indexable, indexer, Scanner.State.CurrentToken.Type == TokenType.Assign) {Line = line};
         }
     }
 }
