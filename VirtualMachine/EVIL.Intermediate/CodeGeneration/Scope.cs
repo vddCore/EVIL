@@ -46,13 +46,13 @@ namespace EVIL.Intermediate
             return (null, SymbolInfo.Undefined);
         }
 
-        public SymbolInfo DefineExtern(string name, string ownerChunkName, int ownerLocalId, bool isParam)
+        public SymbolInfo DefineExtern(string name, string ownerChunkName, int ownerLocalId, ExternInfo.ExternType type)
         {
             if (IsLocalDefined(name))
                 throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             var sym = new SymbolInfo(Chunk.Externs.Count, SymbolInfo.SymbolType.Extern);
-            Chunk.Externs.Add(new ExternInfo(name, ownerChunkName, ownerLocalId, isParam));
+            Chunk.Externs.Add(new ExternInfo(name, ownerChunkName, ownerLocalId, type));
             Symbols.Add(name, sym);
 
             return sym;

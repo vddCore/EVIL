@@ -80,7 +80,7 @@ namespace EVIL.Intermediate.Analysis
 
                     Indent();
                     _disasm.AppendLine(
-                        $" .EXTERN {i} ; {e.Name} ({(e.IsParameter ? "parameter" : "local")} {e.SymbolId} from {e.OwnerChunkName})");
+                        $" .EXTERN {i} ; {e.Name} ({(e.Type)} {e.SymbolId} from {e.OwnerChunkName})");
                 }
             }
 
@@ -266,7 +266,7 @@ namespace EVIL.Intermediate.Analysis
             if (Options.EmitExternHints)
             {
                 _disasm.Append(
-                    $" ; {e.Name} ({(e.IsParameter ? "parameter" : "local")} {e.SymbolId} in {e.OwnerChunkName})");
+                    $" ; {e.Name} ({(e.Type)} {e.SymbolId} in {e.OwnerChunkName})");
             }
 
             _disasm.AppendLine();
@@ -298,7 +298,7 @@ namespace EVIL.Intermediate.Analysis
             var index = FetchByte();
             _disasm.Append($" {index:X2}");
 
-            if (Options.EmitLocalHints)
+            if (false && Options.EmitLocalHints)
             {
                 _disasm.Append($" ; {locals[index]}");
             }

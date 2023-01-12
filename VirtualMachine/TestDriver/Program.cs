@@ -72,7 +72,7 @@ namespace EVIL.VirtualMachine.TestDriver
             rt.LoadCoreRuntime();
             
             var evm = new EVM(_globalTable);
-            var exe = BuildExecutable("./test_asgn2.vil");
+            var exe = BuildExecutable("/codespace/code/evil/b64.vil");
 
             EvxLinker.Link(exe, "a.evx");
             exe = EvxLoader.Load("a.evx");

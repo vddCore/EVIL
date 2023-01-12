@@ -154,7 +154,7 @@ namespace EVIL.Intermediate.Storage
             WriteString(bw, externInfo.Name);
             WriteString(bw, externInfo.OwnerChunkName);
             bw.Write(externInfo.SymbolId);
-            bw.Write(externInfo.IsParameter);
+            bw.Write((byte)externInfo.Type);
         }
 
         private static void WriteGlobalList(BinaryWriter bw, List<string> globals)
