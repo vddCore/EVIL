@@ -10,7 +10,10 @@
             Identifier = identifier;
             Initializer = initializer;
 
-            Reparent(Initializer);
+            if (Initializer != null)
+            {
+                Reparent(Initializer);
+            }
         }
     }
 }
