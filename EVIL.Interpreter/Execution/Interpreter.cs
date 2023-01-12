@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
@@ -25,7 +26,7 @@ namespace EVIL.Interpreter.Execution
         {
             Environment = env;
         }
-        
+
         public void ImposeConstraint(Constraint constraint)
             => Constraints.Add(constraint);
 
@@ -60,7 +61,7 @@ namespace EVIL.Interpreter.Execution
                 return DynValue.Zero;
             }
         }
-        
+
         public DynValue Execute(string sourceCode, string entryPoint, string[] args)
         {
             Parser.LoadSource(sourceCode);
@@ -69,7 +70,7 @@ namespace EVIL.Interpreter.Execution
             try
             {
                 DynValue result;
-                
+
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
 
@@ -91,11 +92,11 @@ namespace EVIL.Interpreter.Execution
 
                         scope.Set(entryNode.ParameterNames[0], new DynValue(tbl));
                     }
-                    else if(entryNode.ParameterNames.Count > 1)
+                    else if (entryNode.ParameterNames.Count > 1)
                     {
                         throw new RuntimeException("Entry point function can only have 1 argument.", entryNode.Line);
                     }
-                    
+
                     Environment.CallStack.Push(csi);
                     result = ExecuteStatementList(entryNode.StatementList);
 
@@ -119,7 +120,7 @@ namespace EVIL.Interpreter.Execution
         {
             return Task.Factory.StartNew(
                 () => Execute(sourceCode, entryPoint, args
-            ), TaskCreationOptions.LongRunning);
+                ), TaskCreationOptions.LongRunning);
         }
 
         public override DynValue Visit(RootNode rootNode)
@@ -127,23 +128,54 @@ namespace EVIL.Interpreter.Execution
             return ExecuteStatementList(rootNode.Children);
         }
 
-        private DynValue ExecuteStatementList(List<AstNode> statements)
+        public DynValue ExecuteScriptFunction(string frameName, ScriptFunction function, FunctionArguments args)
         {
+            var frame = new StackFrame(frameName);
+            DynValue retval;
+            
+            Environment.EnterScope(true);
+            {
+                for (var i = 0; i < function.ParameterNames.Count; i++)
+                {
+                    if (i >= args.Count)
+                        break;
+                    
+                    Environment.LocalScope.Set(function.ParameterNames[i], args[i]);
+                }
+
+                Environment.CallStack.Push(frame);
+                retval = ExecuteStatementList(function.StatementList);
+            }
+            Environment.CallStack.Pop();
+            Environment.ExitScope();
+
+            return retval;
+        }
+
+        public void ExecuteClrFunction(ClrFunction func, FunctionArguments args)
+        {
+            func.Invokable?.Invoke(this, args);
+        }
+
+        private DynValue ExecuteStatementList(List<AstNode> statements, Environment env = null)
+        {
+            env = env ?? Environment;
+
             var retVal = DynValue.Zero;
 
             foreach (var statement in statements)
             {
-                if (Environment.IsInsideLoop)
+                if (env.IsInsideLoop)
                 {
-                    var loopStackTop = Environment.LoopStackTop;
+                    var loopStackTop = env.LoopStackTop;
 
                     if (loopStackTop.BreakLoop || loopStackTop.SkipThisIteration)
                         break;
                 }
 
-                if (Environment.IsInScriptFunctionScope)
+                if (env.IsInScriptFunctionScope)
                 {
-                    var callStackTop = Environment.StackTop;
+                    var callStackTop = env.StackTop;
 
                     if (callStackTop.ReturnNow)
                     {
@@ -157,13 +189,13 @@ namespace EVIL.Interpreter.Execution
 
             return retVal;
         }
-        
+
         protected override void ConstraintCheck(AstNode node)
         {
             for (var i = 0; i < Constraints.Count; i++)
             {
                 var c = Constraints[i];
-                
+
                 if (!c.Check(this, node))
                 {
                     throw new ConstraintUnsatisfiedException(

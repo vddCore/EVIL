@@ -70,11 +70,8 @@ namespace EVIL.Interpreter.Execution
                 case UnaryOperationType.Negation:
                     if (ExecuteUnaryMeta("__not", operand, unaryOperationNode, out metaResult))
                         return metaResult;
-                    
-                    if (operand.Type != DynValueType.Number)
-                        throw new RuntimeException($"Attempt to invert a {operand.Type}.", unaryOperationNode.Line);
 
-                    if (operand.Number != 0)
+                    if (operand.IsTruth)
                         return new DynValue(0);
                     else
                         return new DynValue(1);
