@@ -20,7 +20,6 @@ namespace EVIL.Interpreter.Execution
             var tbl = new Table();
             var value = new DynValue(tbl);
 
-            _currentThisContextStack.Push(value);
             if (tableNode.Keyed)
             {
                 for (var i = 0; i < tableNode.Initializers.Count; i++)
@@ -47,7 +46,6 @@ namespace EVIL.Interpreter.Execution
                     tbl[i] = Visit(tableNode.Initializers[i]);
                 }
             }
-            _currentThisContextStack.Pop();
 
             return value;
         }

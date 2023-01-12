@@ -9,12 +9,6 @@ namespace EVIL.Interpreter.Execution
         public override DynValue Visit(IndexingNode indexingNode)
         {
             var indexable = Visit(indexingNode.Indexable);
-
-            if (indexable.Type == DynValueType.Table)
-            {
-                _currentThisContextStack.Push(indexable);
-            }
-
             var keyValue = Visit(indexingNode.KeyExpression);
             var retValue = IndexDynValue(indexable, keyValue, indexingNode);
 

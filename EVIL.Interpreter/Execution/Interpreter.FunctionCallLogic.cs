@@ -21,10 +21,6 @@ namespace EVIL.Interpreter.Execution
             {
                 return InvokeFunction(functionCallNode, invokable);
             }
-            else if (invokable.Type == DynValueType.Table)
-            {
-                return Construct(functionCallNode, invokable);
-            }
             else
             {
                 throw new RuntimeException(
@@ -83,55 +79,6 @@ namespace EVIL.Interpreter.Execution
             }
 
             return retVal;
-        }
-
-        private DynValue Construct(FunctionCallNode functionCallNode, DynValue tableValue)
-        {
-            var table = tableValue.Table;
-            var instance = new DynValue(new Table());
-            
-            if (!table.ContainsKey(table.GetKeyByString(Environment.ConstructorName)))
-            {
-                throw new RuntimeException(
-                    $"Attempt to construct an object without function '{Environment.ConstructorName}' defined.",
-                    Environment,
-                    functionCallNode.Line
-                );
-            }
-            
-            if(table[Environment.ConstructorName].Type != DynValueType.Function)
-            {
-                throw new RuntimeException(
-                    $"Attempt to construct an object, but table member '{Environment.ConstructorName}' is not a function.",
-                    Environment,
-                    functionCallNode.Line
-                );
-            }
-
-            var constructor = tableValue.Table[Environment.ConstructorName].ScriptFunction;
-            if (!constructor.IsConstructor)
-            {
-                throw new RuntimeException(
-                    $"Attempt to construct an object with a function that is not a constructor.",
-                    Environment,
-                    functionCallNode.Line
-                );
-            }
-            var parameters = new FunctionArguments();
-
-            foreach (var node in functionCallNode.Parameters)
-                parameters.Add(Visit(node));
-
-            var prev = constructor.Closures["this"];
-            constructor.Closures["this"] = instance;
-            Environment.EnterScope();
-            {
-                ExecuteScriptFunction(constructor, Environment.ConstructorName, parameters, functionCallNode);
-            }
-            Environment.ExitScope();
-            constructor.Closures["this"] = prev;
-            
-            return instance;
         }
 
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,

@@ -56,12 +56,6 @@ namespace EVIL.Interpreter.Execution
             }
 
             left.CopyFrom(right);
-            
-            if (assignmentNode.Left is IndexingNode)
-            {
-                _currentThisContextStack.Pop();
-            }
-            
             return right;
         }
     }

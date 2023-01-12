@@ -7,15 +7,12 @@ namespace EVIL.Grammar.AST.Nodes
         public string Name { get; }
         public List<AstNode> StatementList { get; }
         public List<string> ParameterNames { get; }
-        public bool IsConstructor { get; }
 
-        public FunctionDefinitionNode(string name, List<AstNode> statementList, List<string> parameterNames,
-            bool isConstructor = false)
+        public FunctionDefinitionNode(string name, List<AstNode> statementList, List<string> parameterNames)
         {
             Name = name;
             StatementList = statementList;
             ParameterNames = parameterNames;
-            IsConstructor = isConstructor;
         }
     }
 }

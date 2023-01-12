@@ -14,8 +14,6 @@ namespace EVIL.Interpreter.Execution
         private List<Constraint> _constraints = new();
         private List<Predicate<AstNode>> _nodeRestrictions = new();
 
-        private Stack<DynValue> _currentThisContextStack = new();
-
         public IReadOnlyList<Constraint> Constraints => _constraints;
         public Environment Environment { get; set; } = new();
         public Parser Parser { get; } = new();
