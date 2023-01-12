@@ -21,10 +21,35 @@ namespace EVIL.Interpreter.Runtime.Library
 
             var relativeFilePath = args[0].String;
             string targetPath = null;
-            
-            foreach (var path in ctx.VirtualMachine.ImportLookupPaths)
+
+            var evm = ctx.VirtualMachine.GlobalTable["_EVM"];
+
+            if (evm.Type != DynamicValueType.Table)
             {
-                var tempPath = Path.Combine(path, relativeFilePath);
+                throw new EvilRuntimeException(
+                    "Could not find `_evm' in the global table or it's not a table. " +
+                    "No imports can be made until it's properly set."
+                );
+            }
+
+            var importPaths = evm.Table["importPaths"];
+
+            if (importPaths.Type != DynamicValueType.Table)
+            {
+                throw new EvilRuntimeException(
+                    "Could not find '_evm.importPaths' in the global table or it's not a table. " +
+                    "No imports can be made until it's properly set."
+                );
+            }
+            
+            foreach (var path in importPaths.Table)
+            {
+                var v = path.Value;
+                
+                if (v.Type != DynamicValueType.String)
+                    continue;
+                
+                var tempPath = Path.Combine(v.String, relativeFilePath);
 
                 if (File.Exists(tempPath))
                 {
@@ -49,33 +74,7 @@ namespace EVIL.Interpreter.Runtime.Library
                 lexer.LoadSource(File.ReadAllText(targetPath));
                 var program = parser.Parse(false);
                 var exe = compiler.Compile(program);
-                
-                var tempVm = new EVM(new Table());
-                var rt = new EvilRuntime(tempVm.GlobalTable);
-                rt.LoadCoreRuntime();
-                
-                tempVm.ImportLookupPaths.Add(Path.GetDirectoryName(targetPath));
-                tempVm.Load(exe);
-
-                var chunk = tempVm.FindExposedChunk("export");
-
-                if (chunk == null)
-                {
-                    throw new EvilRuntimeException(
-                        $"Error during import: '{targetPath}' has no function named 'export'."
-                    );
-                }
-
-                tempVm.InvokeCallback(chunk, null);
-                tempVm.Start();
-                
-                var retVal = new DynamicValue(tempVm.MainExecutionContext.EvaluationStackTop, false);
-
-                tempVm.Stop();
-                tempVm.MainExecutionContext.Reset();
-                tempVm.GlobalTable.Entries.Clear();
-
-                return retVal;
+                return new DynamicValue(exe.Export());
             }
             catch (LexerException le)
             {
@@ -93,6 +92,15 @@ namespace EVIL.Interpreter.Runtime.Library
                                                $"line {ce.Line}, column {ce.Column})");
             }
         }
+
+        [ClrFunction("gset")]
+        public static DynamicValue Set(ExecutionContext ctx, params DynamicValue[] args)
+        {
+            args.ExpectExactly(2)
+                .ExpectKeyTypeAtIndex(0);
+
+            return ctx.VirtualMachine.GlobalTable.Set(args[0], args[1]);
+        }
         
         [ClrFunction("type")]
         public static DynamicValue Type(ExecutionContext ctx, params DynamicValue[] args)
@@ -106,16 +114,6 @@ namespace EVIL.Interpreter.Runtime.Library
         {
             args.ExpectNone();
             return new DynamicValue(ctx.DumpCallStack());
-        }
-
-        [ClrFunction("setglobal")]
-        public static DynamicValue SetGlobal(ExecutionContext ctx, params DynamicValue[] args)
-        {
-            args.ExpectExactly(2)
-                .ExpectTypeAtIndex(0, DynamicValueType.String);
-
-            ctx.VirtualMachine.GlobalTable.Set(args[0], args[1]);
-            return args[1];
         }
 
         [ClrFunction("uint8")]

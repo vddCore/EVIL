@@ -92,15 +92,15 @@ namespace EVIL.CVIL
                 }
                 catch (IOException ioe)
                 {
-                    Workflow.ExitWithMessage($"unable to open {fileName}: {ioe.Message}");
+                    Workflow.ExitWithMessage($"unable to open {fileName}: {ioe.Message}", -3);
                 }
                 catch (LexerException le)
                 {
-                    Workflow.ExitWithMessage($"`{fileName}' ({le.Line}:{le.Column}): {le.Message}");
+                    Workflow.ExitWithMessage($"`{fileName}' ({le.Line}:{le.Column}): {le.Message}", -4);
                 }
                 catch (ParserException pe)
                 {
-                    Workflow.ExitWithMessage($"`{fileName}' ({pe.Line}:{pe.Column}): {pe.Message}");
+                    Workflow.ExitWithMessage($"`{fileName}' ({pe.Line}:{pe.Column}): {pe.Message}", -5);
                 }
             }
 
@@ -121,7 +121,7 @@ namespace EVIL.CVIL
                 }
                 catch (CompilerException ce)
                 {
-                    Workflow.ExitWithMessage($"`{fileName}' ({ce.Line}:{ce.Column}): {ce.Message}");
+                    Workflow.ExitWithMessage($"`{fileName}' ({ce.Line}:{ce.Column}): {ce.Message}", -6);
                 }
             }
 
@@ -146,7 +146,7 @@ namespace EVIL.CVIL
                     if (chunksSeen.TryGetValue(chunk.Name, out var tuple))
                     {
                         var (prevFileName, prevChunk) = tuple;
-                        Workflow.ExitWithMessage($"`{fileName}': function '{chunk.Name}' (line {chunk.DefinedOnLine}) was already defined in `{prevFileName}' (line {prevChunk.DefinedOnLine}).");
+                        Workflow.ExitWithMessage($"`{fileName}': function '{chunk.Name}' (line {chunk.DefinedOnLine}) was already defined in `{prevFileName}' (line {prevChunk.DefinedOnLine}).", -7);
                     }
 
                     exe.Chunks.Add(chunk);

@@ -56,7 +56,7 @@ namespace EVIL.Interpreter.Runtime.Library
             var tbl = args[0].Table;
             var index = (int)args[1].Number;
 
-            return tbl.Entries.Values.ElementAt(index);
+            return tbl.ElementAt(index).Value;
         }
     }
 }

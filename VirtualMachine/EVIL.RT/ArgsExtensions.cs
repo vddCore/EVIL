@@ -1,3 +1,4 @@
+using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 
 namespace EVIL.RT
@@ -8,6 +9,14 @@ namespace EVIL.RT
         {
             if (args.Length != count)
                 throw new EvilRuntimeException($"Expected exactly {count} arguments, found {args.Length}.");
+
+            return args;
+        }
+
+        public static DynamicValue[] ExpectKeyTypeAtIndex(this DynamicValue[] args, int index)
+        {
+            if (!args[index].IsKey)
+                throw new EvilRuntimeException($"Expected key type (either a string or a number) at argument index {index}, found a {args[index].Type.Alias()} instead.");
 
             return args;
         }
@@ -26,7 +35,7 @@ namespace EVIL.RT
         public static DynamicValue[] ExpectTypeAtIndex(this DynamicValue[] args, int index, DynamicValueType type)
         {
             if (index >= args.Length)
-                throw new EvilRuntimeException($"Expected type '{type}' at argument index {index}, found no value.");
+                throw new EvilRuntimeException($"Expected type '{type.Alias()}' at argument index {index}, found no value.");
 
             if (args[index].Type != type)
                 throw new EvilRuntimeException(
@@ -47,9 +56,9 @@ namespace EVIL.RT
 
             var tbl = args[index].Table;
 
-            if (tbl.Entries.Count != size)
+            if (tbl.Count != size)
                 throw new EvilRuntimeException(
-                    $"Expected a table of size {size} at index {index}. Actual size was {tbl.Entries.Count}");
+                    $"Expected a table of size {size} at index {index}. Actual size was {tbl.Count}");
 
             return args;
         }
@@ -60,11 +69,11 @@ namespace EVIL.RT
             ExpectTableAtIndex(args, index);
             var tbl = args[index].Table;
 
-            if (tbl.Entries.Count != size)
+            if (tbl.Count != size)
                 throw new EvilRuntimeException(
-                    $"Expected a table of size {size} at index {index}. Actual size was {tbl.Entries.Count}");
+                    $"Expected a table of size {size} at index {index}. Actual size was {tbl.Count}");
 
-            foreach (var kvp in tbl.Entries)
+            foreach (var kvp in tbl)
             {
                 if (kvp.Value.Type != acceptedType)
                 {

@@ -132,7 +132,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 return Type switch
                 {
                     DynamicValueType.String => _string.Length,
-                    DynamicValueType.Table => _table.Entries.Count,
+                    DynamicValueType.Table => _table.Count,
                     _ => throw new UnmeasurableTypeException(Type)
                 };
             }
@@ -153,6 +153,9 @@ namespace EVIL.ExecutionEngine.Abstraction
                 return true;
             }
         }
+
+        public bool IsKey => Type == DynamicValueType.Number 
+                             || Type == DynamicValueType.String;
         
         private DynamicValue()
         {
@@ -276,7 +279,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             {
                 DynamicValueType.Number => _number.ToString(CultureInfo.InvariantCulture),
                 DynamicValueType.String => _string,
-                DynamicValueType.Table => $"Table[{_table.Entries.Count}]",
+                DynamicValueType.Table => $"Table[{_table.Count}]",
                 DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.Parameters.Count}]",
                 DynamicValueType.ClrFunction =>
                     $"ClrFunction[{_clrFunction.Method.Name}@{_clrFunction.Method.GetParameters().Length}]",

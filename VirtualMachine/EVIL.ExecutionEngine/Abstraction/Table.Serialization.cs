@@ -25,9 +25,9 @@ namespace EVIL.ExecutionEngine.Abstraction
                 using (var bw = new BinaryWriter(outStream))
                 {
                     bw.Write(Magic);
-                    bw.Write(Entries.Count);
+                    bw.Write(_entries.Count);
 
-                    foreach (var kvp in Entries)
+                    foreach (var kvp in _entries)
                     {
                         var (key, val) = kvp;
                         WriteDynamicValue(bw, key);
