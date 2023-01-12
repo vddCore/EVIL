@@ -11,9 +11,7 @@ namespace EVIL.Grammar.Parsing
             var line = Match(Token.Each);
 
             Match(Token.LParenthesis);
-            var keyVar = VariableDefinition();
-            Match(Token.Comma);
-            var valueVar = VariableDefinition();
+            var definitions = VariableDefinition();
 
             Match(Token.Colon);
 
@@ -23,7 +21,7 @@ namespace EVIL.Grammar.Parsing
 
             var statements = LoopDescent(() => Statement());
             
-            return new EachStatement(keyVar, valueVar, tableNode, statements) { Line = line };
+            return new EachStatement(definitions, tableNode, statements) { Line = line };
         }
     }
 }

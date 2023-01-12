@@ -2,20 +2,18 @@
 {
     public class EachStatement : Statement
     {
-        public VariableDefinition KeyDefinition { get; }
-        public VariableDefinition ValueDefinition { get; }
+        public VariableDefinition Initialization { get; }
         public Expression Iterable { get; }
         
         public Statement Body { get; }
 
-        public EachStatement(VariableDefinition keyDefinition, VariableDefinition valueDefinition, Expression iterable, Statement body)
+        public EachStatement(VariableDefinition initialization, Expression iterable, Statement body)
         {
-            KeyDefinition = keyDefinition;
-            ValueDefinition = valueDefinition;
+            Initialization = initialization;
             Iterable = iterable;
             Body = body;
 
-            Reparent(KeyDefinition, ValueDefinition, Iterable, Body);
+            Reparent(Initialization, Iterable, Body);
         }
     }
 }
