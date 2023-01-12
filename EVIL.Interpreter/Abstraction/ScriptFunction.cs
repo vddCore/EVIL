@@ -10,15 +10,12 @@ namespace EVIL.Interpreter.Abstraction
         public List<AstNode> StatementList { get; }
         public List<string> ParameterNames { get; }
         public int DefinedAtLine { get; }
-        public bool IsConstructor { get; }
 
-        public ScriptFunction(List<AstNode> statementList, List<string> parameterNames, int definedAtLine,
-            bool isConstructor = false)
+        public ScriptFunction(List<AstNode> statementList, List<string> parameterNames, int definedAtLine)
         {
             StatementList = statementList;
             ParameterNames = parameterNames;
             DefinedAtLine = definedAtLine;
-            IsConstructor = isConstructor;
         }
     }
 }

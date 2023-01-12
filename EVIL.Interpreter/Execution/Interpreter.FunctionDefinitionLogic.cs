@@ -12,53 +12,29 @@ namespace EVIL.Interpreter.Execution
             var fn = new ScriptFunction(
                 scriptFunctionDefinitionNode.StatementList,
                 scriptFunctionDefinitionNode.ParameterNames,
-                scriptFunctionDefinitionNode.Line,
-                scriptFunctionDefinitionNode.IsConstructor
+                scriptFunctionDefinitionNode.Line
             );
 
-            if (!fn.IsConstructor)
+            if (name != null)
             {
-                if (name != null)
+                if (Environment.LocalScope != Environment.GlobalScope)
                 {
-                    if (Environment.LocalScope != Environment.GlobalScope)
-                    {
-                        throw new RuntimeException(
-                            "Attempt to define a named function in local scope.",
-                            Environment,
-                            scriptFunctionDefinitionNode.Line
-                        );
-                    }
-
-                    Environment.RegisterFunction(
-                        name,
-                        fn
+                    throw new RuntimeException(
+                        "Attempt to define a named function in local scope.",
+                        Environment,
+                        scriptFunctionDefinitionNode.Line
                     );
                 }
-            }
-            else if (_currentThisContextStack.Count == 0)
-            {
-                throw new RuntimeException(
-                    "Attempt to define a constructor outside a table initializer.",
-                    Environment,
-                    scriptFunctionDefinitionNode.Line
+
+                Environment.RegisterFunction(
+                    name,
+                    fn
                 );
             }
 
             foreach (var kvp in Environment.LocalScope.Members)
             {
                 fn.Closures.Add(kvp.Key, kvp.Value);
-            }
-            
-            if (_currentThisContextStack.Count > 0)
-            {
-                if (fn.Closures.ContainsKey("this"))
-                {
-                    fn.Closures["this"] = _currentThisContextStack.Peek();
-                }
-                else
-                {
-                    fn.Closures.Add("this", _currentThisContextStack.Peek());
-                }
             }
 
             return new DynValue(fn);

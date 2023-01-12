@@ -67,7 +67,6 @@ namespace EVIL.Lexical
                 TokenType.Multiply => "*",
                 TokenType.NameOf => "?",
                 TokenType.Negation => "!",
-                TokenType.New => "new",
                 TokenType.Or => "||",
                 TokenType.Plus => "+",
                 TokenType.RBrace => "}",
