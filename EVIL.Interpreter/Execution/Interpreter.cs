@@ -14,6 +14,8 @@ namespace EVIL.Interpreter.Execution
         private List<Constraint> _constraints = new();
         private List<Predicate<AstNode>> _nodeRestrictions = new();
 
+        public string MainFilePath { get; private set; }
+        
         public IReadOnlyList<Constraint> Constraints => _constraints;
         public Environment Environment { get; set; } = new();
         public Parser Parser { get; } = new();
@@ -42,7 +44,7 @@ namespace EVIL.Interpreter.Execution
             catch (ExitStatementException)
             {
                 Environment.Clear();
-                return DynValue.Zero;
+                throw;
             }
         }
 
@@ -58,15 +60,17 @@ namespace EVIL.Interpreter.Execution
             catch (ExitStatementException)
             {
                 Environment.Clear();
-                return DynValue.Zero;
+                throw;
             }
         }
 
-        public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false)
+        public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false, string filePath = null)
         {
             Parser.LoadSource(sourceCode);
             var node = Parser.Parse();
 
+            MainFilePath = filePath;
+            
             try
             {
                 DynValue result;
@@ -131,7 +135,7 @@ namespace EVIL.Interpreter.Execution
             catch (ExitStatementException)
             {
                 Environment.Clear();
-                return DynValue.Zero;
+                throw;
             }
         }
 

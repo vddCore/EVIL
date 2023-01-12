@@ -9,7 +9,18 @@ namespace EVIL.Grammar.Parsing
         private AstNode Return()
         {
             var line = Match(TokenType.Ret);
-            return new ReturnNode(AssignmentExpression()) { Line = line };
+            AstNode retNode;
+
+            if (Scanner.State.CurrentToken.Type == TokenType.Semicolon)
+            {
+                retNode = new IntegerNode(0) { Line = line };
+            }
+            else
+            {
+                retNode = AssignmentExpression();
+            }
+            
+            return new ReturnNode(retNode) { Line = line };
         }
     }
 }

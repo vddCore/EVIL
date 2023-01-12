@@ -13,8 +13,8 @@ namespace EVIL.Interpreter.Execution
             {
                 for (var i = 0; i < tableNode.Initializers.Count; i++)
                 {
-                    var node = (AssignmentNode)tableNode.Initializers[i];
-                    var key = Visit(node.Left);
+                    var node = (KeyValuePairNode)tableNode.Initializers[i];
+                    var key = Visit(node.KeyNode);
 
                     if (tbl.ContainsKey(tbl.GetKeyByDynValue(key)))
                     {
@@ -25,7 +25,7 @@ namespace EVIL.Interpreter.Execution
                         );
                     }
                     
-                    tbl[key] = Visit(node.Right);
+                    tbl[key] = Visit(node.ValueNode);
                 }
             }
             else

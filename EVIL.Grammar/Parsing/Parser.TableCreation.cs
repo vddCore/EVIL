@@ -15,14 +15,34 @@ namespace EVIL.Grammar.Parsing
 
             while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
-                var value = AssignmentExpression();
-                
-                if (value is AssignmentNode)
+                AstNode key = null;
+                if (Scanner.State.CurrentToken.Type == TokenType.LBracket)
                 {
                     keyed = true;
+                    key = ComputedKeyExpression();
+                    Match(TokenType.Assign);
+                }
+                else
+                {
+                    var ahead = Scanner.PeekToken(1);
+                    if (ahead.Type == TokenType.Assign)
+                    {
+                        keyed = true;
+                        key = Constant();
+                        
+                        Match(TokenType.Assign);
+                    }
+                    else
+                    {
+                        initializers.Add(PostfixExpression());
+                    }
                 }
 
-                initializers.Add(value);
+                if (keyed)
+                {
+                    var value = AssignmentExpression();
+                    initializers.Add(new KeyValuePairNode(key, value));
+                }
                 
                 if (Scanner.State.CurrentToken.Type == TokenType.RBrace)
                     break;
@@ -32,6 +52,15 @@ namespace EVIL.Grammar.Parsing
 
             Match(TokenType.RBrace);
             return new TableNode(initializers, keyed) {Line = line};
+        }
+
+        private AstNode ComputedKeyExpression()
+        {
+            Match(TokenType.LBracket);
+            var computedKey = AssignmentExpression();
+            Match(TokenType.RBracket);
+
+            return computedKey;
         }
     }
 }

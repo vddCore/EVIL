@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using EVIL.Grammar.Parsing;
+using EVIL.Interpreter.Diagnostics;
 using EVIL.Interpreter.Execution;
 using EVIL.Lexical;
 using Environment = EVIL.Interpreter.Environment;
@@ -82,7 +82,8 @@ namespace EVIL.REPL
                                     sr.ReadToEnd(),
                                     _entryPointFunctionName,
                                     _entryPointArgs.ToArray(),
-                                    _refuseToRunTopLevelCode
+                                    _refuseToRunTopLevelCode,
+                                    Path.GetFullPath(args[0])
                                 );
                             }
                             else
@@ -112,14 +113,7 @@ namespace EVIL.REPL
                             }
                             else
                             {
-                                foreach (var frame in re.EvilStackTrace)
-                                {
-                                    sb.AppendLine(
-                                        $"at {frame.FunctionName}({string.Join(',', frame.ParameterNames)})\n" +
-                                        $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
-                                        $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
-                                    );
-                                }
+                                sb.Append(FormatStackTrace(re.EvilStackTrace));
                             }
 
                             Console.WriteLine(sb.ToString());
@@ -142,6 +136,22 @@ namespace EVIL.REPL
                 if (_stayInteractive)
                     InteractiveMode();
             }
+        }
+
+        private static string FormatStackTrace(List<StackFrame> stackTrace)
+        {
+            var sb = new StringBuilder();
+            
+            foreach (var frame in stackTrace)
+            {
+                sb.AppendLine(
+                    $"at {frame.FunctionName}({string.Join(',', frame.ParameterNames)})\n" +
+                    $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
+                    $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
+                );
+            }
+
+            return sb.ToString();
         }
 
         private static void Help()

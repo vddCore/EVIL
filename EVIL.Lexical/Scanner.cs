@@ -335,6 +335,21 @@ namespace EVIL.Lexical
             Advance();
         }
 
+        public Token PeekToken(int howFar)
+        {
+            var prevState = CopyState();
+            Token token = null;
+
+            for (var i = 0; i < howFar; i++)
+            {
+                NextToken();
+                token = State.CurrentToken;
+            }
+
+            State = prevState;
+            return token;
+        }
+
         private Token GetHexNumber()
         {
             var number = string.Empty;
@@ -410,7 +425,7 @@ namespace EVIL.Lexical
 
                 case "var":
                     return new Token(TokenType.Var, "var");
-                
+
                 case "in":
                     return new Token(TokenType.In, "in");
 
