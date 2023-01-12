@@ -1,18 +1,11 @@
-fn main(a, b) {
-  var x = 5;
-  var y = 5;
-  
-  var c = fn(d, e) {
-    var f = fn(g, h) {
-      io.shit();
-      ret e;
-    };
-    
-    d += x;
-    ret d * f();
-  };
-  
-  io.println(c(6, 5));
+var x = {};
+x.test = 1;
+
+fn do_thing() {
+  var a = x.test++;
+  io.println(a);
 }
 
-main(3, 4);
+do_thing();
+io.println(++x.test);
+io.println(x.test);

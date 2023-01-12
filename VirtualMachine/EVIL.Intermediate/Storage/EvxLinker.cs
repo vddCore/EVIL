@@ -22,6 +22,9 @@ namespace EVIL.Intermediate.Storage
 
         public static void Link(Executable exe, Stream outStream)
         {
+            if (exe == null)
+                throw new ArgumentNullException(nameof(exe));
+                    
             var bw = new BinaryWriter(outStream);
             
             try

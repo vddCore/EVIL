@@ -28,8 +28,36 @@ namespace EVIL.Intermediate.CodeGeneration
             {
                 EmitVariableStore(cg, varRef);
             }
-            
-             //todo indexed
+            else if (tgt is IndexerExpression indExpr)
+            {
+                if (decrementationExpression.IsPrefix)
+                {
+                    Visit(indExpr.Indexable);
+                    Visit(indExpr.KeyExpression);
+                    Visit(indExpr);
+                    EmitConstantLoad(cg, 1);
+                    cg.Emit(OpCode.SUB);
+                    cg.Emit(OpCode.STE, (byte)1);
+                }
+                else
+                {                   
+                    Visit(indExpr);                    
+                    Visit(indExpr.Indexable);
+                    Visit(indExpr.KeyExpression);
+                    Visit(indExpr);
+                    EmitConstantLoad(cg, 1);
+                    cg.Emit(OpCode.SUB);
+                    cg.Emit(OpCode.STE, (byte)0);
+                }
+            }
+            else
+            {
+                throw new CompilerException(
+                    "Decrementation is only valid on variables and indexers.",
+                    CurrentLine,
+                    CurrentColumn
+                );
+            }
         }
     }
 }

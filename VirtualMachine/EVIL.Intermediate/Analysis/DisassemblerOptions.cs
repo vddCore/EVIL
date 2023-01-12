@@ -13,5 +13,6 @@ namespace EVIL.Intermediate.Analysis
         public bool EmitFunctionNames { get; set; } = true;
         public bool EmitParamTable { get; set; } = true;
         public bool EmitParameterHints { get; set; } = true;
+        public bool EmitLineNumbers { get; set; } = true;
     }
 }
