@@ -11,6 +11,9 @@ namespace EVIL.Interpreter
     [Serializable]
     public class Environment
     {
+        public Stack<StackFrame> CallStack { get; } = new();
+        public StackFrame StackTop => CallStack.Peek();
+        
         public NameScope LocalScope { get; set; }
         public NameScope GlobalScope { get; private set; }
         

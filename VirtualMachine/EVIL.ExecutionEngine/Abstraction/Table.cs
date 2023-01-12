@@ -11,6 +11,18 @@ namespace EVIL.ExecutionEngine.Abstraction
 
         public static readonly Table Empty = new() { Frozen = true };
 
+        public DynamicValue this[string key]
+        {
+            get => Get(key);
+            set => SetByString(key, value);
+        }
+
+        public DynamicValue this[double key]
+        {
+            get => Get(key);
+            set => SetByNumber(key, value);
+        }
+
         public Table()
         {
         }

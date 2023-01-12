@@ -2,6 +2,7 @@
 using System.Text;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 
 namespace EVIL.RT
@@ -10,7 +11,7 @@ namespace EVIL.RT
     public class IoLibrary
     {
         [ClrFunction("print", RuntimeAlias = "io.print")]
-        public static DynamicValue Print(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Print(ExecutionContext ctx, params DynamicValue[] args)
         {
             var sb = new StringBuilder();
 
@@ -26,23 +27,23 @@ namespace EVIL.RT
         }
 
         [ClrFunction("println", RuntimeAlias = "io.println")]
-        public static DynamicValue PrintLine(EVM evm, params DynamicValue[] args)
+        public static DynamicValue PrintLine(ExecutionContext ctx, params DynamicValue[] args)
         {
-            var output = Print(evm, args);
+            var output = Print(ctx, args);
             Console.WriteLine();
             return output;
         }
 
         [ClrFunction("readln", RuntimeAlias = "io.readln")]
-        public static DynamicValue ReadLine(EVM evm, params DynamicValue[] args)
+        public static DynamicValue ReadLine(ExecutionContext ctx, params DynamicValue[] args)
             => new(Console.ReadLine() ?? string.Empty);
 
         [ClrFunction("read", RuntimeAlias = "io.read")]
-        public static DynamicValue Read(EVM evm, params DynamicValue[] args)
+        public static DynamicValue Read(ExecutionContext ctx, params DynamicValue[] args)
             => new(Console.Read());
 
         [ClrFunction("readkey", RuntimeAlias = "io.readkey")]
-        public static DynamicValue ReadKey(EVM evm, params DynamicValue[] args)
+        public static DynamicValue ReadKey(ExecutionContext ctx, params DynamicValue[] args)
             => new((int)Console.ReadKey().Key);
     }
 }
