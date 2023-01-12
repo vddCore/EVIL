@@ -76,6 +76,10 @@ namespace EVIL.Intermediate
                 {
                     EmitGlobalStore(cg, varRef.Identifier);
                 }
+                else if (sym.Type == SymbolInfo.SymbolType.Extern)
+                {
+                    cg.Emit(OpCode.STX, sym.Id);
+                }
             }
             else
             {
@@ -94,7 +98,7 @@ namespace EVIL.Intermediate
 
             if (localScope != null)
             {
-                var (scope, sym) = localScope.Find(varRef.Identifier);
+                var (_, sym) = localScope.Find(varRef.Identifier);
 
                 if (sym.Type == SymbolInfo.SymbolType.Local)
                 {
@@ -103,6 +107,10 @@ namespace EVIL.Intermediate
                 else if (sym.Type == SymbolInfo.SymbolType.Parameter)
                 {
                     cg.Emit(OpCode.LDA, sym.Id);
+                }
+                else if (sym.Type == SymbolInfo.SymbolType.Extern)
+                {
+                    cg.Emit(OpCode.LDX, sym.Id);
                 }
                 else if (sym == SymbolInfo.Undefined || sym == SymbolInfo.Global)
                 {

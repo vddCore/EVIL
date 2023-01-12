@@ -48,6 +48,7 @@
         STA = 0x43,   // [S]e[T] [A]rgument
         STE = 0x44,   // [S]et [T]able [E]ntry
         RTE = 0x45,   // [R]emove [T]able [E]ntry
+        STX = 0x46,   // [S]e[T] e[X]ternal local
         
         // ---------- [ STORAGE: LOAD
         LDC = 0x50,   // [L]oa[D] [C]onstant
@@ -55,6 +56,7 @@
         LDL = 0x52,   // [L]oa[D] [L]ocal
         LDA = 0x53,   // [L]oa[D] [A]rgument
         LDF = 0x54,   // [L]oa[D] [F]unction
+        LDX = 0x55,   // [L]oa[D] e[X]ternal local
         
         // ---------- [ MISCELLANEOUS
         NEWTB = 0x60, // Create a [NEW] [T]a[B]le

@@ -1,9 +1,11 @@
+using System;
+
 namespace EVIL.Intermediate
 {
-    public class MissingSymbolException : CompilerException
+    public class MissingSymbolException : Exception
     {
-        public MissingSymbolException(string identifier, int line, int column) 
-            : base($"Symbol '{identifier}' was never defined.", line, column)
+        public MissingSymbolException(string identifier) 
+            : base($"Symbol '{identifier}' was never defined.")
         {
         }
     }

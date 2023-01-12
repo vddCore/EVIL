@@ -1,20 +1,25 @@
-var println = io.println;
-
-var t = {
-  "k1" => 2,
-  "k3" => "test"
-};
-
-println("k2" in t ? "k2 is in t" : "k2 is not in t");
-
-if ("a" in "blah") {
-  println(3 - 2 + 3);
-  println("a is in blah, yes.");
+fn generate_nested_closure(x) {
+  var h = 25;
+  var i = 10;
+  
+  ret fn() {
+    var j = 20;
+    
+    ret fn() {
+      j += 10;
+      var k = 30;
+      
+      ret fn() {
+        x += 3;
+        h += k;
+        io.println(" i: ", i, " j: ", j, " k: ", k, " h: ", h, " x: ", x);
+      };
+    };
+  };
 }
 
-var a = fn(a, b, c) {
-  var d, e, f;
-  ret a + b * c;
-};
-
-io.println(a(1, 2, 3));
+var fn1 = generate_nested_closure(15);
+var fn2 = fn1();
+var fn3 = fn2();
+fn3();
+fn3();
