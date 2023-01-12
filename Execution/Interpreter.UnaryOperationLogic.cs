@@ -51,6 +51,9 @@ namespace EVIL.Execution
                     else
                         return new DynValue(1);
                 }
+                
+                case UnaryOperationType.LogicalNot:
+                    return new DynValue(~(int)operand.Number);
 
                 default: throw new RuntimeException("Unknown unary operation type.", unaryOperationNode.Line);
             }

@@ -129,10 +129,6 @@ namespace EVIL.Lexical
                     State.CurrentToken = new Token(TokenType.Modulo, '%');
                 }
             }
-            else if (State.Character == '$')
-            {
-                State.CurrentToken = new Token(TokenType.Nand, '$');
-            }
             else if (State.Character == '=')
             {
                 if (Peek() == '=')
@@ -186,6 +182,10 @@ namespace EVIL.Lexical
                     Advance();
                     State.CurrentToken = new Token(TokenType.And, "&&");
                 }
+                else
+                {
+                    State.CurrentToken = new Token(TokenType.LogicalAnd, "&");
+                }
             }
             else if (State.Character == '|')
             {
@@ -194,6 +194,18 @@ namespace EVIL.Lexical
                     Advance();
                     State.CurrentToken = new Token(TokenType.Or, "||");
                 }
+                else
+                {
+                    State.CurrentToken = new Token(TokenType.LogicalOr, "|");
+                }
+            }
+            else if (State.Character == '~')
+            {
+                State.CurrentToken = new Token(TokenType.LogicalNot, "~");
+            }
+            else if (State.Character == '^')
+            {
+                State.CurrentToken = new Token(TokenType.LogicalXor, "^");
             }
             else if (State.Character == ',')
             {

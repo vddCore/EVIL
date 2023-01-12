@@ -56,15 +56,37 @@ namespace EVIL.Execution
                     return new DynValue((int)left.Number >> (int)right.Number);
                 }
                 
-                case BinaryOperationType.Nand:
+                case BinaryOperationType.LogicalAnd:
                 {
                     if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
-                        throw new RuntimeException("Attempt of NAND operation on a non-numerical value.", binaryOperationNode.Line);
+                        throw new RuntimeException("Attempt of AND operation on a non-numerical value.", binaryOperationNode.Line);
 
                     if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                        throw new RuntimeException("NAND operation is only allowed on integers.", binaryOperationNode.Line);
+                        throw new RuntimeException("AND operation is only allowed on integers.", binaryOperationNode.Line);
 
-                    return new DynValue(~((int)left.Number & (int)right.Number));
+                    return new DynValue((int)left.Number & (int)right.Number);
+                }
+                
+                case BinaryOperationType.LogicalOr:
+                {
+                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
+                        throw new RuntimeException("Attempt of OR operation on a non-numerical value.", binaryOperationNode.Line);
+
+                    if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                        throw new RuntimeException("OR operation is only allowed on integers.", binaryOperationNode.Line);
+
+                    return new DynValue((int)left.Number | (int)right.Number);
+                }
+                
+                case BinaryOperationType.LogicalXor:
+                {
+                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
+                        throw new RuntimeException("Attempt of XOR operation on a non-numerical value.", binaryOperationNode.Line);
+
+                    if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                        throw new RuntimeException("XOR operation is only allowed on integers.", binaryOperationNode.Line);
+
+                    return new DynValue((int)left.Number ^ (int)right.Number);
                 }
 
                 case BinaryOperationType.Modulo:

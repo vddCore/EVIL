@@ -7,6 +7,11 @@ namespace EVIL.AST.Nodes
 {
     public class TableNode : AstNode
     {
-        // value type describing empty table
+        public List<AstNode> Initializers { get; }
+
+        public TableNode(List<AstNode> initializers)
+        {
+            Initializers = initializers;
+        }
     }
 }

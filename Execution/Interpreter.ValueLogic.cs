@@ -17,7 +17,14 @@ namespace EVIL.Execution
 
         public override DynValue Visit(TableNode tableNode)
         {
-            return new(new Table());
+            var tbl = new Table();
+
+            for (var i = 0; i < tableNode.Initializers.Count; i++)
+            {
+                tbl[i] = Visit(tableNode.Initializers[i]);
+            }
+
+            return new(tbl);
         }
     }
 }

@@ -23,9 +23,7 @@ namespace EVIL.Parsing
             }
             else if (token.Type == TokenType.LBrace)
             {
-                var line = Match(TokenType.LBrace);
-                Match(TokenType.RBrace);
-                return new TableNode() { Line = line };
+                return TableCreation();
             }
             else if (token.Type == TokenType.True)
             {
@@ -56,6 +54,11 @@ namespace EVIL.Parsing
             {
                 var line = Match(TokenType.Negation);
                 return new UnaryOperationNode(Factor(), UnaryOperationType.Negation) { Line = line };
+            }
+            else if (token.Type == TokenType.LogicalNot)
+            {
+                var line = Match(TokenType.LogicalNot);
+                return new UnaryOperationNode(Factor(), UnaryOperationType.LogicalNot) {Line = line};
             }
             else if (token.Type == TokenType.NameOf)
             {

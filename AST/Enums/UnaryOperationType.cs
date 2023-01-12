@@ -7,6 +7,7 @@
         ToString,
         Length,
         NameOf,
-        Negation
+        Negation,
+        LogicalNot
     }
 }
