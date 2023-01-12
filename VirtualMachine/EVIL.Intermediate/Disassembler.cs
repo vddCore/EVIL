@@ -105,6 +105,7 @@ namespace EVIL.Intermediate
                         case OpCode.LDG:
                         case OpCode.STG:
                         case OpCode.GNAME:
+                        case OpCode.RGL:
                             DecodeLdConst(op, executable.ConstPool);
                             break;
 

@@ -9,7 +9,7 @@ namespace EVIL.Intermediate
         public Executable Executable { get; }
         public Chunk Chunk { get; }
         public Scope Parent { get; }
-        
+
         public TwoWayDictionary<string, SymbolInfo> Symbols { get; } = new();
 
         public Scope(Compiler compiler, Executable executable, Chunk chunk)
@@ -63,12 +63,18 @@ namespace EVIL.Intermediate
             if (IsLocalDefined(name))
                 throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
-            var sym = new SymbolInfo(Chunk.Locals.Count, SymbolInfo.SymbolType.Local);
-            Chunk.Locals.Add(name);
-            
-            Symbols.Add(name, sym);
+            if (Symbols.Forward.ContainsKey(name))
+            {
+                return Symbols.Forward[name];
+            }
+            else
+            {
+                var sym = new SymbolInfo(Chunk.Locals.Count, SymbolInfo.SymbolType.Local);
+                Chunk.Locals.Add(name);
 
-            return sym;
+                Symbols.Add(name, sym);
+                return sym;
+            }
         }
 
         public SymbolInfo DefineParameter(string name)
@@ -88,8 +94,6 @@ namespace EVIL.Intermediate
         {
             if (!IsLocalDefined(name))
                 throw new MissingSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
-
-            Symbols.RemoveByKey(name);
         }
         
         public bool IsLocalDefined(string name)

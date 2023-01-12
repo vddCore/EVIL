@@ -47,10 +47,6 @@ namespace EVIL.Intermediate
             base.Visit(node);
         }
 
-        public override void Visit(UndefStatement undefStatement)
-        {
-        }
-
         public override void Visit(EachStatement eachStatement)
         {
         }

@@ -4,11 +4,11 @@ namespace EVIL.Intermediate
 {
     public partial class Compiler
     {
-        public override void Visit(NameOfExpression nameOfExpression)
+        public override void Visit(UndefStatement undefStatement)
         {
             var cg = CurrentChunk.GetCodeGenerator();
 
-            if (nameOfExpression.Right is VariableReferenceExpression varRef)
+            if (undefStatement.Right is VariableReferenceExpression varRef)
             {
                 if (ScopeStack.TryPeek(out var localScope))
                 {
@@ -16,45 +16,42 @@ namespace EVIL.Intermediate
 
                     switch (sym.Type)
                     {
-                        case SymbolInfo.SymbolType.Parameter:
-                            cg.Emit(
-                                OpCode.PNAME,
-                                sym.Id
-                            );
-                            break;
-                        case SymbolInfo.SymbolType.Local:
-                            cg.Emit(
-                                OpCode.LNAME,
-                                sym.Id
-                            );
-                            break;
-                        case SymbolInfo.SymbolType.Extern:
-                            cg.Emit(
-                                OpCode.XNAME,
-                                sym.Id
-                            );
-                            break;
                         case SymbolInfo.SymbolType.Global:
                         case SymbolInfo.SymbolType.Undefined:
                             cg.Emit(
-                                OpCode.GNAME,
+                                OpCode.RGL,
                                 _executable.ConstPool.FetchOrAddConstant(varRef.Identifier)
                             );
                             break;
+
+                        case SymbolInfo.SymbolType.Extern:
+                        case SymbolInfo.SymbolType.Parameter:
+                        case SymbolInfo.SymbolType.Local:
+                            throw new CompilerException(
+                                "You can only undefine globals and table entries.",
+                                CurrentLine,
+                                CurrentColumn
+                            );
                     }
                 }
                 else
                 {
                     cg.Emit(
-                        OpCode.GNAME,
+                        OpCode.RGL,
                         _executable.ConstPool.FetchOrAddConstant(varRef.Identifier)
                     );
                 }
             }
+            else if (undefStatement.Right is IndexerExpression indexerExpression)
+            {
+                Visit(indexerExpression.Indexable);
+                Visit(indexerExpression.KeyExpression);
+                cg.Emit(OpCode.RTE);
+            }
             else
             {
                 throw new CompilerException(
-                    "'??' operator is only valid for variables.",
+                    "Invalid operand provided for undef.",
                     CurrentLine,
                     CurrentColumn
                 );

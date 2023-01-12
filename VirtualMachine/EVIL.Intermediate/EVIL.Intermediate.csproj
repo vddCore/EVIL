@@ -93,5 +93,8 @@
       <Compile Update="Compiler.Expressions.NameOf.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
+      <Compile Update="Compiler.Statements.Undef.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>
