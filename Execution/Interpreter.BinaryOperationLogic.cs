@@ -1,4 +1,9 @@
-﻿using EVIL.Abstraction;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using EVIL.Abstraction;
+using EVIL.AST.Base;
 using EVIL.AST.Enums;
 using EVIL.AST.Nodes;
 
@@ -14,191 +19,427 @@ namespace EVIL.Execution
             switch (binaryOperationNode.Type)
             {
                 case BinaryOperationType.Plus:
-                    if (left.Type == DynValueType.String)
-                        return new DynValue(left.String + right.String);
-                    else
-                        return new DynValue(left.Number + right.Number);
+                    return Addition(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Minus:
-                    return new DynValue(left.Number - right.Number);
+                    return Subtraction(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Multiply:
-                    return new DynValue(left.Number * right.Number);
+                    if (left.Type == DynValueType.Number)
+                        return Multiplication(right, left, binaryOperationNode);
+                    else
+                        return Multiplication(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Divide:
-                {
-                    if (right.Number == 0)
-                        throw new RuntimeException("Trying to divide by zero.", binaryOperationNode.Line);
-                    
-                    return new DynValue(left.Number / right.Number);
-                }
-
-                case BinaryOperationType.ShiftLeft:
-                {
-                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
-                        throw new RuntimeException("Attempt of left shift operation on a non-numerical value.", binaryOperationNode.Line);
-
-                    if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                        throw new RuntimeException("'<<' operation is only allowed on integers.", binaryOperationNode.Line);
-
-                    return new DynValue((int)left.Number << (int)right.Number);
-                }
-                
-                case BinaryOperationType.ShiftRight:
-                {
-                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
-
-                        throw new RuntimeException("Attempt of right shift operation on a non-numerical value.", binaryOperationNode.Line);
-
-                    if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                        throw new RuntimeException("'>>' operation is only allowed on integers.", binaryOperationNode.Line);
-
-                    return new DynValue((int)left.Number >> (int)right.Number);
-                }
-                
-                case BinaryOperationType.BitwiseAnd:
-                {
-                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
-                        throw new RuntimeException("Attempt of a bitwise AND operation on a non-numerical value.", binaryOperationNode.Line);
-
-                    return new DynValue((int)left.Number & (int)right.Number);
-                }
-                
-                case BinaryOperationType.BitwiseOr:
-                {
-                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
-                        throw new RuntimeException("Attempt of a bitwise OR operation on a non-numerical value.", binaryOperationNode.Line);
-
-                    return new DynValue((int)left.Number | (int)right.Number);
-                }
-                
-                case BinaryOperationType.BitwiseXor:
-                {
-                    if (left.Type != DynValueType.Number || right.Type != DynValueType.Number)
-                        throw new RuntimeException("Attempt of a bitwise XOR operation on a non-numerical value.", binaryOperationNode.Line);
-
-                    return new DynValue((int)left.Number ^ (int)right.Number);
-                }
+                    return Division(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Modulo:
                     return new DynValue(left.Number % right.Number);
 
+                case BinaryOperationType.ShiftLeft:
+                    return ShiftLeft(left, right, binaryOperationNode);
+
+                case BinaryOperationType.ShiftRight:
+                    return ShiftRight(left, right, binaryOperationNode);
+
+                case BinaryOperationType.BitwiseAnd:
+                    return BitwiseAnd(left, right, binaryOperationNode);
+
+                case BinaryOperationType.BitwiseOr:
+                    return BitwiseOr(left, right, binaryOperationNode);
+
+                case BinaryOperationType.BitwiseXor:
+                    return BitwiseXor(left, right, binaryOperationNode);
+
                 case BinaryOperationType.Less:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number < right.Number)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else if (left.Type == DynValueType.String)
-                    {
-                        if (left.String.Length < right.String.Length)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'<' operator is only allowed on numbers and strings.", binaryOperationNode.Line);
+                    return CompareLess(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Greater:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number > right.Number)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else if (left.Type == DynValueType.String)
-                    {
-                        if (left.String.Length > right.String.Length)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'>' operator is only allowed on numbers and strings.", binaryOperationNode.Line);
+                    return CompareGreater(left, right, binaryOperationNode);
 
                 case BinaryOperationType.LessOrEqual:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number <= right.Number)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else if (left.Type == DynValueType.String)
-                    {
-                        if (left.String.Length <= right.String.Length)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'<=' operator is only allowed on numbers and strings.", binaryOperationNode.Line);
+                    return CompareLessOrEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.GreaterOrEqual:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number >= right.Number)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else if (left.Type == DynValueType.String)
-                    {
-                        if (left.String.Length >= right.String.Length)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'>=' operator is only allowed on numbers and strings.", binaryOperationNode.Line);
+                    return CompareGreaterOrEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.NotEqual:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number != right.Number)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else if (left.Type == DynValueType.String)
-                    {
-                        if (left.String.Length != right.String.Length && right.String != left.String)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'!=' operator is only allowed on numbers and strings.", binaryOperationNode.Line);
+                    return CompareNotEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Equal:
-                    if (left.Type != right.Type)
-                        throw new RuntimeException("Only values of the same type can be compared.", binaryOperationNode.Line);
-
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number == right.Number)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else if (left.Type == DynValueType.String)
-                    {
-                        if (left.String.Length == right.String.Length && right.String == left.String)
-                            return new DynValue(1);
-
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'==' operator is only allowed on numbers and strings.", binaryOperationNode.Line);
+                    return CompareEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.And:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number != 0 && right.Number != 0)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'and' operator is only allowed on numbers.", binaryOperationNode.Line);
+                    return LogicalAnd(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Or:
-                    if (left.Type == DynValueType.Number)
-                    {
-                        if (left.Number != 0 || right.Number != 0)
-                            return new DynValue(1);
-                        else return new DynValue(0);
-                    }
-                    else throw new RuntimeException("'or' operator is only allowed on numbers.", binaryOperationNode.Line);
+                    return LogicalOr(left, right, binaryOperationNode);
 
 
                 default: throw new RuntimeException("Unknown binary operation.", binaryOperationNode.Line);
             }
         }
 
+        private DynValue Addition(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+                return new DynValue(left.String + right.String);
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+                return new DynValue(left.Number + right.Number);
+            else if (left.Type == DynValueType.Function && right.Type == DynValueType.Function)
+            {
+                if (left.IsClrFunction || right.IsClrFunction)
+                    throw new RuntimeException("Mixing CLR and EVIL functions is not supported.", node.Line);
+
+                var stmts = new List<AstNode>();
+                stmts.AddRange(left.ScriptFunction.StatementList);
+                stmts.AddRange(right.ScriptFunction.StatementList);
+
+                var parameters = new List<string>();
+                parameters.AddRange(left.ScriptFunction.ParameterNames);
+                parameters.AddRange(right.ScriptFunction.ParameterNames);
+                parameters = parameters.Distinct().ToList();
+
+                return new DynValue(new ScriptFunction(stmts, parameters));
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to add {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue Subtraction(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                return new DynValue(left.Number - right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to subtract {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue Multiplication(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.String)
+            {
+                if (right.Type != DynValueType.Number)
+                {
+                    throw new RuntimeException($"Attempt to repeat a string using {right.Type}.", node.Line);
+                }
+
+                var sb = new StringBuilder();
+                for (var i = 0; i < right.Number; i++)
+                {
+                    sb.Append(left.String);
+                }
+
+                return new DynValue(sb.ToString());
+            }
+            else if (left.Type == DynValueType.Function)
+            {
+                if (left.IsClrFunction)
+                    throw new RuntimeException($"CLR function invocations cannot be multiplied.", node.Line);
+
+                if (right.Type != DynValueType.Number)
+                {
+                    throw new RuntimeException($"Attempt to multiply function using {right.Type}.", node.Line);
+                }
+
+                var stmts = new List<AstNode>();
+                var parameters = new List<string>(left.ScriptFunction.ParameterNames);
+
+                for (var i = 0; i < right.Number; i++)
+                {
+                    stmts.AddRange(left.ScriptFunction.StatementList);
+                }
+
+                return new DynValue(new ScriptFunction(stmts, parameters));
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                return new DynValue(left.Number * right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to multiply {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue Division(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (right.Number == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", node.Line);
+
+                return new DynValue(left.Number / right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to divide {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue ShiftLeft(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.String)
+            {
+                if (right.Type != DynValueType.Number)
+                {
+                    throw new RuntimeException($"Attempt to left-shift a string using {right.Type}.", node.Line);
+                }
+
+                if (right.Number > left.String.Length)
+                    return new DynValue(string.Empty);
+                else if (right.Number < 0)
+                {
+                    var prefix = new string(' ', (int)Math.Abs(right.Number));
+                    return new DynValue(prefix + left.String);
+                }
+
+                return new DynValue(left.String[(int)right.Number..left.String.Length]);
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                    throw new RuntimeException("Left-shift operation is only allowed on integer numbers.", node.Line);
+
+                return new DynValue((int)left.Number << (int)right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt of bitwise left-shift on {left.Type} using {right.Type}.",
+                    node.Line);
+            }
+        }
+
+        private DynValue ShiftRight(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.String)
+            {
+                if (right.Type != DynValueType.Number)
+                {
+                    throw new RuntimeException($"Attempt to right-shift a string using {right.Type}.", node.Line);
+                }
+
+                if (right.Number > left.String.Length)
+                    return new DynValue(string.Empty);
+                else if (right.Number < 0)
+                {
+                    var prefix = new string(' ', (int)Math.Abs(right.Number));
+                    return new DynValue(left.String + prefix);
+                }
+                return new DynValue(left.String[0..(left.String.Length - (int)right.Number)]);
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                    throw new RuntimeException($"Attempt to right-shift a non-integral number.", node.Line);
+
+                return new DynValue((int)left.Number >> (int)right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to right-shift a {left.Type} using {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue BitwiseAnd(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                    throw new RuntimeException($"Attempt to bitwise AND a non-integral number.", node.Line);
+
+                return new DynValue((int)left.Number & (int)right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to bitwise AND {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue BitwiseOr(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                    throw new RuntimeException($"Attempt to bitwise OR a non-integral number.", node.Line);
+
+                return new DynValue((int)left.Number | (int)right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to bitwise OR {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue BitwiseXor(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number % 1 != 0 || right.Number % 1 != 0)
+                    throw new RuntimeException($"Attempt to bitwise XOR a non-integral number.", node.Line);
+
+                return new DynValue((int)left.Number ^ (int)right.Number);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to bitwise XOR {left.Type} and {right.Type}.", node.Line);
+            }
+        }
+
+        private DynValue CompareLess(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number < right.Number)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                if (left.String.Length < right.String.Length)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '>'.", node.Line);
+            }
+        }
+
+        private DynValue CompareGreater(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number > right.Number)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                if (left.String.Length > right.String.Length)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '<'.", node.Line);
+            }
+        }
+
+        private DynValue CompareLessOrEqual(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number <= right.Number)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                if (left.String.Length <= right.String.Length)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '<='.", node.Line);
+            }
+        }
+
+        private DynValue CompareGreaterOrEqual(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number >= right.Number)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                if (left.String.Length >= right.String.Length)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '>='.", node.Line);
+            }
+        }
+
+        private DynValue CompareNotEqual(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (!left.Number.Equals(right.Number))
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                if (left.String.Length != right.String.Length && right.String != left.String)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '!='.", node.Line);
+            }
+        }
+
+        private DynValue CompareEqual(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number.Equals(right.Number))
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                if (left.String.Length == right.String.Length && right.String == left.String)
+                    return new DynValue(1);
+
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '=='.", node.Line);
+            }
+        }
+
+        private DynValue LogicalAnd(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number != 0 && right.Number != 0)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt of logical conjunction on {left.Type} and {right.Type}.",
+                    node.Line);
+            }
+        }
+
+        private DynValue LogicalOr(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            {
+                if (left.Number != 0 || right.Number != 0)
+                    return new DynValue(1);
+                else return new DynValue(0);
+            }
+            else
+            {
+                throw new RuntimeException($"Attempt of logical alternative on {left.Type} and {right.Type}.",
+                    node.Line);
+            }
+        }
     }
 }
