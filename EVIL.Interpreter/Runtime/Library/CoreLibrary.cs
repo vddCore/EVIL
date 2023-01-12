@@ -8,14 +8,14 @@ namespace EVIL.Interpreter.Runtime.Library
     public class CoreLibrary
     {
         [ClrFunction("type")]
-        public static DynValue Type(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Type(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1);
             return new DynValue(args[0].Type.ToString().ToLower());
         }
 
         [ClrFunction("strace")]
-        public static DynValue Strace(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Strace(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectNone();
 
@@ -29,7 +29,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("isglobal")]
-        public static DynValue IsGlobal(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue IsGlobal(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -43,7 +43,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("islocal")]
-        public static DynValue IsLocal(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue IsLocal(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);

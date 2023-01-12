@@ -71,7 +71,7 @@ namespace EVIL.Interpreter
                 if (attr == null)
                     continue;
 
-                var d = m.CreateDelegate<Func<Execution.Interpreter, ClrFunctionArguments, DynValue>>();
+                var d = m.CreateDelegate<Func<Execution.Interpreter, FunctionArguments, DynValue>>();
 
                 RegisterFunction(
                     attr.Name,

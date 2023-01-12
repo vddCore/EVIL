@@ -70,10 +70,10 @@ namespace EVIL.Interpreter.Execution
                     return CompareEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.And:
-                    return LogicalAnd(left, right);
+                    return LogicalAnd(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Or:
-                    return LogicalOr(left, right);
+                    return LogicalOr(left, right, binaryOperationNode);
 
                 case BinaryOperationType.ExistsIn:
                     return ExistsIn(left, right, binaryOperationNode);
@@ -84,7 +84,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Addition(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            if (ExecuteBinaryMeta("__add", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
                 return new DynValue(left.String + right.String);
             else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
                 return new DynValue(left.Number + right.Number);
@@ -109,7 +113,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Subtraction(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__sub", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 return new DynValue(left.Number - right.Number);
             }
@@ -121,7 +129,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Multiplication(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.String)
+            if (ExecuteBinaryMeta("__mul", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.String)
             {
                 if (right.Type != DynValueType.Number)
                 {
@@ -165,7 +177,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Division(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__div", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (right.Number == 0)
                     throw new RuntimeException("Attempt to divide by zero.", node.Line);
@@ -180,7 +196,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Modulus(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__mod", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (right.Number == 0)
                     throw new RuntimeException("Attempt to divide by zero.", node.Line);
@@ -197,7 +217,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue ShiftLeft(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.String)
+            if (ExecuteBinaryMeta("__shl", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.String)
             {
                 if (right.Type != DynValueType.Number)
                 {
@@ -230,7 +254,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue ShiftRight(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.String)
+            if (ExecuteBinaryMeta("__shr", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.String)
             {
                 if (right.Type != DynValueType.Number)
                 {
@@ -261,7 +289,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue BitwiseAnd(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__band", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
                     throw new RuntimeException($"Attempt to bitwise AND a non-integral number.", node.Line);
@@ -276,7 +308,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue BitwiseOr(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__bor", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
                     throw new RuntimeException($"Attempt to bitwise OR a non-integral number.", node.Line);
@@ -291,6 +327,10 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue BitwiseXor(DynValue left, DynValue right, AstNode node)
         {
+            if (ExecuteBinaryMeta("__bxor", left, right, node, out var result))
+            {
+                return result;
+            }
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
@@ -306,7 +346,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareLess(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__lt", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number < right.Number)
                     return new DynValue(1);
@@ -326,7 +370,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareGreater(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__gt", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number > right.Number)
                     return new DynValue(1);
@@ -346,7 +394,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareLessOrEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__le", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number <= right.Number)
                     return new DynValue(1);
@@ -366,7 +418,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareGreaterOrEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__ge", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number >= right.Number)
                     return new DynValue(1);
@@ -386,7 +442,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareNotEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__ne", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number != right.Number)
                     return new DynValue(1);
@@ -406,7 +466,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (ExecuteBinaryMeta("__eq", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number == right.Number)
                     return new DynValue(1);
@@ -425,9 +489,13 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        private DynValue LogicalAnd(DynValue left, DynValue right)
+        private DynValue LogicalAnd(DynValue left, DynValue right, AstNode node)
         {
-            if (left.IsTruth && right.IsTruth)
+            if (ExecuteBinaryMeta("__and", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.IsTruth && right.IsTruth)
             {
                 return right.Copy();
             }
@@ -437,9 +505,13 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        private DynValue LogicalOr(DynValue left, DynValue right)
+        private DynValue LogicalOr(DynValue left, DynValue right, AstNode node)
         {
-            if (left.IsTruth)
+            if (ExecuteBinaryMeta("__or", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (left.IsTruth)
             {
                 return left.Copy();
             }
@@ -452,7 +524,11 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue ExistsIn(DynValue left, DynValue right, BinaryOperationNode node)
         {
-            if (right.Type == DynValueType.Table)
+            if (ExecuteBinaryMeta("__exists", left, right, node, out var result))
+            {
+                return result;
+            }
+            else if (right.Type == DynValueType.Table)
             {
                 if (left.Type == DynValueType.String || left.Type == DynValueType.Number)
                 {
@@ -465,6 +541,30 @@ namespace EVIL.Interpreter.Execution
             }
 
             throw new RuntimeException($"Attempt to check existence of {left.Type} in {right.Type}.", node.Line);
+        }
+
+        private bool ExecuteBinaryMeta(string identifier, DynValue left, DynValue right, AstNode node, out DynValue value)
+        {
+            var meta = left.Meta[identifier];
+
+            if (meta.IsTruth)
+            {
+                if (meta.Type == DynValueType.Function)
+                {
+                    var args = new FunctionArguments();
+                    args.Add(left);
+                    args.Add(right);
+
+                    value = ExecuteScriptFunction(meta.ScriptFunction, identifier, args, node);
+                }
+                else value = meta;
+                return true;
+            }
+            else
+            {
+                value = DynValue.Zero;
+                return false;
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ namespace EVIL.Interpreter.Runtime.Library
     public class TableLibrary
     {
         [ClrFunction("tbl.ins")]
-        public static DynValue Insert(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Insert(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(3)
                 .ExpectTypeAtIndex(0, DynValueType.Table);
@@ -22,7 +22,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("tbl.rm")]
-        public static DynValue Remove(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Remove(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.Table);

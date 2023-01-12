@@ -3,12 +3,10 @@
     public class VariableNode : AstNode
     {
         public string Identifier { get; }
-        public bool IsBeingDefined { get; }
 
-        public VariableNode(string identifier, bool isBeingDefined = false)
+        public VariableNode(string identifier)
         {
             Identifier = identifier;
-            IsBeingDefined = isBeingDefined;
         }
     }
 }

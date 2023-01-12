@@ -1,4 +1,5 @@
 ﻿using System;
+using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
@@ -11,7 +12,18 @@ namespace EVIL.Interpreter.Execution
         {
             var invokable = Visit(functionCallNode.Left);
 
-            if (invokable.Type == DynValueType.Function)
+            var meta = invokable.Meta["__call"];
+
+            if (meta.IsTruth)
+            {
+                var parameters = new FunctionArguments();
+
+                foreach (var node in functionCallNode.Parameters)
+                    parameters.Add(Visit(node));
+
+                return ExecuteCallMeta(invokable, parameters, functionCallNode);
+            }
+            else if (invokable.Type == DynValueType.Function)
             {
                 return InvokeFunction(functionCallNode, invokable);
             }
@@ -49,7 +61,7 @@ namespace EVIL.Interpreter.Execution
                 }
             }
 
-            var parameters = new ClrFunctionArguments();
+            var parameters = new FunctionArguments();
 
             foreach (var node in functionCallNode.Parameters)
                 parameters.Add(Visit(node));
@@ -118,7 +130,7 @@ namespace EVIL.Interpreter.Execution
             return tableValue;
         }
 
-        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, ClrFunctionArguments args, FunctionCallNode node)
+        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args, AstNode node)
         {
             var callStackItem = new StackFrame(name);
             var iterator = 0;
@@ -165,7 +177,7 @@ namespace EVIL.Interpreter.Execution
             return retval;
         }
 
-        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, ClrFunctionArguments args)
+        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args)
         {
             var csi = new StackFrame($"CLR!{name}");
             Environment.CallStack.Push(csi);
@@ -181,6 +193,17 @@ namespace EVIL.Interpreter.Execution
             }
 
             return retVal;
+        }
+        
+        private DynValue ExecuteCallMeta(DynValue operand, FunctionArguments args, AstNode node)
+        {
+            var meta = operand.Meta["__call"];
+
+            if (meta.Type == DynValueType.Function)
+            {
+                return ExecuteScriptFunction(meta.ScriptFunction, "__call", args, node);
+            }
+            else return meta;
         }
     }
 }
