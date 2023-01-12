@@ -12,7 +12,7 @@ namespace EVIL
 {
     public class Environment
     {
-        public int CallStackLimit { get; set; } = 64;
+        public int CallStackLimit { get; set; } = 72;
 
         public Stack<StackFrame> CallStack { get; }
         public Stack<LoopFrame> LoopStack { get; }
