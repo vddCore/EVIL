@@ -318,7 +318,7 @@ namespace EVIL.ExecutionEngine
                             throw new UnexpectedTypeException(b.Type, DynamicValueType.String);
 
                         evstack.Push(new(a.String + b.String));
-                        return;
+                        break;
                     }
                     else if (a.Type == DynamicValueType.Number)
                     {
@@ -326,7 +326,7 @@ namespace EVIL.ExecutionEngine
                             throw new UnexpectedTypeException(b.Type, DynamicValueType.Number);
 
                         evstack.Push(new(a.Number + b.Number));
-                        return;
+                        break;
                     }
 
                     throw new UnexpectedTypeException(a.Type);

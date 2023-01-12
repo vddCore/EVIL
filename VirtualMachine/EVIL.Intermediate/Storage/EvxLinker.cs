@@ -16,7 +16,7 @@ namespace EVIL.Intermediate.Storage
 
         public static void Link(Executable exe, string filePath)
         {
-            Link(exe, new FileStream(filePath, FileMode.OpenOrCreate));
+            Link(exe, new FileStream(filePath, FileMode.Create));
         }
 
         public static void Link(Executable exe, Stream outStream)
