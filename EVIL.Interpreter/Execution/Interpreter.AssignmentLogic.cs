@@ -10,7 +10,7 @@ namespace EVIL.Interpreter.Execution
         {
             var left = Visit(assignmentNode.Left);
             var right = Visit(assignmentNode.Right);
-
+            
             switch (assignmentNode.OperationType)
             {
                 case AssignmentOperationType.Direct:
@@ -56,6 +56,12 @@ namespace EVIL.Interpreter.Execution
             }
 
             left.CopyFrom(right);
+            
+            if (assignmentNode.Left is IndexingNode)
+            {
+                _currentThisContextStack.Pop();
+            }
+            
             return right;
         }
     }
