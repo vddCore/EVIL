@@ -9,7 +9,7 @@ namespace EVIL.Parsing
         private AssignmentNode Assignment(AstNode left)
         {           
             var line = Match(TokenType.Assign);
-            var right = Operator();
+            var right = Assignment();
             return new AssignmentNode(left, right) {Line = line};
         }
     }

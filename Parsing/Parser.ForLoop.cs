@@ -24,7 +24,7 @@ namespace EVIL.Parsing
                 }
                 Match(TokenType.Semicolon);
 
-                condition = Operator();
+                condition = Assignment();
                 Match(TokenType.Semicolon);
 
                 iterationStatements.Add(Statement());

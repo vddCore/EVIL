@@ -5,21 +5,29 @@ namespace EVIL.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(PostIncrementationNode postIncrementationNode)
+        public override DynValue Visit(IncrementationNode incrementationNode)
         {
-            var numValue = Visit(postIncrementationNode.Left);
+            var numValue = Visit(incrementationNode.Target);
 
             if (numValue.Type != DynValueType.Number)
             {
                 throw new RuntimeException(
-                    "Cannot increment this value because it's not a number.", postIncrementationNode.Line
+                    "Cannot increment this value because it's not a number.", incrementationNode.Line
                 );
             }
-            
-            var retVal = numValue.Copy();
-            numValue.CopyFrom(new DynValue(numValue.Number + 1));
 
-            return retVal;
+            if (incrementationNode.IsPrefix)
+            {
+                numValue.CopyFrom(new DynValue(numValue.Number + 1));
+                return numValue;
+            }
+            else
+            {
+                var retVal = numValue.Copy();
+                numValue.CopyFrom(new DynValue(numValue.Number + 1));
+
+                return retVal;
+            }
         }
     }
 }

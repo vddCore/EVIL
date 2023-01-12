@@ -9,7 +9,7 @@ namespace EVIL.Parsing
         private AstNode Return()
         {
             var line = Match(TokenType.Ret);
-            return new ReturnNode(Operator()) { Line = line };
+            return new ReturnNode(Assignment()) { Line = line };
         }
     }
 }

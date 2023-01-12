@@ -17,7 +17,7 @@ namespace EVIL.Parsing
 
             Match(TokenType.Colon);
 
-            var tableNode = Operator();
+            var tableNode = Assignment();
             
             Match(TokenType.RParenthesis);
             Match(TokenType.LBrace);

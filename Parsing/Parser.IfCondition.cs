@@ -11,7 +11,7 @@ namespace EVIL.Parsing
             var line = Match(TokenType.If);
             Match(TokenType.LParenthesis);
 
-            var expression = Operator();
+            var expression = Assignment();
 
             Match(TokenType.RParenthesis);
             Match(TokenType.LBrace);
@@ -27,7 +27,7 @@ namespace EVIL.Parsing
                     Match(TokenType.Elif);
                     Match(TokenType.LParenthesis);
 
-                    expression = Operator();
+                    expression = Assignment();
 
                     Match(TokenType.RParenthesis);
                     

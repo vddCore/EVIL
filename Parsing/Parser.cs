@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EVIL.AST.Base;
 using EVIL.AST.Nodes;
 using EVIL.Lexical;
@@ -94,6 +95,12 @@ namespace EVIL.Parsing
             Scanner.NextToken();
 
             return line;
+        }
+
+        private void DisallowPrevious(params TokenType[] types)
+        {
+            if(types.Contains(Scanner.State.PreviousToken.Type))
+                throw new ParserException("Syntax error.", Scanner.State);
         }
     }
 }

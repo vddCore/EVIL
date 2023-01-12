@@ -8,14 +8,10 @@ namespace EVIL.Parsing
     {
         private static readonly List<TokenType> _actionOperators = new()
         {
-            TokenType.Assign,
-            TokenType.LParenthesis,
-            TokenType.LBracket,
-            TokenType.Increment,
-            TokenType.Decrement
+            TokenType.Assign
         };
-        
-        private AstNode Operator()
+
+        private AstNode Assignment()
         {
             var node = LogicalExpression();
             var token = Scanner.State.CurrentToken;
@@ -23,17 +19,9 @@ namespace EVIL.Parsing
             while (_actionOperators.Contains(token.Type))
             {
                 token = Scanner.State.CurrentToken;
-                
+
                 if (token.Type == TokenType.Assign)
                     node = Assignment(node);
-                else if (token.Type == TokenType.LParenthesis)
-                    node = FunctionCall(node);
-                else if (token.Type == TokenType.LBracket)
-                    node = Indexing(node);
-                else if (token.Type == TokenType.Increment)
-                    node = PostIncrementation(node);
-                else if (token.Type == TokenType.Decrement)
-                    node = PostDecrementation(node);
             }
 
             return node;
