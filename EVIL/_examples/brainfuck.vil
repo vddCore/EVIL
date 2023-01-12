@@ -4,19 +4,19 @@ var tape = {}
 var pointer = 0
 var codepointer = 0
 
-var os.print.orig = os.print
-os.print = fn(s) {
+var io.print.orig = io.print
+io.print = fn(s) {
   if(s == "\n") {
     s = "\r\n"
   }
-  os.print.orig(s)
+  io.print.orig(s)
 }
 
 fn main(args) {
   if(#args < 1) {
     var help = "Usage: bf <code>\r\nFor example: bf +++---<><>+[-]\r\n" +
                "File input is not supported yet."
-    os.println(help)
+    io.println(help)
     ret 0
   }
 
@@ -51,10 +51,10 @@ fn main(args) {
       }
     }
     elif(char == ".") {
-      os.print(str.chr(tape[pointer]))
+      io.print(str.chr(tape[pointer]))
     }
     elif(char == ",") {
-      tape[pointer] = os.read()
+      tape[pointer] = io.read()
     }
 
     codepointer++
@@ -62,15 +62,15 @@ fn main(args) {
 }
 
 fn printtape() {
-  os.print("[" + @#tape + "] ")
+  io.print("[" + @#tape + "] ")
 
   each(var i, var v : tape) {
-    os.print(@v + ", ")
+    io.print(@v + ", ")
     if(i > 30) {
       break
     }
   }
-  os.println()
+  io.println()
 }
 
 fn findClosingBrac(text, openPos) {
