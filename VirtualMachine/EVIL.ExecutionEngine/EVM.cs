@@ -24,7 +24,7 @@ namespace EVIL.ExecutionEngine
         public void Load(Executable executable)
         {
             if (Running)
-                Reset();
+                Stop();
 
             Executable = executable;
 
@@ -58,11 +58,17 @@ namespace EVIL.ExecutionEngine
 
             while (Running)
             {
+                if (ExecutionContexts.Count <= 0)
+                {
+                    Running = false;
+                    continue;
+                }
+                
                 for (var i = 0; i < ExecutionContexts.Count; i++)
                 {
                     if (!Running)
                         break;
-
+                    
                     var ctx = ExecutionContexts[i];
 
                     if (ctx.Running)
@@ -131,16 +137,6 @@ namespace EVIL.ExecutionEngine
             }
 
             return c;
-        }
-
-        public void Reset()
-        {
-            for (var i = 0; i < ExecutionContexts.Count; i++)
-            {
-                ExecutionContexts[i].Pause();
-            }
-
-            ExecutionContexts.Clear();
         }
 
         public void Run(params DynamicValue[] args)
