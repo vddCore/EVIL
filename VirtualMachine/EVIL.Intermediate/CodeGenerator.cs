@@ -6,6 +6,8 @@ namespace EVIL.Intermediate
     {
         private List<byte> _instructions;
 
+        internal OpCode LastOpCode { get; private set; }
+
         internal CodeGenerator(Chunk chunk)
         {
             _instructions = chunk.Instructions;
@@ -24,7 +26,10 @@ namespace EVIL.Intermediate
         }
 
         public void Emit(OpCode opCode)
-            => _instructions.Add((byte)opCode);
+        {
+            _instructions.Add((byte)opCode);
+            LastOpCode = opCode;
+        }
 
         private void Emit(int primitive)
         {

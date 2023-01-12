@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Schema;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Grammar.Traversal;
@@ -13,6 +12,9 @@ namespace EVIL.Intermediate
 
         private int _currentLocalFunctionIndex;
 
+        private Stack<int> LoopContinueLabels { get; } = new();
+        private Stack<int> LoopEndLabels { get; } = new();
+        
         private Stack<Scope> ScopeStack { get; } = new();
         private Stack<Chunk> ChunkDefinitionStack { get; } = new();
 
@@ -88,10 +90,6 @@ namespace EVIL.Intermediate
         {
         }
 
-        public override void Visit(ForStatement forStatement)
-        {
-        }
-
         public override void Visit(DoWhileStatement doWhileStatement)
         {
         }
@@ -102,10 +100,14 @@ namespace EVIL.Intermediate
 
         public override void Visit(BreakStatement breakStatement)
         {
+            var cg = CurrentChunk.GetCodeGenerator();
+            cg.Emit(OpCode.JUMP, LoopEndLabels.Peek());
         }
 
         public override void Visit(SkipStatement nextStatement)
         {
+            var cg = CurrentChunk.GetCodeGenerator();
+            cg.Emit(OpCode.JUMP, LoopContinueLabels.Peek());
         }
 
         public override void Visit(TableExpression tableExpression)
@@ -113,14 +115,6 @@ namespace EVIL.Intermediate
         }
 
         public override void Visit(IndexerExpression indexerExpression)
-        {
-        }
-
-        public override void Visit(IncrementationExpression incrementationExpression)
-        {
-        }
-
-        public override void Visit(DecrementationExpression decrementationExpression)
         {
         }
 
