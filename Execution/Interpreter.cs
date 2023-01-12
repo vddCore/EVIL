@@ -72,6 +72,48 @@ namespace EVIL.Execution
             }
         }
 
+        public async Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
+        {
+            Parser.LoadSource(sourceCode);
+            var node = Parser.Parse();
+
+            try
+            {
+                await Task.Run(() => Visit(node));
+                var entryNode = node.FindChildFunctionDefinition(entryPoint);
+
+                if (entryNode == null)
+                {
+                    throw new RuntimeException($"Entry point '{entryPoint}' missing.", null);
+                }
+                
+                var csi = new CallStackItem(entryNode.Name);
+                if (entryNode.ParameterNames.Count >= 1)
+                {
+                    var tbl = new Table();
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        tbl[i] = new DynValue(args[i]);
+                    }
+                    
+                    csi.ParameterScope.Add(entryNode.ParameterNames[0], new DynValue(tbl));
+                }
+                CallStack.Push(csi);
+
+                var result = ExecuteStatementList(entryNode.StatementList);
+                CallStack.Pop();
+
+                return result;
+            }
+            catch (ExitStatementException)
+            {
+                CallStack.Clear();
+                LoopStack.Clear();
+
+                return DynValue.Zero;
+            }
+        }
+
         public override DynValue Visit(RootNode rootNode)
         {
             ExecuteStatementList(rootNode.Children);
@@ -80,7 +122,7 @@ namespace EVIL.Execution
 
         public List<CallStackItem> StackTrace()
         {
-            return new List<CallStackItem>(CallStack);
+            return new(CallStack);
         }
 
         private DynValue ExecuteStatementList(List<AstNode> statements)

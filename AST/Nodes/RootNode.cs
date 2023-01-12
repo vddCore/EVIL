@@ -11,5 +11,21 @@ namespace EVIL.AST.Nodes
         {
             Children = new List<AstNode>();
         }
+
+        public FunctionDefinitionNode FindChildFunctionDefinition(string fnName)
+        {
+            for (var i = 0; i < Children.Count; i++)
+            {
+                if (Children[i] is FunctionDefinitionNode fdn)
+                {
+                    if (fdn.Name == fnName)
+                    {
+                        return fdn;
+                    }
+                }
+            }
+
+            return null;
+        }
     }
 }
