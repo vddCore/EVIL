@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode LogicalAndExpression()
+        private Expression LogicalAndExpression()
         {
             var node = InclusiveOrExpression();
             var token = CurrentToken;
@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             while (token.Type == TokenType.LogicalAnd)
             {
                 var line = Match(Token.LogicalAnd);
-                node = new BinaryOperationNode(node, InclusiveOrExpression(), BinaryOperationType.LogicalAnd) {Line = line};
+                node = new BinaryExpression(node, InclusiveOrExpression(), BinaryOperationType.LogicalAnd) {Line = line};
                 
                 token = CurrentToken;
             }

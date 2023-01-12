@@ -35,34 +35,26 @@ namespace EVIL.Interpreter.Diagnostics
             return dynValue;
         }
 
-        public void UnSetInChain(string identifier)
+        public void FindAndUndefine(string identifier)
         {
             var current = this;
 
             while (current != null)
             {
-                if (!current.HasMember(identifier))
+                if (current.HasMember(identifier))
                 {
-                    if (current.ParentScope == null)
-                    {
-                        if (_env.GlobalScope.HasMember(identifier))
-                        {
-                            current = _env.GlobalScope;
-                            break;
-                        }
-                        throw new RuntimeException($"'{identifier}' was not found in current scope.", _env, null);
-                    }
-
-                    current = current.ParentScope;
-                    continue;
+                    current.Members.Remove(identifier);
+                    return;
                 }
-                break;
+                
+                current = current.ParentScope;
             }
 
-            current.Members.Remove(identifier);
+
+            throw new RuntimeException($"'{identifier}' was not found in current scope.", _env, null);
         }
 
-        public DynValue FindInScopeChain(string identifier)
+        public DynValue FindInScope(string identifier)
         {
             var current = this;
 
@@ -73,9 +65,6 @@ namespace EVIL.Interpreter.Diagnostics
 
                 current = current.ParentScope;
             }
-
-            if (_env.GlobalScope.HasMember(identifier))
-                return _env.GlobalScope.Members[identifier];
 
             return null;
         }

@@ -25,7 +25,7 @@ namespace EVIL.Interpreter.Execution
             }
             else if (undefStatement.Right is VariableReference variable)
             {
-                Environment.LocalScope.UnSetInChain(variable.Identifier);
+                Environment.LocalScope.FindAndUndefine(variable.Identifier);
             }
             else
             {

@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode DoWhileLoop()
+        private DoWhileStatement DoWhileLoop()
         {
             Match(Token.Do);
 
@@ -17,7 +17,7 @@ namespace EVIL.Grammar.Parsing
             var conditionExpression = AssignmentExpression();
             Match(Token.RParenthesis);
 
-            return new DoWhileLoopNode(conditionExpression, statements);
+            return new DoWhileStatement(conditionExpression, statements);
         }
     }
 }

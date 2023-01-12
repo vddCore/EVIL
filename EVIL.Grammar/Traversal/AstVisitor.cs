@@ -15,35 +15,34 @@ namespace EVIL.Grammar.Traversal
         {
             Handlers = new()
             {
-                {typeof(ProgramNode), (n) => Visit(n as ProgramNode)},
-                {typeof(BlockStatementNode), (n) => Visit(n as BlockStatementNode)},
-                {typeof(ConditionalExpressionNode), (n) => Visit(n as ConditionalExpressionNode)},
-                {typeof(NumberNode), (n) => Visit(n as NumberNode)},
-                {typeof(StringNode), (n) => Visit(n as StringNode)},
-                {typeof(AssignmentNode), (n) => Visit(n as AssignmentNode)},
-                {typeof(BinaryOperationNode), (n) => Visit(n as BinaryOperationNode)},
-                {typeof(UnaryOperationNode), (n) => Visit(n as UnaryOperationNode)},
-                {typeof(VariableNode), (n) => Visit(n as VariableNode)},
-                {typeof(VariableDefinitionNode), (n) => Visit(n as VariableDefinitionNode)},
-                {typeof(FunctionDefinitionNamedNode), (n) => Visit(n as FunctionDefinitionNamedNode)},
-                {typeof(FunctionDefinitionAnonymousNode), (n) => Visit(n as FunctionDefinitionAnonymousNode)},
-                {typeof(FunctionCallNode), (n) => Visit(n as FunctionCallNode)},
-                {typeof(DecisionNode), (n) => Visit(n as DecisionNode)},
-                {typeof(ExitNode), (n) => Visit(n as ExitNode)},
-                {typeof(ForLoopNode), (n) => Visit(n as ForLoopNode)},
-                {typeof(DoWhileLoopNode), (n) => Visit(n as DoWhileLoopNode)},
-                {typeof(WhileLoopNode), (n) => Visit(n as WhileLoopNode)},
-                {typeof(ReturnNode), (n) => Visit(n as ReturnNode)},
-                {typeof(BreakNode), (n) => Visit(n as BreakNode)},
-                {typeof(SkipNode), (n) => Visit(n as SkipNode)},
-                {typeof(TableNode), (n) => Visit(n as TableNode)},
-                {typeof(IndexingNode), (n) => Visit(n as IndexingNode)},
-                {typeof(IncrementationNode), (n) => Visit(n as IncrementationNode)},
-                {typeof(DecrementationNode), (n) => Visit(n as DecrementationNode)},
-                {typeof(UndefNode), (n) => Visit(n as UndefNode)},
-                {typeof(EachLoopNode), (n) => Visit(n as EachLoopNode)},
-                {typeof(ParameterListNode), (n) => Visit(n as ParameterListNode)},
-                {typeof(ArgumentListNode), (n) => Visit(n as ArgumentListNode)},
+                {typeof(Program), (n) => Visit(n as Program)},
+                {typeof(BlockStatement), (n) => Visit(n as BlockStatement)},
+                {typeof(ConditionalExpression), (n) => Visit(n as ConditionalExpression)},
+                {typeof(NumberExpression), (n) => Visit(n as NumberExpression)},
+                {typeof(StringConstant), (n) => Visit(n as StringConstant)},
+                {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
+                {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
+                {typeof(UnaryExpression), (n) => Visit(n as UnaryExpression)},
+                {typeof(VariableReference), (n) => Visit(n as VariableReference)},
+                {typeof(VariableDefinition), (n) => Visit(n as VariableDefinition)},
+                {typeof(FunctionDefinition), (n) => Visit(n as FunctionDefinition)},
+                {typeof(FunctionExpression), (n) => Visit(n as FunctionExpression)},
+                {typeof(FunctionCallExpression), (n) => Visit(n as FunctionCallExpression)},
+                {typeof(IfStatement), (n) => Visit(n as IfStatement)},
+                {typeof(ExitStatement), (n) => Visit(n as ExitStatement)},
+                {typeof(ForStatement), (n) => Visit(n as ForStatement)},
+                {typeof(DoWhileStatement), (n) => Visit(n as DoWhileStatement)},
+                {typeof(WhileStatement), (n) => Visit(n as WhileStatement)},
+                {typeof(ReturnStatement), (n) => Visit(n as ReturnStatement)},
+                {typeof(BreakStatement), (n) => Visit(n as BreakStatement)},
+                {typeof(SkipStatement), (n) => Visit(n as SkipStatement)},
+                {typeof(TableExpression), (n) => Visit(n as TableExpression)},
+                {typeof(IndexerExpression), (n) => Visit(n as IndexerExpression)},
+                {typeof(IncrementationExpression), (n) => Visit(n as IncrementationExpression)},
+                {typeof(DecrementationExpression), (n) => Visit(n as DecrementationExpression)},
+                {typeof(UndefStatement), (n) => Visit(n as UndefStatement)},
+                {typeof(EachStatement), (n) => Visit(n as EachStatement)},
+                {typeof(ExpressionStatement), (n) => Visit(n as ExpressionStatement)}
             };
         }
 
@@ -57,34 +56,33 @@ namespace EVIL.Grammar.Traversal
             Handlers[type](node);
         }
 
-        public abstract void Visit(ProgramNode programNode);
-        public abstract void Visit(BlockStatementNode blockStatementNode);
-        public abstract void Visit(ConditionalExpressionNode conditionalExpressionNode);
-        public abstract void Visit(NumberNode numberNode);
-        public abstract void Visit(StringNode stringNode);
-        public abstract void Visit(AssignmentNode assignmentNode);
-        public abstract void Visit(BinaryOperationNode binaryOperationNode);
-        public abstract void Visit(UnaryOperationNode unaryOperationNode);
-        public abstract void Visit(VariableNode variableNode);
-        public abstract void Visit(VariableDefinitionNode variableDefinitionNode);
-        public abstract void Visit(FunctionDefinitionNamedNode functionDefinitionNamedNode);
-        public abstract void Visit(FunctionDefinitionAnonymousNode functionDefinitionAnonymousNode);
-        public abstract void Visit(FunctionCallNode functionCallNode);
-        public abstract void Visit(DecisionNode decisionNode);
-        public abstract void Visit(ExitNode exitNode);
-        public abstract void Visit(ForLoopNode forLoopNode);
-        public abstract void Visit(DoWhileLoopNode doWhileLoopNode);
-        public abstract void Visit(WhileLoopNode whileLoopNode);
-        public abstract void Visit(ReturnNode returnNode);
-        public abstract void Visit(BreakNode breakNode);
-        public abstract void Visit(SkipNode nextNode);
-        public abstract void Visit(TableNode tableNode);
-        public abstract void Visit(IndexingNode indexingNode);
-        public abstract void Visit(IncrementationNode incrementationNode);
-        public abstract void Visit(DecrementationNode decrementationNode);
-        public abstract void Visit(UndefNode undefNode);
-        public abstract void Visit(EachLoopNode eachLoopNode);
-        public abstract void Visit(ParameterListNode parameterListNode);
-        public abstract void Visit(ArgumentListNode argumentListNode);
+        public abstract void Visit(Program program);
+        public abstract void Visit(BlockStatement blockStatement);
+        public abstract void Visit(ConditionalExpression conditionalExpression);
+        public abstract void Visit(NumberExpression numberExpression);
+        public abstract void Visit(StringConstant stringConstant);
+        public abstract void Visit(AssignmentExpression assignmentExpression);
+        public abstract void Visit(BinaryExpression binaryExpression);
+        public abstract void Visit(UnaryExpression unaryExpression);
+        public abstract void Visit(VariableReference variableReference);
+        public abstract void Visit(VariableDefinition variableDefinition);
+        public abstract void Visit(FunctionDefinition functionDefinition);
+        public abstract void Visit(FunctionExpression functionExpression);
+        public abstract void Visit(FunctionCallExpression functionCallExpression);
+        public abstract void Visit(IfStatement ifStatement);
+        public abstract void Visit(ExitStatement exitStatement);
+        public abstract void Visit(ForStatement forStatement);
+        public abstract void Visit(DoWhileStatement doWhileStatement);
+        public abstract void Visit(WhileStatement whileStatement);
+        public abstract void Visit(ReturnStatement returnStatement);
+        public abstract void Visit(BreakStatement breakStatement);
+        public abstract void Visit(SkipStatement nextStatement);
+        public abstract void Visit(TableExpression tableExpression);
+        public abstract void Visit(IndexerExpression indexerExpression);
+        public abstract void Visit(IncrementationExpression incrementationExpression);
+        public abstract void Visit(DecrementationExpression decrementationExpression);
+        public abstract void Visit(UndefStatement undefStatement);
+        public abstract void Visit(EachStatement eachStatement);
+        public abstract void Visit(ExpressionStatement expressionStatement);
     }
 }

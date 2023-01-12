@@ -7,11 +7,11 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private BlockStatementNode BlockStatement()
+        private BlockStatement BlockStatement()
         {
             var line = Match(Token.LBrace);
 
-            var statements = new List<AstNode>();
+            var statements = new List<Statement>();
             while (CurrentToken.Type != TokenType.RBrace)
             {
                 if (CurrentToken.Type == TokenType.EOF)
@@ -26,7 +26,7 @@ namespace EVIL.Grammar.Parsing
             }
             Match(Token.RBrace);
 
-            return new BlockStatementNode(statements) { Line = line };
+            return new BlockStatement(statements) { Line = line };
         }
     }
 }

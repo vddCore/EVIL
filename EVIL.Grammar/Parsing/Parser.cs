@@ -20,7 +20,7 @@ namespace EVIL.Grammar.Parsing
             Lexer = lexer;
         }
 
-        public ProgramNode Parse()
+        public Program Parse()
         {
             var programNode = Program();
             Match(Token.EOF);
@@ -36,6 +36,26 @@ namespace EVIL.Grammar.Parsing
 
             return ret;
         }
+        
+        private List<string> ParseParameters()
+        {
+            Match(Token.LParenthesis);
+            var parameters = new List<string>();
+
+            while (CurrentToken.Type != TokenType.RParenthesis)
+            {
+                parameters.Add(CurrentToken.Value);
+                Match(Token.Identifier);
+
+                if (CurrentToken.Type == TokenType.RParenthesis)
+                    break;
+
+                Match(Token.Comma);
+            }
+            Match(Token.RParenthesis);
+
+            return parameters;
+        }
 
         private T LoopDescent<T>(Func<T> func) where T : AstNode
         {
@@ -46,9 +66,9 @@ namespace EVIL.Grammar.Parsing
             return ret;
         }
 
-        private ProgramNode Program()
+        private Program Program()
         {
-            var statementList = new List<AstNode>();
+            var statementList = new List<Statement>();
 
             if (CurrentToken == null)
             {
@@ -63,7 +83,7 @@ namespace EVIL.Grammar.Parsing
                 statementList.Add(Statement());
             }
 
-            return new ProgramNode(statementList);
+            return new Program(statementList);
         }
 
         private int Match(Token token)

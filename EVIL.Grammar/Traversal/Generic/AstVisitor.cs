@@ -7,84 +7,99 @@ namespace EVIL.Grammar.Traversal.Generic
 {
     public abstract class AstVisitor<T>
     {
-        protected Dictionary<Type, NodeHandler> Handlers { get; }
+        protected Dictionary<Type, ExpressionHandler> ExpressionHandlers { get; }
+        protected Dictionary<Type, StatementHandler> StatementHandlers { get; }
         
-        protected delegate T NodeHandler(AstNode node);
+        protected delegate T ExpressionHandler(Expression expression);
+        protected delegate void StatementHandler(Statement statement);
 
         protected AstVisitor()
         {
-            Handlers = new()
+            ExpressionHandlers = new()
             {
-                {typeof(ProgramNode), (n) => Visit(n as ProgramNode)},
-                {typeof(BlockStatementNode), (n) => Visit(n as BlockStatementNode)},
-                {typeof(ConditionalExpressionNode), (n) => Visit(n as ConditionalExpressionNode)},
-                {typeof(NumberNode), (n) => Visit(n as NumberNode)},
-                {typeof(StringNode), (n) => Visit(n as StringNode)},
-                {typeof(AssignmentNode), (n) => Visit(n as AssignmentNode)},
-                {typeof(BinaryOperationNode), (n) => Visit(n as BinaryOperationNode)},
-                {typeof(UnaryOperationNode), (n) => Visit(n as UnaryOperationNode)},
-                {typeof(VariableNode), (n) => Visit(n as VariableNode)},
-                {typeof(VariableDefinitionNode), (n) => Visit(n as VariableDefinitionNode)},
-                {typeof(FunctionDefinitionNamedNode), (n) => Visit(n as FunctionDefinitionNamedNode)},
-                {typeof(FunctionDefinitionAnonymousNode), (n) => Visit(n as FunctionDefinitionAnonymousNode)},
-                {typeof(FunctionCallNode), (n) => Visit(n as FunctionCallNode)},
-                {typeof(DecisionNode), (n) => Visit(n as DecisionNode)},
-                {typeof(ExitNode), (n) => Visit(n as ExitNode)},
-                {typeof(ForLoopNode), (n) => Visit(n as ForLoopNode)},
-                {typeof(DoWhileLoopNode), (n) => Visit(n as DoWhileLoopNode)},
-                {typeof(WhileLoopNode), (n) => Visit(n as WhileLoopNode)},
-                {typeof(ReturnNode), (n) => Visit(n as ReturnNode)},
-                {typeof(BreakNode), (n) => Visit(n as BreakNode)},
-                {typeof(SkipNode), (n) => Visit(n as SkipNode)},
-                {typeof(TableNode), (n) => Visit(n as TableNode)},
-                {typeof(IndexingNode), (n) => Visit(n as IndexingNode)},
-                {typeof(IncrementationNode), (n) => Visit(n as IncrementationNode)},
-                {typeof(DecrementationNode), (n) => Visit(n as DecrementationNode)},
-                {typeof(UndefNode), (n) => Visit(n as UndefNode)},
-                {typeof(EachLoopNode), (n) => Visit(n as EachLoopNode)},
-                {typeof(ParameterListNode), (n) => Visit(n as ParameterListNode)},
-                {typeof(ArgumentListNode), (n) => Visit(n as ArgumentListNode)},
+                {typeof(ConditionalExpression), (n) => Visit(n as ConditionalExpression)},
+                {typeof(NumberExpression), (n) => Visit(n as NumberExpression)},
+                {typeof(StringConstant), (n) => Visit(n as StringConstant)},
+                {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
+                {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
+                {typeof(UnaryExpression), (n) => Visit(n as UnaryExpression)},
+                {typeof(VariableReference), (n) => Visit(n as VariableReference)},
+                {typeof(FunctionExpression), (n) => Visit(n as FunctionExpression)},
+                {typeof(FunctionCallExpression), (n) => Visit(n as FunctionCallExpression)},
+                {typeof(TableExpression), (n) => Visit(n as TableExpression)},
+                {typeof(IndexerExpression), (n) => Visit(n as IndexerExpression)},
+                {typeof(IncrementationExpression), (n) => Visit(n as IncrementationExpression)},
+                {typeof(DecrementationExpression), (n) => Visit(n as DecrementationExpression)},
+            };
+
+            StatementHandlers = new()
+            {
+                { typeof(Program), (n) => Visit(n as Program) },
+                { typeof(BlockStatement), (n) => Visit(n as BlockStatement) },
+                { typeof(VariableDefinition), (n) => Visit(n as VariableDefinition) },
+                { typeof(FunctionDefinition), (n) => Visit(n as FunctionDefinition) },
+                { typeof(IfStatement), (n) => Visit(n as IfStatement) },
+                { typeof(ExitStatement), (n) => Visit(n as ExitStatement) },
+                { typeof(ForStatement), (n) => Visit(n as ForStatement) },
+                { typeof(DoWhileStatement), (n) => Visit(n as DoWhileStatement) },
+                { typeof(WhileStatement), (n) => Visit(n as WhileStatement) },
+                { typeof(ReturnStatement), (n) => Visit(n as ReturnStatement) },
+                { typeof(BreakStatement), (n) => Visit(n as BreakStatement) },
+                { typeof(SkipStatement), (n) => Visit(n as SkipStatement) },
+                { typeof(UndefStatement), (n) => Visit(n as UndefStatement) },
+                { typeof(EachStatement), (n) => Visit(n as EachStatement) },
+                { typeof(ExpressionStatement), (n) => Visit(n as ExpressionStatement) }
             };
         }
 
-        public virtual T Visit(AstNode node)
+        public virtual T Visit(Expression expression)
         {
-            var type = node.GetType();
+            var type = expression.GetType();
 
-            if (!Handlers.ContainsKey(type))
-                throw new Exception("Forgot to add a node type, idiot.");
+            if (!ExpressionHandlers.ContainsKey(type))
+                throw new Exception($"{type.Name} is not an expression node.");
 
-            return Handlers[type](node);
+            return ExpressionHandlers[type](expression);
         }
 
-        public abstract T Visit(ProgramNode programNode);
-        public abstract T Visit(BlockStatementNode blockStatementNode);
-        public abstract T Visit(ConditionalExpressionNode conditionalExpressionNode);
-        public abstract T Visit(NumberNode numberNode);
-        public abstract T Visit(StringNode stringNode);
-        public abstract T Visit(AssignmentNode assignmentNode);
-        public abstract T Visit(BinaryOperationNode binaryOperationNode);
-        public abstract T Visit(UnaryOperationNode unaryOperationNode);
-        public abstract T Visit(VariableNode variableNode);
-        public abstract T Visit(VariableDefinitionNode variableDefinitionNode);
-        public abstract T Visit(FunctionDefinitionNamedNode functionDefinitionNamedNode);
-        public abstract T Visit(FunctionDefinitionAnonymousNode functionDefinitionAnonymousNode);
-        public abstract T Visit(FunctionCallNode functionCallNode);
-        public abstract T Visit(DecisionNode decisionNode);
-        public abstract T Visit(ExitNode exitNode);
-        public abstract T Visit(ForLoopNode forLoopNode);
-        public abstract T Visit(DoWhileLoopNode doWhileLoopNode);
-        public abstract T Visit(WhileLoopNode whileLoopNode);
-        public abstract T Visit(ReturnNode returnNode);
-        public abstract T Visit(BreakNode breakNode);
-        public abstract T Visit(SkipNode skipNode);
-        public abstract T Visit(TableNode tableNode);
-        public abstract T Visit(IndexingNode indexingNode);
-        public abstract T Visit(IncrementationNode incrementationNode);
-        public abstract T Visit(DecrementationNode decrementationNode);
-        public abstract T Visit(UndefNode undefNode);
-        public abstract T Visit(EachLoopNode eachLoopNode);
-        public abstract T Visit(ParameterListNode parameterListNode);
-        public abstract T Visit(ArgumentListNode argumentListNode);
+        public virtual void Visit(Statement statement)
+        {
+            var type = statement.GetType();
+
+            if (!StatementHandlers.ContainsKey(type))
+                throw new Exception($"{type.Name} is not a statement node.");
+
+            StatementHandlers[type](statement);
+        }
+
+        public abstract T Visit(ConditionalExpression conditionalExpression);
+        public abstract T Visit(NumberExpression numberExpression);
+        public abstract T Visit(StringConstant stringConstant);
+        public abstract T Visit(AssignmentExpression assignmentExpression);
+        public abstract T Visit(BinaryExpression binaryExpression);
+        public abstract T Visit(UnaryExpression unaryExpression);
+        public abstract T Visit(VariableReference variableReference);
+        public abstract T Visit(FunctionExpression functionExpression);
+        public abstract T Visit(FunctionCallExpression functionCallExpression);
+        public abstract T Visit(TableExpression tableExpression);
+        public abstract T Visit(IndexerExpression indexerExpression);
+        public abstract T Visit(IncrementationExpression incrementationExpression);
+        public abstract T Visit(DecrementationExpression decrementationExpression);
+        
+        public abstract void Visit(Program program);
+        public abstract void Visit(BlockStatement blockStatement);
+        public abstract void Visit(VariableDefinition variableDefinition);
+        public abstract void Visit(FunctionDefinition functionDefinition);
+        public abstract void Visit(IfStatement ifStatement);
+        public abstract void Visit(ExitStatement exitStatement);
+        public abstract void Visit(ForStatement forStatement);
+        public abstract void Visit(DoWhileStatement doWhileStatement);
+        public abstract void Visit(WhileStatement whileStatement);
+        public abstract void Visit(ReturnStatement returnStatement);
+        public abstract void Visit(BreakStatement breakStatement);
+        public abstract void Visit(SkipStatement skipStatement);
+        public abstract void Visit(UndefStatement undefStatement);
+        public abstract void Visit(EachStatement eachStatement);
+        public abstract void Visit(ExpressionStatement expressionStatement);
     }
 }

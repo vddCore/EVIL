@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode IfCondition()
+        private IfStatement IfCondition()
         {
             var line = Match(Token.If);
             Match(Token.LParenthesis);
@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             var expression = AssignmentExpression();
 
             Match(Token.RParenthesis);
-            var node = new DecisionNode { Line = line };
+            var node = new IfStatement { Line = line };
 
             node.Conditions.Add(expression);
             node.Statements.Add(Statement());

@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode PrimaryExpression()
+        private Expression PrimaryExpression()
         {
             var token = CurrentToken;
 

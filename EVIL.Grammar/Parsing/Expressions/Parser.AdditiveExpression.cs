@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.Minus,
         };
 
-        private AstNode AdditiveExpression()
+        private Expression AdditiveExpression()
         {
             var node = MultiplicativeExpression();
             var token = CurrentToken;
@@ -23,13 +23,13 @@ namespace EVIL.Grammar.Parsing
                 if (token.Type == TokenType.Plus)
                 {
                     var line = Match(Token.Plus);
-                    node = new BinaryOperationNode(node, MultiplicativeExpression(), BinaryOperationType.Plus)
+                    node = new BinaryExpression(node, MultiplicativeExpression(), BinaryOperationType.Plus)
                         {Line = line};
                 }
                 else if (token.Type == TokenType.Minus)
                 {
                     var line = Match(Token.Minus);
-                    node = new BinaryOperationNode(node, MultiplicativeExpression(), BinaryOperationType.Minus)
+                    node = new BinaryExpression(node, MultiplicativeExpression(), BinaryOperationType.Minus)
                         {Line = line};
                 }
 

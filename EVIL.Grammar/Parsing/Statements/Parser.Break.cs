@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode Break()
+        private BreakStatement Break()
         {
             if (_loopDescent == 0)
             {
@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             }
             
             var line = Match(Token.Break);
-            return new BreakNode { Line = line };
+            return new BreakStatement { Line = line };
         }
     }
 }

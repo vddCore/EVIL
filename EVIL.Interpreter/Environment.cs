@@ -10,8 +10,6 @@ namespace EVIL.Interpreter
 {
     public class Environment
     {
-        private Stack<NameScope> EnclosedScopes { get; } = new();
-
         public int CallStackLimit { get; set; } = 72;
 
         public Stack<StackFrame> CallStack { get; }
@@ -129,7 +127,6 @@ namespace EVIL.Interpreter
         {
             LoopStack.Clear();
             CallStack.Clear();
-            EnclosedScopes.Clear();
 
             LocalScope = GlobalScope;
         }
@@ -139,18 +136,9 @@ namespace EVIL.Interpreter
             return new(CallStack);
         }
 
-        public NameScope EnterScope(bool enclose = false)
+        public NameScope EnterScope()
         {
-            if (enclose)
-            {
-                EnclosedScopes.Push(LocalScope);
-                LocalScope = new NameScope(this, null);
-            }
-            else
-            {
-                LocalScope = new NameScope(this, LocalScope);
-            }
-
+            LocalScope = new NameScope(this, LocalScope);
             return LocalScope;
         }
 
@@ -160,14 +148,7 @@ namespace EVIL.Interpreter
 
             if (LocalScope == null)
             {
-                if (EnclosedScopes.Count > 0)
-                {
-                    LocalScope = EnclosedScopes.Pop();
-                }
-                else
-                {
-                    LocalScope = GlobalScope;
-                }
+                LocalScope = GlobalScope;
             }
         }
     }

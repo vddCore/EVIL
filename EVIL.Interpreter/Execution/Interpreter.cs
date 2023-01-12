@@ -91,7 +91,7 @@ namespace EVIL.Interpreter.Execution
                     stackFrame.Parameters.Add(entryNode.Parameters[i]);
                 }
 
-                var scope = Environment.EnterScope(true);
+                var scope = Environment.EnterScope();
                 {
                     if (stackFrame.Parameters.Count == 1)
                     {

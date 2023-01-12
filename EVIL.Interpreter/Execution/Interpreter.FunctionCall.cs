@@ -66,7 +66,7 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                Environment.EnterScope(true);
+                Environment.EnterScope();
                 {
                     retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, args, functionCallExpression);
                 }
@@ -79,6 +79,7 @@ namespace EVIL.Interpreter.Execution
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
             AstNode node)
         {
+            var scope = Environment.LocalScope;
             var stackFrame = new StackFrame(name)
             {
                 InvokedAtLine = node.Line,
@@ -89,14 +90,14 @@ namespace EVIL.Interpreter.Execution
 
             foreach (var closure in scriptFunction.Closures)
             {
-                Environment.LocalScope.Set(closure.Key, closure.Value);
+                scope.Set(closure.Key, closure.Value);
             }
 
             for (var i = 0; i < scriptFunction.Parameters.Count; i++)
             {
                 var parameterName = scriptFunction.Parameters[i];
 
-                if (Environment.LocalScope.HasMember(parameterName))
+                if (scope.HasMember(parameterName))
                 {
                     throw new RuntimeException(
                         $"'{parameterName}' was already declared in this scope.",
@@ -106,15 +107,15 @@ namespace EVIL.Interpreter.Execution
                 }
 
                 if (iterator < args.Count)
-                    Environment.LocalScope.Set(parameterName, args[iterator++]);
+                    scope.Set(parameterName, args[iterator++]);
                 else
-                    Environment.LocalScope.Set(parameterName, DynValue.Zero);
+                    scope.Set(parameterName, DynValue.Zero);
             }
 
             Environment.CallStack.Push(stackFrame);
-            
+
             DynValue retVal;
-            
+
             try
             {
                 Visit(scriptFunction.Statements);
@@ -144,7 +145,8 @@ namespace EVIL.Interpreter.Execution
             return retVal;
         }
 
-        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
+        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args,
+            AstNode node)
         {
             var parameters = clrFunction.Invokable.Method.GetParameters();
 

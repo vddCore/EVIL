@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode ConditionalExpression()
+        private Expression ConditionalExpression()
         {
             var node = LogicalOrExpression();
 
@@ -17,7 +17,7 @@ namespace EVIL.Grammar.Parsing
                 Match(Token.Colon);
                 var falseExpression = ConditionalExpression();
 
-                return new ConditionalExpressionNode(node, trueExpression, falseExpression);
+                return new ConditionalExpression(node, trueExpression, falseExpression);
             }
             
             return node;

@@ -194,8 +194,7 @@ namespace EVIL.REPL
 
                 try
                 {
-                    var ret = _interpreter.Execute(input);
-                    Console.WriteLine(ret.AsString().String);
+                    _interpreter.Execute(input);
                 }
                 catch (Exception e)
                 {

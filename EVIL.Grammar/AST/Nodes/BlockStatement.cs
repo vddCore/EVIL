@@ -2,11 +2,11 @@
 
 namespace EVIL.Grammar.AST.Nodes
 {
-    public class BlockStatementNode : Statement
+    public class BlockStatement : Statement
     {
         public List<Statement> Statements { get; }
 
-        public BlockStatementNode(List<Statement> statements)
+        public BlockStatement(List<Statement> statements)
         {
             Statements = statements;
 

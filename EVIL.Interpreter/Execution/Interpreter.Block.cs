@@ -1,5 +1,4 @@
-﻿using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+﻿using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Interpreter.Execution
 {

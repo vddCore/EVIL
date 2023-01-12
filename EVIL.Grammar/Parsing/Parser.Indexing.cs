@@ -6,15 +6,15 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode Indexing(AstNode indexable)
+        private IndexerExpression Indexing(Expression indexable)
         {
             int line;
-            AstNode indexer;
+            Expression indexer;
             
             if (CurrentToken.Type == TokenType.Dot)
             {
                 line = Match(Token.Dot);
-                indexer = new StringNode(CurrentToken.Value);
+                indexer = new StringConstant(CurrentToken.Value);
                 Match(Token.Identifier);
             }
             else // must be bracket then
@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Parsing
                 Match(Token.RBracket);
             }
 
-            return new IndexingNode(indexable, indexer, CurrentToken.Type == TokenType.Assign) {Line = line};
+            return new IndexerExpression(indexable, indexer, CurrentToken.Type == TokenType.Assign) {Line = line};
         }
     }
 }

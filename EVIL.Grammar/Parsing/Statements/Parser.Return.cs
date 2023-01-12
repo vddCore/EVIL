@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode Return()
+        private ReturnStatement Return()
         {
             if (_functionDescent == 0)
             {
@@ -14,18 +14,18 @@ namespace EVIL.Grammar.Parsing
             }
 
             var line = Match(Token.Ret);
-            AstNode retNode;
+            Expression expression;
 
             if (CurrentToken.Type == TokenType.Semicolon)
             {
-                retNode = null;
+                expression = null;
             }
             else
             {
-                retNode = AssignmentExpression();
+                expression = AssignmentExpression();
             }
             
-            return new ReturnNode(retNode) { Line = line };
+            return new ReturnStatement(expression) { Line = line };
         }
     }
 }

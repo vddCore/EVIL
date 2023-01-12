@@ -19,11 +19,6 @@ namespace EVIL.Interpreter.Execution
                 name,
                 fn
             );
-
-            foreach (var kvp in Environment.LocalScope.Members)
-            {
-                fn.Closures.Add(kvp.Key, kvp.Value);
-            }
         }
     }
 }
