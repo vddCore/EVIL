@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST.Nodes;
+﻿using System.Linq;
+using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Execution
@@ -35,6 +36,18 @@ namespace EVIL.Interpreter.Execution
             foreach (var kvp in Environment.LocalScope.Members)
             {
                 fn.Closures.Add(kvp.Key, kvp.Value);
+            }
+
+            if (_currentThisContextStack.Any())
+            {
+                if (fn.Closures.ContainsKey("this"))
+                {
+                    fn.Closures["this"] = _currentThisContextStack.Peek();
+                }
+                else
+                {
+                    fn.Closures.Add("this", _currentThisContextStack.Peek());
+                }
             }
 
             return new DynValue(fn);

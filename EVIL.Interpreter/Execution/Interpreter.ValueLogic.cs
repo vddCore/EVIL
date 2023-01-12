@@ -1,10 +1,11 @@
-﻿using EVIL.Grammar.AST.Nodes;
+﻿using System.Collections.Generic;
+using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
-    {
+    {        
         public override DynValue Visit(NumberNode numberNode)
         {
             return new(numberNode.Value);
@@ -18,7 +19,9 @@ namespace EVIL.Interpreter.Execution
         public override DynValue Visit(TableNode tableNode)
         {
             var tbl = new Table();
+            var value = new DynValue(tbl);
 
+            _currentThisContextStack.Push(value);
             if (tableNode.Keyed)
             {
                 for (var i = 0; i < tableNode.Initializers.Count; i++)
@@ -34,8 +37,9 @@ namespace EVIL.Interpreter.Execution
                     tbl[i] = Visit(tableNode.Initializers[i]);
                 }
             }
+            _currentThisContextStack.Pop();
 
-            return new(tbl);
+            return value;
         }
     }
 }

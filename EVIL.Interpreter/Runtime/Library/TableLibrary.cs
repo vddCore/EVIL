@@ -3,9 +3,10 @@ using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library
 {
+    [ClrLibrary("tbl")]
     public class TableLibrary
     {
-        [ClrFunction("tbl.ins")]
+        [ClrFunction("ins")]
         public static DynValue Insert(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(3)
@@ -21,7 +22,7 @@ namespace EVIL.Interpreter.Runtime.Library
             return DynValue.Zero;
         }
 
-        [ClrFunction("tbl.rm")]
+        [ClrFunction("rm")]
         public static DynValue Remove(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)

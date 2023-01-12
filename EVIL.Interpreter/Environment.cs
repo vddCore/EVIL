@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
 using EVIL.Interpreter.Runtime;
@@ -49,6 +48,12 @@ namespace EVIL.Interpreter
         public void RegisterPackage<T>()
         {
             var type = typeof(T);
+            var libAttr = type.GetCustomAttribute<ClrLibraryAttribute>();
+
+            if (libAttr != null)
+            {
+                GlobalScope.Set(libAttr.LibraryName, new DynValue(new Table()));
+            }
 
             foreach (var m in type.GetMethods())
             {
@@ -62,22 +67,45 @@ namespace EVIL.Interpreter
                 if (!m.IsStatic)
                 {
                     throw new InvalidOperationException(
-                        $"Cannot register method '{m.Name}' from package '{type.Name}' - it's not static."
+                        $"Cannot register method '{m.Name}' from package '{type.Name} ({libAttr?.LibraryName})' - it's not static."
                     );
                 }
 
-                var attr = m.GetCustomAttribute(typeof(ClrFunctionAttribute)) as ClrFunctionAttribute;
+                var funcAttr = m.GetCustomAttribute<ClrFunctionAttribute>();
 
-                if (attr == null)
+                if (funcAttr == null)
                     continue;
 
                 var d = m.CreateDelegate<Func<Execution.Interpreter, FunctionArguments, DynValue>>();
 
-                RegisterFunction(
-                    attr.Name,
-                    new ClrFunction(d)
+                if (libAttr != null)
+                {
+                    RegisterFunction(
+                        libAttr.LibraryName,
+                        funcAttr.Name,
+                        new ClrFunction(d)
+                    );
+                }
+                else
+                {
+                    RegisterFunction(
+                        funcAttr.Name,
+                        new ClrFunction(d)
+                    );
+                }
+            }
+        }
+
+        public void RegisterFunction(string libraryName, string functionName, ClrFunction function)
+        {
+            if (!GlobalScope.HasMember(libraryName))
+            {
+                throw new InvalidOperationException(
+                    "Internal failure. Tried to register a function inside a non-existent library-defined table."
                 );
             }
+            
+            GlobalScope.Members[libraryName].Table[functionName] = new DynValue(function);
         }
 
         public void RegisterFunction(string name, ClrFunction clrFunction)
