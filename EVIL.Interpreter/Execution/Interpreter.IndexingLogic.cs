@@ -16,9 +16,6 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue IndexDynValue(DynValue indexable, DynValue keyValue, IndexingNode indexingNode)
         {
-            if (ExecuteBinaryMeta("__index", indexable, keyValue, indexingNode, out var result))
-                return result;
-            
             switch (indexable.Type)
             {
                 case DynValueType.String:

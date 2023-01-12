@@ -255,15 +255,7 @@ namespace EVIL.Lexical
             }
             else if (State.Character == ':')
             {
-                if (Peek() == ':')
-                {
-                    Advance();
-                    State.CurrentToken = new Token(TokenType.Meta, "::");
-                }
-                else
-                {
-                    State.CurrentToken = new Token(TokenType.Colon, ':');
-                }
+                State.CurrentToken = new Token(TokenType.Colon, ':');
             }
             else if (State.Character == ';')
             {

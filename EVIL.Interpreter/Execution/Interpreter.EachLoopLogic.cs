@@ -31,8 +31,8 @@ namespace EVIL.Interpreter.Execution
                     {
                         foreach (var element in actualTable)
                         {
-                            keyValue.CopyFrom(element.Key, true);
-                            valueValue.CopyFrom(element.Value, true);
+                            keyValue.CopyFrom(element.Key);
+                            valueValue.CopyFrom(element.Value);
 
                             Environment.EnterScope();
                             {

@@ -19,14 +19,14 @@ namespace EVIL.Interpreter.Execution
             if (decrementationNode.IsPrefix)
             {
                 var retVal = new DynValue(numValue.Number - 1);
-                numValue.CopyFrom(retVal, true);
+                numValue.CopyFrom(retVal);
                 
                 return retVal;
             }
             else
             {
                 var retVal = numValue.Copy();
-                numValue.CopyFrom(new DynValue(numValue.Number - 1), true);
+                numValue.CopyFrom(new DynValue(numValue.Number - 1));
 
                 return retVal;
             }

@@ -12,18 +12,7 @@ namespace EVIL.Interpreter.Execution
         {
             var invokable = Visit(functionCallNode.Left);
 
-            var meta = invokable.Meta["__call"];
-
-            if (meta.IsTruth)
-            {
-                var parameters = new FunctionArguments();
-
-                foreach (var node in functionCallNode.Parameters)
-                    parameters.Add(Visit(node));
-
-                return ExecuteCallMeta(invokable, parameters, functionCallNode);
-            }
-            else if (invokable.Type == DynValueType.Function)
+            if (invokable.Type == DynValueType.Function)
             {
                 return InvokeFunction(functionCallNode, invokable);
             }
@@ -193,24 +182,6 @@ namespace EVIL.Interpreter.Execution
             }
 
             return retVal;
-        }
-        
-        private DynValue ExecuteCallMeta(DynValue operand, FunctionArguments args, AstNode node)
-        {
-            var meta = operand.Meta["__call"];
-
-            if (meta.Type == DynValueType.Function)
-            {
-                DynValue result;
-                Environment.EnterScope(true);
-                {
-                    result = ExecuteScriptFunction(meta.ScriptFunction, "__call", args, node);
-                }
-                Environment.ExitScope();
-
-                return result;
-            }
-            else return meta;
         }
     }
 }

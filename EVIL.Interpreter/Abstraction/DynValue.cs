@@ -14,7 +14,6 @@ namespace EVIL.Interpreter.Abstraction
         private ScriptFunction _scriptFunction;
 
         public DynValueType Type { get; private set; }
-        public MetaValues Meta { get; } = new();
 
         public bool IsTruth => Type != DynValueType.Number || Number != 0;
 
@@ -75,9 +74,9 @@ namespace EVIL.Interpreter.Abstraction
             }
         }
 
-        private DynValue(DynValue dynValue, bool includeMetaValues = false)
+        private DynValue(DynValue dynValue)
         {
-            CopyFrom(dynValue, includeMetaValues);
+            CopyFrom(dynValue);
         }
 
         public DynValue(bool value)
@@ -162,13 +161,8 @@ namespace EVIL.Interpreter.Abstraction
             return new(this);
         }
 
-        public void CopyFrom(DynValue dynValue, bool includeMetaValues)
+        public void CopyFrom(DynValue dynValue)
         {
-            if (includeMetaValues)
-            {
-                Meta.ReplaceWith(dynValue.Meta);
-            }
-            
             Type = dynValue.Type;
 
             switch (dynValue.Type)

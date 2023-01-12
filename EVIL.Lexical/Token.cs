@@ -63,7 +63,6 @@ namespace EVIL.Lexical
                 TokenType.Length => "#",
                 TokenType.LParenthesis => "(",
                 TokenType.MemberAccess => "->",
-                TokenType.Meta => "::",
                 TokenType.Minus => "-",
                 TokenType.Modulo => "%",
                 TokenType.Multiply => "*",
