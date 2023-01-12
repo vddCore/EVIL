@@ -10,6 +10,12 @@ namespace EVIL.Intermediate
 
             Visit(assignmentExpression.Right);
 
+            if (assignmentExpression.Left is AssignmentExpression)
+            {
+                cg.Emit(OpCode.DUP);
+                Visit(assignmentExpression.Left);
+            }
+
             var currentLeft = assignmentExpression.Left;
             while (currentLeft is AssignmentExpression ae)
             {

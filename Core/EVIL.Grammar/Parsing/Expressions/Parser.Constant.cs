@@ -16,22 +16,22 @@ namespace EVIL.Grammar.Parsing
                 case TokenType.Number:
                 {
                     var line = Match(Token.Number);
-                    return new NumberExpression(double.Parse(token.Value)) {Line = line};
+                    return new NumberConstant(double.Parse(token.Value)) {Line = line};
                 }
                 case TokenType.HexInteger:
                 {
                     var line = Match(Token.HexInteger);
-                    return new NumberExpression(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
+                    return new NumberConstant(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
                 }
                 case TokenType.True:
                 {
                     var line = Match(Token.True);
-                    return new NumberExpression(1) {Line = line};
+                    return new NumberConstant(1) {Line = line};
                 }
                 case TokenType.False:
                 {
                     var line = Match(Token.False);
-                    return new NumberExpression(0) {Line = line};
+                    return new NumberConstant(0) {Line = line};
                 }
                 case TokenType.String:
                 {

@@ -7,4 +7,37 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Compiler.Expressions.Assignment.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Exit.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Utilities.SequenceEmitters.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.FunctionCall.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Binary.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Return.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.FunctionDefinition.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Block.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.VariableDefinition.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Unary.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

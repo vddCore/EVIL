@@ -18,7 +18,7 @@ namespace EVIL.Grammar.Traversal.Generic
             ExpressionHandlers = new()
             {
                 {typeof(ConditionalExpression), (n) => Visit(n as ConditionalExpression)},
-                {typeof(NumberExpression), (n) => Visit(n as NumberExpression)},
+                {typeof(NumberConstant), (n) => Visit(n as NumberConstant)},
                 {typeof(StringConstant), (n) => Visit(n as StringConstant)},
                 {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
                 {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
@@ -75,7 +75,7 @@ namespace EVIL.Grammar.Traversal.Generic
         }
 
         public abstract T Visit(ConditionalExpression conditionalExpression);
-        public abstract T Visit(NumberExpression numberExpression);
+        public abstract T Visit(NumberConstant numberConstant);
         public abstract T Visit(StringConstant stringConstant);
         public abstract T Visit(AssignmentExpression assignmentExpression);
         public abstract T Visit(BinaryExpression binaryExpression);

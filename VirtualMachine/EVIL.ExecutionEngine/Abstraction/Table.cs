@@ -7,6 +7,21 @@ namespace EVIL.ExecutionEngine.Abstraction
     {
         public Dictionary<DynamicValue, DynamicValue> Entries = new();
 
+        public Table()
+        {
+        }
+        
+        public Table(params DynamicValue[] values)
+        {
+            for (var i = 0; i < values.Length; i++)
+            {
+                Set(new DynamicValue(i), values[i]);
+            }
+        }
+
+        public bool IsSet(DynamicValue key)
+            => Entries.ContainsKey(key);
+        
         public DynamicValue Get(DynamicValue key)
         {
             EnsureValidKeyType(key);

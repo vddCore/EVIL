@@ -9,55 +9,55 @@
         DUP   = 0x03,
         
         // ---------- [ ARITHMETIC
-        ADD   = 0x10,
-        SUB   = 0x11,
-        MUL   = 0x12,
-        DIV   = 0x13,
-        MOD   = 0x14,
-        LEN   = 0x15,
-        UNM   = 0x16,
+        ADD   = 0x10,  //
+        SUB   = 0x11,  // [SUB]tract
+        MUL   = 0x12,  // [MUL]tiply
+        DIV   = 0x13,  // [DIV]ivide
+        MOD   = 0x14,  // [MOD]ulo
+        LEN   = 0x15,  // [LEN]gth
+        UNM   = 0x16,  // [UN]ary [M]inus
+        SHR   = 0x17,  // [SH]ift [R]ight
+        SHL   = 0x18,  // [SH]ift [L]eft
         
         // ---------- [ LOGICAL
         AND   = 0x20,
         NOT   = 0x21,
         OR    = 0x22,
         XOR   = 0x23,
-        CEQ   = 0x24,
-        CNE   = 0x25,
-        CGT   = 0x26,
-        CLT   = 0x27,
-        CGE   = 0x28,
-        CLE   = 0x29,
-        SHR   = 0x2A,
-        SHL   = 0x2B,
-        LOR   = 0x2C,
-        LAND  = 0x2D,
-        LNOT  = 0x2E,
-        XINT  = 0x2F,
+        CEQ   = 0x24,  // [C]ompare ([EQ]ual)
+        CNE   = 0x25,  // [C]ompare ([N]ot [E]qual)
+        CGT   = 0x26,  // [C]ompare ([G]reater [T]han)
+        CLT   = 0x27,  // [C]ompare ([L]ess [T]han)
+        CGE   = 0x28,  // [C]ompare ([G]reater or [E]qual)
+        CLE   = 0x29,  // [C]ompare ([L]ess or [E]qual)
+        LOR   = 0x2A,
+        LAND  = 0x2B,
+        LNOT  = 0x2C,
+        XINT  = 0x2D,
         
         // ---------- [ BRANCHING
         JUMP  = 0x30,
-        TJMP  = 0x31,
+        TJMP  = 0x31, 
         CALL  = 0x32,
         RETN  = 0x33,
         
-        // ---------- [ STORAGE
-        LDC = 0x40,
-        LDF = 0x41,
-        LDG = 0x42,
-        STG = 0x43,
-        LDL = 0x44,
-        STL = 0x45,
-        LDA = 0x46,
-        STA = 0x47,
-        NEWTB = 0x48,
-        CLOSE = 0x49,
-        LDCLS = 0x4A,
-        STCLS = 0x4B,
+        // ---------- [ STORAGE: STORE
+        STL = 0x41,  // [S]e[T] [L]ocal
+        STG = 0x42,  // [S]e[T] [G]lobal
+        STA = 0x43,  // [S]e[T] [A]rgument
+        STE = 0x44,  // [S]et [T]able [E]ntry
         
-        // ---------- [ DATA MANIPULATION
-        INDEX = 0x50,
-        TONUM = 0x51,
-        TOSTR = 0x52
+        // ---------- [ STORAGE: LOAD
+        LDC = 0x50,  // [L]oa[D] [C]onstant
+        LDG = 0x51,  // [L]oa[D] [G]lobal
+        LDL = 0x52,  // [L]oa[D] [L]ocal
+        LDA = 0x53,  // [L]oa[D] [A]rgument
+        LTE = 0x54,  // [L]oad [T]able [E]ntry
+        
+        // ---------- [ MISCELLANEOUS
+        NEWTB = 0x60,// Create a [NEW] [T]a[B]le
+        TONUM = 0x61,
+        TOSTR = 0x62,
+        XARGS = 0x63,
     }
 }

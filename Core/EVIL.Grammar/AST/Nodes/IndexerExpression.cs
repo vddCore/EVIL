@@ -45,7 +45,7 @@ namespace EVIL.Grammar.AST.Nodes
         {
             return KeyExpression switch
             {
-                NumberExpression num => num.Value.ToString(CultureInfo.InvariantCulture),
+                NumberConstant num => num.Value.ToString(CultureInfo.InvariantCulture),
                 StringConstant str => str.Value,
                 VariableReferenceExpression vn => vn.Identifier,
                 _ => "???"

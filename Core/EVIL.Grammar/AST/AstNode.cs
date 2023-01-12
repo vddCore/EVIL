@@ -8,7 +8,7 @@ namespace EVIL.Grammar.AST
         public AstNode Parent { get; set; }
 
         public bool IsConstant =>
-            this is NumberExpression
+            this is NumberConstant
             || this is StringConstant
             || this is TableExpression;
 
