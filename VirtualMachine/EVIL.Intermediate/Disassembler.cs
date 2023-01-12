@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -7,87 +6,64 @@ namespace EVIL.Intermediate
     public class Disassembler
     {
         private StringBuilder _disasm = new();
-        
-        private IReadOnlyList<byte> _instructions;
-        private string[] _constants;
-        
-        public int IP { get; set; }
 
-        public string Disassemble(IReadOnlyList<byte> instructions, string[] constants)
+        private int IP { get; set; }
+        private Chunk CurrentChunk { get; set; }
+
+        public string Disassemble(Executable executable)
         {
             _disasm.Clear();
-            
-            _instructions = instructions;
-            _constants = constants;
-            
-            while (IP < _instructions.Count)
-            {
-                var op = (OpCode)FetchByte();
 
-                switch (op)
+            foreach (var chunk in executable.Chunks)
+            {
+                IP = 0;
+                CurrentChunk = chunk;
+                _disasm.Append(chunk.Name);
+                _disasm.AppendLine(":");
+                
+                while (IP < chunk.Instructions.Count)
                 {
-                    case OpCode.NOP:
-                    case OpCode.POP:
-                    case OpCode.HLT:
-                    case OpCode.ADD:
-                    case OpCode.SUB:
-                    case OpCode.MUL:
-                    case OpCode.DIV:
-                    case OpCode.MOD:
-                    case OpCode.LEN:
-                    case OpCode.FLR:
-                    case OpCode.AND:
-                    case OpCode.NOT:
-                    case OpCode.OR:
-                    case OpCode.XOR:
-                    case OpCode.CEQ:
-                    case OpCode.CGT:
-                    case OpCode.CLT:
-                    case OpCode.CGE:
-                    case OpCode.CLE:
-                    case OpCode.SHR:
-                    case OpCode.SHL:
-                    case OpCode.RETN:
-                    case OpCode.NETBL:
-                    case OpCode.CNCAT:
-                    case OpCode.INDEX:
-                        DecodeLine(op);
-                        break;
+                    AppendCurrentIP();
                     
-                    case OpCode.JUMP:
-                    case OpCode.TJMP:
-                    case OpCode.FJMP:
-                        DecodeJump(op);
-                        break;
-                    
-                    case OpCode.CALL:
-                        DecodeCall(op);
-                        break;
-                    
-                    case OpCode.LDSTR:
-                        DecodeLdStr(op);
-                        break;
-                    
-                    case OpCode.LDNUM:
-                        DecodeLdNum(op);
-                        break;
-                    
-                    case OpCode.LDVAR:
-                        DecodeLdVar(op);
-                        break;
-                    
-                    case OpCode.STVAR:
-                        DecodeStVar(op);
-                        break;
+                    var op = (OpCode)FetchByte();
+
+                    switch (op)
+                    {
+                        default:
+                            DecodeLine(op);
+                            break;
+
+                        case OpCode.JUMP:
+                        case OpCode.TJMP:
+                            DecodeJump(op);
+                            break;
+
+                        case OpCode.LDCONST:
+                            DecodeLdConst(op, executable.ConstPool);
+                            break;
+
+                        case OpCode.LDLOCAL:
+                        case OpCode.STLOCAL:
+                        case OpCode.STARG:
+                        case OpCode.LDARG:
+                            DecodeParametrizedLoad(op);
+                            break;
+                        
+                    }
                 }
             }
 
             return _disasm.ToString();
         }
+
+        private void AppendCurrentIP()
+        {
+            _disasm.Append($"  {IP:X8}");
+        }
         
         private void Decode(OpCode opCode)
         {
-            _disasm.Append($"{IP:X8} {opCode:X2} {opCode}");
+            _disasm.Append($" {((int)opCode):X2} {opCode}");
         }
 
         private void DecodeLine(OpCode opCode)
@@ -102,46 +78,44 @@ namespace EVIL.Intermediate
             _disasm.AppendLine(" ");
         }
 
-        private void DecodeCall(OpCode opCode)
+        private void DecodeLdConst(OpCode opCode, ConstPool constPool)
         {
             Decode(opCode);
-            _disasm.AppendLine(" !NIY!");
-        }
 
-        private void DecodeLdStr(OpCode opCode)
-        {
-            Decode(opCode);
-            
             var index = FetchInt32();
-            _disasm.AppendLine($" {index:X8} ; \"{_constants[index]}\"");
+
+            string dereferenced;
+            string str;
+            double? num;
+            
+            str = constPool.GetStringConstant(index);
+            if (str != null)
+            {
+                dereferenced = $"\"{constPool.GetStringConstant(index)}\"";
+            }
+            else
+            {
+                num = constPool.GetNumberConstant(index);
+                dereferenced = $"{num}";
+            }
+
+            _disasm.AppendLine($" {index:X8} ; {dereferenced}");
         }
 
-        private void DecodeLdNum(OpCode opCode)
-        {
-            Decode(opCode);
-            _disasm.AppendLine($" {FetchNumber():X8}");
-        }
-
-        private void DecodeLdVar(OpCode opCode)
+        private void DecodeParametrizedLoad(OpCode opCode)
         {
             Decode(opCode);
             _disasm.AppendLine($" {FetchInt32():X8}");
         }
 
-        private void DecodeStVar(OpCode opCode)
-        {
-            Decode(opCode);
-            _disasm.AppendLine($" {FetchInt32():X8}");
-        }
-        
         private double FetchNumber()
         {
             var data = FetchBytes(8);
-            
+
             unsafe
             {
-                fixed (double* dbl = &data[0])
-                    return *dbl;
+                fixed (byte* num = &data[0])
+                    return *((double*)num);
             }
         }
 
@@ -151,8 +125,8 @@ namespace EVIL.Intermediate
 
             unsafe
             {
-                fixed (int* num = &data[0])
-                    return *num;
+                fixed (byte* num = &data[0])
+                    return *((int*)num);
             }
         }
 
@@ -162,8 +136,8 @@ namespace EVIL.Intermediate
 
             unsafe
             {
-                fixed (uint* num = &data[0])
-                    return *num;
+                fixed (byte* num = &data[0])
+                    return *((uint*)num);
             }
         }
 
@@ -179,6 +153,6 @@ namespace EVIL.Intermediate
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private byte FetchByte()
-            => _instructions[IP++];
+            => CurrentChunk.Instructions[IP++];
     }
 }

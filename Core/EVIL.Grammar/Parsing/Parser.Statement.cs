@@ -46,10 +46,6 @@ namespace EVIL.Grammar.Parsing
                     node = Exit();
                     break;
                 
-                case TokenType.Identifier:
-                     node = new ExpressionStatement(AssignmentExpression());
-                     break;
-                
                 case TokenType.Increment:
                 case TokenType.Decrement:
                     node = new ExpressionStatement(PrefixExpression());
@@ -68,9 +64,11 @@ namespace EVIL.Grammar.Parsing
                     break;
                 
                 default:
-                    throw new ParserException($"Expected a statement, found '{token.Value}'.", Lexer.State);
+                    //throw new ParserException($"Expected a statement, found '{token.Value}'.", Lexer.State);
+                    node = new ExpressionStatement(AssignmentExpression());
+                    break;
             }
-
+            
             Match(Token.Semicolon);
             return node;
         }
