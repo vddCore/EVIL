@@ -50,7 +50,7 @@ namespace EVIL.Intermediate.CodeGeneration
                 ChunkDefinitionStack.Pop();
             }
 
-            if (rootChunk.Instructions.Last() != (byte)OpCode.RETN)
+            if (rootChunk.Instructions.LastOrDefault() != (byte)OpCode.RETN)
             {
                 rootChunk.GetCodeGenerator()
                          .Emit(OpCode.RETN);

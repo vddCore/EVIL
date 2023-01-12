@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using EVIL.ExecutionEngine;
@@ -6,6 +7,7 @@ using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
 using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
+using EVIL.Intermediate.Analysis;
 using EVIL.Intermediate.CodeGeneration;
 using EVIL.Intermediate.Storage;
 using EVIL.Lexical;
@@ -82,6 +84,7 @@ namespace EVIL.Runtime.Library
                 lexer.LoadSource(File.ReadAllText(libPath));
                 var program = parser.Parse(false);
                 var exe = compiler.Compile(program);
+
                 return new DynamicValue(exe.Export());
             }
             catch (LexerException le)
