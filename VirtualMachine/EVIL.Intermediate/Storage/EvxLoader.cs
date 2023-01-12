@@ -36,11 +36,12 @@ namespace EVIL.Intermediate.Storage
 
         private static void ReadHeader(BinaryReader br)
         {
-            var data = br.ReadBytes(3);
+            var data = br.ReadBytes(4);
 
-            if (data[0] != 'E'
-                || data[1] != 'V'
-                || data[2] != 'X')
+            if (data[0] != 0xC
+                || data[1] != 'E'
+                || data[2] != 'V'
+                || data[3] != 'X')
             {
                 throw new InvalidDataException("Magic number is invalid.");
             }
