@@ -6,14 +6,14 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode FunctionDefinitionAnonymous()
+        private FunctionExpression FunctionDefinitionAnonymous()
         {
             var line = Match(Token.Fn);
 
-            var parameterList = ParameterList();
+            var parameters = ParseParameters();
             var statements = FunctionDescent(BlockStatement);
 
-            return new FunctionDefinitionAnonymousNode(parameterList, statements) {Line = line};
+            return new FunctionExpression(parameters, statements) {Line = line};
         }
     }
 }

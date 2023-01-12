@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode WhileLoop()
+        private WhileStatement WhileLoop()
         {
             var line = Match(Token.While);
             Match(Token.LParenthesis);
@@ -15,7 +15,7 @@ namespace EVIL.Grammar.Parsing
 
             var statement = LoopDescent(() => Statement());
             
-            return new WhileLoopNode(expression, statement) { Line = line };
+            return new WhileStatement(expression, statement) { Line = line };
         }
     }
 }

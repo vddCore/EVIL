@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.ShiftRight
         };
 
-        private AstNode ShiftExpression()
+        private Expression ShiftExpression()
         {
             var node = AdditiveExpression();
             var token = CurrentToken;
@@ -23,13 +23,13 @@ namespace EVIL.Grammar.Parsing
                 if (token.Type == TokenType.ShiftLeft)
                 {
                     var line = Match(Token.ShiftLeft);
-                    node = new BinaryOperationNode(node, AdditiveExpression(), BinaryOperationType.ShiftLeft)
+                    node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftLeft)
                         {Line = line};
                 }
                 else if (token.Type == TokenType.ShiftRight)
                 {
                     var line = Match(Token.ShiftRight);
-                    node = new BinaryOperationNode(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
+                    node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
                         {Line = line};
                 }
                 

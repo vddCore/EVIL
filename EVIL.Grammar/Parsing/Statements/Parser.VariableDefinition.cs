@@ -6,14 +6,14 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode VariableDefinition()
+        private VariableDefinition VariableDefinition()
         {
             var line = Match(Token.Var);
 
             var identifier = CurrentToken.Value;
             Match(Token.Identifier);
 
-            AstNode initializer = null;
+            Expression initializer = null;
             
             if (CurrentToken.Type == TokenType.Assign)
             {
@@ -21,7 +21,7 @@ namespace EVIL.Grammar.Parsing
                 initializer = AssignmentExpression();
             }
 
-            return new VariableDefinitionNode(identifier, initializer) { Line = line };
+            return new VariableDefinition(identifier, initializer) { Line = line };
         }
     }
 }

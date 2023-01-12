@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode Skip()
+        private SkipStatement Skip()
         {
             if (_loopDescent == 0)
             {
@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             }
             
             var line = Match(Token.Skip);
-            return new SkipNode { Line = line };
+            return new SkipStatement { Line = line };
         }
     }
 }

@@ -7,13 +7,13 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode ForLoop()
+        private ForStatement ForLoop()
         {
             var line = Match(Token.For);
             
-            List<AstNode> assignments;
-            AstNode condition;
-            List<AstNode> iterationStatements;
+            List<Statement> assignments;
+            Expression condition;
+            List<Expression> iterationExpressions;
 
             Match(Token.LParenthesis);
             {
@@ -25,23 +25,23 @@ namespace EVIL.Grammar.Parsing
                 
                 Match(Token.Semicolon);
                 
-                iterationStatements = ForExpressionList();
+                iterationExpressions = ForExpressionList();
             }
             Match(Token.RParenthesis);
 
             var statements = LoopDescent(() => Statement());
             
-            return new ForLoopNode(
+            return new ForStatement(
                 assignments,
                 condition,
-                iterationStatements,
+                iterationExpressions,
                 statements
             ) {Line = line};
         }
 
-        private List<AstNode> ForDeclarationList()
+        private List<Statement> ForDeclarationList()
         {
-            var nodes = new List<AstNode> {ForDeclaration()};
+            var nodes = new List<Statement> {ForDeclaration()};
             
             while (CurrentToken.Type == TokenType.Comma)
             {
@@ -52,24 +52,24 @@ namespace EVIL.Grammar.Parsing
             return nodes;
         }
 
-        private AstNode ForDeclaration()
+        private Statement ForDeclaration()
         {
             var token = CurrentToken;
-
+            
             if (token.Type == TokenType.Var)
             {
                 return VariableDefinition();
             }
             else if (token.Type == TokenType.Identifier)
             {
-                return AssignmentExpression();
+                return new ExpressionStatement(AssignmentExpression());
             }
             else throw new ParserException("Expected a variable definition or an expression.", Lexer.State);
         }
 
-        private List<AstNode> ForExpressionList()
+        private List<Expression> ForExpressionList()
         {
-            var list = new List<AstNode> {AssignmentExpression()};
+            var list = new List<Expression> {AssignmentExpression()};
 
             while (CurrentToken.Type == TokenType.Comma)
             {

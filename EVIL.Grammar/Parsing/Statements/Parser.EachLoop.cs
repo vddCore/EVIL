@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode EachLoop()
+        private EachStatement EachLoop()
         {
             var line = Match(Token.Each);
 
@@ -23,7 +23,7 @@ namespace EVIL.Grammar.Parsing
 
             var statements = LoopDescent(() => Statement());
             
-            return new EachLoopNode(keyVar, valueVar, tableNode, statements) { Line = line };
+            return new EachStatement(keyVar, valueVar, tableNode, statements) { Line = line };
         }
     }
 }

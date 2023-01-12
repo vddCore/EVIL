@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode AndExpression()
+        private Expression AndExpression()
         {
             var node = EqualityExpression();
             var token = CurrentToken;
@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             while (token.Type == TokenType.BitwiseAnd)
             {
                 var line = Match(Token.BitwiseAnd);
-                node = new BinaryOperationNode(node, EqualityExpression(), BinaryOperationType.BitwiseAnd) {Line = line};
+                node = new BinaryExpression(node, EqualityExpression(), BinaryOperationType.BitwiseAnd) {Line = line};
                 
                 token = CurrentToken;
             }

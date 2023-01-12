@@ -33,7 +33,7 @@ namespace EVIL.Grammar.AST.Nodes
                 current = indexable.Indexable;
             }
 
-            if (current is VariableNode vn)
+            if (current is VariableReference vn)
             {
                 stack.Push(vn.Identifier);
             }
@@ -45,9 +45,9 @@ namespace EVIL.Grammar.AST.Nodes
         {
             return KeyExpression switch
             {
-                NumberNode num => num.Value.ToString(CultureInfo.InvariantCulture),
-                StringNode str => str.Value,
-                VariableNode vn => vn.Identifier,
+                NumberExpression num => num.Value.ToString(CultureInfo.InvariantCulture),
+                StringConstant str => str.Value,
+                VariableReference vn => vn.Identifier,
                 _ => "???"
             };
         }

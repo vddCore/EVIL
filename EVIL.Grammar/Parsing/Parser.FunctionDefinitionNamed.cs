@@ -6,17 +6,17 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode FunctionDefinitionNamed()
+        private FunctionDefinition FunctionDefinitionNamed()
         {
             var line = Match(Token.Fn);
             var procName = CurrentToken.Value;
 
             Match(Token.Identifier);
 
-            var parameterList = ParameterList();
+            var parameterList = ParseParameters();
             var statements = FunctionDescent(BlockStatement);
 
-            return new FunctionDefinitionNamedNode(procName, parameterList, statements) {Line = line};
+            return new FunctionDefinition(procName, parameterList, statements) {Line = line};
         }
     }
 }

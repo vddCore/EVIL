@@ -1,6 +1,6 @@
 namespace EVIL.Grammar.AST
 {
-    public class Expression
+    public class Expression : AstNode
     {
         
     }

@@ -4,13 +4,13 @@ namespace EVIL.Grammar.AST.Nodes
 {
     public class ForStatement : Statement
     {
-        public List<AstNode> Assignments { get; }
+        public List<Statement> Assignments { get; }
         public Expression Condition { get; }
         public List<Expression> IterationExpressions { get; }
         public Statement Statement { get; }
 
         public ForStatement(
-            List<AstNode> assignments, 
+            List<Statement> assignments, 
             Expression condition, 
             List<Expression> iterationExpressions,
             Statement statement)

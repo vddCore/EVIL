@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode InclusiveOrExpression()
+        private Expression InclusiveOrExpression()
         {
             var node = ExclusiveOrExpression();
             var token = CurrentToken;
@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             while (token.Type == TokenType.BitwiseOr)
             {
                 var line = Match(Token.BitwiseOr);
-                node = new BinaryOperationNode(node, ExclusiveOrExpression(), BinaryOperationType.BitwiseOr) {Line = line};
+                node = new BinaryExpression(node, ExclusiveOrExpression(), BinaryOperationType.BitwiseOr) {Line = line};
                 
                 token = CurrentToken;
             }

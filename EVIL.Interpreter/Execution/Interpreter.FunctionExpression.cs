@@ -13,11 +13,17 @@ namespace EVIL.Interpreter.Execution
                 functionExpression.Line
             );
 
-            foreach (var kvp in Environment.LocalScope.Members)
+            var scope = Environment.LocalScope;
+            while (scope.ParentScope != null)
             {
-                fn.Closures.Add(kvp.Key, kvp.Value);
+                foreach (var kvp in scope.Members)
+                {
+                    fn.Closures.Add(kvp.Key, kvp.Value);
+                }
+                
+                scope = scope.ParentScope;
             }
-
+            
             return new DynValue(fn);
         }
     }

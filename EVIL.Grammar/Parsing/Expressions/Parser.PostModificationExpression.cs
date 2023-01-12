@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.Decrement
         };
         
-        private AstNode PostModificationExpression()
+        private Expression PostModificationExpression()
         {
             var node = PostfixExpression();
             var token = CurrentToken;
@@ -25,14 +25,14 @@ namespace EVIL.Grammar.Parsing
                     DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
                     var line = Match(Token.Increment);
-                    node = new IncrementationNode(node, false) {Line = line};
+                    node = new IncrementationExpression(node, false) {Line = line};
                 }
                 else if (token.Type == TokenType.Decrement)
                 {
                     DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
                     var line = Match(Token.Decrement);
-                    node = new DecrementationNode(node, false) {Line = line};
+                    node = new DecrementationExpression(node, false) {Line = line};
                 }
 
                 token = CurrentToken;

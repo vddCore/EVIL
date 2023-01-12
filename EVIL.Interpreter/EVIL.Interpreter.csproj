@@ -27,7 +27,7 @@
     <Compile Update="Execution\Interpreter.Break.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.Decision.cs">
+    <Compile Update="Execution\Interpreter.If.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.Decrementation.cs">
@@ -45,7 +45,7 @@
     <Compile Update="Execution\Interpreter.FunctionCall.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.FunctionDefinitionNamed.cs">
+    <Compile Update="Execution\Interpreter.FunctionDefinition.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.Incrementation.cs">
@@ -96,7 +96,7 @@
     <Compile Update="Execution\Interpreter.DecisionalExpression.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.FunctionDefinitionAnonymous.cs">
+    <Compile Update="Execution\Interpreter.FunctionExpression.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.ConditionalExpression.cs">

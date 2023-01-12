@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(VariableReference variableReference)
         {
-            var dynValue = Environment.LocalScope.FindInScopeChain(variableReference.Identifier);
+            var dynValue = Environment.LocalScope.FindInScope(variableReference.Identifier);
 
             if (dynValue == null)
             {

@@ -174,7 +174,7 @@ namespace EVIL.Interpreter.Runtime.Library
             {
                 "local" => new(interpreter.Environment.LocalScope.HasMember(name)),
                 "global" => new(interpreter.Environment.GlobalScope.HasMember(name)),
-                "any" => new(interpreter.Environment.LocalScope.FindInScopeChain(name) != null),
+                "any" => new(interpreter.Environment.LocalScope.FindInScope(name) != null),
                 _ => throw new ClrFunctionException("Unsupported scope type.")
             };
         }

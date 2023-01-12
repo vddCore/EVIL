@@ -3,21 +3,19 @@
 namespace EVIL.Grammar.AST
 {
     public abstract class AstNode
-    {      
+    {
         public int Line { get; set; }
         public AstNode Parent { get; set; }
 
         public bool IsConstant =>
-            this is NumberNode
-            || this is StringNode
-            || this is TableNode;
+            this is NumberExpression
+            || this is StringConstant
+            || this is TableExpression;
 
         protected void Reparent(params AstNode[] nodes)
         {
-            foreach (var node in nodes)
-            {
-                node.Parent = this;
-            }
+            for (var i = 0; i < nodes.Length; i++)
+                nodes[i].Parent = this;
         }
     }
 }

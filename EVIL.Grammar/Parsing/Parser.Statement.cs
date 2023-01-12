@@ -5,10 +5,10 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode Statement()
+        private Statement Statement()
         {
             var token = CurrentToken;
-            AstNode node;
+            Statement node;
             
             switch (token.Type)
             {
@@ -47,8 +47,8 @@ namespace EVIL.Grammar.Parsing
                     break;
                 
                 case TokenType.Identifier:
-                    node = AssignmentExpression();
-                    break;
+                     node = new ExpressionStatement(AssignmentExpression());
+                     break;
                 
                 case TokenType.Ret:
                     node = Return();

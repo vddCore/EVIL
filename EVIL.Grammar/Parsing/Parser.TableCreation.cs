@@ -7,10 +7,10 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode TableCreation()
+        private TableExpression TableCreation()
         {
             var line = Match(Token.LBrace);
-            var initializers = new List<AstNode>();
+            var initializers = new List<Expression>();
             
             var keyed = false;
 
@@ -35,7 +35,7 @@ namespace EVIL.Grammar.Parsing
 
                 if (keyed)
                 {
-                    AstNode key, value;
+                    Expression key, value;
                     
                     if (CurrentToken.Type == TokenType.LBracket)
                     {
@@ -43,7 +43,7 @@ namespace EVIL.Grammar.Parsing
                         Match(Token.Associate);
                         value = AssignmentExpression();
 
-                        initializers.Add(new KeyValuePairNode(key, value));
+                        initializers.Add(new KeyValuePairExpression(key, value));
                     }
                     else
                     {
@@ -51,7 +51,7 @@ namespace EVIL.Grammar.Parsing
                         Match(Token.Associate);
                         value = AssignmentExpression();
                         
-                        initializers.Add(new KeyValuePairNode(key, value));
+                        initializers.Add(new KeyValuePairExpression(key, value));
                     }
                 }
                 else
@@ -66,10 +66,10 @@ namespace EVIL.Grammar.Parsing
             }
 
             Match(Token.RBrace);
-            return new TableNode(initializers, keyed) {Line = line};
+            return new TableExpression(initializers, keyed) {Line = line};
         }
 
-        private AstNode ComputedKeyExpression()
+        private Expression ComputedKeyExpression()
         {
             Match(Token.LBracket);
             var computedKey = AssignmentExpression();

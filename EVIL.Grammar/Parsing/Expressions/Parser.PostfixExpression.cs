@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.Dot
         };
 
-        private AstNode PostfixExpression()
+        private Expression PostfixExpression()
         {
             var node = PrimaryExpression();
             var token = CurrentToken;

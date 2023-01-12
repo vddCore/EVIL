@@ -2,14 +2,14 @@
 
 namespace EVIL.Grammar.AST.Nodes
 {
-    public class FunctionDefinitionNamedNode : Statement
+    public class FunctionDefinition : Statement
     {
         public string Identifier { get; }
         
         public List<string> Parameters { get; }
         public BlockStatement Statements { get; }
 
-        public FunctionDefinitionNamedNode(string identifier, List<string> parameters, BlockStatement statements)
+        public FunctionDefinition(string identifier, List<string> parameters, BlockStatement statements)
         {
             Identifier = identifier;
             
