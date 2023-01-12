@@ -5,16 +5,16 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(ConditionalExpressionNode conditionalExpressionNode)
+        public override DynValue Visit(ConditionalExpression conditionalExpression)
         {
-            var conditionValue = Visit(conditionalExpressionNode.Condition);
+            var conditionValue = Visit(conditionalExpression.Condition);
 
             if (conditionValue.IsTruth)
             {
-                return Visit(conditionalExpressionNode.TrueExpression);
+                return Visit(conditionalExpression.TrueExpression);
             }
 
-            return Visit(conditionalExpressionNode.FalseExpression);
+            return Visit(conditionalExpression.FalseExpression);
         }
     }
 }

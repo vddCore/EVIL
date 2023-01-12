@@ -8,60 +8,60 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(BinaryOperationNode binaryOperationNode)
+        public override DynValue Visit(BinaryExpression binaryExpression)
         {
-            var left = Visit(binaryOperationNode.Left);
-            var right = Visit(binaryOperationNode.Right);
+            var left = Visit(binaryExpression.Left);
+            var right = Visit(binaryExpression.Right);
 
-            switch (binaryOperationNode.Type)
+            switch (binaryExpression.Type)
             {
                 case BinaryOperationType.Plus:
-                    return Addition(left, right, binaryOperationNode);
+                    return Addition(left, right, binaryExpression);
 
                 case BinaryOperationType.Minus:
-                    return Subtraction(left, right, binaryOperationNode);
+                    return Subtraction(left, right, binaryExpression);
 
                 case BinaryOperationType.Multiply:
-                    return Multiplication(left, right, binaryOperationNode);
+                    return Multiplication(left, right, binaryExpression);
 
                 case BinaryOperationType.Divide:
-                    return Division(left, right, binaryOperationNode);
+                    return Division(left, right, binaryExpression);
 
                 case BinaryOperationType.Modulo:
-                    return Modulus(left, right, binaryOperationNode);
+                    return Modulus(left, right, binaryExpression);
 
                 case BinaryOperationType.ShiftLeft:
-                    return ShiftLeft(left, right, binaryOperationNode);
+                    return ShiftLeft(left, right, binaryExpression);
 
                 case BinaryOperationType.ShiftRight:
-                    return ShiftRight(left, right, binaryOperationNode);
+                    return ShiftRight(left, right, binaryExpression);
 
                 case BinaryOperationType.BitwiseAnd:
-                    return BitwiseAnd(left, right, binaryOperationNode);
+                    return BitwiseAnd(left, right, binaryExpression);
 
                 case BinaryOperationType.BitwiseOr:
-                    return BitwiseOr(left, right, binaryOperationNode);
+                    return BitwiseOr(left, right, binaryExpression);
 
                 case BinaryOperationType.BitwiseXor:
-                    return BitwiseXor(left, right, binaryOperationNode);
+                    return BitwiseXor(left, right, binaryExpression);
 
                 case BinaryOperationType.Less:
-                    return CompareLess(left, right, binaryOperationNode);
+                    return CompareLess(left, right, binaryExpression);
 
                 case BinaryOperationType.Greater:
-                    return CompareGreater(left, right, binaryOperationNode);
+                    return CompareGreater(left, right, binaryExpression);
 
                 case BinaryOperationType.LessOrEqual:
-                    return CompareLessOrEqual(left, right, binaryOperationNode);
+                    return CompareLessOrEqual(left, right, binaryExpression);
 
                 case BinaryOperationType.GreaterOrEqual:
-                    return CompareGreaterOrEqual(left, right, binaryOperationNode);
+                    return CompareGreaterOrEqual(left, right, binaryExpression);
 
                 case BinaryOperationType.NotEqual:
-                    return CompareNotEqual(left, right, binaryOperationNode);
+                    return CompareNotEqual(left, right, binaryExpression);
 
                 case BinaryOperationType.Equal:
-                    return CompareEqual(left, right, binaryOperationNode);
+                    return CompareEqual(left, right, binaryExpression);
 
                 case BinaryOperationType.LogicalAnd:
                     return LogicalAnd(left, right);
@@ -70,9 +70,9 @@ namespace EVIL.Interpreter.Execution
                     return LogicalOr(left, right);
 
                 case BinaryOperationType.ExistsIn:
-                    return ExistsIn(left, right, binaryOperationNode);
+                    return ExistsIn(left, right, binaryExpression);
 
-                default: throw new RuntimeException("Unknown binary operation.", Environment, binaryOperationNode.Line);
+                default: throw new RuntimeException("Unknown binary operation.", Environment, binaryExpression.Line);
             }
         }
 

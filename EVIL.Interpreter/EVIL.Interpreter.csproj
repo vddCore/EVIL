@@ -96,16 +96,13 @@
     <Compile Update="Execution\Interpreter.DecisionalExpression.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.ParameterList.cs">
-      <DependentUpon>Interpreter.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Execution\Interpreter.ArgumentList.cs">
-      <DependentUpon>Interpreter.cs</DependentUpon>
-    </Compile>
     <Compile Update="Execution\Interpreter.FunctionDefinitionAnonymous.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.ConditionalExpression.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Execution\Interpreter.ExpressionStatement.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
   </ItemGroup>

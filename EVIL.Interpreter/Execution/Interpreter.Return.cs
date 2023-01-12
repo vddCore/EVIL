@@ -5,17 +5,16 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(ReturnNode returnNode)
+        public override void Visit(ReturnStatement returnStatement)
         {
             var stackTop = Environment.StackTop;
 
-            if (returnNode.Right != null)
+            if (returnStatement.Expression != null)
             {
-                stackTop.ReturnValue = Visit(returnNode.Right);
+                stackTop.ReturnValue = Visit(returnStatement.Expression);
             }
 
             stackTop.Return();
-            return stackTop.ReturnValue;
         }
     }
 }

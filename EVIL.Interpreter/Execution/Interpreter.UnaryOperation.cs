@@ -7,11 +7,11 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(UnaryOperationNode unaryOperationNode)
+        public override DynValue Visit(UnaryExpression unaryExpression)
         {
-            var operand = Visit(unaryOperationNode.Right);
+            var operand = Visit(unaryExpression.Right);
 
-            switch (unaryOperationNode.Type)
+            switch (unaryExpression.Type)
             {
                 case UnaryOperationType.Plus:
                 {
@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         $"Attempt to apply unary + on {operand.Type}.",
                         Environment,
-                        unaryOperationNode.Line
+                        unaryExpression.Line
                     );
                 }
 
@@ -37,7 +37,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         $"Attempt to apply unary - on {operand.Type}.",
                         Environment,
-                        unaryOperationNode.Line
+                        unaryExpression.Line
                     );
                 }
 
@@ -54,7 +54,7 @@ namespace EVIL.Interpreter.Execution
                             throw new RuntimeException(
                                 $"Attempt to retrieve the length of {operand.Type}.",
                                 Environment,
-                                unaryOperationNode.Line
+                                unaryExpression.Line
                             );
                         }
                     }
@@ -64,11 +64,11 @@ namespace EVIL.Interpreter.Execution
                     return operand.AsString();
 
                 case UnaryOperationType.NameOf:
-                    if (unaryOperationNode.Right is VariableNode variable)
+                    if (unaryExpression.Right is VariableReference variable)
                     {
                         return new DynValue(variable.Identifier);
                     }
-                    else if (unaryOperationNode.Right is IndexingNode indexingNode)
+                    else if (unaryExpression.Right is IndexerExpression indexingNode)
                     {
                         return new DynValue(indexingNode.BuildChainStringRepresentation());
                     }
@@ -76,7 +76,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         "Attempt to get a name of a non-variable symbol.",
                         Environment,
-                        unaryOperationNode.Line
+                        unaryExpression.Line
                     );
 
                 case UnaryOperationType.Negation:
@@ -89,7 +89,7 @@ namespace EVIL.Interpreter.Execution
                         throw new RuntimeException(
                             $"Attempt to negate a {operand.Type}.",
                             Environment,
-                            unaryOperationNode.Line
+                            unaryExpression.Line
                         );
                     }
 
@@ -103,7 +103,7 @@ namespace EVIL.Interpreter.Execution
                         throw new RuntimeException(
                             $"Attempt to retrieve floor value of {operand.Type}.",
                             Environment,
-                            unaryOperationNode.Line
+                            unaryExpression.Line
                         );
                     }
 
@@ -115,7 +115,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         "Unknown unary operation type.",
                         Environment,
-                        unaryOperationNode.Line
+                        unaryExpression.Line
                     );
                 }
             }

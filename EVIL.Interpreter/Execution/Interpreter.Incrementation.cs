@@ -5,22 +5,22 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(IncrementationNode incrementationNode)
+        public override DynValue Visit(IncrementationExpression incrementationExpression)
         {
-            if (!(incrementationNode.Target is VariableNode) && !(incrementationNode.Target is IndexingNode))
+            if (!(incrementationExpression.Target is VariableReference) && !(incrementationExpression.Target is IndexerExpression))
             {
                 throw new RuntimeException(
                     "A variable value is required as increment operand",
                     Environment,
-                    incrementationNode.Line
+                    incrementationExpression.Line
                 );
             }
 
-            var numValue = Visit(incrementationNode.Target);
+            var numValue = Visit(incrementationExpression.Target);
 
             if (numValue.Type == DynValueType.Number)
             {
-                if (incrementationNode.IsPrefix)
+                if (incrementationExpression.IsPrefix)
                 {
                     var retVal = new DynValue(numValue.Number + 1);
                     numValue.CopyFrom(retVal);
@@ -39,7 +39,7 @@ namespace EVIL.Interpreter.Execution
             throw new RuntimeException(
                 "Cannot increment this value because it's not a number.",
                 Environment,
-                incrementationNode.Line
+                incrementationExpression.Line
             );
         }
     }

@@ -1,19 +1,17 @@
-﻿using EVIL.Grammar.AST.Nodes;
-using EVIL.Interpreter.Abstraction;
+﻿using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(BlockStatementNode blockStatementNode)
+        public override void Visit(BlockStatement blockStatement)
         {
-            var retVal = DynValue.Zero;
-
-            if (blockStatementNode.Statements.Count > 0)
+            if (blockStatement.Statements.Count > 0)
             {
                 Environment.EnterScope();
                 {
-                    for (var i = 0; i < blockStatementNode.Statements.Count; i++)
+                    for (var i = 0; i < blockStatement.Statements.Count; i++)
                     {
                         if (Environment.IsInsideLoop)
                         {
@@ -29,18 +27,15 @@ namespace EVIL.Interpreter.Execution
 
                             if (callStackTop.ReturnNow)
                             {
-                                retVal = callStackTop.ReturnValue;
                                 break;
                             }
                         }
-
-                        retVal = Visit(blockStatementNode.Statements[i]);
+                        
+                        Visit(blockStatement.Statements[i]);
                     }
                 }
                 Environment.ExitScope();
             }
-
-            return retVal;
         }
     }
 }

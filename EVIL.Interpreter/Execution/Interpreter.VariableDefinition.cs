@@ -5,29 +5,27 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(VariableDefinitionNode variableDefinitionNode)
+        public override void Visit(VariableDefinition variableDefinition)
         {
-            var identifier = variableDefinitionNode.Identifier;
+            var identifier = variableDefinition.Identifier;
 
             if (Environment.LocalScope.HasMember(identifier))
             {
                 throw new RuntimeException(
                     $"Variable '{identifier}' was already defined in the current scope.",
                     Environment,
-                    variableDefinitionNode.Line
+                    variableDefinition.Line
                 );
             }
 
             var dynValue = Environment.LocalScope.Set(identifier, DynValue.Zero);
 
-            if (variableDefinitionNode.Initializer != null)
+            if (variableDefinition.Initializer != null)
             {
                 dynValue.CopyFrom(
-                    Visit(variableDefinitionNode.Initializer)
+                    Visit(variableDefinition.Initializer)
                 );
             }
-
-            return dynValue;
         }
     }
 }

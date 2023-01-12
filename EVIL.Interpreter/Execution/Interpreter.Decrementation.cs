@@ -5,22 +5,22 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(DecrementationNode decrementationNode)
+        public override DynValue Visit(DecrementationExpression decrementationExpression)
         {
-            if (!(decrementationNode.Target is VariableNode) && !(decrementationNode.Target is IndexingNode))
+            if (!(decrementationExpression.Target is VariableReference) && !(decrementationExpression.Target is IndexerExpression))
             {
                 throw new RuntimeException(
                     "A variable value is required as decrement operand",
                     Environment,
-                    decrementationNode.Line
+                    decrementationExpression.Line
                 );
             }
 
-            var numValue = Visit(decrementationNode.Target);
+            var numValue = Visit(decrementationExpression.Target);
 
             if (numValue.Type == DynValueType.Number)
             {
-                if (decrementationNode.IsPrefix)
+                if (decrementationExpression.IsPrefix)
                 {
                     var retVal = new DynValue(numValue.Number - 1);
                     numValue.CopyFrom(retVal);
@@ -39,7 +39,7 @@ namespace EVIL.Interpreter.Execution
             throw new RuntimeException(
                 "Cannot decrement this value because it's not a number.",
                 Environment,
-                decrementationNode.Line
+                decrementationExpression.Line
             );
         }
     }

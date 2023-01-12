@@ -6,16 +6,16 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(IndexingNode indexingNode)
+        public override DynValue Visit(IndexerExpression indexerExpression)
         {
-            var indexable = Visit(indexingNode.Indexable);
-            var keyValue = Visit(indexingNode.KeyExpression);
-            var retValue = IndexDynValue(indexable, keyValue, indexingNode);
+            var indexable = Visit(indexerExpression.Indexable);
+            var keyValue = Visit(indexerExpression.KeyExpression);
+            var retValue = IndexDynValue(indexable, keyValue, indexerExpression);
 
             return retValue;
         }
 
-        private DynValue IndexDynValue(DynValue indexable, DynValue keyValue, IndexingNode indexingNode)
+        private DynValue IndexDynValue(DynValue indexable, DynValue keyValue, IndexerExpression indexerExpression)
         {
             if (indexable.Type == DynValueType.String)
             {
@@ -24,7 +24,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         $"Attempt to index a string using {keyValue.Type}.",
                         Environment,
-                        indexingNode.Line
+                        indexerExpression.Line
                     );
                 }
 
@@ -37,7 +37,7 @@ namespace EVIL.Interpreter.Execution
                         throw new RuntimeException(
                             "String index out of bounds.",
                             Environment,
-                            indexingNode.Line
+                            indexerExpression.Line
                         );
                     }
 
@@ -52,7 +52,7 @@ namespace EVIL.Interpreter.Execution
                         throw new RuntimeException(
                             "String index out of bounds.",
                             Environment,
-                            indexingNode.Line
+                            indexerExpression.Line
                         );
                     }
 
@@ -65,7 +65,7 @@ namespace EVIL.Interpreter.Execution
             {
                 if (keyValue.Type == DynValueType.String)
                 {
-                    if (indexingNode.WillBeAssigned)
+                    if (indexerExpression.WillBeAssigned)
                     {
                         indexable.Table[keyValue] = DynValue.Zero;
                         return indexable.Table[keyValue];
@@ -73,12 +73,12 @@ namespace EVIL.Interpreter.Execution
 
                     return indexable.Table[keyValue.String]
                            ?? throw new RuntimeException(
-                               $"'{keyValue.String}' does not exist in the table.", Environment, indexingNode.Line
+                               $"'{keyValue.String}' does not exist in the table.", Environment, indexerExpression.Line
                            );
                 }
                 else if (keyValue.Type == DynValueType.Number)
                 {
-                    if (indexingNode.WillBeAssigned)
+                    if (indexerExpression.WillBeAssigned)
                     {
                         indexable.Table[keyValue] = DynValue.Zero;
                         return indexable.Table[keyValue];
@@ -86,7 +86,7 @@ namespace EVIL.Interpreter.Execution
 
                     return indexable.Table[keyValue.Number]
                            ?? throw new RuntimeException(
-                               $"'{keyValue.String}' does not exist in the table.", Environment, indexingNode.Line
+                               $"'{keyValue.String}' does not exist in the table.", Environment, indexerExpression.Line
                            );
                 }
                 else
@@ -94,7 +94,7 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         $"Attempt to use {keyValue.Type} as a key.",
                         Environment,
-                        indexingNode.Line
+                        indexerExpression.Line
                     );
                 }
             }
@@ -102,7 +102,7 @@ namespace EVIL.Interpreter.Execution
             throw new RuntimeException(
                 $"Attempt to index a {indexable.Type}.",
                 Environment,
-                indexingNode.Line
+                indexerExpression.Line
             );
         }
     }

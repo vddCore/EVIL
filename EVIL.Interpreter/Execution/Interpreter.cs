@@ -10,9 +10,6 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter : AstVisitor<DynValue>
     {
-        private readonly Stack<StackFrame> _preCallStack = new();
-        private readonly Stack<FunctionArguments> _argumentStack = new();
-
         public string MainFilePath { get; private set; }
 
         public Environment Environment { get; set; } = new();
@@ -27,7 +24,7 @@ namespace EVIL.Interpreter.Execution
         public Interpreter(Environment env)
             => Environment = env;
 
-        public DynValue Execute(string sourceCode)
+        public void Execute(string sourceCode)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
@@ -36,16 +33,15 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
-                return Visit(node);
+                Visit(node);
             }
-            catch (ExitStatementException)
+            finally
             {
                 Environment.Clear();
-                throw;
             }
         }
 
-        public async Task<DynValue> ExecuteAsync(string sourceCode)
+        public async Task ExecuteAsync(string sourceCode)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
@@ -54,16 +50,15 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
-                return await Task.Run(() => Visit(node));
+                await Task.Run(() => Visit(node));
             }
-            catch (ExitStatementException)
+            finally
             {
                 Environment.Clear();
-                throw;
             }
         }
 
-        public DynValue Execute(string sourceCode, string entryPoint, string[] args, string filePath = null)
+        public void Execute(string sourceCode, string entryPoint, string[] args, string filePath = null)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
@@ -74,8 +69,6 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
-                DynValue result;
-
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
 
@@ -88,17 +81,19 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
 
-                _preCallStack.Push(new StackFrame(entryNode.Identifier)
+                var stackFrame = new StackFrame(entryNode.Identifier)
                 {
                     DefinedAtLine = entryNode.Line
-                });
-                var preCallStackFrame = _preCallStack.Peek();
-
-                Visit(entryNode.Parameters);
+                };
+                
+                for (var i = 0; i < entryNode.Parameters.Count; i++)
+                {
+                    stackFrame.Parameters.Add(entryNode.Parameters[i]);
+                }
 
                 var scope = Environment.EnterScope(true);
                 {
-                    if (preCallStackFrame.Parameters.Count == 1)
+                    if (stackFrame.Parameters.Count == 1)
                     {
                         var tbl = new Table();
                         for (var i = 0; i < args.Length; i++)
@@ -106,9 +101,9 @@ namespace EVIL.Interpreter.Execution
                             tbl[i] = new DynValue(args[i]);
                         }
 
-                        scope.Set(preCallStackFrame.Parameters[0], new DynValue(tbl));
+                        scope.Set(stackFrame.Parameters[0], new DynValue(tbl));
                     }
-                    else if (preCallStackFrame.Parameters.Count > 1)
+                    else if (stackFrame.Parameters.Count > 1)
                     {
                         throw new RuntimeException(
                             "Entry point function can only have 1 argument.",
@@ -117,8 +112,8 @@ namespace EVIL.Interpreter.Execution
                         );
                     }
 
-                    Environment.CallStack.Push(_preCallStack.Pop());
-                    result = Visit(entryNode.Statements);
+                    Environment.CallStack.Push(stackFrame);
+                    Visit(entryNode.Statements);
 
                     if (Environment.CallStack.Count > 0)
                     {
@@ -126,8 +121,6 @@ namespace EVIL.Interpreter.Execution
                     }
                 }
                 Environment.ExitScope();
-
-                return result;
             }
             catch (ExitStatementException)
             {
@@ -136,7 +129,7 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        public Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
+        public Task ExecuteAsync(string sourceCode, string entryPoint, string[] args)
         {
             return Task.Factory.StartNew(
                 () => Execute(
@@ -144,33 +137,6 @@ namespace EVIL.Interpreter.Execution
                 ),
                 TaskCreationOptions.LongRunning
             );
-        }
-
-        public DynValue ExecuteScriptFunction(string frameName, ScriptFunction function, FunctionArguments args)
-        {
-            _preCallStack.Push(new StackFrame(frameName));
-            var preCallStackFrame = _preCallStack.Peek();
-
-            Visit(function.Parameters);
-            DynValue retval;
-
-            Environment.EnterScope(true);
-            {
-                for (var i = 0; i < preCallStackFrame.Parameters.Count; i++)
-                {
-                    if (i >= args.Count)
-                        break;
-
-                    Environment.LocalScope.Set(preCallStackFrame.Parameters[i], args[i]);
-                }
-
-                Environment.CallStack.Push(preCallStackFrame);
-                retval = Visit(function.Statements);
-            }
-            Environment.CallStack.Pop();
-            Environment.ExitScope();
-
-            return retval;
         }
     }
 }

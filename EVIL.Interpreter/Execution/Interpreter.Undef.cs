@@ -5,9 +5,9 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(UndefNode undefNode)
+        public override void Visit(UndefStatement undefStatement)
         {
-            if (undefNode.Right is IndexingNode indexingNode)
+            if (undefStatement.Right is IndexerExpression indexingNode)
             {
                 var indexable = Visit(indexingNode.Indexable);
                 var key = Visit(indexingNode.KeyExpression);
@@ -17,13 +17,13 @@ namespace EVIL.Interpreter.Execution
                     throw new RuntimeException(
                         "Attempt to undefine a member of a type which is not a Table.",
                         Environment,
-                        undefNode.Line
+                        undefStatement.Line
                     );
                 }
 
                 indexable.Table.Remove(key);
             }
-            else if (undefNode.Right is VariableNode variable)
+            else if (undefStatement.Right is VariableReference variable)
             {
                 Environment.LocalScope.UnSetInChain(variable.Identifier);
             }
@@ -32,11 +32,9 @@ namespace EVIL.Interpreter.Execution
                 throw new RuntimeException(
                     "Expected a variable or an indexer.",
                     Environment,
-                    undefNode.Line
+                    undefStatement.Line
                 );
             }
-
-            return DynValue.Zero;
         }
     }
 }

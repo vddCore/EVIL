@@ -1,18 +1,18 @@
-﻿using EVIL.Grammar.AST.Nodes;
-using EVIL.Interpreter.Abstraction;
+﻿using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Diagnostics;
 
 namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(ForLoopNode forLoopNode)
+        public override void Visit(ForStatement forStatement)
         {
             Environment.EnterScope();
             {
-                for (var i = 0; i < forLoopNode.Assignments.Count; i++)
+                for (var i = 0; i < forStatement.Assignments.Count; i++)
                 {
-                    Visit(forLoopNode.Assignments[i]);
+                    Visit(forStatement.Assignments[i]);
                 }
 
                 try
@@ -22,7 +22,7 @@ namespace EVIL.Interpreter.Execution
 
                     while (true)
                     {
-                        var conditionEvaluation = Visit(forLoopNode.Condition);
+                        var conditionEvaluation = Visit(forStatement.Condition);
                         if (!conditionEvaluation.IsTruth)
                         {
                             break;
@@ -30,7 +30,7 @@ namespace EVIL.Interpreter.Execution
 
                         if (!loopStackTop.SkipThisIteration)
                         {
-                            Visit(forLoopNode.Statement);
+                            Visit(forStatement.Statement);
                         }
 
                         if (loopStackTop.BreakLoop)
@@ -43,9 +43,9 @@ namespace EVIL.Interpreter.Execution
                             loopStackTop.SkipThisIteration = false;
                         }
 
-                        for (var i = 0; i < forLoopNode.IterationStatements.Count; i++)
+                        for (var i = 0; i < forStatement.IterationExpressions.Count; i++)
                         {
-                            Visit(forLoopNode.IterationStatements[i]);
+                            Visit(forStatement.IterationExpressions[i]);
                         }
                     }
                 }
@@ -55,8 +55,6 @@ namespace EVIL.Interpreter.Execution
                 }
             }
             Environment.ExitScope();
-
-            return DynValue.Zero;
         }
     }
 }

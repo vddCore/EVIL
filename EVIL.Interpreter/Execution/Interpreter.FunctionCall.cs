@@ -8,63 +8,67 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(FunctionCallNode functionCallNode)
+        public override DynValue Visit(FunctionCallExpression functionCallExpression)
         {
-            var invokable = Visit(functionCallNode.Left);
+            var invokable = Visit(functionCallExpression.Callee);
 
             if (invokable.Type == DynValueType.Function)
             {
-                return InvokeFunction(functionCallNode, invokable);
+                return InvokeFunction(functionCallExpression, invokable);
             }
             else if (invokable.Type == DynValueType.ClrFunction)
             {
-                return InvokeFunction(functionCallNode, invokable);
+                return InvokeFunction(functionCallExpression, invokable);
             }
             else
             {
                 throw new RuntimeException(
                     $"Attempt to invoke an un-invokable value {invokable.Type}.",
                     Environment,
-                    functionCallNode.Line
+                    functionCallExpression.Line
                 );
             }
         }
 
-        private DynValue InvokeFunction(FunctionCallNode functionCallNode, DynValue funcValue)
+        private DynValue InvokeFunction(FunctionCallExpression functionCallExpression, DynValue funcValue)
         {
             if (Environment.CallStack.Count > Environment.CallStackLimit)
             {
                 throw new RuntimeException(
                     "Call stack overflow.",
                     Environment,
-                    functionCallNode.Line
+                    functionCallExpression.Line
                 );
             }
 
             var funcName = "<anonymous>";
 
-            if (functionCallNode.Left is IndexingNode indexingNode)
+            if (functionCallExpression.Callee is IndexerExpression indexingNode)
             {
                 funcName = indexingNode.BuildChainStringRepresentation();
             }
-            else if (functionCallNode.Left is VariableNode variableNode)
+            else if (functionCallExpression.Callee is VariableReference variableNode)
             {
                 funcName = variableNode.Identifier;
             }
 
-            Visit(functionCallNode.ArgumentList);
+            var args = new FunctionArguments();
+
+            for (var i = 0; i < functionCallExpression.Arguments.Count; i++)
+            {
+                args.Add(Visit(functionCallExpression.Arguments[i]));
+            }
 
             DynValue retVal;
             if (funcValue.Type == DynValueType.ClrFunction)
             {
-                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, _argumentStack.Pop(), functionCallNode);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, args, functionCallExpression);
             }
             else
             {
                 Environment.EnterScope(true);
                 {
-                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, _argumentStack.Pop(),
-                        functionCallNode);
+                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, args, functionCallExpression);
                 }
                 Environment.ExitScope();
             }
@@ -88,9 +92,9 @@ namespace EVIL.Interpreter.Execution
                 Environment.LocalScope.Set(closure.Key, closure.Value);
             }
 
-            for (var i = 0; i < scriptFunction.Parameters.Identifiers.Count; i++)
+            for (var i = 0; i < scriptFunction.Parameters.Count; i++)
             {
-                var parameterName = scriptFunction.Parameters.Identifiers[i];
+                var parameterName = scriptFunction.Parameters[i];
 
                 if (Environment.LocalScope.HasMember(parameterName))
                 {
@@ -108,10 +112,13 @@ namespace EVIL.Interpreter.Execution
             }
 
             Environment.CallStack.Push(stackFrame);
-
+            
+            DynValue retVal;
+            
             try
             {
-                return Visit(scriptFunction.Statements);
+                Visit(scriptFunction.Statements);
+                retVal = Environment.CallStack.Peek().ReturnValue;
             }
             catch (RuntimeException)
             {
@@ -133,6 +140,8 @@ namespace EVIL.Interpreter.Execution
             {
                 Environment.CallStack.Pop();
             }
+
+            return retVal;
         }
 
         private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
