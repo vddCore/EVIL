@@ -692,6 +692,13 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             evstack.Push(new(frame.Chunk.Parameters[btmp]));
                             break;
                         }
+                        
+                        case OpCode.TYPE:
+                        {
+                            a = evstack.Pop();
+                            evstack.Push(new(a.Type.Alias()));
+                            break;
+                        }
 
                         case OpCode.EACH:
                         {

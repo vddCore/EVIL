@@ -75,5 +75,6 @@
         EACH = 0x79,  // Begin [EACH] loop
         ITER = 0x7A,  // [ITER]ate over a table during each-loop
         ENDE = 0x7B,  // [END] [E]ach loop
+        TYPE = 0x7C   // Push the string representaion of [TYPE] of a value
     }
 }

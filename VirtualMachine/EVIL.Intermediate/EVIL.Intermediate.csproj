@@ -39,9 +39,6 @@
       <Compile Update="CodeGeneration\Compiler.Expressions.Indexer.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
-      <Compile Update="CodeGeneration\Compiler.Expressions.NameOf.cs">
-        <DependentUpon>Compiler.cs</DependentUpon>
-      </Compile>
       <Compile Update="CodeGeneration\Compiler.Expressions.Table.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
@@ -98,6 +95,9 @@
       </Compile>
       <Compile Update="CodeGeneration\Compiler.Expressions.Null.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="CodeGeneration\Compiler.Expressions.Unary.NameOf.cs">
+        <DependentUpon>Compiler.Expressions.Unary.cs</DependentUpon>
       </Compile>
     </ItemGroup>
 </Project>

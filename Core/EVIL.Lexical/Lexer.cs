@@ -355,6 +355,7 @@ namespace EVIL.Lexical
                 "false" => Token.False,
                 "exit" => Token.Exit,
                 "null" => Token.Null,
+                "typeof" => Token.TypeOf,
                 _ => Token.CreateIdentifier(str)
             };
         }

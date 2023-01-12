@@ -4,11 +4,9 @@ namespace EVIL.Intermediate.CodeGeneration
 {
     public partial class Compiler
     {
-        public override void Visit(NameOfExpression nameOfExpression)
+        private void UnaryNameOf(UnaryExpression unaryExpression, CodeGenerator cg)
         {
-            var cg = CurrentChunk.GetCodeGenerator();
-
-            if (nameOfExpression.Right is VariableReferenceExpression varRef)
+            if (unaryExpression.Right is VariableReferenceExpression varRef)
             {
                 if (ScopeStack.TryPeek(out var localScope))
                 {

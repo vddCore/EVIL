@@ -15,8 +15,6 @@ namespace EVIL.Grammar.Parsing
             TokenType.BitwiseNot,
             TokenType.NameOf,
             TokenType.Length,
-            TokenType.Increment,
-            TokenType.Decrement,
             TokenType.AsNumber,
             TokenType.AsString
         };
@@ -66,6 +64,31 @@ namespace EVIL.Grammar.Parsing
 
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber)
                     { Line = line, Column = col };
+            }
+            else if (token.Type == TokenType.NameOf)
+            {
+                var (line, col) = Match(Token.NameOf);
+                
+                return new UnaryExpression(PostfixExpression(), UnaryOperationType.NameOf)
+                    { Line = line, Column = col };
+            }
+            else if (token.Type == TokenType.Length)
+            {
+                var (line, col) = Match(Token.Length);
+                
+                return new UnaryExpression(PostfixExpression(), UnaryOperationType.Length) 
+                    { Line = line, Column = col };
+            }
+            else if (token.Type == TokenType.TypeOf)
+            {
+                var (line, col) = Match(Token.TypeOf);
+                
+                Match(Token.LParenthesis);
+                var node = new UnaryExpression(AssignmentExpression(), UnaryOperationType.TypeOf) 
+                    { Line = line, Column = col };
+                Match(Token.RParenthesis);
+
+                return node;
             }
 
             return PostfixExpression();

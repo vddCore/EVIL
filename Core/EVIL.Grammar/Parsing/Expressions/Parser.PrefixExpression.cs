@@ -10,21 +10,7 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
 
-            if (token.Type == TokenType.NameOf)
-            {
-                var (line, col) = Match(Token.NameOf);
-                
-                return new NameOfExpression(UnaryExpression())
-                    { Line = line, Column = col };
-            }
-            else if (token.Type == TokenType.Length)
-            {
-                var (line, col) = Match(Token.Length);
-                
-                return new UnaryExpression(UnaryExpression(), UnaryOperationType.Length) 
-                    { Line = line, Column = col };
-            }
-            else if (token.Type == TokenType.Increment)
+            if (token.Type == TokenType.Increment)
             {
                 var (line, col) = Match(Token.Increment);
                 

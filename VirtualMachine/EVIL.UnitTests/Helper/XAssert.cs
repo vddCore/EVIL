@@ -94,5 +94,11 @@ namespace EVIL.UnitTests.Helper
             NAssert.NotNull(exception);
             NAssert.IsInstanceOf<U>(exception.InnerException);
         }
+        
+        public static void Throws<T>(TestDelegate code)
+            where T : Exception
+        {
+            NAssert.Throws<T>(code);
+        }
     }
 }
