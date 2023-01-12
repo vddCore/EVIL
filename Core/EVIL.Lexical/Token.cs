@@ -78,8 +78,8 @@
         public static readonly Token GreaterThanOrEqual = new(TokenType.GreaterThanOrEqual, ">=");
         public static readonly Token LessThanOrEqual = new(TokenType.LessThanOrEqual, "<=");
 
-        public static readonly Token Floor = new(TokenType.Floor, "$");
         public static readonly Token Length = new(TokenType.Length, "#");
+        public static readonly Token AsNumber = new(TokenType.AsNumber, "$");
         public static readonly Token AsString = new(TokenType.AsString, "@");
         public static readonly Token QuestionMark = new(TokenType.QuestionMark, "?");
 

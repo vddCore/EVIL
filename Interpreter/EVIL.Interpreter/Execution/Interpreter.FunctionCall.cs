@@ -137,7 +137,8 @@ namespace EVIL.Interpreter.Execution
                 throw new RuntimeException(
                     e.Message,
                     Environment,
-                    node.Line
+                    node.Line,
+                    e
                 );
             }
             finally

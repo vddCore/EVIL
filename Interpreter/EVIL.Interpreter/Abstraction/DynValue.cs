@@ -127,13 +127,16 @@ namespace EVIL.Interpreter.Abstraction
         {
             if (Type == DynValueType.Number)
                 return new DynValue(_numberValue);
+            else if (Type == DynValueType.String)
+            {
+                var success = double.TryParse(_stringValue, out var result);
 
-            var success = double.TryParse(_stringValue, out var result);
+                if (!success)
+                    throw new DynValueConversionException($"Cannot convert '{_stringValue}' to a Number.");
 
-            if (!success)
-                throw new DynValueConversionException($"Cannot convert value of type '{Type}' to a decimal.");
-
-            return new DynValue(result);
+                return new DynValue(result);
+            }
+            else throw new DynValueConversionException($"Cannot convert a '{Type}' to a Number.");
         }
         public DynValue AsString()
         {

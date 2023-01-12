@@ -1,4 +1,0 @@
-- typo in ClrFunctionArguments: 'Number
-- can do "{ X = Y }" in table initializers
-- maybe allow multiple initializers for single var
-- could use better error reporting. "Unexpected error: This value is not a string." isnt really helpful

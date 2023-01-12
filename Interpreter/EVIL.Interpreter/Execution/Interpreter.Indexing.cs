@@ -86,7 +86,7 @@ namespace EVIL.Interpreter.Execution
 
                     return indexable.Table[keyValue.Number]
                            ?? throw new RuntimeException(
-                               $"'{keyValue.String}' does not exist in the table.", Environment, indexerExpression.Line
+                               $"'{keyValue.Number}' does not exist in the table.", Environment, indexerExpression.Line
                            );
                 }
                 else

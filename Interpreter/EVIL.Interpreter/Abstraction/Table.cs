@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EVIL.Interpreter.Execution;
 
 namespace EVIL.Interpreter.Abstraction
 {
@@ -133,6 +134,18 @@ namespace EVIL.Interpreter.Abstraction
                     predicate(new DynValue(str), this[str]);
                 }
             }
+        }
+
+        public DynValue ElementAt(int index)
+        {
+            if (index < 0 || index >= _keys.Count)
+                throw new IndexOutOfRangeException("Index is negative or out of range for this table.");
+
+            var k = _keys[index];
+
+            if (k is double dbl)
+                return this[dbl];
+            else return this[k as string];
         }
 
         public bool Remove(string key)

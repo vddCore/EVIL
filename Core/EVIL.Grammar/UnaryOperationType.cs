@@ -4,11 +4,11 @@
     {
         Minus,
         Plus,
+        ToNumber,
         ToString,
         Length,
         NameOf,
         Negation,
         BitwiseNot,
-        Floor
     }
 }

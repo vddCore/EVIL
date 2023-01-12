@@ -13,11 +13,11 @@ namespace EVIL.Grammar.Parsing
             TokenType.Minus,
             TokenType.LogicalNot,
             TokenType.BitwiseNot,
-            TokenType.Floor,
             TokenType.NameOf,
             TokenType.Length,
             TokenType.Increment,
             TokenType.Decrement,
+            TokenType.AsNumber,
             TokenType.AsString
         };
 
@@ -76,10 +76,10 @@ namespace EVIL.Grammar.Parsing
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.BitwiseNot)
                     {Line = line};
             }
-            else if (token.Type == TokenType.Floor)
+            else if (token.Type == TokenType.AsNumber)
             {
-                var line = Match(Token.Floor);
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Floor) {Line = line};
+                var line = Match(Token.AsNumber);
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber) {Line = line};
             }
 
             return PostModificationExpression();

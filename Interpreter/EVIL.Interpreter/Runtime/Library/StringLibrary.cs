@@ -136,7 +136,7 @@ namespace EVIL.Interpreter.Runtime.Library
             if (with.Length > 1)
                 throw new ClrFunctionException("Expected a single character at index 1");
 
-            var splitStuff = str.Split(with[0]);
+            var splitStuff = str.Split(with);
             var retTable = new Table();
 
             for (var i = 0; i < splitStuff.Length; i++)

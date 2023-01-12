@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using EVIL.Grammar;
+using EVIL.Interpreter.Abstraction;
+using EVIL.Interpreter.Diagnostics;
 using EVIL.Interpreter.Execution;
 using EVIL.Lexical;
 using EVIL.VILE.Extensibility;
@@ -25,12 +29,35 @@ namespace EVIL.VILE
             }
             catch (RuntimeException re)
             {
-                Console.WriteLine($"Runtime exception: {re.Message}");
-
-                foreach (var frame in re.EvilStackTrace)
+                var sb = new StringBuilder();
+                
+                if (re.InnerException is InvalidDynValueTypeException idv)
                 {
-                    Console.WriteLine($"  {frame.FunctionName}:{re.Line} (inv. at {frame.InvokedAtLine})");
+                    sb.AppendLine($"Type error - attempted to treat a {idv.ActualType} as a {idv.RequestedType}");
                 }
+                else
+                {
+                    sb.Append($"Runtime error - ");
+                    sb.AppendLine($"{re.Message}");
+                }
+                
+                if (re.Line != null)
+                {
+                    sb.Append($" on line {re.Line}");
+                }
+
+                sb.AppendLine();
+                
+                if (re.EvilStackTrace == null || re.EvilStackTrace.Count == 0)
+                {
+                    sb.Append("No stack trace available.");
+                }
+                else
+                {
+                    sb.Append(FormatStackTrace(re.EvilStackTrace));
+                }
+
+                Console.WriteLine(sb.ToString());
             }
             catch (ParserException pe)
             {
@@ -84,6 +111,22 @@ namespace EVIL.VILE
 
             await _loadTask;
             await executionEngine.ExecuteAsync(_script, "main", args.Skip(1).ToArray());
+        }
+        
+        private static string FormatStackTrace(List<StackFrame> stackTrace)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var frame in stackTrace)
+            {
+                sb.AppendLine(
+                    $"at {frame.FunctionName}({string.Join(',', frame.Parameters)})\n" +
+                    $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
+                    $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
+                );
+            }
+
+            return sb.ToString();
         }
     }
 }
