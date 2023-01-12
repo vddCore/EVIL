@@ -15,9 +15,9 @@ namespace EVIL.Parsing
             TokenType.LBracket
         };
 
-        private AstNode Factor()
+        private AstNode Factor(AstNode node = null)
         {
-            var node = Terminal();
+            node = node ?? Terminal();
             var token = Scanner.State.CurrentToken;
 
             while (_suffixOperators.Contains(token.Type))

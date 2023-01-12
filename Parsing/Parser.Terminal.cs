@@ -14,12 +14,12 @@ namespace EVIL.Parsing
             if (token.Type == TokenType.Plus)
             {
                 var line = Match(TokenType.Plus);
-                return new UnaryOperationNode(Terminal(), UnaryOperationType.Plus) {Line = line};
+                return new UnaryOperationNode(Assignment(), UnaryOperationType.Plus) {Line = line};
             }
             else if (token.Type == TokenType.Minus)
             {
                 var line = Match(TokenType.Minus);
-                return new UnaryOperationNode(Terminal(), UnaryOperationType.Minus) {Line = line};
+                return new UnaryOperationNode(Assignment(), UnaryOperationType.Minus) {Line = line};
             }
             else if (token.Type == TokenType.Increment)
             {
@@ -35,30 +35,30 @@ namespace EVIL.Parsing
                 var line = Match(TokenType.Decrement);
                 return new DecrementationNode(Terminal(), true) {Line = line};
             }
-            else if (token.Type == TokenType.Negation)
-            {
-                var line = Match(TokenType.Negation);
-                return new UnaryOperationNode(Terminal(), UnaryOperationType.Negation) {Line = line};
-            }
-            else if (token.Type == TokenType.BitwiseNot)
-            {
-                var line = Match(TokenType.BitwiseNot);
-                return new UnaryOperationNode(Terminal(), UnaryOperationType.BitwiseNot) {Line = line};
-            }
             else if (token.Type == TokenType.NameOf)
             {
                 var line = Match(TokenType.NameOf);
                 return new UnaryOperationNode(Terminal(), UnaryOperationType.NameOf) {Line = line};
             }
+            else if (token.Type == TokenType.Negation)
+            {
+                var line = Match(TokenType.Negation);
+                return new UnaryOperationNode(Assignment(), UnaryOperationType.Negation) {Line = line};
+            }
+            else if (token.Type == TokenType.BitwiseNot)
+            {
+                var line = Match(TokenType.BitwiseNot);
+                return new UnaryOperationNode(Assignment(), UnaryOperationType.BitwiseNot) {Line = line};
+            }
             else if (token.Type == TokenType.ToString)
             {
                 var line = Match(TokenType.ToString);
-                return new UnaryOperationNode(Terminal(), UnaryOperationType.ToString) {Line = line};
+                return new UnaryOperationNode(Assignment(), UnaryOperationType.ToString) {Line = line};
             }
             else if (token.Type == TokenType.Length)
             {
                 var line = Match(TokenType.Length);
-                return new UnaryOperationNode(Terminal(), UnaryOperationType.Length) {Line = line};
+                return new UnaryOperationNode(Assignment(), UnaryOperationType.Length) {Line = line};
             }
             else if (token.Type == TokenType.DecimalNumber)
             {
