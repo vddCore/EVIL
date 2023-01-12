@@ -25,29 +25,29 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.LessThan)
                 {
-                    var line = Match(TokenType.LessThan);
+                    var line = Match(Token.LessThan);
                     node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.Less) {Line = line};
                 }
                 else if (token.Type == TokenType.GreaterThan)
                 {
-                    var line = Match(TokenType.GreaterThan);
+                    var line = Match(Token.GreaterThan);
                     node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.Greater) {Line = line};
                 }
                 else if (token.Type == TokenType.LessThanOrEqual)
                 {
-                    var line = Match(TokenType.LessThanOrEqual);
+                    var line = Match(Token.LessThanOrEqual);
                     node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.LessOrEqual)
                         {Line = line};
                 }
                 else if (token.Type == TokenType.GreaterThanOrEqual)
                 {
-                    var line = Match(TokenType.GreaterThanOrEqual);
+                    var line = Match(Token.GreaterThanOrEqual);
                     node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.GreaterOrEqual)
                         {Line = line};
                 }
                 else if (token.Type == TokenType.In)
                 {
-                    var line = Match(TokenType.In);
+                    var line = Match(Token.In);
                     node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.ExistsIn)
                         {Line = line};
                 }

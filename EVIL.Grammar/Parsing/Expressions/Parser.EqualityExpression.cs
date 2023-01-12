@@ -22,12 +22,12 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.Equal)
                 {
-                    var line = Match(TokenType.Equal);
+                    var line = Match(Token.Equal);
                     node = new BinaryOperationNode(node, RelationalExpression(), BinaryOperationType.Equal) {Line = line};
                 }
                 else if (token.Type == TokenType.NotEqual)
                 {
-                    var line = Match(TokenType.NotEqual);
+                    var line = Match(Token.NotEqual);
                     node = new BinaryOperationNode(node, RelationalExpression(), BinaryOperationType.NotEqual) {Line = line};
                 }
                 

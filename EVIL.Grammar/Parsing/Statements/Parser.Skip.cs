@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
                 throw new ParserException("Unexpected 'skip' outside of a loop.", Lexer.State);
             }
             
-            var line = Match(TokenType.Skip);
+            var line = Match(Token.Skip);
             return new SkipNode { Line = line };
         }
     }

@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private ArgumentListNode ArgumentList(out int line)
         {
-            line = Match(TokenType.LParenthesis);
+            line = Match(Token.LParenthesis);
             var arguments = new List<AstNode>();
 
             while (CurrentToken.Type != TokenType.RParenthesis)
@@ -27,9 +27,9 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken.Type == TokenType.RParenthesis)
                     break;
 
-                Match(TokenType.Comma);
+                Match(Token.Comma);
             }
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
             
             return new ArgumentListNode(arguments);
         }

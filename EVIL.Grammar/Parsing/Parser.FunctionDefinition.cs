@@ -8,13 +8,13 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode FunctionDefinition()
         {
-            var line = Match(TokenType.Fn);
+            var line = Match(Token.Fn);
             string procName = null;
 
             if (CurrentToken.Type == TokenType.Identifier)
             {
                 procName = CurrentToken.Value;
-                Match(TokenType.Identifier);
+                Match(Token.Identifier);
             }
 
             var parameterList = ParameterList();

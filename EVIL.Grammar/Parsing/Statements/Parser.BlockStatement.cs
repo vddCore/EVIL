@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private BlockStatementNode BlockStatement()
         {
-            var line = Match(TokenType.LBrace);
+            var line = Match(Token.LBrace);
 
             var statements = new List<AstNode>();
             while (CurrentToken.Type != TokenType.RBrace)
@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Parsing
 
                 statements.Add(Statement());
             }
-            Match(TokenType.RBrace);
+            Match(Token.RBrace);
 
             return new BlockStatementNode(statements) { Line = line };
         }

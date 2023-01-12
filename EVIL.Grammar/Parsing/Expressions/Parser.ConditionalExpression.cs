@@ -12,9 +12,9 @@ namespace EVIL.Grammar.Parsing
 
             if (CurrentToken.Type == TokenType.QuestionMark)
             {
-                Match(TokenType.QuestionMark);
+                Match(Token.QuestionMark);
                 var trueExpression = AssignmentExpression();
-                Match(TokenType.Colon);
+                Match(Token.Colon);
                 var falseExpression = ConditionalExpression();
 
                 return new ConditionalExpressionNode(node, trueExpression, falseExpression);

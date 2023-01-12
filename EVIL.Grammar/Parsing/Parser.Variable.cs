@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             if (identifier == null)
             {
                 name = CurrentToken.Value;
-                line = Match(TokenType.Identifier);
+                line = Match(Token.Identifier);
             }
 
             return new VariableNode(name) { Line = line };

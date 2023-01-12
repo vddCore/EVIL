@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode UndefineSymbol()
         {
-            var line = Match(TokenType.Undef);
+            var line = Match(Token.Undef);
             return new UndefNode(PostfixExpression()) {Line = line};
         }
     }

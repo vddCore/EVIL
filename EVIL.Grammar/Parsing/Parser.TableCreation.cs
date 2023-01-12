@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode TableCreation()
         {
-            var line = Match(TokenType.LBrace);
+            var line = Match(Token.LBrace);
             var initializers = new List<AstNode>();
             var keyed = false;
 
@@ -20,7 +20,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     keyed = true;
                     key = ComputedKeyExpression();
-                    Match(TokenType.Assign);
+                    Match(Token.Assign);
                 }
                 else
                 {
@@ -30,7 +30,7 @@ namespace EVIL.Grammar.Parsing
                         keyed = true;
                         key = Constant();
                         
-                        Match(TokenType.Assign);
+                        Match(Token.Assign);
                     }
                     else
                     {
@@ -47,18 +47,18 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken.Type == TokenType.RBrace)
                     break;
 
-                Match(TokenType.Comma);
+                Match(Token.Comma);
             }
 
-            Match(TokenType.RBrace);
+            Match(Token.RBrace);
             return new TableNode(initializers, keyed) {Line = line};
         }
 
         private AstNode ComputedKeyExpression()
         {
-            Match(TokenType.LBracket);
+            Match(Token.LBracket);
             var computedKey = AssignmentExpression();
-            Match(TokenType.RBracket);
+            Match(Token.RBracket);
 
             return computedKey;
         }

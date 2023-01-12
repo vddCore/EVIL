@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
                 throw new ParserException("Unexpected 'break' outside of a loop.", Lexer.State);
             }
             
-            var line = Match(TokenType.Break);
+            var line = Match(Token.Break);
             return new BreakNode { Line = line };
         }
     }

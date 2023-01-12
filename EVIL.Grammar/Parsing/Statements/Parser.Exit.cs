@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode Exit()
         {
-            var line = Match(TokenType.Exit);
+            var line = Match(Token.Exit);
             return new ExitNode { Line = line };
         }
     }

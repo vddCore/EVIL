@@ -23,17 +23,17 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.Multiply)
                 {
-                    var line = Match(TokenType.Multiply);
+                    var line = Match(Token.Multiply);
                     node = new BinaryOperationNode(node, UnaryExpression(), BinaryOperationType.Multiply) { Line = line };
                 }
                 else if (token.Type == TokenType.Divide)
                 {
-                    var line = Match(TokenType.Divide);
+                    var line = Match(Token.Divide);
                     node = new BinaryOperationNode(node, UnaryExpression(), BinaryOperationType.Divide) { Line = line };
                 }
                 else if (token.Type == TokenType.Modulo)
                 {
-                    var line = Match(TokenType.Modulo);
+                    var line = Match(Token.Modulo);
                     node = new BinaryOperationNode(node, UnaryExpression(), BinaryOperationType.Modulo) { Line = line };
                 }                
                 

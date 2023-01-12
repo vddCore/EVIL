@@ -8,10 +8,10 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode WhileLoop()
         {
-            var line = Match(TokenType.While);
-            Match(TokenType.LParenthesis);
+            var line = Match(Token.While);
+            Match(Token.LParenthesis);
             var expression = AssignmentExpression();
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
 
             var statements = LoopDescent(BlockStatement);
             
