@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using EVIL.Abstraction;
 using EVIL.Execution;
 using EVIL.Internal;
@@ -167,9 +168,30 @@ namespace EVIL.Runtime.Library
                 .ExpectTypeAtIndex(0, DynValueType.Number);
 
             var bits = decimal.GetBits(args[0].Number);
-            var table = Table.FromArray(bits);
+
+            var table = new Table();
+            for (var i = 0; i < bits.Length; i++)
+            {
+                table[i] = new DynValue(bits[i]);
+            }
 
             return new DynValue(table);
+        }
+
+        [ClrFunction("math.frombits")]
+        public static DynValue FromBits(Interpreter interpreter, ClrFunctionArguments args)
+        {
+            args.ExpectExactly(1)
+                .ExpectTableAtIndex(0, 4, DynValueType.Number);
+
+            return new DynValue(
+                new decimal(
+                    args[0].Table
+                        .Values
+                        .Select(x => (int)x.Number)
+                        .ToArray()
+                )
+            );
         }
     }
 }
