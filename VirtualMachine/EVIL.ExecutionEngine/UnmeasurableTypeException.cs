@@ -5,7 +5,7 @@ namespace EVIL.ExecutionEngine
     public class UnmeasurableTypeException : TypeSystemException
     {
         public UnmeasurableTypeException(DynamicValueType type) 
-            : base($"Cannot compute the length of type {type}.")
+            : base($"Cannot compute the length of a {type.Alias()}.")
         {
         }
     }

@@ -19,13 +19,21 @@ namespace EVIL.Grammar.Parsing
                 var (keyLine, keyCol) = Match(Token.Identifier);
                 indexer.Line = keyLine;
                 indexer.Column = keyCol;
-
             }
             else // must be bracket then
             {
                 (line, col) = Match(Token.LBracket);
 
                 indexer = AssignmentExpression();
+
+                if (indexer is NullConstant)
+                {
+                    throw new ParserException(
+                        "'null' is not a valid indexer expression.", 
+                        (indexer.Line, indexer.Column)
+                    );
+                }
+                
                 Match(Token.RBracket);
             }
 

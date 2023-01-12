@@ -129,8 +129,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
             DynamicValue a;
             DynamicValue b;
 
-            int ia;
-            int ib;
+            long ia;
+            long ib;
 
             byte btmp;
             int itmp;
@@ -295,8 +295,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                     case OpCode.AND:
                     {
-                        ib = evstack.Pop().AsInteger();
-                        ia = evstack.Pop().AsInteger();
+                        ib = evstack.Pop().AsLong();
+                        ia = evstack.Pop().AsLong();
 
                         evstack.Push(new(ia & ib));
                         break;
@@ -304,8 +304,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                     case OpCode.OR:
                     {
-                        ib = evstack.Pop().AsInteger();
-                        ia = evstack.Pop().AsInteger();
+                        ib = evstack.Pop().AsLong();
+                        ia = evstack.Pop().AsLong();
 
                         evstack.Push(new(ia | ib));
                         break;
@@ -313,8 +313,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                     case OpCode.XOR:
                     {
-                        ib = evstack.Pop().AsInteger();
-                        ia = evstack.Pop().AsInteger();
+                        ib = evstack.Pop().AsLong();
+                        ia = evstack.Pop().AsLong();
 
                         evstack.Push(new(ia ^ ib));
                         break;
@@ -322,7 +322,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                     case OpCode.NOT:
                     {
-                        ia = evstack.Pop().AsInteger();
+                        ia = evstack.Pop().AsLong();
 
                         evstack.Push(new(~ia));
                         break;
@@ -353,19 +353,19 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                     case OpCode.SHL:
                     {
-                        ib = evstack.Pop().AsInteger();
-                        ia = evstack.Pop().AsInteger();
+                        ib = evstack.Pop().AsLong();
+                        ia = evstack.Pop().AsLong();
 
-                        evstack.Push(new(ia << ib));
+                        evstack.Push(new(ia << (int)ib));
                         break;
                     }
 
                     case OpCode.SHR:
                     {
-                        ib = evstack.Pop().AsInteger();
-                        ia = evstack.Pop().AsInteger();
+                        ib = evstack.Pop().AsLong();
+                        ia = evstack.Pop().AsLong();
 
-                        evstack.Push(new(ia >> ib));
+                        evstack.Push(new(ia >> (int)ib));
                         break;
                     }
 

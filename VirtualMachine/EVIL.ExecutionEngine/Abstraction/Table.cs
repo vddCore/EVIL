@@ -149,7 +149,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             if (key.Type != DynamicValueType.Number
                 && key.Type != DynamicValueType.String)
             {
-                throw new InvalidKeyTypeException(DynamicValueType.Table, key.Type);
+                throw new InvalidKeyTypeException(key.Type, DynamicValueType.Table);
             }
         }
     }

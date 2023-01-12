@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Grammar.AST.Nodes
 {
-    public class StringConstant : Expression
+    public class StringConstant : ConstantExpression
     {
         public string Value { get; }
 

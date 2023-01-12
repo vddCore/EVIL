@@ -40,6 +40,15 @@ namespace EVIL.Grammar.Parsing
                     if (CurrentToken.Type == TokenType.LBracket)
                     {
                         key = ComputedKeyExpression();
+
+                        if (key is NullConstant)
+                        {
+                            throw new ParserException(
+                                "'null' is not a valid key expression.",
+                                (key.Line, key.Column)
+                            );
+                        }
+                        
                         Match(Token.Associate);
                         value = AssignmentExpression();
 

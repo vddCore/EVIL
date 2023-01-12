@@ -75,7 +75,7 @@ namespace EVIL.VirtualMachine.TestDriver
             var evm = new EVM(_globalTable);
             evm.ImportLookupPaths.Add(AppContext.BaseDirectory);
             
-            var exe = BuildExecutable("./Tests/null.vil");
+            var exe = BuildExecutable("./Tests/table.vil");
 
             if (exe != null)
             {

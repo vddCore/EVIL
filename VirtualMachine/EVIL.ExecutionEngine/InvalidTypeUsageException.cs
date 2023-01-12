@@ -5,7 +5,7 @@ namespace EVIL.ExecutionEngine
     public class InvalidTypeUsageException : TypeSystemException
     {
         public InvalidTypeUsageException(DynamicValueType actual, DynamicValueType requested)
-            : base($"Attempted to use a {actual} as a {requested}.")
+            : base($"Attempt to use a {actual.Alias()} as a {requested.Alias()}.")
         {
         }
     }

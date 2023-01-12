@@ -267,8 +267,8 @@ namespace EVIL.ExecutionEngine.Abstraction
             IsReadOnly = false;
         }
 
-        public int AsInteger()
-            => (int)Number;
+        public long AsLong()
+            => (long)Number;
 
         public string AsString()
         {
@@ -300,9 +300,9 @@ namespace EVIL.ExecutionEngine.Abstraction
             {
                 case DynamicValueType.String:
                     if (key.Type != DynamicValueType.Number)
-                        throw new InvalidKeyTypeException(Type, key.Type);
+                        throw new InvalidKeyTypeException(key.Type, Type);
 
-                    var index = key.AsInteger();
+                    var index = (int)key.AsLong();
 
                     if (index >= _string.Length)
                         throw new IndexOutOfBoundsException(index, Type);
