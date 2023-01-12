@@ -1,0 +1,6 @@
+fn main(args) { 
+  var t = {};
+  t.test = "hello";
+  
+  io.print(t.test);
+}

@@ -1,23 +1,23 @@
 ﻿fn main(args) {
   for(var i = 1; i <= 100; i++) {
-    var str = 0
+    var str = 0;
 
     if (i % 3 == 0) {
-      str = "Fizz"
+      str = "Fizz";
     }
 
     if (i % 5 == 0) {
       if (str) {
-        str += "Buzz"
+        str += "Buzz";
       } else {
-        str = "Buzz"
+        str = "Buzz";
       }
     }
 
     if (str) {
-      io.println(str)
+      io.println(str);
     } else {
-      io.println(@i)
+      io.println(@i);
     }
   }
 }

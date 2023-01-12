@@ -58,7 +58,7 @@ namespace EVIL.REPL
                             continue;
                         
                         case "-c":
-                            
+                            break;
                        
                         case "-r":
                             _refuseToRunTopLevelCode = true;

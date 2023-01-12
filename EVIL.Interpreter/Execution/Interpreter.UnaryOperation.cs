@@ -73,7 +73,13 @@ namespace EVIL.Interpreter.Execution
 
                 case UnaryOperationType.NameOf:
                     if (unaryOperationNode.Right is VariableNode variable)
+                    {
                         return new DynValue(variable.Identifier);
+                    }
+                    else if (unaryOperationNode.Right is IndexingNode indexingNode)
+                    {
+                        return new DynValue(indexingNode.BuildChainStringRepresentation());
+                    }
 
                     throw new RuntimeException(
                         "Attempt to get a name of a non-variable symbol.",

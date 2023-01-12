@@ -1,30 +1,30 @@
-﻿fn main(args) {
-  var t = { 3, 9, 6, 9, 1, 2, 3, 100, 20, 33 }
+﻿fn print_table(t) {
+  if (type(t) != "table") {
+    io.println("Attempt to print out something that's not a table.");
+    exit;
+  }
+  
+  each(var k, var v : t) {
+    io.print(@v + " ");
+  }
+  
+  io.println();
+}
 
-  print_table(t)
+fn main(args) {
+  var t = { 3, 9, 6, 9, 1, 2, 3, 100, 20, 33 };
+
+  print_table(t);
 
   for (var i = 0; i < #t - 1; i++) {
     for (var j = 0; j < #t - i - 1; j++) {
       if(t[j] > t[j + 1]) {
-        var tmp = t[j]
-        t[j] = t[j + 1]
-        t[j + 1] = tmp
+        var tmp = t[j];
+        t[j] = t[j + 1];
+        t[j + 1] = tmp;
       }
     }
   }
 
-  print_table(t)
-}
-
-fn print_table(t) {
-  if (type(t) != "Table") {
-    io.println("Attempt to print out something that's not a table.")
-    exit
-  }
-  
-  each(var k, var v : t) {
-    io.print(@v + " ")
-  }
-  
-  io.println()
+  print_table(t);
 }

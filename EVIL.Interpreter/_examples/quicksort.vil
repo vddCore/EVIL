@@ -1,42 +1,42 @@
 ﻿fn main(args) {
-  var t = {4,1,33,45,13,432,56,783,1,3,456,6436,2,1,3}
-  print_table(t)
-  qsort(t, 0, #t - 1)
-  print_table(t)
+  var t = {4,1,33,45,13,432,56,783,1,3,456,6436,2,1,3};
+  print_table(t);
+  qsort(t, 0, #t - 1);
+  print_table(t);
 }
 
 fn print_table(t) {
   each (var k, var v : t) {
-    io.print(@v + " ")
+    io.print(@v + " ");
   }
-  io.println()
+  io.println();
 }
 
 fn qsort(t, l, h) {
   if (l < h) {
-    var p = part(t, l, h)
-    qsort(t, l, p - 1)
-    qsort(t, p + 1, h)
+    var p = part(t, l, h);
+    qsort(t, l, p - 1);
+    qsort(t, p + 1, h);
   }
 }
 
 fn swp(t, i, j) {
-  var tmp = t[i]
-  t[i] = t[j]
-  t[j] = tmp
+  var tmp = t[i];
+  t[i] = t[j];
+  t[j] = tmp;
 }
 
 fn part(t, l, h) {
-  var pv = t[h]
-  var i = (l - 1)
+  var pv = t[h];
+  var i = (l - 1);
 
   for (var j = l; j <= h - 1; j++) {
     if (t[j] < pv) {
-      i++
-      swp(t, i, j)
+      i++;
+      swp(t, i, j);
     }
   }
 
-  swp(t, i+1, h)
-  ret i + 1
+  swp(t, i+1, h);
+  ret i + 1;
 }

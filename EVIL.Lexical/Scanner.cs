@@ -119,15 +119,7 @@ namespace EVIL.Lexical
             }
             else if (State.Character == '?')
             {
-                if (Peek() == '?')
-                {
-                    Advance();
-                    State.CurrentToken = new Token(TokenType.ExistsIn, "??");
-                }
-                else
-                {
-                    State.CurrentToken = new Token(TokenType.NameOf, '?');
-                }
+                State.CurrentToken = new Token(TokenType.NameOf, '?');
             }
             else if (State.Character == '%')
             {
@@ -367,7 +359,7 @@ namespace EVIL.Lexical
                 {
                     isDecimal = true;
                 }
-                
+
                 number += State.Character;
                 Advance();
             }
@@ -418,6 +410,9 @@ namespace EVIL.Lexical
 
                 case "var":
                     return new Token(TokenType.Var, "var");
+                
+                case "in":
+                    return new Token(TokenType.In, "in");
 
                 case "if":
                     return new Token(TokenType.If, "if");
@@ -436,7 +431,7 @@ namespace EVIL.Lexical
 
                 case "ret":
                     return new Token(TokenType.Ret, "ret");
-                
+
                 case "true":
                     return new Token(TokenType.True, "true");
 
