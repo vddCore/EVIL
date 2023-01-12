@@ -11,24 +11,24 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter : AstVisitor
     {
-        public List<Constraint> Constraints { get; } = new();
-        public Environment Environment { get; set; }
-        public Parser Parser { get; }
+        private List<Constraint> _constraints = new();
+        private List<Predicate<AstNode>> _nodeFilters = new();
+
+        public IReadOnlyList<Constraint> Constraints => _constraints;
+        public Environment Environment { get; set; } = new();
+        public Parser Parser { get; } = new();
 
         public Interpreter()
         {
-            Environment = new Environment();
-            Parser = new Parser();
         }
 
         public Interpreter(Environment env)
-            : this()
         {
             Environment = env;
         }
 
         public void ImposeConstraint(Constraint constraint)
-            => Constraints.Add(constraint);
+            => _constraints.Add(constraint);
 
         public DynValue Execute(string sourceCode)
         {
@@ -71,8 +71,10 @@ namespace EVIL.Interpreter.Execution
             {
                 DynValue result;
 
+                _nodeFilters.Add(x => !(x is FunctionDefinitionNode));
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
+                _nodeFilters.Clear();
 
                 if (entryNode == null)
                 {
@@ -125,21 +127,34 @@ namespace EVIL.Interpreter.Execution
 
         public override DynValue Visit(RootNode rootNode)
         {
-            return ExecuteStatementList(rootNode.Children);
+            var statements = rootNode.Children;
+
+            foreach (var filter in _nodeFilters)
+            {
+                if (statements.Find(filter) != null)
+                {
+                    throw new RuntimeException(
+                        "Top-level statements are not legal when executing with an entry point.",
+                        null
+                    );
+                }
+            }
+
+            return ExecuteStatementList(statements);
         }
 
         public DynValue ExecuteScriptFunction(string frameName, ScriptFunction function, FunctionArguments args)
         {
             var frame = new StackFrame(frameName);
             DynValue retval;
-            
+
             Environment.EnterScope(true);
             {
                 for (var i = 0; i < function.ParameterNames.Count; i++)
                 {
                     if (i >= args.Count)
                         break;
-                    
+
                     Environment.LocalScope.Set(function.ParameterNames[i], args[i]);
                 }
 

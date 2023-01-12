@@ -6,4 +6,7 @@
     <ProjectReference Include="..\EVIL.Grammar\EVIL.Grammar.csproj" />
     <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="_resources" />
+  </ItemGroup>
 </Project>
