@@ -71,7 +71,6 @@
         False,
 
         Fn,
-        Undef,
         For,
         Do,
         While,
