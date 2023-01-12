@@ -112,12 +112,7 @@ namespace EVIL.Grammar.Parsing
             {
                 return Variable();
             }
-            else if (token.Type == TokenType.Semicolon)
-            {
-                Match(TokenType.Semicolon);
-                return Statement();
-            }
-            throw new ParserException($"Unexpected terminal token '{token}'.", Scanner.State);
+            throw new ParserException($"Unexpected terminal token '{token.Value}.", Scanner.State);
         }
     }
 }

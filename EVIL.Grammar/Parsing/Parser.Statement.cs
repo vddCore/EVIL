@@ -33,7 +33,7 @@ namespace EVIL.Grammar.Parsing
                 return Exit();
             else if (token.Type == TokenType.Identifier)
                 return Assignment();
-            else throw new ParserException($"Expected a statement, found '{token.Value}'.");
+            else throw new ParserException($"Expected a statement, found '{token.Value}'.", Scanner.State);
         }
     }
 }

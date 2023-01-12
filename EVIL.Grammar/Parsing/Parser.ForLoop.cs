@@ -27,11 +27,11 @@ namespace EVIL.Grammar.Parsing
                 condition = Assignment();
                 Match(TokenType.Semicolon);
 
-                iterationStatements.Add(Statement());
+                iterationStatements.Add(Assignment());
                 while (Scanner.State.CurrentToken.Type == TokenType.Comma)
                 {
                     Match(TokenType.Comma);
-                    iterationStatements.Add(Statement());
+                    iterationStatements.Add(Assignment());
                 }
             }
             Match(TokenType.RParenthesis);

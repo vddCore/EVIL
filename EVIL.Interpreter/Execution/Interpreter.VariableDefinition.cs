@@ -18,8 +18,8 @@ namespace EVIL.Interpreter.Execution
                 );
             }
 
-            var dynValue = Visit(varNode.Right);
-            Environment.LocalScope.Set(identifier, dynValue);
+            var dynValue = Environment.LocalScope.Set(identifier, DynValue.Zero);
+            dynValue.CopyFrom(Visit(varNode.Right));
 
             return dynValue;
         }
