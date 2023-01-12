@@ -17,7 +17,7 @@ namespace EVIL.Execution
             }
 
             var dynValue = Environment.LocalScope.Set(identifier, new DynValue(0));
-            dynValue.CopyFrom(Visit(variableDefinitionNode.Assignment));
+            dynValue.CopyFrom(Visit(variableDefinitionNode.Right));
 
             return dynValue;
         }

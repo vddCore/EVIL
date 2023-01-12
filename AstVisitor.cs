@@ -17,8 +17,6 @@ namespace EVIL
                 return Visit(stringNode);
             else if (node is AssignmentNode assignmentNode)
                 return Visit(assignmentNode);
-            else if (node is CompoundAssignmentNode compoundAssignmentNode)
-                return Visit(compoundAssignmentNode);
             else if (node is BinaryOperationNode binaryOperationNode)
                 return Visit(binaryOperationNode);
             else if (node is UnaryOperationNode unaryOperationNode)
@@ -64,7 +62,6 @@ namespace EVIL
         public abstract DynValue Visit(NumberNode numberNode);
         public abstract DynValue Visit(StringNode stringNode);
         public abstract DynValue Visit(AssignmentNode assignmentNode);
-        public abstract DynValue Visit(CompoundAssignmentNode compoundAssignmentNode);
         public abstract DynValue Visit(BinaryOperationNode binaryOperationNode);
         public abstract DynValue Visit(UnaryOperationNode unaryOperationNode);
         public abstract DynValue Visit(VariableNode variableNode);
