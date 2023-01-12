@@ -12,8 +12,8 @@ namespace EVIL.Grammar.Parsing
                 throw new ParserException("Unexpected '...' operator outside of a function.");
             }
 
-            Match(Token.ExtraArguments);
-            return new ExtraArgumentsExpression();
+            var line = Match(Token.ExtraArguments);
+            return new ExtraArgumentsExpression() { Line = line };
         }
     }
 }
