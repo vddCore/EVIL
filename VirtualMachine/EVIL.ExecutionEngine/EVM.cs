@@ -560,25 +560,29 @@ namespace EVIL.ExecutionEngine
                     itmp = frame.FetchInt32();
 
                     var chunkClone = Executable.Chunks[itmp].ShallowClone();
-                    var externs = new DynamicValue[chunkClone.Externs.Count];
-                    ExternContexts.Add(chunkClone, externs);
+                    
+                    if (chunkClone.Externs.Count > 0)
+                    {
+                        var externs = new DynamicValue[chunkClone.Externs.Count];
+                        ExternContexts.Add(chunkClone, externs);
 
-                    var eidx = 0;
-                    for (var i = 0; i < _currentStackFrame.FormalArguments.Length; i++)
-                    {
-                        externs[eidx++] = _currentStackFrame.FormalArguments[i];
-                    }
-                    
-                    for (var i = 0; i < _currentStackFrame.Locals.Length; i++)
-                    {
-                        externs[eidx++] = _currentStackFrame.Locals[i];
-                    }
-                    
-                    if (ExternContexts.TryGetValue(_currentStackFrame.Chunk, out var externContext))
-                    {
-                        for (var i = 0; i < externContext.Length; i++)
+                        var eidx = 0;
+                        for (var i = 0; i < _currentStackFrame.FormalArguments.Length; i++)
                         {
-                            externs[eidx++] = externContext[i];
+                            externs[eidx++] = _currentStackFrame.FormalArguments[i];
+                        }
+
+                        for (var i = 0; i < _currentStackFrame.Locals.Length; i++)
+                        {
+                            externs[eidx++] = _currentStackFrame.Locals[i];
+                        }
+
+                        if (ExternContexts.TryGetValue(_currentStackFrame.Chunk, out var externContext))
+                        {
+                            for (var i = 0; i < externContext.Length; i++)
+                            {
+                                externs[eidx++] = externContext[i];
+                            }
                         }
                     }
 

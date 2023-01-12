@@ -1,25 +1,72 @@
-fn generate_nested_closure(x) {
-  var h = 25;
-  var i = 10;
-  
-  ret fn() {
-    var j = 20;
-    
-    ret fn() {
-      j += 10;
-      var k = 30;
-      
-      ret fn() {
-        x += 3;
-        h += k;
-        io.println(" i: ", i, " j: ", j, " k: ", k, " h: ", h, " x: ", x);
-      };
-    };
-  };
+var grid = {};
+
+fn main(args) {
+  var lines = fs.get_lines("./data");
+
+  each (var l : lines) {
+    if (!#l) skip;
+    exec(l);
+  }
+
+  io.println(count());
 }
 
-var fn1 = generate_nested_closure(15);
-var fn2 = fn1();
-var fn3 = fn2();
-fn3();
-fn3();
+fn exec(line) {
+  var params = str.spl(line, " ", "tr");
+
+  if (params[0] == "turn") {
+    var p1 = to_point(params[2]),
+        p2 = to_point(params[4]);
+
+    turn(params[1] == "on", p1, p2);
+  } elif (params[0] == "toggle") {
+    var p1 = to_point(params[1]),
+        p2 = to_point(params[3]);
+
+    toggle(p1, p2);
+  }
+}
+
+fn turn(state, p1, p2) {
+  for (var x = p1.x; x <= p2.x; x++) {
+    for (var y = p1.y; y <= p2.y; y++) {
+      var c = @x+","+@y;
+      grid[c] = state;
+    }
+  }
+}
+
+fn toggle(p1, p2) {
+  for (var x = p1.x; x <= p2.x; x++) {
+    for (var y = p1.y; y <= p2.y; y++) {
+      var c = @x+","+@y;
+
+      if(!(c in grid))
+        grid[c] = 1;
+      else
+        grid[c] = !grid[c];
+    }
+  }
+}
+
+fn to_point(p) {
+  p = str.spl(p, ",");
+  ret { "x" => $p[0], "y" => $p[1] };
+}
+
+fn count() {
+  var cnt = 0;
+
+  for (var x = 0; x < 1000; x++) {
+    for (var y = 0; y < 1000; y++) {
+      var c = @x+","+@y;
+
+      if (!(c in grid))
+        skip;
+
+      cnt += grid[c];
+    }
+  }
+
+  ret cnt;
+}
