@@ -67,6 +67,8 @@ namespace EVIL.Execution
 
             try
             {
+                DynValue result;
+                
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
 
@@ -75,21 +77,24 @@ namespace EVIL.Execution
                     throw new RuntimeException($"Entry point '{entryPoint}' missing.", null);
                 }
 
-                var csi = new CallStackItem(entryNode.Name);
-                if (entryNode.ParameterNames.Count >= 1)
+                var csi = new StackFrame(entryNode.Name);
+                var scope = Environment.EnterScope();
                 {
-                    var tbl = new Table();
-                    for (var i = 0; i < args.Length; i++)
+                    if (entryNode.ParameterNames.Count == 1)
                     {
-                        tbl[i] = new DynValue(args[i]);
+                        var tbl = new Table();
+                        for (var i = 0; i < args.Length; i++)
+                        {
+                            tbl[i] = new DynValue(args[i]);
+                        }
+
+                        scope.Set(entryNode.ParameterNames[0], new DynValue(tbl));
                     }
-
-                    csi.Parameters.Add(entryNode.ParameterNames[0], new DynValue(tbl));
-                }
-
-                DynValue result;
-                Environment.EnterScope();
-                {
+                    else if(entryNode.ParameterNames.Count > 1)
+                    {
+                        throw new RuntimeException("Entry point function can only have 1 argument.", entryNode.Line);
+                    }
+                    
                     Environment.CallStack.Push(csi);
                     result = ExecuteStatementList(entryNode.StatementList);
 
@@ -109,59 +114,14 @@ namespace EVIL.Execution
             }
         }
 
-        public async Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
+        public Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
         {
-            Parser.LoadSource(sourceCode);
-            var node = Parser.Parse();
-
-            try
-            {
-                await Task.Run(() => Visit(node));
-                var entryNode = node.FindChildFunctionDefinition(entryPoint);
-
-                if (entryNode == null)
-                {
-                    throw new RuntimeException($"Entry point '{entryPoint}' missing.", null);
-                }
-
-                var csi = new CallStackItem(entryNode.Name);
-                if (entryNode.ParameterNames.Count >= 1)
-                {
-                    var tbl = new Table();
-                    for (var i = 0; i < args.Length; i++)
-                    {
-                        tbl[i] = new DynValue(args[i]);
-                    }
-
-                    csi.Parameters.Add(entryNode.ParameterNames[0], new DynValue(tbl));
-                }
-
-                DynValue result;
-                Environment.EnterScope();
-                {
-                    Environment.CallStack.Push(csi);
-                    result = ExecuteStatementList(entryNode.StatementList);
-
-                    if (Environment.CallStack.Count > 0)
-                    {
-                        Environment.CallStack.Pop();
-                    }
-                }
-                Environment.ExitScope();
-
-                return result;
-            }
-            catch (ExitStatementException)
-            {
-                Environment.Clear();
-                return DynValue.Zero;
-            }
+            return new(() => Execute(sourceCode, entryPoint, args));
         }
 
         public override DynValue Visit(RootNode rootNode)
         {
-            ExecuteStatementList(rootNode.Children);
-            return DynValue.Zero;
+            return ExecuteStatementList(rootNode.Children);
         }
 
         private DynValue ExecuteStatementList(List<AstNode> statements)
@@ -192,7 +152,7 @@ namespace EVIL.Execution
 
                 if (Environment.IsInScriptFunctionScope)
                 {
-                    var callStackTop = Environment.CallStackTop;
+                    var callStackTop = Environment.StackTop;
 
                     if (callStackTop.ReturnNow)
                     {

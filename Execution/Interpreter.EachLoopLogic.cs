@@ -14,7 +14,7 @@ namespace EVIL.Execution
 
             try
             {
-                var lsItem = new LoopStackItem();
+                var lsItem = new LoopFrame();
                 Environment.LoopStack.Push(lsItem);
 
                 var tableValue = Visit(eachLoopNode.TableNode);

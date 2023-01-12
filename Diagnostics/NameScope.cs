@@ -50,7 +50,7 @@ namespace EVIL.Diagnostics
                 if (current.Members.ContainsKey(name))
                     return current.Members[name];
                 
-                current = ParentScope;
+                current = current.ParentScope;
             }
 
             return null;
