@@ -31,7 +31,8 @@ namespace EVIL.Execution
                 case DynValueType.String:
                 {
                     if (keyValue.Type != DynValueType.Number)
-                        throw new RuntimeException("Strings can only be indexed using numbers.", indexingNode.Line);
+                        throw new RuntimeException($"Attempt to index a string using {keyValue.Type}.",
+                            indexingNode.Line);
 
                     var index = (int)keyValue.Number;
 
@@ -61,7 +62,7 @@ namespace EVIL.Execution
 
                 case DynValueType.Number:
                 {
-                    throw new RuntimeException($"Numbers cannot be indexed.", indexingNode.Line);
+                    throw new RuntimeException($"Attempt to index a {DynValueType.Number}", indexingNode.Line);
                 }
 
                 case DynValueType.Table:
@@ -73,8 +74,7 @@ namespace EVIL.Execution
                         else if (keyValue.Type == DynValueType.Number)
                             return indexable.Table[keyValue.Number];
                         else
-                            throw new RuntimeException($"Type '{keyValue.Type}' cannot be used as a key.",
-                                indexingNode.Line);
+                            throw new RuntimeException($"Attempt to use {keyValue.Type} as a key.", indexingNode.Line);
                     }
                     catch
                     {
@@ -87,7 +87,7 @@ namespace EVIL.Execution
 
                 default:
                 {
-                    throw new RuntimeException("This type cannot be indexed.", indexingNode.Line);
+                    throw new RuntimeException($"Attempt to index {indexable.Type}.", indexingNode.Line);
                 }
             }
         }
