@@ -5,7 +5,7 @@ namespace EVIL.Abstraction
 {
     public class DynValue
     {
-        public static readonly DynValue Zero = new(0);
+        public static DynValue Zero => new(0);
 
         private double _numberValue;
         private string _stringValue;
@@ -15,6 +15,7 @@ namespace EVIL.Abstraction
         public DynValueType Type { get; private set; }
 
         public bool IsClrFunction => Type == DynValueType.Function && _functionValue is ClrFunction;
+        public bool IsTruth => Type != DynValueType.Number || Number != 0;
 
         public double Number
         {
