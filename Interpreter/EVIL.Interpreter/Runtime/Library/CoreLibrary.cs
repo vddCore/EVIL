@@ -34,14 +34,12 @@ namespace EVIL.Interpreter.Runtime.Library
                 throw new ClrFunctionException($"File '{filePath}' does not exist.");
             }
 
-            var isolatedEnv = new Environment();
-            var isolatedInterpreter = new Execution.Interpreter(isolatedEnv);
+            var isolatedInterpreter = new Execution.Interpreter(interpreter.Environment);
             var sourceCode = File.ReadAllText(fullFilePath);
 
-            isolatedEnv.LoadCoreRuntime();
             try
             {
-                isolatedInterpreter.Execute(sourceCode);
+                isolatedInterpreter.Execute(sourceCode, true);
             }
             catch (ExitStatementException)
             {
@@ -85,9 +83,6 @@ namespace EVIL.Interpreter.Runtime.Library
             {
                 throw new ClrFunctionException($"Lexer error on line {se.Line}: {se.Message}");
             }
-
-            isolatedInterpreter.Environment = interpreter.Environment;
-            isolatedInterpreter.Execute(File.ReadAllText(fullFilePath));
 
             return DynValue.Zero;
         }
@@ -177,6 +172,16 @@ namespace EVIL.Interpreter.Runtime.Library
                 "any" => new(interpreter.Environment.LocalScope.FindInScope(name) != null),
                 _ => throw new ClrFunctionException("Unsupported scope type.")
             };
+        }
+
+        [ClrFunction("setglobal")]
+        public static DynValue SetGlobal(Execution.Interpreter interpreter, FunctionArguments args)
+        {
+            args.ExpectExactly(2)
+                .ExpectTypeAtIndex(0, DynValueType.String);
+
+            interpreter.Environment.GlobalScope.Members[args[0].String] = args[1];
+            return DynValue.Zero;
         }
     }
 }

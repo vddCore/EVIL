@@ -25,12 +25,7 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
 
-            if (token.Type == TokenType.NameOf)
-            {
-                var line = Match(Token.NameOf);
-                return new UnaryExpression(PostModificationExpression(), UnaryOperationType.NameOf) {Line = line};
-            }
-            else if (token.Type == TokenType.Increment)
+            if (token.Type == TokenType.Increment)
             {
                 DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 

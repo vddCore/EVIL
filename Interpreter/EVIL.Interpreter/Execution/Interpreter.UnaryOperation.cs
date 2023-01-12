@@ -1,5 +1,4 @@
-﻿using System;
-using EVIL.Grammar;
+﻿using EVIL.Grammar;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
@@ -10,7 +9,6 @@ namespace EVIL.Interpreter.Execution
         public override DynValue Visit(UnaryExpression unaryExpression)
         {
             var operand = Visit(unaryExpression.Right);
-
             switch (unaryExpression.Type)
             {
                 case UnaryOperationType.Plus:
@@ -61,26 +59,14 @@ namespace EVIL.Interpreter.Execution
                 }
 
                 case UnaryOperationType.ToString:
+                {
                     return operand.AsString();
-
-                case UnaryOperationType.NameOf:
-                    if (unaryExpression.Right is VariableReference variable)
-                    {
-                        return new DynValue(variable.Identifier);
-                    }
-                    else if (unaryExpression.Right is IndexerExpression indexingNode)
-                    {
-                        return new DynValue(indexingNode.BuildChainStringRepresentation());
-                    }
-
-                    throw new RuntimeException(
-                        "Attempt to get a name of a non-variable symbol.",
-                        Environment,
-                        unaryExpression.Line
-                    );
+                }
 
                 case UnaryOperationType.Negation:
+                {
                     return new DynValue(!operand.IsTruth);
+                }
 
                 case UnaryOperationType.BitwiseNot:
                 {
@@ -97,7 +83,9 @@ namespace EVIL.Interpreter.Execution
                 }
 
                 case UnaryOperationType.ToNumber:
+                {
                     return operand.AsNumber();
+                }
 
                 default:
                 {

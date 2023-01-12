@@ -16,16 +16,14 @@ namespace EVIL.VILE
     internal static class Program
     {
         private static string _script;
-        private static Task _loadTask;
         
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
-            _loadTask = LoadScript(args);
-            var execTask = ExecuteLoadedScript(args);
-
+            LoadScript(args);
+            
             try
             {
-                await execTask;
+                ExecuteLoadedScript(args);
             }
             catch (RuntimeException re)
             {
@@ -76,7 +74,7 @@ namespace EVIL.VILE
             }
         }
 
-        private static async Task LoadScript(string[] args)
+        private static void LoadScript(string[] args)
         {
             if (args.Length < 1)
                 throw new Exception("Expected script file path, found nothing.");
@@ -87,10 +85,10 @@ namespace EVIL.VILE
                 throw new Exception($"Script '{filePath}' does not exist.");
 
             using (var sr = new StreamReader(filePath))
-                _script = await sr.ReadToEndAsync();
+                _script = sr.ReadToEnd();
         }
 
-        private static async Task ExecuteLoadedScript(string[] args)
+        private static void ExecuteLoadedScript(string[] args)
         {
             var modLoader = new ModuleLoader(
                 Path.Combine(AppContext.BaseDirectory, "modules")
@@ -109,8 +107,7 @@ namespace EVIL.VILE
                 Console.WriteLine($"ERR: {e.Message}");
             }
 
-            await _loadTask;
-            await executionEngine.ExecuteAsync(_script, "main", args.Skip(1).ToArray());
+            executionEngine.Execute(_script, "main", args.Skip(1).ToArray());
         }
         
         private static string FormatStackTrace(List<StackFrame> stackTrace)
