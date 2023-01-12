@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public AstNode EachLoop()
+        private AstNode EachLoop()
         {
             var line = Match(TokenType.Each);
 

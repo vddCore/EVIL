@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public AstNode Exit()
+        private AstNode Exit()
         {
             var line = Match(TokenType.Exit);
             return new ExitNode { Line = line };

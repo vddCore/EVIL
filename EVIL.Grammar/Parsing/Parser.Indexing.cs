@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public AstNode Indexing(AstNode indexable)
+        private AstNode Indexing(AstNode indexable)
         {
             int line;
             AstNode indexer;
