@@ -1,11 +1,17 @@
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Interop;
+using EVIL.Grammar.Parsing;
 using EVIL.Intermediate.CodeGeneration;
+using EVIL.Lexical;
 
 namespace EVIL.ExecutionEngine
 {
     public static class Extensions
     {
+        private static Lexer _lexer = new();
+        private static Parser _parser = new(_lexer);
+        private static Compiler _compiler = new();
+        
         public static string Alias(this DynamicValueType dvt)
             => dvt.ToString().ToLowerInvariant();
 
@@ -113,5 +119,42 @@ namespace EVIL.ExecutionEngine
             table.Add(new(value));
             return value;
         }
+
+        public static DynamicValue Evaluate(this EVM evm, string expression, CompilerOptions compilerOptions = null, params DynamicValue[] args)
+        {
+            _lexer.LoadSource(expression);
+            var program = _parser.Parse(true);
+
+            if (compilerOptions != null)
+            {
+                _compiler.Options.OptimizeBytecode = compilerOptions.OptimizeBytecode;
+                
+            }
+            
+            var exe = _compiler.Compile(program);
+            evm.RunExecutable(exe, args);
+
+            if (!evm.MainExecutionContext.EvaluationStack.TryPop(out var value))
+            {
+                return DynamicValue.Null;
+            }
+
+            return value;
+        }
+
+        public static void SetEnvironmentVariable(this EVM evm, EvilEnvironmentVariable var, string value)
+            => evm.SetEnvironmentVariable(var, new(value));
+        
+        public static void SetEnvironmentVariable(this EVM evm, EvilEnvironmentVariable var, double value)
+            => evm.SetEnvironmentVariable(var, new(value));
+        
+        public static void SetEnvironmentVariable(this EVM evm, EvilEnvironmentVariable var, Table value)
+            => evm.SetEnvironmentVariable(var, new(value));
+        
+        public static void SetEnvironmentVariable(this EVM evm, EvilEnvironmentVariable var, Chunk value)
+            => evm.SetEnvironmentVariable(var, new(value));
+        
+        public static void SetEnvironmentVariable(this EVM evm, EvilEnvironmentVariable var, ClrFunction value)
+            => evm.SetEnvironmentVariable(var, new(value));
     }
 }

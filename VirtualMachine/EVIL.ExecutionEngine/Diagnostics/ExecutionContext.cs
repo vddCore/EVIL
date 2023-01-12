@@ -18,6 +18,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
         internal Stack<DynamicValue> EvaluationStack { get; } = new();
         internal Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
+        public int ID { get; }
+        
         public EVM VirtualMachine { get; }
         public int CallStackLimit { get; set; } = 256;
         public bool SuppressClrExceptions { get; set; }
@@ -36,8 +38,9 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
         }
 
-        public ExecutionContext(EVM virtualMachine)
+        internal ExecutionContext(int id, EVM virtualMachine)
         {
+            ID = id;
             VirtualMachine = virtualMachine;
         }
 

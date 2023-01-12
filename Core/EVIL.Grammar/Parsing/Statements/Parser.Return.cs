@@ -8,14 +8,6 @@ namespace EVIL.Grammar.Parsing
     {
         private ReturnStatement Return()
         {
-            if (_functionDescent == 0)
-            {
-                throw new ParserException(
-                    "Unexpected 'ret' outside of a function.",
-                    (Lexer.State.Line, Lexer.State.Column)
-                );
-            }
-
             var (line, col) = Match(Token.Ret);
             Expression expression;
 

@@ -96,7 +96,6 @@
         public static readonly Token ExtraArguments = new(TokenType.ExtraArguments, "...");
 
         public static readonly Token Loc = new(TokenType.Loc, "loc");
-        public static readonly Token Undef = new(TokenType.Undef, "undef");
 
         public static readonly Token If = new(TokenType.If, "if");
         public static readonly Token Elif = new(TokenType.Elif, "elif");
@@ -118,7 +117,6 @@
 
         public static readonly Token False = new(TokenType.False, "false");
         public static readonly Token True = new(TokenType.True, "true");
-        
         public static readonly Token Null = new(TokenType.Null, "null");
 
         public static readonly Token EOF = new(TokenType.EOF, "<EOF>");

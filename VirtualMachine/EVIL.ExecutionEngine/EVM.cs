@@ -16,25 +16,34 @@ namespace EVIL.ExecutionEngine
         public bool Running { get; private set; }
         public Table GlobalTable { get; private set; }
 
+        public EVM()
+        {
+            ResetGlobalTable();
+            ResetExecutionContexts();
+        }
+
         public EVM(Table globalTable)
         {
-            GlobalTable = globalTable ?? new Table();
-            ExecutionContexts.Add(new ExecutionContext(this));
+            if (globalTable == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(globalTable), 
+                    "A global table is required."
+                );
+            }
+
+            GlobalTable = globalTable;
+            ResetExecutionContexts();
         }
 
         public void Reset(bool preserveGlobals = false)
         {
             Stop();
-
-            lock (ExecutionContexts)
-            {
-                ExecutionContexts.Clear();
-                ExecutionContexts.Add(new ExecutionContext(this));
-            }
+            ResetExecutionContexts();
 
             if (!preserveGlobals)
             {
-                GlobalTable = new Table();
+                ResetGlobalTable();
             }
         }
 
@@ -45,13 +54,16 @@ namespace EVIL.ExecutionEngine
             foreach (var c in executable.Chunks.Where(x => x.IsPublic))
                 GlobalTable.Set(c.Name, c);
 
-            InvokeCallback(
-                executable.RootChunk,
-                MainExecutionContext
+            this.SetEnvironmentVariable(
+                EvilEnvironmentVariable.ExecutableArguments,
+                new Table(args)
             );
 
-            Start();
+            RunChunk(executable.RootChunk);
         }
+
+        public void SetEnvironmentVariable(EvilEnvironmentVariable var, DynamicValue value)
+            => GlobalTable.Set(var.Name, value);
 
         public void RunChunk(Chunk chunk, ExecutionContext ctx = null, params DynamicValue[] args)
         {
@@ -111,7 +123,7 @@ namespace EVIL.ExecutionEngine
 
         public ExecutionContext CreateNewExecutionContext()
         {
-            var ctxt = new ExecutionContext(this);
+            var ctxt = new ExecutionContext(ExecutionContexts.Count, this);
 
             lock (ExecutionContexts)
             {
@@ -185,6 +197,35 @@ namespace EVIL.ExecutionEngine
             }
 
             return sb.ToString();
+        }
+
+        public void SetGlobalDefaults()
+        {
+            GlobalTable.Set("_G", GlobalTable);
+
+            this.SetEnvironmentVariable(
+                EvilEnvironmentVariable.CurrentWorkingDirectory,
+                Environment.CurrentDirectory
+            );
+
+            this.SetEnvironmentVariable(
+                EvilEnvironmentVariable.LibraryLookupPaths,
+                "?.vil;?/?.vil"
+            );
+        }
+
+        private void ResetGlobalTable()
+        {
+            GlobalTable = new Table();
+        }
+
+        private void ResetExecutionContexts()
+        {
+            lock (ExecutionContexts)
+            {
+                ExecutionContexts.Clear();
+                ExecutionContexts.Add(new ExecutionContext(0, this));
+            }
         }
     }
 }
