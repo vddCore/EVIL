@@ -115,9 +115,11 @@ namespace EVIL.Execution
             }
         }
 
-        public async Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
+        public Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
         {
-            return await Task.Run(() => Execute(sourceCode, entryPoint, args));
+            return Task.Factory.StartNew(
+                () => Execute(sourceCode, entryPoint, args
+            ), TaskCreationOptions.LongRunning);
         }
 
         public override DynValue Visit(RootNode rootNode)
