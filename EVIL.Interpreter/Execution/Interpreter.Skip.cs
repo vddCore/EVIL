@@ -5,10 +5,9 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(SkipNode skipNode)
+        public override void Visit(SkipStatement skipStatement)
         {
             Environment.LoopStackTop.SkipThisIteration = true;
-            return DynValue.Zero;
         }
     }
 }

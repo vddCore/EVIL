@@ -5,9 +5,9 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(StringNode stringNode)
+        public override DynValue Visit(StringConstant stringConstant)
         {
-            return new(stringNode.Value);
+            return new(stringConstant.Value);
         }
     }
 }

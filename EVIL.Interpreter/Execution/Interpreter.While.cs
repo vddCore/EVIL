@@ -6,7 +6,7 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(WhileLoopNode whileLoopNode)
+        public override void Visit(WhileStatement whileStatement)
         {
             Environment.EnterScope();
             {
@@ -15,9 +15,9 @@ namespace EVIL.Interpreter.Execution
                     Environment.LoopStack.Push(new LoopFrame());
                     var stackTop = Environment.LoopStackTop;
 
-                    while (Visit(whileLoopNode.Expression).IsTruth)
+                    while (Visit(whileStatement.Expression).IsTruth)
                     {
-                        Visit(whileLoopNode.Statement);
+                        Visit(whileStatement.Statement);
 
                         if (stackTop.BreakLoop)
                         {
@@ -36,8 +36,6 @@ namespace EVIL.Interpreter.Execution
                 }
             }
             Environment.ExitScope();
-
-            return DynValue.Zero;
         }
     }
 }

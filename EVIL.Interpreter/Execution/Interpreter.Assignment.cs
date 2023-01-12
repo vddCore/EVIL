@@ -6,54 +6,54 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(AssignmentNode assignmentNode)
+        public override DynValue Visit(AssignmentExpression assignmentExpression)
         {
-            var left = Visit(assignmentNode.Left);
-            var right = Visit(assignmentNode.Right);
+            var left = Visit(assignmentExpression.Left);
+            var right = Visit(assignmentExpression.Right);
 
-            switch (assignmentNode.OperationType)
+            switch (assignmentExpression.OperationType)
             {
                 case AssignmentOperationType.Direct:
                     break;
 
                 case AssignmentOperationType.Add:
-                    right = Addition(left, right, assignmentNode);
+                    right = Addition(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.Subtract:
-                    right = Subtraction(left, right, assignmentNode);
+                    right = Subtraction(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.Multiply:
-                    right = Multiplication(left, right, assignmentNode);
+                    right = Multiplication(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.Divide:
-                    right = Division(left, right, assignmentNode);
+                    right = Division(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.Modulo:
-                    right = Modulus(left, right, assignmentNode);
+                    right = Modulus(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.BitwiseAnd:
-                    right = BitwiseAnd(left, right, assignmentNode);
+                    right = BitwiseAnd(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.BitwiseOr:
-                    right = BitwiseOr(left, right, assignmentNode);
+                    right = BitwiseOr(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.BitwiseXor:
-                    right = BitwiseXor(left, right, assignmentNode);
+                    right = BitwiseXor(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.ShiftLeft:
-                    right = ShiftLeft(left, right, assignmentNode);
+                    right = ShiftLeft(left, right, assignmentExpression);
                     break;
 
                 case AssignmentOperationType.ShiftRight:
-                    right = ShiftRight(left, right, assignmentNode);
+                    right = ShiftRight(left, right, assignmentExpression);
                     break;
 
                 default:

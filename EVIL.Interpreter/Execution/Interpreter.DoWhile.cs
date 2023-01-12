@@ -6,11 +6,11 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(DoWhileLoopNode doWhileLoopNode)
+        public override void Visit(DoWhileStatement doWhileStatement)
         {
-            Visit(doWhileLoopNode.Statement);
+            Visit(doWhileStatement.Statement);
 
-            while (Visit(doWhileLoopNode.ConditionExpression).IsTruth)
+            while (Visit(doWhileStatement.Condition).IsTruth)
             {
                 Environment.LoopStack.Push(new LoopFrame());
                 var loopStackTop = Environment.LoopStack.Peek();
@@ -19,7 +19,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     if (!loopStackTop.SkipThisIteration)
                     {
-                        Visit(doWhileLoopNode.Statement);
+                        Visit(doWhileStatement.Statement);
                     }
 
                     if (loopStackTop.BreakLoop)
@@ -37,8 +37,6 @@ namespace EVIL.Interpreter.Execution
                     Environment.LoopStack.Pop();
                 }
             }
-
-            return DynValue.Zero;
         }
     }
 }

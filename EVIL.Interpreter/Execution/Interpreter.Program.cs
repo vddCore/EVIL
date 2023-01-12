@@ -5,16 +5,12 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(ProgramNode programNode)
+        public override void Visit(Program program)
         {
-            var retVal = DynValue.Zero;
-
-            for (var i = 0; i < programNode.Statements.Count; i++)
+            for (var i = 0; i < program.Statements.Count; i++)
             {
-                retVal = Visit(programNode.Statements[i]);
+                Visit(program.Statements[i]);
             }
-
-            return retVal;
         }
     }
 }

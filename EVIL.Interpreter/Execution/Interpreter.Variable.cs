@@ -5,16 +5,16 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(VariableNode variableNode)
+        public override DynValue Visit(VariableReference variableReference)
         {
-            var dynValue = Environment.LocalScope.FindInScopeChain(variableNode.Identifier);
+            var dynValue = Environment.LocalScope.FindInScopeChain(variableReference.Identifier);
 
             if (dynValue == null)
             {
                 throw new RuntimeException(
-                    $"'{variableNode.Identifier}' does not exist in the current scope.",
+                    $"'{variableReference.Identifier}' does not exist in the current scope.",
                     Environment,
-                    variableNode.Line
+                    variableReference.Line
                 );
             }
 

@@ -5,7 +5,7 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(ExitNode exitNode)
+        public override void Visit(ExitStatement exitStatement)
         {
             throw new ExitStatementException(Environment.StackTrace());
         }

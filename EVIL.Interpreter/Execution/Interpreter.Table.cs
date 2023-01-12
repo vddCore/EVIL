@@ -5,15 +5,15 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(TableNode tableNode)
+        public override DynValue Visit(TableExpression tableExpression)
         {
             var tbl = new Table();
 
-            if (tableNode.Keyed)
+            if (tableExpression.Keyed)
             {
-                for (var i = 0; i < tableNode.Initializers.Count; i++)
+                for (var i = 0; i < tableExpression.Initializers.Count; i++)
                 {
-                    var node = (KeyValuePairNode)tableNode.Initializers[i];
+                    var node = (KeyValuePairExpression)tableExpression.Initializers[i];
                     var key = Visit(node.KeyNode);
 
                     if (tbl.ContainsKey(key))
@@ -30,9 +30,9 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                for (var i = 0; i < tableNode.Initializers.Count; i++)
+                for (var i = 0; i < tableExpression.Initializers.Count; i++)
                 {
-                    tbl[i] = Visit(tableNode.Initializers[i]);
+                    tbl[i] = Visit(tableExpression.Initializers[i]);
                 }
             }
 

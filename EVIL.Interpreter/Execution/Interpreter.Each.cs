@@ -8,26 +8,29 @@ namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter
     {
-        public override DynValue Visit(EachLoopNode eachLoopNode)
+        public override void Visit(EachStatement eachStatement)
         {
             Environment.EnterScope();
             {
-                var keyValue = Visit(eachLoopNode.KeyNode);
-                var valueValue = Visit(eachLoopNode.ValueNode);
+                Visit(eachStatement.KeyDefinition);
+                Visit(eachStatement.ValueDefinition);
 
+                var keyValue = Environment.LocalScope.Members[eachStatement.KeyDefinition.Identifier];
+                var valueValue = Environment.LocalScope.Members[eachStatement.ValueDefinition.Identifier];
+                
                 try
                 {
                     var loopFrame = new LoopFrame();
                     Environment.LoopStack.Push(loopFrame);
 
-                    var tableValue = Visit(eachLoopNode.TableNode);
+                    var tableValue = Visit(eachStatement.Iterable);
 
                     if (tableValue.Type != DynValueType.Table)
                     {
                         throw new RuntimeException(
                             $"Expected a Table, got {tableValue.Type}.",
                             Environment,
-                            eachLoopNode.TableNode.Line
+                            eachStatement.Iterable.Line
                         );
                     }
 
@@ -38,7 +41,7 @@ namespace EVIL.Interpreter.Execution
                         keyValue.CopyFrom(k);
                         valueValue.CopyFrom(v);
 
-                        Visit(eachLoopNode.Statement);
+                        Visit(eachStatement.Body);
                     });
                 }
                 finally
@@ -47,8 +50,6 @@ namespace EVIL.Interpreter.Execution
                 }
             }
             Environment.ExitScope();
-
-            return DynValue.Zero;
         }
     }
 }
