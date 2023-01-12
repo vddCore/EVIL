@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Interpreter.Abstraction

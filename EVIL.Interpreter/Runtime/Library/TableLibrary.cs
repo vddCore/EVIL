@@ -1,5 +1,4 @@
-﻿using EVIL.Interpreter.Execution;
-using EVIL.Interpreter.Abstraction;
+﻿using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library
 {
@@ -29,7 +28,7 @@ namespace EVIL.Interpreter.Runtime.Library
                 .ExpectTypeAtIndex(0, DynValueType.Table);
 
             var tbl = args[0].Table;
-            var key = tbl.GetKeyByDynValue(args[1]);
+            var key = tbl[args[1]];
 
             if (key == null)
                 throw new ClrFunctionException("The requested key was not found in the table.");

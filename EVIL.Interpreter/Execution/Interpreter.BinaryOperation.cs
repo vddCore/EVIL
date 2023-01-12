@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using EVIL.Grammar;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
@@ -355,7 +353,7 @@ namespace EVIL.Interpreter.Execution
         {
             if (right.Type == DynValueType.Table)
             {
-                return new(right.Table.GetKeyByDynValue(left) != null);
+                return new(right.Table[left] != null);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {

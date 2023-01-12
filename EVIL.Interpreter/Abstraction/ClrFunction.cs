@@ -1,5 +1,4 @@
 using System;
-using EVIL.Interpreter.Execution;
 
 namespace EVIL.Interpreter.Abstraction
 {

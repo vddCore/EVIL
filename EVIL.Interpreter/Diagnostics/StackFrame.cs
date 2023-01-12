@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Diagnostics

@@ -16,7 +16,7 @@ namespace EVIL.Interpreter.Execution
                     var node = (KeyValuePairNode)tableNode.Initializers[i];
                     var key = Visit(node.KeyNode);
 
-                    if (tbl.ContainsKey(tbl.GetKeyByDynValue(key)))
+                    if (tbl.ContainsKey(key))
                     {
                         throw new RuntimeException(
                             $"Attempt to initialize a table with the same key '{key.AsString().String}' twice.",

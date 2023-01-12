@@ -5,18 +5,12 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private VariableNode Variable(string identifier = null)
+        private VariableNode Variable()
         {
-            var name = identifier;
-            var line = Lexer.State.Line;
+            var identifier = CurrentToken.Value;
+            var line = Match(Token.Identifier);
 
-            if (identifier == null)
-            {
-                name = CurrentToken.Value;
-                line = Match(Token.Identifier);
-            }
-
-            return new VariableNode(name) { Line = line };
+            return new VariableNode(identifier) {Line = line};
         }
     }
 }
