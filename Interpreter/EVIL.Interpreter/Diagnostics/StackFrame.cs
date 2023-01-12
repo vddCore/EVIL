@@ -9,6 +9,11 @@ namespace EVIL.Interpreter.Diagnostics
         public List<string> Parameters { get; } = new();
         public FunctionArguments Arguments { get; } = new();
         
+        public Stack<LoopFrame> LoopStack { get; } = new();
+
+        public bool IsInLoop => LoopStack.Count > 0;
+        public LoopFrame LoopStackTop => LoopStack.Peek();
+        
         public NameScope PreviousScope { get; set; }
 
         public bool ReturnNow { get; private set; }

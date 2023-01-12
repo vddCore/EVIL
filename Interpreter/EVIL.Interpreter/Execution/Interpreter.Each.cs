@@ -41,7 +41,7 @@ namespace EVIL.Interpreter.Execution
                 try
                 {
                     var loopFrame = new LoopFrame();
-                    Environment.LoopStack.Push(loopFrame);
+                    Environment.CallStack.Peek().LoopStack.Push(loopFrame);
 
                     var tableValue = Visit(eachStatement.Iterable);
 
@@ -68,7 +68,7 @@ namespace EVIL.Interpreter.Execution
                 }
                 finally
                 {
-                    Environment.LoopStack.Pop();
+                    Environment.CallStack.Peek().LoopStack.Pop();
                 }
             }
             Environment.ExitScope();

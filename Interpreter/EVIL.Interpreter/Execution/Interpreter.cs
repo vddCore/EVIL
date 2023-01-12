@@ -33,10 +33,13 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
+                Environment.Begin();
                 Visit(node);
             }
             finally
             {
+                Environment.End();
+                
                 if (!preserveEnvironment)
                     Environment.Clear();
             }
@@ -51,10 +54,12 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
+                Environment.Begin();
                 await Task.Run(() => Visit(node));
             }
             finally
             {
+                Environment.End();
                 Environment.Clear();
             }
         }
@@ -113,6 +118,7 @@ namespace EVIL.Interpreter.Execution
                         );
                     }
 
+                    Environment.Begin();
                     Environment.CallStack.Push(stackFrame);
                     Visit(entryNode.Statements);
 
@@ -123,10 +129,10 @@ namespace EVIL.Interpreter.Execution
                 }
                 Environment.ExitScope();
             }
-            catch (ExitStatementException)
+            finally
             {
+                Environment.End();
                 Environment.Clear();
-                throw;
             }
         }
 
