@@ -8,6 +8,7 @@
         Length,
         NameOf,
         Negation,
-        BitwiseNot
+        BitwiseNot,
+        Floor
     }
 }

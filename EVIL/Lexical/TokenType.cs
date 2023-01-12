@@ -15,6 +15,7 @@
         Length,
         Increment,
         Decrement,
+        Floor,
         NameOf,
         Negation,
         ShiftRight,

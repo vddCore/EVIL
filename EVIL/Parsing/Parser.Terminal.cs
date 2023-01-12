@@ -61,15 +61,20 @@ namespace EVIL.Parsing
                 var line = Match(TokenType.ToString);
                 return new UnaryOperationNode(Factor(), UnaryOperationType.ToString) {Line = line};
             }
+            else if (token.Type == TokenType.Floor)
+            {
+                var line = Match(TokenType.Floor);
+                return new UnaryOperationNode(Factor(), UnaryOperationType.Floor) {Line = line};
+            }
             else if (token.Type == TokenType.DecimalNumber)
             {
                 var line = Match(TokenType.DecimalNumber);
-                return new NumberNode((decimal)token.Value) { Line = line };
+                return new NumberNode((decimal)token.Value) {Line = line};
             }
             else if (token.Type == TokenType.HexNumber)
             {
                 var line = Match(TokenType.HexNumber);
-                return new NumberNode((int)token.Value) { Line = line };
+                return new NumberNode((decimal)token.Value) {Line = line};
             }
             else if (token.Type == TokenType.LBrace)
             {
@@ -78,17 +83,17 @@ namespace EVIL.Parsing
             else if (token.Type == TokenType.True)
             {
                 var line = Match(TokenType.True);
-                return new NumberNode(1) { Line = line };
+                return new NumberNode(1) {Line = line};
             }
             else if (token.Type == TokenType.False)
             {
                 var line = Match(TokenType.False);
-                return new NumberNode(0) { Line = line };
+                return new NumberNode(0) {Line = line};
             }
             else if (token.Type == TokenType.String)
             {
                 var line = Match(TokenType.String);
-                return new StringNode((string)token.Value) { Line = line };
+                return new StringNode((string)token.Value) {Line = line};
             }
             else if (token.Type == TokenType.LParenthesis)
             {

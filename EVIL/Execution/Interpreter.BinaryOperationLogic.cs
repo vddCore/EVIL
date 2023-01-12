@@ -87,9 +87,6 @@ namespace EVIL.Execution
                 return new DynValue(left.Number + right.Number);
             else if (left.Type == DynValueType.Function && right.Type == DynValueType.Function)
             {
-                if (left.IsClrFunction || right.IsClrFunction)
-                    throw new RuntimeException("Mixing CLR and EVIL functions is not supported.", node.Line);
-
                 var stmts = new List<AstNode>();
                 stmts.AddRange(left.ScriptFunction.StatementList);
                 stmts.AddRange(right.ScriptFunction.StatementList);
@@ -138,9 +135,6 @@ namespace EVIL.Execution
             }
             else if (left.Type == DynValueType.Function)
             {
-                if (left.IsClrFunction)
-                    throw new RuntimeException($"CLR function invocations cannot be multiplied.", node.Line);
-
                 if (right.Type != DynValueType.Number)
                 {
                     throw new RuntimeException($"Attempt to multiply function using {right.Type}.", node.Line);

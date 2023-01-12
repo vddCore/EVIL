@@ -14,14 +14,16 @@ namespace EVIL.Execution
             {
                 case UnaryOperationType.Plus:
                     if (operand.Type != DynValueType.Number)
-                        throw new RuntimeException($"Attempt to apply unary + on {operand.Type}.", unaryOperationNode.Line);
-                    
-                    return new DynValue(+operand.Number);
+                        throw new RuntimeException($"Attempt to apply unary + on {operand.Type}.",
+                            unaryOperationNode.Line);
+
+                    return new DynValue(operand.Number);
 
                 case UnaryOperationType.Minus:
                     if (operand.Type != DynValueType.Number)
-                        throw new RuntimeException($"Attempt to apply unary - on {operand.Type}.", unaryOperationNode.Line);
-                    
+                        throw new RuntimeException($"Attempt to apply unary - on {operand.Type}.",
+                            unaryOperationNode.Line);
+
                     return new DynValue(-operand.Number);
 
                 case UnaryOperationType.Length:
@@ -61,7 +63,14 @@ namespace EVIL.Execution
                     if (operand.Type != DynValueType.Number)
                         throw new RuntimeException($"Attempt to negate a {operand.Type}.", unaryOperationNode.Line);
 
-                    return new DynValue(~(int)operand.Number);
+                    return new DynValue(~(long)operand.Number);
+
+                case UnaryOperationType.Floor:
+                    if (operand.Type != DynValueType.Number)
+                        throw new RuntimeException($"Attempt to retrieve floor value of {operand.Type}.",
+                            unaryOperationNode.Line);
+
+                    return new DynValue(decimal.Floor(operand.Number));
 
                 default: throw new RuntimeException("Unknown unary operation type.", unaryOperationNode.Line);
             }
