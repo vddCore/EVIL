@@ -113,7 +113,11 @@ namespace EVIL.Interpreter.Execution
                     var args = new FunctionArguments();
                     args.Add(operand);
 
-                    value = ExecuteScriptFunction(meta.ScriptFunction, identifier, args, node);
+                    Environment.EnterScope(true);
+                    {
+                        value = ExecuteScriptFunction(meta.ScriptFunction, identifier, args, node);
+                    }
+                    Environment.ExitScope();
                 }
                 else value = meta;
                 return true;

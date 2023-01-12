@@ -201,7 +201,14 @@ namespace EVIL.Interpreter.Execution
 
             if (meta.Type == DynValueType.Function)
             {
-                return ExecuteScriptFunction(meta.ScriptFunction, "__call", args, node);
+                DynValue result;
+                Environment.EnterScope(true);
+                {
+                    result = ExecuteScriptFunction(meta.ScriptFunction, "__call", args, node);
+                }
+                Environment.ExitScope();
+
+                return result;
             }
             else return meta;
         }
