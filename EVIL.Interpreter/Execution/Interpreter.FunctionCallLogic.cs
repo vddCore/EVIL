@@ -202,7 +202,7 @@ namespace EVIL.Interpreter.Execution
         private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
         {
             var frame = new StackFrame(
-                $"CLR!{name}",
+                $"CLR!<{name}>",
                 clrFunction.Invokable
                     .Method
                     .GetParameters()
@@ -217,6 +217,10 @@ namespace EVIL.Interpreter.Execution
             try
             {
                 retval = clrFunction.Invokable(this, args);
+            }
+            catch (ClrFunctionException e)
+            {
+                throw new RuntimeException(e.Message, Environment, node.Line, e);
             }
             finally
             {

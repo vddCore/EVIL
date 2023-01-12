@@ -62,7 +62,7 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        public DynValue Execute(string sourceCode, string entryPoint, string[] args)
+        public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false)
         {
             Parser.LoadSource(sourceCode);
             var node = Parser.Parse();
@@ -71,9 +71,14 @@ namespace EVIL.Interpreter.Execution
             {
                 DynValue result;
 
-                _nodeFilters.Add(x => !(x is FunctionDefinitionNode));
+                if (restrictTopLevelCode)
+                {
+                    _nodeFilters.Add(x => !(x is FunctionDefinitionNode));
+                }
+                
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
+                
                 _nodeFilters.Clear();
 
                 if (entryNode == null)

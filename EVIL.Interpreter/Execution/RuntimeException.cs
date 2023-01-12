@@ -15,12 +15,11 @@ namespace EVIL.Interpreter.Execution
             Line = line;
         }
 
-        public void SetStackTrace(List<StackFrame> stackTrace)
+        public RuntimeException(string message, Environment environment, int? line, Exception innerException)
+            : base(message, innerException)
         {
-            if (EvilStackTrace != null)
-                return;
-            
-            EvilStackTrace = stackTrace;
+            EvilStackTrace = environment.StackTrace();
+            Line = line;
         }
     }
 }
