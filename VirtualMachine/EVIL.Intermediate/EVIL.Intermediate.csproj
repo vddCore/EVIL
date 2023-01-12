@@ -87,5 +87,8 @@
       <Compile Update="Compiler.Expressions.Indexer.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
+      <Compile Update="Compiler.Expressions.Function.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

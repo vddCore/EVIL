@@ -8,6 +8,9 @@ namespace EVIL.Intermediate
 {
     public partial class Compiler : AstVisitor
     {
+        private int _currentLine = -1;
+        private int _currentColumn = -1;
+        
         private Executable _executable;
 
         private Stack<int> LoopContinueLabels { get; } = new();
@@ -35,68 +38,12 @@ namespace EVIL.Intermediate
             return _executable;
         }
 
-        private int _lastLine = -1;
-
         public override void Visit(AstNode node)
         {
-            Console.WriteLine($"{node.Line}:{node.Column}");
-
-            if (node.Line != _lastLine)
-            {
-                // if (node.Line == 0)
-                // {
-                //     //Console.WriteLine(node.GetType().Name);
-                // }
-
-                _lastLine = node.Line;
-            }
-
+            _currentLine = node.Line;
+            _currentColumn = node.Column;
+            
             base.Visit(node);
-        }
-
-        public override void Visit(FunctionExpression functionExpression)
-        {
-            var prevCg = CurrentChunk.GetCodeGenerator();
-            var prevScope = ScopeStack.Peek();
-
-            var (id, chunk) = _executable.CreateAnonymousChunk();
-            ChunkDefinitionStack.Push(chunk);
-
-            EnterScope();
-            {
-                var currentScope = ScopeStack.Peek();
-                var currentCg = CurrentChunk.GetCodeGenerator();
-
-                while (prevScope != null)
-                {
-                    foreach (var kvp in prevScope.Symbols.Forward)
-                    {
-                        var identifier = kvp.Key;
-                        var externLocalSym = kvp.Value;
-
-                        if (externLocalSym.Type == SymbolInfo.SymbolType.Local)
-                        {
-                            currentScope.DefineExtern(identifier, prevScope.Chunk.Name, externLocalSym.Id, false);
-                        }
-                        else if (externLocalSym.Type == SymbolInfo.SymbolType.Parameter)
-                        {
-                            currentScope.DefineExtern(identifier, prevScope.Chunk.Name, externLocalSym.Id, true);
-                        }
-                    }
-
-                    prevScope = prevScope.Parent;
-                }
-
-                BuildFunction(
-                    currentCg,
-                    functionExpression.Parameters,
-                    functionExpression.Statements
-                );
-            }
-            LeaveScope();
-
-            ChunkDefinitionStack.Pop();
-            prevCg.Emit(OpCode.LDF, id);
         }
 
         public override void Visit(UndefStatement undefStatement)
