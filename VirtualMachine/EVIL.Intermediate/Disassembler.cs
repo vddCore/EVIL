@@ -133,6 +133,7 @@ namespace EVIL.Intermediate
 
                         case OpCode.STE:
                         case OpCode.CALL:
+                        case OpCode.ITER:
                             DecodeParametrizedLoad(op);
                             break;
                     }

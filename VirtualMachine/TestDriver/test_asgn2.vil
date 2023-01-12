@@ -1,28 +1,5 @@
-var fuck = "test1";
+var t = {};
 
-fn closure_gen(x) {
-  undef closure_gen;
-  io.println(??x);
-  
-  ret fn(a, b) {
-    undef fuck;
-    var fuck = "test";
-    
-    io.println(??a, ??b);
-    io.println(??x);
-    
-    io.println(??fuck);
-  };
+each (var k, v : t) {
+  io.println(k, ": ", v);
 }
-
-closure_gen(20)();
-
-io.println(??closure_gen ? "exists" : "doesn't exist");
-
-var t = { 
-  "k1" => "v1",
-  "k2" => "v2"
-};
-
-undef t.k2;
-io.println("k2" in t ? "is in table" : "is not in table");
