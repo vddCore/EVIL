@@ -118,7 +118,25 @@ namespace EVIL.UnitTests
             var val = _evm.Evaluate("ret ~96;");
             
             Assert.AreEqual(DynamicValueType.Number, val.Type);
-            Assert.AreEqual(9 ^ 3, val.Number);
+            Assert.AreEqual(~96, val.Number);
+        }
+
+        [Test]
+        public void UnaryMinus()
+        {
+            var val = _evm.Evaluate("ret -10;");
+
+            Assert.AreEqual(DynamicValueType.Number, val.Type);
+            Assert.AreEqual(-10, val.Number);
+        }
+
+        [Test]
+        public void NestedExpression()
+        {
+            var val = _evm.Evaluate("ret (2 + 3 * 8 - (2 + 8.3) - 1.8 / 3);");
+            
+            Assert.AreEqual(DynamicValueType.Number, val.Type);
+            Assert.AreEqual(2 + 3 * 8 - (2 + 8.3) - 1.8 / 3, val.Number);
         }
     }
 }
