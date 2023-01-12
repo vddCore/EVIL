@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
@@ -109,6 +110,14 @@ namespace EVIL.Interpreter.Execution
             }
 
             var constructor = tableValue.Table[Environment.ConstructorName].ScriptFunction;
+            if (!constructor.IsConstructor)
+            {
+                throw new RuntimeException(
+                    $"Attempt to construct an object with a function that is not a constructor.",
+                    Environment,
+                    functionCallNode.Line
+                );
+            }
             var parameters = new FunctionArguments();
 
             foreach (var node in functionCallNode.Parameters)

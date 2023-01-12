@@ -26,7 +26,18 @@ namespace EVIL.Interpreter.Execution
                 for (var i = 0; i < tableNode.Initializers.Count; i++)
                 {
                     var node = (AssignmentNode)tableNode.Initializers[i];
-                    tbl[Visit(node.Left)] = Visit(node.Right);
+                    var key = Visit(node.Left);
+
+                    if (tbl.ContainsKey(tbl.GetKeyByDynValue(key)))
+                    {
+                        throw new RuntimeException(
+                            $"Attempt to initialize a table with the same key '{key.AsString().String}' twice.",
+                            Environment,
+                            node.Line
+                        );
+                    }
+                    
+                    tbl[key] = Visit(node.Right);
                 }
             }
             else

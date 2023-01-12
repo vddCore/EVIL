@@ -13,23 +13,35 @@ namespace EVIL.Interpreter.Execution
             var fn = new ScriptFunction(
                 scriptFunctionDefinitionNode.StatementList,
                 scriptFunctionDefinitionNode.ParameterNames,
-                scriptFunctionDefinitionNode.Line
+                scriptFunctionDefinitionNode.Line,
+                scriptFunctionDefinitionNode.IsConstructor
             );
 
-            if (name != null)
+            if (!fn.IsConstructor)
             {
-                if (Environment.LocalScope != Environment.GlobalScope)
+                if (name != null)
                 {
-                    throw new RuntimeException(
-                        "Attempt to define a named function in local scope.",
-                        Environment,
-                        scriptFunctionDefinitionNode.Line
+                    if (Environment.LocalScope != Environment.GlobalScope)
+                    {
+                        throw new RuntimeException(
+                            "Attempt to define a named function in local scope.",
+                            Environment,
+                            scriptFunctionDefinitionNode.Line
+                        );
+                    }
+
+                    Environment.RegisterFunction(
+                        name,
+                        fn
                     );
                 }
-
-                Environment.RegisterFunction(
-                    name,
-                    fn
+            }
+            else if (!_currentThisContextStack.Any())
+            {
+                throw new RuntimeException(
+                    "Attempt to define a constructor outside a table initializer.",
+                    Environment,
+                    scriptFunctionDefinitionNode.Line
                 );
             }
 
@@ -37,7 +49,7 @@ namespace EVIL.Interpreter.Execution
             {
                 fn.Closures.Add(kvp.Key, kvp.Value);
             }
-
+            
             if (_currentThisContextStack.Any())
             {
                 if (fn.Closures.ContainsKey("this"))

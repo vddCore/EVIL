@@ -2,11 +2,11 @@
 {
     public class UndefNode : AstNode
     {
-        public AstNode Variable { get; }
+        public AstNode Symbol { get; }
 
-        public UndefNode(AstNode variable)
+        public UndefNode(AstNode symbol)
         {
-            Variable = variable;
+            Symbol = symbol;
         }
     }
 }

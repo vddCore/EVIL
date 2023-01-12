@@ -18,7 +18,12 @@ namespace EVIL.Interpreter.Diagnostics
         public StackFrame(string functionName, List<string> parameterNames)
         {
             FunctionName = functionName;
-            ParameterNames = new List<string>(parameterNames);
+            ParameterNames = new List<string>();
+
+            if (parameterNames != null)
+            {
+                ParameterNames.AddRange(parameterNames);
+            }
         }
 
         public void Return()

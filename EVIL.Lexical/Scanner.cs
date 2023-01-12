@@ -423,6 +423,9 @@ namespace EVIL.Lexical
 
                 case "ret":
                     return new Token(TokenType.Ret, "ret");
+                
+                case "new":
+                    return new Token(TokenType.New, "new");
 
                 case "true":
                     return new Token(TokenType.True, "true");
