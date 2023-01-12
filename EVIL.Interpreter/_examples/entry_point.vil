@@ -1,0 +1,7 @@
+﻿// uncomment the below to
+// trigger illegal top-level error
+// io.print("this shouldn't execute...")
+
+fn main(args) {
+    io.print("hello, world")
+}
