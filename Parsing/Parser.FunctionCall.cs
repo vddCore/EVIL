@@ -20,7 +20,7 @@ namespace EVIL.Parsing
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
                     throw new ParserException($"Unexpected EOF in the function call stated in line {line}.");
 
-                parameters.Add(Comparison());
+                parameters.Add(LogicalExpression());
 
                 if (Scanner.State.CurrentToken.Type == TokenType.RParenthesis)
                     break;

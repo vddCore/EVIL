@@ -1,4 +1,5 @@
-﻿using EVIL.AST.Base;
+﻿using System.Collections.Generic;
+using EVIL.AST.Base;
 using EVIL.AST.Nodes;
 using EVIL.Lexical;
 
@@ -9,31 +10,42 @@ namespace EVIL.Parsing
         private AstNode ForLoop()
         {
             var line = Match(TokenType.For);
+            var assignments = new List<AstNode>();
+            var iterationStatements = new List<AstNode>();
+            AstNode condition;
+            
             Match(TokenType.LParenthesis);
-            AstNode assignment;
-
-            if (Scanner.State.CurrentToken.Type == TokenType.LocalVar)
-                assignment = Assignment(null, true);
-            else
-                assignment = Assignment();
-
-            AstNode step = null;
-
-            Match(TokenType.Comma);
-            var targetValue = Comparison();
-
-            if (Scanner.State.CurrentToken.Type == TokenType.Colon)
             {
-                Match(TokenType.Colon);
-                step = Comparison();
+                assignments.Add(Assignment());
+                while (Scanner.State.CurrentToken.Type == TokenType.Comma)
+                {
+                    Match(TokenType.Comma);
+                    assignments.Add(Assignment());
+                }
+                Match(TokenType.Semicolon);
+
+                condition = LogicalExpression();
+                Match(TokenType.Semicolon);
+
+                iterationStatements.Add(Statement());
+                while (Scanner.State.CurrentToken.Type == TokenType.Comma)
+                {
+                    Match(TokenType.Comma);
+                    iterationStatements.Add(Statement());
+                }
             }
             Match(TokenType.RParenthesis);
-
+            
             Match(TokenType.LBrace);
             var statementList = LoopStatementList();
             Match(TokenType.RBrace);
 
-            return new ForLoopNode(assignment, targetValue, step, statementList) { Line = line };
+            return new ForLoopNode(
+                assignments, 
+                condition, 
+                iterationStatements, 
+                statementList
+            ) { Line = line };
         }
     }
 }

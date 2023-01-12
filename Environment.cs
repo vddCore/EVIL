@@ -16,8 +16,6 @@ namespace EVIL
         public Dictionary<string, ClrFunction> BuiltIns { get; }
         public Dictionary<string, ScriptFunction> Functions { get; }
 
-        public Dictionary<string, DynValue> SupplementLocalLookupTable { get; }
-
         public Environment(Interpreter interpreter)
         {
             _interpreter = interpreter;
@@ -26,8 +24,6 @@ namespace EVIL
 
             BuiltIns = new Dictionary<string, ClrFunction>();
             Functions = new Dictionary<string, ScriptFunction>();
-
-            SupplementLocalLookupTable = new Dictionary<string, DynValue>();
         }
 
         public void LoadCoreRuntime()

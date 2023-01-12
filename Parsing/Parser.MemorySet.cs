@@ -13,7 +13,7 @@ namespace EVIL.Parsing
             if (Scanner.State.CurrentToken.Type == TokenType.Assign)
             {
                 Match(TokenType.Assign);
-                return new MemorySetNode(memoryCell, Comparison()) { Line = memoryCell.Line };
+                return new MemorySetNode(memoryCell, LogicalExpression()) { Line = memoryCell.Line };
             }
             else if (Scanner.State.CurrentToken.Type == TokenType.Increment)
             {

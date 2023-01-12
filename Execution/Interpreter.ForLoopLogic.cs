@@ -8,68 +8,38 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(ForLoopNode forLoopNode)
         {
-            _ = Visit(forLoopNode.Assignment).Number;
-
-            DynValue step = new DynValue(1);
-
-            var targetValue = Visit(forLoopNode.TargetValue);
-
-            if (forLoopNode.Step != null)
-                step = Visit(forLoopNode.Step);
-
-            var isLocalScope = false;
-
-            var assignmentNode = (forLoopNode.Assignment as AssignmentNode);
-            var iteratorName = assignmentNode.Variable.Name;
-
-            if (assignmentNode.LocalScope)
-                isLocalScope = true;
+            foreach (var assignment in forLoopNode.Assignments)
+            {
+                Visit(assignment);
+            }
 
             try
             {
                 LoopStack.Push(new LoopStackItem());
                 while (true)
                 {
-                    ExecuteStatementList(forLoopNode.StatementList);
-
-                    double iterator;
-                    if (isLocalScope)
+                    var conditionEvaluation = Visit(forLoopNode.Condition);
+                    if (conditionEvaluation.Number == 0)
                     {
-                        var callStackTop = CallStack.Peek();
-                        iterator = callStackTop.LocalVariableScope[iteratorName].Number;
+                        break;
                     }
-                    else
-                    {
-                        iterator = Environment.Globals[iteratorName].Number;
-                    }
-
-                    if (step.Number < 0)
-                    {
-                        if (iterator < targetValue.Number)
-                            break;
-                        else iterator -= step.Number;
-                    }
-                    else
-                    {
-                        if (iterator >= targetValue.Number)
-                            break;
-                        else iterator += step.Number;
-                    }
-
-                    if (isLocalScope)
-                    {
-                        // no throw on localvar token, so
-                        // guaranteed we're inside a function
-
-                        var callStackTop = CallStack.Peek();
-                        callStackTop.LocalVariableScope[iteratorName] = new DynValue(iterator);
-                    }
-                    else Environment.Globals[iteratorName] = new DynValue(iterator);
-
+                    
                     var loopStackTop = LoopStack.Peek();
 
                     if (loopStackTop.BreakLoop)
+                    {
                         break;
+                    }
+                    
+                    if (!loopStackTop.SkipThisIteration)
+                    {
+                        ExecuteStatementList(forLoopNode.StatementList);
+                    }
+
+                    foreach (var iterationStatement in forLoopNode.IterationStatements)
+                    {
+                        Visit(iterationStatement);
+                    }
 
                     if (loopStackTop.SkipThisIteration)
                     {

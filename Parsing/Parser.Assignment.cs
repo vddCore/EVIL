@@ -14,7 +14,7 @@ namespace EVIL.Parsing
             var variable = Variable(identifier);
 
             int line = Match(TokenType.Assign);
-            var right = Comparison();
+            var right = LogicalExpression();
 
             return new AssignmentNode(variable, right, isLocal) { Line = line };
         }
