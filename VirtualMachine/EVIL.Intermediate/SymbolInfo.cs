@@ -13,6 +13,7 @@ namespace EVIL.Intermediate
         }
 
         public static readonly SymbolInfo Undefined = new(-1, SymbolType.Undefined);
+        public static readonly SymbolInfo Global = new(-1, SymbolType.Global);
         
         public int Id { get; }
         public SymbolType Type { get; }

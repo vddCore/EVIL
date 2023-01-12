@@ -26,6 +26,14 @@ namespace EVIL.ExecutionEngine
             Executable = executable;
             RuntimeConstPool = new RuntimeConstPool(Executable.ConstPool);
 
+            foreach (var name in executable.Globals)
+            {
+                GlobalTable.Set(
+                    new DynamicValue(name),
+                    DynamicValue.Zero
+                );
+            }
+            
             foreach (var c in executable.Chunks)
             {
                 if (!c.Name.StartsWith('!'))
@@ -84,12 +92,24 @@ namespace EVIL.ExecutionEngine
             DynamicValue a;
             DynamicValue b;
 
+            int ia;
+            int ib;
+            
             int itmp;
 
             switch (opCode)
             {
                 case OpCode.NOP:
                 {
+                    break;
+                }
+
+                case OpCode.DUP:
+                {
+                    EvaluationStack.Push(
+                        new(EvaluationStack.Peek())
+                    );
+                    
                     break;
                 }
 
@@ -200,7 +220,72 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.LDCONST:
+                case OpCode.AND:
+                {
+                    ib = EvaluationStack.Pop().AsInteger();
+                    ia = EvaluationStack.Pop().AsInteger();
+                    
+                    EvaluationStack.Push(
+                        new DynamicValue(ia & ib)
+                    );
+                    break;
+                }
+
+                case OpCode.OR:
+                {
+                    ib = EvaluationStack.Pop().AsInteger();
+                    ia = EvaluationStack.Pop().AsInteger();
+                    
+                    EvaluationStack.Push(
+                        new DynamicValue(ia | ib)
+                    );
+                    break;
+                }
+
+                case OpCode.XOR:
+                {
+                    ib = EvaluationStack.Pop().AsInteger();
+                    ia = EvaluationStack.Pop().AsInteger();
+                    
+                    EvaluationStack.Push(
+                        new DynamicValue(ia ^ ib)
+                    );
+                    break;
+                }
+
+                case OpCode.NOT:
+                {
+                    ia = EvaluationStack.Pop().AsInteger();
+                    
+                    EvaluationStack.Push(
+                        new DynamicValue(~ia)
+                    );
+                    break;
+                }
+
+                case OpCode.SHL:
+                {
+                    ib = EvaluationStack.Pop().AsInteger();
+                    ia = EvaluationStack.Pop().AsInteger();
+                    
+                    EvaluationStack.Push(
+                        new DynamicValue(ia << ib)
+                    );
+                    break;
+                }
+                
+                case OpCode.SHR:
+                {
+                    ib = EvaluationStack.Pop().AsInteger();
+                    ia = EvaluationStack.Pop().AsInteger();
+                    
+                    EvaluationStack.Push(
+                        new DynamicValue(ia >> ib)
+                    );
+                    break;
+                }
+
+                case OpCode.LDC:
                 {
                     itmp = frame.FetchInt32();
                     EvaluationStack.Push(
@@ -209,7 +294,7 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.LDLOCAL:
+                case OpCode.LDL:
                 {
                     itmp = frame.FetchInt32();
                     a = frame.Locals[itmp];
@@ -217,7 +302,7 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.STLOCAL:
+                case OpCode.STL:
                 {
                     itmp = frame.FetchInt32();
                     a = EvaluationStack.Pop();
@@ -225,17 +310,19 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.LDGLOBAL:
+                case OpCode.LDG:
                 {
-                    a = EvaluationStack.Pop();
+                    itmp = CurrentStackFrame.FetchInt32();
+                    a = RuntimeConstPool.FetchConst(itmp);
                     EvaluationStack.Push(GlobalTable.Get(a));
                     break;
                 }
 
-                case OpCode.STGLOBAL:
+                case OpCode.STG:
                 {
+                    itmp = CurrentStackFrame.FetchInt32();
+                    a = RuntimeConstPool.FetchConst(itmp);
                     b = EvaluationStack.Pop();
-                    a = EvaluationStack.Pop();
                     GlobalTable.Set(a, b);
                     break;
                 }
@@ -261,7 +348,7 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.STARG:
+                case OpCode.STA:
                 {
                     itmp = CurrentStackFrame.FetchInt32();
                     a = EvaluationStack.Pop();
@@ -269,7 +356,7 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
-                case OpCode.LDARG:
+                case OpCode.LDA:
                 {
                     itmp = CurrentStackFrame.FetchInt32();
                     EvaluationStack.Push(CurrentStackFrame.FormalArguments[itmp]);
@@ -278,7 +365,7 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.RETN:
                 {
-                    CallStack.Pop();
+                    var exitedStackFrame = CallStack.Pop();
                     break;
                 }
 

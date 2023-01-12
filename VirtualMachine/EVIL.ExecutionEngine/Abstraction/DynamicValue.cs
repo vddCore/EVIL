@@ -88,11 +88,19 @@ namespace EVIL.ExecutionEngine.Abstraction
             switch (other.Type)
             {
                 case DynamicValueType.String:
-                    String = other.String;
+                    _string = other._string;
                     break;
 
                 case DynamicValueType.Number:
-                    Number = other.Number;
+                    _number = other._number;
+                    break;
+                
+                case DynamicValueType.Function:
+                    _chunk = other._chunk;
+                    break;
+                
+                case DynamicValueType.Table:
+                    _table = other._table;
                     break;
             }
         }
@@ -140,6 +148,9 @@ namespace EVIL.ExecutionEngine.Abstraction
             Type = DynamicValueType.Table;
             IsReadOnly = false;
         }
+
+        public int AsInteger()
+            => (int)Number;
 
         public DynamicValue CopyToString()
         {
