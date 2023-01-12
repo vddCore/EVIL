@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Grammar.Traversal;
@@ -34,7 +35,9 @@ namespace EVIL.Intermediate.CodeGeneration
             ScopeStack.Clear();
             _executable = new Executable();
 
-            _executable.Chunks.Add(Chunk.CreateRoot());
+            var rootChunk = Chunk.CreateRoot();
+            
+            _executable.Chunks.Add(rootChunk);
             {
                 ChunkDefinitionStack.Push(_executable.RootChunk);
                 {
@@ -45,6 +48,12 @@ namespace EVIL.Intermediate.CodeGeneration
                     LeaveScope();
                 }
                 ChunkDefinitionStack.Pop();
+            }
+
+            if (rootChunk.Instructions.Last() != (byte)OpCode.RETN)
+            {
+                rootChunk.GetCodeGenerator()
+                         .Emit(OpCode.RETN);
             }
             
             return _executable;

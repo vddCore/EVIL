@@ -1,22 +1,20 @@
-﻿fn main(args) {
-  var order = 4;
+﻿loc order = 4;
 
-  if (#args) {
-    order = str.s2n(args[0]);
-  }
-
-  var size = 1 << order;
-  
-  for (var y = size - 1; y >= 0; y--, io.println()) {
-    for (var i = 0; i < y; i++) {
-      io.print(" ");
-    }
-
-    for (var x = 0; x + y < size; x++) {
-      if (x & y) { io.print("  "); }
-      else { io.print("* "); }
-    }
-  }
-
-  io.println();
+if (_ARGS && #_ARGS) {
+  order = str.s2n(args[0]);
 }
+
+loc size = 1 << order;
+
+for (loc y = size - 1; y >= 0; y--, io.println()) {
+  for (loc i = 0; i < y; i++) {
+    io.print(" ");
+  }
+
+  for (loc x = 0; x + y < size; x++) {
+    if (x & y) { io.print("  "); }
+    else { io.print("* "); }
+  }
+}
+
+io.println();
