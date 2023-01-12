@@ -52,12 +52,12 @@ Numbers are 128-bit floating point numbers, hexadecimal format integers are supp
 All regular operators work as you would expect them to work in a C-like language, however there are some EVIL-specific operators - these are documented below. Sometimes the basic arithmetic operators have additional functionality for other data types. Consult the wiki for details.
 
 ##### Utility
-`@` - converts whatever's after it to a string representation.  
-`#` - returns a variable's length - valid for strings and tables.  
-`?` - looks for a symbol in scope and returns its name as a string.  
-`??` - checks for a key's existence in a table or a letter's existence in a string.  
-`->` - accesses members of a table using identifier as a key.  
-`<-` - initializes a table key using a value.  
+[`@`](https://github.com/Ciastex/EVIL/wiki/Operators#) - converts whatever's after it to a string representation.  
+[`#`](https://github.com/Ciastex/EVIL/wiki/Operators#-1) - returns a variable's length - valid for strings and tables.  
+[`?`](https://github.com/Ciastex/EVIL/wiki/Operators#-2) - looks for a symbol in scope and returns its name as a string.  
+[`??`](https://github.com/Ciastex/EVIL/wiki/Operators#-3) - checks if a key exists in a table or a character exists in a string.  
+[`->`](https://github.com/Ciastex/EVIL/wiki/Operators#-) - accesses members of a table using identifier as a key.  
+[`<-`](https://github.com/Ciastex/EVIL/wiki/Operators#--1) - initializes a table key using a value.  
 
 ##### Arithmetic
 `+` - addition/concatenation  
