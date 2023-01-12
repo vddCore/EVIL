@@ -10,27 +10,40 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(FunctionCallNode functionCallNode)
         {
-            var funcValue = Visit(functionCallNode.Left);
+            var invokable = Visit(functionCallNode.Left);
+
+            if (invokable.Type == DynValueType.Function)
+            {
+                return InvokeFunction(functionCallNode, invokable);
+            }
+            else if (invokable.Type == DynValueType.Table)
+            {
+                return InitTable(functionCallNode, invokable);
+            }
+            else
+            {
+                throw new RuntimeException(
+                    $"Attempt to invoke an un-invokable value {invokable.Type}.",
+                    functionCallNode.Line
+                );
+            }
+        }
+
+        private DynValue InvokeFunction(FunctionCallNode functionCallNode, DynValue funcValue)
+        {
             var funcName = "<anonymous>";
-            
+
             if (functionCallNode.Left is VariableNode vn)
             {
                 funcName = vn.Identifier;
                 funcValue = Environment.LocalScope.FindInScopeChain(vn.Identifier);
-                
+
                 if (funcValue == null)
                 {
                     throw new RuntimeException(
                         $"'{funcName}' was not found in the current scope.", functionCallNode.Line
                     );
                 }
-            }
-
-            if (funcValue.Type != DynValueType.Function)
-            {
-                throw new RuntimeException(
-                    $"'{funcName}' cannot be invoked because it is not a function.", functionCallNode.Line
-                );
             }
 
             var parameters = new ClrFunctionArguments();
@@ -60,11 +73,53 @@ namespace EVIL.Execution
             return retVal;
         }
 
+        private DynValue InitTable(FunctionCallNode functionCallNode, DynValue tableValue)
+        {
+            if (functionCallNode.Parameters.Count == 1)
+            {
+                var count = Visit(functionCallNode.Parameters[0]);
+
+                if (count.Type != DynValueType.Number || count.Number % 1 != 0)
+                {
+                    throw new RuntimeException("Table initializer must be an integer.", functionCallNode.Line);
+                }
+
+                tableValue.Table.Clear();
+                for (var i = 0; i < (int)count.Number; i++)
+                {
+                    tableValue.Table[i] = DynValue.Zero;
+                }
+            }
+            else if (functionCallNode.Parameters.Count == 2)
+            {
+                var count = Visit(functionCallNode.Parameters[0]);
+                if (count.Type != DynValueType.Number || count.Number % 1 != 0)
+                {
+                    throw new RuntimeException("Table initializer must be an integer.", functionCallNode.Line);
+                }
+
+                var value = Visit(functionCallNode.Parameters[1]);
+                for(var i = 0; i < (int)count.Number; i++)
+                {
+                    tableValue.Table[i] = value.Copy();
+                }
+            }
+            else
+            {
+                throw new RuntimeException(
+                    $"Attempt to initialize a table using {functionCallNode.Parameters.Count} parameters.",
+                    functionCallNode.Line
+                );
+            }
+
+            return tableValue;
+        }
+
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, ClrFunctionArguments args, FunctionCallNode node)
         {
             var callStackItem = new StackFrame(name);
             var iterator = 0;
-            
+
             foreach (var parameterName in scriptFunction.ParameterNames)
             {
                 if (Environment.LocalScope.HasMember(parameterName))
@@ -104,9 +159,7 @@ namespace EVIL.Execution
 
         private DynValue ExecuteClrFunction(IFunction function, string name, ClrFunctionArguments args, FunctionCallNode node)
         {
-            var clrFunction = function as ClrFunction;
-
-            if (clrFunction == null)
+            if (function is not ClrFunction clrFunction)
                 throw new RuntimeException("Failed to interpret IFunction as ClrFunction.", node.Line);
 
             var csi = new StackFrame($"CLR!{name}");
