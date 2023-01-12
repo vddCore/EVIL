@@ -23,7 +23,7 @@ namespace EVIL.Grammar.Parsing
 
         private AstNode UnaryExpression()
         {
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             if (token.Type == TokenType.NameOf)
             {

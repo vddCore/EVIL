@@ -23,7 +23,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode AssignmentExpression(AstNode left = null)
         {
             var node = left ?? LogicalOrExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
             
             while (_assignmentOperators.Contains(token.Type))
             {
@@ -93,7 +93,7 @@ namespace EVIL.Grammar.Parsing
                     }
                 }
 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

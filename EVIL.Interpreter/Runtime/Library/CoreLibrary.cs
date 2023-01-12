@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Execution;
@@ -80,9 +81,9 @@ namespace EVIL.Interpreter.Runtime.Library
             }
             catch (ParserException pe)
             {
-                throw new ClrFunctionException($"Parser error on line {pe.ScannerState?.Line}: {pe.Message}");
+                throw new ClrFunctionException($"Parser error on line {pe.LexerState?.Line}: {pe.Message}");
             }
-            catch (ScannerException se)
+            catch (LexerException se)
             {
                 throw new ClrFunctionException($"Lexer error on line {se.Line}: {se.Message}");
             }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Interpreter.Abstraction
 {
@@ -7,13 +8,13 @@ namespace EVIL.Interpreter.Abstraction
     {
         public Dictionary<string, DynValue> Closures { get; } = new();
 
-        public List<AstNode> StatementList { get; }
+        public BlockStatementNode Statements { get; }
         public List<string> ParameterNames { get; }
         public int DefinedAtLine { get; }
 
-        public ScriptFunction(List<AstNode> statementList, List<string> parameterNames, int definedAtLine)
+        public ScriptFunction(BlockStatementNode statements, List<string> parameterNames, int definedAtLine)
         {
-            StatementList = statementList;
+            Statements = statements;
             ParameterNames = parameterNames;
             DefinedAtLine = definedAtLine;
         }

@@ -5,9 +5,9 @@ namespace EVIL.Lexical
     public class Token
     {
         public TokenType Type { get; }
-        public object Value { get; }
+        public string Value { get; }
 
-        public Token(TokenType type, object value)
+        public Token(TokenType type, string value)
         {
             Type = type;
             Value = value;

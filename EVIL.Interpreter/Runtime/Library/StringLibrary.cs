@@ -94,8 +94,20 @@ namespace EVIL.Interpreter.Runtime.Library
             }
         }
         
-        [ClrFunction("s2n")]
-        public static DynValue ToNumber(Execution.Interpreter interpreter, FunctionArguments args)
+        [ClrFunction("s2i")]
+        public static DynValue ToInteger(Execution.Interpreter interpreter, FunctionArguments args)
+        {
+            args.ExpectExactly(1)
+                .ExpectTypeAtIndex(0, DynValueType.String);
+
+            if (!decimal.TryParse(args[0].String, out var result))
+                throw new ClrFunctionException("The number was in an invalid format.");
+
+            return new DynValue(result);
+        }
+        
+        [ClrFunction("s2d")]
+        public static DynValue ToDecimal(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);

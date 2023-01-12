@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace EVIL.Grammar.AST.Nodes
+﻿namespace EVIL.Grammar.AST.Nodes
 {
     public class WhileLoopNode : AstNode
     {
         public AstNode Expression { get; }
-        public List<AstNode> StatementList { get; }
+        public BlockStatementNode Statements { get; }
 
-        public WhileLoopNode(AstNode expression, List<AstNode> statementList)
+        public WhileLoopNode(AstNode expression, BlockStatementNode statements)
         {
             Expression = expression;
-            StatementList = statementList;
+            Statements = statements;
         }
     }
 }

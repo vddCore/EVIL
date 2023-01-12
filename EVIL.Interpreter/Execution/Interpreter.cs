@@ -1,24 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
 using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
+using EVIL.Lexical;
 
 namespace EVIL.Interpreter.Execution
 {
     public partial class Interpreter : AstVisitor
     {
         private List<Constraint> _constraints = new();
-        private List<Predicate<AstNode>> _nodeRestrictions = new();
 
         public string MainFilePath { get; private set; }
         
         public IReadOnlyList<Constraint> Constraints => _constraints;
         public Environment Environment { get; set; } = new();
-        public Parser Parser { get; } = new();
+
+        public Lexer Lexer { get; private set; } = new();
+        public Parser Parser { get; private set; }
 
         public Interpreter()
         {
@@ -34,7 +34,9 @@ namespace EVIL.Interpreter.Execution
 
         public DynValue Execute(string sourceCode)
         {
-            Parser.LoadSource(sourceCode);
+            Lexer.LoadSource(sourceCode);
+            Parser = new Parser(Lexer);
+            
             var node = Parser.Parse();
 
             try
@@ -50,7 +52,9 @@ namespace EVIL.Interpreter.Execution
 
         public async Task<DynValue> ExecuteAsync(string sourceCode)
         {
-            Parser.LoadSource(sourceCode);
+            Lexer.LoadSource(sourceCode);
+            Parser = new Parser(Lexer);
+            
             var node = Parser.Parse();
 
             try
@@ -66,7 +70,9 @@ namespace EVIL.Interpreter.Execution
 
         public DynValue Execute(string sourceCode, string entryPoint, string[] args, bool restrictTopLevelCode = false, string filePath = null)
         {
-            Parser.LoadSource(sourceCode);
+            Lexer.LoadSource(sourceCode);
+            Parser = new Parser(Lexer);
+            
             var node = Parser.Parse();
 
             MainFilePath = filePath;
@@ -75,15 +81,8 @@ namespace EVIL.Interpreter.Execution
             {
                 DynValue result;
 
-                if (restrictTopLevelCode)
-                {
-                    _nodeRestrictions.Add(x => !(x is FunctionDefinitionNode));
-                }
-
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
-
-                _nodeRestrictions.Clear();
 
                 if (entryNode == null)
                 {
@@ -121,7 +120,7 @@ namespace EVIL.Interpreter.Execution
                     }
 
                     Environment.CallStack.Push(csi);
-                    result = ExecuteStatementList(entryNode.StatementList);
+                    result = Visit(entryNode.Statements);
 
                     if (Environment.CallStack.Count > 0)
                     {
@@ -149,26 +148,6 @@ namespace EVIL.Interpreter.Execution
             );
         }
 
-        public override DynValue Visit(ProgramNode programNode)
-        {
-            var statements = programNode.Statements;
-
-            foreach (var filter in _nodeRestrictions)
-            {
-                var stmt = statements.Find(filter);
-                if (stmt != null)
-                {
-                    throw new RuntimeException(
-                        "Top-level statements are not legal when executing with an entry point.",
-                        Environment,
-                        stmt.Line
-                    );
-                }
-            }
-
-            return ExecuteStatementList(statements);
-        }
-
         public DynValue ExecuteScriptFunction(string frameName, ScriptFunction function, FunctionArguments args)
         {
             var frame = new StackFrame(frameName, function.ParameterNames);
@@ -185,45 +164,12 @@ namespace EVIL.Interpreter.Execution
                 }
 
                 Environment.CallStack.Push(frame);
-                retval = ExecuteStatementList(function.StatementList);
+                retval = Visit(function.Statements);
             }
             Environment.CallStack.Pop();
             Environment.ExitScope();
 
             return retval;
-        }
-
-        private DynValue ExecuteStatementList(List<AstNode> statements, Environment env = null)
-        {
-            env = env ?? Environment;
-
-            var retVal = DynValue.Zero;
-
-            for (var i = 0; i < statements.Count; i++)
-            {
-                if (env.IsInsideLoop)
-                {
-                    var loopStackTop = env.LoopStackTop;
-
-                    if (loopStackTop.BreakLoop || loopStackTop.SkipThisIteration)
-                        break;
-                }
-
-                if (env.IsInScriptFunctionScope)
-                {
-                    var callStackTop = env.StackTop;
-
-                    if (callStackTop.ReturnNow)
-                    {
-                        retVal = callStackTop.ReturnValue;
-                        break;
-                    }
-                }
-
-                retVal = Visit(statements[i]);
-            }
-
-            return retVal;
         }
 
         protected override void ConstraintCheck(AstNode node)

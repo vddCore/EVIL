@@ -8,15 +8,15 @@ namespace EVIL.Grammar.AST.Nodes
         public AstNode Condition { get; }
         public List<AstNode> IterationStatements { get; }
         
-        public List<AstNode> StatementList { get; }
+        public BlockStatementNode Statements { get; }
 
-        public ForLoopNode(List<AstNode> assignments, AstNode condition, List<AstNode> iterationStatements, List<AstNode> statementList)
+        public ForLoopNode(List<AstNode> assignments, AstNode condition, List<AstNode> iterationStatements, BlockStatementNode statements)
         {
             Assignments = assignments;
             Condition = condition;
             IterationStatements = iterationStatements;
-            
-            StatementList = statementList;
+
+            Statements = statements;
         }
     }
 }

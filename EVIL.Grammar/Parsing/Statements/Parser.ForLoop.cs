@@ -12,9 +12,8 @@ namespace EVIL.Grammar.Parsing
             var line = Match(TokenType.For);
             
             List<AstNode> assignments;
-            List<AstNode> iterationStatements;
-            
             AstNode condition;
+            List<AstNode> iterationStatements;
 
             Match(TokenType.LParenthesis);
             {
@@ -30,15 +29,11 @@ namespace EVIL.Grammar.Parsing
             }
             Match(TokenType.RParenthesis);
 
-            Match(TokenType.LBrace);
-            var statementList = LoopStatementList();
-            Match(TokenType.RBrace);
-
             return new ForLoopNode(
                 assignments,
                 condition,
                 iterationStatements,
-                statementList
+                BlockStatement()
             ) {Line = line};
         }
 
@@ -46,7 +41,7 @@ namespace EVIL.Grammar.Parsing
         {
             var nodes = new List<AstNode> {ForDeclaration()};
             
-            while (Scanner.State.CurrentToken.Type == TokenType.Comma)
+            while (CurrentToken.Type == TokenType.Comma)
             {
                 Match(TokenType.Comma);
                 nodes.Add(ForDeclaration());
@@ -57,7 +52,7 @@ namespace EVIL.Grammar.Parsing
 
         private AstNode ForDeclaration()
         {
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             if (token.Type == TokenType.Var)
             {
@@ -67,14 +62,14 @@ namespace EVIL.Grammar.Parsing
             {
                 return AssignmentExpression();
             }
-            else throw new ParserException("Expected a variable definition or an expression.", Scanner.State);
+            else throw new ParserException("Expected a variable definition or an expression.", Lexer.State);
         }
 
         private List<AstNode> ForExpressionList()
         {
             var list = new List<AstNode> {AssignmentExpression()};
 
-            while (Scanner.State.CurrentToken.Type == TokenType.Comma)
+            while (CurrentToken.Type == TokenType.Comma)
             {
                 Match(TokenType.Comma);
                 list.Add(AssignmentExpression());

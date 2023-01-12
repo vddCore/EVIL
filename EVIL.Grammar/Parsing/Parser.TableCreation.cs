@@ -13,10 +13,10 @@ namespace EVIL.Grammar.Parsing
             var initializers = new List<AstNode>();
             var keyed = false;
 
-            while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
+            while (CurrentToken.Type != TokenType.RBrace)
             {
                 AstNode key = null;
-                if (Scanner.State.CurrentToken.Type == TokenType.LBracket)
+                if (CurrentToken.Type == TokenType.LBracket)
                 {
                     keyed = true;
                     key = ComputedKeyExpression();
@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Parsing
                 }
                 else
                 {
-                    var ahead = Scanner.PeekToken(1);
+                    var ahead = Lexer.PeekToken(1);
                     if (ahead.Type == TokenType.Assign)
                     {
                         keyed = true;
@@ -44,7 +44,7 @@ namespace EVIL.Grammar.Parsing
                     initializers.Add(new KeyValuePairNode(key, value));
                 }
                 
-                if (Scanner.State.CurrentToken.Type == TokenType.RBrace)
+                if (CurrentToken.Type == TokenType.RBrace)
                     break;
 
                 Match(TokenType.Comma);

@@ -111,7 +111,7 @@ namespace EVIL.Interpreter.Execution
 
             try
             {
-                return ExecuteStatementList(scriptFunction.StatementList);
+                return Visit(scriptFunction.Statements);
             }
             catch (RuntimeException)
             {

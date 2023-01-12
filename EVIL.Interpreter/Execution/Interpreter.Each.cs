@@ -39,11 +39,7 @@ namespace EVIL.Interpreter.Execution
                             keyValue.CopyFrom(element.Key);
                             valueValue.CopyFrom(element.Value);
 
-                            Environment.EnterScope();
-                            {
-                                ExecuteStatementList(eachLoopNode.StatementList);
-                            }
-                            Environment.ExitScope();
+                            Visit(eachLoopNode.Statements);
                         }
                     }
                     catch (InvalidOperationException)

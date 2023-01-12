@@ -17,9 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interpreter", "Interpreter"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bifrost", "Bifrost", "{BEEE4785-29E1-4E4B-96D3-0406E4B9AD90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eitria", "Eitria\Eitria.csproj", "{C5D36AD5-F1AB-459C-AD24-E027E40184E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Eitria", "EVIL.Eitria\EVIL.Eitria.csproj", "{C5D36AD5-F1AB-459C-AD24-E027E40184E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brok", "Brok\Brok.csproj", "{375B3B5B-0D7A-418F-8039-7E71B3ABB403}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Brok", "EVIL.Brok\EVIL.Brok.csproj", "{375B3B5B-0D7A-418F-8039-7E71B3ABB403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

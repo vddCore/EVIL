@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode EqualityExpression()
         {
             var node = RelationalExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_equalityOperators.Contains(token.Type))
             {
@@ -31,7 +31,7 @@ namespace EVIL.Grammar.Parsing
                     node = new BinaryOperationNode(node, RelationalExpression(), BinaryOperationType.NotEqual) {Line = line};
                 }
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
@@ -10,12 +8,12 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public Scanner Scanner { get; private set; }
-
-        public void LoadSource(string source)
+        public Lexer Lexer { get; private set; }
+        public Token CurrentToken => Lexer.State.CurrentToken;
+        
+        public Parser(Lexer lexer)
         {
-            Scanner = new Scanner();
-            Scanner.LoadSource(source);
+            Lexer = lexer;
         }
 
         public ProgramNode Parse()
@@ -29,37 +27,17 @@ namespace EVIL.Grammar.Parsing
         {
             var statementList = new List<AstNode>();
 
-            if (Scanner.State.CurrentToken == null)
+            if (CurrentToken == null)
             {
                 throw new ParserException(
                     "Internal error: scanner is in invalid state (current token is null?).",
-                    Scanner.State
+                    Lexer.State
                 );
             }
             
-            while (Scanner.State.CurrentToken.Type != TokenType.EOF)
+            while (CurrentToken.Type != TokenType.EOF)
                 statementList.Add(Statement());
             
-            return statementList;
-        }
-
-        private List<AstNode> LoopStatementList()
-        {
-            var statementList = new List<AstNode>();
-
-            while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
-            {
-                if (Scanner.State.CurrentToken.Type == TokenType.EOF)
-                {
-                    throw new ParserException(
-                        "Unexpected EOF in a loop block.", 
-                        Scanner.State
-                    );
-                }
-
-                statementList.Add(Statement());
-            }
-
             return statementList;
         }
 
@@ -67,35 +45,15 @@ namespace EVIL.Grammar.Parsing
         {
             var statementList = new List<AstNode>();
 
-            while (Scanner.State.CurrentToken.Type != TokenType.RBrace &&
-                   Scanner.State.CurrentToken.Type != TokenType.Else &&
-                   Scanner.State.CurrentToken.Type != TokenType.Elif)
+            while (CurrentToken.Type != TokenType.RBrace &&
+                   CurrentToken.Type != TokenType.Else &&
+                   CurrentToken.Type != TokenType.Elif)
             {
-                if (Scanner.State.CurrentToken.Type == TokenType.EOF)
+                if (CurrentToken.Type == TokenType.EOF)
                 {
                     throw new ParserException(
                         "Unexpected EOF in condition block.", 
-                        Scanner.State
-                    );
-                }
-
-                statementList.Add(Statement());
-            }
-
-            return statementList;
-        }
-
-        private List<AstNode> FunctionStatementList()
-        {
-            var statementList = new List<AstNode>();
-
-            while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
-            {
-                if (Scanner.State.CurrentToken.Type == TokenType.EOF)
-                {
-                    throw new ParserException(
-                        "Unexpected EOF in function definition.", 
-                        Scanner.State
+                        Lexer.State
                     );
                 }
 
@@ -107,28 +65,28 @@ namespace EVIL.Grammar.Parsing
 
         private int Match(TokenType tokenType)
         {
-            var line = Scanner.State.Line;
+            var line = Lexer.State.Line;
 
-            if (Scanner.State.CurrentToken.Type != tokenType)
+            if (CurrentToken.Type != tokenType)
             {
                 throw new ParserException(
-                    $"Expected '{Token.StringRepresentation(tokenType)}', got '{Scanner.State.CurrentToken.Value}'.", 
-                    Scanner.State
+                    $"Expected '{Token.StringRepresentation(tokenType)}', got '{CurrentToken.Value}'.", 
+                    Lexer.State
                 );
             }
 
-            Scanner.NextToken();
+            Lexer.NextToken();
 
             return line;
         }
 
         private void DisallowPrevious(params TokenType[] types)
         {
-            if (types.Contains(Scanner.State.PreviousToken.Type))
+            if (types.Contains(Lexer.State.PreviousToken.Type))
             {
                 throw new ParserException(
                     "Disallowed token sequence.", 
-                    Scanner.State
+                    Lexer.State
                 );
             }
         }

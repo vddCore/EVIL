@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode AdditiveExpression()
         {
             var node = MultiplicativeExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_additiveOperators.Contains(token.Type))
             {
@@ -33,7 +33,7 @@ namespace EVIL.Grammar.Parsing
                         {Line = line};
                 }
 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

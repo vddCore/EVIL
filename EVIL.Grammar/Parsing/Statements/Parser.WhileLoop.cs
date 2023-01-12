@@ -12,12 +12,8 @@ namespace EVIL.Grammar.Parsing
             Match(TokenType.LParenthesis);
             var expression = AssignmentExpression();
             Match(TokenType.RParenthesis);
-            
-            Match(TokenType.LBrace);
-            var statementList = LoopStatementList();
-            Match(TokenType.RBrace);
 
-            return new WhileLoopNode(expression, statementList) { Line = line };
+            return new WhileLoopNode(expression, BlockStatement()) { Line = line };
         }
     }
 }

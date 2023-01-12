@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode PostfixExpression()
         {
             var node = PrimaryExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_postfixOperators.Contains(token.Type))
             {
@@ -29,7 +29,7 @@ namespace EVIL.Grammar.Parsing
                     node = Indexing(node);
                 }
 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

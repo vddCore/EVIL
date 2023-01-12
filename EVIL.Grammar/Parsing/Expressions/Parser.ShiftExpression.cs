@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode ShiftExpression()
         {
             var node = AdditiveExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_shiftOperators.Contains(token.Type))
             {
@@ -33,7 +33,7 @@ namespace EVIL.Grammar.Parsing
                         {Line = line};
                 }
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

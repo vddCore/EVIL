@@ -9,14 +9,14 @@ namespace EVIL.Grammar.Parsing
         private AstNode ExclusiveOrExpression()
         {
             var node = AndExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (token.Type == TokenType.BitwiseXor)
             {
                 var line = Match(TokenType.BitwiseXor);
                 node = new BinaryOperationNode(node, AndExpression(), BinaryOperationType.BitwiseXor) {Line = line};
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

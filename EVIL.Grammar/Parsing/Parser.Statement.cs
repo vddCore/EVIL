@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode Statement()
         {
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
             AstNode node;
             
             switch (token.Type)
@@ -50,8 +50,11 @@ namespace EVIL.Grammar.Parsing
                     node = AssignmentExpression();
                     Match(TokenType.Semicolon);
                     break;
+                case TokenType.LBrace:
+                    node = BlockStatement();
+                    break;
                 default:
-                    throw new ParserException($"Expected a statement, found '{token.Value}'.", Scanner.State);
+                    throw new ParserException($"Expected a statement, found '{token.Value}'.", Lexer.State);
             }
 
             return node;
