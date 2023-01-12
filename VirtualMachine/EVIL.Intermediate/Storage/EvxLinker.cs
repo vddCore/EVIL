@@ -9,7 +9,6 @@ namespace EVIL.Intermediate.Storage
     public static class EvxLinker
     {
         private static byte[] _linkerData = new byte[32];
-        private static byte[] _reserved = new byte[20];
 
         public static readonly byte[] MagicNumber = new byte[] { 0x45, 0x56, 0x58 }; // EVX
         public static readonly byte[] LinkerID = new byte[] { 0x43, 0x56, 0x49, 0x4C }; // CVIL
@@ -17,7 +16,7 @@ namespace EVIL.Intermediate.Storage
 
         public static void Link(Executable exe, string filePath)
         {
-            Link(exe, new FileStream(filePath, FileMode.Open));
+            Link(exe, new FileStream(filePath, FileMode.OpenOrCreate));
         }
 
         public static void Link(Executable exe, Stream outStream)
@@ -28,7 +27,6 @@ namespace EVIL.Intermediate.Storage
             {
 
                 WriteHeader(bw);
-                WriteConstTable(bw, exe.ConstPool);
                 WriteGlobalList(bw, exe.Globals);
 
                 var chunkTableOffset = WriteChunkTable(
@@ -41,6 +39,8 @@ namespace EVIL.Intermediate.Storage
                     chunkTableOffset,
                     exe.Chunks
                 );
+
+                WriteChecksum(bw, outStream);
             }
             finally
             {
@@ -52,13 +52,12 @@ namespace EVIL.Intermediate.Storage
         {
             bw.Write(MagicNumber);
             bw.Write(FormatVersion);
+            bw.Write(0L);
             bw.Write(DateTimeOffset.Now.ToUnixTimeSeconds());
             bw.Write(LinkerID);
             bw.Write(_linkerData);
             bw.Write(0);
             bw.Write(0);
-            bw.Write(0);
-            bw.Write(_reserved);
         }
 
         private static void WriteChunkDataBlock(BinaryWriter bw, int chunkTableOffset, List<Chunk> chunks)
@@ -109,6 +108,10 @@ namespace EVIL.Intermediate.Storage
         {
             WriteString(bw, c.Name);
 
+            bw.Write(c.IsPublic);
+            
+            WriteConstTable(bw, c.Constants);
+            
             bw.Write(c.Labels.Count);
             for (var i = 0; i < c.Labels.Count; i++)
             {
@@ -131,6 +134,12 @@ namespace EVIL.Intermediate.Storage
             for (var i = 0; i < c.Externs.Count; i++)
             {
                 WriteExtern(bw, c.Externs[i]);
+            }
+
+            bw.Write(c.SubChunks.Count);
+            for (var i = 0; i < c.SubChunks.Count; i++)
+            {
+                WriteChunkData(bw, c.SubChunks[i]);
             }
 
             bw.Write(c.Instructions.Count);
@@ -167,28 +176,20 @@ namespace EVIL.Intermediate.Storage
 
         private static void WriteConstTable(BinaryWriter bw, ConstPool constPool)
         {
-            var offset = bw.BaseStream.Position;
-
             bw.Write(constPool.Count);
             for (var i = 0; i < constPool.Count; i++)
             {
-                var num = constPool.GetNumberConstant(i);
+                var str = constPool.GetStringConstant(i);
 
-                if (num != null)
+                if (str != null)
                 {
-                    WriteConst(bw, num.Value);
+                    WriteConst(bw, str);
                 }
-                else // must be string
+                else
                 {
-                    WriteConst(bw, constPool.GetStringConstant(i));
+                    WriteConst(bw, constPool.GetNumberConstant(i));
                 }
             }
-
-            var endOffset = bw.BaseStream.Position;
-
-            bw.BaseStream.Seek(EvxKnownFileOffsets.Header.ConstPoolOffset, SeekOrigin.Begin);
-            bw.Write((int)offset);
-            bw.BaseStream.Seek(endOffset, SeekOrigin.Begin);
         }
 
         private static void WriteConst(BinaryWriter bw, double c)
@@ -208,6 +209,28 @@ namespace EVIL.Intermediate.Storage
             var stringData = Encoding.UTF8.GetBytes(s);
             bw.Write(stringData.Length);
             bw.Write(stringData);
+        }
+
+        private static void WriteChecksum(BinaryWriter bw, Stream outStream)
+        {
+            outStream.Seek(EvxKnownFileOffsets.Header.TimeStamp, SeekOrigin.Begin);
+            
+            var hash = 0xCBF29CE484222325;
+            using (var br = new BinaryReader(outStream, Encoding.UTF8, true))
+            {
+                while (outStream.Position < outStream.Length)
+                {
+                    hash ^= br.ReadByte();
+                    hash *= 0x00000100000001B3;
+                }
+            }
+
+            outStream.Seek(
+                EvxKnownFileOffsets.Header.Checksum,
+                SeekOrigin.Begin
+            );
+
+            bw.Write(hash);
         }
     }
 }

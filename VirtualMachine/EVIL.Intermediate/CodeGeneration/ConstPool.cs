@@ -37,11 +37,8 @@ namespace EVIL.Intermediate.CodeGeneration
             return _stringConstants.GetByValue(id);
         }
 
-        public double? GetNumberConstant(int id)
+        public double GetNumberConstant(int id)
         {
-            if (!_numberConstants.Reverse.ContainsKey(id))
-                return null;
-
             return _numberConstants.GetByValue(id);
         }
 

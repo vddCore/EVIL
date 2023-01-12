@@ -25,10 +25,9 @@ namespace EVIL.Intermediate.Storage
             {
                 var exe = new Executable();
                 {
-                    var (chunkTableOffset, globalListOffset, constPoolOffset) 
+                    var (chunkTableOffset, globalListOffset) 
                         = ReadHeader(br);
                     
-                    ReadConstPool(br, exe, constPoolOffset);
                     ReadGlobalList(br, exe, globalListOffset);
                     var chunkTableEntries = ReadChunkTable(br, chunkTableOffset);
                     ReadChunks(br, chunkTableEntries, exe);
@@ -41,7 +40,7 @@ namespace EVIL.Intermediate.Storage
             }
         }
 
-        private static (int, int, int) ReadHeader(BinaryReader br)
+        private static (int, int) ReadHeader(BinaryReader br)
         {
             var data = br.ReadBytes(3);
 
@@ -53,22 +52,19 @@ namespace EVIL.Intermediate.Storage
             }
 
             var version = br.ReadByte();
+            var fnv1a64 = br.ReadInt64();
             var stamp = br.ReadInt64();
             var linkerId = br.ReadBytes(4);
             var linkerData = br.ReadBytes(32);
 
             var chunkTableOffset = br.ReadInt32();
             var globalListOffset = br.ReadInt32();
-            var constPoolOffset = br.ReadInt32();
-            
-            var reserved = br.ReadBytes(20);
 
-            return (chunkTableOffset, globalListOffset, constPoolOffset);
+            return (chunkTableOffset, globalListOffset);
         }
 
-        private static void ReadConstPool(BinaryReader br, Executable exe, int constPoolOffset)
+        private static void ReadConstPool(BinaryReader br, Chunk chunk)
         {
-            br.BaseStream.Seek(constPoolOffset, SeekOrigin.Begin);
             var constCount = br.ReadInt32();
 
             for (var i = 0; i < constCount; i++)
@@ -78,12 +74,12 @@ namespace EVIL.Intermediate.Storage
                 if (type == 0)
                 {
                     var strText = ReadString(br);
-                    exe.ConstPool.FetchOrAddConstant(strText);
+                    chunk.Constants.FetchOrAddConstant(strText);
                 }
                 else if (type == 1)
                 {
                     var dbl = br.ReadDouble();
-                    exe.ConstPool.FetchOrAddConstant(dbl);
+                    chunk.Constants.FetchOrAddConstant(dbl);
                 }
                 else
                 {
@@ -136,8 +132,12 @@ namespace EVIL.Intermediate.Storage
         private static Chunk ReadChunk(BinaryReader br)
         {
             var name = ReadString(br);
-            var chunk = new Chunk(name);
+            var isPublic = br.ReadBoolean();
+            
+            var chunk = new Chunk(name, isPublic);
 
+            ReadConstPool(br, chunk);
+            
             var labelCount = br.ReadInt32();
             for (var i = 0; i < labelCount; i++)
             {
@@ -160,6 +160,12 @@ namespace EVIL.Intermediate.Storage
             for (var i = 0; i < externCount; i++)
             {
                 chunk.Externs.Add(ReadExtern(br));
+            }
+
+            var subChunkCount = br.ReadInt32();
+            for (var i = 0; i < subChunkCount; i++)
+            {
+                chunk.SubChunks.Add(ReadChunk(br));
             }
 
             var insnCount = br.ReadInt32();

@@ -7,8 +7,6 @@ namespace EVIL.Intermediate.CodeGeneration
 {
     public partial class Compiler : AstVisitor
     {
-        private int _nextAnonymousChunkId;
-
         internal int CurrentLine = -1;
         internal int CurrentColumn = -1;
 
@@ -46,16 +44,6 @@ namespace EVIL.Intermediate.CodeGeneration
             CurrentColumn = node.Column;
 
             base.Visit(node);
-        }
-
-        internal (int, Chunk) CreateAnonymousChunk()
-        {
-            var id = _executable.Chunks.Count;
-            var chunk = new Chunk($"!!<{_nextAnonymousChunkId++}>");
-
-            _executable.Chunks.Add(chunk);
-
-            return (id, chunk);
         }
 
         internal void DefineGlobal(string name)

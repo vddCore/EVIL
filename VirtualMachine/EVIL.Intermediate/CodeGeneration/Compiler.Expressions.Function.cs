@@ -9,7 +9,7 @@ namespace EVIL.Intermediate.CodeGeneration
             var prevCg = CurrentChunk.GetCodeGenerator();
             ScopeStack.TryPeek(out var prevScope);
 
-            var (id, chunk) = CreateAnonymousChunk();
+            var (id, chunk) = CurrentChunk.CreateSubChunk();
             ChunkDefinitionStack.Push(chunk);
 
             EnterScope();

@@ -42,7 +42,7 @@ namespace EVIL.Intermediate.CodeGeneration
                     
                     cg.Emit(
                         OpCode.STG, 
-                        _executable.ConstPool.FetchOrAddConstant(kvp.Key)
+                        CurrentChunk.Constants.FetchOrAddConstant(kvp.Key)
                     );
                 }
             }

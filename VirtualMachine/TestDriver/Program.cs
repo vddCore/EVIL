@@ -1,4 +1,6 @@
-﻿using EVIL.ExecutionEngine;
+﻿using System;
+using System.IO;
+using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
@@ -12,41 +14,42 @@ namespace EVIL.VirtualMachine.TestDriver
 {
     public static class Program
     {
+        private static Disassembler _disassembler = new(new DisassemblerOptions
+        {
+            EmitExternHints = true,
+            EmitParamTable = true,
+            EmitFunctionHints = true,
+            EmitLocalHints = true,
+            EmitLocalTable = true,
+            EmitExternTable = true,
+            EmitFunctionParameters = true,
+            EmitFunctionNames = true
+        });
+        
         private static Table _globalTable = new();
 
-        public static void Main(string[] args)
+        private static Executable BuildExecutable(string filePath)
         {
             var lexer = new Lexer();
             var parser = new Parser(lexer, true);
             var compiler = new Compiler();
-            var disasm = new Disassembler(new DisassemblerOptions
-            {
-                EmitExternHints = true,
-                EmitParamTable = true,
-                EmitFunctionHints = true,
-                EmitLocalHints = true,
-                EmitLocalTable = true,
-                EmitExternTable = true,
-                EmitFunctionParameters = true,
-                EmitFunctionNames = true
-            });
             
             EVIL.Grammar.AST.Nodes.Program program;
             try
             {
-                var source = File.ReadAllText("./test_asgn2.vil");
+                var source = File.ReadAllText(filePath);
                 lexer.LoadSource(source);
                 program = parser.Parse();
             }
             catch (LexerException le)
             {
                 Console.WriteLine($"Parsing error at ({le.Line}:{le.Column}): {le.Message}");
-                return;
+                return null;
             }
             catch (ParserException pe)
             {
                 Console.WriteLine($"Parsing error at ({pe.Line}:{pe.Column}): {pe.Message}");
-                return;
+                return null;
             }
             
             Executable executable;
@@ -57,20 +60,36 @@ namespace EVIL.VirtualMachine.TestDriver
             catch (CompilerException e)
             {
                 Console.WriteLine($"Compilation error at ({e.Line}:{e.Column}): {e.Message}");
-                return;
+                return null;
             }
-            Console.WriteLine("-[disASM]-------------");
-            Console.Write(disasm.Disassemble(executable));
-            
-            EvxLinker.Link(executable, "a.evx");
-            var exe2 = EvxLoader.Load("a.evx");
-            
-            Console.WriteLine("-[progRUN]------------");
+
+            return executable;
+        }
+
+        public static void Main(string[] args)
+        {
             var rt = new EvilRuntime(_globalTable);
             rt.LoadCoreRuntime();
             
-            var evm = new EVM(exe2, _globalTable);
-            evm.Run();
+            var evm = new EVM(_globalTable);
+            var exe = BuildExecutable("./test_asgn2.vil");
+
+            EvxLinker.Link(exe, "a.evx");
+            exe = EvxLoader.Load("a.evx");
+
+            if (exe != null)
+            {
+                DisassembleExecutable(exe);
+                Console.WriteLine("-[progRUN]------------");
+                evm.Load(exe);
+                evm.Run();
+            }
+        }
+
+        private static void DisassembleExecutable(Executable executable)
+        {
+            Console.WriteLine("-[disASM]------------");
+            Console.Write(_disassembler.Disassemble(executable));
         }
     }
 }

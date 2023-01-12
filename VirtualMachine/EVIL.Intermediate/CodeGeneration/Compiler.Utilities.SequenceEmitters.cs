@@ -8,16 +8,16 @@ namespace EVIL.Intermediate.CodeGeneration
         private void EmitConstantLoad(CodeGenerator cg, string constant)
         {
             cg.Emit(
-                OpCode.LDC,
-                _executable.ConstPool.FetchOrAddConstant(constant)
+                OpCode.LDCS,
+                CurrentChunk.Constants.FetchOrAddConstant(constant)
             );
         }
         
         private void EmitConstantLoad(CodeGenerator cg, double constant)
         {
             cg.Emit(
-                OpCode.LDC,
-                _executable.ConstPool.FetchOrAddConstant(constant)
+                OpCode.LDCN,
+                CurrentChunk.Constants.FetchOrAddConstant(constant)
             );
         }
 
@@ -25,7 +25,7 @@ namespace EVIL.Intermediate.CodeGeneration
         {
             cg.Emit(
                 OpCode.STG,
-                _executable.ConstPool.FetchOrAddConstant(
+                CurrentChunk.Constants.FetchOrAddConstant(
                     identifier
                 )
             );
@@ -35,7 +35,7 @@ namespace EVIL.Intermediate.CodeGeneration
         {
             cg.Emit(
                 OpCode.LDG,
-                _executable.ConstPool.FetchOrAddConstant(
+                CurrentChunk.Constants.FetchOrAddConstant(
                     identifier
                 )
             );

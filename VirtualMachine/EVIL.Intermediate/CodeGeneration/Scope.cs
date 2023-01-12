@@ -60,7 +60,7 @@ namespace EVIL.Intermediate
         
         public SymbolInfo DefineLocal(string name)
         {
-            if (Chunk.Locals.Count >= 255)
+            if (Chunk.Locals.Count > 255)
             {
                 throw new CompilerException(
                     "The local limit (255) for the current function has been reached.\n" +
@@ -89,7 +89,7 @@ namespace EVIL.Intermediate
 
         public SymbolInfo DefineParameter(string name)
         {
-            if (Chunk.Parameters.Count >= 255)
+            if (Chunk.Parameters.Count > 255)
             {
                 throw new CompilerException(
                     "The parameter limit (255) for the current function has been reached.\n" +
