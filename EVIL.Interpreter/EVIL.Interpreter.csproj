@@ -69,10 +69,10 @@
     <Compile Update="Execution\Interpreter.Number.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.VariableDefinitionLogic.cs">
+    <Compile Update="Execution\Interpreter.VariableDefinition.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.VariableLogic.cs">
+    <Compile Update="Execution\Interpreter.Variable.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.While.cs">

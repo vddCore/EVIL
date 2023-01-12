@@ -33,12 +33,6 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue InvokeFunction(FunctionCallNode functionCallNode, DynValue funcValue)
         {
-            var funcName = "<anonymous>";
-            var parameters = new FunctionArguments();
-
-            foreach (var node in functionCallNode.Parameters)
-                parameters.Add(Visit(node));
-
             if (Environment.CallStack.Count > Environment.CallStackLimit)
             {
                 throw new RuntimeException(
@@ -48,6 +42,21 @@ namespace EVIL.Interpreter.Execution
                 );
             }
 
+            var funcName = "<anonymous>";
+            var parameters = new FunctionArguments();
+
+            if (functionCallNode.Left is IndexingNode indexingNode)
+            {
+                funcName = indexingNode.BuildChainStringRepresentation();
+            }
+            else if (functionCallNode.Left is VariableNode variableNode)
+            {
+                funcName = variableNode.Identifier;
+            }
+
+            foreach (var node in functionCallNode.Parameters)
+                parameters.Add(Visit(node));
+
             DynValue retVal;
             if (funcValue.Type == DynValueType.ClrFunction)
             {
@@ -55,7 +64,7 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                Environment.EnterScope(Environment.GlobalScope.HasMember(funcName));
+                Environment.EnterScope(true);
                 {
                     retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, parameters, functionCallNode);
                 }

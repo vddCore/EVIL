@@ -46,7 +46,7 @@ namespace EVIL.Interpreter.Execution
                         {
                             loopStackTop.SkipThisIteration = false;
                         }
-                        
+
                         foreach (var iterationStatement in forLoopNode.IterationStatements)
                         {
                             Visit(iterationStatement);
