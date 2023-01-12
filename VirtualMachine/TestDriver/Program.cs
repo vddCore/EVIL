@@ -37,7 +37,17 @@ namespace EVIL.VirtualMachine.TestDriver
             var lexer = new Lexer();
             var parser = new Parser(lexer, true);
             var compiler = new Compiler();
-            var disasm = new Disassembler();
+            var disasm = new Disassembler(new DisassemblerOptions
+            {
+                EmitExternHints = false,
+                EmitParamTable = false,
+                EmitFunctionHints = true,
+                EmitLocalHints = false,
+                EmitLocalTable = false,
+                EmitExternTable = false,
+                EmitFunctionParameters = false,
+                EmitFunctionNames = true
+            });
 
             EVIL.Grammar.AST.Nodes.Program program;
             try
@@ -64,7 +74,7 @@ namespace EVIL.VirtualMachine.TestDriver
             }
             catch (CompilerException e)
             {
-                Console.WriteLine($"Compilation error on line ({e.Line}, {e.Column}): {e.Message}");
+                Console.WriteLine($"Compilation error at ({e.Line}, {e.Column}): {e.Message}");
                 return;
             }
             Console.WriteLine("-[disASM]-------------");

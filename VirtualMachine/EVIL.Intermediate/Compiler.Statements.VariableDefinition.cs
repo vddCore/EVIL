@@ -29,7 +29,7 @@ namespace EVIL.Intermediate
                 }
                 else
                 {
-                    _executable.DefineGlobal(kvp.Key);
+                    DefineGlobal(kvp.Key);
 
                     if (kvp.Value != null)
                     {

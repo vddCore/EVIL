@@ -16,7 +16,7 @@ namespace EVIL.Intermediate
                 );
             }
 
-            _executable.DefineGlobal(functionDefinition.Identifier);
+            DefineGlobal(functionDefinition.Identifier);
 
             var chunk = new Chunk(functionDefinition.Identifier);
             ChunkDefinitionStack.Push(chunk);

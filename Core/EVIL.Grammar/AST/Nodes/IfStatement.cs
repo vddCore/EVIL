@@ -4,9 +4,30 @@ namespace EVIL.Grammar.AST.Nodes
 {
     public class IfStatement : Statement
     {
-        public List<Expression> Conditions { get; } = new();
-        public List<Statement> Statements { get; } = new();
+        private List<Expression> _conditions = new();
+        public List<Statement> _statements = new();
         
-        public Statement ElseBranch { get; internal set; }
+        public IReadOnlyList<Expression> Conditions => _conditions;
+        public IReadOnlyList<Statement> Statements => _statements;
+
+        public Statement ElseBranch { get; private set; }
+
+        public void AddCondition(Expression expr)
+        {
+            Reparent(expr);
+            _conditions.Add(expr);
+        }
+
+        public void AddStatement(Statement stmt)
+        {
+            Reparent(stmt);
+            _statements.Add(stmt);
+        }
+
+        public void SetElseBranch(Statement stmt)
+        {
+            Reparent(stmt);
+            ElseBranch = stmt;
+        }
     }
 }

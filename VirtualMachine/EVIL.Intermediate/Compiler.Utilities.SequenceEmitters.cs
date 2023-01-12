@@ -1,5 +1,4 @@
 using EVIL.Grammar;
-using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Intermediate
@@ -13,7 +12,7 @@ namespace EVIL.Intermediate
                 _executable.ConstPool.FetchOrAddConstant(constant)
             );
         }
-
+        
         private void EmitConstantLoad(CodeGenerator cg, double constant)
         {
             cg.Emit(

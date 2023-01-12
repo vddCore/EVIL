@@ -12,7 +12,8 @@ namespace EVIL.Intermediate
         public List<string> Parameters { get; private set; } = new();
         public List<string> Locals { get; private set; } = new();
         public List<ExternInfo> Externs { get; private set; } = new();
-        
+        public bool IsAnonymous { get; init; }
+
         private Chunk()
         {
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Grammar.Traversal;
@@ -8,9 +7,11 @@ namespace EVIL.Intermediate
 {
     public partial class Compiler : AstVisitor
     {
-        private int _currentLine = -1;
-        private int _currentColumn = -1;
-        
+        private int _nextAnonymousChunkId;
+
+        internal int CurrentLine = -1;
+        internal int CurrentColumn = -1;
+
         private Executable _executable;
 
         private Stack<int> LoopContinueLabels { get; } = new();
@@ -40,9 +41,9 @@ namespace EVIL.Intermediate
 
         public override void Visit(AstNode node)
         {
-            _currentLine = node.Line;
-            _currentColumn = node.Column;
-            
+            CurrentLine = node.Line;
+            CurrentColumn = node.Column;
+
             base.Visit(node);
         }
 
@@ -54,8 +55,27 @@ namespace EVIL.Intermediate
         {
         }
 
-        public override void Visit(NameOfExpression nameOfExpression)
+        internal (int, Chunk) CreateAnonymousChunk()
         {
+            var id = _executable.Chunks.Count;
+            var chunk = new Chunk($"!!<{_nextAnonymousChunkId++}>") { IsAnonymous = true };
+
+            _executable.Chunks.Add(chunk);
+
+            return (id, chunk);
+        }
+
+        internal void DefineGlobal(string name)
+        {
+            if (IsGlobalDefined(name))
+                throw new DuplicateSymbolException(name, CurrentLine, CurrentColumn);
+
+            _executable.Globals.Add(name);
+        }
+
+        internal bool IsGlobalDefined(string name)
+        {
+            return _executable.Globals.Contains(name);
         }
 
         private void BuildFunction(CodeGenerator cg, List<string> parameters, BlockStatement block)
@@ -91,7 +111,7 @@ namespace EVIL.Intermediate
             if (ScopeStack.Count > 0)
                 localScope = ScopeStack.Peek();
 
-            var scope = new Scope(_executable, CurrentChunk, localScope);
+            var scope = new Scope(this, _executable, CurrentChunk, localScope);
             ScopeStack.Push(scope);
         }
 

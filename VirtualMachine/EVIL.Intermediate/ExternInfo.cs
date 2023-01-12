@@ -4,15 +4,15 @@ namespace EVIL.Intermediate
     {
         public string Name { get; }
         public string OwnerChunkName { get; }
-        public int OwnerLocalId { get; }
-        public bool IsParam { get; }
+        public int SymbolId { get; }
+        public bool IsParameter { get; }
 
-        public ExternInfo(string name, string ownerChunkName, int ownerLocalId, bool isParam)
+        public ExternInfo(string name, string ownerChunkName, int symbolId, bool isParameter)
         {
             Name = name;
             OwnerChunkName = ownerChunkName;
-            OwnerLocalId = ownerLocalId;
-            IsParam = isParam;
+            SymbolId = symbolId;
+            IsParameter = isParameter;
         }
     }
 }
