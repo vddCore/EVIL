@@ -14,8 +14,7 @@ namespace EVIL.Interpreter.Execution
                 functionExpression.Line
             );
 
-            var scope = Environment.LocalScope 
-                        ?? Environment.GlobalScope;
+            var scope = Environment.LocalScope;
             
             while (scope != null)
             {
