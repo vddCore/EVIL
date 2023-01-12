@@ -45,7 +45,7 @@
     <Compile Update="Execution\Interpreter.FunctionCall.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.FunctionDefinition.cs">
+    <Compile Update="Execution\Interpreter.FunctionDefinitionNamed.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.Incrementation.cs">
@@ -100,6 +100,9 @@
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
     <Compile Update="Execution\Interpreter.ArgumentList.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Execution\Interpreter.FunctionDefinitionAnonymous.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
   </ItemGroup>

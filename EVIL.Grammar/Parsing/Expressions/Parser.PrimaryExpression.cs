@@ -22,7 +22,7 @@ namespace EVIL.Grammar.Parsing
             }
             else if (token.Type == TokenType.Fn)
             {
-                return FunctionDefinition();
+                return FunctionDefinitionAnonymous();
             }
             else if (token.Type == TokenType.LBrace)
             {

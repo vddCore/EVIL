@@ -26,9 +26,20 @@ namespace EVIL.Grammar.Parsing
         {
             var node = ConditionalExpression();
             var token = CurrentToken;
-            
+
             while (_assignmentOperators.Contains(token.Type))
             {
+                if (node is AssignmentNode leftAssignment)
+                {
+                    if (leftAssignment.Right.IsConstant)
+                    {
+                        throw new ParserException(
+                            "Left-hand side of an assignment must be an assignable entity.",
+                            Lexer.State
+                        );
+                    }
+                }
+                
                 switch (token.Type)
                 {
                     case TokenType.Assign:
@@ -41,7 +52,8 @@ namespace EVIL.Grammar.Parsing
                     case TokenType.AssignAdd:
                     {
                         var line = Match(Token.AssignAdd);
-                        node = new AssignmentNode(node, ConditionalExpression(), AssignmentOperationType.Add) {Line = line};
+                        node = new AssignmentNode(node, ConditionalExpression(), AssignmentOperationType.Add)
+                            {Line = line};
                         break;
                     }
                     case TokenType.AssignSubtract:

@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             switch (token.Type)
             {
                 case TokenType.Fn:
-                    return FunctionDefinition();
+                    return FunctionDefinitionNamed();
                 
                 case TokenType.If:
                     return IfCondition();
@@ -33,24 +33,31 @@ namespace EVIL.Grammar.Parsing
                 case TokenType.Do:
                     node = DoWhileLoop();
                     break;
+                
                 case TokenType.Var:
                     node = VariableDefinition();
                     break;
+                
                 case TokenType.Undef:
                     node = UndefineSymbol();
                     break;
+                
                 case TokenType.Exit:
                     node = Exit();
                     break;
+                
                 case TokenType.Identifier:
                     node = AssignmentExpression();
                     break;
+                
                 case TokenType.Ret:
                     node = Return();
                     break;
+                
                 case TokenType.Skip:
                     node = Skip();
                     break;
+                
                 case TokenType.Break:
                     node = Break();
                     break;
