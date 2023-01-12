@@ -6,13 +6,21 @@ namespace EVIL.Intermediate
     {
         public List<string> Globals { get; } = new();
         public ConstPool ConstPool = new();
-        public List<Chunk> Chunks { get; } = new();
         
-        public Chunk MainChunk => Chunks[0];
+        public List<Chunk> Chunks { get; } = new();
+        public Chunk RootChunk => Chunks[0];
 
         public Executable()
         {
             Chunks.Add(new Chunk("!root"));
+        }
+
+        public (int, Chunk) CreateAnonymousChunk()
+        {
+            var id = Chunks.Count;
+            var chunk = new Chunk($"!!<{id}>");
+
+            return (id, chunk);
         }
         
         public void DefineGlobal(string name)

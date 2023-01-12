@@ -9,7 +9,7 @@ namespace EVIL.Intermediate
             foreach (var node in program.Statements)
                 Visit(node);
 
-            _executable.MainChunk
+            _executable.RootChunk
                 .GetCodeGenerator()
                 .Emit(OpCode.HLT);
         }

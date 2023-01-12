@@ -75,7 +75,7 @@ namespace EVIL.ExecutionEngine
         {
             Running = true;
 
-            InvokeChunk(Executable.MainChunk, 0);
+            InvokeChunk(Executable.RootChunk, 0);
 
             while (Running)
             {
@@ -547,12 +547,20 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.XIST:
                 {
-                    a = evstack.Pop();
                     b = evstack.Pop();
+                    a = evstack.Pop();
 
-                    evstack.Push(new(a.Contains(b)));
+                    evstack.Push(new(b.Contains(a)));
                     break;
                 }
+
+                case OpCode.LDF:
+                {
+                    itmp = frame.FetchInt32();
+                    evstack.Push(new(Executable.Chunks[itmp]));
+                    break;
+                }
+                
                 default:
                 {
                     throw new VirtualMachineException("Invalid op-code.");

@@ -11,12 +11,13 @@ namespace EVIL.Intermediate
         public List<int> Labels { get; } = new();
         public List<string> Parameters { get; } = new();
         public List<string> Locals { get; } = new();
+        public List<string> Externs { get; } = new();
 
         public Chunk(string name)
         {
             Name = name;
         }
-        
+                
         public int DefineLabel(int address = 0)
         {
             Labels.Add(address);

@@ -21,7 +21,7 @@ namespace EVIL.Intermediate
                 _executable.ConstPool.FetchOrAddConstant(constant)
             );
         }
-        
+
         private void EmitGlobalStore(CodeGenerator cg, string identifier)
         {
             cg.Emit(
@@ -53,7 +53,7 @@ namespace EVIL.Intermediate
 
             if (localScope != null)
             {
-                var sym = localScope.Find(varRef.Identifier);
+                var (scope, sym) = localScope.Find(varRef.Identifier);
 
                 if (sym == SymbolInfo.Undefined)
                 {
@@ -94,7 +94,7 @@ namespace EVIL.Intermediate
 
             if (localScope != null)
             {
-                var sym = localScope.Find(varRef.Identifier);
+                var (scope, sym) = localScope.Find(varRef.Identifier);
 
                 if (sym.Type == SymbolInfo.SymbolType.Local)
                 {

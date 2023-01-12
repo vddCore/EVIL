@@ -15,40 +15,20 @@ namespace EVIL.Intermediate
                     functionDefinition.Column
                 );
             }
-            
+
             _executable.DefineGlobal(functionDefinition.Identifier);
 
             var chunk = new Chunk(functionDefinition.Identifier);
             ChunkDefinitionStack.Push(chunk);
 
             var cg = CurrentChunk.GetCodeGenerator();
-            var paramCount = functionDefinition.Parameters.Count;
+            
+            BuildFunction(
+                cg,
+                functionDefinition.Parameters,
+                functionDefinition.Statements
+            );
 
-            EnterScope();
-            {
-                var localScope = ScopeStack.Peek();
-
-                for (var i = 0; i < paramCount; i++)
-                {
-                    var param = functionDefinition.Parameters[i];
-                    localScope.DefineParameter(param);
-
-                    cg.Emit(OpCode.STA, paramCount - i - 1);
-                }
-
-                foreach (var stmt in functionDefinition.Statements.Statements)
-                {
-                    Visit(stmt);
-                }
-            }
-
-            if (CurrentChunk.Instructions.Count == 0 || 
-                CurrentChunk.Instructions[^1] != (byte)OpCode.RETN)
-            {
-                EmitConstantLoad(cg, 0);
-                cg.Emit(OpCode.RETN);
-            }
-            LeaveScope();
             _executable.Chunks.Add(ChunkDefinitionStack.Pop());
         }
     }

@@ -22,7 +22,7 @@ namespace EVIL.Intermediate
             Parent = parent;
         }
 
-        public SymbolInfo Find(string name)
+        public (Scope, SymbolInfo) Find(string name)
         {
             SymbolInfo sym;
             var scope = this;
@@ -30,15 +30,15 @@ namespace EVIL.Intermediate
             while (scope != null)
             {
                 if (scope.Symbols.TryGetByKey(name, out sym))
-                    return sym;
+                    return (scope, sym);
 
                 scope = scope.Parent;
             }
 
             if (Executable.IsGlobalDefined(name))
-                return SymbolInfo.Global;
+                return (null, SymbolInfo.Global);
             
-            return SymbolInfo.Undefined;
+            return (null, SymbolInfo.Undefined);
         }
         
         public SymbolInfo DefineLocal(string name)

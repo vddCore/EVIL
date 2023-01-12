@@ -79,7 +79,11 @@ namespace EVIL.Intermediate
                         case OpCode.STA:
                             DecodeLocalOp(op, chunk.Parameters);
                             break;
-
+                        
+                        case OpCode.LDF:
+                            DecodeLoadFunc(op, executable.Chunks);
+                            break;
+                        
                         case OpCode.STE:
                         case OpCode.CALL:
                             DecodeParametrizedLoad(op);
@@ -153,6 +157,13 @@ namespace EVIL.Intermediate
             _disasm.AppendLine($" {index:X8} ; {locals[index]}");
         }
 
+        private void DecodeLoadFunc(OpCode opCode, List<Chunk> chunks)
+        {
+            Decode(opCode);
+            var index = FetchInt32();
+            _disasm.AppendLine($" {index:X8} ; {chunks[index].Name}");
+        }
+        
         private void DecodeParametrizedLoad(OpCode opCode)
         {
             Decode(opCode);
