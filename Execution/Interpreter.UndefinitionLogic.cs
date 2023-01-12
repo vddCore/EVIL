@@ -8,7 +8,14 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(UndefNode undefNode)
         {
-            Environment.LocalScope.UnSetInChain(undefNode.Identifier);
+            var variable = undefNode.Variable as VariableNode;
+
+            if (variable == null)
+            {
+                throw new RuntimeException("Expected a variable.", undefNode.Line);
+            }
+            
+            Environment.LocalScope.UnSetInChain(variable.Identifier);
             return DynValue.Zero;
         }
     }

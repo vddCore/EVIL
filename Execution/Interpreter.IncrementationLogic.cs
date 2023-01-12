@@ -7,6 +7,13 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(IncrementationNode incrementationNode)
         {
+            if (!(incrementationNode.Target is VariableNode) && !(incrementationNode.Target is IndexingNode))
+            {
+                throw new RuntimeException(
+                    "A variable value is required as increment operand", incrementationNode.Line
+                );
+            }
+            
             var numValue = Visit(incrementationNode.Target);
 
             if (numValue.Type != DynValueType.Number)

@@ -50,15 +50,15 @@ namespace EVIL.Parsing
                 var line = Match(TokenType.BitwiseNot);
                 return new UnaryOperationNode(Factor(), UnaryOperationType.BitwiseNot) {Line = line};
             }
-            else if (token.Type == TokenType.ToString)
-            {
-                var line = Match(TokenType.ToString);
-                return new UnaryOperationNode(Factor(), UnaryOperationType.ToString) {Line = line};
-            }
             else if (token.Type == TokenType.Length)
             {
                 var line = Match(TokenType.Length);
                 return new UnaryOperationNode(Factor(), UnaryOperationType.Length) {Line = line};
+            }
+            else if (token.Type == TokenType.ToString)
+            {
+                var line = Match(TokenType.ToString);
+                return new UnaryOperationNode(Factor(), UnaryOperationType.ToString) {Line = line};
             }
             else if (token.Type == TokenType.DecimalNumber)
             {

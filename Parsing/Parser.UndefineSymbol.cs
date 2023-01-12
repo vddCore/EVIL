@@ -11,9 +11,9 @@ namespace EVIL.Parsing
         {
             var line = Match(TokenType.Undef);
 
-            var node = new UndefNode((string)Scanner.State.CurrentToken.Value) {Line = line};
-            Match(TokenType.Identifier);
-
+            var variable = Variable();
+            var node = new UndefNode(variable) {Line = line};
+            
             return node;
         }
     }

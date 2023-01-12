@@ -5,11 +5,11 @@ namespace EVIL.AST.Nodes
 {
     public class UndefNode : AstNode
     {
-        public string Identifier { get; }
+        public AstNode Variable { get; }
 
-        public UndefNode(string identifier)
+        public UndefNode(AstNode variable)
         {
-            Identifier = identifier;
+            Variable = variable;
         }
     }
 }
