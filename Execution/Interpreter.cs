@@ -10,7 +10,7 @@ namespace EVIL.Execution
 {
     public partial class Interpreter : AstVisitor
     {
-        public bool BreakExecution { get; set; }
+        public bool Terminate { get; set; }
         public Environment Environment { get; set; }
 
         public Parser Parser { get; }
@@ -25,6 +25,15 @@ namespace EVIL.Execution
             : this()
         {
             Environment = env;
+        }
+        
+        protected override void ConstraintCheck()
+        {
+            if (Terminate)
+            {
+                Terminate = false;
+                throw new ProgramTerminationException("Execution stopped by user.");
+            }
         }
 
         public DynValue Execute(string sourceCode)
@@ -113,9 +122,9 @@ namespace EVIL.Execution
             }
         }
 
-        public Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
+        public async Task<DynValue> ExecuteAsync(string sourceCode, string entryPoint, string[] args)
         {
-            return new(() => Execute(sourceCode, entryPoint, args));
+            return await Task.Run(() => Execute(sourceCode, entryPoint, args));
         }
 
         public override DynValue Visit(RootNode rootNode)
@@ -127,20 +136,8 @@ namespace EVIL.Execution
         {
             var retVal = DynValue.Zero;
 
-            if (BreakExecution)
-            {
-                BreakExecution = false;
-                throw new ProgramTerminationException("Execution stopped by user.");
-            }
-
             foreach (var statement in statements)
             {
-                if (BreakExecution)
-                {
-                    BreakExecution = false;
-                    throw new ProgramTerminationException("Execution stopped by user.");
-                }
-
                 if (Environment.IsInsideLoop)
                 {
                     var loopStackTop = Environment.LoopStackTop;
