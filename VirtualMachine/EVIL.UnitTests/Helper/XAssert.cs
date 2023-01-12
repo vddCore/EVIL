@@ -18,6 +18,12 @@ namespace EVIL.UnitTests.Helper
             NAssert.AreEqual(DynamicValueType.Number, actual.Type);
             NAssert.AreEqual(expected, actual.Number);
         }
+
+        public static void IsTrue(DynamicValue value)
+            => NAssert.IsTrue(value.IsTruth);
+
+        public static void IsFalse(DynamicValue value)
+            => NAssert.IsFalse(value.IsTruth);
         
         public static void ExistsIn(Table table, double key)
             => NAssert.IsTrue(table.IsSet(key));
