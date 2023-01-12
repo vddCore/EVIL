@@ -6,10 +6,10 @@ namespace EVIL.Abstraction
     {
         public static readonly DynValue Zero = new(0);
 
-        private readonly double _numberValue;
-        private readonly string _stringValue;
-        private readonly Table _tableValue;
-        private readonly ScriptFunction _functionValue;
+        private double _numberValue;
+        private string _stringValue;
+        private Table _tableValue;
+        private ScriptFunction _functionValue;
 
         public DynValueType Type { get; private set; }
 
@@ -60,22 +60,7 @@ namespace EVIL.Abstraction
 
         private DynValue(DynValue dynValue)
         {
-            Type = dynValue.Type;
-
-            switch (dynValue.Type)
-            {
-                case DynValueType.Number:
-                    _numberValue = dynValue.Number;
-                    break;
-
-                case DynValueType.String:
-                    _stringValue = dynValue.String;
-                    break;
-
-                case DynValueType.Table:
-                    _tableValue = dynValue.Table;
-                    break;
-            }
+            CopyFrom(dynValue);
         }
 
         public DynValue(double value)
@@ -138,6 +123,30 @@ namespace EVIL.Abstraction
         public DynValue Copy()
         {
             return new(this);
+        }
+
+        public void CopyFrom(DynValue dynValue)
+        {
+            Type = dynValue.Type;
+
+            switch (dynValue.Type)
+            {
+                case DynValueType.Number:
+                    _numberValue = dynValue.Number;
+                    break;
+
+                case DynValueType.String:
+                    _stringValue = dynValue.String;
+                    break;
+
+                case DynValueType.Table:
+                    _tableValue = dynValue.Table;
+                    break;
+                
+                case DynValueType.Function:
+                    _functionValue = dynValue.Function;
+                    break;
+            }
         }
     }
 }

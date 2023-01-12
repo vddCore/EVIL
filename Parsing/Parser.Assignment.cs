@@ -11,12 +11,16 @@ namespace EVIL.Parsing
             if (isLocal)
                 Match(TokenType.LocalVar);
 
-            var variable = Variable(identifier);
+            AstNode left = Variable(identifier);;
+            if (Scanner.State.CurrentToken.Type == TokenType.LBracket)
+            {
+                left = Indexing(left);
+            }
 
             var line = Match(TokenType.Assign);
             var right = LogicalExpression();
 
-            return new AssignmentNode(variable, right, isLocal) { Line = line };
+            return new AssignmentNode(left, right, isLocal) {Line = line};
         }
     }
 }

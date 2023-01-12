@@ -277,7 +277,7 @@ namespace EVIL.Lexical
             }
             else if (State.Character == '}')
             {
-                State.CurrentToken = new Token(TokenType.RBrace, '{');
+                State.CurrentToken = new Token(TokenType.RBrace, '}');
             }
             else if (char.IsLetter(State.Character) || State.Character == '_')
             {

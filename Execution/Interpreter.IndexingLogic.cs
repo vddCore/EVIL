@@ -1,4 +1,7 @@
-﻿using EVIL.Abstraction;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EVIL.Abstraction;
+using EVIL.AST.Base;
 using EVIL.AST.Nodes;
 
 namespace EVIL.Execution
@@ -7,9 +10,22 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(IndexingNode indexingNode)
         {
-            var indexable = Visit(indexingNode.Indexable);
-            var keyValue = Visit(indexingNode.KeyExpression);
+            var q = new Queue<AstNode>(indexingNode.KeyExpressions);
 
+            var indexable = Visit(indexingNode.Indexable);
+            DynValue keyValue;
+
+            do
+            {
+                keyValue = Visit(q.Dequeue());
+                indexable = IndexDynValue(indexable, keyValue, indexingNode);
+            } while (q.Any());
+
+            return indexable;
+        }
+
+        private DynValue IndexDynValue(DynValue indexable, DynValue keyValue, IndexingNode indexingNode)
+        {
             switch (indexable.Type)
             {
                 case DynValueType.String:
@@ -36,7 +52,7 @@ namespace EVIL.Execution
                         {
                             throw new RuntimeException("String index out of bounds.", indexingNode.Line);
                         }
-                        
+
                         return new DynValue(
                             indexable.String[index].ToString()
                         );
@@ -50,13 +66,23 @@ namespace EVIL.Execution
 
                 case DynValueType.Table:
                 {
-                    if (keyValue.Type == DynValueType.String)
-                        return indexable.Table[keyValue.String];
-                    else if (keyValue.Type == DynValueType.Number)
-                        return indexable.Table[keyValue.Number];
-                    else
-                        throw new RuntimeException($"Type '{keyValue.Type}' cannot be used as a key.",
-                            indexingNode.Line);
+                    try
+                    {
+                        if (keyValue.Type == DynValueType.String)
+                            return indexable.Table[keyValue.String];
+                        else if (keyValue.Type == DynValueType.Number)
+                            return indexable.Table[keyValue.Number];
+                        else
+                            throw new RuntimeException($"Type '{keyValue.Type}' cannot be used as a key.",
+                                indexingNode.Line);
+                    }
+                    catch
+                    {
+                        if (!indexingNode.WillBeAssigned) throw;
+                        indexable.Table[keyValue] = new DynValue(0);
+
+                        return indexable.Table[keyValue];
+                    }
                 }
 
                 default:

@@ -4,14 +4,15 @@ namespace EVIL.AST.Nodes
 {
     public class AssignmentNode : AstNode
     {
-        public VariableNode Variable { get; }
+        public AstNode Left { get; }
         public AstNode Right { get; }
         public bool LocalScope { get; }
 
-        public AssignmentNode(VariableNode variable, AstNode right, bool localScope)
+        public AssignmentNode(AstNode left, AstNode right, bool localScope)
         {
-            Variable = variable;
+            Left = left;
             Right = right;
+            
             LocalScope = localScope;
         }
     }

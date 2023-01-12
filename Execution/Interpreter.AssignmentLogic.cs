@@ -1,4 +1,5 @@
 ﻿using EVIL.Abstraction;
+using EVIL.AST.Base;
 using EVIL.AST.Nodes;
 
 namespace EVIL.Execution
@@ -7,56 +8,76 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(AssignmentNode assignmentNode)
         {
+            if (assignmentNode.Left is VariableNode varNode)
+            {
+                return VariableAssignment(varNode, assignmentNode.Right, assignmentNode.LocalScope);
+            }
+            else if (assignmentNode.Left is IndexingNode)
+            {
+                var indexable = Visit(assignmentNode.Left);
+                var newValue = Visit(assignmentNode.Right);
+
+                indexable.CopyFrom(newValue);
+                return indexable;
+            }
+            else
+            {
+                throw new RuntimeException("Unexpected assignment.", assignmentNode.Line);
+            }
+        }
+
+        private DynValue VariableAssignment(VariableNode left, AstNode right, bool isLocal)
+        {
             DynValue val;
 
             if (CallStack.Count > 0)
             {
                 var stackTop = CallStack.Peek();
 
-                if (stackTop.ParameterScope.ContainsKey(assignmentNode.Variable.Name))
+                if (stackTop.ParameterScope.ContainsKey(left.Name))
                 {
-                    val = Visit(assignmentNode.Right);
-                    stackTop.ParameterScope[assignmentNode.Variable.Name] = val;
+                    val = Visit(right);
+                    stackTop.ParameterScope[left.Name] = val;
 
                     return val;
                 }
             }
 
-            if (assignmentNode.LocalScope)
+            if (isLocal)
             {
                 if (CallStack.Count > 0)
                 {
                     var stackTop = CallStack.Peek();
-                    val = Visit(assignmentNode.Right);
+                    val = Visit(right);
 
-                    if (stackTop.LocalVariableScope.ContainsKey(assignmentNode.Variable.Name))
-                        stackTop.LocalVariableScope[assignmentNode.Variable.Name] = val;
+                    if (stackTop.LocalVariableScope.ContainsKey(left.Name))
+                        stackTop.LocalVariableScope[left.Name] = val;
                     else
-                        stackTop.LocalVariableScope.Add(assignmentNode.Variable.Name, val);
+                        stackTop.LocalVariableScope.Add(left.Name, val);
 
                     return val;
                 }
 
-                throw new RuntimeException("Local variable assignment outside of a function.", assignmentNode.Line);
+                throw new RuntimeException("Local variable assignment outside of a function.", left.Line);
             }
             else if (CallStack.Count > 0)
             {
-                val = Visit(assignmentNode.Right);
+                val = Visit(right);
 
                 var stackTop = CallStack.Peek();
 
-                if (stackTop.LocalVariableScope.ContainsKey(assignmentNode.Variable.Name))
+                if (stackTop.LocalVariableScope.ContainsKey(left.Name))
                 {
-                    stackTop.LocalVariableScope[assignmentNode.Variable.Name] = val;
+                    stackTop.LocalVariableScope[left.Name] = val;
                     return val;
                 }
             }
 
-            if (!Environment.Globals.ContainsKey(assignmentNode.Variable.Name))
-                Environment.Globals.Add(assignmentNode.Variable.Name, DynValue.Zero);
+            if (!Environment.Globals.ContainsKey(left.Name))
+                Environment.Globals.Add(left.Name, DynValue.Zero);
 
-            val = Visit(assignmentNode.Right);
-            Environment.Globals[assignmentNode.Variable.Name] = val;
+            val = Visit(right);
+            Environment.Globals[left.Name] = val;
 
             return val;
         }

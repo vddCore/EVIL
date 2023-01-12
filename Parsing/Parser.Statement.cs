@@ -17,7 +17,7 @@ namespace EVIL.Parsing
 
                 token = Scanner.State.CurrentToken;
 
-                if (token.Type == TokenType.Assign)
+                if (token.Type == TokenType.Assign || token.Type == TokenType.LBracket)
                     return Assignment(identifier);
                 else if (token.Type == TokenType.CompoundAdd)
                     return CompoundAssignment(identifier, CompoundAssignmentType.Add);
@@ -37,8 +37,6 @@ namespace EVIL.Parsing
                     return CompoundAssignment(identifier, CompoundAssignmentType.BitwiseXor);
                 else if (token.Type == TokenType.LParenthesis)
                     return FunctionCall(identifier);
-                else if (token.Type == TokenType.LBracket)
-                    return TableAssignment(identifier);
                 else if (token.Type == TokenType.Increment)
                     return PostIncrementation(identifier);
                 else if (token.Type == TokenType.Decrement)
