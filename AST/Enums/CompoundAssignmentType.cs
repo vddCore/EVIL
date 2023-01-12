@@ -6,6 +6,9 @@
         Subtract,
         Divide,
         Multiply,
-        Modulo
+        Modulo,
+        BitwiseAnd,
+        BitwiseOr,
+        BitwiseXor
     }
 }

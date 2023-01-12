@@ -8,6 +8,6 @@
         Length,
         NameOf,
         Negation,
-        LogicalNot
+        BitwiseNot
     }
 }

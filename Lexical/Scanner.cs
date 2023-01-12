@@ -184,7 +184,15 @@ namespace EVIL.Lexical
                 }
                 else
                 {
-                    State.CurrentToken = new Token(TokenType.LogicalAnd, "&");
+                    if (Peek() == '=')
+                    {
+                        Advance();
+                        State.CurrentToken = new Token(TokenType.CompoundBitwiseAnd, "&=");
+                    }
+                    else
+                    {
+                        State.CurrentToken = new Token(TokenType.BitwiseAnd, "&");
+                    }
                 }
             }
             else if (State.Character == '|')
@@ -196,16 +204,32 @@ namespace EVIL.Lexical
                 }
                 else
                 {
-                    State.CurrentToken = new Token(TokenType.LogicalOr, "|");
+                    if (Peek() == '=')
+                    {
+                        Advance();
+                        State.CurrentToken = new Token(TokenType.CompoundBitwiseOr, "|=");
+                    }
+                    else
+                    {
+                        State.CurrentToken = new Token(TokenType.BitwiseOr, "|");
+                    }
+                }
+            }
+            else if (State.Character == '^')
+            {
+                if (Peek() == '=')
+                {
+                    Advance();
+                    State.CurrentToken = new Token(TokenType.CompoundBitwiseXor, "^=");
+                }
+                else
+                {
+                    State.CurrentToken = new Token(TokenType.BitwiseXor, "^");
                 }
             }
             else if (State.Character == '~')
             {
-                State.CurrentToken = new Token(TokenType.LogicalNot, "~");
-            }
-            else if (State.Character == '^')
-            {
-                State.CurrentToken = new Token(TokenType.LogicalXor, "^");
+                State.CurrentToken = new Token(TokenType.BitwiseNot, "~");
             }
             else if (State.Character == ',')
             {

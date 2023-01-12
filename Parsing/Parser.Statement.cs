@@ -29,6 +29,12 @@ namespace EVIL.Parsing
                     return CompoundAssignment(identifier, CompoundAssignmentType.Divide);
                 else if (token.Type == TokenType.CompoundModulo)
                     return CompoundAssignment(identifier, CompoundAssignmentType.Modulo);
+                else if (token.Type == TokenType.CompoundBitwiseAnd)
+                    return CompoundAssignment(identifier, CompoundAssignmentType.BitwiseAnd);
+                else if (token.Type == TokenType.CompoundBitwiseOr)
+                    return CompoundAssignment(identifier, CompoundAssignmentType.BitwiseOr);
+                else if (token.Type == TokenType.CompoundBitwiseXor)
+                    return CompoundAssignment(identifier, CompoundAssignmentType.BitwiseXor);
                 else if (token.Type == TokenType.LParenthesis)
                     return FunctionCall(identifier);
                 else if (token.Type == TokenType.LBracket)
