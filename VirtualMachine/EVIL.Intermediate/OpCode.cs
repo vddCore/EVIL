@@ -47,8 +47,7 @@
         STG = 0x42,   // [S]e[T] [G]lobal
         STA = 0x43,   // [S]e[T] [A]rgument
         STE = 0x44,   // [S]et [T]able [E]ntry
-        RTE = 0x45,   // [R]emove [T]able [E]ntry
-        STX = 0x46,   // [S]e[T] e[X]ternal local
+        STX = 0x45,   // [S]e[T] e[X]ternal local
         
         // ---------- [ STORAGE: LOAD
         LDC = 0x50,   // [L]oa[D] [C]onstant
@@ -58,15 +57,19 @@
         LDF = 0x54,   // [L]oa[D] [F]unction
         LDX = 0x55,   // [L]oa[D] e[X]ternal local
         
+        // ---------- [ STORAGE: REMOVE
+        RTE = 0x60,   // [R]emove [T]able [E]ntry
+        RGL = 0x61,   // [R]emove [GL]obal
+        
         // ---------- [ MISCELLANEOUS
-        NEWTB = 0x60, // Create a [NEW] [T]a[B]le
-        INDEX = 0x61, // Attempt to [INDEX] a type
-        TONUM = 0x62, // Convert [TO] [NUM]ber
-        TOSTR = 0x63, // Convert [TO] [STR]ing
-        XARGS = 0x64, // Load e[X]tra [ARG]ument[S]
-        GNAME = 0x65, // [G]lobal [NAME]
-        LNAME = 0x66, // [L]ocal [NAME]
-        XNAME = 0x67, // e[X]tern [NAME]
-        PNAME = 0x68  // [P]arameter [NAME]
+        NEWTB = 0x70, // Create a [NEW] [T]a[B]le
+        INDEX = 0x71, // Attempt to [INDEX] a type
+        TONUM = 0x72, // Convert [TO] [NUM]ber
+        TOSTR = 0x73, // Convert [TO] [STR]ing
+        XARGS = 0x74, // Load e[X]tra [ARG]ument[S]
+        GNAME = 0x75, // [G]lobal [NAME]
+        LNAME = 0x76, // [L]ocal [NAME]
+        XNAME = 0x77, // e[X]tern [NAME]
+        PNAME = 0x78  // [P]arameter [NAME]
     }
 }

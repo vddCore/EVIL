@@ -49,7 +49,6 @@ namespace EVIL.ExecutionEngine.Abstraction
         public bool Unset(DynamicValue key)
         {
             EnsureValidKeyType(key);
-
             return Entries.Remove(key);
         }
 

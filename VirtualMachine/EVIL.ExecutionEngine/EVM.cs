@@ -474,11 +474,11 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.INDEX:
                 {
-                    var key = evstack.Pop();
-                    var indexable = evstack.Pop();
+                    b = evstack.Pop();
+                    a = evstack.Pop();
 
                     evstack.Push(
-                        indexable.Index(key)
+                        a.Index(b)
                     );
                     break;
                 }
@@ -637,6 +637,23 @@ namespace EVIL.ExecutionEngine
                 {
                     itmp = frame.FetchInt32();
                     evstack.Push(new(frame.Chunk.Parameters[itmp]));
+                    break;
+                }
+
+                case OpCode.RGL:
+                {
+                    itmp = frame.FetchInt32();
+                    
+                    GlobalTable.Unset(RuntimeConstPool.FetchConst(itmp));
+                    break;
+                }
+
+                case OpCode.RTE:
+                {
+                    b = evstack.Pop();
+                    a = evstack.Pop();
+
+                    a.Table.Unset(b);
                     break;
                 }
 
