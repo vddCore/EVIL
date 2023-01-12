@@ -1,0 +1,36 @@
+var value = false;
+var x = fn() {
+  io.println("x_speaking!");
+};
+
+fn fail() {
+  io.println("Test failed.");
+  exit;
+}
+
+fn test_func() {
+  value = true;
+}
+
+test_func();
+
+if (!value) {
+  fail();
+}
+
+io.println("test_func() passed.");
+
+fn test_func_nesting() {
+  fn test() {
+    ret true;
+  }
+  
+  if(!test()) {
+    fail();
+  }
+}
+
+test_func_nesting();
+io.println("test_func_nesting() passed");
+
+x();

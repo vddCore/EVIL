@@ -13,6 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.GreaterThan,
             TokenType.LessThanOrEqual,
             TokenType.GreaterThanOrEqual,
+            TokenType.In
         };
 
         private AstNode RelationalExpression()
@@ -42,6 +43,12 @@ namespace EVIL.Grammar.Parsing
                 {
                     var line = Match(TokenType.GreaterThanOrEqual);
                     node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.GreaterOrEqual)
+                        {Line = line};
+                }
+                else if (token.Type == TokenType.In)
+                {
+                    var line = Match(TokenType.In);
+                    node = new BinaryOperationNode(node, ShiftExpression(), BinaryOperationType.ExistsIn)
                         {Line = line};
                 }
                 

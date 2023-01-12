@@ -1,0 +1,12 @@
+var value = 0;
+
+for (var i = 0; i < 10; i++) {
+  value = i;
+  
+  if (value != i) {
+    io.println("For-loop test failed: " + @value + " != " + @i);
+    exit;
+  }
+  
+  io.println(@i);
+}

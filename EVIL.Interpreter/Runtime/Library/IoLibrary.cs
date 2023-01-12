@@ -12,8 +12,7 @@ namespace EVIL.Interpreter.Runtime.Library
             var output = string.Empty;
             if (args.Count > 0)
             {
-                args.ExpectTypeAtIndex(0, DynValueType.String);
-                output = args[0].String;
+                output = args[0].AsString().String;
             }
             
             Console.Write(output);

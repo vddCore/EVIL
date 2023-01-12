@@ -1,0 +1,27 @@
+if (1 == 0) {
+  io.println("1 == 0: Test failed.");
+  exit;
+}
+elif (10 >= 100) {
+  io.println("10 >= 100: Test failed.");
+  exit;
+}
+elif (1 != 1) {
+  io.println("1 != 1: Test failed.");
+  exit;
+}
+elif (2 <= 1) {
+  io.println("2 <= 1: Test failed.");
+  exit;
+}
+elif (3 > 3) { 
+  io.println("3 > 3: Test failed.");
+  exit;
+}
+elif (3 < 3) {
+  io.println("3 < 3: Test failed.");
+  exit;
+}
+else {
+  io.println("Test passed successfully.");
+}

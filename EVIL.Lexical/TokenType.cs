@@ -17,7 +17,6 @@
         Decrement,
         Floor,
         NameOf,
-        ExistsIn,
         ShiftRight,
         ShiftLeft,
         
@@ -54,7 +53,6 @@
         LBracket,
         RBracket,
 
-        Var,
         Identifier,
 
         Decimal,
@@ -77,6 +75,8 @@
         Break,
         Ret,
         Exit,
+        Var,
+        In,
 
         EOF
     }

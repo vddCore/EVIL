@@ -70,6 +70,9 @@ namespace EVIL.Interpreter.Execution
 
                 case BinaryOperationType.Or:
                     return LogicalOr(left, right);
+                
+                case BinaryOperationType.ExistsIn:
+                    return ExistsIn(left, right, binaryOperationNode);
 
                 default: throw new RuntimeException("Unknown binary operation.", Environment, binaryOperationNode.Line);
             }
@@ -525,6 +528,24 @@ namespace EVIL.Interpreter.Execution
                     node.Line
                 );
             }
+        }
+
+        private DynValue ExistsIn(DynValue left, DynValue right, AstNode node)
+        {
+            if (right.Type == DynValueType.Table)
+            {
+                return new(right.Table.GetKeyByDynValue(left) != null);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                return new(right.String.Contains(left.String));
+            }
+
+            throw new RuntimeException(
+                $"Attempt to check existence of {left.Type} in {right.Type}.",
+                Environment,
+                node.Line
+            );
         }
 
         private DynValue CompareNotEqual(DynValue left, DynValue right, AstNode node)
