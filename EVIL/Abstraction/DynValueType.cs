@@ -5,6 +5,7 @@
         String,
         Number,
         Table,
-        Function
+        Function,
+        ClrFunction
     }
 }

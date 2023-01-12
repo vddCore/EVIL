@@ -107,5 +107,52 @@ namespace EVIL.Abstraction
 
             return table;
         }
+
+        public static Table FromArray<T>(T[] array)
+        {
+            var t = new Table();
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                var e = array[i];
+
+                if (typeof(decimal).IsAssignableFrom(e.GetType()))
+                {
+                    t[i] = new DynValue(
+                        Convert.ToDecimal(e)
+                    );
+                }
+                else if (typeof(Table).IsAssignableFrom(e.GetType()))
+                {
+                    t[i] = new DynValue(
+                        (Table)Convert.ChangeType(e, typeof(Table))
+                    );
+                }
+                else if (typeof(string).IsAssignableFrom(e.GetType()))
+                {
+                    t[i] = new DynValue(
+                        Convert.ToString(e)
+                    );
+                }
+                else if (typeof(ClrFunction).IsAssignableFrom(e.GetType()))
+                {
+                    t[i] = new DynValue(
+                        (ClrFunction)Convert.ChangeType(e, typeof(ClrFunction))
+                    );
+                }
+                else if (typeof(ScriptFunction).IsAssignableFrom(e.GetType()))
+                {
+                    t[i] = new DynValue(
+                        (ScriptFunction)Convert.ChangeType(e, typeof(ScriptFunction))
+                    );
+                }
+                else
+                {
+                    t[i] = new DynValue(e.ToString());
+                }
+            }
+
+            return t;
+        }
     }
 }

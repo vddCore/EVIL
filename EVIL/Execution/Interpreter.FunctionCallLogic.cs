@@ -1,6 +1,5 @@
 ﻿using System;
 using EVIL.Abstraction;
-using EVIL.Abstraction.Base;
 using EVIL.AST.Nodes;
 using EVIL.Diagnostics;
 
@@ -13,6 +12,10 @@ namespace EVIL.Execution
             var invokable = Visit(functionCallNode.Left);
 
             if (invokable.Type == DynValueType.Function)
+            {
+                return InvokeFunction(functionCallNode, invokable);
+            }
+            else if (invokable.Type == DynValueType.ClrFunction)
             {
                 return InvokeFunction(functionCallNode, invokable);
             }
@@ -57,9 +60,9 @@ namespace EVIL.Execution
             }
 
             DynValue retVal;
-            if (funcValue.IsClrFunction)
+            if (funcValue.Type == DynValueType.ClrFunction)
             {
-                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters, functionCallNode);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters);
             }
             else
             {
@@ -157,11 +160,8 @@ namespace EVIL.Execution
             return retval;
         }
 
-        private DynValue ExecuteClrFunction(IFunction function, string name, ClrFunctionArguments args, FunctionCallNode node)
+        private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, ClrFunctionArguments args)
         {
-            if (function is not ClrFunction clrFunction)
-                throw new RuntimeException("Failed to interpret IFunction as ClrFunction.", node.Line);
-
             var csi = new StackFrame($"CLR!{name}");
             Environment.CallStack.Push(csi);
 

@@ -159,5 +159,17 @@ namespace EVIL.Runtime.Library
 
             return new DynValue(DecimalMath.Log10(args[0].Number));
         }
+
+        [ClrFunction("math.bits")]
+        public static DynValue Bits(Interpreter interpreter, ClrFunctionArguments args)
+        {
+            args.ExpectExactly(1)
+                .ExpectTypeAtIndex(0, DynValueType.Number);
+
+            var bits = decimal.GetBits(args[0].Number);
+            var table = Table.FromArray(bits);
+
+            return new DynValue(table);
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using EVIL.Abstraction.Base;
 
 namespace EVIL.Abstraction
 {
@@ -10,11 +9,11 @@ namespace EVIL.Abstraction
         private decimal _numberValue;
         private string _stringValue;
         private Table _tableValue;
-        private IFunction _functionValue;
+        private ClrFunction _clrFunctionValue;
+        private ScriptFunction _scriptFunction;
 
         public DynValueType Type { get; private set; }
 
-        public bool IsClrFunction => Type == DynValueType.Function && _functionValue is ClrFunction;
         public bool IsTruth => Type != DynValueType.Number || Number != 0;
 
         public decimal Number
@@ -58,7 +57,7 @@ namespace EVIL.Abstraction
                     throw new InvalidDynValueTypeException(
                         $"This value is not a function.", DynValueType.Function, Type);
 
-                return (ScriptFunction)_functionValue;
+                return _scriptFunction;
             }
         }
 
@@ -66,11 +65,11 @@ namespace EVIL.Abstraction
         {
             get
             {
-                if (Type != DynValueType.Function)
+                if (Type != DynValueType.ClrFunction)
                     throw new InvalidDynValueTypeException(
-                        $"This value is not a function.", DynValueType.Function, Type);
+                        $"This value is not a CLR function.", DynValueType.Function, Type);
 
-                return (ClrFunction)_functionValue;
+                return _clrFunctionValue;
             }
         }
 
@@ -100,13 +99,13 @@ namespace EVIL.Abstraction
         public DynValue(ScriptFunction function)
         {
             Type = DynValueType.Function;
-            _functionValue = function;
+            _scriptFunction = function;
         }
 
         public DynValue(ClrFunction function)
         {
-            Type = DynValueType.Function;
-            _functionValue = function;
+            Type = DynValueType.ClrFunction;
+            _clrFunctionValue = function;
         }
 
         public DynValue AsNumber()
@@ -132,14 +131,11 @@ namespace EVIL.Abstraction
             }
             else if (Type == DynValueType.Function)
             {
-                if (_functionValue is ScriptFunction sf)
-                {
-                    return new DynValue($"Function({sf.ParameterNames.Count})");
-                }
-                else if (_functionValue is ClrFunction cf)
-                {
-                    return new DynValue($"CLR_Function({cf.Invokable.Method.GetParameters().Length})");
-                }
+                return new DynValue($"Function({_scriptFunction.ParameterNames.Count})");
+            }
+            else if (Type == DynValueType.ClrFunction)
+            {
+                return new DynValue($"ClrFunction({_clrFunctionValue.Invokable.Method.GetParameters().Length})");
             }
             return new DynValue(_numberValue.ToString(CultureInfo.InvariantCulture));
         }
@@ -177,14 +173,11 @@ namespace EVIL.Abstraction
                     break;
 
                 case DynValueType.Function:
-                    if (dynValue.IsClrFunction)
-                    {
-                        _functionValue = dynValue.ClrFunction;
-                    }
-                    else
-                    {
-                        _functionValue = dynValue.ScriptFunction;
-                    }
+                    _scriptFunction = dynValue.ScriptFunction;
+                    break;
+                
+                case DynValueType.ClrFunction:
+                    _clrFunctionValue = dynValue.ClrFunction;
                     break;
             }
         }

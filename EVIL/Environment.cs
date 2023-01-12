@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using EVIL.Abstraction;
-using EVIL.Abstraction.Base;
 using EVIL.Diagnostics;
 using EVIL.Execution;
 using EVIL.Runtime;
@@ -17,7 +16,7 @@ namespace EVIL
 
         public Stack<StackFrame> CallStack { get; }
         public Stack<LoopFrame> LoopStack { get; }
-        
+
         public bool IsInScriptFunctionScope => CallStack.Count > 0;
         public bool IsInsideLoop => LoopStack.Count > 0;
 
@@ -81,25 +80,23 @@ namespace EVIL
             }
         }
 
-        public void RegisterFunction(string name, IFunction function)
+        public void RegisterFunction(string name, ClrFunction clrFunction)
         {
-            if (function is ClrFunction clrFunction)
+            GlobalScope.Set(name, new DynValue(clrFunction));
+        }
+
+        public void RegisterFunction(string name, ScriptFunction scriptFunction)
+        {
+            if (IsInScriptFunctionScope)
             {
-                GlobalScope.Set(name, new DynValue(clrFunction));
+                LocalScope.Set(name, new DynValue(scriptFunction));
             }
-            else if (function is ScriptFunction scriptFunction)
+            else
             {
-                if (IsInScriptFunctionScope)
-                {
-                    LocalScope.Set(name, new DynValue(scriptFunction));
-                }
-                else
-                {
-                    GlobalScope.Set(name, new DynValue(scriptFunction));
-                }
+                GlobalScope.Set(name, new DynValue(scriptFunction));
             }
         }
-        
+
         public void Clear()
         {
             LoopStack.Clear();
@@ -125,7 +122,7 @@ namespace EVIL
             {
                 LocalScope = new NameScope(this, LocalScope);
             }
-            
+
             return LocalScope;
         }
 

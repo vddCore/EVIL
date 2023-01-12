@@ -61,6 +61,7 @@ namespace EVIL.Lexical
                 case TokenType.BitwiseOr: return "|";
                 case TokenType.BitwiseXor: return "^";
                 case TokenType.BitwiseNot: return "~";
+                case TokenType.Floor: return "$";
                 case TokenType.Negation: return "!";
                 case TokenType.Or: return "||";
                 case TokenType.Plus: return "+";

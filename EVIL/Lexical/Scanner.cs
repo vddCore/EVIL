@@ -319,6 +319,10 @@ namespace EVIL.Lexical
             {
                 State.CurrentToken = new Token(TokenType.ToString, '@');
             }
+            else if (State.Character == '$')
+            {
+                State.CurrentToken = new Token(TokenType.Floor, '$');
+            }
             else
             {
                 throw new ScannerException($"Unexpected token '{State.Character}'", State.Column, State.Line);

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using EVIL.Abstraction.Base;
 using EVIL.AST.Base;
 
 namespace EVIL.Abstraction
 {
-    public class ScriptFunction : IFunction
+    public class ScriptFunction
     {
         public List<AstNode> StatementList { get; }
         public List<string> ParameterNames { get; }
