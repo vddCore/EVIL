@@ -8,7 +8,6 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private bool IsInsideFunctionDefinition { get; set; }
         public Scanner Scanner { get; private set; }
 
         public void LoadSource(string source)

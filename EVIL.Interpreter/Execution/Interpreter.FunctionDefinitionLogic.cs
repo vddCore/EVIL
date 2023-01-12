@@ -17,15 +17,6 @@ namespace EVIL.Interpreter.Execution
 
             if (name != null)
             {
-                if (Environment.LocalScope != Environment.GlobalScope)
-                {
-                    throw new RuntimeException(
-                        "Attempt to define a named function in local scope.",
-                        Environment,
-                        scriptFunctionDefinitionNode.Line
-                    );
-                }
-
                 Environment.RegisterFunction(
                     name,
                     fn

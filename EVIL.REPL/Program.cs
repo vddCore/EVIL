@@ -123,7 +123,7 @@ namespace EVIL.REPL
                         }
                         catch (ParserException pe)
                         {
-                            Console.WriteLine($"Parser error on line {pe.ScannerState.Line}: {pe.Message}");
+                            Console.WriteLine($"Parser error on line {pe.ScannerState?.Line}: {pe.Message}");
                         }
                         catch (ScannerException se)
                         {
