@@ -6,6 +6,22 @@ namespace EVIL.Intermediate
 {
     public partial class Compiler
     {
+        private void EmitConstantLoadSequence(CodeGenerator cg, string constant)
+        {
+            cg.Emit(
+                OpCode.LDC,
+                _executable.ConstPool.FetchOrAddConstant(constant)
+            );
+        }
+
+        private void EmitConstantLoadSequence(CodeGenerator cg, double constant)
+        {
+            cg.Emit(
+                OpCode.LDC,
+                _executable.ConstPool.FetchOrAddConstant(constant)
+            );
+        }
+        
         private void EmitGlobalStoreSequence(CodeGenerator cg, string identifier)
         {
             cg.Emit(
@@ -79,14 +95,6 @@ namespace EVIL.Intermediate
             {
                 var sym = localScope.Find(varRef.Identifier);
 
-                if (sym == SymbolInfo.Undefined)
-                {
-                    throw new CompilerException(
-                        $"Unknown symbol '{varRef.Identifier}'.",
-                        varRef.Line
-                    );
-                }
-
                 if (sym.Type == SymbolInfo.SymbolType.Local)
                 {
                     cg.Emit(OpCode.LDL, sym.Id);
@@ -95,7 +103,7 @@ namespace EVIL.Intermediate
                 {
                     cg.Emit(OpCode.LDA, sym.Id);
                 }
-                else if (sym.Type == SymbolInfo.SymbolType.Global)
+                else if (sym == SymbolInfo.Undefined || sym == SymbolInfo.Global)
                 {
                     EmitGlobalLoadSequence(cg, varRef.Identifier);
                 }

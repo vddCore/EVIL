@@ -1,4 +1,5 @@
 ﻿using EVIL.ExecutionEngine;
+using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
 using EVIL.Intermediate;
@@ -7,6 +8,16 @@ namespace EVIL.VirtualMachine.TestDriver
 {
     public static class Program
     {
+        private static DynamicValue TestClrFunction(EVM evm, params DynamicValue[] args)
+        {
+            for (var i = 0; i < args.Length; i++)
+            {
+                Console.Write(args[i].AsString());
+            }
+            
+            return DynamicValue.Zero;
+        }
+        
         public static void Main(string[] args)
         {
             var lexer = new Lexer();
@@ -22,6 +33,7 @@ namespace EVIL.VirtualMachine.TestDriver
             Console.WriteLine("---------------------");
 
             var evm = new EVM(executable);
+            evm.SetGlobal("print", new DynamicValue(TestClrFunction));
             evm.Run();
             
             Console.WriteLine(evm.DumpEvaluationStack());

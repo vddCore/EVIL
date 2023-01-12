@@ -93,7 +93,10 @@ namespace EVIL.Intermediate
             str = constPool.GetStringConstant(index);
             if (str != null)
             {
-                dereferenced = $"\"{constPool.GetStringConstant(index)}\"";
+                var constString = constPool.GetStringConstant(index);
+                EscapeString(ref constString);
+
+                dereferenced = $"\"{constString}\"";
             }
             else
             {
@@ -156,5 +159,13 @@ namespace EVIL.Intermediate
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private byte FetchByte()
             => CurrentChunk.Instructions[IP++];
+
+        private void EscapeString(ref string str)
+        {
+            str = str.Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\t", "\\t")
+                .Replace("\b", "\\b");
+        }
     }
 }

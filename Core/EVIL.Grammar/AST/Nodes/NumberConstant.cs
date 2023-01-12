@@ -1,10 +1,10 @@
 ﻿namespace EVIL.Grammar.AST.Nodes
 {
-    public class NumberExpression : Expression
+    public class NumberConstant : Expression
     {
         public double Value { get; }
 
-        public NumberExpression(double value)
+        public NumberConstant(double value)
         {
             Value = value;
         }

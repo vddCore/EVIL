@@ -10,6 +10,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         private double? _number;
         private Chunk _chunk;
         private Table _table;
+        private ClrFunction _clrFunction;
 
         public static readonly DynamicValue Zero
             = new(0) { IsReadOnly = true };
@@ -32,6 +33,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 _number = null;
                 _chunk = null;
                 _table = null;
+                _clrFunction = null;
 
                 Type = DynamicValueType.String;
             }
@@ -51,6 +53,8 @@ namespace EVIL.ExecutionEngine.Abstraction
                 _string = null;
                 _number = value;
                 _chunk = null;
+                _table = null;
+                _clrFunction = null;
 
                 Type = DynamicValueType.Number;
             }
@@ -70,20 +74,90 @@ namespace EVIL.ExecutionEngine.Abstraction
                 _string = null;
                 _number = null;
                 _chunk = value;
+                _table = null;
+                _clrFunction = null;
 
                 Type = DynamicValueType.Function;
             }
         }
 
-        public DynamicValue(DynamicValue other)
+        public Table Table
+        {
+            get => _table ??
+                   throw new UnexpectedTypeException(
+                       $"Attempted to use a {Type} as a Table");
+
+            set
+            {
+                if (IsReadOnly)
+                    return;
+
+                _string = null;
+                _number = null;
+                _chunk = null;
+                _table = value;
+                _clrFunction = null;
+
+                Type = DynamicValueType.Table;
+            }
+        }
+
+        public ClrFunction ClrFunction
+        {
+            get => _clrFunction ??
+                   throw new UnexpectedTypeException(
+                       $"Attempted to use a {Type} as a ClrFunction");
+
+            set
+            {
+                if (IsReadOnly)
+                    return;
+
+                _string = null;
+                _number = null;
+                _chunk = null;
+                _table = null;
+                _clrFunction = value;
+
+                Type = DynamicValueType.ClrFunction;
+            }
+        }
+
+        public int Length
+        {
+            get
+            {
+                return Type switch
+                {
+                    DynamicValueType.String => _string.Length,
+                    DynamicValueType.Table => _table.Entries.Count,
+                    _ => throw new UnmeasurableTypeException(Type)
+                };
+            }
+        }
+
+        public bool IsTruth
+        {
+            get
+            {
+                if (Type == DynamicValueType.Number)
+                    return _number != 0;
+                
+                return true;
+            }
+        }
+
+        public DynamicValue(DynamicValue other, bool copyReadOnlyState)
         {
             Type = other.Type;
-            IsReadOnly = other.IsReadOnly;
+
+            IsReadOnly = other.IsReadOnly && copyReadOnlyState;
 
             _string = null;
             _number = null;
             _chunk = null;
             _table = null;
+            _clrFunction = null;
 
             switch (other.Type)
             {
@@ -102,6 +176,10 @@ namespace EVIL.ExecutionEngine.Abstraction
                 case DynamicValueType.Table:
                     _table = other._table;
                     break;
+                
+                case DynamicValueType.ClrFunction:
+                    _clrFunction = other._clrFunction;
+                    break;
             }
         }
 
@@ -111,6 +189,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             _number = num;
             _chunk = null;
             _table = null;
+            _clrFunction = null;
 
             Type = DynamicValueType.Number;
             IsReadOnly = false;
@@ -122,6 +201,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             _number = null;
             _chunk = null;
             _table = null;
+            _clrFunction = null;
 
             Type = DynamicValueType.String;
             IsReadOnly = false;
@@ -133,6 +213,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             _number = null;
             _chunk = chunk;
             _table = null;
+            _clrFunction = null;
 
             Type = DynamicValueType.Function;
             IsReadOnly = false;
@@ -144,25 +225,42 @@ namespace EVIL.ExecutionEngine.Abstraction
             _number = null;
             _chunk = null;
             _table = table;
+            _clrFunction = null;
 
             Type = DynamicValueType.Table;
+            IsReadOnly = false;
+        }
+
+        public DynamicValue(ClrFunction clrFunction)
+        {
+            _string = null;
+            _number = null;
+            _chunk = null;
+            _table = null;
+            _clrFunction = clrFunction;
+
+            Type = DynamicValueType.ClrFunction;
             IsReadOnly = false;
         }
 
         public int AsInteger()
             => (int)Number;
 
-        public DynamicValue CopyToString()
+        public string AsString()
         {
             return Type switch
             {
-                DynamicValueType.Number => new(_number.ToString()),
-                DynamicValueType.String => new(_string),
-                DynamicValueType.Table => new($"Table[{_table.Entries.Count}]"),
-                DynamicValueType.Function => new($"Function[{_chunk.Name}@{_chunk.ParameterCount}]"),
+                DynamicValueType.Number => _number.ToString(),
+                DynamicValueType.String => _string,
+                DynamicValueType.Table => $"Table[{_table.Entries.Count}]",
+                DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.ParameterCount}]",
+                DynamicValueType.ClrFunction => $"ClrFunction[{_clrFunction.Method.Name}@{_clrFunction.Method.GetParameters().Length}]",
                 _ => throw new TypeConversionException(Type, DynamicValueType.String)
             };
         }
+
+        public DynamicValue CopyToString()
+            => new(AsString());
 
         public DynamicValue CopyToNumber()
         {
@@ -199,7 +297,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.Number => Nullable.Equals(_number, other._number),
                 DynamicValueType.Function => _chunk == other._chunk,
                 DynamicValueType.Table => _table == other._table,
-                // todo
+                DynamicValueType.ClrFunction => _clrFunction == other._clrFunction,
                 _ => false
             };
         }
@@ -217,7 +315,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.Number => _number!.Value.GetHashCode(),
                 DynamicValueType.Function => _chunk.Instructions.GetHashCode(),
                 DynamicValueType.Table => _table.GetHashCode(),
-                // todo
+                DynamicValueType.ClrFunction => _clrFunction.GetHashCode(),
                 _ => 0
             };
         }

@@ -18,7 +18,7 @@ namespace EVIL.Grammar.Traversal
                 {typeof(Program), (n) => Visit(n as Program)},
                 {typeof(BlockStatement), (n) => Visit(n as BlockStatement)},
                 {typeof(ConditionalExpression), (n) => Visit(n as ConditionalExpression)},
-                {typeof(NumberExpression), (n) => Visit(n as NumberExpression)},
+                {typeof(NumberConstant), (n) => Visit(n as NumberConstant)},
                 {typeof(StringConstant), (n) => Visit(n as StringConstant)},
                 {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
                 {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
@@ -61,7 +61,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(Program program);
         public abstract void Visit(BlockStatement blockStatement);
         public abstract void Visit(ConditionalExpression conditionalExpression);
-        public abstract void Visit(NumberExpression numberExpression);
+        public abstract void Visit(NumberConstant numberConstant);
         public abstract void Visit(StringConstant stringConstant);
         public abstract void Visit(AssignmentExpression assignmentExpression);
         public abstract void Visit(BinaryExpression binaryExpression);
