@@ -73,6 +73,15 @@ namespace EVIL.Execution
 
                 case CompoundAssignmentType.Modulo:
                     return new DynValue(variable.Number % operand.Number);
+                
+                case CompoundAssignmentType.BitwiseAnd:
+                    return new DynValue((int)variable.Number & (int)operand.Number);
+                
+                case CompoundAssignmentType.BitwiseOr:
+                    return new DynValue((int)variable.Number | (int)operand.Number);
+                
+                case CompoundAssignmentType.BitwiseXor:
+                    return new DynValue((int)variable.Number ^ (int)operand.Number);
 
                 default:
                     throw new RuntimeException("Unexpected compound assignment type??", null);

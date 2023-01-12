@@ -55,10 +55,10 @@ namespace EVIL.Parsing
                 var line = Match(TokenType.Negation);
                 return new UnaryOperationNode(Factor(), UnaryOperationType.Negation) { Line = line };
             }
-            else if (token.Type == TokenType.LogicalNot)
+            else if (token.Type == TokenType.BitwiseNot)
             {
-                var line = Match(TokenType.LogicalNot);
-                return new UnaryOperationNode(Factor(), UnaryOperationType.LogicalNot) {Line = line};
+                var line = Match(TokenType.BitwiseNot);
+                return new UnaryOperationNode(Factor(), UnaryOperationType.BitwiseNot) {Line = line};
             }
             else if (token.Type == TokenType.NameOf)
             {

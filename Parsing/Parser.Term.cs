@@ -12,9 +12,9 @@ namespace EVIL.Parsing
 {
             TokenType.Multiply,
             TokenType.Divide,
-            TokenType.LogicalAnd,
-            TokenType.LogicalOr,
-            TokenType.LogicalXor,
+            TokenType.BitwiseAnd,
+            TokenType.BitwiseOr,
+            TokenType.BitwiseXor,
             TokenType.Modulo,
         };
 
@@ -37,20 +37,20 @@ namespace EVIL.Parsing
                     var line = Match(TokenType.Divide);
                     node = new BinaryOperationNode(node, BinaryOperationType.Divide, Factor()) { Line = line };
                 }
-                else if (token.Type == TokenType.LogicalAnd)
+                else if (token.Type == TokenType.BitwiseAnd)
                 {
-                    var line = Match(TokenType.LogicalAnd);
-                    node = new BinaryOperationNode(node, BinaryOperationType.LogicalAnd, Factor()) { Line = line };
+                    var line = Match(TokenType.BitwiseAnd);
+                    node = new BinaryOperationNode(node, BinaryOperationType.BitwiseAnd, Factor()) { Line = line };
                 }
-                else if (token.Type == TokenType.LogicalOr)
+                else if (token.Type == TokenType.BitwiseOr)
                 {
-                    var line = Match(TokenType.LogicalOr);
-                    node = new BinaryOperationNode(node, BinaryOperationType.LogicalOr, Factor()) { Line = line };
+                    var line = Match(TokenType.BitwiseOr);
+                    node = new BinaryOperationNode(node, BinaryOperationType.BitwiseOr, Factor()) { Line = line };
                 }
-                else if (token.Type == TokenType.LogicalXor)
+                else if (token.Type == TokenType.BitwiseXor)
                 {
-                    var line = Match(TokenType.LogicalXor);
-                    node = new BinaryOperationNode(node, BinaryOperationType.LogicalXor, Factor()) { Line = line };
+                    var line = Match(TokenType.BitwiseXor);
+                    node = new BinaryOperationNode(node, BinaryOperationType.BitwiseXor, Factor()) { Line = line };
                 }
                 else if (token.Type == TokenType.Modulo)
                 {

@@ -33,6 +33,18 @@ namespace EVIL.Parsing
                 case CompoundAssignmentType.Modulo:
                     Match(TokenType.CompoundModulo);
                     break;
+                
+                case CompoundAssignmentType.BitwiseAnd:
+                    Match(TokenType.CompoundBitwiseAnd);
+                    break;
+                
+                case CompoundAssignmentType.BitwiseOr:
+                    Match(TokenType.CompoundBitwiseOr);
+                    break;
+                
+                case CompoundAssignmentType.BitwiseXor:
+                    Match(TokenType.CompoundBitwiseXor);
+                    break;
 
                 default:
                     throw new ParserException("Unexpected compound assignment type enum value??");
