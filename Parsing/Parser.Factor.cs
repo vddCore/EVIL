@@ -98,6 +98,10 @@ namespace EVIL.Parsing
                     return node;
                 }
             }
+            else if (token.Type == TokenType.Fn)
+            {
+                return FunctionDefinition();
+            }
             else if (token.Type == TokenType.Identifier)
             {
                 var identifier = (string)token.Value;

@@ -4,6 +4,7 @@
     {
         String,
         Number,
-        Table
+        Table,
+        Function
     }
 }
