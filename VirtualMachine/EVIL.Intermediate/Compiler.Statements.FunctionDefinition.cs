@@ -6,6 +6,15 @@ namespace EVIL.Intermediate
     {
         public override void Visit(FunctionDefinition functionDefinition)
         {
+            if (IsLocalScope)
+            {
+                throw new CompilerException(
+                    "Function definition statements are not allowed in a local scope. " +
+                    "Perhaps you should use a function expression instead.",
+                    functionDefinition.Line
+                );
+            }
+            
             _executable.DefineGlobal(functionDefinition.Identifier);
 
             var chunk = new Chunk(functionDefinition.Identifier);
@@ -30,6 +39,13 @@ namespace EVIL.Intermediate
                 {
                     Visit(stmt);
                 }
+            }
+
+            if (CurrentChunk.Instructions.Count == 0 || 
+                CurrentChunk.Instructions[^1] != (byte)OpCode.RETN)
+            {
+                EmitConstantLoadSequence(cg, 0);
+                cg.Emit(OpCode.RETN);
             }
             LeaveScope();
             _executable.Chunks.Add(ChunkDefinitionStack.Pop());

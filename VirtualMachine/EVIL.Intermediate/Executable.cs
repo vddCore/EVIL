@@ -7,6 +7,7 @@ namespace EVIL.Intermediate
         public List<string> Globals { get; } = new();
         public ConstPool ConstPool = new();
         public List<Chunk> Chunks { get; } = new();
+        public List<int> Labels { get; } = new();
         
         public Chunk MainChunk => Chunks[0];
 
@@ -21,6 +22,17 @@ namespace EVIL.Intermediate
                 throw new DuplicateSymbolException($"Global symbol '{name}' was already defined.", name);
 
             Globals.Add(name);
+        }
+        
+        public int DefineLabel(int address = 0)
+        {
+            Labels.Add(address);
+            return Labels.Count - 1;
+        }
+
+        public void UpdateLabel(int id, int address)
+        {
+            Labels[id] = address;
         }
 
         public bool IsGlobalDefined(string name)

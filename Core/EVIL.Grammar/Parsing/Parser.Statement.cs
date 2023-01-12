@@ -69,7 +69,6 @@ namespace EVIL.Grammar.Parsing
                     break;
                 
                 default:
-                    //throw new ParserException($"Expected a statement, found '{token.Value}'.", Lexer.State);
                     node = new ExpressionStatement(AssignmentExpression());
                     break;
             }

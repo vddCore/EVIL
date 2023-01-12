@@ -147,6 +147,11 @@ namespace EVIL.ExecutionEngine.Abstraction
             }
         }
 
+        public DynamicValue(bool nativeBoolValue)
+            : this(nativeBoolValue ? 1 : 0)
+        {
+        }
+
         public DynamicValue(DynamicValue other, bool copyReadOnlyState)
         {
             Type = other.Type;

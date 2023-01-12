@@ -36,27 +36,28 @@
         XINT  = 0x2D,
         
         // ---------- [ BRANCHING
-        JUMP  = 0x30,
-        TJMP  = 0x31, 
-        CALL  = 0x32,
-        RETN  = 0x33,
+        JUMP  = 0x30, // Unconditionally [JUMP]
+        TJMP  = 0x31, // If [T]rue, [J]u[MP]
+        FJMP  = 0x32, // If [F]alse, [J]u[MP]
+        CALL  = 0x33, // [CALL] a chunk
+        RETN  = 0x34, // [RET]ur[N] from a chunk
         
         // ---------- [ STORAGE: STORE
-        STL = 0x41,  // [S]e[T] [L]ocal
-        STG = 0x42,  // [S]e[T] [G]lobal
-        STA = 0x43,  // [S]e[T] [A]rgument
-        STE = 0x44,  // [S]et [T]able [E]ntry
+        STL = 0x41,   // [S]e[T] [L]ocal
+        STG = 0x42,   // [S]e[T] [G]lobal
+        STA = 0x43,   // [S]e[T] [A]rgument
+        STE = 0x44,   // [S]et [T]able [E]ntry
         
         // ---------- [ STORAGE: LOAD
-        LDC = 0x50,  // [L]oa[D] [C]onstant
-        LDG = 0x51,  // [L]oa[D] [G]lobal
-        LDL = 0x52,  // [L]oa[D] [L]ocal
-        LDA = 0x53,  // [L]oa[D] [A]rgument
-        LTE = 0x54,  // [L]oad [T]able [E]ntry
+        LDC = 0x50,   // [L]oa[D] [C]onstant
+        LDG = 0x51,   // [L]oa[D] [G]lobal
+        LDL = 0x52,   // [L]oa[D] [L]ocal
+        LDA = 0x53,   // [L]oa[D] [A]rgument
+        LTE = 0x54,   // [L]oad [T]able [E]ntry
         
         // ---------- [ MISCELLANEOUS
-        NEWTB = 0x60,// Create a [NEW] [T]a[B]le
-        TONUM = 0x61,
+        NEWTB = 0x60, // Create a [NEW] [T]a[B]le
+        TONUM = 0x61, // 
         TOSTR = 0x62,
         XARGS = 0x63,
     }

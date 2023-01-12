@@ -7,6 +7,7 @@ namespace EVIL.Grammar.AST
         public ExpressionStatement(Expression expression)
         {
             Expression = expression;
+            Line = expression.Line;
         }
     }
 }

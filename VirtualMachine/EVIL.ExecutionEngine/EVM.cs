@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
-using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.Intermediate;
+using StackFrame = EVIL.ExecutionEngine.Diagnostics.StackFrame;
 
 namespace EVIL.ExecutionEngine
 {
@@ -113,6 +114,78 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
+                case OpCode.CNE:
+                {
+                    b = EvaluationStack.Pop();
+                    a = EvaluationStack.Pop();
+
+                    var comparer = ValueComparers.RetrieveComparer(a, b);
+                    var compResult = comparer(a, b);
+
+                    EvaluationStack.Push(new(compResult != 0));
+                    break;
+                }
+
+                case OpCode.CEQ:
+                {
+                    b = EvaluationStack.Pop();
+                    a = EvaluationStack.Pop();
+
+                    var comparer = ValueComparers.RetrieveComparer(a, b);
+                    var compResult = comparer(a, b);
+                    
+                    EvaluationStack.Push(new(compResult == 0));
+                    break;
+                }
+
+                case OpCode.CGE:
+                {
+                    b = EvaluationStack.Pop();
+                    a = EvaluationStack.Pop();
+
+                    var comparer = ValueComparers.RetrieveComparer(a, b);
+                    var compResult = comparer(a, b);
+
+                    EvaluationStack.Push(new(compResult >= 0));
+                    break;
+                }
+
+                case OpCode.CGT:
+                {
+                    b = EvaluationStack.Pop();
+                    a = EvaluationStack.Pop();
+
+                    var comparer = ValueComparers.RetrieveComparer(a, b);
+                    var compResult = comparer(a, b);
+
+                    EvaluationStack.Push(new(compResult > 0));
+                    break;
+                }
+                
+                case OpCode.CLE:
+                {
+                    b = EvaluationStack.Pop();
+                    a = EvaluationStack.Pop();
+
+                    var comparer = ValueComparers.RetrieveComparer(a, b);
+                    var compResult = comparer(a, b);
+
+                    EvaluationStack.Push(new(compResult <= 0));
+                    break;
+                }
+                
+                case OpCode.CLT:
+                {
+                    b = EvaluationStack.Pop();
+                    a = EvaluationStack.Pop();
+
+                    var comparer = ValueComparers.RetrieveComparer(a, b);
+                    var compResult = comparer(a, b);
+
+                    EvaluationStack.Push(new(compResult < 0));
+                    break;
+                }
+
                 case OpCode.DUP:
                 {
                     EvaluationStack.Push(
@@ -124,9 +197,8 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.POP:
                 {
-                    if (EvaluationStack.Count <= 0)
-                        throw new VirtualMachineException("Evaluation stack underflow.");
-
+                    Debug.Assert(EvaluationStack.Count >= 0);
+                    
                     EvaluationStack.Pop();
                     break;
                 }
@@ -249,9 +321,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LNOT:
                 {
                     a = EvaluationStack.Pop();
-                    EvaluationStack.Push(
-                        new(a.IsTruth ? 1 : 0)
-                    );
+                    EvaluationStack.Push(new(!a.IsTruth));
                     break;
                 }
 
@@ -259,9 +329,7 @@ namespace EVIL.ExecutionEngine
                 {
                     b = EvaluationStack.Pop();
                     a = EvaluationStack.Pop();
-                    EvaluationStack.Push(
-                        new(a.IsTruth && b.IsTruth ? 1 : 0)
-                    );
+                    EvaluationStack.Push(new(a.IsTruth && b.IsTruth));
                     break;
                 }
 
@@ -269,9 +337,7 @@ namespace EVIL.ExecutionEngine
                 {
                     b = EvaluationStack.Pop();
                     a = EvaluationStack.Pop();
-                    EvaluationStack.Push(
-                        new(a.IsTruth || b.IsTruth ? 1 : 0)
-                    );
+                    EvaluationStack.Push(new(a.IsTruth || b.IsTruth));
                     break;
                 }
 
@@ -391,6 +457,41 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
+                case OpCode.FJMP:
+                {
+                    var labelId = CurrentStackFrame.FetchInt32();
+                    a = EvaluationStack.Pop();
+
+                    if (!a.IsTruth)
+                    {
+                        var addr = Executable.Labels[labelId];
+                        CurrentStackFrame.Jump(addr);
+                    }
+                    break;
+                }
+
+                case OpCode.TJMP:
+                {
+                    var labelId = CurrentStackFrame.FetchInt32();
+                    a = EvaluationStack.Pop();
+
+                    if (a.IsTruth)
+                    {
+                        var addr = Executable.Labels[labelId];
+                        CurrentStackFrame.Jump(addr);
+                    }
+                    break;
+                }
+
+                case OpCode.JUMP:
+                {
+                    var labelId = CurrentStackFrame.FetchInt32();
+                    var addr = Executable.Labels[labelId];
+                    CurrentStackFrame.Jump(addr);
+                    
+                    break;
+                }
+
                 default:
                 {
                     throw new VirtualMachineException("Invalid op-code.");
@@ -422,10 +523,20 @@ namespace EVIL.ExecutionEngine
             CallStack.Pop();
         }
 
-        private void InvokeChunk(DynamicValue chunk, int argc)
+        private void InvokeChunk(DynamicValue chunkValue, int argc)
         {
-            CallStack.Push(new(chunk.Function, argc));
+            var chunk = chunkValue.Function;
+            
+            CallStack.Push(new(chunk, argc));
             var extraArgs = CurrentStackFrame.ExtraArguments;
+
+            if (argc < chunk.ParameterCount)
+            {
+                for (var i = argc; i < chunk.ParameterCount; i++)
+                {
+                    EvaluationStack.Push(new(0));
+                }
+            }
 
             if (extraArgs != null)
             {
