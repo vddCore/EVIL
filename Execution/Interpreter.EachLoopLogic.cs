@@ -36,12 +36,11 @@ namespace EVIL.Execution
 
                     if (tableValue == null)
                     {
-                        if (Environment.SupplementLocalLookupTable.ContainsKey(tableName))
-                            tableValue = Environment.SupplementLocalLookupTable[tableName];
-                        else if (Environment.Globals.ContainsKey(tableName))
+                        if (Environment.Globals.ContainsKey(tableName))
                             tableValue = Environment.Globals[tableName];
-
-                        else throw new RuntimeException($"Variable '{tableName}' could not be found in any known scope.", eachLoopNode.TableNode.Line);
+                        else
+                            throw new RuntimeException($"Variable '{tableName}' could not be found in any known scope.",
+                                eachLoopNode.TableNode.Line);
                     }
                 }
                 else if (eachLoopNode.TableNode is FunctionCallNode fnCallNode)
@@ -54,7 +53,8 @@ namespace EVIL.Execution
                 }
 
                 if (tableValue.Type != DynValueType.Table)
-                    throw new RuntimeException($"Expected a table, got {tableValue.Type.ToString().ToLower()}.", eachLoopNode.TableNode.Line);
+                    throw new RuntimeException($"Expected a table, got {tableValue.Type.ToString().ToLower()}.",
+                        eachLoopNode.TableNode.Line);
 
                 var actualTable = tableValue.Table;
 

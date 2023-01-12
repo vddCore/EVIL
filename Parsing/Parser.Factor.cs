@@ -76,7 +76,7 @@ namespace EVIL.Parsing
             {
                 var line = Match(TokenType.LParenthesis);
 
-                var node = Comparison();
+                var node = LogicalExpression();
                 node.Line = line;
 
                 Match(TokenType.RParenthesis);

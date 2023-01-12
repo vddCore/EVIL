@@ -21,6 +21,7 @@ namespace EVIL.Lexical
                 case TokenType.Assign: return "=";
                 case TokenType.Break: return "break";
                 case TokenType.Colon: return ":";
+                case TokenType.Semicolon: return ":";
                 case TokenType.Comma: return ",";
                 case TokenType.CompareEqual: return "==";
                 case TokenType.CompareGreaterOrEqualTo: return ">=";

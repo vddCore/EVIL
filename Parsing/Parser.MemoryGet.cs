@@ -17,7 +17,7 @@ namespace EVIL.Parsing
                 size++;
             }
 
-            var node = Comparison();
+            var expression = LogicalExpression();
 
             if (Scanner.State.CurrentToken.Type == TokenType.Colon)
             {
@@ -26,7 +26,7 @@ namespace EVIL.Parsing
             }
 
             Match(TokenType.RBracket);
-            return new MemoryGetNode(node, (MemoryGetNode.OperandSize)size) { Line = line };
+            return new MemoryGetNode(expression, (MemoryGetNode.OperandSize)size) { Line = line };
         }
     }
 }

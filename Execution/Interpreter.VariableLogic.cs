@@ -16,9 +16,6 @@ namespace EVIL.Execution
 
                 if (stackTop.LocalVariableScope.ContainsKey(variableNode.Name))
                     return stackTop.LocalVariableScope[variableNode.Name];
-
-                if (Environment.SupplementLocalLookupTable.ContainsKey(variableNode.Name))
-                    return Environment.SupplementLocalLookupTable[variableNode.Name];
             }
 
             if (!Environment.Globals.ContainsKey(variableNode.Name))
