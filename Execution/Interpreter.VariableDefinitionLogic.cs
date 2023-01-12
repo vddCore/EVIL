@@ -8,11 +8,11 @@ namespace EVIL.Execution
         public override DynValue Visit(VariableDefinitionNode variableDefinitionNode)
         {
             var identifier = variableDefinitionNode.Variable.Identifier;
-            
-            if (Environment.LocalScope.FindInScopeChain(identifier) != null)
+
+            if (Environment.LocalScope.HasMember(identifier))
             {
                 throw new RuntimeException(
-                    $"Variable '{identifier}' was already defined in this scope.", variableDefinitionNode.Line
+                    $"Variable '{identifier}' was already defined in the current scope.", variableDefinitionNode.Line
                 );
             }
 
