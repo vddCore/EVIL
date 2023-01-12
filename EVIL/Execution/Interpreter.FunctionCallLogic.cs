@@ -50,7 +50,7 @@ namespace EVIL.Execution
             }
             else
             {
-                Environment.EnterScope();
+                Environment.EnterScope(Environment.GlobalScope.HasMember(funcName));
                 {
                     retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, parameters, functionCallNode);
                 }

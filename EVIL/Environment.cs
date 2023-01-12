@@ -25,13 +25,15 @@ namespace EVIL
         public LoopFrame LoopStackTop => LoopStack.Peek();
 
         public NameScope LocalScope { get; private set; }
-        public NameScope GlobalScope { get; } = new(null);
+        public NameScope GlobalScope { get; }
+        private Stack<NameScope> EnclosedScopes { get; } = new();
 
         public Environment()
         {
             CallStack = new Stack<StackFrame>();
             LoopStack = new Stack<LoopFrame>();
 
+            GlobalScope = new NameScope(this, null);
             LocalScope = GlobalScope;
         }
 
@@ -101,6 +103,7 @@ namespace EVIL
         {
             LoopStack.Clear();
             CallStack.Clear();
+            EnclosedScopes.Clear();
 
             LocalScope = GlobalScope;
         }
@@ -110,15 +113,36 @@ namespace EVIL
             return new(CallStack);
         }
 
-        public NameScope EnterScope()
+        public NameScope EnterScope(bool enclose = false)
         {
-            LocalScope = new NameScope(LocalScope);
+            if (enclose)
+            {
+                EnclosedScopes.Push(LocalScope);
+                LocalScope = new NameScope(this, null);
+            }
+            else
+            {
+                LocalScope = new NameScope(this, LocalScope);
+            }
+            
             return LocalScope;
         }
 
         public void ExitScope()
         {
             LocalScope = LocalScope.ParentScope;
+
+            if (LocalScope == null)
+            {
+                if (EnclosedScopes.Any())
+                {
+                    LocalScope = EnclosedScopes.Pop();
+                }
+                else
+                {
+                    LocalScope = GlobalScope;
+                }
+            }
         }
     }
 }
