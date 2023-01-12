@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EVIL", "EVIL\EVIL.csproj", "{93946D3D-0564-4ABE-A0CA-18652D3FCEC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EVIL.Interpreter", "EVIL.Interpreter\EVIL.Interpreter.csproj", "{93946D3D-0564-4ABE-A0CA-18652D3FCEC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Lexical", "EVIL.Lexical\EVIL.Lexical.csproj", "{C2016696-CA6E-46C8-8036-3ED55E811C1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Grammar", "EVIL.Grammar\EVIL.Grammar.csproj", "{F7BBF1F3-8333-454C-A13E-29B075EA58DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{93946D3D-0564-4ABE-A0CA-18652D3FCEC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93946D3D-0564-4ABE-A0CA-18652D3FCEC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93946D3D-0564-4ABE-A0CA-18652D3FCEC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2016696-CA6E-46C8-8036-3ED55E811C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2016696-CA6E-46C8-8036-3ED55E811C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2016696-CA6E-46C8-8036-3ED55E811C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2016696-CA6E-46C8-8036-3ED55E811C1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7BBF1F3-8333-454C-A13E-29B075EA58DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7BBF1F3-8333-454C-A13E-29B075EA58DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7BBF1F3-8333-454C-A13E-29B075EA58DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7BBF1F3-8333-454C-A13E-29B075EA58DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
