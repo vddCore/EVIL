@@ -10,8 +10,8 @@ namespace EVIL.ExecutionEngine
         public NonInvokableValueException(ExecutionContext ctx, DynamicValue value)
             : base(
                 ctx,
-                $"Unable to invoke a non-invokable value of type {value.Type}."
-                + (value.Type == DynamicValueType.Number && value.Number == 0
+                $"Unable to invoke a {value.Type.Alias()} value."
+                + (value.Type == DynamicValueType.Null
                     ? " Perhaps it is undefined?"
                     : string.Empty)
             )

@@ -27,7 +27,7 @@ namespace EVIL.RT
                 }
                 
                 if (i < args.Length - 1)
-                    sb.Append("    ");
+                    sb.AppendLine();
             }
             Console.Write(sb.ToString());
             return new(sb.Length);

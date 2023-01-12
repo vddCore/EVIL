@@ -5,7 +5,7 @@ namespace EVIL.ExecutionEngine
     public class UnindexableTypeException : TypeSystemException
     {
         public UnindexableTypeException(DynamicValueType type) 
-            : base($"Attempt to index an unindexable type {type}.")
+            : base($"Attempt to index a {type.Alias()}.")
         {
         }
     }

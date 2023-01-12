@@ -4,8 +4,8 @@ namespace EVIL.ExecutionEngine
 {
     public class InvalidKeyTypeException : TypeSystemException
     {
-        public InvalidKeyTypeException(DynamicValueType indexedType, DynamicValueType indexingType) 
-            : base($"Type {indexingType} cannot be used as a key to index {indexedType}.")
+        public InvalidKeyTypeException(DynamicValueType keyType, DynamicValueType collectionType) 
+            : base($"A {keyType.Alias()} cannot be used as a key to index a {collectionType.Alias()}.")
         {
         }
     }

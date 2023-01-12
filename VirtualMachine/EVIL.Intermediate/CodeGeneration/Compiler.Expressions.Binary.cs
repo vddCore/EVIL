@@ -9,6 +9,17 @@ namespace EVIL.Intermediate.CodeGeneration
         {
             var cg = CurrentChunk.GetCodeGenerator();
 
+            if (Options.OptimizeBytecode)
+            {
+                var reduced = binaryExpression.Reduce();
+
+                if (reduced is NumberConstant)
+                {
+                    Visit(reduced);
+                    return;
+                }
+            }
+
             Visit(binaryExpression.Left);
             Visit(binaryExpression.Right);
 

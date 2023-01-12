@@ -9,10 +9,7 @@ namespace EVIL.Grammar.AST
         
         public AstNode Parent { get; set; }
 
-        public bool IsConstant =>
-            this is NumberConstant
-            || this is StringConstant
-            || this is TableExpression;
+        public bool IsConstant => this is ConstantExpression;
 
         protected void Reparent(params AstNode[] nodes)
         {

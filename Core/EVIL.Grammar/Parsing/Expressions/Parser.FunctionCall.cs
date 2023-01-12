@@ -10,6 +10,15 @@ namespace EVIL.Grammar.Parsing
         private FunctionCallExpression FunctionCall(Expression callee)
         {
             var (line, col) = Match(Token.LParenthesis);
+
+            if (callee is NullConstant)
+            {
+                throw new ParserException(
+                    "'null' is not a valid invocation target.",
+                    (callee.Line, callee.Column)
+                );
+            }
+            
             var arguments = new List<Expression>();
 
             while (CurrentToken.Type != TokenType.RParenthesis)
