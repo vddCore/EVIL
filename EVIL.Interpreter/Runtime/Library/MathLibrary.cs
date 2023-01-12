@@ -11,7 +11,7 @@ namespace EVIL.Interpreter.Runtime.Library
         internal static Random Random { get; } = new();
 
         [ClrFunction("math.rnd")]
-        public static DynValue Rnd(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Rnd(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectAtLeast(1)
                 .ExpectAtMost(2)
@@ -33,7 +33,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.sin")]
-        public static DynValue Sin(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Sin(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -42,7 +42,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.cos")]
-        public static DynValue Cos(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Cos(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -51,7 +51,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.tan")]
-        public static DynValue Tan(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Tan(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -60,7 +60,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.cot")]
-        public static DynValue Cot(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Cot(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -69,7 +69,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.atan")]
-        public static DynValue Atan(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Atan(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -78,7 +78,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.atan2")]
-        public static DynValue Atan2(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Atan2(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.Number)
@@ -88,7 +88,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.floor")]
-        public static DynValue Floor(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Floor(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -97,7 +97,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.ceil")]
-        public static DynValue Ceil(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Ceil(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -106,7 +106,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.abs")]
-        public static DynValue Abs(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Abs(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -115,7 +115,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.sign")]
-        public static DynValue Sign(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Sign(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -124,7 +124,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.pow")]
-        public static DynValue Pow(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Pow(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.Number)
@@ -134,7 +134,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.sqrt")]
-        public static DynValue Sqrt(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Sqrt(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -143,7 +143,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.log")]
-        public static DynValue Log(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Log(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.Number)
@@ -153,7 +153,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.ln")]
-        public static DynValue Ln(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Ln(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -162,7 +162,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.bits")]
-        public static DynValue Bits(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Bits(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.Number);
@@ -179,7 +179,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("math.frombits")]
-        public static DynValue FromBits(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue FromBits(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTableAtIndex(0, 4, DynValueType.Number);

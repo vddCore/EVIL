@@ -18,72 +18,73 @@ namespace EVIL.Lexical
 
         public static string StringRepresentation(TokenType type)
         {
-            switch (type)
+            return type switch
             {
-                case TokenType.And: return "&&";
-                case TokenType.Assign: return "=";
-                case TokenType.BitwiseAnd: return "&";
-                case TokenType.BitwiseOr: return "|";
-                case TokenType.BitwiseXor: return "^";
-                case TokenType.BitwiseNot: return "~";
-                case TokenType.Break: return "break";
-                case TokenType.Colon: return ":";
-                case TokenType.Semicolon: return ";";
-                case TokenType.Comma: return ",";
-                case TokenType.CompareEqual: return "==";
-                case TokenType.CompareGreaterOrEqualTo: return ">=";
-                case TokenType.CompareGreaterThan: return ">";
-                case TokenType.CompareLessOrEqualTo: return "<=";
-                case TokenType.CompareLessThan: return "<";
-                case TokenType.CompareNotEqual: return "!=";
-                case TokenType.AssignAdd: return "+=";
-                case TokenType.AssignSubtract: return "-=";
-                case TokenType.AssignMultiply: return "*=";
-                case TokenType.AssignDivide: return "/=";
-                case TokenType.AssignModulo: return "%=";
-                case TokenType.AssignBitwiseAnd: return "&=";
-                case TokenType.AssignBitwiseOr: return "|=";
-                case TokenType.AssignBitwiseXor: return "^=";
-                case TokenType.Decrement: return "--";
-                case TokenType.Divide: return "/";
-                case TokenType.Each: return "each";
-                case TokenType.Elif: return "elif";
-                case TokenType.Else: return "else";
-                case TokenType.ExistsIn: return "??";
-                case TokenType.Exit: return "exit";
-                case TokenType.False: return "false";
-                case TokenType.Floor: return "$";
-                case TokenType.Fn: return "fn";
-                case TokenType.For: return "for";
-                case TokenType.If: return "if";
-                case TokenType.Increment: return "++";
-                case TokenType.KeyInitializer: return "<-";
-                case TokenType.LBrace: return "{";
-                case TokenType.LBracket: return "[";
-                case TokenType.Length: return "#";
-                case TokenType.LParenthesis: return "(";
-                case TokenType.MemberAccess: return "->";
-                case TokenType.Minus: return "-";
-                case TokenType.Modulo: return "%";
-                case TokenType.Multiply: return "*";
-                case TokenType.NameOf: return "?";
-                case TokenType.Negation: return "!";
-                case TokenType.Or: return "||";
-                case TokenType.Plus: return "+";
-                case TokenType.RBrace: return "}";
-                case TokenType.RBracket: return "]";
-                case TokenType.Ret: return "ret";
-                case TokenType.RParenthesis: return ")";
-                case TokenType.ShiftLeft: return "<<";
-                case TokenType.ShiftRight: return ">>";
-                case TokenType.Skip: return "skip";
-                case TokenType.ToString: return "@";
-                case TokenType.True: return "true";
-                case TokenType.Undef: return "undef";
-                case TokenType.Var: return "var";
-                case TokenType.While: return "while";
-                default: return Convert.ToString(type);
-            }
+                TokenType.And => "&&",
+                TokenType.Assign => "=",
+                TokenType.BitwiseAnd => "&",
+                TokenType.BitwiseOr => "|",
+                TokenType.BitwiseXor => "^",
+                TokenType.BitwiseNot => "~",
+                TokenType.Break => "break",
+                TokenType.Colon => ":",
+                TokenType.Semicolon => ";",
+                TokenType.Comma => ",",
+                TokenType.CompareEqual => "==",
+                TokenType.CompareGreaterOrEqualTo => ">=",
+                TokenType.CompareGreaterThan => ">",
+                TokenType.CompareLessOrEqualTo => "<=",
+                TokenType.CompareLessThan => "<",
+                TokenType.CompareNotEqual => "!=",
+                TokenType.AssignAdd => "+=",
+                TokenType.AssignSubtract => "-=",
+                TokenType.AssignMultiply => "*=",
+                TokenType.AssignDivide => "/=",
+                TokenType.AssignModulo => "%=",
+                TokenType.AssignBitwiseAnd => "&=",
+                TokenType.AssignBitwiseOr => "|=",
+                TokenType.AssignBitwiseXor => "^=",
+                TokenType.Decrement => "--",
+                TokenType.Divide => "/",
+                TokenType.Each => "each",
+                TokenType.Elif => "elif",
+                TokenType.Else => "else",
+                TokenType.ExistsIn => "??",
+                TokenType.Exit => "exit",
+                TokenType.False => "false",
+                TokenType.Floor => "$",
+                TokenType.Fn => "fn",
+                TokenType.For => "for",
+                TokenType.If => "if",
+                TokenType.Increment => "++",
+                TokenType.KeyInitializer => "<-",
+                TokenType.LBrace => "{",
+                TokenType.LBracket => "[",
+                TokenType.Length => "#",
+                TokenType.LParenthesis => "(",
+                TokenType.MemberAccess => "->",
+                TokenType.Meta => "::",
+                TokenType.Minus => "-",
+                TokenType.Modulo => "%",
+                TokenType.Multiply => "*",
+                TokenType.NameOf => "?",
+                TokenType.Negation => "!",
+                TokenType.Or => "||",
+                TokenType.Plus => "+",
+                TokenType.RBrace => "}",
+                TokenType.RBracket => "]",
+                TokenType.Ret => "ret",
+                TokenType.RParenthesis => ")",
+                TokenType.ShiftLeft => "<<",
+                TokenType.ShiftRight => ">>",
+                TokenType.Skip => "skip",
+                TokenType.ToString => "@",
+                TokenType.True => "true",
+                TokenType.Undef => "undef",
+                TokenType.Var => "var",
+                TokenType.While => "while",
+                _ => Convert.ToString(type)
+            };
         }
 
         public override string ToString()

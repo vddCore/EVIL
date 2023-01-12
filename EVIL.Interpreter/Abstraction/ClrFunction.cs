@@ -5,9 +5,9 @@ namespace EVIL.Interpreter.Abstraction
 {
     public class ClrFunction
     {
-        public Func<Execution.Interpreter, ClrFunctionArguments, DynValue> Invokable { get; }
+        public Func<Execution.Interpreter, FunctionArguments, DynValue> Invokable { get; }
 
-        public ClrFunction(Func<Execution.Interpreter, ClrFunctionArguments, DynValue> invokable)
+        public ClrFunction(Func<Execution.Interpreter, FunctionArguments, DynValue> invokable)
         {
             Invokable = invokable;
         }

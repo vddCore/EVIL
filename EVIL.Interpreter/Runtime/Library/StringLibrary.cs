@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Runtime.Library
     public class StringLibrary
     {
         [ClrFunction("str.len")]
-        public static DynValue Length(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Length(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -16,7 +16,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("str.chr")]
-        public static DynValue ToChar(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue ToChar(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectIntegerAtIndex(0);
@@ -25,7 +25,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
         
         [ClrFunction("str.code")]
-        public static DynValue ToCharCode(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue ToCharCode(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -39,7 +39,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
         
         [ClrFunction("str.at")]
-        public static DynValue CharAt(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue CharAt(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.String)
@@ -55,7 +55,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("str.sub")]
-        public static DynValue Substring(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Substring(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectAtLeast(2)
                 .ExpectAtMost(3);
@@ -94,7 +94,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
         
         [ClrFunction("str.s2n")]
-        public static DynValue ToNumber(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue ToNumber(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -106,7 +106,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("str.n2s")]
-        public static DynValue NumberToString(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue NumberToString(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectAtLeast(1)
                 .ExpectIntegerAtIndex(0);
@@ -124,7 +124,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("str.spl")]
-        public static DynValue Split(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Split(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.String)
@@ -148,7 +148,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("str.uc")]
-        public static DynValue UpperCase(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue UpperCase(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
@@ -159,7 +159,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
         
         [ClrFunction("str.lc")]
-        public static DynValue LowerCase(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue LowerCase(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);

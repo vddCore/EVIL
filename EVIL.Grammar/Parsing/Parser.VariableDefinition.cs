@@ -10,7 +10,7 @@ namespace EVIL.Grammar.Parsing
         {
             var line = Match(TokenType.Var);
 
-            var variable = Variable(null, true);
+            var variable = Variable();
             var assignment = Assignment(variable);
 
             return new VariableDefinitionNode(variable, assignment) { Line = line };

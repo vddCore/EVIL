@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace EVIL.Interpreter.Abstraction
 {
@@ -13,6 +14,7 @@ namespace EVIL.Interpreter.Abstraction
         private ScriptFunction _scriptFunction;
 
         public DynValueType Type { get; private set; }
+        public MetaValues Meta { get; } = new();
 
         public bool IsTruth => Type != DynValueType.Number || Number != 0;
 
@@ -83,7 +85,7 @@ namespace EVIL.Interpreter.Abstraction
             Type = DynValueType.Number;
             _numberValue = value ? 1 : 0;
         }
-        
+
         public DynValue(decimal value)
         {
             Type = DynValueType.Number;
@@ -181,7 +183,7 @@ namespace EVIL.Interpreter.Abstraction
                 case DynValueType.Function:
                     _scriptFunction = dynValue.ScriptFunction;
                     break;
-                
+
                 case DynValueType.ClrFunction:
                     _clrFunctionValue = dynValue.ClrFunction;
                     break;

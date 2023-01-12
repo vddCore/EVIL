@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Runtime.Library
     public class TimeLibrary
     {
         [ClrFunction("time.stamp")]
-        public static DynValue Stamp(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Stamp(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectNone();
 

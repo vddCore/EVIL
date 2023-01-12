@@ -9,7 +9,7 @@ namespace EVIL.Interpreter.Runtime.Library
     {
 
         [ClrFunction("io.print")]
-        public static DynValue Print(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Print(Execution.Interpreter interpreter, FunctionArguments args)
         {
             var output = string.Join(' ', args.Select(x => x.AsString().String));
             Console.Write(output);
@@ -18,7 +18,7 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("io.println")]
-        public static DynValue PrintLine(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue PrintLine(Execution.Interpreter interpreter, FunctionArguments args)
         {
             var output = Print(interpreter, args);
             Console.WriteLine();
@@ -27,15 +27,15 @@ namespace EVIL.Interpreter.Runtime.Library
         }
 
         [ClrFunction("io.readln")]
-        public static DynValue ReadLine(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue ReadLine(Execution.Interpreter interpreter, FunctionArguments args)
             => new DynValue(Console.ReadLine() ?? string.Empty);
 
         [ClrFunction("io.read")]
-        public static DynValue Read(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue Read(Execution.Interpreter interpreter, FunctionArguments args)
             => new DynValue(Console.Read());
 
         [ClrFunction("io.readkey")]
-        public static DynValue ReadKey(Execution.Interpreter interpreter, ClrFunctionArguments args)
+        public static DynValue ReadKey(Execution.Interpreter interpreter, FunctionArguments args)
             => new DynValue((int)Console.ReadKey().Key);
     }
 }

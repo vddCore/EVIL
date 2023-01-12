@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace EVIL.Interpreter.Abstraction
 {
-    public class ClrFunctionArguments : List<DynValue>
+    public class FunctionArguments : List<DynValue>
     {
-        public ClrFunctionArguments ExpectExactly(int count)
+        public FunctionArguments ExpectExactly(int count)
         {
             if (Count != count)
                 throw new ClrFunctionException($"Expected exactly {count} arguments, found {Count}.");
@@ -13,7 +13,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments DisallowType(DynValueType type)
+        public FunctionArguments DisallowType(DynValueType type)
         {
             if (Exists(x => x.Type == type))
                 throw new ClrFunctionException($"The type '{type}' is invalid for this function call.");
@@ -21,7 +21,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectTypeAtIndex(int index, DynValueType type)
+        public FunctionArguments ExpectTypeAtIndex(int index, DynValueType type)
         {
             if (index >= Count)
                 throw new ClrFunctionException($"Expected type '{type}' at argument index {index}, found no value.");
@@ -33,13 +33,13 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectTableAtIndex(int index)
+        public FunctionArguments ExpectTableAtIndex(int index)
         {
             ExpectTypeAtIndex(index, DynValueType.Table);
             return this;
         }
 
-        public ClrFunctionArguments ExpectTableAtIndex(int index, int size)
+        public FunctionArguments ExpectTableAtIndex(int index, int size)
         {
             ExpectTableAtIndex(index);
 
@@ -50,7 +50,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectTableAtIndex(int index, int size, DynValueType acceptedType)
+        public FunctionArguments ExpectTableAtIndex(int index, int size, DynValueType acceptedType)
         {
             ExpectTableAtIndex(index);
 
@@ -65,7 +65,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectAtLeast(int count)
+        public FunctionArguments ExpectAtLeast(int count)
         {
             if (Count < count)
                 throw new ClrFunctionException($"Expected at least {count} arguments, found {Count}.");
@@ -73,7 +73,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectAtMost(int count)
+        public FunctionArguments ExpectAtMost(int count)
         {
             if (Count > count)
                 throw new ClrFunctionException($"Expected at most {count} arguments, found {Count}.");
@@ -81,7 +81,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectNone()
+        public FunctionArguments ExpectNone()
         {
             if (Count != 0)
                 throw new ClrFunctionException($"Expected no arguments, found {Count}.");
@@ -89,7 +89,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectIntegerAtIndex(int index)
+        public FunctionArguments ExpectIntegerAtIndex(int index)
         {
             ExpectTypeAtIndex(index, DynValueType.Number);
 
@@ -99,7 +99,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectByteAtIndex(int index)
+        public FunctionArguments ExpectByteAtIndex(int index)
         {
             ExpectIntegerAtIndex(index);
 
@@ -109,7 +109,7 @@ namespace EVIL.Interpreter.Abstraction
             return this;
         }
 
-        public ClrFunctionArguments ExpectCharAtIndex(int index)
+        public FunctionArguments ExpectCharAtIndex(int index)
         {
             ExpectTypeAtIndex(index, DynValueType.String);
 

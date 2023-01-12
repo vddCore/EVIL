@@ -53,6 +53,8 @@ namespace EVIL.Interpreter
                 return Visit(tableIndexingNode);
             else if (node is MemberAccessNode memberAccessNode)
                 return Visit(memberAccessNode);
+            else if (node is MetaNode metaDefinitionNode)
+                return Visit(metaDefinitionNode);
             else if (node is IncrementationNode incrementationNode)
                 return Visit(incrementationNode);
             else if (node is DecrementationNode decrementationNode)
@@ -84,6 +86,7 @@ namespace EVIL.Interpreter
         public abstract DynValue Visit(TableNode tableNode);
         public abstract DynValue Visit(IndexingNode indexingNode);
         public abstract DynValue Visit(MemberAccessNode memberAccessNode);
+        public abstract DynValue Visit(MetaNode metaNode);
         public abstract DynValue Visit(IncrementationNode incrementationNode);
         public abstract DynValue Visit(DecrementationNode decrementationNode);
         public abstract DynValue Visit(UndefNode undefNode);

@@ -16,20 +16,20 @@ namespace EVIL.Grammar.Parsing
             while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
                 var value = Assignment();
-                
+
                 if (Scanner.State.CurrentToken.Type == TokenType.KeyInitializer)
                 {
-                    Match(TokenType.KeyInitializer);
+                    var l = Match(TokenType.KeyInitializer);
                     keyed = true;
                     var key = value;
                     value = Assignment();
-                    initializers.Add(new KeyedInitializerNode(key, value));
+                    initializers.Add(new KeyedInitializerNode(key, value) {Line = l});
                 }
                 else if (!keyed)
                 {
                     initializers.Add(value);
                 }
-                
+
                 if (Scanner.State.CurrentToken.Type == TokenType.RBrace)
                     break;
 
