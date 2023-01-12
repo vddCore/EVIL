@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>vile</AssemblyName>
+        <PublishSingleFile>true</PublishSingleFile>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+        <PublishReadyToRun>true</PublishReadyToRun>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EVIL.Interpreter\EVIL.Interpreter.csproj" />
+    </ItemGroup>
+
+</Project>

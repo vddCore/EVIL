@@ -35,6 +35,7 @@ namespace EVIL.Interpreter
 
         public void LoadCoreRuntime()
         {
+            RegisterPackage<FileSystemLibrary>();
             RegisterPackage<CoreLibrary>();
             RegisterPackage<IoLibrary>();
             RegisterPackage<StringLibrary>();
@@ -44,13 +45,27 @@ namespace EVIL.Interpreter
         }
 
         public void RegisterPackage<T>()
+            => RegisterPackage(typeof(T));
+
+        public void RegisterPackage(Type type)
         {
-            var type = typeof(T);
             var libAttr = type.GetCustomAttribute<ClrLibraryAttribute>();
 
             if (libAttr != null)
             {
-                GlobalScope.Set(libAttr.LibraryName, new DynValue(new Table()));
+                if (GlobalScope.HasMember(libAttr.LibraryName))
+                {
+                    if (GlobalScope.Members[libAttr.LibraryName].Type != DynValueType.Table)
+                    {
+                        throw new InvalidOperationException(
+                            $"Cannot register the package '{type.Name}' - a global variable '{libAttr.LibraryName}' exists and it is not a table."
+                        );
+                    }
+                }
+                else
+                {
+                    GlobalScope.Set(libAttr.LibraryName, new DynValue(new Table()));
+                }
             }
 
             foreach (var m in type.GetMethods())

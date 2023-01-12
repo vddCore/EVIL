@@ -180,7 +180,6 @@ namespace EVIL.REPL
             Console.WriteLine("  -i: stay in interactive mode after executing a script.");
             Console.WriteLine("  -e <name>: specify entry-point function name.");
             Console.WriteLine("  -r: Refuse to run top-level code that is not a function definition.");
-            Console.WriteLine("  -c: Compile a .NET module instead of running anything.");
         }
 
         private static void InteractiveMode()
