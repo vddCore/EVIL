@@ -110,7 +110,7 @@ namespace EVIL.Parsing
                 else if (token.Type == TokenType.LParenthesis)
                     return FunctionCall(identifier);
                 else if (token.Type == TokenType.LBracket)
-                    return TableIndexing(identifier);
+                    return Indexing(identifier);
                 else if (token.Type == TokenType.Increment)
                     return PostIncrementation(identifier);
                 else if (token.Type == TokenType.Decrement)

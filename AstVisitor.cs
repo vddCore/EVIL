@@ -51,7 +51,7 @@ namespace EVIL
                 return Visit(tableNode);
             else if (node is TableAssignmentNode tableAssignmentNode)
                 return Visit(tableAssignmentNode);
-            else if (node is TableIndexingNode tableIndexingNode)
+            else if (node is IndexingNode tableIndexingNode)
                 return Visit(tableIndexingNode);
             else if (node is PostIncrementationNode postIncrementationNode)
                 return Visit(postIncrementationNode);
@@ -85,7 +85,7 @@ namespace EVIL
         public abstract DynValue Visit(SkipNode nextNode);
         public abstract DynValue Visit(TableNode tableNode);
         public abstract DynValue Visit(TableAssignmentNode tableAssignmentNode);
-        public abstract DynValue Visit(TableIndexingNode tableIndexingNode);
+        public abstract DynValue Visit(IndexingNode indexingNode);
         public abstract DynValue Visit(PostIncrementationNode postIncrementationNode);
         public abstract DynValue Visit(PostDecrementationNode postDecrementationNode);
         public abstract DynValue Visit(UndefNode undefNode);
