@@ -743,7 +743,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                         case OpCode.ENDE:
                         {
-                            evstack.Pop();
                             IteratorStates.Pop();
                             break;
                         }
