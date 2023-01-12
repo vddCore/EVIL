@@ -1,97 +1,11 @@
-﻿using System.IO;
-using EVIL.ExecutionEngine;
-using EVIL.ExecutionEngine.Abstraction;
+﻿using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.ExecutionEngine.Interop;
-using EVIL.Grammar;
-using EVIL.Grammar.Parsing;
-using EVIL.Intermediate.CodeGeneration;
-using EVIL.Lexical;
 
 namespace EVIL.Runtime.Library
 {
-    public class CoreModule
+    public partial class CoreModule
     {
-        [ClrFunction("import")]
-        public static DynamicValue Import(ExecutionContext ctx, params DynamicValue[] args)
-        {
-            args.ExpectExactly(1)
-                .ExpectStringAtIndex(0);
-
-            var relativeFilePath = args[0].String;
-            string targetPath = null;
-
-            var evm = ctx.VirtualMachine.GlobalTable["_EVM"];
-
-            if (evm.Type != DynamicValueType.Table)
-            {
-                throw new EvilRuntimeException(
-                    "Could not find `_evm' in the global table or it's not a table. " +
-                    "No imports can be made until it's properly set."
-                );
-            }
-
-            var importPaths = evm.Table["importPaths"];
-
-            if (importPaths.Type != DynamicValueType.Table)
-            {
-                throw new EvilRuntimeException(
-                    "Could not find '_evm.importPaths' in the global table or it's not a table. " +
-                    "No imports can be made until it's properly set."
-                );
-            }
-            
-            foreach (var path in importPaths.Table)
-            {
-                var v = path.Value;
-                
-                if (v.Type != DynamicValueType.String)
-                    continue;
-                
-                var tempPath = Path.Combine(v.String, relativeFilePath);
-
-                if (File.Exists(tempPath))
-                {
-                    targetPath = tempPath;
-                    break;
-                }
-            }
-
-            if (targetPath == null)
-            {
-                throw new EvilRuntimeException(
-                    $"Could not find '{relativeFilePath}' in any of the known lookup paths."
-                );
-            }
-
-            try
-            {
-                var lexer = new Lexer();
-                var parser = new Parser(lexer);
-                var compiler = new Compiler();
-
-                lexer.LoadSource(File.ReadAllText(targetPath));
-                var program = parser.Parse(false);
-                var exe = compiler.Compile(program);
-                return new DynamicValue(exe.Export());
-            }
-            catch (LexerException le)
-            {
-                throw new EvilRuntimeException($"Error while importing '{relativeFilePath}': {le.Message} (" +
-                                               $"line {le.Line}, column {le.Column})");
-            }
-            catch (ParserException pe)
-            {
-                throw new EvilRuntimeException($"Error while importing '{relativeFilePath}': {pe.Message} (" +
-                                               $"line {pe.Line}, column {pe.Column})");
-            }
-            catch (CompilerException ce)
-            {
-                throw new EvilRuntimeException($"Error while importing '{relativeFilePath}': {ce.Message} (" +
-                                               $"line {ce.Line}, column {ce.Column})");
-            }
-        }
-
         [ClrFunction("strace_s")]
         public static DynamicValue StraceString(ExecutionContext ctx, params DynamicValue[] args)
         {

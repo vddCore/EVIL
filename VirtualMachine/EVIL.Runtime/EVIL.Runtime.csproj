@@ -6,4 +6,9 @@
     <ItemGroup>
       <ProjectReference Include="..\EVIL.ExecutionEngine\EVIL.ExecutionEngine.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Library\CoreModule.Import.cs">
+        <DependentUpon>CoreModule.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
 </Project>

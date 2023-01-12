@@ -283,6 +283,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.Parameters.Count}]",
                 DynamicValueType.ClrFunction =>
                     $"ClrFunction[{_clrFunction.Method.Name}@{_clrFunction.Method.GetParameters().Length}]",
+                DynamicValueType.Null => "<null>",
                 _ => throw new TypeConversionException(Type, DynamicValueType.String)
             };
         }

@@ -10,6 +10,12 @@ namespace EVIL.ExecutionEngine
 {
     public class EVM
     {
+        public const string DefaultImportPattern 
+            = "?.vil;" +
+              "?/init.vil;" +
+              "?/?.vil" +
+              "?";
+        
         private List<ExecutionContext> ExecutionContexts { get; } = new();
         public ExecutionContext MainExecutionContext => ExecutionContexts[0];
 
@@ -100,6 +106,10 @@ namespace EVIL.ExecutionEngine
                                 isAnyContextActive = true;
                                 ctx.Step();
                             }
+                            else if(ctx.IsVolatile)
+                            {
+                                DeleteExecutionContext(ctx);
+                            }
                         }
 
                         if (!isAnyContextActive)
@@ -123,9 +133,9 @@ namespace EVIL.ExecutionEngine
             }
         }
 
-        public ExecutionContext CreateNewExecutionContext()
+        public ExecutionContext CreateNewExecutionContext(bool isVolatile = false)
         {
-            var ctxt = new ExecutionContext(ExecutionContexts.Count, this);
+            var ctxt = new ExecutionContext(ExecutionContexts.Count, this, isVolatile);
 
             lock (ExecutionContexts)
             {
@@ -212,7 +222,7 @@ namespace EVIL.ExecutionEngine
 
             this.SetEnvironmentVariable(
                 EvilEnvironmentVariable.LibraryLookupPaths,
-                "?.vil;?/?.vil"
+                DefaultImportPattern
             );
         }
 
@@ -226,7 +236,7 @@ namespace EVIL.ExecutionEngine
             lock (ExecutionContexts)
             {
                 ExecutionContexts.Clear();
-                ExecutionContexts.Add(new ExecutionContext(0, this));
+                ExecutionContexts.Add(new ExecutionContext(0, this, false));
             }
         }
     }

@@ -6,6 +6,7 @@ using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
+using EVIL.Intermediate.Analysis;
 using EVIL.Intermediate.CodeGeneration;
 using EVIL.Intermediate.Storage;
 using EVIL.Lexical;
@@ -19,16 +20,19 @@ namespace EVIL.EVIL
         private static Table _global;
         private static EvilRuntime _rt;
         private static EVM _evm;
+        private static Disassembler _disasm = new(new() { EmitLineNumbers = false });
 
         private static string _filePath;
+        private static bool _showDisassembly;
         private static bool _loadBinary;
 
         private static OptionSet _options = new()
         {
             { "b|binary", "Execute a compiled binary instead.", _ => _loadBinary = true },
-            { "h|help", "Show this message.", _ => Workflow.ExitWithHelp(_options) }
+            { "d|disasm", "Show disassembly.", _=> _showDisassembly = true },
+            { "h|help", "Show this message.", _ => Workflow.ExitWithHelp(_options) },
         };
-        
+
         internal static void Main(string[] args)
         {
             var extra = _options.Parse(args);
@@ -39,7 +43,7 @@ namespace EVIL.EVIL
             }
 
             _filePath = extra[0];
-            
+
             if (!File.Exists(_filePath))
             {
                 Workflow.ExitWithMessage($"`{_filePath}' does not exist.", -2);
@@ -61,28 +65,38 @@ namespace EVIL.EVIL
                 // but just in case...
                 return;
             }
-            
+
             try
             {
                 // Make sure we've got a root chunk present.
                 _ = exe.RootChunk;
-                
+
                 _global = new();
                 _rt = new(_global);
-                SetUpEnvironment();
+                _rt.LoadCoreRuntime();
                 
                 _evm = new EVM(_global);
+                
+                SetUpEnvironment();
+
+                if (_showDisassembly)
+                {
+                    Console.WriteLine(
+                        _disasm.Disassemble(exe)
+                    );
+                }
+
                 _evm.RunExecutable(
                     exe,
                     extra.Skip(1)
-                         .Select(x => new DynamicValue(x))
-                         .ToArray()
+                        .Select(x => new DynamicValue(x))
+                        .ToArray()
                 );
             }
             catch (VirtualMachineException vme)
             {
                 Workflow.ExitWithMessage(
-                    $"`{_filePath}': {vme.Message}\n" +
+                    $"`{_filePath}'\n{vme.Message}\n{vme.InnerException?.Message}\n" +
                     $"{_evm.DumpAllExecutionContexts()}",
                     -3
                 );
@@ -134,7 +148,7 @@ namespace EVIL.EVIL
         private static void SetUpEnvironment()
         {
             _evm.SetEnvironmentVariable(
-                EvilEnvironmentVariable.ScriptHomeDirectory, 
+                EvilEnvironmentVariable.ScriptHomeDirectory,
                 Path.GetDirectoryName(_filePath)
             );
         }

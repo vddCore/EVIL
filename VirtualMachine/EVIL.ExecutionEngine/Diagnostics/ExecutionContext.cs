@@ -24,6 +24,11 @@ namespace EVIL.ExecutionEngine.Diagnostics
         public int CallStackLimit { get; set; } = 256;
         public bool SuppressClrExceptions { get; set; }
         public bool Running { get; private set; }
+        
+        /// <summary>
+        /// Volatile contexts are destroyed by their owner EVM upon running out of scheduled chunks.
+        /// </summary>
+        public bool IsVolatile { get; }
 
         public DynamicValue EvaluationStackTop
         {
@@ -38,10 +43,11 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
         }
 
-        internal ExecutionContext(int id, EVM virtualMachine)
+        internal ExecutionContext(int id, EVM virtualMachine, bool isVolatile)
         {
             ID = id;
             VirtualMachine = virtualMachine;
+            IsVolatile = isVolatile;
         }
 
         public void ScheduleChunk(Chunk chunk, params DynamicValue[] args)
@@ -116,7 +122,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
                     for (var i = 0; i < EvaluationStack.Count; i++)
                     {
                         var v = EvaluationStack.ElementAt(i);
-                        sb.AppendLine($"{i}: {v.Type} {v.CopyToString().String}");
+                        sb.AppendLine($"{i}: [{v.Type}] {v.CopyToString().String}");
                     }
                 }
                 else
