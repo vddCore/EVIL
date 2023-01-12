@@ -12,7 +12,8 @@ namespace EVIL.Parsing
             TokenType.Increment,
             TokenType.Decrement,
             TokenType.LParenthesis,
-            TokenType.LBracket
+            TokenType.LBracket,
+            TokenType.MemberAccess
         };
 
         private AstNode Factor(AstNode node = null)
@@ -31,6 +32,10 @@ namespace EVIL.Parsing
                 else if (token.Type == TokenType.LBracket)
                 {
                     node = Indexing(node);
+                }
+                else if (token.Type == TokenType.MemberAccess)
+                {
+                    node = MemberAccess(node);
                 }
                 else if (token.Type == TokenType.Increment)
                 {

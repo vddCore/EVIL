@@ -20,6 +20,8 @@
         Negation,
         ShiftRight,
         ShiftLeft,
+        
+        MemberAccess,
 
         Assign,
         AssignAdd,

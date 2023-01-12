@@ -58,6 +58,11 @@ namespace EVIL.Lexical
                     Advance();
                     State.CurrentToken = new Token(TokenType.AssignSubtract, "-=");
                 }
+                else if (Peek() == '>')
+                {
+                    Advance();
+                    State.CurrentToken = new Token(TokenType.MemberAccess, "->");
+                }
                 else
                 {
                     State.CurrentToken = new Token(TokenType.Minus, '-');

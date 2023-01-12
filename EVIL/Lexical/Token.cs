@@ -76,6 +76,7 @@ namespace EVIL.Lexical
                 case TokenType.True: return "true";
                 case TokenType.Undef: return "undef";
                 case TokenType.While: return "while";
+                case TokenType.MemberAccess: return "->";
                 default: return Convert.ToString(type);
             }
         }
