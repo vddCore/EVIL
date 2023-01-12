@@ -6,8 +6,12 @@ namespace EVIL.ExecutionEngine.Interop
     public class ClrFunctionAttribute : Attribute
     {
         public string Name { get; }
+        public string RuntimeAlias { get; set; }
 
         public ClrFunctionAttribute(string name)
-            => Name = name;
+        {
+            Name = name;
+            RuntimeAlias = name;
+        }
     }
 }

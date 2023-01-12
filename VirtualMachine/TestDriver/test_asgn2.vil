@@ -4,6 +4,7 @@ fn main(a, b) {
   
   var c = fn(d, e) {
     var f = fn(g, h) {
+      io.shit();
       ret e;
     };
     

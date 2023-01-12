@@ -20,6 +20,8 @@ namespace EVIL.CILE
 
         private static Table _globals = new();
         private static EVM _evm = new(_globals);
+        
+        private static bool _disassembleCompiledProgram;
 
         internal static void Main(string[] args)
         {
@@ -35,8 +37,17 @@ namespace EVIL.CILE
 
             var text = File.ReadAllText(args[0]);
             var programArguments = args.Skip(1)
+                .Where(x => !x.StartsWith("-"))
                 .Select(x => new DynamicValue(x))
                 .ToArray();
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-d")
+                {
+                    _disassembleCompiledProgram = true;
+                }
+            }
 
             Executable exe = null;
 
@@ -64,8 +75,11 @@ namespace EVIL.CILE
             
             try
             {
-                var disasm = new Disassembler();
-                Console.WriteLine(disasm.Disassemble(exe));
+                if (_disassembleCompiledProgram)
+                {
+                    var disasm = new Disassembler();
+                    Console.WriteLine(disasm.Disassemble(exe));
+                }
 
                 _evm.Load(exe);
             }
@@ -78,7 +92,7 @@ namespace EVIL.CILE
             {
                 _evm.Run(programArguments);
             }
-            catch (Exception e)
+            catch (VirtualMachineException e)
             {
                 TerminateWithDump(e);
             }
@@ -86,14 +100,9 @@ namespace EVIL.CILE
 
         private static void TerminateWithDump(Exception e)
         {
-            Console.WriteLine("--------[callSTK]");
-            _evm.DumpCallStack();
-
-            Console.WriteLine("--------[evalSTK]");
-            _evm.DumpEvaluationStack();
+            Console.WriteLine(e.Message);
+            Console.WriteLine(_evm.DumpCallStack());
             
-
-            TerminateWithError($"{e}");
         }
 
         private static void TerminateWithError(string err, int code = -1)

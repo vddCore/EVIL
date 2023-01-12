@@ -84,9 +84,7 @@ namespace EVIL.ExecutionEngine
 
             for (var i = 0; i < CallStack.Count; i++)
             {
-                var v = CallStack.ElementAt(i);
-                sb.AppendLine(
-                    $"{v.Chunk.Name}:{v.IP:X8} | {v.Locals.Length} local(s) | {v.FormalArguments} formal parameter(s) | {v.ExtraArguments} extra argument(s)");
+                sb.AppendLine($"   at {CallStack.ElementAt(i).ToString()}");
             }
 
             return sb.ToString();
@@ -480,7 +478,7 @@ namespace EVIL.ExecutionEngine
                 {
                     btmp = frame.FetchByte();
                     a = frame.Locals[btmp];
-                    evstack.Push(a);
+                    evstack.Push(new(a, false));
                     break;
                 }
 
@@ -556,7 +554,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LDA:
                 {
                     btmp = frame.FetchByte();
-                    evstack.Push(frame.FormalArguments[btmp]);
+                    evstack.Push(new(frame.FormalArguments[btmp], false));
                     break;
                 }
 
@@ -586,7 +584,7 @@ namespace EVIL.ExecutionEngine
                     a = evstack.Pop();
 
                     evstack.Push(
-                        a.Index(b)
+                        new(a.Index(b), false)
                     );
                     break;
                 }
@@ -609,8 +607,12 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.XARGS:
                 {
-                    var argTable = new Table(frame.ExtraArguments);
-                    evstack.Push(new(argTable));
+                    var tbl = Table.Empty;
+                    
+                    if (frame.ExtraArguments != null)
+                        tbl = new(frame.ExtraArguments);
+
+                    evstack.Push(new(tbl));
                     break;
                 }
 
@@ -702,7 +704,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LDX:
                 {
                     itmp = frame.FetchInt32();
-                    evstack.Push(ExternContexts[frame.Chunk][itmp]);
+                    evstack.Push(new(ExternContexts[frame.Chunk][itmp], false));
                     break;
                 }
 

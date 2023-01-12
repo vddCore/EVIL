@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Interop;
 using EVIL.Intermediate.CodeGeneration;
@@ -55,7 +56,44 @@ namespace EVIL.ExecutionEngine.Diagnostics
             IP = addr;
         }
 
-        public OpCode FetchOpCode()
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            if (Chunk != null)
+            {
+                sb.Append(Chunk.Name);
+                sb.Append("(");
+                sb.Append(string.Join(',', Chunk.Parameters));
+                sb.Append($") @ {IP:X8}");
+                
+                var (line, _) = Chunk.GetCodeCoordinatesForInstructionPointer(IP);
+                
+                if (line > 0)
+                {
+                    sb.Append($": line {line}");
+                }
+            }
+            else if (ClrFunction != null)
+            {
+                var attribs = ClrFunction.Method.GetCustomAttributes(typeof(ClrFunctionAttribute), false);
+
+                if (attribs.Length > 0 
+                    && attribs[0] is ClrFunctionAttribute clrFuncAttrib
+                    && !string.IsNullOrEmpty(clrFuncAttrib.RuntimeAlias))
+                {
+                    sb.Append($"CLR!{clrFuncAttrib.RuntimeAlias}");
+                }
+                else
+                {
+                    sb.Append($"CLR!{ClrFunction.Method.Name}");
+                }
+            }
+
+            return sb.ToString();
+        }
+        
+        internal OpCode FetchOpCode()
         {
             return (OpCode)FetchByte();
         }

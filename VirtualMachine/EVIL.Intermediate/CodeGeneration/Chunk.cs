@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace EVIL.Intermediate.CodeGeneration
 {
+    [DebuggerDisplay("{Name}")]
     public class Chunk
     {
         private CodeGenerator _codeGenerator;
@@ -15,9 +17,22 @@ namespace EVIL.Intermediate.CodeGeneration
         public List<Chunk> SubChunks { get; private set; } = new();
         public List<byte> Instructions { get; private set; } = new();
         public ConstPool Constants { get; private set; } = new();
+        
+        public HashSet<DebugEntry> DebugInfo { get; private set; } = new();
 
         private Chunk()
         {
+        }
+
+        public (int, int) GetCodeCoordinatesForInstructionPointer(int ip)
+        {
+            foreach (var de in DebugInfo)
+            {
+                if (ip <= de.IP)
+                    return (de.Line, de.Column);
+            }
+
+            return (-1, -1);
         }
 
         public Chunk(string name, bool isPublic = true)
@@ -61,7 +76,8 @@ namespace EVIL.Intermediate.CodeGeneration
                 Locals = Locals,
                 Externs = Externs,
                 Constants = Constants,
-                SubChunks = SubChunks
+                SubChunks = SubChunks,
+                DebugInfo = DebugInfo
             };
 
             return c;

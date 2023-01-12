@@ -5,7 +5,11 @@ namespace EVIL.ExecutionEngine.Abstraction
 {
     public class Table
     {
+        public bool Frozen { get; set; }
+
         public Dictionary<DynamicValue, DynamicValue> Entries = new();
+
+        public static readonly Table Empty = new() { Frozen = true };
 
         public Table()
         {
@@ -52,6 +56,9 @@ namespace EVIL.ExecutionEngine.Abstraction
 
         public void Set(DynamicValue key, DynamicValue value)
         {
+            if (Frozen)
+                return;
+            
             EnsureValidKeyType(key);
 
             if (Entries.ContainsKey(key))
@@ -66,6 +73,9 @@ namespace EVIL.ExecutionEngine.Abstraction
 
         public bool Unset(DynamicValue key)
         {
+            if (Frozen) 
+                return false;
+            
             EnsureValidKeyType(key);
             return Entries.Remove(key);
         }
