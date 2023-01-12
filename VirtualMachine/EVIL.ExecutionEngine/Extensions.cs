@@ -1,6 +1,8 @@
+using System;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Interop;
 using EVIL.Grammar.Parsing;
+using EVIL.Intermediate.Analysis;
 using EVIL.Intermediate.CodeGeneration;
 using EVIL.Lexical;
 
@@ -128,10 +130,17 @@ namespace EVIL.ExecutionEngine
             if (compilerOptions != null)
             {
                 _compiler.Options.OptimizeBytecode = compilerOptions.OptimizeBytecode;
-                
             }
             
             var exe = _compiler.Compile(program);
+           
+#if DEBUG
+            Console.WriteLine(
+                new Disassembler(
+                    new() { EmitLineNumbers = false }
+                ).Disassemble(exe)
+            );
+#endif
             evm.RunExecutable(exe, args);
 
             if (!evm.MainExecutionContext.EvaluationStack.TryPop(out var value))

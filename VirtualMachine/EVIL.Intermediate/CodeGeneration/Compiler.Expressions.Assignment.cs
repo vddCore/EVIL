@@ -1,3 +1,4 @@
+using EVIL.Grammar;
 using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Intermediate.CodeGeneration
@@ -10,7 +11,11 @@ namespace EVIL.Intermediate.CodeGeneration
 
             if (assignmentExpression.Left is VariableReferenceExpression varRef)
             {
-                Visit(assignmentExpression.Left);
+                if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
+                {
+                    Visit(assignmentExpression.Left);
+                }
+                
                 Visit(assignmentExpression.Right);
 
                 EmitCompoundAssignment(cg, assignmentExpression.OperationType);
@@ -20,10 +25,22 @@ namespace EVIL.Intermediate.CodeGeneration
             }
             else if (assignmentExpression.Left is IndexerExpression indExpr)
             {
-                Visit(indExpr.Indexable);
-                Visit(indExpr.KeyExpression);
-                Visit(assignmentExpression.Right);
-                EmitByteOp(cg, OpCode.STE, 1);
+                if (assignmentExpression.OperationType == AssignmentOperationType.Direct)
+                {
+                    Visit(indExpr.Indexable);
+                    Visit(indExpr.KeyExpression);
+                    Visit(assignmentExpression.Right);
+                    EmitByteOp(cg, OpCode.STE, 1);
+                }
+                else
+                {
+                    Visit(indExpr.Indexable);
+                    Visit(indExpr.KeyExpression);
+                    Visit(indExpr);
+                    Visit(assignmentExpression.Right);
+                    EmitCompoundAssignment(cg, assignmentExpression.OperationType);
+                    EmitByteOp(cg, OpCode.STE, 1);
+                }
             }
             else
             {

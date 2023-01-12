@@ -127,5 +127,16 @@ namespace EVIL.UnitTests
             XAssert.AreEqual(expected, val);
             XAssert.AreEqual(expected, compoundVal);
         }
+
+        [Test]
+        public void CompoundAddTableElement()
+        {
+            var val = EVM.Evaluate(
+                "blah = { 0 };" +
+                "blah[0] += 10;" +
+                "ret blah;"
+            );
+            XAssert.AreEqual(10, val.Table[0]);
+        }
     }
 }

@@ -85,6 +85,13 @@ namespace EVIL.Runtime.Library
                 var program = parser.Parse(false);
                 var exe = compiler.Compile(program);
 
+#if DEBUG
+                Console.WriteLine(
+                    new Disassembler(new() { EmitLineNumbers = false })
+                    .Disassemble(exe)
+                );
+#endif
+                
                 return new DynamicValue(exe.Export());
             }
             catch (LexerException le)
