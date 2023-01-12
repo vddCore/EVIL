@@ -9,6 +9,8 @@
         {
             Expression = expression;
             Statements = statements;
+
+            Reparent(Expression, Statements);
         }
     }
 }

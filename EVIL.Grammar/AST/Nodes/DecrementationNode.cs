@@ -7,6 +7,8 @@
 
         public DecrementationNode(AstNode target, bool isPrefix)
         {
+            target.Parent = this;
+            
             Target = target;
             IsPrefix = isPrefix;
         }

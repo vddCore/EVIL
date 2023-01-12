@@ -9,6 +9,8 @@
         {
             Right = right;
             Type = type;
+
+            Reparent(Right);
         }
     }
 }

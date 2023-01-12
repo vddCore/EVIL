@@ -26,7 +26,6 @@ namespace EVIL.Interpreter
 
         public NameScope LocalScope { get; private set; }
         public NameScope GlobalScope { get; }
-        public string ConstructorName { get; set; } = "new";
 
         public Environment()
         {

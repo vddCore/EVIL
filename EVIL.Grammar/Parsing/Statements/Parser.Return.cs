@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
 
             if (CurrentToken.Type == TokenType.Semicolon)
             {
-                retNode = new IntegerNode(0) { Line = line };
+                retNode = null;
             }
             else
             {

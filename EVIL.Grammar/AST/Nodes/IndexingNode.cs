@@ -13,8 +13,10 @@ namespace EVIL.Grammar.AST.Nodes
         {
             Indexable = indexable;
             KeyExpression = keyExpression;
-
+            
             WillBeAssigned = willBeAssigned;
+
+            Reparent(Indexable, KeyExpression);
         }
 
         public string BuildChainStringRepresentation()

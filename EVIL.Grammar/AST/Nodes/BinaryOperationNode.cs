@@ -13,6 +13,8 @@
             Right = right;
             
             Type = type;
+
+            Reparent(Left, Right);
         }
     }
 }

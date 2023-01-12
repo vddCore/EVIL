@@ -9,6 +9,8 @@
         {
             ConditionExpression = conditionExpression;
             Statements = statements;
+
+            Reparent(ConditionExpression, Statements);
         }
     }
 }

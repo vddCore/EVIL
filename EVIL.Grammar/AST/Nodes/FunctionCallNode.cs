@@ -11,6 +11,9 @@ namespace EVIL.Grammar.AST.Nodes
         {
             Left = left;
             Parameters = parameters;
+
+            Reparent(left);
+            Reparent(Parameters.ToArray());
         }
     }
 }

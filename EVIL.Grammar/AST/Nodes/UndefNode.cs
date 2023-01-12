@@ -7,6 +7,8 @@
         public UndefNode(AstNode right)
         {
             Right = right;
+
+            Reparent(Right);
         }
     }
 }

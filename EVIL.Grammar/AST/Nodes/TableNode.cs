@@ -11,6 +11,8 @@ namespace EVIL.Grammar.AST.Nodes
         {
             Initializers = initializers;
             Keyed = keyed;
+            
+            Reparent(initializers.ToArray());
         }
     }
 }
