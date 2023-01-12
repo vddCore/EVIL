@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Versioning;
+using System.Reflection;
 using System.Text;
 using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Execution;
@@ -18,6 +18,8 @@ namespace EVIL.REPL
         private static bool _stayInteractive;
         
         private static string _entryPointFunctionName;
+        private static bool _refuseToRunTopLevelCode;
+        
         private static List<string> _entryPointArgs = new();
 
         internal static void Main(string[] args)
@@ -55,11 +57,14 @@ namespace EVIL.REPL
                             _entryPointFunctionName = args[i];
                             continue;
                        
+                        case "-r":
+                            _refuseToRunTopLevelCode = true;
+                            continue;
+                        
                         default:
                             _entryPointArgs.Add(args[i]);
                             break;
                     }
-
                 }
 
                 if (File.Exists(args[0]))
@@ -73,7 +78,8 @@ namespace EVIL.REPL
                                 _interpreter.Execute(
                                     sr.ReadToEnd(),
                                     _entryPointFunctionName,
-                                    _entryPointArgs.ToArray()
+                                    _entryPointArgs.ToArray(),
+                                    _refuseToRunTopLevelCode
                                 );
                             }
                             else
@@ -86,10 +92,17 @@ namespace EVIL.REPL
                         }
                         catch (RuntimeException re)
                         {
-                            Console.WriteLine($"Runtime error on line {re.Line}: {re.Message}\n");
-
                             var sb = new StringBuilder();
+                            sb.Append($"Runtime error");
 
+                            if (re.Line != null)
+                            {
+                                sb.Append($" on line {re.Line}");
+                            }
+
+                            sb.AppendLine($": {re.Message}");
+                            sb.AppendLine();
+                            
                             if (re.EvilStackTrace == null || !re.EvilStackTrace.Any())
                             {
                                 sb.Append("No stack trace available.");
@@ -131,10 +144,11 @@ namespace EVIL.REPL
         private static void Help()
         {
             Console.WriteLine("Ghetto EVIL interpreter with interactive mode.");
-            Console.WriteLine("Usage: EVIL.REPL [file] [options] [arguments_to_script]");
+            Console.WriteLine($"Usage: {Path.GetFileName(Assembly.GetExecutingAssembly().Location)} [file] [options] [arguments_to_script]");
             Console.WriteLine("  -h: this message");
             Console.WriteLine("  -i: stay in interactive mode after executing a script.");
             Console.WriteLine("  -e <name>: specify entry-point function name.");
+            Console.WriteLine("  -r: Refuse to run top-level code that is not a function definition.");
         }
 
         private static void InteractiveMode()

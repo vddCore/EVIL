@@ -28,35 +28,38 @@ namespace EVIL.Interpreter.Runtime.Library
             return new DynValue(tbl);
         }
 
-        [ClrFunction("isglobal")]
-        public static DynValue IsGlobal(Execution.Interpreter interpreter, FunctionArguments args)
+        [ClrFunction("isdef")]
+        public static DynValue IsDefined(Execution.Interpreter interpreter, FunctionArguments args)
         {
-            args.ExpectExactly(1)
+            args.ExpectAtLeast(1)
+                .ExpectAtMost(2)
                 .ExpectTypeAtIndex(0, DynValueType.String);
 
             var name = args[0].String;
 
-            if (interpreter.Environment.GlobalScope.HasMember(name))
-                return new DynValue(1);
+            var scope = "any";
 
-            return new DynValue(0);
-        }
+            if (args.Count > 1)
+            {
+                if (args[1].Type == DynValueType.String)
+                {
+                    scope = args[1].String;
+                }
+            }
 
-        [ClrFunction("islocal")]
-        public static DynValue IsLocal(Execution.Interpreter interpreter, FunctionArguments args)
-        {
-            args.ExpectExactly(1)
-                .ExpectTypeAtIndex(0, DynValueType.String);
-
-            var name = args[0].String;
-
-            if (interpreter.Environment.CallStack.Count - 1 <= 0)
-                return new DynValue(0);
-
-            if (interpreter.Environment.LocalScope.HasMember(name))
-                return new DynValue(1);
-
-            return new DynValue(0);
+            switch (scope)
+            {
+                case "local":
+                    return new DynValue(interpreter.Environment.LocalScope.HasMember(name));
+                
+                case "global":
+                    return new DynValue(interpreter.Environment.GlobalScope.HasMember(name));
+                
+                case "any":
+                    return new DynValue(interpreter.Environment.LocalScope.FindInScopeChain(name) != null);
+                
+                default: throw new ClrFunctionException("Unsupported scope type.");
+            }
         }
     }
 }
