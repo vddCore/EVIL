@@ -12,16 +12,16 @@ namespace EVIL.Intermediate
             if (decrementationExpression.IsPrefix)
             {
                 Visit(tgt);
-                cg.Emit(OpCode.DUP);
                 EmitConstantLoadSequence(cg, 1);
                 cg.Emit(OpCode.SUB);
+                cg.Emit(OpCode.DUP);
             }
             else
             {
                 Visit(tgt);
+                cg.Emit(OpCode.DUP);
                 EmitConstantLoadSequence(cg, 1);
                 cg.Emit(OpCode.SUB);
-                cg.Emit(OpCode.DUP);
             }
             
             if (tgt is VariableReferenceExpression varRef)

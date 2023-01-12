@@ -51,5 +51,14 @@
       <Compile Update="Compiler.Expressions.Decrementation.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
+      <Compile Update="Compiler.Statements.While.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.DoWhile.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.VariableReference.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

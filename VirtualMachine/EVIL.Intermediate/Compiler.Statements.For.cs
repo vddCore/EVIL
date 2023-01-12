@@ -20,12 +20,12 @@ namespace EVIL.Intermediate
                 foreach (var asgn in forStatement.Assignments)
                     Visit(asgn);
                 
-                _executable.UpdateLabel(startLabel, CurrentChunk.Instructions.Count);
+                _executable.UpdateLabel(startLabel, cg.IP);
                 Visit(forStatement.Condition);
                 cg.Emit(OpCode.FJMP, endLabel);
                 Visit(forStatement.Statement);
 
-                _executable.UpdateLabel(continueLabel, CurrentChunk.Instructions.Count);
+                _executable.UpdateLabel(continueLabel, cg.IP);
                 foreach (var expr in forStatement.IterationExpressions)
                 {
                     Visit(expr);
@@ -33,7 +33,7 @@ namespace EVIL.Intermediate
                 }
 
                 cg.Emit(OpCode.JUMP, startLabel);
-                _executable.UpdateLabel(endLabel, CurrentChunk.Instructions.Count);
+                _executable.UpdateLabel(endLabel, cg.IP);
             }
 
             LoopContinueLabels.Pop();

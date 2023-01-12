@@ -46,8 +46,6 @@ namespace EVIL.VirtualMachine.TestDriver
             var evm = new EVM(executable);
             evm.SetGlobal("print", new DynamicValue(TestClrFunction));
             evm.Run();
-            
-            Console.WriteLine(evm.DumpEvaluationStack());
         }
     }
 }
