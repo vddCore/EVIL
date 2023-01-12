@@ -344,7 +344,7 @@ namespace EVIL.Lexical
                 "undef" => Token.Undef,
                 "while" => Token.While,
                 "do" => Token.Do,
-                "var" => Token.Var,
+                "loc" => Token.Loc,
                 "in" => Token.In,
                 "if" => Token.If,
                 "elif" => Token.Elif,

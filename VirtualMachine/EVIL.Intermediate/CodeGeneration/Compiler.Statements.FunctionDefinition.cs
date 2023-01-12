@@ -15,13 +15,9 @@ namespace EVIL.Intermediate.CodeGeneration
                     functionDefinition.Column
                 );
             }
-
-
-            var chunk = new Chunk(functionDefinition.Identifier);
-            DefineGlobal(functionDefinition.Identifier);
             
+            var chunk = new Chunk(functionDefinition.Identifier);
             ChunkDefinitionStack.Push(chunk);
-
             var cg = CurrentChunk.GetCodeGenerator();
             
             EnterScope();
@@ -33,7 +29,6 @@ namespace EVIL.Intermediate.CodeGeneration
                 );
             }
             LeaveScope();
-            
             _executable.Chunks.Add(ChunkDefinitionStack.Pop());
         }
     }

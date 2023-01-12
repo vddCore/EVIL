@@ -1,3 +1,12 @@
-var ext = import("./test_ext.vil");
-
-io.println(ext.add(2, 3));
+t = {
+  "num" => 0.10,
+  "str" => "the quick brown fox jumps over a lazy dog",
+  "efn" => fn(a, b) {
+    ret "hello world: " + @(a + b);
+  },
+  "cfn" => io.println,
+  "tbl" => {
+    "tbl2num" => 0.30,
+    "tbl2str" => "zażółć gęślą jaźń"
+  }
+};

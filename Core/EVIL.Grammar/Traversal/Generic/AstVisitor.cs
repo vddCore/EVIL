@@ -38,7 +38,7 @@ namespace EVIL.Grammar.Traversal.Generic
             {
                 { typeof(Program), (n) => Visit(n as Program) },
                 { typeof(BlockStatement), (n) => Visit(n as BlockStatement) },
-                { typeof(VariableDefinition), (n) => Visit(n as VariableDefinition) },
+                { typeof(LocalDefinition), (n) => Visit(n as LocalDefinition) },
                 { typeof(FunctionDefinition), (n) => Visit(n as FunctionDefinition) },
                 { typeof(IfStatement), (n) => Visit(n as IfStatement) },
                 { typeof(ExitStatement), (n) => Visit(n as ExitStatement) },
@@ -92,7 +92,7 @@ namespace EVIL.Grammar.Traversal.Generic
         
         public abstract void Visit(Program program);
         public abstract void Visit(BlockStatement blockStatement);
-        public abstract void Visit(VariableDefinition variableDefinition);
+        public abstract void Visit(LocalDefinition localDefinition);
         public abstract void Visit(FunctionDefinition functionDefinition);
         public abstract void Visit(IfStatement ifStatement);
         public abstract void Visit(ExitStatement exitStatement);

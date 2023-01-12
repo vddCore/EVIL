@@ -95,7 +95,7 @@
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, ")");
         public static readonly Token ExtraArguments = new(TokenType.ExtraArguments, "...");
 
-        public static readonly Token Var = new(TokenType.Var, "var");
+        public static readonly Token Loc = new(TokenType.Loc, "loc");
         public static readonly Token Undef = new(TokenType.Undef, "undef");
 
         public static readonly Token If = new(TokenType.If, "if");

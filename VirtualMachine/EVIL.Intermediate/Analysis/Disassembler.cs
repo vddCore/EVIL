@@ -22,8 +22,6 @@ namespace EVIL.Intermediate.Analysis
         {
             _disasm.Clear();
 
-            DumpGlobalList(executable.Globals);
-
             for(var ci = 0; ci < executable.Chunks.Count; ci++)
             {
                 var chunk = executable.Chunks[ci];

@@ -6,14 +6,12 @@ namespace EVIL.Intermediate.CodeGeneration
     {
         public enum SymbolType
         {
-            Undefined = -1,
             Global,
             Local,
             Parameter,
             Extern
         }
 
-        public static readonly SymbolInfo Undefined = new(-1, SymbolType.Undefined);
         public static readonly SymbolInfo Global = new(-1, SymbolType.Global);
         
         public int Id { get; }

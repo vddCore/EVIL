@@ -6,7 +6,7 @@ namespace EVIL.Intermediate
     public class Scope
     {
         private Compiler _compiler;
-        
+
         public Executable Executable { get; }
         public Chunk Chunk { get; }
         public Scope Parent { get; }
@@ -16,7 +16,7 @@ namespace EVIL.Intermediate
         public Scope(Compiler compiler, Executable executable, Chunk chunk)
         {
             _compiler = compiler;
-            
+
             Executable = executable;
             Chunk = chunk;
         }
@@ -40,16 +40,13 @@ namespace EVIL.Intermediate
                 scope = scope.Parent;
             }
 
-            if (_compiler.IsGlobalDefined(name))
-                return (null, SymbolInfo.Global);
-            
-            return (null, SymbolInfo.Undefined);
+            return (null, SymbolInfo.Global);
         }
 
         public SymbolInfo DefineExtern(string name, string ownerChunkName, int ownerLocalId, ExternInfo.ExternType type)
         {
-            if (IsLocalDefined(name))
-                throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
+            if (Symbols.TryGetByKey(name, out var prev))
+                throw new DuplicateSymbolException(name, prev, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             var sym = new SymbolInfo(Chunk.Externs.Count, SymbolInfo.SymbolType.Extern);
             Chunk.Externs.Add(new ExternInfo(name, ownerChunkName, ownerLocalId, type));
@@ -57,7 +54,7 @@ namespace EVIL.Intermediate
 
             return sym;
         }
-        
+
         public SymbolInfo DefineLocal(string name)
         {
             if (Chunk.Locals.Count > 255)
@@ -69,9 +66,9 @@ namespace EVIL.Intermediate
                     _compiler.CurrentColumn
                 );
             }
-            
-            if (IsLocalDefined(name))
-                throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
+
+            if (Symbols.TryGetByKey(name, out var prev))
+                throw new DuplicateSymbolException(name, prev, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             if (Symbols.Forward.ContainsKey(name))
             {
@@ -98,21 +95,16 @@ namespace EVIL.Intermediate
                     _compiler.CurrentColumn
                 );
             }
-            
-            if (IsLocalDefined(name))
-                throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
+
+            if (Symbols.TryGetByKey(name, out var prev))
+                throw new DuplicateSymbolException(name, prev, _compiler.CurrentLine, _compiler.CurrentColumn);
 
             var sym = new SymbolInfo(Chunk.Parameters.Count, SymbolInfo.SymbolType.Parameter);
             Chunk.Parameters.Add(name);
-            
+
             Symbols.Add(name, sym);
 
             return sym;
-        }
-        
-        public bool IsLocalDefined(string name)
-        {
-            return Symbols.TryGetByKey(name, out _);
         }
 
         public void Clear()

@@ -65,15 +65,6 @@ namespace EVIL.Intermediate.CodeGeneration
             {
                 (ownerScope, sym) = localScope.Find(varRef.Identifier);
 
-                if (sym == SymbolInfo.Undefined)
-                {
-                    throw new CompilerException(
-                        $"Undefined symbol '{varRef.Identifier}'.",
-                        varRef.Line,
-                        varRef.Column
-                    );
-                }
-
                 if (sym.Type == SymbolInfo.SymbolType.Global)
                 {
                     EmitGlobalStore(cg, varRef.Identifier);
@@ -170,7 +161,7 @@ namespace EVIL.Intermediate.CodeGeneration
                     {
                         cg.Emit(OpCode.LDX, sym.Id);
                     }
-                    else if (sym == SymbolInfo.Undefined || sym == SymbolInfo.Global)
+                    else if (sym == SymbolInfo.Global)
                     {
                         EmitGlobalLoad(cg, varRef.Identifier);
                     }

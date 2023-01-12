@@ -11,7 +11,7 @@ namespace EVIL.Grammar.Parsing
             var (line, col) = Match(Token.Each);
 
             Match(Token.LParenthesis);
-            var definitions = VariableDefinition();
+            var definitions = LocalDefinition();
 
             Match(Token.Colon);
             var tableNode = AssignmentExpression();
