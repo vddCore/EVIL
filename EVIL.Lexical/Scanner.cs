@@ -166,6 +166,11 @@ namespace EVIL.Lexical
                     Advance();
                     State.CurrentToken = new Token(TokenType.ShiftLeft, "<<");
                 }
+                else if (Peek() == '-')
+                {
+                    Advance();
+                    State.CurrentToken = new Token(TokenType.KeyInitializer, "<-");
+                }
                 else
                 {
                     State.CurrentToken = new Token(TokenType.CompareLessThan, '<');

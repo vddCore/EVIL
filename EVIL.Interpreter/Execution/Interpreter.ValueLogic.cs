@@ -19,9 +19,20 @@ namespace EVIL.Interpreter.Execution
         {
             var tbl = new Table();
 
-            for (var i = 0; i < tableNode.Initializers.Count; i++)
+            if (tableNode.Keyed)
             {
-                tbl[i] = Visit(tableNode.Initializers[i]);
+                for (var i = 0; i < tableNode.Initializers.Count; i++)
+                {
+                    var node = (KeyedInitializerNode)tableNode.Initializers[i];
+                    tbl[Visit(node.Key)] = Visit(node.Value);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < tableNode.Initializers.Count; i++)
+                {
+                    tbl[i] = Visit(tableNode.Initializers[i]);
+                }
             }
 
             return new(tbl);
