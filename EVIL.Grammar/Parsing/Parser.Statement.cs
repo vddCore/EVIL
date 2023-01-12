@@ -59,7 +59,7 @@ namespace EVIL.Grammar.Parsing
                     throw new ParserException($"Expected a statement, found '{token.Value}'.", Lexer.State);
             }
 
-            Match(TokenType.Semicolon);
+            Match(Token.Semicolon);
             return node;
         }
     }

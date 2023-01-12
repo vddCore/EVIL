@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
                 throw new ParserException("Unexpected 'ret' outside of a function.", Lexer.State);
             }
 
-            var line = Match(TokenType.Ret);
+            var line = Match(Token.Ret);
             AstNode retNode;
 
             if (CurrentToken.Type == TokenType.Semicolon)

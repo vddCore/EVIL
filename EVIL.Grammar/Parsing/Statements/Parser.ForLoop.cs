@@ -9,25 +9,25 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode ForLoop()
         {
-            var line = Match(TokenType.For);
+            var line = Match(Token.For);
             
             List<AstNode> assignments;
             AstNode condition;
             List<AstNode> iterationStatements;
 
-            Match(TokenType.LParenthesis);
+            Match(Token.LParenthesis);
             {
                 assignments = ForDeclarationList();
                 
-                Match(TokenType.Semicolon);
+                Match(Token.Semicolon);
                 
                 condition = AssignmentExpression();
                 
-                Match(TokenType.Semicolon);
+                Match(Token.Semicolon);
                 
                 iterationStatements = ForExpressionList();
             }
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
 
             var statements = LoopDescent(BlockStatement);
             
@@ -45,7 +45,7 @@ namespace EVIL.Grammar.Parsing
             
             while (CurrentToken.Type == TokenType.Comma)
             {
-                Match(TokenType.Comma);
+                Match(Token.Comma);
                 nodes.Add(ForDeclaration());
             }
 
@@ -73,7 +73,7 @@ namespace EVIL.Grammar.Parsing
 
             while (CurrentToken.Type == TokenType.Comma)
             {
-                Match(TokenType.Comma);
+                Match(Token.Comma);
                 list.Add(AssignmentExpression());
             }
 

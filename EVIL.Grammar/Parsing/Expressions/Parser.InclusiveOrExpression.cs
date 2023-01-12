@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
 
             while (token.Type == TokenType.BitwiseOr)
             {
-                var line = Match(TokenType.BitwiseOr);
+                var line = Match(Token.BitwiseOr);
                 node = new BinaryOperationNode(node, ExclusiveOrExpression(), BinaryOperationType.BitwiseOr) {Line = line};
                 
                 token = CurrentToken;

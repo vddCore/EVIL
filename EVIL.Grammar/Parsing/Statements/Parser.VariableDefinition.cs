@@ -8,16 +8,16 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode VariableDefinition()
         {
-            var line = Match(TokenType.Var);
+            var line = Match(Token.Var);
 
             var identifier = CurrentToken.Value;
-            Match(TokenType.Identifier);
+            Match(Token.Identifier);
 
             AstNode initializer = null;
             
             if (CurrentToken.Type == TokenType.Assign)
             {
-                Match(TokenType.Assign);
+                Match(Token.Assign);
                 initializer = AssignmentExpression();
             }
 

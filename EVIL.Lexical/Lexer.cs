@@ -46,38 +46,38 @@ namespace EVIL.Lexical
             {
                 case '-' when Peek() == '-':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.Decrement, "--");
+                    State.CurrentToken = Token.Decrement;
                     break;
                 case '-' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignSubtract, "-=");
+                    State.CurrentToken = Token.AssignSubtract;
                     break;
                 case '-':
-                    State.CurrentToken = new Token(TokenType.Minus, "-");
+                    State.CurrentToken = Token.Minus;
                     break;
                 case '.' when char.IsDigit(Peek()):
                     State.CurrentToken = GetDecimalNumber();
                     break;
                 case '.':
-                    State.CurrentToken = new Token(TokenType.Dot, ".");
+                    State.CurrentToken = Token.Dot;
                     break;
                 case '+' when Peek() == '+':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.Increment, "++");
+                    State.CurrentToken = Token.Increment;
                     break;
                 case '+' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignAdd, "+=");
+                    State.CurrentToken = Token.AssignAdd;
                     break;
                 case '+':
-                    State.CurrentToken = new Token(TokenType.Plus, "-");
+                    State.CurrentToken = Token.Plus;
                     break;
                 case '*' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignMultiply, "*=");
+                    State.CurrentToken = Token.AssignMultiply;
                     break;
                 case '*':
-                    State.CurrentToken = new Token(TokenType.Multiply, "*");
+                    State.CurrentToken = Token.Multiply;
                     break;
                 case '/' when Peek() == '/':
                     SkipComment();
@@ -88,31 +88,31 @@ namespace EVIL.Lexical
                     return;
                 case '/' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignDivide, "/=");
+                    State.CurrentToken = Token.AssignDivide;
                     break;
                 case '/':
-                    State.CurrentToken = new Token(TokenType.Divide, "/");
+                    State.CurrentToken = Token.Divide;
                     break;
                 case '?':
-                    State.CurrentToken = new Token(TokenType.QuestionMark, "?");
+                    State.CurrentToken = Token.QuestionMark;
                     break;
                 case '%' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignModulo, "%=");
+                    State.CurrentToken = Token.AssignModulo;
                     break;
                 case '%':
-                    State.CurrentToken = new Token(TokenType.Modulo, "%");
+                    State.CurrentToken = Token.Modulo;
                     break;
                 case '=' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.Equal, "==");
+                    State.CurrentToken = Token.Equal;
                     break;
                 case '=':
-                    State.CurrentToken = new Token(TokenType.Assign, "=");
+                    State.CurrentToken = Token.Assign;
                     break;
                 case '<' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.LessThanOrEqual, "<=");
+                    State.CurrentToken = Token.LessThanOrEqual;
                     break;
                 case '<' when Peek() == '<':
                 {
@@ -120,20 +120,20 @@ namespace EVIL.Lexical
                     if (Peek() == '=')
                     {
                         Advance();
-                        State.CurrentToken = new Token(TokenType.AssignShiftLeft, "<<=");
+                        State.CurrentToken = Token.AssignShiftLeft;
                     }
                     else
                     {
-                        State.CurrentToken = new Token(TokenType.ShiftLeft, "<<");
+                        State.CurrentToken = Token.ShiftLeft;
                     }
                     break;
                 }
                 case '<':
-                    State.CurrentToken = new Token(TokenType.LessThan, "<");
+                    State.CurrentToken = Token.LessThan;
                     break;
                 case '>' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.GreaterThanOrEqual, ">=");
+                    State.CurrentToken = Token.GreaterThanOrEqual;
                     break;
                 case '>' when Peek() == '>':
                 {
@@ -141,140 +141,125 @@ namespace EVIL.Lexical
                     if (Peek() == '=')
                     {
                         Advance();
-                        State.CurrentToken = new Token(TokenType.AssignShiftRight, ">>=");
+                        State.CurrentToken = Token.AssignShiftRight;
                     }
                     else
                     {
-                        State.CurrentToken = new Token(TokenType.ShiftRight, ">>");
+                        State.CurrentToken = Token.ShiftRight;
                     }
                     break;
                 }
                 case '>':
-                    State.CurrentToken = new Token(TokenType.GreaterThan, ">");
+                    State.CurrentToken = Token.GreaterThan;
                     break;
                 case '&' when Peek() == '&':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.LogicalAnd, "&&");
+                    State.CurrentToken = Token.LogicalAnd;
                     break;
                 case '&' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignBitwiseAnd, "&=");
+                    State.CurrentToken = Token.AssignBitwiseAnd;
                     break;
                 case '&':
-                    State.CurrentToken = new Token(TokenType.BitwiseAnd, "&");
+                    State.CurrentToken = Token.BitwiseAnd;
                     break;
                 case '|' when Peek() == '|':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.LogicalOr, "||");
+                    State.CurrentToken = Token.LogicalOr;
                     break;
                 case '|' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignBitwiseOr, "|=");
+                    State.CurrentToken = Token.AssignBitwiseOr;
                     break;
                 case '|':
-                    State.CurrentToken = new Token(TokenType.BitwiseOr, "|");
+                    State.CurrentToken = Token.BitwiseOr;
                     break;
                 case '^' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.AssignBitwiseXor, "^=");
+                    State.CurrentToken = Token.AssignBitwiseXor;
                     break;
                 case '^':
-                    State.CurrentToken = new Token(TokenType.BitwiseXor, "^");
+                    State.CurrentToken = Token.BitwiseXor;
                     break;
                 case '~':
-                    State.CurrentToken = new Token(TokenType.BitwiseNot, "~");
+                    State.CurrentToken = Token.BitwiseNot;
                     break;
                 case ',':
-                    State.CurrentToken = new Token(TokenType.Comma, ",");
+                    State.CurrentToken = Token.Comma;
                     break;
                 case ':':
-                    State.CurrentToken = new Token(TokenType.Colon, ":");
+                    State.CurrentToken = Token.Colon;
                     break;
                 case ';':
-                    State.CurrentToken = new Token(TokenType.Semicolon, ";");
+                    State.CurrentToken = Token.Semicolon;
                     break;
                 case '(':
-                    State.CurrentToken = new Token(TokenType.LParenthesis, "(");
+                    State.CurrentToken = Token.LParenthesis;
                     break;
                 case ')':
-                    State.CurrentToken = new Token(TokenType.RParenthesis, ")");
+                    State.CurrentToken = Token.RParenthesis;
                     break;
                 case '!' when Peek() == '=':
                     Advance();
-                    State.CurrentToken = new Token(TokenType.NotEqual, "!=");
+                    State.CurrentToken = Token.NotEqual;
                     break;
                 case '!':
-                    State.CurrentToken = new Token(TokenType.LogicalNot, "!");
+                    State.CurrentToken = Token.LogicalNot;
                     break;
                 case '[':
-                    State.CurrentToken = new Token(TokenType.LBracket, "[");
+                    State.CurrentToken = Token.LBracket;
                     break;
                 case ']':
-                    State.CurrentToken = new Token(TokenType.RBracket, "]");
+                    State.CurrentToken = Token.RBracket;
                     break;
                 case '{':
-                    State.CurrentToken = new Token(TokenType.LBrace, "{");
+                    State.CurrentToken = Token.LBrace;
                     break;
                 case '}':
-                    State.CurrentToken = new Token(TokenType.RBrace, "}");
+                    State.CurrentToken = Token.RBrace;
                     break;
+                case (char)0:
+                    State.CurrentToken = Token.EOF;
+                    break;
+                case '"':
+                    State.CurrentToken = GetString();
+                    break;
+                case '#':
+                    State.CurrentToken = Token.Length;
+                    break;
+                case '@':
+                    State.CurrentToken = Token.AsString;
+                    break;
+                case '$':
+                    State.CurrentToken = Token.Floor;
+                    break;
+
                 default:
                 {
-                    switch (State.Character)
+                    if (char.IsLetter(State.Character) || State.Character == '_')
                     {
-                        case '"':
-                            State.CurrentToken = GetString();
-                            Advance();
-
-                            return;
-                        case (char)0:
-                            State.CurrentToken = new Token(TokenType.EOF, "<EOF>");
-                            Advance();
-
-                            return;
-                        case '#':
-                            State.CurrentToken = new Token(TokenType.Length, "#");
-                            Advance();
-
-                            return;
-                        case '@':
-                            State.CurrentToken = new Token(TokenType.ToString, "@");
-                            Advance();
-
-                            return;
-                        case '$':
-                            State.CurrentToken = new Token(TokenType.Floor, "$");
-                            Advance();
-
-                            return;
-                        default:
+                        State.CurrentToken = GetIdentifierOrKeyword();
+                        return;
+                    }
+                    else if (char.IsDigit(State.Character))
+                    {
+                        if (State.Character == '0')
                         {
-                            if (char.IsLetter(State.Character) || State.Character == '_')
+                            if (Peek() == 'x')
                             {
-                                State.CurrentToken = GetIdentifierOrKeyword();
-                                return;
-                            }
-                            else if (char.IsDigit(State.Character))
-                            {
-                                if (State.Character == '0')
-                                {
-                                    if (Peek() == 'x')
-                                    {
-                                        Advance();
-                                        Advance();
+                                Advance();
+                                Advance();
 
-                                        State.CurrentToken = GetHexNumber();
-                                        return;
-                                    }
-                                }
-                                State.CurrentToken = GetDecimalNumber();
+                                State.CurrentToken = GetHexNumber();
                                 return;
                             }
                         }
-
-                            throw new LexerException($"Unexpected token '{State.Character}'", State.Column, State.Line);
+                        State.CurrentToken = GetDecimalNumber();
+                        return;
                     }
                 }
+
+                    throw new LexerException($"Unexpected token '{State.Character}'", State.Column, State.Line);
             }
 
             Advance();
@@ -305,35 +290,22 @@ namespace EVIL.Lexical
                 Advance();
             }
 
-            return new Token(TokenType.HexInteger, number);
+            return Token.CreateHexInteger(number);
         }
 
         private Token GetDecimalNumber()
         {
             var number = string.Empty;
-            var isDouble = false;
 
             while (char.IsDigit(State.Character) || State.Character == '.')
             {
-                if (State.Character == '.')
-                {
-                    isDouble = true;
-                }
-
                 number += State.Character;
                 Advance();
             }
 
             try
             {
-                if (isDouble)
-                {
-                    return new Token(TokenType.Double, number);
-                }
-                else
-                {
-                    return new Token(TokenType.Integer, number);
-                }
+                return Token.CreateNumber(number);
             }
             catch (FormatException)
             {
@@ -353,25 +325,25 @@ namespace EVIL.Lexical
 
             return str switch
             {
-                "fn" => new Token(TokenType.Fn, "fn"),
-                "for" => new Token(TokenType.For, "for"),
-                "each" => new Token(TokenType.Each, "each"),
-                "undef" => new Token(TokenType.Undef, "undef"),
-                "while" => new Token(TokenType.While, "while"),
-                "do" => new Token(TokenType.Do, "do"),
-                "nameof" => new Token(TokenType.NameOf, "nameof"),
-                "var" => new Token(TokenType.Var, "var"),
-                "in" => new Token(TokenType.In, "in"),
-                "if" => new Token(TokenType.If, "if"),
-                "elif" => new Token(TokenType.Elif, "elif"),
-                "else" => new Token(TokenType.Else, "else"),
-                "break" => new Token(TokenType.Break, "break"),
-                "skip" => new Token(TokenType.Skip, "skip"),
-                "ret" => new Token(TokenType.Ret, "ret"),
-                "true" => new Token(TokenType.True, "true"),
-                "false" => new Token(TokenType.False, "false"),
-                "exit" => new Token(TokenType.Exit, "exit"),
-                _ => new Token(TokenType.Identifier, str)
+                "fn" => Token.Fn,
+                "for" => Token.For,
+                "each" => Token.Each,
+                "undef" => Token.Undef,
+                "while" => Token.While,
+                "do" => Token.Do,
+                "nameof" => Token.NameOf,
+                "var" => Token.Var,
+                "in" => Token.In,
+                "if" => Token.If,
+                "elif" => Token.Elif,
+                "else" => Token.Else,
+                "break" => Token.Break,
+                "skip" => Token.Skip,
+                "ret" => Token.Ret,
+                "true" => Token.True,
+                "false" => Token.False,
+                "exit" => Token.Exit,
+                _ => Token.CreateIdentifier(str)
             };
         }
 
@@ -434,7 +406,7 @@ namespace EVIL.Lexical
                 Advance();
             }
 
-            return new Token(TokenType.String, str);
+            return Token.CreateString(str);
         }
 
         private char GetUnicodeSequence()

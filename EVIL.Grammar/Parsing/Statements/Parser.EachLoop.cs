@@ -8,18 +8,18 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode EachLoop()
         {
-            var line = Match(TokenType.Each);
+            var line = Match(Token.Each);
 
-            Match(TokenType.LParenthesis);
+            Match(Token.LParenthesis);
             var keyVar = VariableDefinition();
-            Match(TokenType.Comma);
+            Match(Token.Comma);
             var valueVar = VariableDefinition();
 
-            Match(TokenType.Colon);
+            Match(Token.Colon);
 
             var tableNode = AssignmentExpression();
             
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
 
             var statements = LoopDescent(BlockStatement);
             

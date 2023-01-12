@@ -8,14 +8,14 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode DoWhileLoop()
         {
-            Match(TokenType.Do);
+            Match(Token.Do);
 
             var statements = LoopDescent(BlockStatement);
             
-            Match(TokenType.While);
-            Match(TokenType.LParenthesis);
+            Match(Token.While);
+            Match(Token.LParenthesis);
             var conditionExpression = AssignmentExpression();
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
 
             return new DoWhileLoopNode(conditionExpression, statements);
         }

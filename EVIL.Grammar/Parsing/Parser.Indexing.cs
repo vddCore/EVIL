@@ -13,15 +13,15 @@ namespace EVIL.Grammar.Parsing
             
             if (CurrentToken.Type == TokenType.Dot)
             {
-                line = Match(TokenType.Dot);
+                line = Match(Token.Dot);
                 indexer = new StringNode(CurrentToken.Value);
-                Match(TokenType.Identifier);
+                Match(Token.Identifier);
             }
             else // must be bracket then
             {
-                line = Match(TokenType.LBracket);
+                line = Match(Token.LBracket);
                 indexer = AssignmentExpression();
-                Match(TokenType.RBracket);
+                Match(Token.RBracket);
             }
 
             return new IndexingNode(indexable, indexer, CurrentToken.Type == TokenType.Assign) {Line = line};

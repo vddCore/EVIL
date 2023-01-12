@@ -22,13 +22,13 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.ShiftLeft)
                 {
-                    var line = Match(TokenType.ShiftLeft);
+                    var line = Match(Token.ShiftLeft);
                     node = new BinaryOperationNode(node, AdditiveExpression(), BinaryOperationType.ShiftLeft)
                         {Line = line};
                 }
                 else if (token.Type == TokenType.ShiftRight)
                 {
-                    var line = Match(TokenType.ShiftRight);
+                    var line = Match(Token.ShiftRight);
                     node = new BinaryOperationNode(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
                         {Line = line};
                 }

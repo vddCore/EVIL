@@ -11,7 +11,7 @@
         BitwiseOr,
         BitwiseXor,
         BitwiseNot,
-        ToString,
+        AsString,
         Length,
         Increment,
         Decrement,
@@ -58,8 +58,7 @@
 
         Identifier,
 
-        Double,
-        Integer,
+        Number,
         HexInteger,
         String,
 

@@ -23,7 +23,7 @@ namespace EVIL.Grammar.Parsing
         public ProgramNode Parse()
         {
             var programNode = Program();
-            Match(TokenType.EOF);
+            Match(Token.EOF);
 
             return programNode;
         }
@@ -66,14 +66,14 @@ namespace EVIL.Grammar.Parsing
             return new ProgramNode(statementList);
         }
 
-        private int Match(TokenType tokenType)
+        private int Match(Token token)
         {
             var line = Lexer.State.Line;
 
-            if (CurrentToken.Type != tokenType)
+            if (!CurrentToken.Equals(token))
             {
                 throw new ParserException(
-                    $"Expected '{Token.StringRepresentation(tokenType)}', got '{CurrentToken.Value}'.",
+                    $"Expected '{token.Value}', got '{CurrentToken.Value}'.",
                     Lexer.State
                 );
             }

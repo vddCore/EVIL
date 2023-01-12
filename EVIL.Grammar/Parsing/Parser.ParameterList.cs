@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Lexical;
 
@@ -9,20 +8,20 @@ namespace EVIL.Grammar.Parsing
     {
         private ParameterListNode ParameterList()
         {
-            var line = Match(TokenType.LParenthesis);
+            var line = Match(Token.LParenthesis);
             var parameterList = new List<string>();
 
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
                 parameterList.Add(CurrentToken.Value);
-                Match(TokenType.Identifier);
+                Match(Token.Identifier);
 
                 if (CurrentToken.Type == TokenType.RParenthesis)
                     break;
 
-                Match(TokenType.Comma);
+                Match(Token.Comma);
             }
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
 
             return new ParameterListNode(parameterList) { Line = line };
         }

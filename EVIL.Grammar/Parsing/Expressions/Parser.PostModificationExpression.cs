@@ -24,14 +24,14 @@ namespace EVIL.Grammar.Parsing
                 {
                     DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
-                    var line = Match(TokenType.Increment);
+                    var line = Match(Token.Increment);
                     node = new IncrementationNode(node, false) {Line = line};
                 }
                 else if (token.Type == TokenType.Decrement)
                 {
                     DisallowPrevious(TokenType.Decrement, TokenType.Increment);
 
-                    var line = Match(TokenType.Decrement);
+                    var line = Match(Token.Decrement);
                     node = new DecrementationNode(node, false) {Line = line};
                 }
 

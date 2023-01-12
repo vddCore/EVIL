@@ -8,12 +8,12 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode IfCondition()
         {
-            var line = Match(TokenType.If);
-            Match(TokenType.LParenthesis);
+            var line = Match(Token.If);
+            Match(Token.LParenthesis);
 
             var expression = AssignmentExpression();
 
-            Match(TokenType.RParenthesis);
+            Match(Token.RParenthesis);
             var node = new ConditionNode { Line = line };
 
             node.IfElifBranches.Add(expression, BlockStatement());
@@ -22,20 +22,20 @@ namespace EVIL.Grammar.Parsing
             {
                 if (CurrentToken.Type == TokenType.Elif)
                 {
-                    Match(TokenType.Elif);
-                    Match(TokenType.LParenthesis);
+                    Match(Token.Elif);
+                    Match(Token.LParenthesis);
 
                     expression = AssignmentExpression();
 
-                    Match(TokenType.RParenthesis);
+                    Match(Token.RParenthesis);
                     node.IfElifBranches.Add(expression, BlockStatement());
                 }
                 else if (CurrentToken.Type == TokenType.Else)
                 {
-                    Match(TokenType.Else);
+                    Match(Token.Else);
                     node.ElseBranch = BlockStatement();
                 }
-                else throw new ParserException($"Expected 'end' or 'else' or 'elif', got '{CurrentToken.Value}'", Lexer.State);
+                else throw new ParserException($"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'", Lexer.State);
             }
             
             return node;
