@@ -93,22 +93,6 @@ namespace EVIL.Interpreter.Runtime.Library
             }
         }
 
-        [ClrFunction("gset")]
-        public static DynamicValue Set(ExecutionContext ctx, params DynamicValue[] args)
-        {
-            args.ExpectExactly(2)
-                .ExpectKeyTypeAtIndex(0);
-
-            return ctx.VirtualMachine.GlobalTable.Set(args[0], args[1]);
-        }
-        
-        [ClrFunction("type")]
-        public static DynamicValue Type(ExecutionContext ctx, params DynamicValue[] args)
-        {
-            args.ExpectExactly(1);
-            return new(args[0].Type.ToString().ToLower());
-        }
-
         [ClrFunction("strace_s")]
         public static DynamicValue StraceString(ExecutionContext ctx, params DynamicValue[] args)
         {

@@ -7,6 +7,9 @@ namespace EVIL.UnitTests.Helper
 {
     public static class XAssert
     {
+        public static void AreEqual(DynamicValue expected, DynamicValue actual)
+            => NAssert.AreEqual(expected, actual);
+        
         public static void AreEqual(string expected, DynamicValue actual)
         {
             NAssert.AreEqual(DynamicValueType.String, actual.Type);
