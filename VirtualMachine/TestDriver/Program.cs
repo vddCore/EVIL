@@ -28,7 +28,18 @@ namespace EVIL.VirtualMachine.TestDriver
             var source = File.ReadAllText("./test_asgn2.vil");
             lexer.LoadSource(source);
             var programTreeRoot = parser.Parse();
-            var executable = compiler.Compile(programTreeRoot);
+            
+            Executable executable;
+            try
+            {
+                executable = compiler.Compile(programTreeRoot);
+            }
+            catch (CompilerException e)
+            {
+                Console.WriteLine($"Compilation error on line {e.Line}: {e.Message}");
+                return;
+            }
+            
             Console.WriteLine(disasm.Disassemble(executable));
             Console.WriteLine("---------------------");
 

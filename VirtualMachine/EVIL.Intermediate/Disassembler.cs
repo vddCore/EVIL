@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -5,10 +8,17 @@ namespace EVIL.Intermediate
 {
     public class Disassembler
     {
+        private int _longestOpCodeLength;
         private StringBuilder _disasm = new();
 
         private int IP { get; set; }
         private Chunk CurrentChunk { get; set; }
+
+        public Disassembler()
+        {
+            _longestOpCodeLength = Enum.GetNames<OpCode>()
+                .Max(x => x.Length);
+        }
 
         public string Disassemble(Executable executable)
         {
@@ -35,7 +45,8 @@ namespace EVIL.Intermediate
 
                         case OpCode.JUMP:
                         case OpCode.TJMP:
-                            DecodeJump(op);
+                        case OpCode.FJMP:
+                            DecodeJump(op, executable.Labels);
                             break;
 
                         case OpCode.LDC:
@@ -65,7 +76,7 @@ namespace EVIL.Intermediate
 
         private void Decode(OpCode opCode)
         {
-            _disasm.Append($" {((int)opCode):X2} {opCode}");
+            _disasm.Append($" {(int)opCode:X2} {opCode.ToString().PadRight(_longestOpCodeLength, ' ')}");
         }
 
         private void DecodeLine(OpCode opCode)
@@ -74,10 +85,13 @@ namespace EVIL.Intermediate
             _disasm.AppendLine();
         }
 
-        private void DecodeJump(OpCode opCode)
+        private void DecodeJump(OpCode opCode, List<int> labels)
         {
             Decode(opCode);
-            _disasm.AppendLine(" ");
+            var labelId = FetchInt32();
+            var labelAddr = labels[labelId];
+
+            _disasm.AppendLine($" {labelId:X8} ; {CurrentChunk.Name}+{labelAddr:X8}");
         }
 
         private void DecodeLdConst(OpCode opCode, ConstPool constPool)

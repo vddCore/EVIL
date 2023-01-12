@@ -12,7 +12,7 @@ namespace EVIL.Intermediate
             {
                 Visit(returnStatement.Expression);
             }
-
+            
             cg.Emit(OpCode.RETN);
         }    
     }

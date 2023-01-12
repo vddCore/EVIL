@@ -49,6 +49,14 @@ namespace EVIL.ExecutionEngine.Diagnostics
             ClrFunction = clrFunction;
         }
 
+        public void Jump(int addr)
+        {
+            if (addr >= Chunk.Instructions.Count)
+                throw new AddressOutOfBoundsException(this, addr);
+
+            IP = addr;
+        }
+
         public OpCode FetchOpCode()
         {
             return (OpCode)FetchByte();

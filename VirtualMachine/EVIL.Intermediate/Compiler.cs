@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using EVIL.Grammar;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Schema;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Grammar.Traversal;
@@ -16,6 +17,7 @@ namespace EVIL.Intermediate
         private Stack<Chunk> ChunkDefinitionStack { get; } = new();
 
         private Chunk CurrentChunk => ChunkDefinitionStack.Peek();
+        private bool IsLocalScope => ScopeStack.Count > 0;
 
         public Executable Compile(Program program)
         {
@@ -32,6 +34,22 @@ namespace EVIL.Intermediate
             ChunkDefinitionStack.Pop();
 
             return _executable;
+        }
+
+        private int _lastLine = -1;
+        public override void Visit(AstNode node)
+        {
+            if (node.Line != _lastLine)
+            {
+                if (node.Line == 0)
+                {
+                    Console.WriteLine(node.GetType().Name);
+                }
+                Console.WriteLine(node.Line);
+                _lastLine = node.Line;
+            }
+            
+            base.Visit(node);
         }
 
         public override void Visit(Program program)
@@ -67,10 +85,6 @@ namespace EVIL.Intermediate
         }
 
         public override void Visit(FunctionExpression functionExpression)
-        {
-        }
-
-        public override void Visit(IfStatement ifStatement)
         {
         }
 
@@ -124,13 +138,15 @@ namespace EVIL.Intermediate
 
         public override void Visit(ExpressionStatement expressionStatement)
         {
-            // var cg = CurrentChunk.GetCodeGenerator();
+            var cg = CurrentChunk.GetCodeGenerator();
             Visit(expressionStatement.Expression);
-            // cg.Emit(OpCode.POP);
+            cg.Emit(OpCode.POP);
         }
 
         public override void Visit(ExtraArgumentsExpression extraArgumentsExpression)
         {
+            var cg = CurrentChunk.GetCodeGenerator();
+            cg.Emit(OpCode.XARGS);
         }
 
         private void EnterScope()
