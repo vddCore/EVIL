@@ -9,7 +9,7 @@ namespace EVIL.Intermediate.Storage
     {
         private static byte[] _linkerData = new byte[32];
 
-        public static readonly byte[] MagicNumber = new byte[] { 0x45, 0x56, 0x58 }; // EVX
+        public static readonly byte[] MagicNumber = new byte[] { 0x0C, 0x45, 0x56, 0x58 }; // \x0CEVX
         public static readonly byte[] LinkerID = new byte[] { 0x43, 0x56, 0x49, 0x4C }; // CVIL
         public const byte FormatVersion = 1;
 
