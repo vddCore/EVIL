@@ -124,7 +124,7 @@ namespace EVIL.Runtime.Library
         [ClrFunction("math.pow")]
         public static DynValue Pow(Interpreter interpreter, ClrFunctionArguments args)
         {
-            args.ExpectExactly(1)
+            args.ExpectExactly(2)
                 .ExpectTypeAtIndex(0, DynValueType.Number)
                 .ExpectTypeAtIndex(1, DynValueType.Number);
 

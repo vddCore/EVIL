@@ -21,7 +21,7 @@ namespace EVIL.Execution
                     while (true)
                     {
                         var conditionEvaluation = Visit(forLoopNode.Condition);
-                        if (conditionEvaluation.Number == 0)
+                        if (!conditionEvaluation.IsTruth)
                         {
                             break;
                         }

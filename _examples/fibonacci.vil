@@ -1,0 +1,13 @@
+﻿fn main(args) {
+  for(var i = 1; i < 25; i++) {
+    io.println(@fib(i))
+  }
+}
+
+fn fib(n) {
+  if (n < 2) {
+    ret n
+  }
+
+  ret fib(n - 1) + fib(n - 2)
+}
