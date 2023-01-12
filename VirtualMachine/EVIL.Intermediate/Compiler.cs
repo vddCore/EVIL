@@ -12,7 +12,7 @@ namespace EVIL.Intermediate
 
         private Stack<int> LoopContinueLabels { get; } = new();
         private Stack<int> LoopEndLabels { get; } = new();
-        
+
         private Stack<Scope> ScopeStack { get; } = new();
         private Stack<Chunk> ChunkDefinitionStack { get; } = new();
 
@@ -36,6 +36,7 @@ namespace EVIL.Intermediate
         }
 
         private int _lastLine = -1;
+
         public override void Visit(AstNode node)
         {
             Console.WriteLine($"{node.Line}:{node.Column}");
@@ -49,24 +50,52 @@ namespace EVIL.Intermediate
 
                 _lastLine = node.Line;
             }
-            
+
             base.Visit(node);
         }
-        
+
         public override void Visit(FunctionExpression functionExpression)
         {
             var prevCg = CurrentChunk.GetCodeGenerator();
-            var (id, chunk) = _executable.CreateAnonymousChunk();
+            var prevScope = ScopeStack.Peek();
 
+            var (id, chunk) = _executable.CreateAnonymousChunk();
             ChunkDefinitionStack.Push(chunk);
 
-            BuildFunction(
-                CurrentChunk.GetCodeGenerator(), 
-                functionExpression.Parameters,
-                functionExpression.Statements
-            );
-            
-            _executable.Chunks.Add(ChunkDefinitionStack.Pop());
+            EnterScope();
+            {
+                var currentScope = ScopeStack.Peek();
+                var currentCg = CurrentChunk.GetCodeGenerator();
+
+                while (prevScope != null)
+                {
+                    foreach (var kvp in prevScope.Symbols.Forward)
+                    {
+                        var identifier = kvp.Key;
+                        var externLocalSym = kvp.Value;
+
+                        if (externLocalSym.Type == SymbolInfo.SymbolType.Local)
+                        {
+                            currentScope.DefineExtern(identifier, prevScope.Chunk.Name, externLocalSym.Id, false);
+                        }
+                        else if (externLocalSym.Type == SymbolInfo.SymbolType.Parameter)
+                        {
+                            currentScope.DefineExtern(identifier, prevScope.Chunk.Name, externLocalSym.Id, true);
+                        }
+                    }
+
+                    prevScope = prevScope.Parent;
+                }
+
+                BuildFunction(
+                    currentCg,
+                    functionExpression.Parameters,
+                    functionExpression.Statements
+                );
+            }
+            LeaveScope();
+
+            ChunkDefinitionStack.Pop();
             prevCg.Emit(OpCode.LDF, id);
         }
 
@@ -85,32 +114,27 @@ namespace EVIL.Intermediate
         private void BuildFunction(CodeGenerator cg, List<string> parameters, BlockStatement block)
         {
             var paramCount = parameters.Count;
+            var localScope = ScopeStack.Peek();
 
-            EnterScope();
+            for (var i = 0; i < paramCount; i++)
             {
-                var localScope = ScopeStack.Peek();
+                var param = parameters[i];
+                localScope.DefineParameter(param);
 
-                for (var i = 0; i < paramCount; i++)
-                {
-                    var param = parameters[i];
-                    localScope.DefineParameter(param);
-
-                    cg.Emit(OpCode.STA, paramCount - i - 1);
-                }
-
-                foreach (var stmt in block.Statements)
-                {
-                    Visit(stmt);
-                }
+                cg.Emit(OpCode.STA, paramCount - i - 1);
             }
 
-            if (CurrentChunk.Instructions.Count == 0 || 
+            foreach (var stmt in block.Statements)
+            {
+                Visit(stmt);
+            }
+
+            if (CurrentChunk.Instructions.Count == 0 ||
                 CurrentChunk.Instructions[^1] != (byte)OpCode.RETN)
             {
                 EmitConstantLoad(cg, 0);
                 cg.Emit(OpCode.RETN);
             }
-            LeaveScope();
         }
 
         private void EnterScope()

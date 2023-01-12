@@ -4,6 +4,8 @@ namespace EVIL.Intermediate
 {
     public class Executable
     {
+        private int _nextAnonymousChunkId;
+        
         public List<string> Globals { get; } = new();
         public ConstPool ConstPool = new();
         
@@ -18,7 +20,9 @@ namespace EVIL.Intermediate
         public (int, Chunk) CreateAnonymousChunk()
         {
             var id = Chunks.Count;
-            var chunk = new Chunk($"!!<{id}>");
+            var chunk = new Chunk($"!!<{_nextAnonymousChunkId++}>");
+
+            Chunks.Add(chunk);
 
             return (id, chunk);
         }
@@ -26,7 +30,7 @@ namespace EVIL.Intermediate
         public void DefineGlobal(string name)
         {
             if (IsGlobalDefined(name))
-                throw new DuplicateSymbolException($"Global symbol '{name}' was already defined.", name);
+                throw new DuplicateSymbolException(name);
 
             Globals.Add(name);
         }

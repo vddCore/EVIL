@@ -6,8 +6,8 @@ namespace EVIL.Intermediate
     {
         public string SymbolName { get; }
 
-        public DuplicateSymbolException(string message, string symbolName)
-            : base(message)
+        public DuplicateSymbolException(string symbolName)
+            : base($"Symbol '{symbolName}' was already defined in the current scope.")
         {
             SymbolName = symbolName;
         }

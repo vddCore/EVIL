@@ -17,6 +17,7 @@ namespace EVIL.ExecutionEngine
         private RuntimeConstPool RuntimeConstPool { get; }
         private Stack<StackFrame> CallStack { get; } = new();
         private Executable Executable { get; }
+        private Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
         public Table GlobalTable { get; } = new();
         public Stack<DynamicValue> EvaluationStack { get; } = new();
@@ -243,7 +244,7 @@ namespace EVIL.ExecutionEngine
                         evstack.Push(new(a.Number + b.Number));
                         return;
                     }
-                    
+
                     throw new UnexpectedTypeException(a.Type);
                 }
 
@@ -557,10 +558,50 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LDF:
                 {
                     itmp = frame.FetchInt32();
-                    evstack.Push(new(Executable.Chunks[itmp]));
+
+                    var chunkClone = Executable.Chunks[itmp].ShallowClone();
+                    var externs = new DynamicValue[chunkClone.Externs.Count];
+                    ExternContexts.Add(chunkClone, externs);
+
+                    var eidx = 0;
+                    for (var i = 0; i < _currentStackFrame.FormalArguments.Length; i++)
+                    {
+                        externs[eidx++] = _currentStackFrame.FormalArguments[i];
+                    }
+                    
+                    for (var i = 0; i < _currentStackFrame.Locals.Length; i++)
+                    {
+                        externs[eidx++] = _currentStackFrame.Locals[i];
+                    }
+                    
+                    if (ExternContexts.TryGetValue(_currentStackFrame.Chunk, out var externContext))
+                    {
+                        for (var i = 0; i < externContext.Length; i++)
+                        {
+                            externs[eidx++] = externContext[i];
+                        }
+                    }
+
+                    evstack.Push(new(chunkClone));
                     break;
                 }
-                
+
+                case OpCode.LDX:
+                {
+                    itmp = frame.FetchInt32();
+                    evstack.Push(ExternContexts[frame.Chunk][itmp]);
+                    break;
+                }
+
+                case OpCode.STX:
+                {
+                    itmp = frame.FetchInt32();
+                    a = evstack.Pop();
+
+                    ExternContexts[frame.Chunk][itmp] = a;
+                    break;
+                }
+
                 default:
                 {
                     throw new VirtualMachineException("Invalid op-code.");
@@ -600,7 +641,7 @@ namespace EVIL.ExecutionEngine
 
             var extraArgs = newFrame.ExtraArguments;
             var paramCount = chunk.Parameters.Count;
-            
+
             if (argc < paramCount)
             {
                 for (var i = argc; i < paramCount; i++)

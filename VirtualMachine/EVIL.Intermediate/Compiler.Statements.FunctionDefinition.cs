@@ -23,11 +23,15 @@ namespace EVIL.Intermediate
 
             var cg = CurrentChunk.GetCodeGenerator();
             
-            BuildFunction(
-                cg,
-                functionDefinition.Parameters,
-                functionDefinition.Statements
-            );
+            EnterScope();
+            {
+                BuildFunction(
+                    cg,
+                    functionDefinition.Parameters,
+                    functionDefinition.Statements
+                );
+            }
+            LeaveScope();
 
             _executable.Chunks.Add(ChunkDefinitionStack.Pop());
         }

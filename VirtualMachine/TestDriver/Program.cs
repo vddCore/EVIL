@@ -72,7 +72,7 @@ namespace EVIL.VirtualMachine.TestDriver
             
             Console.WriteLine("-[progRUN]------------");
             var evm = new EVM(executable);
-
+            
             var ioTable = new Table();
             ioTable.Set(new("print"), new DynamicValue(PrintClrFunction));
             ioTable.Set(new("println"), new DynamicValue(PrintLnClrFunction));

@@ -79,22 +79,27 @@ namespace EVIL.Intermediate
                         case OpCode.STA:
                             DecodeLocalOp(op, chunk.Parameters);
                             break;
-                        
+
+                        case OpCode.LDX:
+                        case OpCode.STX:
+                            DecodeExternOp(op, chunk.Externs);
+                            break;
+
                         case OpCode.LDF:
                             DecodeLoadFunc(op, executable.Chunks);
                             break;
-                        
+
                         case OpCode.STE:
                         case OpCode.CALL:
                             DecodeParametrizedLoad(op);
                             break;
                     }
                 }
-                
+
                 _disasm.AppendLine("  }");
                 _disasm.AppendLine("}");
             }
-            
+
             return _disasm.ToString();
         }
 
@@ -157,13 +162,22 @@ namespace EVIL.Intermediate
             _disasm.AppendLine($" {index:X8} ; {locals[index]}");
         }
 
+        private void DecodeExternOp(OpCode opCode, List<ExternInfo> externs)
+        {
+            Decode(opCode);
+            var index = FetchInt32();
+            var e = externs[index];
+            
+            _disasm.AppendLine($" {index:X8} ; {e.Name} (local {e.OwnerLocalId} in {e.OwnerChunkName})");
+        }
+
         private void DecodeLoadFunc(OpCode opCode, List<Chunk> chunks)
         {
             Decode(opCode);
             var index = FetchInt32();
             _disasm.AppendLine($" {index:X8} ; {chunks[index].Name}");
         }
-        
+
         private void DecodeParametrizedLoad(OpCode opCode)
         {
             Decode(opCode);

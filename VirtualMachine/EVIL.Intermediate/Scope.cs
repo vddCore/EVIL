@@ -40,11 +40,24 @@ namespace EVIL.Intermediate
             
             return (null, SymbolInfo.Undefined);
         }
+
+        public SymbolInfo DefineExtern(string name, string ownerChunkName, int ownerLocalId, bool isParam)
+        {
+            if (IsLocalDefined(name))
+                throw new DuplicateSymbolException(name);
+
+            var sym = new SymbolInfo(Chunk.Externs.Count, SymbolInfo.SymbolType.Extern);
+            Chunk.Externs.Add(new ExternInfo(name, ownerChunkName, ownerLocalId, isParam));
+
+            Symbols.Add(name, sym);
+
+            return sym;
+        }
         
         public SymbolInfo DefineLocal(string name)
         {
             if (IsLocalDefined(name))
-                throw new DuplicateSymbolException($"Local symbol '{name}' was already defined in the current scope.", name);
+                throw new DuplicateSymbolException(name);
 
             var sym = new SymbolInfo(Chunk.Locals.Count, SymbolInfo.SymbolType.Local);
             Chunk.Locals.Add(name);
@@ -57,7 +70,7 @@ namespace EVIL.Intermediate
         public SymbolInfo DefineParameter(string name)
         {
             if (IsLocalDefined(name))
-                throw new DuplicateSymbolException($"Local symbol '{name}' was already defined in the current scope.", name);
+                throw new DuplicateSymbolException(name);
 
             var sym = new SymbolInfo(Chunk.Parameters.Count, SymbolInfo.SymbolType.Parameter);
             Chunk.Parameters.Add(name);
@@ -70,7 +83,7 @@ namespace EVIL.Intermediate
         public void UndefineLocal(string name)
         {
             if (!IsLocalDefined(name))
-                throw new DuplicateSymbolException($"Local symbol '{name}' was never defined in the current scope.", name);
+                throw new DuplicateSymbolException(name);
 
             Symbols.RemoveByKey(name);
         }
