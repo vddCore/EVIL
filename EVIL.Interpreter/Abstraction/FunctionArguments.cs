@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace EVIL.Interpreter.Abstraction
 {
@@ -58,9 +57,14 @@ namespace EVIL.Interpreter.Abstraction
                 throw new ClrFunctionException(
                     $"Expected a table of size {size} at index {index}. Actual size was {this[index].Table.Count}");
 
-            if (!this[index].Table.All(x => x.Value.Type == acceptedType))
-                throw new ClrFunctionException(
-                    $"Expected a table containing only {acceptedType}(s).");
+            foreach (var value in this[index].Table.Values)
+            {
+                if (value.Type != acceptedType)
+                {
+                    throw new ClrFunctionException(
+                        $"Expected a table containing only {acceptedType}(s).");
+                }
+            }
 
             return this;
         }

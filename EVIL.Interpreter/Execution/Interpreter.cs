@@ -77,16 +77,16 @@ namespace EVIL.Interpreter.Execution
                 {
                     _nodeRestrictions.Add(x => !(x is FunctionDefinitionNode));
                 }
-                
+
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
-                
+
                 _nodeRestrictions.Clear();
 
                 if (entryNode == null)
                 {
                     throw new RuntimeException(
-                        $"Entry point '{entryPoint}' missing.", 
+                        $"Entry point '{entryPoint}' missing.",
                         Environment,
                         null
                     );
@@ -96,7 +96,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     DefinedAtLine = entryNode.Line
                 };
-                
+
                 var scope = Environment.EnterScope(true);
                 {
                     if (entryNode.ParameterNames.Count == 1)
@@ -142,7 +142,7 @@ namespace EVIL.Interpreter.Execution
             return Task.Factory.StartNew(
                 () => Execute(
                     sourceCode, entryPoint, args
-                ), 
+                ),
                 TaskCreationOptions.LongRunning
             );
         }
@@ -197,7 +197,7 @@ namespace EVIL.Interpreter.Execution
 
             var retVal = DynValue.Zero;
 
-            foreach (var statement in statements)
+            for (var i = 0; i < statements.Count; i++)
             {
                 if (env.IsInsideLoop)
                 {
@@ -218,7 +218,7 @@ namespace EVIL.Interpreter.Execution
                     }
                 }
 
-                retVal = Visit(statement);
+                retVal = Visit(statements[i]);
             }
 
             return retVal;
@@ -233,7 +233,7 @@ namespace EVIL.Interpreter.Execution
                 if (!constraint.Check(this, node))
                 {
                     throw new ConstraintUnsatisfiedException(
-                        "An imposed execution constraint was unsatisfied.", 
+                        "An imposed execution constraint was unsatisfied.",
                         constraint
                     );
                 }

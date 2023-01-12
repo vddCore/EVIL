@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     public partial class Interpreter
     {
         public override DynValue Visit(ForLoopNode forLoopNode)
-        {
+        {           
             Environment.EnterScope();
             {
                 foreach (var assignment in forLoopNode.Assignments)
@@ -18,6 +18,8 @@ namespace EVIL.Interpreter.Execution
                 try
                 {
                     Environment.LoopStack.Push(new LoopFrame());
+                    var loopStackTop = Environment.LoopStack.Peek();
+
                     while (true)
                     {
                         var conditionEvaluation = Visit(forLoopNode.Condition);
@@ -25,15 +27,8 @@ namespace EVIL.Interpreter.Execution
                         {
                             break;
                         }
-
-                        var loopStackTop = Environment.LoopStack.Peek();
-
-                        if (loopStackTop.BreakLoop)
-                        {
-                            break;
-                        }
-
-                        if (!loopStackTop.SkipThisIteration)
+                       
+                        if (!loopStackTop.SkipThisIteration && forLoopNode.StatementList.Count > 0)
                         {
                             Environment.EnterScope();
                             {
@@ -41,15 +36,20 @@ namespace EVIL.Interpreter.Execution
                             }
                             Environment.ExitScope();
                         }
-
-                        foreach (var iterationStatement in forLoopNode.IterationStatements)
+                        
+                        if (loopStackTop.BreakLoop)
                         {
-                            Visit(iterationStatement);
+                            break;
                         }
 
                         if (loopStackTop.SkipThisIteration)
                         {
                             loopStackTop.SkipThisIteration = false;
+                        }
+                        
+                        foreach (var iterationStatement in forLoopNode.IterationStatements)
+                        {
+                            Visit(iterationStatement);
                         }
                     }
                 }

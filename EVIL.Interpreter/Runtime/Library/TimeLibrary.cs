@@ -10,11 +10,17 @@ namespace EVIL.Interpreter.Runtime.Library
         [ClrFunction("stamp")]
         public static DynValue Stamp(Execution.Interpreter interpreter, FunctionArguments args)
         {
-            args.ExpectNone();
+            return new(
+                (decimal)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds
+            );
+        }
 
-            var stamp = (decimal)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds;
-
-            return new DynValue(stamp);
+        [ClrFunction("ticks")]
+        public static DynValue Ticks(Execution.Interpreter interpreter, FunctionArguments args)
+        {
+            return new(
+                DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).Ticks
+            );
         }
     }
 }

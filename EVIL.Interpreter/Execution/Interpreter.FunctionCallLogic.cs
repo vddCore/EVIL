@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
@@ -200,14 +199,17 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
         {
+            var parameterList = new List<string>();
+            var parameters = clrFunction.Invokable.Method.GetParameters();
+
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                parameterList.Add(parameters[i].Name);
+            }
+            
             var frame = new StackFrame(
-                $"CLR!<{name}>",
-                clrFunction.Invokable
-                    .Method
-                    .GetParameters()
-                    .Select(x => x.Name)
-                    .Where(x => !string.IsNullOrEmpty(x))
-                    .ToList()
+                $"CLR!<{name}>", 
+                parameterList
             ) {InvokedAtLine = node.Line};
 
             Environment.CallStack.Push(frame);

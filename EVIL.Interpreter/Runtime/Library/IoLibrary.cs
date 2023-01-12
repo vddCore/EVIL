@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library
@@ -11,7 +9,13 @@ namespace EVIL.Interpreter.Runtime.Library
         [ClrFunction("print")]
         public static DynValue Print(Execution.Interpreter interpreter, FunctionArguments args)
         {
-            var output = string.Join(' ', args.Select(x => x.AsString().String));
+            var output = string.Empty;
+            if (args.Count > 0)
+            {
+                args.ExpectTypeAtIndex(0, DynValueType.String);
+                output = args[0].String;
+            }
+            
             Console.Write(output);
 
             return new(output.Length);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using EVIL.Grammar;
 using EVIL.Grammar.AST;
@@ -92,9 +91,21 @@ namespace EVIL.Interpreter.Execution
                 stmts.AddRange(right.ScriptFunction.StatementList);
 
                 var parameters = new List<string>();
-                parameters.AddRange(left.ScriptFunction.ParameterNames);
-                parameters.AddRange(right.ScriptFunction.ParameterNames);
-                parameters = parameters.Distinct().ToList();
+                var leftParameters = left.ScriptFunction.ParameterNames;
+                var rightParameters = right.ScriptFunction.ParameterNames;
+                
+                for (var i = 0; i < leftParameters.Count; i++)
+                {
+                    parameters.Add(leftParameters[i]);
+                }
+
+                for (var i = 0; i < rightParameters.Count; i++)
+                {
+                    var param = rightParameters[i];
+                    
+                    if (!parameters.Contains(param))
+                        parameters.Add(param);
+                }
 
                 return new DynValue(new ScriptFunction(stmts, parameters, node.Line));
             }

@@ -103,7 +103,7 @@ namespace EVIL.REPL
                             sb.AppendLine($": {re.Message}");
                             sb.AppendLine();
                             
-                            if (re.EvilStackTrace == null || !re.EvilStackTrace.Any())
+                            if (re.EvilStackTrace == null || re.EvilStackTrace.Count == 0)
                             {
                                 sb.Append("No stack trace available.");
                             }
