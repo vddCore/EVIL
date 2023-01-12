@@ -14,13 +14,34 @@
 
         private double _raw;
 
+        public double Double => _raw;
+
+        public ulong Pointer
+        {
+            get
+            {
+                unsafe
+                {
+                    fixed (double* ptr = &_raw)
+                    {
+                        return *(ulong*)ptr & 0x0000FFFFFFFFFFFF;
+                    }
+                }
+            }
+        }
+
         public DynamicValue(double value)
         {
             _raw = value;
         }
 
-        public DynamicValue(ulong index)
+        public DynamicValue(Type type, ulong index)
         {
+            unsafe
+            {
+                Box(type, &index);
+                _raw = *(double*)&index;
+            }
         }
 
         public ulong AsRawBits()
@@ -35,6 +56,14 @@
             }
         }
 
+        public void LoadRawBits(ulong bits)
+        {
+            unsafe
+            {
+                _raw = *(double*)&bits;
+            }
+        }
+
         public Type GetDynamicType()
         {
             if (!double.IsNaN(_raw))
@@ -44,6 +73,13 @@
 
             var typeBits = (byte)((bits & 0x0007000000000000) >> 48);
             return (Type)typeBits;
+        }
+
+        private unsafe void Box(Type t, ulong* u)
+        {
+            *u |= 0x0008000000000000;
+            *u |= (ulong)t << 48;
+            *u |= 0x7FFF000000000000;
         }
     }
 }
