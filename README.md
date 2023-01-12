@@ -5,3 +5,4 @@ Ensign Virtual Interpreted Language - first interpreter and a programming langua
 - **Core**: Lexer and parser.
 - **Interpreter**: Direct AST interpreter + runtime.
 - **VirtualMachine**: Compiler, VM execution engine + runtime, sample projects to showcase integration capabilities.
+- **Shared**: EVIL source examples, syntax highlighters for various editors.
