@@ -83,12 +83,8 @@ namespace EVIL.ExecutionEngine
             }
         }
 
-        [SkipLocalsInit]
-        public unsafe void Step()
+        public void Step()
         {
-            int x;
-            int* z = &x;
-            
             var frame = _currentStackFrame;
             var opCode = frame.FetchOpCode();
 
@@ -437,6 +433,43 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
+                case OpCode.STE:
+                {
+                    itmp = frame.FetchInt32();
+                    var value = EvaluationStack.Pop();
+                    var key = EvaluationStack.Pop();
+                    var indexable = EvaluationStack.Pop();
+
+                    if (indexable.Type != DynamicValueType.Table)
+                    {
+                        throw new UnindexableTypeException(indexable.Type);
+                    }
+                    
+                    indexable.Table.Set(key, value);
+                    if (itmp != 0)
+                    {
+                        EvaluationStack.Push(new(value, false));
+                    }
+                    break;
+                }
+
+                case OpCode.INDEX:
+                {
+                    var key = EvaluationStack.Pop();
+                    var indexable = EvaluationStack.Pop();
+
+                    EvaluationStack.Push(
+                        indexable.Index(key)
+                    );
+                    break;
+                }
+
+                case OpCode.NEWTB:
+                {
+                    EvaluationStack.Push(new(new Table()));
+                    break;
+                }
+
                 case OpCode.RETN:
                 {
                     CallStack.Pop();
@@ -479,10 +512,17 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.JUMP:
                 {
-                    var labelId = frame.FetchInt32();
-                    var addr = Executable.Labels[labelId];
-                    frame.Jump(addr);
+                    itmp = frame.FetchInt32();
+                    itmp = Executable.Labels[itmp];
+                    frame.Jump(itmp);
 
+                    break;
+                }
+
+                case OpCode.LEN:
+                {
+                    a = EvaluationStack.Pop();
+                    EvaluationStack.Push(new(a.Length));
                     break;
                 }
 

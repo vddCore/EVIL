@@ -60,5 +60,32 @@
       <Compile Update="Compiler.Expressions.VariableReference.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
+      <Compile Update="Compiler.Expressions.Constant.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Break.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Program.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Skip.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.ExtraArguments.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Conditional.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Table.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Statements.Expression.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Indexer.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>

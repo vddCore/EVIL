@@ -18,6 +18,13 @@ namespace EVIL.Intermediate
                 cg.Emit(OpCode.DUP);
                 EmitVariableStore(cg, varRef);
             }
+            else if (assignmentExpression.Left is IndexerExpression indExpr)
+            {
+                Visit(indExpr.Indexable);
+                Visit(indExpr.KeyExpression);
+                Visit(assignmentExpression.Right);
+                cg.Emit(OpCode.STE, 1);
+            }
             else
             {
                 throw new CompilerException($"Cannot assign to '{assignmentExpression.Left.GetType().Name}'");

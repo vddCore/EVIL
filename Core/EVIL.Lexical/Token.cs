@@ -40,11 +40,9 @@
         public static readonly Token AssignMultiply = new(TokenType.AssignMultiply, "*=");
         public static readonly Token AssignDivide = new(TokenType.AssignDivide, "/=");
         public static readonly Token AssignModulo = new(TokenType.AssignModulo, "%=");
-
         public static readonly Token AssignBitwiseAnd = new(TokenType.AssignBitwiseAnd, "&=");
         public static readonly Token AssignBitwiseOr = new(TokenType.AssignBitwiseOr, "|=");
         public static readonly Token AssignBitwiseXor = new(TokenType.AssignBitwiseXor, "^=");
-
         public static readonly Token AssignShiftRight = new(TokenType.AssignShiftRight, ">>=");
         public static readonly Token AssignShiftLeft = new(TokenType.AssignShiftLeft, "<<=");
 
@@ -114,7 +112,7 @@
         public static readonly Token Skip = new(TokenType.Skip, "skip");
 
         public static readonly Token In = new(TokenType.In, "in");
-        public static readonly Token NameOf = new(TokenType.NameOf, "nameof");
+        public static readonly Token NameOf = new(TokenType.NameOf, "??");
 
         public static readonly Token False = new(TokenType.False, "false");
         public static readonly Token True = new(TokenType.True, "true");

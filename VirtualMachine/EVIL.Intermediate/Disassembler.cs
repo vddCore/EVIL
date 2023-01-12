@@ -58,6 +58,7 @@ namespace EVIL.Intermediate
                         case OpCode.LDL:
                         case OpCode.STL:
                         case OpCode.STA:
+                        case OpCode.STE:
                         case OpCode.LDA:
                         case OpCode.CALL:
                             DecodeParametrizedLoad(op);
