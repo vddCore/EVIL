@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 
-namespace EVIL.Grammar
+namespace EVIL.Grammar.Interop
 {
     public abstract class AstVisitor
     {
-        private Dictionary<Type, NodeHandler> _handlers;
+        protected Dictionary<Type, NodeHandler> Handlers { get; }
 
         protected delegate void NodeHandler(AstNode node);
 
         protected AstVisitor()
         {
-            _handlers = new()
+            Handlers = new()
             {
                 {typeof(ProgramNode), (n) => Visit(n as ProgramNode)},
                 {typeof(BlockStatementNode), (n) => Visit(n as BlockStatementNode)},
@@ -45,14 +45,14 @@ namespace EVIL.Grammar
             };
         }
 
-        public void Visit(AstNode node)
+        public virtual void Visit(AstNode node)
         {
             var type = node.GetType();
 
-            if (!_handlers.ContainsKey(type))
+            if (!Handlers.ContainsKey(type))
                 throw new Exception("Forgot to add a node type, idiot.");
 
-            _handlers[type](node);
+            Handlers[type](node);
         }
 
         public abstract void Visit(ProgramNode programNode);

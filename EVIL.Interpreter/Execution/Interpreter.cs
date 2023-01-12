@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.Interop;
 using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
@@ -8,7 +9,7 @@ using EVIL.Lexical;
 
 namespace EVIL.Interpreter.Execution
 {
-    public partial class Interpreter : AstVisitor
+    public partial class Interpreter : ValueAstVisitor<DynValue>
     {
         private List<Constraint> _constraints = new();
 
@@ -172,7 +173,13 @@ namespace EVIL.Interpreter.Execution
             return retval;
         }
 
-        protected override void ConstraintCheck(AstNode node)
+        public override DynValue Visit(AstNode node)
+        {
+            ConstraintCheck(node);
+            return base.Visit(node);
+        }
+
+        protected void ConstraintCheck(AstNode node)
         {
             for (var i = 0; i < Constraints.Count; i++)
             {
