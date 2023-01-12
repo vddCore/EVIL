@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Lexical
 {
-    public class Token
+    public struct Token
     {
         public TokenType Type { get; }
         public string Value { get; }
@@ -33,6 +33,8 @@
         {
             return (int)Type;
         }
+
+        public static readonly Token Empty = new(TokenType.Empty, null);
 
         public static readonly Token Assign = new(TokenType.Assign, "=");
         public static readonly Token AssignAdd = new(TokenType.AssignAdd, "+=");

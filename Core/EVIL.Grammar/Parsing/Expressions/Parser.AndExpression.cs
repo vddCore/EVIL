@@ -13,9 +13,10 @@ namespace EVIL.Grammar.Parsing
 
             while (token.Type == TokenType.BitwiseAnd)
             {
-                var line = Match(Token.BitwiseAnd);
-                node = new BinaryExpression(node, EqualityExpression(), BinaryOperationType.BitwiseAnd) {Line = line};
-                
+                var (line, col) = Match(Token.BitwiseAnd);
+                node = new BinaryExpression(node, EqualityExpression(), BinaryOperationType.BitwiseAnd)
+                    { Line = line, Column = col };
+
                 token = CurrentToken;
             }
 

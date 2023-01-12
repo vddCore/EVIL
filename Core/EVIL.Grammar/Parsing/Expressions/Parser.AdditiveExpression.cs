@@ -22,15 +22,15 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.Plus)
                 {
-                    var line = Match(Token.Plus);
+                    var (line, col) = Match(Token.Plus);
                     node = new BinaryExpression(node, MultiplicativeExpression(), BinaryOperationType.Plus)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.Minus)
                 {
-                    var line = Match(Token.Minus);
+                    var (line, col) = Match(Token.Minus);
                     node = new BinaryExpression(node, MultiplicativeExpression(), BinaryOperationType.Minus)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
 
                 token = CurrentToken;

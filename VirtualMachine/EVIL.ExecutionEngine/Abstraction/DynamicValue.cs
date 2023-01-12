@@ -21,8 +21,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public string String
         {
             get => _string ??
-                   throw new UnexpectedTypeException(
-                       $"Attempted to use a {Type} as String.");
+                   throw new InvalidTypeUsageException(Type, DynamicValueType.String);
 
             set
             {
@@ -44,8 +43,8 @@ namespace EVIL.ExecutionEngine.Abstraction
             get
             {
                 if (Type != DynamicValueType.Number)
-                    throw new UnexpectedTypeException(
-                        $"Attempted to use a {Type} as Number");
+                    throw new InvalidTypeUsageException(Type, DynamicValueType.Number);
+
 
                 return _number;
             }
@@ -68,8 +67,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public Chunk Function
         {
             get => _chunk ??
-                   throw new UnexpectedTypeException(
-                       $"Attemtped to use a {Type} as a Function");
+                   throw new InvalidTypeUsageException(Type, DynamicValueType.Function);
 
             set
             {
@@ -89,8 +87,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public Table Table
         {
             get => _table ??
-                   throw new UnexpectedTypeException(
-                       $"Attempted to use a {Type} as a Table");
+                   throw new InvalidTypeUsageException(Type, DynamicValueType.Table);
 
             set
             {
@@ -110,8 +107,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         public ClrFunction ClrFunction
         {
             get => _clrFunction ??
-                   throw new UnexpectedTypeException(
-                       $"Attempted to use a {Type} as a ClrFunction");
+                   throw new InvalidTypeUsageException(Type, DynamicValueType.ClrFunction);
 
             set
             {
@@ -147,7 +143,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             {
                 if (Type == DynamicValueType.Number)
                     return _number != 0;
-                
+
                 return true;
             }
         }
@@ -178,21 +174,21 @@ namespace EVIL.ExecutionEngine.Abstraction
                 case DynamicValueType.Number:
                     _number = other._number;
                     break;
-                
+
                 case DynamicValueType.Function:
                     _chunk = other._chunk;
                     break;
-                
+
                 case DynamicValueType.Table:
                     _table = other._table;
                     break;
-                
+
                 case DynamicValueType.ClrFunction:
                     _clrFunction = other._clrFunction;
                     break;
             }
         }
-        
+
         public DynamicValue(string str)
         {
             _string = str;
@@ -264,7 +260,8 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.String => _string,
                 DynamicValueType.Table => $"Table[{_table.Entries.Count}]",
                 DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.ParameterCount}]",
-                DynamicValueType.ClrFunction => $"ClrFunction[{_clrFunction.Method.Name}@{_clrFunction.Method.GetParameters().Length}]",
+                DynamicValueType.ClrFunction =>
+                    $"ClrFunction[{_clrFunction.Method.Name}@{_clrFunction.Method.GetParameters().Length}]",
                 _ => throw new TypeConversionException(Type, DynamicValueType.String)
             };
         }
@@ -283,13 +280,19 @@ namespace EVIL.ExecutionEngine.Abstraction
                         throw new IndexOutOfBoundsException(index, Type);
 
                     return new DynamicValue(_string[index].ToString());
-                
+
                 case DynamicValueType.Table:
                     return _table.Get(key);
-                
-                default: 
+
+                default:
                     throw new UnindexableTypeException(Type);
             }
+        }
+
+        public bool Contains(DynamicValue other)
+        {
+            //todo
+            return false;
         }
 
         public DynamicValue CopyToString()
@@ -301,7 +304,7 @@ namespace EVIL.ExecutionEngine.Abstraction
             {
                 case DynamicValueType.String:
                     if (!double.TryParse(
-                            _string, 
+                            _string,
                             NumberStyles.Float,
                             CultureInfo.InvariantCulture,
                             out var dbl))
@@ -310,12 +313,12 @@ namespace EVIL.ExecutionEngine.Abstraction
                     }
 
                     return new DynamicValue(dbl);
-                
+
                 case DynamicValueType.Number:
                     return new DynamicValue(_number);
-                
-                default: 
-                    throw new TypeConversionException(Type, DynamicValueType.Number);   
+
+                default:
+                    throw new TypeConversionException(Type, DynamicValueType.Number);
             }
         }
 

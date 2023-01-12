@@ -10,10 +10,13 @@ namespace EVIL.Grammar.Parsing
         {
             if (_functionDescent == 0)
             {
-                throw new ParserException("Unexpected 'ret' outside of a function.", Lexer.State);
+                throw new ParserException(
+                    "Unexpected 'ret' outside of a function.",
+                    (Lexer.State.Line, Lexer.State.Column)
+                );
             }
 
-            var line = Match(Token.Ret);
+            var (line, col) = Match(Token.Ret);
             Expression expression;
 
             if (CurrentToken.Type == TokenType.Semicolon)
@@ -24,8 +27,9 @@ namespace EVIL.Grammar.Parsing
             {
                 expression = AssignmentExpression();
             }
-            
-            return new ReturnStatement(expression) { Line = line };
+
+            return new ReturnStatement(expression)
+                { Line = line, Column = col };
         }
     }
 }

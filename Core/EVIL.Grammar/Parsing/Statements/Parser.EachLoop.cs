@@ -8,20 +8,20 @@ namespace EVIL.Grammar.Parsing
     {
         private EachStatement EachLoop()
         {
-            var line = Match(Token.Each);
+            var (line, col) = Match(Token.Each);
 
             Match(Token.LParenthesis);
             var definitions = VariableDefinition();
 
             Match(Token.Colon);
-
             var tableNode = AssignmentExpression();
-            
+
             Match(Token.RParenthesis);
 
             var statements = LoopDescent(() => Statement());
-            
-            return new EachStatement(definitions, tableNode, statements) { Line = line };
+
+            return new EachStatement(definitions, tableNode, statements)
+                { Line = line, Column = col };
         }
     }
 }

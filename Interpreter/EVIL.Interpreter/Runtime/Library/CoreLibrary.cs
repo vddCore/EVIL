@@ -77,11 +77,11 @@ namespace EVIL.Interpreter.Runtime.Library
             }
             catch (ParserException pe)
             {
-                throw new ClrFunctionException($"Parser error on line {pe.LexerState?.Line}: {pe.Message}");
+                throw new ClrFunctionException($"Parser error at ({pe.Line}, {pe.Column}): {pe.Message}");
             }
-            catch (LexerException se)
+            catch (LexerException le)
             {
-                throw new ClrFunctionException($"Lexer error on line {se.Line}: {se.Message}");
+                throw new ClrFunctionException($"Lexer error at ({le.Line}, {le.Column}) {le.Message}");
             }
 
             return DynValue.Zero;

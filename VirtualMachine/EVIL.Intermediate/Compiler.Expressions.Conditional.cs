@@ -8,15 +8,15 @@ namespace EVIL.Intermediate
         {
             var cg = CurrentChunk.GetCodeGenerator();
 
-            var falseLabel = _executable.DefineLabel();
-            var endLabel = _executable.DefineLabel();
+            var falseLabel = CurrentChunk.DefineLabel();
+            var endLabel = CurrentChunk.DefineLabel();
             Visit(conditionalExpression.Condition);
             cg.Emit(OpCode.FJMP, falseLabel);
             Visit(conditionalExpression.TrueExpression);
             cg.Emit(OpCode.JUMP, endLabel);
-            _executable.UpdateLabel(falseLabel, cg.IP);
+            CurrentChunk.UpdateLabel(falseLabel, cg.IP);
             Visit(conditionalExpression.FalseExpression);
-            _executable.UpdateLabel(endLabel, cg.IP);
+            CurrentChunk.UpdateLabel(endLabel, cg.IP);
         }
     }
 }

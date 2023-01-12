@@ -281,7 +281,7 @@ namespace EVIL.Lexical
         public Token PeekToken(int howFar)
         {
             var prevState = CopyState();
-            Token token = null;
+            var token = Token.Empty;
 
             for (var i = 0; i < howFar; i++)
             {

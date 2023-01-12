@@ -25,33 +25,40 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.LessThan)
                 {
-                    var line = Match(Token.LessThan);
-                    node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.Less) {Line = line};
+                    var (line, col) = Match(Token.LessThan);
+
+                    node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.Less)
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.GreaterThan)
                 {
-                    var line = Match(Token.GreaterThan);
-                    node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.Greater) {Line = line};
+                    var (line, col) = Match(Token.GreaterThan);
+
+                    node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.Greater)
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.LessThanOrEqual)
                 {
-                    var line = Match(Token.LessThanOrEqual);
+                    var (line, col) = Match(Token.LessThanOrEqual);
+
                     node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.LessOrEqual)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.GreaterThanOrEqual)
                 {
-                    var line = Match(Token.GreaterThanOrEqual);
+                    var (line, col) = Match(Token.GreaterThanOrEqual);
+
                     node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.GreaterOrEqual)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.In)
                 {
-                    var line = Match(Token.In);
+                    var (line, col) = Match(Token.In);
+
                     node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.ExistsIn)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
-                
+
                 token = CurrentToken;
             }
 

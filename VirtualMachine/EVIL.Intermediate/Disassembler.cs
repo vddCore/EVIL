@@ -46,7 +46,7 @@ namespace EVIL.Intermediate
                         case OpCode.JUMP:
                         case OpCode.TJMP:
                         case OpCode.FJMP:
-                            DecodeJump(op, executable.Labels);
+                            DecodeJump(op, chunk.Labels);
                             break;
 
                         case OpCode.LDC:

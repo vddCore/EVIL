@@ -10,11 +10,16 @@ namespace EVIL.Grammar.Parsing
         {
             if (_loopDescent == 0)
             {
-                throw new ParserException("Unexpected 'break' outside of a loop.", Lexer.State);
+                throw new ParserException(
+                    "Unexpected 'break' outside of a loop.", 
+                    (Lexer.State.Column, Lexer.State.Line)
+                );
             }
             
-            var line = Match(Token.Break);
-            return new BreakStatement { Line = line };
+            var (line, col) = Match(Token.Break);
+            
+            return new BreakStatement 
+                { Line = line, Column = col };
         }
     }
 }

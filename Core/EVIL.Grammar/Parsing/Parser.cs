@@ -38,7 +38,7 @@ namespace EVIL.Grammar.Parsing
 
             return ret;
         }
-        
+
         private List<string> ParseParameters()
         {
             Match(Token.LParenthesis);
@@ -72,11 +72,11 @@ namespace EVIL.Grammar.Parsing
         {
             var statementList = new List<Statement>();
 
-            if (CurrentToken == null)
+            if (CurrentToken == Token.Empty)
             {
                 throw new ParserException(
-                    "Internal error: scanner is in invalid state (current token is null?).",
-                    Lexer.State
+                    "Internal error: lexer is in an invalid state (current token is empty?).",
+                    (-1, -1)
                 );
             }
 
@@ -88,9 +88,9 @@ namespace EVIL.Grammar.Parsing
             return new Program(statementList);
         }
 
-        private int Match(Token token)
+        private (int, int) Match(Token token)
         {
-            var line = Lexer.State.Line;
+            var (line, column) = (Lexer.State.Line, Lexer.State.Column);
 
             if (!CurrentToken.Equals(token))
             {
@@ -101,26 +101,25 @@ namespace EVIL.Grammar.Parsing
                 }
 
                 var actual = $"'{CurrentToken.Value}'";
-                if(string.IsNullOrEmpty(CurrentToken.Value))
+                if (string.IsNullOrEmpty(CurrentToken.Value))
                 {
                     actual = WithArticle(CurrentToken.Type.ToString());
                 }
 
                 throw new ParserException(
                     $"Expected {expected}, got {actual}.",
-                    Lexer.State
+                    (line, column)
                 );
             }
 
             Lexer.NextToken();
-
-            return line;
+            return (line, column);
         }
 
         private string WithArticle(string word)
         {
             var result = word.ToLower();
-            
+
             return "aeiou".Contains(result[0])
                 ? $"an {result}"
                 : $"a {result}";

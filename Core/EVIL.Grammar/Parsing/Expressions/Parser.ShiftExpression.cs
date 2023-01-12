@@ -22,17 +22,18 @@ namespace EVIL.Grammar.Parsing
             {
                 if (token.Type == TokenType.ShiftLeft)
                 {
-                    var line = Match(Token.ShiftLeft);
+                    var (line, col) = Match(Token.ShiftLeft);
+
                     node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftLeft)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.ShiftRight)
                 {
-                    var line = Match(Token.ShiftRight);
+                    var (line, col) = Match(Token.ShiftRight);
                     node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
-                        {Line = line};
+                        { Line = line, Column = col };
                 }
-                
+
                 token = CurrentToken;
             }
 

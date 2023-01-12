@@ -24,20 +24,24 @@ namespace EVIL.Grammar.Parsing
             __incdec:
             if (token.Type == TokenType.Increment)
             {
-                var line = Match(Token.Increment);
-                return new IncrementationExpression(node, false) { Line = line };
+                var (line, col) = Match(Token.Increment);
+                
+                return new IncrementationExpression(node, false)
+                    { Line = line, Column = col };
             }
             else if (token.Type == TokenType.Decrement)
             {
-                var line = Match(Token.Decrement);
-                return new DecrementationExpression(node, false) { Line = line };
+                var (line, col) = Match(Token.Decrement);
+                
+                return new DecrementationExpression(node, false) 
+                    { Line = line, Column = col};
             }
 
             while (_postfixOperators.Contains(token.Type))
             {
                 if (token.Type == TokenType.Increment || token.Type == TokenType.Decrement)
                     goto __incdec;
-                
+
                 if (token.Type == TokenType.LParenthesis)
                 {
                     node = FunctionCall(node);

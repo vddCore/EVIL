@@ -8,14 +8,15 @@ namespace EVIL.Grammar.Parsing
     {
         private WhileStatement WhileLoop()
         {
-            var line = Match(Token.While);
+            var (line, col) = Match(Token.While);
             Match(Token.LParenthesis);
             var expression = AssignmentExpression();
             Match(Token.RParenthesis);
 
             var statement = LoopDescent(() => Statement());
             
-            return new WhileStatement(expression, statement) { Line = line };
+            return new WhileStatement(expression, statement) 
+                { Line = line, Column = col };
         }
     }
 }

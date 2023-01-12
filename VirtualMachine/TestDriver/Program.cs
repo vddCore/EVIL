@@ -50,12 +50,12 @@ namespace EVIL.VirtualMachine.TestDriver
             }
             catch (LexerException le)
             {
-                Console.WriteLine($"Parsing error on line {le.Line}: {le.Message}");
+                Console.WriteLine($"Parsing error at ({le.Line}, {le.Column}): {le.Message}");
                 return;
             }
             catch (ParserException pe)
             {
-                Console.WriteLine($"Parsing error on line {pe.LexerState.Line}: {pe.Message}");
+                Console.WriteLine($"Parsing error at {pe.Line}, {pe.Column}): {pe.Message}");
                 return;
             }
             
@@ -66,7 +66,7 @@ namespace EVIL.VirtualMachine.TestDriver
             }
             catch (CompilerException e)
             {
-                Console.WriteLine($"Compilation error on line {e.Line}: {e.Message}");
+                Console.WriteLine($"Compilation error on line ({e.Line}, {e.Column}): {e.Message}");
                 return;
             }
             Console.WriteLine("-[disASM]-------------");

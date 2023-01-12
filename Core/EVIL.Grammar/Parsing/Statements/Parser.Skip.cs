@@ -10,11 +10,16 @@ namespace EVIL.Grammar.Parsing
         {
             if (_loopDescent == 0)
             {
-                throw new ParserException("Unexpected 'skip' outside of a loop.", Lexer.State);
+                throw new ParserException(
+                    "Unexpected 'skip' outside of a loop.",
+                    (Lexer.State.Line, Lexer.State.Column)
+                );
             }
-            
-            var line = Match(Token.Skip);
-            return new SkipStatement { Line = line };
+
+            var (line, col) = Match(Token.Skip);
+
+            return new SkipStatement
+                { Line = line, Column = col };
         }
     }
 }

@@ -8,18 +8,18 @@ namespace EVIL.Intermediate
         {
             var cg = CurrentChunk.GetCodeGenerator();
 
-            var startLabel = _executable.DefineLabel(cg.IP);
-            var continueLabel = _executable.DefineLabel();
-            var endLabel = _executable.DefineLabel();
+            var startLabel = CurrentChunk.DefineLabel(cg.IP);
+            var continueLabel = CurrentChunk.DefineLabel();
+            var endLabel = CurrentChunk.DefineLabel();
             
             LoopContinueLabels.Push(continueLabel);
             LoopEndLabels.Push(endLabel);
             
             Visit(doWhileStatement.Statement);
-            _executable.UpdateLabel(continueLabel, cg.IP);
+            CurrentChunk.UpdateLabel(continueLabel, cg.IP);
             Visit(doWhileStatement.Condition);
             cg.Emit(OpCode.TJMP, startLabel);
-            _executable.UpdateLabel(endLabel, cg.IP);
+            CurrentChunk.UpdateLabel(endLabel, cg.IP);
         }
     }
 }

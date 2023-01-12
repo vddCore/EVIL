@@ -8,15 +8,16 @@ namespace EVIL.Grammar.Parsing
     {
         private FunctionDefinition FunctionDefinitionNamed()
         {
-            var line = Match(Token.Fn);
-            var procName = CurrentToken.Value;
+            var (line, col) = Match(Token.Fn);
+            var funcName = CurrentToken.Value;
 
             Match(Token.Identifier);
 
             var parameterList = ParseParameters();
             var statements = FunctionDescent(BlockStatement);
 
-            return new FunctionDefinition(procName, parameterList, statements) {Line = line};
+            return new FunctionDefinition(funcName, parameterList, statements) 
+                { Line = line, Column = col };
         }
     }
 }

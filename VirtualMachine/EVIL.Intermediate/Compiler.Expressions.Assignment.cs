@@ -9,7 +9,7 @@ namespace EVIL.Intermediate
             var cg = CurrentChunk.GetCodeGenerator();
 
             if (assignmentExpression.Left is VariableReferenceExpression varRef)
-            {                
+            {
                 Visit(assignmentExpression.Left);
                 Visit(assignmentExpression.Right);
 
@@ -27,7 +27,11 @@ namespace EVIL.Intermediate
             }
             else
             {
-                throw new CompilerException($"Cannot assign to '{assignmentExpression.Left.GetType().Name}'");
+                throw new CompilerException(
+                    $"Cannot assign to '{assignmentExpression.Left.GetType().Name}'",
+                    assignmentExpression.Line,
+                    assignmentExpression.Column
+                );
             }
         }
     }

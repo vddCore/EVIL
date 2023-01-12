@@ -9,15 +9,15 @@ namespace EVIL.Grammar.Parsing
     {
         private VariableDefinition VariableDefinition()
         {
-            var line = Match(Token.Var);
+            var (line, col) = Match(Token.Var);
 
             var definitions = new Dictionary<string, Expression>();
-            
+
             while (true)
             {
                 var identifier = CurrentToken.Value;
                 Match(Token.Identifier);
-                
+
                 Expression initializer = null;
                 if (CurrentToken.Type == TokenType.Assign)
                 {
@@ -36,7 +36,8 @@ namespace EVIL.Grammar.Parsing
                 break;
             }
 
-            return new VariableDefinition(definitions) { Line = line };
+            return new VariableDefinition(definitions)
+                { Line = line, Column = col };
         }
     }
 }
