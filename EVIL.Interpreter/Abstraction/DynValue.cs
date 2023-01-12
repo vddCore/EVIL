@@ -145,7 +145,7 @@ namespace EVIL.Interpreter.Abstraction
             }
             else if (Type == DynValueType.Function)
             {
-                return new DynValue($"Function({_scriptFunction.ParameterNames.Count})");
+                return new DynValue($"Function({_scriptFunction.Parameters.Identifiers.Count})");
             }
             else if (Type == DynValueType.ClrFunction)
             {

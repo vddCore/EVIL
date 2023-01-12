@@ -41,6 +41,8 @@ namespace EVIL.Grammar.Traversal.Generic
                 {typeof(DecrementationNode), (n) => Visit(n as DecrementationNode)},
                 {typeof(UndefNode), (n) => Visit(n as UndefNode)},
                 {typeof(EachLoopNode), (n) => Visit(n as EachLoopNode)},
+                {typeof(ParameterListNode), (n) => Visit(n as ParameterListNode)},
+                {typeof(ArgumentListNode), (n) => Visit(n as ArgumentListNode)},
             };
         }
 
@@ -80,5 +82,7 @@ namespace EVIL.Grammar.Traversal.Generic
         public abstract T Visit(DecrementationNode decrementationNode);
         public abstract T Visit(UndefNode undefNode);
         public abstract T Visit(EachLoopNode eachLoopNode);
+        public abstract T Visit(ParameterListNode parameterListNode);
+        public abstract T Visit(ArgumentListNode argumentListNode);
     }
 }

@@ -3,14 +3,14 @@
     public class VariableDefinitionNode : AstNode
     {
         public string Identifier { get; }
-        public AstNode Right { get; }
+        public AstNode Initializer { get; }
 
-        public VariableDefinitionNode(string identifier, AstNode right)
+        public VariableDefinitionNode(string identifier, AstNode initializer)
         {
             Identifier = identifier;
-            Right = right;
+            Initializer = initializer;
 
-            Reparent(Right);
+            Reparent(Initializer);
         }
     }
 }

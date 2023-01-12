@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
-
-namespace EVIL.Grammar.AST.Nodes
+﻿namespace EVIL.Grammar.AST.Nodes
 {
     public class FunctionDefinitionNode : AstNode
     {
         public string Identifier { get; }
-        public List<string> ParameterNames { get; }
         
+        public ParameterListNode Parameters { get; }
         public BlockStatementNode Statements { get; }
 
-        public FunctionDefinitionNode(string identifier, List<string> parameterNames, BlockStatementNode statements)
+        public FunctionDefinitionNode(string identifier, ParameterListNode parameters, BlockStatementNode statements)
         {
             Identifier = identifier;
-            ParameterNames = parameterNames;
             
+            Parameters = parameters;
             Statements = statements;
+            
+            Reparent(Parameters);
             Reparent(Statements);
         }
     }

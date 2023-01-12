@@ -70,7 +70,7 @@ namespace EVIL.Interpreter.Runtime.Library
                     foreach (var frame in re.EvilStackTrace)
                     {
                         sb.AppendLine(
-                            $"at {frame.FunctionName}({string.Join(',', frame.ParameterNames)})\n" +
+                            $"at {frame.FunctionName}({string.Join(',', frame.Parameters)})\n" +
                             $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
                             $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
                         );
@@ -118,9 +118,9 @@ namespace EVIL.Interpreter.Runtime.Library
                 var frame = new Table();
                 var parameters = new Table();
                 
-                for (var j = 0; j < trace[i].ParameterNames.Count; j++)
+                for (var j = 0; j < trace[i].Parameters.Count; j++)
                 {
-                    parameters[j] = new DynValue(trace[i].ParameterNames[j]);
+                    parameters[j] = new DynValue(trace[i].Parameters[j]);
                 }
                 
                 frame["fn_name"] = new DynValue(trace[i].FunctionName);
@@ -144,7 +144,7 @@ namespace EVIL.Interpreter.Runtime.Library
             foreach (var frame in interpreter.Environment.StackTrace())
             {
                 sb.AppendLine(
-                    $"at {frame.FunctionName}({string.Join(',', frame.ParameterNames)})\n" +
+                    $"at {frame.FunctionName}({string.Join(',', frame.Parameters)})\n" +
                     $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
                     $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
                 );

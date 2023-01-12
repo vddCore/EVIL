@@ -22,9 +22,9 @@ namespace EVIL.Grammar.Parsing
             TokenType.AssignShiftRight
         };
 
-        private AstNode AssignmentExpression(AstNode left = null)
+        private AstNode AssignmentExpression()
         {
-            var node = left ?? ConditionalExpression();
+            var node = ConditionalExpression();
             var token = CurrentToken;
             
             while (_assignmentOperators.Contains(token.Type))

@@ -43,7 +43,6 @@ namespace EVIL.Interpreter.Execution
             }
 
             var funcName = "<anonymous>";
-            var parameters = new FunctionArguments();
 
             if (functionCallNode.Left is IndexingNode indexingNode)
             {
@@ -54,19 +53,18 @@ namespace EVIL.Interpreter.Execution
                 funcName = variableNode.Identifier;
             }
 
-            foreach (var node in functionCallNode.Parameters)
-                parameters.Add(Visit(node));
+            Visit(functionCallNode.ArgumentList);
 
             DynValue retVal;
             if (funcValue.Type == DynValueType.ClrFunction)
             {
-                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters, functionCallNode);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, _argumentStack.Pop(), functionCallNode);
             }
             else
             {
                 Environment.EnterScope(true);
                 {
-                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, parameters, functionCallNode);
+                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, _argumentStack.Pop(), functionCallNode);
                 }
                 Environment.ExitScope();
             }
@@ -77,12 +75,12 @@ namespace EVIL.Interpreter.Execution
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
             AstNode node)
         {
-            var callStackItem = new StackFrame(name, scriptFunction.ParameterNames)
+            var stackFrame = new StackFrame(name)
             {
                 InvokedAtLine = node.Line,
                 DefinedAtLine = scriptFunction.DefinedAtLine
             };
-
+            
             var iterator = 0;
 
             foreach (var closure in scriptFunction.Closures)
@@ -90,7 +88,7 @@ namespace EVIL.Interpreter.Execution
                 Environment.LocalScope.Set(closure.Key, closure.Value);
             }
 
-            foreach (var parameterName in scriptFunction.ParameterNames)
+            foreach (var parameterName in scriptFunction.Parameters.Identifiers)
             {
                 if (Environment.LocalScope.HasMember(parameterName))
                 {
@@ -107,7 +105,7 @@ namespace EVIL.Interpreter.Execution
                     Environment.LocalScope.Set(parameterName, DynValue.Zero);
             }
 
-            Environment.CallStack.Push(callStackItem);
+            Environment.CallStack.Push(stackFrame);
 
             try
             {
@@ -137,18 +135,17 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
         {
-            var parameterList = new List<string>();
             var parameters = clrFunction.Invokable.Method.GetParameters();
 
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                parameterList.Add(parameters[i].Name);
-            }
             
             var frame = new StackFrame(
-                $"CLR!<{name}>", 
-                parameterList
+                $"CLR!<{name}>"
             ) {InvokedAtLine = node.Line};
+            
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                frame.Parameters.Add(parameters[i].Name);
+            }
 
             Environment.CallStack.Push(frame);
 
