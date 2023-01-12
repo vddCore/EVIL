@@ -1,5 +1,4 @@
 ﻿using System;
-using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library

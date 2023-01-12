@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
 using EVIL.Interpreter.Runtime;

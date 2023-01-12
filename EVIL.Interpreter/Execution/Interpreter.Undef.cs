@@ -21,7 +21,7 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
                 
-                indexable.Table.Remove(indexable.Table.GetKeyByDynValue(key));
+                indexable.Table.Remove(indexable.Table[key]);
             }
             else if (undefNode.Right is VariableNode variable)
             {

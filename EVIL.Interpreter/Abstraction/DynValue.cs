@@ -195,5 +195,18 @@ namespace EVIL.Interpreter.Abstraction
                     break;
             }
         }
+
+        public override int GetHashCode()
+        {
+            return Type switch
+            {
+                DynValueType.Function => _scriptFunction.GetHashCode(),
+                DynValueType.Number => _numberValue.GetHashCode(),
+                DynValueType.String => _stringValue.GetHashCode(),
+                DynValueType.Table => _tableValue.GetHashCode(),
+                DynValueType.ClrFunction => _clrFunctionValue.GetHashCode(),
+                _ => GetHashCode()
+            };
+        }
     }
 }

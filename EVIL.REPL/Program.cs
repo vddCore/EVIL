@@ -5,7 +5,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using EVIL.Grammar;
-using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Execution;
 using EVIL.Lexical;
 using Environment = EVIL.Interpreter.Environment;
