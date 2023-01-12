@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Diagnostics
 {
+    [Serializable]
     public class StackFrame
     {
         public string FunctionName { get; }

@@ -14,7 +14,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     $"'{variableReferenceExpression.Identifier}' does not exist in the current scope.",
-                    Environment,
+                    this,
                     variableReferenceExpression.Line
                 );
             }

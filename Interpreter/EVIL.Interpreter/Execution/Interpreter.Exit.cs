@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override void Visit(ExitStatement exitStatement)
         {
-            throw new ExitStatementException(Environment.StackTrace());
+            throw new ExitStatementException(StackTrace());
         }
     }
 }

@@ -11,12 +11,14 @@ namespace EVIL.Grammar.Parsing
     {
         private uint _functionDescent;
         private uint _loopDescent;
+        private bool _allowTopLevelStatements;
 
         public Lexer Lexer { get; private set; }
         public Token CurrentToken => Lexer.State.CurrentToken;
 
-        public Parser(Lexer lexer)
+        public Parser(Lexer lexer, bool allowTopLevelStatements)
         {
+            _allowTopLevelStatements = allowTopLevelStatements;
             Lexer = lexer;
         }
 

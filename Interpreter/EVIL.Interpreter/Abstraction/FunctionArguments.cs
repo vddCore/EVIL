@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EVIL.Interpreter.Abstraction
 {
+    [Serializable]
     public class FunctionArguments : List<DynValue>
     {
         public FunctionArguments ExpectExactly(int count)
@@ -58,7 +60,7 @@ namespace EVIL.Interpreter.Abstraction
                 throw new ClrFunctionException(
                     $"Expected a table of size {size} at index {index}. Actual size was {this[index].Table.Count}");
 
-            tbl.ForEach((k, v) =>
+            tbl.ForEach((_, v) =>
             {
                 if (v.Type != acceptedType)
                 {
@@ -129,6 +131,12 @@ namespace EVIL.Interpreter.Abstraction
             if (this[index].String.Length > 1)
                 throw new ClrFunctionException($"Expected a single character.");
 
+            return this;
+        }
+
+        public FunctionArguments ExpectStringAtIndex(int index)
+        {
+            ExpectTypeAtIndex(index, DynValueType.String);
             return this;
         }
     }

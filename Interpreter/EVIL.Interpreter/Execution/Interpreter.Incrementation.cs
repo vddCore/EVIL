@@ -11,7 +11,7 @@ namespace EVIL.Interpreter.Execution
             {
                 throw new RuntimeException(
                     "A variable value is required as increment operand",
-                    Environment,
+                    this,
                     incrementationExpression.Line
                 );
             }
@@ -38,7 +38,7 @@ namespace EVIL.Interpreter.Execution
 
             throw new RuntimeException(
                 "Cannot increment this value because it's not a number.",
-                Environment,
+                this,
                 incrementationExpression.Line
             );
         }

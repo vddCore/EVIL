@@ -16,7 +16,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     throw new RuntimeException(
                         "Attempt to undefine a member of a type which is not a Table.",
-                        Environment,
+                        this,
                         undefStatement.Line
                     );
                 }
@@ -26,7 +26,15 @@ namespace EVIL.Interpreter.Execution
             else if (undefStatement.Right is VariableReferenceExpression variable)
             {
                 var scope = Environment.LocalScope ?? Environment.GlobalScope;
-                scope.FindAndUndefine(variable.Identifier);
+
+                if (!scope.FindAndUndefine(variable.Identifier))
+                {
+                    throw new RuntimeException(
+                        $"Symbol '{variable.Identifier}' was not found in the current scope.",
+                        this,
+                        undefStatement.Line
+                    );
+                }
             }
         }
     }

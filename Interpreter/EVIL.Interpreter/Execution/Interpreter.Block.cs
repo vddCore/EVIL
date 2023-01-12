@@ -13,7 +13,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     for (var i = 0; i < blockStatement.Statements.Count; i++)
                     {
-                        var callStackTop = Environment.StackTop;
+                        var callStackTop = StackTop;
 
                         if (callStackTop.ReturnNow)
                         {

@@ -1,5 +1,8 @@
-﻿namespace EVIL.Interpreter.Abstraction
+﻿using System;
+
+namespace EVIL.Interpreter.Abstraction
 {
+    [Serializable]
     public enum DynValueType
     {
         String,

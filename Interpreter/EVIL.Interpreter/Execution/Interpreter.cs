@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using EVIL.Grammar.Traversal.Generic;
 using EVIL.Grammar.Parsing;
+using EVIL.Grammar.Traversal.Generic;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
 using EVIL.Lexical;
@@ -12,81 +11,81 @@ namespace EVIL.Interpreter.Execution
     {
         public string MainFilePath { get; private set; }
 
-        public Environment Environment { get; set; } = new();
+        public int CallStackLimit { get; set; } = 72;
+
+        public Stack<StackFrame> CallStack { get; } = new();
+        public StackFrame StackTop => CallStack.Peek();
+
+        public Environment Environment { get; set; }
 
         public Lexer Lexer { get; private set; } = new();
         public Parser Parser { get; private set; }
 
         public Interpreter()
+            : this(new())
         {
         }
 
         public Interpreter(Environment env)
-            => Environment = env;
+        {
+            Environment = env;
+        }
 
         public void Execute(string sourceCode, bool preserveEnvironment = false)
         {
             Lexer.LoadSource(sourceCode);
-            Parser = new Parser(Lexer);
+            Parser = new Parser(Lexer, true);
 
             var node = Parser.Parse();
 
             try
             {
-                Environment.Begin();
+                Begin();
                 Visit(node);
             }
             finally
             {
-                Environment.End();
-                
+                End();
+
                 if (!preserveEnvironment)
                     Environment.Clear();
             }
         }
 
-        public async Task ExecuteAsync(string sourceCode)
+        public DynValue Execute(string sourceCode, string entryPoint, string[] args, string filePath = null,
+            bool preserveEnvironment = false)
         {
             Lexer.LoadSource(sourceCode);
-            Parser = new Parser(Lexer);
+            Parser = new Parser(Lexer, false);
 
             var node = Parser.Parse();
-
-            try
-            {
-                Environment.Begin();
-                await Task.Run(() => Visit(node));
-            }
-            finally
-            {
-                Environment.End();
-                Environment.Clear();
-            }
-        }
-
-        public void Execute(string sourceCode, string entryPoint, string[] args, string filePath = null)
-        {
-            Lexer.LoadSource(sourceCode);
-            Parser = new Parser(Lexer);
-
-            var node = Parser.Parse();
+            DynValue ret;
 
             MainFilePath = filePath;
+            
+            Begin();
+            Visit(node);
+            End();
 
             try
             {
-                Environment.Begin();
-                Visit(node);
-                Environment.End();
-                
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
 
                 if (entryNode == null)
                 {
                     throw new RuntimeException(
                         $"Entry point '{entryPoint}' missing.",
-                        Environment,
+                        this,
                         null
+                    );
+                }
+
+                if (entryNode.Parameters.Count > 1)
+                {
+                    throw new RuntimeException(
+                        "Entry point function can only have 1 argument.",
+                        this,
+                        entryNode.Line
                     );
                 }
 
@@ -112,41 +111,78 @@ namespace EVIL.Interpreter.Execution
 
                         scope.Set(stackFrame.Parameters[0], new DynValue(tbl));
                     }
-                    else if (stackFrame.Parameters.Count > 1)
-                    {
-                        throw new RuntimeException(
-                            "Entry point function can only have 1 argument.",
-                            Environment,
-                            entryNode.Line
-                        );
-                    }
 
-                    Environment.Begin();
-                    Environment.CallStack.Push(stackFrame);
+                    Begin();
+                    CallStack.Push(stackFrame);
                     Visit(entryNode.Statements);
-
-                    if (Environment.CallStack.Count > 0)
-                    {
-                        Environment.CallStack.Pop();
-                    }
+                    ret = CallStack.Peek().ReturnValue;
+                    End();
                 }
                 Environment.ExitScope();
             }
             finally
             {
-                Environment.End();
-                Environment.Clear();
+                if (!preserveEnvironment)
+                    Environment.Clear();
             }
+
+            return ret;
         }
 
-        public Task ExecuteAsync(string sourceCode, string entryPoint, string[] args)
+        public DynValue ExecuteGlobalScriptFunction(string name, FunctionArguments args)
         {
-            return Task.Factory.StartNew(
-                () => Execute(
-                    sourceCode, entryPoint, args
-                ),
-                TaskCreationOptions.LongRunning
-            );
+            if (!Environment.GlobalScope.Members.TryGetValue(name, out var dynValue))
+                throw new RuntimeException($"'{name}' is not a member in global scope.", this, null);
+
+            if (dynValue.Type != DynValueType.Function)
+                throw new RuntimeException($"'{name}' is not a script function.", this, null);
+
+            var function = dynValue.ScriptFunction;
+            DynValue retVal;
+
+            var stackFrame = new StackFrame(name)
+            {
+                DefinedAtLine = function.DefinedAtLine
+            };
+
+            for (var i = 0; i < function.Parameters.Count; i++)
+            {
+                stackFrame.Parameters.Add(function.Parameters[i]);
+            }
+
+            var scope = Environment.EnterScope();
+            {
+                for (var i = 0; i < stackFrame.Parameters.Count; i++)
+                {
+                    if (i >= args.Count)
+                        break;
+
+                    scope.Set(stackFrame.Parameters[i], args[i].Copy());
+                }
+
+                CallStack.Push(stackFrame);
+                {
+                    Visit(function.Statements);
+                    retVal = CallStack.Peek().ReturnValue;
+                }
+                CallStack.Pop();
+            }
+            Environment.ExitScope();
+
+            return retVal;
         }
+
+        private void Begin(string internalChunkName = "!root_chunk!")
+        {
+            CallStack.Push(new StackFrame(internalChunkName));
+        }
+
+        private void End()
+        {
+            CallStack.Pop();
+        }
+
+        public List<StackFrame> StackTrace()
+            => new(CallStack);
     }
 }

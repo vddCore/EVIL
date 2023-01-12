@@ -57,7 +57,7 @@ namespace EVIL.Interpreter.Execution
                     break;
 
                 default:
-                    throw new RuntimeException("Unexpected compound assignment type??", Environment, null);
+                    throw new RuntimeException("Unexpected compound assignment type??", this, null);
             }
 
             left.CopyFrom(right);

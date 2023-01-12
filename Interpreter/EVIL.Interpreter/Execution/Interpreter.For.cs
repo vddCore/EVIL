@@ -18,7 +18,7 @@ namespace EVIL.Interpreter.Execution
                 try
                 {
                     var loopStackTop = new LoopFrame();
-                    Environment.CallStack.Peek().LoopStack.Push(loopStackTop);
+                    CallStack.Peek().LoopStack.Push(loopStackTop);
 
                     while (true)
                     {
@@ -51,7 +51,7 @@ namespace EVIL.Interpreter.Execution
                 }
                 finally
                 {
-                    Environment.CallStack.Peek().LoopStack.Pop();
+                    CallStack.Peek().LoopStack.Pop();
                 }
             }
             Environment.ExitScope();

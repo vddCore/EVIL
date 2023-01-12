@@ -20,7 +20,7 @@ namespace EVIL.Interpreter.Execution
                     {
                         throw new RuntimeException(
                             $"Attempt to initialize a table with the same key '{key.AsString().String}' twice.",
-                            Environment,
+                            this,
                             node.Line
                         );
                     }

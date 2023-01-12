@@ -1,10 +1,13 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 
 namespace EVIL.Interpreter.Abstraction
 {
+    [Serializable]
     public class DynValue
     {
         public static DynValue Zero => new(0);
+        public static DynValue One => new(1);
 
         private double _numberValue;
         private string _stringValue;

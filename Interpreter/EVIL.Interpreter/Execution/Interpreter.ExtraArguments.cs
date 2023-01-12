@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(ExtraArgumentsExpression extraArgumentsExpression)
         {
-            var stackFrame = Environment.CallStack.Peek();
+            var stackFrame = CallStack.Peek();
             var tbl = new Table();
             var dv = new DynValue(tbl);
 
