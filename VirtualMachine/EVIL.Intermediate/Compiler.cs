@@ -54,7 +54,7 @@ namespace EVIL.Intermediate
         internal (int, Chunk) CreateAnonymousChunk()
         {
             var id = _executable.Chunks.Count;
-            var chunk = new Chunk($"!!<{_nextAnonymousChunkId++}>") { IsAnonymous = true };
+            var chunk = new Chunk($"!!<{_nextAnonymousChunkId++}>");
 
             _executable.Chunks.Add(chunk);
 
