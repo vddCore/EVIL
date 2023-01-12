@@ -105,5 +105,8 @@
     <Compile Update="Execution\Interpreter.ExpressionStatement.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
+    <Compile Update="Execution\Interpreter.ExtraArguments.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -83,7 +83,7 @@ namespace EVIL.Interpreter.Execution
             var stackFrame = new StackFrame(name)
             {
                 InvokedAtLine = node.Line,
-                DefinedAtLine = scriptFunction.DefinedAtLine
+                DefinedAtLine = scriptFunction.DefinedAtLine,
             };
 
             var iterator = 0;
@@ -111,7 +111,10 @@ namespace EVIL.Interpreter.Execution
                 else
                     scope.Set(parameterName, DynValue.Zero);
             }
-
+            
+            stackFrame.Parameters.AddRange(scriptFunction.Parameters);
+            stackFrame.Arguments.AddRange(args);
+            
             Environment.CallStack.Push(stackFrame);
 
             DynValue retVal;

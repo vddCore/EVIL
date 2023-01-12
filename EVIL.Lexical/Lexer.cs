@@ -58,6 +58,11 @@ namespace EVIL.Lexical
                 case '.' when char.IsDigit(Peek()):
                     State.CurrentToken = GetDecimalNumber();
                     break;
+                case '.' when Peek() == '.' && Peek(2) == '.':
+                    Advance();
+                    Advance();
+                    State.CurrentToken = Token.ExtraArguments;
+                    break;
                 case '.':
                     State.CurrentToken = Token.Dot;
                     break;
@@ -449,12 +454,12 @@ namespace EVIL.Lexical
                 Advance();
         }
 
-        private char Peek()
+        private char Peek(int howFar = 1)
         {
-            if (State.Pointer + 1 >= _sourceCode.Length)
+            if (State.Pointer + howFar >= _sourceCode.Length)
                 return (char)0;
 
-            return _sourceCode[State.Pointer + 1];
+            return _sourceCode[State.Pointer + howFar];
         }
 
         private void Advance()

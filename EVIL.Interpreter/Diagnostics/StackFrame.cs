@@ -7,6 +7,7 @@ namespace EVIL.Interpreter.Diagnostics
     {
         public string FunctionName { get; }
         public List<string> Parameters { get; } = new();
+        public FunctionArguments Arguments { get; } = new();
 
         public bool ReturnNow { get; private set; }
         public DynValue ReturnValue { get; set; } = DynValue.Zero;

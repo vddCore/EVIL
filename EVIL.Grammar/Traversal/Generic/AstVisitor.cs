@@ -30,6 +30,7 @@ namespace EVIL.Grammar.Traversal.Generic
                 {typeof(IndexerExpression), (n) => Visit(n as IndexerExpression)},
                 {typeof(IncrementationExpression), (n) => Visit(n as IncrementationExpression)},
                 {typeof(DecrementationExpression), (n) => Visit(n as DecrementationExpression)},
+                {typeof(ExtraArgumentsExpression), (n) => Visit(n as ExtraArgumentsExpression)},
             };
 
             StatementHandlers = new()
@@ -85,6 +86,7 @@ namespace EVIL.Grammar.Traversal.Generic
         public abstract T Visit(IndexerExpression indexerExpression);
         public abstract T Visit(IncrementationExpression incrementationExpression);
         public abstract T Visit(DecrementationExpression decrementationExpression);
+        public abstract T Visit(ExtraArgumentsExpression extraArgumentsExpression);
         
         public abstract void Visit(Program program);
         public abstract void Visit(BlockStatement blockStatement);
