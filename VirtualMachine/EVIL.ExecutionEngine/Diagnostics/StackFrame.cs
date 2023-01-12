@@ -9,22 +9,31 @@ namespace EVIL.ExecutionEngine.Diagnostics
     {
         private EVM _evm;
 
+        public int IP { get; private set; }
+        public bool CanExecute => IP < Chunk.Instructions.Count;
+        
         public Chunk Chunk { get; }
         
         public DynamicValue[] Locals { get; }
-        public DynamicValue[] Parameters { get; }
+        public DynamicValue[] FormalArguments { get; }
+        public DynamicValue[] ExtraArguments { get; }
 
-        public int IP { get; set; }
-        public DynamicValue ReturnValue { get; private set; }
+        public DynamicValue ReturnValue { get; set; }
 
-        public StackFrame(EVM evm, Chunk chunk)
+        public StackFrame(EVM evm, Chunk chunk, int argCount)
         {
             _evm = evm;
-
-            Chunk = chunk;
             
+            Chunk = chunk;
             Locals = new DynamicValue[chunk.LocalCount];
-            Parameters = new DynamicValue[chunk.ParameterCount];
+            FormalArguments = new DynamicValue[chunk.ParameterCount];
+            
+            var extraArgCount = argCount - FormalArguments.Length;
+            if (extraArgCount > 0)
+            {
+                ExtraArguments = new DynamicValue[extraArgCount];
+            }
+            
             ReturnValue = DynamicValue.Zero;
             
             for (var i = 0; i < Locals.Length; i++)
@@ -32,9 +41,9 @@ namespace EVIL.ExecutionEngine.Diagnostics
                 Locals[i] = DynamicValue.Zero;
             }
             
-            for (var i = 0; i < Parameters.Length; i++)
+            for (var i = 0; i < FormalArguments.Length; i++)
             {
-                Parameters[i] = DynamicValue.Zero;
+                FormalArguments[i] = DynamicValue.Zero;
             }
         }
 
@@ -43,7 +52,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             return (OpCode)FetchByte();
         }
 
-        public double FetchNumber()
+        internal double FetchNumber()
         {
             var data = FetchBytes(8);
 
@@ -54,7 +63,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
         }
 
-        public int FetchInt32()
+        internal int FetchInt32()
         {
             var data = FetchBytes(4);
 
@@ -65,7 +74,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
         }
 
-        public uint FetchUInt32()
+        internal uint FetchUInt32()
         {
             var data = FetchBytes(4);
 
@@ -76,7 +85,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
             }
         }
 
-        public byte[] FetchBytes(int len)
+        internal byte[] FetchBytes(int len)
         {
             var data = new byte[len];
 

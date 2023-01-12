@@ -8,7 +8,7 @@ namespace EVIL.Intermediate
 
         public string Name { get; }
         public List<byte> Instructions { get; } = new();
-        
+
         public int ParameterCount { get; internal set; }
         public int LocalCount { get; internal set; }
 

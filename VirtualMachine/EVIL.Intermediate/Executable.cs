@@ -12,7 +12,7 @@ namespace EVIL.Intermediate
 
         public Executable()
         {
-            Chunks.Add(new Chunk("!mainch"));
+            Chunks.Add(new Chunk("!root"));
         }
     }
 }

@@ -4,6 +4,9 @@ namespace EVIL.Intermediate
 {
     public class Scope
     {
+        private static int GlobalCount { get; set; }
+        private static TwoWayDictionary<string, SymbolInfo> Global { get; } = new();
+        
         public Chunk Chunk { get; }
         public Scope Parent { get; }
         
@@ -22,22 +25,26 @@ namespace EVIL.Intermediate
 
         public SymbolInfo Find(string name)
         {
+            SymbolInfo sym;
             var scope = this;
 
             while (scope != null)
             {
-                if (scope.Symbols.TryGetByKey(name, out var sym))
+                if (scope.Symbols.TryGetByKey(name, out sym))
                     return sym;
 
                 scope = scope.Parent;
             }
 
+            if (Global.TryGetByKey(name, out sym))
+                return sym;
+            
             return SymbolInfo.Undefined;
         }
         
         public SymbolInfo DefineLocal(string name)
         {
-            if (IsDefined(name))
+            if (IsLocalDefined(name))
                 throw new DuplicateSymbolException($"Symbol '{name}' was already defined in the current scope.", name);
 
             var sym = new SymbolInfo(Chunk.LocalCount++, SymbolInfo.SymbolType.Local);
@@ -48,26 +55,52 @@ namespace EVIL.Intermediate
 
         public SymbolInfo DefineParameter(string name)
         {
-            if (IsDefined(name))
-                throw new DuplicateSymbolException($"Symbol '{name}' was already defined in the current scope.", name);
+            if (IsLocalDefined(name))
+                throw new DuplicateSymbolException($"Local '{name}' was already defined in the current scope.", name);
 
             var sym = new SymbolInfo(Chunk.ParameterCount++, SymbolInfo.SymbolType.Parameter);
             Symbols.Add(name, sym);
 
             return sym;
         }
+        
+        public static SymbolInfo DefineGlobal(string name)
+        {
+            if (IsGlobalDefined(name))
+                throw new DuplicateSymbolException($"Global '{name}' was already defined.", name);
+
+            var sym = new SymbolInfo(GlobalCount++, SymbolInfo.SymbolType.Global);
+            Global.Add(name, sym);
+
+            return sym;
+        }
 
         public void UndefineLocal(string name)
         {
-            if (!IsDefined(name))
-                throw new DuplicateSymbolException($"Symbol '{name}' was never defined in the current scope.", name);
+            if (!IsLocalDefined(name))
+                throw new DuplicateSymbolException($"Local '{name}' was never defined in the current scope.", name);
 
             Symbols.RemoveByKey(name);
         }
+
+        public static bool IsGlobalDefined(string name)
+        {
+            return Global.TryGetByKey(name, out _);
+        }
         
-        public bool IsDefined(string name)
+        public bool IsLocalDefined(string name)
         {
             return Symbols.TryGetByKey(name, out _);
+        }
+
+        public void Clear()
+        {
+            Symbols.Clear();
+        }
+
+        public static void ClearGlobals()
+        {
+            Global.Clear();
         }
     }
 }

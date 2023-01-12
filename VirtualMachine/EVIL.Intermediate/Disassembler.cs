@@ -46,6 +46,7 @@ namespace EVIL.Intermediate
                         case OpCode.STLOCAL:
                         case OpCode.STARG:
                         case OpCode.LDARG:
+                        case OpCode.CALL:
                             DecodeParametrizedLoad(op);
                             break;
                         

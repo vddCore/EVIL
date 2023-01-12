@@ -7,6 +7,7 @@ namespace EVIL.Intermediate
         public enum SymbolType
         {
             Undefined = -1,
+            Global,
             Local,
             Parameter
         }

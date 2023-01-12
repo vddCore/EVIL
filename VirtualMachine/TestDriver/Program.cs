@@ -13,9 +13,28 @@ namespace EVIL.VirtualMachine.TestDriver
             var parser = new Parser(lexer, true);
             var compiler = new Compiler();
             var disasm = new Disassembler();
-            
-            lexer.LoadSource("fn main(a, b, c) { a = $@(-24 + 30 * 3 / 22) + 2; b = 1200; c = 24 + 450 / 23.1 - 6.9 + 21.37 * 4.20; } main(1, 2, 3);");
-            
+
+            lexer.LoadSource(
+                @"
+                var a = 120;
+
+                fn add(a, b) {
+                    ret a + b;
+                }
+
+                fn main(a, b, c) {
+                    var x = 10;
+
+                    a = add($@(-24 + 30 * 3 / 22), 2) - x; 
+                    b = 1200; 
+                    c = 24 + 450 / 23.1 - 6.9 + 21.37 * 4.20; 
+
+                    ret a * b / c;
+                }
+
+                main(1, 2, 3, 4, 5);"
+            );
+
             var programTreeRoot = parser.Parse();
             var executable = compiler.Compile(programTreeRoot);
             Console.WriteLine(disasm.Disassemble(executable));
@@ -23,6 +42,8 @@ namespace EVIL.VirtualMachine.TestDriver
 
             var evm = new EVM(executable);
             evm.Run();
+            
+            Console.WriteLine(evm.DumpEvaluationStack());
         }
     }
 }
