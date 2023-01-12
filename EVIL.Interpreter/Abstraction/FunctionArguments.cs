@@ -95,7 +95,7 @@ namespace EVIL.Interpreter.Abstraction
 
         public FunctionArguments ExpectNumberAtIndex(int index)
         {
-            if (this[index].Type != DynValueType.Decimal && this[index].Type != DynValueType.Integer)
+            if (this[index].Type != DynValueType.Number && this[index].Type != DynValueType.Number)
                 throw new ClrFunctionException($"Expected a number value at argument index {index}.");
 
             return this;
@@ -103,9 +103,9 @@ namespace EVIL.Interpreter.Abstraction
 
         public FunctionArguments ExpectIntegerAtIndex(int index)
         {
-            ExpectTypeAtIndex(index, DynValueType.Integer);
+            ExpectTypeAtIndex(index, DynValueType.Number);
 
-            if (this[index].Type != DynValueType.Integer)
+            if (this[index].Number % 1 != 0)
                 throw new ClrFunctionException($"Expected integer value at argument index {index}.");
 
             return this;
@@ -115,7 +115,7 @@ namespace EVIL.Interpreter.Abstraction
         {
             ExpectIntegerAtIndex(index);
 
-            if (this[index].Integer < 0 || this[index].Integer > 255)
+            if (this[index].Number < 0 || this[index].Number > 255)
                 throw new ClrFunctionException($"Expected a value limited between 0 and 255.");
 
             return this;

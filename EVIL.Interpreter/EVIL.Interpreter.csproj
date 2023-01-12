@@ -84,9 +84,6 @@
     <Compile Update="Execution\Interpreter.Table.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Execution\Interpreter.Integer.cs">
-      <DependentUpon>Interpreter.cs</DependentUpon>
-    </Compile>
     <Compile Update="Execution\Interpreter.Block.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>

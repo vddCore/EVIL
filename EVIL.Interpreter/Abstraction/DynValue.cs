@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace EVIL.Interpreter.Abstraction
 {
@@ -7,8 +6,7 @@ namespace EVIL.Interpreter.Abstraction
     {
         public static DynValue Zero => new(0);
 
-        private decimal _decimalValue;
-        private int _integerValue;
+        private double _numberValue;
         private string _stringValue;
         private Table _tableValue;
         private ClrFunction _clrFunctionValue;
@@ -20,34 +18,21 @@ namespace EVIL.Interpreter.Abstraction
         {
             get
             {
-                if (Type == DynValueType.Decimal)
-                    return Decimal != 0;
-                else if (Type == DynValueType.Integer)
-                    return Integer != 0;
+                if (Type == DynValueType.Number)
+                    return Number != 0;
 
                 return true;
             }
         }
 
-        public decimal Decimal
+        public double Number
         {
             get
             {
-                if (Type != DynValueType.Decimal)
-                    throw new InvalidDynValueTypeException("This value is not a decimal.", DynValueType.Decimal, Type);
+                if (Type != DynValueType.Number)
+                    throw new InvalidDynValueTypeException("This value is not a number.", DynValueType.Number, Type);
 
-                return _decimalValue;
-            }
-        }
-
-        public int Integer
-        {
-            get
-            {
-                if (Type != DynValueType.Integer)
-                    throw new InvalidDynValueTypeException("This value is not an integer.", DynValueType.Integer, Type);
-
-                return _integerValue;
+                return _numberValue;
             }
         }
 
@@ -104,20 +89,14 @@ namespace EVIL.Interpreter.Abstraction
 
         public DynValue(bool value)
         {
-            Type = DynValueType.Integer;
-            _integerValue = value ? 1 : 0;
+            Type = DynValueType.Number;
+            _numberValue = value ? 1 : 0;
         }
-
-        public DynValue(int value)
+        
+        public DynValue(double value)
         {
-            Type = DynValueType.Integer;
-            _integerValue = value;
-        }
-
-        public DynValue(decimal value)
-        {
-            Type = DynValueType.Decimal;
-            _decimalValue = value;
+            Type = DynValueType.Number;
+            _numberValue = value;
         }
 
         public DynValue(string value)
@@ -144,32 +123,18 @@ namespace EVIL.Interpreter.Abstraction
             _clrFunctionValue = function;
         }
 
-        public DynValue AsDecimal()
+        public DynValue AsNumber()
         {
-            if (Type == DynValueType.Decimal)
-                return new DynValue(_decimalValue);
+            if (Type == DynValueType.Number)
+                return new DynValue(_numberValue);
 
-            var success = decimal.TryParse(_stringValue, out var result);
+            var success = double.TryParse(_stringValue, out var result);
 
             if (!success)
                 throw new DynValueConversionException($"Cannot convert value of type '{Type}' to a decimal.");
 
             return new DynValue(result);
         }
-
-        public DynValue AsInteger()
-        {
-            if (Type == DynValueType.Integer)
-                return new DynValue(_integerValue);
-
-            var success = int.TryParse(_stringValue, out var result);
-
-            if (!success)
-                throw new DynValueConversionException($"Cannot convert value of type '{Type}' to an integer.");
-
-            return new DynValue(result);
-        }
-
         public DynValue AsString()
         {
             if (Type == DynValueType.String)
@@ -186,11 +151,7 @@ namespace EVIL.Interpreter.Abstraction
             {
                 return new DynValue($"ClrFunction({_clrFunctionValue.Invokable.Method.GetParameters().Length})");
             }
-            else if (Type == DynValueType.Decimal)
-            {
-                return new DynValue(_decimalValue.ToString(CultureInfo.InvariantCulture));
-            }
-            else return new DynValue(_integerValue.ToString(CultureInfo.InvariantCulture));
+            else return new DynValue(_numberValue.ToString(CultureInfo.InvariantCulture));
         }
 
         public DynValue AsTable()
@@ -213,14 +174,10 @@ namespace EVIL.Interpreter.Abstraction
 
             switch (dynValue.Type)
             {
-                case DynValueType.Decimal:
-                    _decimalValue = dynValue.Decimal;
+                case DynValueType.Number:
+                    _numberValue = dynValue.Number;
                     break;
                 
-                case DynValueType.Integer:
-                    _integerValue = dynValue.Integer;
-                    break;
-
                 case DynValueType.String:
                     _stringValue = dynValue.String;
                     break;

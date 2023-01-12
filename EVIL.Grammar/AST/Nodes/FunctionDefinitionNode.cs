@@ -5,16 +5,16 @@ namespace EVIL.Grammar.AST.Nodes
     public class FunctionDefinitionNode : AstNode
     {
         public string Identifier { get; }
-        public BlockStatementNode Statements { get; }
         public List<string> ParameterNames { get; }
+        
+        public BlockStatementNode Statements { get; }
 
-        public FunctionDefinitionNode(string identifier, BlockStatementNode statements, List<string> parameterNames)
+        public FunctionDefinitionNode(string identifier, List<string> parameterNames, BlockStatementNode statements)
         {
             Identifier = identifier;
+            ParameterNames = parameterNames;
             
             Statements = statements;
-            ParameterNames = parameterNames;
-
             Reparent(Statements);
         }
     }

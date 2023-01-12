@@ -29,11 +29,13 @@ namespace EVIL.Grammar.Parsing
             }
             Match(TokenType.RParenthesis);
 
+            var statements = LoopDescent(BlockStatement);
+            
             return new ForLoopNode(
                 assignments,
                 condition,
                 iterationStatements,
-                BlockStatement()
+                statements
             ) {Line = line};
         }
 

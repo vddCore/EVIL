@@ -1,5 +1,4 @@
 ﻿using System;
-using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library
@@ -22,7 +21,7 @@ namespace EVIL.Interpreter.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectIntegerAtIndex(0);
 
-            return new DynValue(((char)args[0].Decimal).ToString());
+            return new DynValue(((char)args[0].Number).ToString());
         }
         
         [ClrFunction("code")]
@@ -47,7 +46,7 @@ namespace EVIL.Interpreter.Runtime.Library
                 .ExpectIntegerAtIndex(1);
 
             var str = args[0].String;
-            var index = (int)args[1].Decimal;
+            var index = (int)args[1].Number;
 
             if (index >= str.Length)
                 throw new ClrFunctionException("Requested index is outside the provided string.");
@@ -67,7 +66,7 @@ namespace EVIL.Interpreter.Runtime.Library
                     .ExpectIntegerAtIndex(1);
 
                 var str = args[0].String;
-                var startIndex = (int)args[1].Decimal;
+                var startIndex = (int)args[1].Number;
 
                 if (startIndex < 0 || startIndex >= str.Length)
                     throw new ClrFunctionException("The starting index is outside the provided string.");
@@ -81,12 +80,12 @@ namespace EVIL.Interpreter.Runtime.Library
                     .ExpectIntegerAtIndex(2);
 
                 var str = args[0].String;
-                var startIndex = (int)args[1].Decimal;
+                var startIndex = (int)args[1].Number;
 
                 if (startIndex < 0 || startIndex >= str.Length)
                     throw new ClrFunctionException("The starting index is outside the provided string.");
 
-                var length = (int)args[2].Decimal;
+                var length = (int)args[2].Number;
                 if (length < 0 || length + startIndex > str.Length)
                     throw new ClrFunctionException("The provided length of substring exceeds the base string bounds.");
 
@@ -94,25 +93,13 @@ namespace EVIL.Interpreter.Runtime.Library
             }
         }
         
-        [ClrFunction("s2i")]
+        [ClrFunction("s2n")]
         public static DynValue ToInteger(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1)
                 .ExpectTypeAtIndex(0, DynValueType.String);
 
-            if (!decimal.TryParse(args[0].String, out var result))
-                throw new ClrFunctionException("The number was in an invalid format.");
-
-            return new DynValue(result);
-        }
-        
-        [ClrFunction("s2d")]
-        public static DynValue ToDecimal(Execution.Interpreter interpreter, FunctionArguments args)
-        {
-            args.ExpectExactly(1)
-                .ExpectTypeAtIndex(0, DynValueType.String);
-
-            if (!decimal.TryParse(args[0].String, out var result))
+            if (!double.TryParse(args[0].String, out var result))
                 throw new ClrFunctionException("The number was in an invalid format.");
 
             return new DynValue(result);
@@ -124,13 +111,13 @@ namespace EVIL.Interpreter.Runtime.Library
             args.ExpectAtLeast(1)
                 .ExpectIntegerAtIndex(0);
 
-            var number = (int)args[0].Decimal;
+            var number = (int)args[0].Number;
             var toBase = 10;
 
             if (args.Count == 2)
             {
                 args.ExpectIntegerAtIndex(1);
-                toBase = (int)args[1].Decimal;
+                toBase = (int)args[1].Number;
             }
 
             return new DynValue(Convert.ToString(number, toBase));

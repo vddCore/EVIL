@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.Interop;
+using EVIL.Grammar.Traversal.Generic;
 using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
@@ -9,7 +9,7 @@ using EVIL.Lexical;
 
 namespace EVIL.Interpreter.Execution
 {
-    public partial class Interpreter : ValueAstVisitor<DynValue>
+    public partial class Interpreter : AstVisitor<DynValue>
     {
         private List<Constraint> _constraints = new();
 

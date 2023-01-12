@@ -11,7 +11,7 @@ namespace EVIL.Interpreter.Runtime.Library
         public static DynValue Stamp(Execution.Interpreter interpreter, FunctionArguments args)
         {
             return new(
-                (decimal)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds
+                DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds
             );
         }
 

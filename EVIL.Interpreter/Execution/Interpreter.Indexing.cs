@@ -19,7 +19,7 @@ namespace EVIL.Interpreter.Execution
         {
             if (indexable.Type == DynValueType.String)
             {
-                if (keyValue.Type != DynValueType.Integer)
+                if (keyValue.Type != DynValueType.Number)
                 {
                     throw new RuntimeException(
                         $"Attempt to index a string using {keyValue.Type}.",
@@ -28,7 +28,7 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
 
-                var index = keyValue.Integer;
+                var index = (int)keyValue.Number;
 
                 if (index < 0)
                 {
@@ -67,10 +67,8 @@ namespace EVIL.Interpreter.Execution
                 {
                     if (keyValue.Type == DynValueType.String)
                         return indexable.Table[keyValue.String];
-                    else if (keyValue.Type == DynValueType.Decimal)
-                        return indexable.Table[keyValue.Decimal];
-                    else if (keyValue.Type == DynValueType.Integer)
-                        return indexable.Table[keyValue.Integer];
+                    else if (keyValue.Type == DynValueType.Number)
+                        return indexable.Table[keyValue.Number];
                     else
                     {
                         throw new RuntimeException(

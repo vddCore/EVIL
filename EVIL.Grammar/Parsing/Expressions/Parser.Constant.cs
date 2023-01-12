@@ -13,30 +13,30 @@ namespace EVIL.Grammar.Parsing
 
             switch (token.Type)
             {
-                case TokenType.Decimal:
+                case TokenType.Double:
                 {
-                    var line = Match(TokenType.Decimal);
-                    return new DecimalNode(decimal.Parse(token.Value)) {Line = line};
+                    var line = Match(TokenType.Double);
+                    return new NumberNode(double.Parse(token.Value)) {Line = line};
                 }
                 case TokenType.HexInteger:
                 {
                     var line = Match(TokenType.HexInteger);
-                    return new IntegerNode(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
+                    return new NumberNode(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
                 }
                 case TokenType.Integer:
                 {
                     var line = Match(TokenType.Integer);
-                    return new IntegerNode(int.Parse(token.Value)) {Line = line};
+                    return new NumberNode(int.Parse(token.Value)) {Line = line};
                 }
                 case TokenType.True:
                 {
                     var line = Match(TokenType.True);
-                    return new IntegerNode(1) {Line = line};
+                    return new NumberNode(1) {Line = line};
                 }
                 case TokenType.False:
                 {
                     var line = Match(TokenType.False);
-                    return new IntegerNode(0) {Line = line};
+                    return new NumberNode(0) {Line = line};
                 }
                 case TokenType.String:
                 {

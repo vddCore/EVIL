@@ -8,6 +8,11 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode Skip()
         {
+            if (_loopDescent == 0)
+            {
+                throw new ParserException("Unexpected 'skip' outside of a loop.", Lexer.State);
+            }
+            
             var line = Match(TokenType.Skip);
             return new SkipNode { Line = line };
         }

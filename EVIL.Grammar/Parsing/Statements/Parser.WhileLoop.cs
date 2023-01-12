@@ -13,7 +13,9 @@ namespace EVIL.Grammar.Parsing
             var expression = AssignmentExpression();
             Match(TokenType.RParenthesis);
 
-            return new WhileLoopNode(expression, BlockStatement()) { Line = line };
+            var statements = LoopDescent(BlockStatement);
+            
+            return new WhileLoopNode(expression, statements) { Line = line };
         }
     }
 }

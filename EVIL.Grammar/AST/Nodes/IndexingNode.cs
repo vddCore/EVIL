@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace EVIL.Grammar.AST.Nodes
 {
@@ -44,7 +45,7 @@ namespace EVIL.Grammar.AST.Nodes
         {
             return KeyExpression switch
             {
-                DecimalNode num => num.Value.ToString(),
+                NumberNode num => num.Value.ToString(CultureInfo.InvariantCulture),
                 StringNode str => str.Value,
                 VariableNode vn => vn.Identifier,
                 _ => "???"

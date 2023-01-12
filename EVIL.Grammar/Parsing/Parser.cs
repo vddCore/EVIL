@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
@@ -8,9 +9,12 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
+        private uint _functionDescent;
+        private uint _loopDescent;
+
         public Lexer Lexer { get; private set; }
         public Token CurrentToken => Lexer.State.CurrentToken;
-        
+
         public Parser(Lexer lexer)
         {
             Lexer = lexer;
@@ -20,8 +24,26 @@ namespace EVIL.Grammar.Parsing
         {
             var programNode = Program();
             Match(TokenType.EOF);
-            
+
             return programNode;
+        }
+
+        private T FunctionDescent<T>(Func<T> func) where T: AstNode
+        {
+            _functionDescent++;
+            var ret = func();
+            _functionDescent--;
+
+            return ret;
+        }
+
+        private T LoopDescent<T>(Func<T> func) where T: AstNode
+        {
+            _loopDescent++;
+            var ret = func();
+            _loopDescent--;
+
+            return ret;
         }
 
         private ProgramNode Program()
@@ -51,7 +73,7 @@ namespace EVIL.Grammar.Parsing
             if (CurrentToken.Type != tokenType)
             {
                 throw new ParserException(
-                    $"Expected '{Token.StringRepresentation(tokenType)}', got '{CurrentToken.Value}'.", 
+                    $"Expected '{Token.StringRepresentation(tokenType)}', got '{CurrentToken.Value}'.",
                     Lexer.State
                 );
             }
@@ -66,7 +88,7 @@ namespace EVIL.Grammar.Parsing
             if (types.Contains(Lexer.State.PreviousToken.Type))
             {
                 throw new ParserException(
-                    "Disallowed token sequence.", 
+                    "Disallowed token sequence.",
                     Lexer.State
                 );
             }

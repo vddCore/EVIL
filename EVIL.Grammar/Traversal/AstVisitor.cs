@@ -3,23 +3,22 @@ using System.Collections.Generic;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 
-namespace EVIL.Grammar.Interop
+namespace EVIL.Grammar.Traversal
 {
-    public abstract class ValueAstVisitor<T>
+    public abstract class AstVisitor
     {
         protected Dictionary<Type, NodeHandler> Handlers { get; }
-        
-        protected delegate T NodeHandler(AstNode node);
 
-        protected ValueAstVisitor()
+        protected delegate void NodeHandler(AstNode node);
+
+        protected AstVisitor()
         {
             Handlers = new()
             {
                 {typeof(ProgramNode), (n) => Visit(n as ProgramNode)},
                 {typeof(BlockStatementNode), (n) => Visit(n as BlockStatementNode)},
                 {typeof(ConditionalExpressionNode), (n) => Visit(n as ConditionalExpressionNode)},
-                {typeof(DecimalNode), (n) => Visit(n as DecimalNode)},
-                {typeof(IntegerNode), (n) => Visit(n as IntegerNode)},
+                {typeof(NumberNode), (n) => Visit(n as NumberNode)},
                 {typeof(StringNode), (n) => Visit(n as StringNode)},
                 {typeof(AssignmentNode), (n) => Visit(n as AssignmentNode)},
                 {typeof(BinaryOperationNode), (n) => Visit(n as BinaryOperationNode)},
@@ -45,42 +44,41 @@ namespace EVIL.Grammar.Interop
             };
         }
 
-        public virtual T Visit(AstNode node)
+        public virtual void Visit(AstNode node)
         {
             var type = node.GetType();
 
             if (!Handlers.ContainsKey(type))
                 throw new Exception("Forgot to add a node type, idiot.");
 
-            return Handlers[type](node);
+            Handlers[type](node);
         }
 
-        public abstract T Visit(ProgramNode programNode);
-        public abstract T Visit(BlockStatementNode blockStatementNode);
-        public abstract T Visit(ConditionalExpressionNode conditionalExpressionNode);
-        public abstract T Visit(DecimalNode decimalNode);
-        public abstract T Visit(IntegerNode integerNode);
-        public abstract T Visit(StringNode stringNode);
-        public abstract T Visit(AssignmentNode assignmentNode);
-        public abstract T Visit(BinaryOperationNode binaryOperationNode);
-        public abstract T Visit(UnaryOperationNode unaryOperationNode);
-        public abstract T Visit(VariableNode variableNode);
-        public abstract T Visit(VariableDefinitionNode variableDefinitionNode);
-        public abstract T Visit(FunctionDefinitionNode scriptFunctionDefinitionNode);
-        public abstract T Visit(FunctionCallNode functionCallNode);
-        public abstract T Visit(ConditionNode conditionNode);
-        public abstract T Visit(ExitNode exitNode);
-        public abstract T Visit(ForLoopNode forLoopNode);
-        public abstract T Visit(DoWhileLoopNode doWhileLoopNode);
-        public abstract T Visit(WhileLoopNode whileLoopNode);
-        public abstract T Visit(ReturnNode returnNode);
-        public abstract T Visit(BreakNode breakNode);
-        public abstract T Visit(SkipNode nextNode);
-        public abstract T Visit(TableNode tableNode);
-        public abstract T Visit(IndexingNode indexingNode);
-        public abstract T Visit(IncrementationNode incrementationNode);
-        public abstract T Visit(DecrementationNode decrementationNode);
-        public abstract T Visit(UndefNode undefNode);
-        public abstract T Visit(EachLoopNode eachLoopNode);
+        public abstract void Visit(ProgramNode programNode);
+        public abstract void Visit(BlockStatementNode blockStatementNode);
+        public abstract void Visit(ConditionalExpressionNode conditionalExpressionNode);
+        public abstract void Visit(NumberNode numberNode);
+        public abstract void Visit(StringNode stringNode);
+        public abstract void Visit(AssignmentNode assignmentNode);
+        public abstract void Visit(BinaryOperationNode binaryOperationNode);
+        public abstract void Visit(UnaryOperationNode unaryOperationNode);
+        public abstract void Visit(VariableNode variableNode);
+        public abstract void Visit(VariableDefinitionNode variableDefinitionNode);
+        public abstract void Visit(FunctionDefinitionNode scriptFunctionDefinitionNode);
+        public abstract void Visit(FunctionCallNode functionCallNode);
+        public abstract void Visit(ConditionNode conditionNode);
+        public abstract void Visit(ExitNode exitNode);
+        public abstract void Visit(ForLoopNode forLoopNode);
+        public abstract void Visit(DoWhileLoopNode doWhileLoopNode);
+        public abstract void Visit(WhileLoopNode whileLoopNode);
+        public abstract void Visit(ReturnNode returnNode);
+        public abstract void Visit(BreakNode breakNode);
+        public abstract void Visit(SkipNode nextNode);
+        public abstract void Visit(TableNode tableNode);
+        public abstract void Visit(IndexingNode indexingNode);
+        public abstract void Visit(IncrementationNode incrementationNode);
+        public abstract void Visit(DecrementationNode decrementationNode);
+        public abstract void Visit(UndefNode undefNode);
+        public abstract void Visit(EachLoopNode eachLoopNode);
     }
 }
