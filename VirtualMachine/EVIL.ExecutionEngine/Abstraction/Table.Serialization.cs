@@ -31,69 +31,59 @@ namespace EVIL.ExecutionEngine.Abstraction
             switch (value.Type)
             {
                 case DynamicValueType.Number:
-                    WriteNumber(bw, value.Number);
+                    WriteMember(bw, value.Number);
                     break;
                 
                 case DynamicValueType.String:
-                    WriteString(bw, value.String);
+                    WriteMember(bw, value.String);
                     break;
                 
                 case DynamicValueType.Function:
-                    WriteFunction(bw, value.Function);
+                    WriteMember(bw, value.Function);
                     break;
                 
                 case DynamicValueType.ClrFunction:
-                    WriteClrFunction(bw, value.ClrFunction);
+                    WriteMember(bw, value.ClrFunction);
                     break;
                 
                 case DynamicValueType.Table:
-                    WriteTable(bw, value.Table);
+                    WriteMember(bw, value.Table);
                     break;
             }
         }
 
-        private static void WriteNumber(BinaryWriter bw, double number)
+        private static void WriteMember(BinaryWriter bw, double number)
         {
             bw.Write((byte)DynamicValueType.Number);
             bw.Write(number);
         }
 
-        private static void WriteString(BinaryWriter bw, string str)
+        private static void WriteMember(BinaryWriter bw, string str)
         {
             bw.Write((byte)DynamicValueType.String);
-
-            var bytes = Encoding.UTF8.GetBytes(str);
-            bw.Write(bytes.Length);
-            bw.Write(bytes);
+            Serializer.WriteString(bw, str);
         }
 
-        private static void WriteFunction(BinaryWriter bw, Chunk chunk)
+        private static void WriteMember(BinaryWriter bw, Chunk chunk)
         {
             bw.Write((byte)DynamicValueType.Function);
             Serializer.WriteChunk(bw, chunk);
         }
 
-        private static void WriteClrFunction(BinaryWriter bw, ClrFunction clrFunction)
+        private static void WriteMember(BinaryWriter bw, ClrFunction clrFunction)
         {
             bw.Write((byte)DynamicValueType.ClrFunction);
             var declaringTypeName = clrFunction.Method.DeclaringType!.FullName;
             var methodName = clrFunction.Method.Name;
             
-            WriteString(bw, declaringTypeName);
-            WriteString(bw, methodName);
+            Serializer.WriteString(bw, declaringTypeName);
+            Serializer.WriteString(bw, methodName);
         }
 
-        private static void WriteTable(BinaryWriter bw, Table table)
+        private static void WriteMember(BinaryWriter bw, Table table)
         {
             bw.Write((byte)DynamicValueType.Table);
-            using (var ms = new MemoryStream())
-            {
-                table.Serialize(ms);
-
-                var data = ms.ToArray();
-                bw.Write(data.Length);
-                bw.Write(data);
-            }
+            table.Serialize(bw.BaseStream);
         }
     }
 }
