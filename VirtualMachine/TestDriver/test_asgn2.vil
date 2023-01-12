@@ -1,112 +1,27 @@
-var tape = {};
-var pointer = 0;
-var codepointer = 0;
+var x = 0;
 
-io.print_orig = io.print;
-
-io.print = fn(s) {
-  if(s == "\n") {
-    s = "\r\n";
+fn callback_a(arg)
+{
+  io.println("callback_a", arg);
+  
+  if (!x) {
+    x = other_func();
   }
   
-  io.print_orig(s);
-};
-
-fn main(args) {
-  if (#args < 1) {
-    var help = "Usage: bf <code>\r\nFor example: bf +++---<><>+[-]\r\n" +
-               "File input is not supported yet.";
-               
-    io.println(help);
-    exit;
-  }
-
-  var source = args[0];
-
-  for (var i; i < 384; i++) {
-    tape[i] = 0;
-  }
-
-  while (codepointer < #source) {
-    var char = source[codepointer];
-    if(char == "+") {
-      tape[pointer] = (tape[pointer] + 1) % 256;
-    }
-    elif(char == "-") {
-      tape[pointer] = (tape[pointer] - 1) % 256;
-    }
-    elif(char == "<") {
-      pointer = (pointer - 1) % #tape;
-    }
-    elif(char == ">") {
-      pointer = (pointer + 1) % #tape;
-    }
-    elif(char == "[") {
-      if(tape[pointer] == 0) {
-        codepointer = findClosingBrac(source, codepointer);
-      }
-    }
-    elif(char == "]") {
-      if(tape[pointer] != 0) {
-        codepointer = findOpenBrac(source, codepointer);
-      }
-    }
-    elif(char == ".") {
-      io.print(str.chr(tape[pointer]));
-    }
-    elif(char == ",") {
-      tape[pointer] = io.read();
-    }
-
-    codepointer++;
-  }
+  x();
+  x();
+  x();
 }
 
-fn printtape() {
-  io.print("[" + @#tape + "] ");
+fn callback_b(arg1, arg2)
+{
+  io.println("callback_b", arg1, arg2);
+}
 
-  each (var i, v : tape) {
-    io.print(@v + ", ");
-    if (i > 30) {
-      break;
-    }
-  }
+fn other_func() {
+  var blah = 10;
   
-  io.println();
+  ret fn() {
+    io.println("asdf" + @(blah++));
+  };
 }
-
-fn findClosingBrac(text, openPos) {
-    var closePos = openPos;
-    var counter = 1;
-    
-    while (counter > 0) {
-        var c = text[++closePos];
-        if (c == "[") {
-            counter++;
-        }
-        elif (c == "]") {
-            counter--;
-        }
-    }
-    
-    ret closePos;
-}
-
-fn findOpenBrac(text, closePos) {
-    var openPos = closePos;
-    var counter = 1;
-    
-    while (counter > 0) {
-        var c = text[--openPos];
-        if (c == "[") {
-            counter--;
-        }
-        elif (c == "]") {
-            counter++;
-        }
-    }
-    
-    ret openPos;
-}
-
-main({">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+."});

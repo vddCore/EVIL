@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <OutputType>Library</OutputType>
         <TargetFramework>net6.0</TargetFramework>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
-      <ProjectReference Include="..\EVIL.Intermediate\EVIL.Intermediate.csproj" />
+      <ProjectReference Include="..\EVIL.ExecutionEngine\EVIL.ExecutionEngine.csproj" />
     </ItemGroup>
 </Project>

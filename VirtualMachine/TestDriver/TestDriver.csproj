@@ -11,6 +11,7 @@
       <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj" />
       <ProjectReference Include="..\EVIL.ExecutionEngine\EVIL.ExecutionEngine.csproj" />
       <ProjectReference Include="..\EVIL.Intermediate\EVIL.Intermediate.csproj" />
+      <ProjectReference Include="..\EVIL.RT\EVIL.RT.csproj" />
     </ItemGroup>
 
     <ItemGroup>
