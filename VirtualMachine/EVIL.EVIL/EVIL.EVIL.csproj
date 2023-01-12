@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\EVIL.ExecutionEngine\EVIL.ExecutionEngine.csproj" />
-      <ProjectReference Include="..\EVIL.RT\EVIL.RT.csproj" />
+      <ProjectReference Include="..\EVIL.Runtime\EVIL.Runtime.csproj" />
     </ItemGroup>
 
     <ItemGroup>

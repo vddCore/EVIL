@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.ExecutionEngine", "Vir
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Intermediate", "VirtualMachine\EVIL.Intermediate\EVIL.Intermediate.csproj", "{1AD8F91B-14DD-4AEA-A502-1FF685754CA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.RT", "VirtualMachine\EVIL.RT\EVIL.RT.csproj", "{A99D9BEC-6A8E-409E-92A7-A80AD41249AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Runtime", "VirtualMachine\EVIL.Runtime\EVIL.Runtime.csproj", "{A99D9BEC-6A8E-409E-92A7-A80AD41249AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptingEngineExample", "VirtualMachine\ScriptingEngineExample\ScriptingEngineExample.csproj", "{E864C902-4B98-4D9C-86AB-6A9D2FC4D54B}"
 EndProject

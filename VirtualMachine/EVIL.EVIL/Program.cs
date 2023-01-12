@@ -9,7 +9,7 @@ using EVIL.Grammar.Parsing;
 using EVIL.Intermediate.CodeGeneration;
 using EVIL.Intermediate.Storage;
 using EVIL.Lexical;
-using EVIL.RT;
+using EVIL.Runtime;
 using Mono.Options;
 
 namespace EVIL.EVIL
