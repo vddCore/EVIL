@@ -1,13 +1,4 @@
-var t = { 
-  "test" => "blah",
-  "test2" => "blah2",
-  "cunts" => "shits",
-  0 => "nya",
-};
-
-each (var k, v : t) {
-  if (!k) break;
-  if (k == "test") skip;
-  
-  io.println(k, ": ", v);
+if ({} > {})
+{
+  io.println("yay?");
 }

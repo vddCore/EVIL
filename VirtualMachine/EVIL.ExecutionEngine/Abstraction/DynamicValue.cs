@@ -266,6 +266,16 @@ namespace EVIL.ExecutionEngine.Abstraction
             };
         }
 
+        public Table AsTable()
+        {
+            return Type switch
+            {
+                DynamicValueType.String => Table.FromString(_string),
+                DynamicValueType.Table => _table,
+                _ => throw new TypeConversionException(Type, DynamicValueType.Table)
+            };
+        }
+
         public DynamicValue Index(DynamicValue key)
         {
             switch (Type)
