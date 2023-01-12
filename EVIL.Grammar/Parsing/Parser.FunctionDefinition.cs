@@ -10,25 +10,12 @@ namespace EVIL.Grammar.Parsing
         private AstNode FunctionDefinition()
         {         
             var line = Match(TokenType.Fn);
-            var isAnonymous = false;
             string procName = null;
             
             if (Scanner.State.CurrentToken.Type == TokenType.Identifier)
             {
-                if (IsInsideFunctionDefinition)
-                {
-                    throw new ParserException("Nested named functions are not supported.");
-                }
-                
-                IsInsideFunctionDefinition = true;
-
-                procName = (string)Scanner.State.CurrentToken.Value;
-                
+                procName = (string)Scanner.State.CurrentToken.Value;                
                 Match(TokenType.Identifier);
-            }
-            else
-            {
-                isAnonymous = true;
             }
 
             Match(TokenType.LParenthesis);
@@ -49,11 +36,6 @@ namespace EVIL.Grammar.Parsing
             Match(TokenType.LBrace);
             var statementList = FunctionStatementList();
             Match(TokenType.RBrace);
-
-            if (!isAnonymous)
-            {
-                IsInsideFunctionDefinition = false;
-            }
 
             return new FunctionDefinitionNode(procName, statementList, parameterList) { Line = line };
         }

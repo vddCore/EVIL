@@ -31,7 +31,9 @@ namespace EVIL.Grammar.Parsing
                 return UndefineSymbol();
             else if (token.Type == TokenType.Exit)
                 return Exit();
-            else return Assignment();
+            else if (token.Type == TokenType.Identifier)
+                return Assignment();
+            else throw new ParserException($"Expected a statement, found '{token.Value}'.");
         }
     }
 }
