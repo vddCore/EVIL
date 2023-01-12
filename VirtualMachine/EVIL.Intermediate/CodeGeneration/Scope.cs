@@ -53,7 +53,6 @@ namespace EVIL.Intermediate
 
             var sym = new SymbolInfo(Chunk.Externs.Count, SymbolInfo.SymbolType.Extern);
             Chunk.Externs.Add(new ExternInfo(name, ownerChunkName, ownerLocalId, isParam));
-
             Symbols.Add(name, sym);
 
             return sym;
@@ -61,6 +60,16 @@ namespace EVIL.Intermediate
         
         public SymbolInfo DefineLocal(string name)
         {
+            if (Chunk.Locals.Count >= 255)
+            {
+                throw new CompilerException(
+                    "The local limit (255) for the current function has been reached.\n" +
+                    "What do you even need that many locals for?",
+                    _compiler.CurrentLine,
+                    _compiler.CurrentColumn
+                );
+            }
+            
             if (IsLocalDefined(name))
                 throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
@@ -80,6 +89,16 @@ namespace EVIL.Intermediate
 
         public SymbolInfo DefineParameter(string name)
         {
+            if (Chunk.Parameters.Count >= 255)
+            {
+                throw new CompilerException(
+                    "The parameter limit (255) for the current function has been reached.\n" +
+                    "Why would you have a function with *that* many parameters anyway?",
+                    _compiler.CurrentLine,
+                    _compiler.CurrentColumn
+                );
+            }
+            
             if (IsLocalDefined(name))
                 throw new DuplicateSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
 
@@ -89,12 +108,6 @@ namespace EVIL.Intermediate
             Symbols.Add(name, sym);
 
             return sym;
-        }
-        
-        public void UndefineLocal(string name)
-        {
-            if (!IsLocalDefined(name))
-                throw new MissingSymbolException(name, _compiler.CurrentLine, _compiler.CurrentColumn);
         }
         
         public bool IsLocalDefined(string name)

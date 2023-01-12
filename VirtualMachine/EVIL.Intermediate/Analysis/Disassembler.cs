@@ -247,8 +247,8 @@ namespace EVIL.Intermediate.Analysis
         private void DecodeLocalOp(OpCode opCode, List<string> locals)
         {
             Decode(opCode);
-            var index = FetchInt32();
-            _disasm.Append($" {index:X8}");
+            var index = FetchByte();
+            _disasm.Append($" {index:X2}");
 
             if (Options.EmitLocalHints)
             {

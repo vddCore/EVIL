@@ -15,9 +15,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="test_asgn.vil">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+      <Folder Include="Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
       <None Update="test_asgn2.vil">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

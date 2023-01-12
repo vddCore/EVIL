@@ -6,7 +6,7 @@ using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine.Abstraction
 {
-    public struct DynamicValue
+    public class DynamicValue
     {
         private string _string;
         private double _number;
