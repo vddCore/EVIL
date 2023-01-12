@@ -1,35 +1,24 @@
 using EVIL.ExecutionEngine;
-using EVIL.ExecutionEngine.Abstraction;
+using EVIL.UnitTests.Base;
+using EVIL.UnitTests.Helper;
 using NUnit.Framework;
 
 namespace EVIL.UnitTests
 {
-    public class Conversions
-    {
-        private EVM _evm;
-        
-        [SetUp]
-        public void SetUp()
-        {
-            _evm = new EVM();
-        }
-        
+    public class Conversions : EvmTest
+    {       
         [Test]
         public void NumberToString()
         {
-            var val = _evm.Evaluate("ret @21.37;");
-            
-            Assert.AreEqual(DynamicValueType.String, val.Type);
-            Assert.AreEqual("21.37", val.String);
+            var val = EVM.Evaluate("ret @21.37;");
+            XAssert.AreEqual("21.37", val);
         }
 
         [Test]
         public void StringToNumber()
         {
-            var val = _evm.Evaluate("ret $\"21.37\";");
-            
-            Assert.AreEqual(DynamicValueType.Number, val.Type);
-            Assert.AreEqual(21.37, val.Number);
+            var val = EVM.Evaluate("ret $\"21.37\";");
+            XAssert.AreEqual(21.37, val);
         }
     }
 }

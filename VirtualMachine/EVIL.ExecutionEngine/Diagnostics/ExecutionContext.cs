@@ -310,8 +310,14 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             a = evstack.Pop();
 
                             if (b.Number == 0)
-                                throw new VirtualMachineException(this, "Attempt to divide by zero.");
-
+                            {
+                                throw new VirtualMachineException(
+                                    this, 
+                                    "Attempt to divide by zero.",
+                                    new DivideByZeroException()
+                                );
+                            }
+                            
                             evstack.Push(new(a.Number / b.Number));
                             break;
                         }
@@ -322,8 +328,14 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             a = evstack.Pop();
 
                             if (b.Number == 0)
-                                throw new VirtualMachineException(this, "Attempt to divide by zero.");
-
+                            {
+                                throw new VirtualMachineException(
+                                    this, 
+                                    "Attempt to divide by zero.",
+                                    new DivideByZeroException()
+                                );
+                            }
+                            
                             evstack.Push(
                                 new(a.Number - b.Number * Math.Floor(a.Number / b.Number))
                             );
