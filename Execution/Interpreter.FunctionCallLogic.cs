@@ -10,20 +10,26 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(FunctionCallNode functionCallNode)
         {
-            var name = functionCallNode.MemberName;
-            var funcValue = Environment.LocalScope.FindInScopeChain(name);
-
-            if (funcValue == null)
+            var funcValue = Visit(functionCallNode.Left);
+            var funcName = "<anonymous>";
+            
+            if (functionCallNode.Left is VariableNode vn)
             {
-                throw new RuntimeException(
-                    $"'{name} was not found in the current scope.", functionCallNode.Line
-                );
+                funcName = vn.Identifier;
+                funcValue = Environment.LocalScope.FindInScopeChain(vn.Identifier);
+                
+                if (funcValue == null)
+                {
+                    throw new RuntimeException(
+                        $"'{funcName}' was not found in the current scope.", functionCallNode.Line
+                    );
+                }
             }
 
             if (funcValue.Type != DynValueType.Function)
             {
                 throw new RuntimeException(
-                    $"'{name}' cannot be invoked because it is not a function.", functionCallNode.Line
+                    $"'{funcName}' cannot be invoked because it is not a function.", functionCallNode.Line
                 );
             }
 
@@ -40,13 +46,13 @@ namespace EVIL.Execution
             DynValue retVal;
             if (funcValue.IsClrFunction)
             {
-                retVal = ExecuteClrFunction(funcValue.ClrFunction, name, parameters);
+                retVal = ExecuteClrFunction(funcValue.ClrFunction, funcName, parameters);
             }
             else
             {
                 Environment.EnterScope();
                 {
-                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, parameters, name);
+                    retVal = ExecuteScriptFunction(funcValue.ScriptFunction, funcName, parameters);
                 }
                 Environment.ExitScope();
             }
@@ -54,7 +60,7 @@ namespace EVIL.Execution
             return retVal;
         }
 
-        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, ClrFunctionArguments args, string name)
+        private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, ClrFunctionArguments args)
         {
             var callStackItem = new StackFrame(name);
             var iterator = 0;

@@ -79,27 +79,12 @@ namespace EVIL.Parsing
             {
                 var line = Match(TokenType.LParenthesis);
 
-                var node = LogicalExpression();
+                var node = Operator();
                 node.Line = line;
 
                 Match(TokenType.RParenthesis);
 
                 return node;
-            }
-            else if (token.Type == TokenType.LBracket)
-            {
-                var state = Scanner.CopyState();
-                var node = MemoryGet();
-            
-                if (Scanner.State.CurrentToken.Type == TokenType.Increment || Scanner.State.CurrentToken.Type == TokenType.Decrement)
-                {
-                    Scanner.State = state;
-                    return MemorySet();
-                }
-                else
-                {
-                    return node;
-                }
             }
             else if (token.Type == TokenType.Fn)
             {
@@ -110,19 +95,7 @@ namespace EVIL.Parsing
                 var identifier = (string)token.Value;
                 Match(TokenType.Identifier);
 
-                token = Scanner.State.CurrentToken;
-
-                if (token.Type == TokenType.Assign)
-                    return Assignment(identifier);
-                else if (token.Type == TokenType.LParenthesis)
-                    return FunctionCall(identifier);
-                else if (token.Type == TokenType.LBracket)
-                    return Indexing(Variable(identifier));
-                else if (token.Type == TokenType.Increment)
-                    return PostIncrementation(identifier);
-                else if (token.Type == TokenType.Decrement)
-                    return PostDecrementation(identifier);
-                else return Variable(identifier);
+                return Variable(identifier);
             }
             else throw new ParserException($"Unexpected expression term '{token.Value}'.", Scanner.State);
         }

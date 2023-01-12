@@ -24,7 +24,7 @@ namespace EVIL.Parsing
                 }
                 Match(TokenType.Semicolon);
 
-                condition = LogicalExpression();
+                condition = Operator();
                 Match(TokenType.Semicolon);
 
                 iterationStatements.Add(Statement());

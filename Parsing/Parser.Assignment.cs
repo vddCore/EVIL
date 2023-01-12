@@ -6,17 +6,10 @@ namespace EVIL.Parsing
 {
     public partial class Parser
     {
-        private AstNode Assignment(string identifier = null)
+        private AssignmentNode Assignment(AstNode left)
         {           
-            AstNode left = Variable(identifier);
-            if (Scanner.State.CurrentToken.Type == TokenType.LBracket)
-            {
-                left = Indexing(left);
-            }
-
             var line = Match(TokenType.Assign);
-            var right = LogicalExpression();
-
+            var right = Operator();
             return new AssignmentNode(left, right) {Line = line};
         }
     }

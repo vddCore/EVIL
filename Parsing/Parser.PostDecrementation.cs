@@ -6,10 +6,10 @@ namespace EVIL.Parsing
 {
     public partial class Parser
     {
-        public AstNode PostDecrementation(string identifier)
+        public AstNode PostDecrementation(AstNode left)
         {
             var line = Match(TokenType.Decrement);
-            return new PostDecrementationNode(Variable(identifier)) { Line = line };
+            return new PostDecrementationNode(left) { Line = line };
         }
     }
 }

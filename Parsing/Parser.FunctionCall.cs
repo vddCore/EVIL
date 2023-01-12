@@ -7,10 +7,8 @@ namespace EVIL.Parsing
 {
     public partial class Parser
     {
-        private AstNode FunctionCall(string identifier)
+        private AstNode FunctionCall(AstNode left)
         {
-            var functionName = identifier;
-
             var line = Match(TokenType.LParenthesis);
 
             var parameters = new List<AstNode>();
@@ -20,7 +18,7 @@ namespace EVIL.Parsing
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
                     throw new ParserException($"Unexpected EOF in the function call stated in line {line}.");
 
-                parameters.Add(LogicalExpression());
+                parameters.Add(Operator());
 
                 if (Scanner.State.CurrentToken.Type == TokenType.RParenthesis)
                     break;
@@ -30,7 +28,7 @@ namespace EVIL.Parsing
 
             Match(TokenType.RParenthesis);
 
-            return new FunctionCallNode(functionName, parameters) { Line = line };
+            return new FunctionCallNode(left, parameters) { Line = line };
         }
     }
 }

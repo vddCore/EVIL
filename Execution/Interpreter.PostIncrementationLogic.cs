@@ -7,19 +7,17 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(PostIncrementationNode postIncrementationNode)
         {
-            DynValue retVal;
-            var name = postIncrementationNode.Variable.Identifier;
-            var numValue = Environment.LocalScope.FindInScopeChain(name);
+            var numValue = Visit(postIncrementationNode.Left);
 
-            if (numValue == null)
+            if (numValue.Type != DynValueType.Number)
             {
                 throw new RuntimeException(
-                    $"'{name} could not be found in the current scope.", postIncrementationNode.Line
+                    "Cannot increment this value because it's not a number.", postIncrementationNode.Line
                 );
             }
-
-            retVal = numValue.Copy();
-            numValue.CopyFrom(new DynValue(retVal.Number + 1));
+            
+            var retVal = numValue.Copy();
+            numValue.CopyFrom(new DynValue(numValue.Number + 1));
 
             return retVal;
         }

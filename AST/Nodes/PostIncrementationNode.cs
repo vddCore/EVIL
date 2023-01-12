@@ -4,11 +4,11 @@ namespace EVIL.AST.Nodes
 {
     public class PostIncrementationNode : AstNode
     {
-        public VariableNode Variable { get; }
+        public AstNode Left { get; }
 
-        public PostIncrementationNode(VariableNode variable)
+        public PostIncrementationNode(AstNode left)
         {
-            Variable = variable;
+            Left = left;
         }
     }
 }

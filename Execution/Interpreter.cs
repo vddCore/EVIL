@@ -13,7 +13,6 @@ namespace EVIL.Execution
         public bool BreakExecution { get; set; }
         public Environment Environment { get; set; }
 
-        public IMemory Memory { get; set; }
         public Parser Parser { get; }
 
         public Interpreter()

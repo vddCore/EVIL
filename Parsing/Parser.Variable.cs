@@ -5,7 +5,7 @@ namespace EVIL.Parsing
 {
     public partial class Parser
     {
-        private VariableNode Variable(string identifier = null)
+        private VariableNode Variable(string identifier = null, bool isBeingDefined = false)
         {
             var name = identifier;
             var line = Scanner.State.Line;
@@ -16,7 +16,7 @@ namespace EVIL.Parsing
                 line = Match(TokenType.Identifier);
             }
 
-            return new VariableNode(name) { Line = line };
+            return new VariableNode(name, isBeingDefined) { Line = line };
         }
     }
 }
