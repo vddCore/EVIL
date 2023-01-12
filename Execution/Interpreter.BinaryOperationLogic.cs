@@ -70,11 +70,10 @@ namespace EVIL.Execution
                     return CompareEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.And:
-                    return LogicalAnd(left, right, binaryOperationNode);
+                    return LogicalAnd(left, right);
 
                 case BinaryOperationType.Or:
-                    return LogicalOr(left, right, binaryOperationNode);
-
+                    return LogicalOr(left, right);
 
                 default: throw new RuntimeException("Unknown binary operation.", binaryOperationNode.Line);
             }
@@ -412,34 +411,29 @@ namespace EVIL.Execution
             }
         }
 
-        private DynValue LogicalAnd(DynValue left, DynValue right, AstNode node)
+        private DynValue LogicalAnd(DynValue left, DynValue right)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.IsTruth && right.IsTruth)
             {
-                if (left.Number != 0 && right.Number != 0)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(1);
             }
             else
             {
-                throw new RuntimeException($"Attempt of logical conjunction on {left.Type} and {right.Type}.",
-                    node.Line);
+                return new DynValue(0);
             }
         }
 
-        private DynValue LogicalOr(DynValue left, DynValue right, AstNode node)
+        private DynValue LogicalOr(DynValue left, DynValue right)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.IsTruth)
             {
-                if (left.Number != 0 || right.Number != 0)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return left.Copy();
             }
-            else
+            else if (right.IsTruth)
             {
-                throw new RuntimeException($"Attempt of logical alternative on {left.Type} and {right.Type}.",
-                    node.Line);
+                return right.Copy();
             }
+            else return DynValue.Zero;
         }
     }
 }
