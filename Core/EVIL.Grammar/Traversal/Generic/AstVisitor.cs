@@ -49,7 +49,6 @@ namespace EVIL.Grammar.Traversal.Generic
                 { typeof(ReturnStatement), (n) => Visit(n as ReturnStatement) },
                 { typeof(BreakStatement), (n) => Visit(n as BreakStatement) },
                 { typeof(SkipStatement), (n) => Visit(n as SkipStatement) },
-                { typeof(UndefStatement), (n) => Visit(n as UndefStatement) },
                 { typeof(EachStatement), (n) => Visit(n as EachStatement) },
                 { typeof(ExpressionStatement), (n) => Visit(n as ExpressionStatement) }
             };
@@ -104,7 +103,6 @@ namespace EVIL.Grammar.Traversal.Generic
         public abstract void Visit(ReturnStatement returnStatement);
         public abstract void Visit(BreakStatement breakStatement);
         public abstract void Visit(SkipStatement skipStatement);
-        public abstract void Visit(UndefStatement undefStatement);
         public abstract void Visit(EachStatement eachStatement);
         public abstract void Visit(ExpressionStatement expressionStatement);
     }

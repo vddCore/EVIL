@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using EVIL.CVIL.Utilities;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
@@ -19,6 +20,7 @@ namespace EVIL.EVIL
         private static EvilRuntime _rt;
         private static EVM _evm;
 
+        private static string _filePath;
         private static bool _loadBinary;
 
         private static OptionSet _options = new()
@@ -31,30 +33,32 @@ namespace EVIL.EVIL
         {
             var extra = _options.Parse(args);
 
-            if (extra.Count > 1)
+            if (extra.Count <= 0)
             {
-                Workflow.ExitWithMessage("too many arguments.", -1);
+                Workflow.ExitWithMessage("too few arguments.", -1);
             }
 
-            var filePath = extra[0];
+            _filePath = extra[0];
             
-            if (!File.Exists(filePath))
+            if (!File.Exists(_filePath))
             {
-                Workflow.ExitWithMessage($"`{filePath}' does not exist.", -2);
+                Workflow.ExitWithMessage($"`{_filePath}' does not exist.", -2);
             }
 
             Executable exe;
             if (_loadBinary)
             {
-                exe = LoadBinaryFile(filePath);
+                exe = LoadBinaryFile(_filePath);
             }
             else
             {
-                exe = CompileExecutable(filePath);
+                exe = CompileExecutable(_filePath);
             }
 
             if (exe == null)
             {
+                // Technically it shouldn't ever reach this branch,
+                // but just in case...
                 return;
             }
             
@@ -65,15 +69,22 @@ namespace EVIL.EVIL
                 
                 _global = new();
                 _rt = new(_global);
+                SetUpEnvironment();
+                
                 _evm = new EVM(_global);
-
-                _evm.RunExecutable(exe);
+                _evm.RunExecutable(
+                    exe,
+                    extra.Skip(1)
+                         .Select(x => new DynamicValue(x))
+                         .ToArray()
+                );
             }
             catch (VirtualMachineException vme)
             {
                 Workflow.ExitWithMessage(
-                    $"`{filePath}': {vme.Message}\n" +
-                    $"{_evm.DumpAllExecutionContexts()}"
+                    $"`{_filePath}': {vme.Message}\n" +
+                    $"{_evm.DumpAllExecutionContexts()}",
+                    -3
                 );
             }
         }
@@ -86,7 +97,7 @@ namespace EVIL.EVIL
             }
             catch (Exception e)
             {
-                Workflow.ExitWithMessage($"`{filePath}': {e.Message}\nexecutable might be corrupted.", -3);
+                Workflow.ExitWithMessage($"`{filePath}': {e.Message}\nexecutable might be corrupted.", -4);
             }
 
             return null;
@@ -106,18 +117,26 @@ namespace EVIL.EVIL
             }
             catch (LexerException le)
             {
-                Workflow.ExitWithMessage($"`{filePath}' ({le.Line}:{le.Column}): {le.Message}");
+                Workflow.ExitWithMessage($"`{filePath}' ({le.Line}:{le.Column}): {le.Message}", -5);
             }
             catch (ParserException pe)
             {
-                Workflow.ExitWithMessage($"`{filePath}' ({pe.Line}:{pe.Column}): {pe.Message}");
+                Workflow.ExitWithMessage($"`{filePath}' ({pe.Line}:{pe.Column}): {pe.Message}", -6);
             }
             catch (CompilerException ce)
             {
-                Workflow.ExitWithMessage($"`{filePath}' ({ce.Line}:{ce.Column}): {ce.Message}");
+                Workflow.ExitWithMessage($"`{filePath}' ({ce.Line}:{ce.Column}): {ce.Message}", -7);
             }
 
             return null;
+        }
+
+        private static void SetUpEnvironment()
+        {
+            _evm.SetEnvironmentVariable(
+                EvilEnvironmentVariable.ScriptHomeDirectory, 
+                Path.GetDirectoryName(_filePath)
+            );
         }
     }
 }

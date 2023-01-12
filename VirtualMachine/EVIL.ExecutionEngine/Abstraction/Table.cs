@@ -97,6 +97,12 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return DynamicValue.Null;
 
                 EnsureValidKeyType(key);
+                
+                if (value == DynamicValue.Null)
+                {
+                    _entries.Remove(key);
+                    return DynamicValue.Null;
+                }
 
                 if (_entries.ContainsKey(key))
                 {

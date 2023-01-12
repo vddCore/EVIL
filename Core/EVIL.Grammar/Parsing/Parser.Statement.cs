@@ -46,10 +46,6 @@ namespace EVIL.Grammar.Parsing
                     node = LocalDefinition();
                     break;
 
-                case TokenType.Undef:
-                    node = UndefineSymbol();
-                    break;
-
                 case TokenType.Exit:
                     node = Exit();
                     break;

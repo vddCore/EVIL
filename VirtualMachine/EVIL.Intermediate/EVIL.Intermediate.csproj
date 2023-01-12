@@ -87,9 +87,6 @@
       <Compile Update="CodeGeneration\Compiler.Statements.Skip.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
-      <Compile Update="CodeGeneration\Compiler.Statements.Undef.cs">
-        <DependentUpon>Compiler.cs</DependentUpon>
-      </Compile>
       <Compile Update="CodeGeneration\Compiler.Statements.LocalDefinition.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
