@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using EVIL.Intermediate;
 
 namespace EVIL.ExecutionEngine.Abstraction
@@ -157,12 +158,22 @@ namespace EVIL.ExecutionEngine.Abstraction
             switch (Type)
             {
                 case DynamicValueType.String:
-                    break;
+                    if (!double.TryParse(
+                            _string, 
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out var dbl))
+                    {
+                        throw new NumberFormatException(this);
+                    }
+
+                    return new DynamicValue(dbl);
                 
                 case DynamicValueType.Number:
-                    break;
+                    return new DynamicValue(_number!.Value);
                 
-                default: throw new TypeConversionException(Type, DynamicValueType.Number);   
+                default: 
+                    throw new TypeConversionException(Type, DynamicValueType.Number);   
             }
         }
 

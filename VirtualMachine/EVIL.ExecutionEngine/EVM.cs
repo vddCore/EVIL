@@ -100,6 +100,13 @@ namespace EVIL.ExecutionEngine
                     break;
                 }
 
+                case OpCode.TONUM:
+                {
+                    a = EvaluationStack.Pop();
+                    EvaluationStack.Push(a.CopyToNumber());
+                    break;
+                }
+
                 case OpCode.ADD:
                 {
                     b = EvaluationStack.Pop();
