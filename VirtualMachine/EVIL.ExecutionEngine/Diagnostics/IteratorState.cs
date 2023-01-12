@@ -15,17 +15,17 @@ namespace EVIL.ExecutionEngine.Diagnostics
         {
             Table = table;
 
-            if (Table.Entries.Count > 0)
+            if (Table.Count > 0)
             {
-                CurrentPair = Table.Entries.ElementAt(0);
+                CurrentPair = Table.ElementAt(0);
             }
         }
 
         public bool MoveNext()
         {
-            if (Pointer < Table.Entries.Count)
+            if (Pointer < Table.Count)
             {
-                CurrentPair = Table.Entries.ElementAt(Pointer++);
+                CurrentPair = Table.ElementAt(Pointer++);
                 return true;
             }
             else

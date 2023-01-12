@@ -147,11 +147,11 @@ namespace ScriptingEngineExample
             _exe = _compiler.Compile(_parser.Parse(true));
 
             _evm = new EVM(_globalTable);
-            _evm.Load(_exe);
+            _evm.RunExecutable(_exe);
 
-            _updateCallback = _evm.FindExposedChunk("update");
-            _drawCallback = _evm.FindExposedChunk("draw");
-            _initCallback = _evm.FindExposedChunk("init");
+            _updateCallback = _exe.FindExposedChunk("update");
+            _drawCallback = _exe.FindExposedChunk("draw");
+            _initCallback = _exe.FindExposedChunk("init");
         }
     }
 }

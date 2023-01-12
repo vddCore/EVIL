@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Grammar;
@@ -73,8 +75,6 @@ namespace EVIL.VirtualMachine.TestDriver
             rt.LoadCoreRuntime();
             
             var evm = new EVM(_globalTable);
-            evm.ImportLookupPaths.Add(AppContext.BaseDirectory);
-            
             var exe = BuildExecutable("./Tests/table.vil");
 
             if (exe != null)
@@ -86,8 +86,20 @@ namespace EVIL.VirtualMachine.TestDriver
                 Console.WriteLine("-[progRUN]------------");
                 try
                 {
-                    evm.Load(exe);
-                    evm.RunChunk("main");
+                    var main = exe.FindExposedChunk("main");
+
+                    if (main == null)
+                    {
+                        Console.WriteLine("main() not found.");
+                        return;
+                    }
+
+                    foreach (var chunk in exe.Chunks.Where(x => x.IsPublic))
+                    {
+                        _globalTable.Set(chunk.Name, chunk);
+                    }
+                    
+                    evm.RunChunk(main);
                 }
                 catch (VirtualMachineException e)
                 {

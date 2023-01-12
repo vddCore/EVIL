@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.Intermediate.CodeGeneration;
@@ -8,14 +10,11 @@ namespace EVIL.ExecutionEngine
 {
     public class EVM
     {
-        private Executable Executable { get; set; }
         private List<ExecutionContext> ExecutionContexts { get; } = new();
-
         public ExecutionContext MainExecutionContext => ExecutionContexts[0];
-        public List<string> ImportLookupPaths { get; } = new();
 
         public bool Running { get; private set; }
-        public Table GlobalTable { get; }
+        public Table GlobalTable { get; private set; }
 
         public EVM(Table globalTable)
         {
@@ -23,100 +22,101 @@ namespace EVIL.ExecutionEngine
             ExecutionContexts.Add(new ExecutionContext(this));
         }
 
-        public void ImportPublicFunctions(Executable executable)
+        public void Reset(bool preserveGlobals = false)
         {
-            for (var i = 1; i < executable.Chunks.Count; i++)
+            Stop();
+
+            lock (ExecutionContexts)
             {
-                var c = executable.Chunks[i];
+                ExecutionContexts.Clear();
+                ExecutionContexts.Add(new ExecutionContext(this));
+            }
 
-                if (!c.IsPublic)
-                    continue;
-
-                GlobalTable.Set(
-                    new DynamicValue(c.Name),
-                    new DynamicValue(c)
-                );
+            if (!preserveGlobals)
+            {
+                GlobalTable = new Table();
             }
         }
 
-        public void Load(Executable executable)
+        public void RunExecutable(Executable executable, params DynamicValue[] args)
         {
-            if (Running)
-                Stop();
+            Reset(true);
 
-            Executable = executable;
-            ImportPublicFunctions(executable);
-        }
+            foreach (var c in executable.Chunks.Where(x => x.IsPublic))
+                GlobalTable.Set(c.Name, c);
 
-        public void RunRootChunk(params DynamicValue[] args)
-        {
-            if (Running)
-                Stop();
-            
             InvokeCallback(
-                Executable.RootChunk, 
-                MainExecutionContext, 
-                args
+                executable.RootChunk,
+                MainExecutionContext
             );
-            
+
             Start();
         }
 
-        public void RunChunk(string name, ExecutionContext ctx = null, params DynamicValue[] args)
+        public void RunChunk(Chunk chunk, ExecutionContext ctx = null, params DynamicValue[] args)
         {
-            var chunk = FindExposedChunk(name);
-
             if (chunk == null)
-                throw new InvalidOperationException($"No chunk '{name}' was found.");
+                throw new ArgumentNullException(nameof(chunk), "Need a chunk to run it, don't you think?");
 
             ctx ??= MainExecutionContext;
-            
+
             InvokeCallback(chunk, ctx, args);
             Start();
         }
-        
+
         public void Start()
         {
-            if (Running) return;
-            
+            if (Running)
+                return;
+
             Running = true;
-
-            while (Running)
             {
-                var isAnyContextActive = false;
-                for (var i = 0; i < ExecutionContexts.Count; i++)
+                while (Running)
                 {
-                    if (!Running)
-                        break;
-
-                    var ctx = ExecutionContexts[i];
-
-                    if (ctx.Running)
+                    lock (ExecutionContexts)
                     {
-                        isAnyContextActive = true;
-                        ctx.Step();
+                        var isAnyContextActive = false;
+                        for (var i = 0; i < ExecutionContexts.Count; i++)
+                        {
+                            if (!Running)
+                                break;
+
+                            var ctx = ExecutionContexts[i];
+
+                            if (ctx.Running)
+                            {
+                                isAnyContextActive = true;
+                                ctx.Step();
+                            }
+                        }
+
+                        if (!isAnyContextActive)
+                        {
+                            break;
+                        }
                     }
                 }
-
-                if (!isAnyContextActive)
-                {
-                    break;
-                }
             }
-
             Running = false;
         }
 
         public void Stop()
         {
-            for (var i = 0; i < ExecutionContexts.Count; i++)
-                ExecutionContexts[i].Pause();
+            lock (ExecutionContexts)
+            {
+                for (var i = 0; i < ExecutionContexts.Count; i++)
+                    ExecutionContexts[i].Halt();
+            }
         }
 
         public ExecutionContext CreateNewExecutionContext()
         {
             var ctxt = new ExecutionContext(this);
-            ExecutionContexts.Add(ctxt);
+
+            lock (ExecutionContexts)
+            {
+                ExecutionContexts.Add(ctxt);
+            }
 
             return ctxt;
         }
@@ -127,21 +127,28 @@ namespace EVIL.ExecutionEngine
             {
                 throw new InvalidOperationException("Unable to delete main execution context.");
             }
-            
-            ctx.Pause();
-            ExecutionContexts.Remove(ctx);
+
+            ctx.Halt();
+
+            lock (ExecutionContexts)
+            {
+                ExecutionContexts.Remove(ctx);
+            }
         }
 
         public void InvokeCallback(Chunk chunk, ExecutionContext ctx, params DynamicValue[] args)
         {
             if (ctx == null)
                 ctx = MainExecutionContext;
-            
-            if (!ExecutionContexts.Contains(ctx))
-                throw new InvalidOperationException("Execution context provided is not owned by this EVM.");
+
+            lock (ExecutionContexts)
+            {
+                if (!ExecutionContexts.Contains(ctx))
+                    throw new InvalidOperationException("Execution context provided is not owned by this EVM.");
+            }
 
             if (chunk == null)
-                throw new InvalidOperationException($"Chunk was null.");
+                throw new InvalidOperationException("Chunk was null.");
 
             if (args.Length > 255)
                 throw new InvalidOperationException("Too many arguments passed to the chunk (max. 255).");
@@ -149,24 +156,35 @@ namespace EVIL.ExecutionEngine
             ctx.ScheduleChunk(chunk, args);
         }
 
-        public Chunk FindExposedChunk(string funcName)
+        public string DumpAllExecutionContexts()
         {
-            Chunk c = null;
-            for (var i = 0; i < Executable.Chunks.Count; i++)
+            var sb = new StringBuilder();
+
+            lock (ExecutionContexts)
             {
-                var ch = Executable.Chunks[i];
-
-                if (ch.Name.StartsWith("!"))
-                    continue;
-
-                if (ch.Name == funcName)
+                for (var i = 0; i < ExecutionContexts.Count; i++)
                 {
-                    c = ch;
-                    break;
+                    var ec = ExecutionContexts[i];
+
+                    if (ec.CallStack.TryPeek(out var frame))
+                    {
+                        sb.AppendLine($"--- === EC {i} : {frame.Chunk.Name} @ {frame.IP:X8} === ---");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"--- === EC {i} (inactive) === ---");
+                    }
+
+                    sb.AppendLine("--- [call stack] ---");
+                    sb.AppendLine(ec.DumpCallStack());
+                    sb.AppendLine();
+                    sb.AppendLine("--- [evaluation stack] ---");
+                    sb.AppendLine(ec.DumpEvaluationStack());
+                    sb.AppendLine($"--- === EC {i} === ---");
                 }
             }
 
-            return c;
+            return sb.ToString();
         }
     }
 }

@@ -1,17 +1,28 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace EVIL.ExecutionEngine.Abstraction
 {
-    public partial class Table
+    public partial class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
     {
         private object _lock = new();
         
-        public Dictionary<DynamicValue, DynamicValue> Entries = new();
+        private Dictionary<DynamicValue, DynamicValue> _entries = new();
 
         public bool Frozen { get; private set; }
         public static readonly Table Empty = new() { Frozen = true };
+
+        public int Count
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _entries.Count;
+                }
+            }
+        }
 
         public DynamicValue this[string key]
         {
@@ -37,6 +48,14 @@ namespace EVIL.ExecutionEngine.Abstraction
             }
         }
 
+        public void Add(DynamicValue value)
+        {
+            lock (_lock)
+            {
+                Set(_entries.Count, value);
+            }
+        }
+
         public bool IsSet(string key)
             => IsSet(new DynamicValue(key));
 
@@ -47,7 +66,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         {
             lock (_lock)
             {
-                return Entries.ContainsKey(key);
+                return _entries.ContainsKey(key);
             }
         }
 
@@ -63,37 +82,39 @@ namespace EVIL.ExecutionEngine.Abstraction
             {
                 EnsureValidKeyType(key);
 
-                if (Entries.ContainsKey(key))
-                    return Entries[key];
+                if (_entries.ContainsKey(key))
+                    return _entries[key];
 
                 return DynamicValue.Null;
             }
         }
 
-        public void Set(DynamicValue key, DynamicValue value)
+        public DynamicValue Set(DynamicValue key, DynamicValue value)
         {
             lock (_lock)
             {
                 if (Frozen)
-                    return;
+                    return DynamicValue.Null;
 
                 EnsureValidKeyType(key);
 
-                if (Entries.ContainsKey(key))
+                if (_entries.ContainsKey(key))
                 {
-                    Entries[key] = value;
+                    _entries[key] = value;
                 }
                 else
                 {
-                    Entries.Add(key, value);
+                    _entries.Add(key, value);
                 }
             }
+
+            return value;
         }
 
-        public void Set(string key, DynamicValue value)
+        public DynamicValue Set(string key, DynamicValue value)
             => Set(new DynamicValue(key), value);
 
-        public void Set(double key, DynamicValue value)
+        public DynamicValue Set(double key, DynamicValue value)
             => Set(new DynamicValue(key), value);
         
         public bool Unset(DynamicValue key)
@@ -104,7 +125,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                     return false;
 
                 EnsureValidKeyType(key);
-                return Entries.Remove(key);
+                return _entries.Remove(key);
             }
         }
 
@@ -122,7 +143,7 @@ namespace EVIL.ExecutionEngine.Abstraction
 
                 if (deep)
                 {
-                    foreach (var v in Entries.Values)
+                    foreach (var v in _entries.Values)
                     {
                         if (v.Type == DynamicValueType.Table)
                         {
@@ -151,6 +172,19 @@ namespace EVIL.ExecutionEngine.Abstraction
             {
                 throw new InvalidKeyTypeException(key.Type, DynamicValueType.Table);
             }
+        }
+
+        public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>> GetEnumerator()
+        {
+            lock (_lock)
+            {
+                return _entries.GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
