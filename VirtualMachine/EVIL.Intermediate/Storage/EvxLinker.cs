@@ -13,22 +13,22 @@ namespace EVIL.Intermediate.Storage
         public static readonly byte[] LinkerID = new byte[] { 0x43, 0x56, 0x49, 0x4C }; // CVIL
         public const byte FormatVersion = 1;
 
-        public static void Link(Executable exe, string filePath)
+        public static void Link(Executable executable, string filePath)
         {
-            Link(exe, new FileStream(filePath, FileMode.Create));
+            Link(executable, new FileStream(filePath, FileMode.Create));
         }
 
-        public static void Link(Executable exe, Stream outStream)
+        public static void Link(Executable executable, Stream outStream)
         {
-            if (exe == null)
-                throw new ArgumentNullException(nameof(exe));
+            if (executable == null)
+                throw new ArgumentNullException(nameof(executable));
                     
             var bw = new BinaryWriter(outStream);
             
             try
             {
                 WriteHeader(bw);
-                WriteChunks(bw, exe.Chunks);
+                WriteChunks(bw, executable.Chunks);
 
                 WriteChecksum(bw, outStream);
             }

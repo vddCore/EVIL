@@ -58,6 +58,7 @@
         LDA = 0x54,   // [L]oa[D] [A]rgument
         LDF = 0x55,   // [L]oa[D] [F]unction
         LDX = 0x56,   // [L]oa[D] e[X]ternal local
+        LDNUL = 0x57, // [L]oa[D] [NULL]
         
         // ---------- [ STORAGE: REMOVE
         RTE = 0x60,   // [R]emove [T]able [E]ntry

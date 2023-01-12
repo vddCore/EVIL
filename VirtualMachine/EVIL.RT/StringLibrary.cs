@@ -164,7 +164,7 @@ namespace EVIL.RT
 
             for (var i = 0; i < splitStuff.Length; i++)
             {
-                retTable.SetByNumber(i, new DynamicValue(splitStuff[i]));
+                retTable.Set(i, new DynamicValue(splitStuff[i]));
             }
 
             return new DynamicValue(retTable);

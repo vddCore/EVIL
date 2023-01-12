@@ -47,7 +47,7 @@ namespace EVIL.RT
                 }
                 else
                 {
-                    TargetTable.SetByString(
+                    TargetTable.Set(
                         libAttr.LibraryName,
                         new DynamicValue(new Table())
                     );
@@ -96,7 +96,7 @@ namespace EVIL.RT
         }
         
         private void RegisterFunction(string name, ClrFunction function)
-            => TargetTable.Set(new(name), new(function));
+            => TargetTable.Set(name, new(function));
         
         public void RegisterFunction(string libraryName, string functionName, ClrFunction function)
         {
@@ -108,7 +108,7 @@ namespace EVIL.RT
             }
 
             var libTable = TargetTable.Get(libraryName).Table;
-            libTable.SetByString(functionName, new DynamicValue(function));
+            libTable.Set(functionName, new DynamicValue(function));
         }
     }
 }

@@ -28,7 +28,7 @@ namespace EVIL.Interpreter.Runtime.Library
 
                     for (var i = 0; i < data.Length; i++)
                     {
-                        table.SetByNumber(i, new DynamicValue(data[i]));
+                        table.Set(i, new DynamicValue(data[i]));
                     }
                 }
 
@@ -36,7 +36,7 @@ namespace EVIL.Interpreter.Runtime.Library
             }
             catch
             {
-                return DynamicValue.Zero;
+                return DynamicValue.Null;
             }
         }
 

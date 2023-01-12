@@ -72,7 +72,7 @@ namespace ScriptingEngineExample
         {
             _globalTable = new Table();
             var chromaTable = new Table();
-            chromaTable.SetByString("log", new DynamicValue((evm, args) =>
+            chromaTable.Set("log", new DynamicValue((evm, args) =>
             {
                 if (args.Length >= 2)
                 {
@@ -96,25 +96,25 @@ namespace ScriptingEngineExample
                     }
                 }
                 
-                return DynamicValue.Zero;  
+                return DynamicValue.Null;  
             }));
             
-            chromaTable.SetByString("win_set_title", new DynamicValue((evm, args) =>
+            chromaTable.Set("win_set_title", new DynamicValue((evm, args) =>
             {
                 if (args.Length >= 1)
                 {
                     Window.Title = args[0].AsString();
                 }
                 
-                return DynamicValue.Zero;
+                return DynamicValue.Null;
             }));
             
-            chromaTable.SetByString("get_fps", new DynamicValue((evm, args) =>
+            chromaTable.Set("get_fps", new DynamicValue((evm, args) =>
             {
                 return new(PerformanceCounter.FPS);
             }));
             
-            chromaTable.SetByString("fillrect", new DynamicValue((evm, args) =>
+            chromaTable.Set("fillrect", new DynamicValue((evm, args) =>
             {
                 if (args.Length >= 4)
                 {
@@ -127,10 +127,10 @@ namespace ScriptingEngineExample
                         Color.White
                     );
                 }
-                return DynamicValue.Zero;
+                return DynamicValue.Null;
             }));
             
-            _globalTable.SetByString("chroma", new(chromaTable));
+            _globalTable.Set("chroma", new(chromaTable));
         }
 
         private void InitializeScriptingEngine()

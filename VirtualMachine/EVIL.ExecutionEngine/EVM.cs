@@ -12,7 +12,7 @@ namespace EVIL.ExecutionEngine
         private List<ExecutionContext> ExecutionContexts { get; } = new();
 
         public ExecutionContext MainExecutionContext => ExecutionContexts[0];
-        public List<string> ImportLookupPaths { get; set; } = new();
+        public List<string> ImportLookupPaths { get; } = new();
 
         public bool Running { get; private set; }
         public Table GlobalTable { get; }
@@ -21,7 +21,6 @@ namespace EVIL.ExecutionEngine
         {
             GlobalTable = globalTable ?? new Table();
             ExecutionContexts.Add(new ExecutionContext(this));
-            ImportLookupPaths.Add(AppContext.BaseDirectory);
         }
 
         public void ImportPublicFunctions(Executable executable)
@@ -46,12 +45,14 @@ namespace EVIL.ExecutionEngine
                 Stop();
 
             Executable = executable;
-
             ImportPublicFunctions(executable);
         }
 
-        public void Run(params DynamicValue[] args)
+        public void RunRootChunk(params DynamicValue[] args)
         {
+            if (Running)
+                Stop();
+            
             InvokeCallback(
                 Executable.RootChunk, 
                 MainExecutionContext, 
@@ -60,9 +61,24 @@ namespace EVIL.ExecutionEngine
             
             Start();
         }
+
+        public void RunChunk(string name, ExecutionContext ctx = null, params DynamicValue[] args)
+        {
+            var chunk = FindExposedChunk(name);
+
+            if (chunk == null)
+                throw new InvalidOperationException($"No chunk '{name}' was found.");
+
+            ctx ??= MainExecutionContext;
+            
+            InvokeCallback(chunk, ctx, args);
+            Start();
+        }
         
         public void Start()
         {
+            if (Running) return;
+            
             Running = true;
 
             while (Running)
@@ -84,25 +100,17 @@ namespace EVIL.ExecutionEngine
 
                 if (!isAnyContextActive)
                 {
-                    Running = false;
+                    break;
                 }
             }
+
+            Running = false;
         }
 
         public void Stop()
         {
             for (var i = 0; i < ExecutionContexts.Count; i++)
                 ExecutionContexts[i].Pause();
-        }
-
-        public void SetGlobal(string key, DynamicValue value)
-        {
-            GlobalTable.Set(new(key), value);
-        }
-
-        public void SetGlobal(double key, DynamicValue value)
-        {
-            GlobalTable.Set(new(key), value);
         }
 
         public ExecutionContext CreateNewExecutionContext()

@@ -17,8 +17,15 @@ namespace EVIL.RT
 
             for (var i = 0; i < args.Length; i++)
             {
-                sb.Append(args[i].AsString());
-
+                if (args[i].IsNull)
+                {
+                    sb.Append("null");
+                }
+                else
+                {
+                    sb.Append(args[i].AsString());
+                }
+                
                 if (i < args.Length - 1)
                     sb.Append("    ");
             }

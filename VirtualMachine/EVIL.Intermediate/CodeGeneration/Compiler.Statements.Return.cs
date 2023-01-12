@@ -14,7 +14,7 @@ namespace EVIL.Intermediate.CodeGeneration
             }
             else
             {
-                EmitConstantLoad(cg, 0);
+                cg.Emit(OpCode.LDNUL);
             }
 
             if (cg.LastOpCode != OpCode.TCALL)

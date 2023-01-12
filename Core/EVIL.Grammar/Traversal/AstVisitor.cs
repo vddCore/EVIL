@@ -20,6 +20,7 @@ namespace EVIL.Grammar.Traversal
                 {typeof(ConditionalExpression), (n) => Visit(n as ConditionalExpression)},
                 {typeof(NumberConstant), (n) => Visit(n as NumberConstant)},
                 {typeof(StringConstant), (n) => Visit(n as StringConstant)},
+                {typeof(NullConstant), (n) => Visit(n as NullConstant)},
                 {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
                 {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
                 {typeof(UnaryExpression), (n) => Visit(n as UnaryExpression)},
@@ -44,7 +45,7 @@ namespace EVIL.Grammar.Traversal
                 {typeof(EachStatement), (n) => Visit(n as EachStatement)},
                 {typeof(NameOfExpression), (n) => Visit(n as NameOfExpression)},
                 {typeof(ExpressionStatement), (n) => Visit(n as ExpressionStatement)},
-                {typeof(ExtraArgumentsExpression), (n) => Visit(n as ExtraArgumentsExpression)}
+                {typeof(ExtraArgumentsExpression), (n) => Visit(n as ExtraArgumentsExpression)},
             };
         }
 
@@ -63,6 +64,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(ConditionalExpression conditionalExpression);
         public abstract void Visit(NumberConstant numberConstant);
         public abstract void Visit(StringConstant stringConstant);
+        public abstract void Visit(NullConstant nullConstant);
         public abstract void Visit(AssignmentExpression assignmentExpression);
         public abstract void Visit(BinaryExpression binaryExpression);
         public abstract void Visit(UnaryExpression unaryExpression);

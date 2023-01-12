@@ -94,7 +94,7 @@ namespace EVIL.Intermediate.CodeGeneration
                 CurrentChunk.Instructions[^1] != (byte)OpCode.RETN
                 && CurrentChunk.Instructions[^1] != (byte)OpCode.TCALL)
             {
-                EmitConstantLoad(cg, 0);
+                cg.Emit(OpCode.LDNUL);
                 cg.Emit(OpCode.RETN);
             }
         }

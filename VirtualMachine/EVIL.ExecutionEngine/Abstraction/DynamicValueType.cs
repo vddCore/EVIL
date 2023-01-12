@@ -6,6 +6,7 @@ namespace EVIL.ExecutionEngine.Abstraction
         String,
         Function,
         ClrFunction,
-        Table
+        Table,
+        Null
     }
 }
