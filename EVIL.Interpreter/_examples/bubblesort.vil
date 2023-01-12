@@ -18,7 +18,7 @@
 
 fn print_table(t) {
   each(var k, var v : t) {
-    io.print(@v + " ")
+    io->print(@v + " ")
   }
-  io.println()
+  io->println()
 }

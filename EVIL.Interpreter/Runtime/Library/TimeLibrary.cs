@@ -4,9 +4,10 @@ using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Runtime.Library
 {
+    [ClrLibrary("time")]
     public class TimeLibrary
     {
-        [ClrFunction("time.stamp")]
+        [ClrFunction("stamp")]
         public static DynValue Stamp(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectNone();

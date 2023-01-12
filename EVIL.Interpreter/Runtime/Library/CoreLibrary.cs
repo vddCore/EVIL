@@ -11,7 +11,7 @@ namespace EVIL.Interpreter.Runtime.Library
         public static DynValue Type(Execution.Interpreter interpreter, FunctionArguments args)
         {
             args.ExpectExactly(1);
-            return new DynValue(args[0].Type.ToString().ToLower());
+            return new(args[0].Type.ToString().ToLower());
         }
 
         [ClrFunction("strace")]
@@ -25,7 +25,7 @@ namespace EVIL.Interpreter.Runtime.Library
             for (var i = 0; i < trace.Count; i++)
                 tbl[i] = new DynValue($"{trace.Count - i - 1}: {trace[i].FunctionName}");
 
-            return new DynValue(tbl);
+            return new(tbl);
         }
 
         [ClrFunction("isdef")]
@@ -47,19 +47,13 @@ namespace EVIL.Interpreter.Runtime.Library
                 }
             }
 
-            switch (scope)
+            return scope switch
             {
-                case "local":
-                    return new DynValue(interpreter.Environment.LocalScope.HasMember(name));
-                
-                case "global":
-                    return new DynValue(interpreter.Environment.GlobalScope.HasMember(name));
-                
-                case "any":
-                    return new DynValue(interpreter.Environment.LocalScope.FindInScopeChain(name) != null);
-                
-                default: throw new ClrFunctionException("Unsupported scope type.");
-            }
+                "local" => new(interpreter.Environment.LocalScope.HasMember(name)),
+                "global" => new(interpreter.Environment.GlobalScope.HasMember(name)),
+                "any" => new(interpreter.Environment.LocalScope.FindInScopeChain(name) != null),
+                _ => throw new ClrFunctionException("Unsupported scope type.")
+            };
         }
     }
 }

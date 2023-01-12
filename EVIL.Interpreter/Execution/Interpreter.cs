@@ -12,8 +12,10 @@ namespace EVIL.Interpreter.Execution
     public partial class Interpreter : AstVisitor
     {
         private List<Constraint> _constraints = new();
-        private List<Predicate<AstNode>> _nodeFilters = new();
-        
+        private List<Predicate<AstNode>> _nodeRestrictions = new();
+
+        private Stack<DynValue> _currentThisContextStack = new();
+
         public IReadOnlyList<Constraint> Constraints => _constraints;
         public Environment Environment { get; set; } = new();
         public Parser Parser { get; } = new();
@@ -73,13 +75,13 @@ namespace EVIL.Interpreter.Execution
 
                 if (restrictTopLevelCode)
                 {
-                    _nodeFilters.Add(x => !(x is FunctionDefinitionNode));
+                    _nodeRestrictions.Add(x => !(x is FunctionDefinitionNode));
                 }
                 
                 Visit(node);
                 var entryNode = node.FindChildFunctionDefinition(entryPoint);
                 
-                _nodeFilters.Clear();
+                _nodeRestrictions.Clear();
 
                 if (entryNode == null)
                 {
@@ -149,7 +151,7 @@ namespace EVIL.Interpreter.Execution
         {
             var statements = rootNode.Children;
 
-            foreach (var filter in _nodeFilters)
+            foreach (var filter in _nodeRestrictions)
             {
                 var stmt = statements.Find(filter);
                 if (stmt != null)
@@ -226,12 +228,13 @@ namespace EVIL.Interpreter.Execution
         {
             for (var i = 0; i < Constraints.Count; i++)
             {
-                var c = Constraints[i];
+                var constraint = Constraints[i];
 
-                if (!c.Check(this, node))
+                if (!constraint.Check(this, node))
                 {
                     throw new ConstraintUnsatisfiedException(
-                        "An imposed execution constraint was unsatisfied.", c
+                        "An imposed execution constraint was unsatisfied.", 
+                        constraint
                     );
                 }
             }

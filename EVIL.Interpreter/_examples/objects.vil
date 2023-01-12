@@ -1,0 +1,15 @@
+var MyClass = {
+  "new" <- fn(name) {
+    ret {
+      "name" <- name,
+      "who_am_i" <- fn() {
+        ret this->name
+      }
+    }
+  }
+}
+
+fn main(args) {
+  var class = MyClass->new("uwu")
+  io->println(class->name)
+}

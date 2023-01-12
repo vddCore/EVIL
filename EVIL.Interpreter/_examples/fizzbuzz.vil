@@ -15,9 +15,9 @@
     }
 
     if (str) {
-      io.println(str)
+      io->println(str)
     } else {
-      io.println(@i)
+      io->println(@i)
     }
   }
 }
