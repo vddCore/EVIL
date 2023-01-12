@@ -80,21 +80,7 @@ namespace EVIL.Intermediate
             EmitConstantLoadSequence(cg, stringConstant.Value);
         }
 
-        public override void Visit(VariableReferenceExpression variableReferenceExpression)
-        {
-            var cg = CurrentChunk.GetCodeGenerator();
-            EmitVariableLoadSequence(cg, variableReferenceExpression);
-        }
-
         public override void Visit(FunctionExpression functionExpression)
-        {
-        }
-
-        public override void Visit(DoWhileStatement doWhileStatement)
-        {
-        }
-
-        public override void Visit(WhileStatement whileStatement)
         {
         }
 

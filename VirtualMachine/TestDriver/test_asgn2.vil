@@ -1,14 +1,7 @@
-for (var i = 99; i >= 0; i--) {
-  if (i > 1) {
-    print(i, " bottles of beer on the wall, ", i, " bottles of beer.\n");
-    print("Take one down and pass it around, ", i - 1, " bottles of beer on the wall.\n\n");
-  } elif (i == 1) {
-    print(i, " bottle of beer on the wall, ", i, " bottle of beer.\n");
-    print("Take one down and pass it around, no more bottles of beer on the wall.\n\n");
-  } elif (i == 0) {
-    print("No more bottles of beer on the wall, no more bottles of beer.\n");
-    print("Go to the store and buy some more, 99 bottles of beer on the wall.\n\n");
-  }
-}
-
-
+var i = 99;
+do {
+  print(i);
+  
+  if (i == 50)
+    break;
+} while(i--);

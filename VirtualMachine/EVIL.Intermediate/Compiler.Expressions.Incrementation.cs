@@ -1,4 +1,3 @@
-using EVIL.Grammar;
 using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Intermediate
@@ -13,16 +12,16 @@ namespace EVIL.Intermediate
             if (incrementationExpression.IsPrefix)
             {
                 Visit(tgt);
-                cg.Emit(OpCode.DUP);
                 EmitConstantLoadSequence(cg, 1);
                 cg.Emit(OpCode.ADD);
+                cg.Emit(OpCode.DUP);
             }
             else
             {
                 Visit(tgt);
+                cg.Emit(OpCode.DUP);
                 EmitConstantLoadSequence(cg, 1);
                 cg.Emit(OpCode.ADD);
-                cg.Emit(OpCode.DUP);
             }
             
             if (tgt is VariableReferenceExpression varRef)

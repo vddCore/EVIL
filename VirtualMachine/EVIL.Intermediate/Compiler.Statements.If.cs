@@ -34,7 +34,7 @@ namespace EVIL.Intermediate
                     }
                 }
 
-                _executable.UpdateLabel(label, CurrentChunk.Instructions.Count);
+                _executable.UpdateLabel(label, cg.IP);
             }
 
             if (ifStatement.ElseBranch != null)
@@ -42,7 +42,7 @@ namespace EVIL.Intermediate
                 Visit(ifStatement.ElseBranch);
             }
 
-            _executable.UpdateLabel(endLabel, CurrentChunk.Instructions.Count);
+            _executable.UpdateLabel(endLabel, cg.IP);
         }
     }
 }

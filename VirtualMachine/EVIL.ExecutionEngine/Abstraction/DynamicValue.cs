@@ -4,7 +4,7 @@ using EVIL.Intermediate;
 
 namespace EVIL.ExecutionEngine.Abstraction
 {
-    public struct DynamicValue
+    public class DynamicValue
     {
         private string _string;
         private double? _number;
@@ -187,6 +187,18 @@ namespace EVIL.ExecutionEngine.Abstraction
                     break;
             }
         }
+        
+        public DynamicValue(string str)
+        {
+            _string = str;
+            _number = null;
+            _chunk = null;
+            _table = null;
+            _clrFunction = null;
+
+            Type = DynamicValueType.String;
+            IsReadOnly = false;
+        }
 
         public DynamicValue(double num)
         {
@@ -197,18 +209,6 @@ namespace EVIL.ExecutionEngine.Abstraction
             _clrFunction = null;
 
             Type = DynamicValueType.Number;
-            IsReadOnly = false;
-        }
-
-        public DynamicValue(string str)
-        {
-            _string = str;
-            _number = null;
-            _chunk = null;
-            _table = null;
-            _clrFunction = null;
-
-            Type = DynamicValueType.String;
             IsReadOnly = false;
         }
 
@@ -326,9 +326,9 @@ namespace EVIL.ExecutionEngine.Abstraction
         }
 
         public static bool operator ==(DynamicValue left, DynamicValue right)
-            => left.Equals(right);
+            => left != null && left.Equals(right);
 
         public static bool operator !=(DynamicValue left, DynamicValue right)
-            => !left.Equals(right);
+            => left != null && !left.Equals(right);
     }
 }

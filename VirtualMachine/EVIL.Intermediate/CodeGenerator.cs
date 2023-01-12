@@ -6,6 +6,7 @@ namespace EVIL.Intermediate
     {
         private List<byte> _instructions;
 
+        internal int IP => _instructions.Count;
         internal OpCode LastOpCode { get; private set; }
 
         internal CodeGenerator(Chunk chunk)
