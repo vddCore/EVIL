@@ -95,9 +95,9 @@ namespace EVIL.Interpreter.Execution
                 if (Environment.LocalScope.HasMember(parameterName))
                 {
                     throw new RuntimeException(
-                        $"Duplicate parameter name '{parameterName}'.",
+                        $"'{parameterName}' was already declared in this scope.",
                         Environment,
-                        null
+                        node.Line
                     );
                 }
 
@@ -138,7 +138,6 @@ namespace EVIL.Interpreter.Execution
         private DynValue ExecuteClrFunction(ClrFunction clrFunction, string name, FunctionArguments args, AstNode node)
         {
             var parameters = clrFunction.Invokable.Method.GetParameters();
-
 
             var frame = new StackFrame(
                 $"CLR!<{name}>"
