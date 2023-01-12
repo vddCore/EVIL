@@ -39,11 +39,6 @@ namespace EVIL.Grammar.Parsing
                 var line = Match(Token.Decrement);
                 return new DecrementationExpression(PostModificationExpression(), true) { Line = line };
             }
-            else if (token.Type == TokenType.Length)
-            {
-                var line = Match(Token.Length);
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Length) { Line = line };
-            }
             else if (token.Type == TokenType.AsString)
             {
                 var line = Match(Token.AsString);
