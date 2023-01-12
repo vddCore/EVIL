@@ -123,7 +123,7 @@ namespace EVIL.CILE
             if (vme.InnerException != null)
             {
                 Console.Write(": ");
-                Console.WriteLine(vme.Message);
+                Console.WriteLine(vme.InnerException.Message);
             }
             else
             {

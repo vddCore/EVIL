@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Traversal
                 {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
                 {typeof(UnaryExpression), (n) => Visit(n as UnaryExpression)},
                 {typeof(VariableReferenceExpression), (n) => Visit(n as VariableReferenceExpression)},
-                {typeof(VariableDefinition), (n) => Visit(n as VariableDefinition)},
+                {typeof(LocalDefinition), (n) => Visit(n as LocalDefinition)},
                 {typeof(FunctionDefinition), (n) => Visit(n as FunctionDefinition)},
                 {typeof(FunctionExpression), (n) => Visit(n as FunctionExpression)},
                 {typeof(FunctionCallExpression), (n) => Visit(n as FunctionCallExpression)},
@@ -67,7 +67,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(BinaryExpression binaryExpression);
         public abstract void Visit(UnaryExpression unaryExpression);
         public abstract void Visit(VariableReferenceExpression variableReferenceExpression);
-        public abstract void Visit(VariableDefinition variableDefinition);
+        public abstract void Visit(LocalDefinition localDefinition);
         public abstract void Visit(FunctionDefinition functionDefinition);
         public abstract void Visit(FunctionExpression functionExpression);
         public abstract void Visit(FunctionCallExpression functionCallExpression);

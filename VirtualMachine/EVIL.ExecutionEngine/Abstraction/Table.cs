@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EVIL.ExecutionEngine.Abstraction
 {
-    public class Table
+    public partial class Table
     {
         public Dictionary<DynamicValue, DynamicValue> Entries = new();
 

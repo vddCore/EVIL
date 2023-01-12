@@ -2,11 +2,11 @@
 
 namespace EVIL.Grammar.AST.Nodes
 {
-    public class VariableDefinition : Statement
+    public class LocalDefinition : Statement
     {
         public Dictionary<string, Expression> Definitions { get; }
 
-        public VariableDefinition(Dictionary<string, Expression> definitions)
+        public LocalDefinition(Dictionary<string, Expression> definitions)
         {
             Definitions = definitions;
 

@@ -77,17 +77,22 @@ namespace EVIL.VirtualMachine.TestDriver
             
             var exe = BuildExecutable("./test_asgn2.vil");
 
-            EvxLinker.Link(exe, "a.evx");
-            exe = EvxLoader.Load("a.evx");
-
             if (exe != null)
             {
+                EvxLinker.Link(exe, "a.evx");
+                exe = EvxLoader.Load("a.evx");
+                
                 DisassembleExecutable(exe);
                 Console.WriteLine("-[progRUN]------------");
                 try
                 {
                     evm.Load(exe);
                     evm.Run();
+
+                    using (var fs = File.OpenWrite("ser.tbl"))
+                    {
+                        _globalTable.Get("t").Table.Serialize(fs);
+                    }
                 }
                 catch (VirtualMachineException e)
                 {

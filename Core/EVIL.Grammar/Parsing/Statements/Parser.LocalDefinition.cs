@@ -7,9 +7,9 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private VariableDefinition VariableDefinition()
+        private LocalDefinition LocalDefinition()
         {
-            var (line, col) = Match(Token.Var);
+            var (line, col) = Match(Token.Loc);
 
             var definitions = new Dictionary<string, Expression>();
 
@@ -36,7 +36,7 @@ namespace EVIL.Grammar.Parsing
                 break;
             }
 
-            return new VariableDefinition(definitions)
+            return new LocalDefinition(definitions)
                 { Line = line, Column = col };
         }
     }

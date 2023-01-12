@@ -90,7 +90,7 @@
       <Compile Update="CodeGeneration\Compiler.Statements.Undef.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
-      <Compile Update="CodeGeneration\Compiler.Statements.VariableDefinition.cs">
+      <Compile Update="CodeGeneration\Compiler.Statements.LocalDefinition.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
       <Compile Update="CodeGeneration\Compiler.Statements.While.cs">

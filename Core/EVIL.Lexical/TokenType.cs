@@ -83,7 +83,7 @@
         Break,
         Ret,
         Exit,
-        Var,
+        Loc,
         In,
 
         EOF

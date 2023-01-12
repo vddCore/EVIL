@@ -17,7 +17,6 @@ namespace EVIL.Intermediate.CodeGeneration
                     switch (sym.Type)
                     {
                         case SymbolInfo.SymbolType.Global:
-                        case SymbolInfo.SymbolType.Undefined:
                             cg.Emit(
                                 OpCode.RGL,
                                 CurrentChunk.Constants.FetchOrAddConstant(varRef.Identifier)

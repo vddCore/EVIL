@@ -65,17 +65,6 @@ namespace EVIL.Intermediate.CodeGeneration
             }
         }
 
-        internal void DefineGlobal(string name)
-        {
-            if (!_executable.Globals.Contains(name))
-                _executable.Globals.Add(name);
-        }
-
-        internal bool IsGlobalDefined(string name)
-        {
-            return _executable.Globals.Contains(name);
-        }
-
         private void BuildFunction(CodeGenerator cg, List<string> parameters, BlockStatement block)
         {
             var paramCount = parameters.Count;
@@ -99,10 +88,7 @@ namespace EVIL.Intermediate.CodeGeneration
                 EmitByteOp(cg, OpCode.STA, (byte)(paramCount - i - 1));
             }
 
-            foreach (var stmt in block.Statements)
-            {
-                Visit(stmt);
-            }
+            Visit(block);
 
             if (CurrentChunk.Instructions.Count == 0 ||
                 CurrentChunk.Instructions[^1] != (byte)OpCode.RETN

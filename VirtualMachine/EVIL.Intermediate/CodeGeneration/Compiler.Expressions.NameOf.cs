@@ -35,7 +35,6 @@ namespace EVIL.Intermediate.CodeGeneration
                             );
                             break;
                         case SymbolInfo.SymbolType.Global:
-                        case SymbolInfo.SymbolType.Undefined:
                             cg.Emit(
                                 OpCode.GNAME,
                                 CurrentChunk.Constants.FetchOrAddConstant(varRef.Identifier)

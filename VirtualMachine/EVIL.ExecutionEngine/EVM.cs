@@ -47,16 +47,6 @@ namespace EVIL.ExecutionEngine
 
             Executable = executable;
 
-            for (var i = 0; i < executable.Globals.Count; i++)
-            {
-                var name = executable.Globals[i];
-
-                GlobalTable.Set(
-                    new DynamicValue(name),
-                    DynamicValue.Zero
-                );
-            }
-
             ImportPublicFunctions(executable);
         }
 

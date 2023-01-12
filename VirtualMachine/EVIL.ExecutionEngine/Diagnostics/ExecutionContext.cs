@@ -391,12 +391,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
                     {
                         itmp = frame.FetchInt32();
                         a = new DynamicValue(chunk.Constants.GetStringConstant(itmp));
-
-                        if (!VirtualMachine.GlobalTable.IsSet(a))
-                        {
-                            throw new GlobalNotFoundException(this, a);
-                        }
-
                         evstack.Push(VirtualMachine.GlobalTable.Get(a));
                         break;
                     }

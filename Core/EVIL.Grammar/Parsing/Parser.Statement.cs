@@ -42,8 +42,8 @@ namespace EVIL.Grammar.Parsing
                     node = DoWhileLoop();
                     break;
 
-                case TokenType.Var:
-                    node = VariableDefinition();
+                case TokenType.Loc:
+                    node = LocalDefinition();
                     break;
 
                 case TokenType.Undef:

@@ -23,7 +23,7 @@
     <list name="keywords">
       <item>in</item>
       <item>undef</item>
-      <item>var</item>
+      <item>loc</item>
       <item>fn</item>
     </list>
     <list name="aliases">

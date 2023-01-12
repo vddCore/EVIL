@@ -56,9 +56,9 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
 
-            if (token.Type == TokenType.Var)
+            if (token.Type == TokenType.Loc)
             {
-                return VariableDefinition();
+                return LocalDefinition();
             }
             else if (token.Type == TokenType.Identifier)
             {
