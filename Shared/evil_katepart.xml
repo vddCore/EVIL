@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language name="EVIL" 
+          section="Sources"
+          version="1" 
+          kateversion="5.0"
+          indenter="cstyle"
+          extensions="*.vil"
+          priority="5">
+  <highlighting>
+    <list name="control_flow">
+      <item>break</item>
+      <item>do</item>
+      <item>each</item>
+      <item>elif</item>
+      <item>else</item>
+      <item>exit</item>
+      <item>for</item>
+      <item>if</item>
+      <item>skip</item>
+      <item>ret</item>
+      <item>while</item>
+    </list>
+    <list name="keywords">
+      <item>in</item>
+      <item>undef</item>
+      <item>var</item>
+      <item>fn</item>
+    </list>
+    <list name="aliases">
+      <item>true</item>
+      <item>false</item>
+    </list>
+
+    <contexts>
+      <context attribute="Normal Text" lineEndContext="#pop" name="Normal Text">
+        <keyword attribute="Control Flow"
+                 context="#stay"
+                 String="control_flow" />
+
+        <keyword attribute="Keyword"
+                 context="#stay"
+                 String="keywords" />
+
+        <keyword attribute="Alias"
+                 context="#stay"
+                 String="aliases"/>
+
+        <HlCHex attribute="Decimal" />
+
+        <Int attribute="Decimal" />
+
+        <DetectChar attribute="String"
+                    context="String"
+                    char="&quot;" />
+
+        <DetectChar attribute="Operator"
+                    context="#stay"
+                    char="{"
+                    beginRegion="Brace1" />
+
+        <DetectChar attribute="Operator"
+                    context="#stay"
+                    char="}"
+                    endRegion="Brace1" />
+
+        <AnyChar attribute="Operator"
+                 String="$!-+@#%^&amp;*()[]?:=|&lt;&gt;" />
+
+        <RegExpr attribute="Comment"
+                 String="(?:\/\/)(?:.+)?" />
+
+        <RegExpr attribute="Decimal"
+                 String="(?:\b[0-9]+\.[0-9]*|\.[0-9]+)" />
+
+        <RegExpr attribute="Indexing"
+                 String="(?&lt;=\.)(?:(\s+)?[A-Za-z_][A-Za-z_0-9]*)" />
+
+        <RegExpr attribute="Function Definition"
+                 String="(?&lt;=fn\ )(?:[A-Za-z_][A-Za-z_0-9]+)?(?=(\s+)?(\(.*)(\s+)?)" />
+
+        <RegExpr attribute="Function Call"
+                 String="([A-Za-z_][A-Za-z_0-9]+)(?=(\s+)?(\(.*)(\s+)?)" />
+
+<!--        <RegExpr attribute="Parent Object"
+                 String="(?:[A-Za-z_](?:[A-Za-z_0-9]+)?)(?=(?:\..+))" />-->
+
+        <RegExpr attribute="Parent Object 2"
+                 String="(?:(?&lt;=\.)(\s+)?)?([A-Za-z_]([A-Za-z_0-9]+)?)(?:(\s+)?(?=\.))"
+                 minimal="true" />
+      </context>
+
+      <context name="String" attribute="String" lineEndContext="#pop" >
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+        <HlCStringChar />
+      </context>
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text"
+                defStyleNum="dsNormal"
+                spellChecking="false" />
+
+      <itemData name="Control Flow"
+                defStyleNum="dsControlFlow"
+                spellChecking="false" />
+
+      <itemData name="Keyword"
+                defStyleNum="dsKeyword"
+                spellChecking="false"/>
+
+      <itemData name="Alias"
+                defStyleNum="dsConstant"
+                spellChecking="false" />
+
+      <itemData name="Decimal"
+                defStyleNum="dsDecVal"
+                spellChecking="false"/>
+
+      <itemData name="Operator"
+                defStyleNum="dsOperator"
+                spellChecking="false" />
+
+      <itemData name="Indexing"
+                defStyleNum="dsVariable"
+                spellChecking="false" />
+
+      <itemData name="Function Definition"
+                defStyleNum="dsExtension"
+                spellChecking="false"
+                underline="1" />
+
+      <itemData name="Function Call"
+                defStyleNum="dsFunction"
+                spellChecking="false" />
+
+      <itemData name="Parent Object"
+                defStyleNum="dsBuiltIn"
+                spellChecking="false" />
+
+      <itemData name="Parent Object 2"
+                defStyleNum="dsBuiltIn"
+                spellChecking="false" />
+
+      <itemData name="String"
+                defStyleNum="dsString" />
+
+      <itemData name="Comment"
+                defStyleNum="dsComment"/>
+    </itemDatas>
+  </highlighting>
+
+  <general>
+    <comments>
+      <comment name="singleLine" start="//" />
+    </comments>
+    <folding indentationsensitive="0" />
+    <keywords casesensitive="1" />
+  </general>
+</language>
+<!-- kate: replace-tabs on; tab-width 2; indent-width 2; -->
