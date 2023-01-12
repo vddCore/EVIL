@@ -1,4 +1,11 @@
-var a = 10;
-var b = "test";
+var t = {
+  ["k1"] => 2,
+  ["k3"] => "test"
+};
 
-io.println(a+b);
+io.println("k1" in t ? "k1 is in t" : "k1 is not in t");
+
+if ("a" in "blah") {
+  io.println(3 - 2 + 3);
+  io.println("a is in blah, yes.");
+}

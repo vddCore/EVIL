@@ -259,7 +259,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 DynamicValueType.Number => _number.ToString(CultureInfo.InvariantCulture),
                 DynamicValueType.String => _string,
                 DynamicValueType.Table => $"Table[{_table.Entries.Count}]",
-                DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.ParameterCount}]",
+                DynamicValueType.Function => $"Function[{_chunk.Name}@{_chunk.Parameters.Count}]",
                 DynamicValueType.ClrFunction =>
                     $"ClrFunction[{_clrFunction.Method.Name}@{_clrFunction.Method.GetParameters().Length}]",
                 _ => throw new TypeConversionException(Type, DynamicValueType.String)
@@ -291,8 +291,19 @@ namespace EVIL.ExecutionEngine.Abstraction
 
         public bool Contains(DynamicValue other)
         {
-            //todo
-            return false;
+            switch (Type)
+            {
+                case DynamicValueType.String when other.Type == DynamicValueType.String:
+                    return _string.Contains(other.String);
+
+                case DynamicValueType.Table:
+                    return _table.IsSet(other);
+            }
+            
+            throw new UnsupportedOperationException($"Attempted to check if a {other} exists in {Type}. " +
+                                                    $"Frankly, that is not supported. I am also struggling to find a " +
+                                                    $"proper word that describes the act of checking if X exists in Y. If " +
+                                                    $"you know what the word is I *beg* you, please, contact me.");
         }
 
         public DynamicValue CopyToString()

@@ -22,8 +22,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
         public StackFrame(Chunk chunk, int argCount)
         {
             Chunk = chunk;
-            Locals = new DynamicValue[chunk.LocalCount];
-            FormalArguments = new DynamicValue[chunk.ParameterCount];
+            Locals = new DynamicValue[chunk.Locals.Count];
+            FormalArguments = new DynamicValue[chunk.Parameters.Count];
             
             var extraArgCount = argCount - FormalArguments.Length;
             if (extraArgCount > 0)

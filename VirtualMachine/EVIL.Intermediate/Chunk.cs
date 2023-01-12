@@ -9,9 +9,8 @@ namespace EVIL.Intermediate
         public string Name { get; }
         public List<byte> Instructions { get; } = new();
         public List<int> Labels { get; } = new();
-
-        public int ParameterCount { get; internal set; }
-        public int LocalCount { get; internal set; }
+        public List<string> Parameters { get; } = new();
+        public List<string> Locals { get; } = new();
 
         public Chunk(string name)
         {
