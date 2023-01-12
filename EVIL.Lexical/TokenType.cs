@@ -57,6 +57,7 @@
         RBrace,
         LBracket,
         RBracket,
+        ExtraArguments,
 
         Identifier,
 

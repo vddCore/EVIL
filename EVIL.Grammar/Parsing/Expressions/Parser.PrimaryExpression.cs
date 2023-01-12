@@ -32,6 +32,10 @@ namespace EVIL.Grammar.Parsing
             {
                 return Variable();
             }
+            else if (token.Type == TokenType.ExtraArguments)
+            {
+                return FunctionArguments();
+            }
 
             return Constant();
         }

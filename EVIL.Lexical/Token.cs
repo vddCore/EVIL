@@ -93,6 +93,7 @@
         public static readonly Token RBracket = new(TokenType.RBracket, "]");
         public static readonly Token LParenthesis = new(TokenType.LParenthesis, "(");
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, ")");
+        public static readonly Token ExtraArguments = new(TokenType.ExtraArguments, "...");
 
         public static readonly Token Var = new(TokenType.Var, "var");
         public static readonly Token Undef = new(TokenType.Undef, "undef");
