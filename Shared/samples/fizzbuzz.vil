@@ -1,23 +1,21 @@
-﻿fn main(args) {
-  for(var i = 1; i <= 100; i++) {
-    var str = 0;
+﻿for (loc i = 1; i <= 100; i++) {
+  loc str = null;
 
-    if (i % 3 == 0) {
-      str = "Fizz";
-    }
+  if (i % 3 == 0) {
+    str = "Fizz";
+  }
 
-    if (i % 5 == 0) {
-      if (str) {
-        str += "Buzz";
-      } else {
-        str = "Buzz";
-      }
-    }
-
+  if (i % 5 == 0) {
     if (str) {
-      io.println(str);
+      str += "Buzz";
     } else {
-      io.println(@i);
+      str = "Buzz";
     }
+  }
+
+  if (str) {
+    io.println(str);
+  } else {
+    io.println(@i);
   }
 }
