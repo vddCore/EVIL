@@ -27,7 +27,7 @@ namespace EVIL.Intermediate
                         cg.Emit(OpCode.DUP);
                         Visit(kvp.KeyNode);
                         Visit(kvp.ValueNode);
-                        cg.Emit(OpCode.STE, 0);
+                        cg.Emit(OpCode.STE, (byte)0);
                     }
                 }
                 else
@@ -37,7 +37,7 @@ namespace EVIL.Intermediate
                         cg.Emit(OpCode.DUP);
                         EmitConstantLoad(cg, i);
                         Visit(tableExpression.Initializers[i]);
-                        cg.Emit(OpCode.STE, 0);
+                        cg.Emit(OpCode.STE, (byte)0);
                     }
                 }
             }

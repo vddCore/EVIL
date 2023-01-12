@@ -102,6 +102,7 @@ namespace EVIL.ExecutionEngine
             int ia;
             int ib;
 
+            byte btmp;
             int itmp;
 
             switch (opCode)
@@ -414,7 +415,7 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.CALL:
                 {
-                    itmp = frame.FetchInt32();
+                    itmp = frame.FetchByte();
                     a = evstack.Pop();
 
                     switch (a.Type)
@@ -436,22 +437,22 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.STA:
                 {
-                    itmp = frame.FetchInt32();
+                    btmp = frame.FetchByte();
                     a = evstack.Pop();
-                    frame.FormalArguments[itmp] = a;
+                    frame.FormalArguments[btmp] = a;
                     break;
                 }
 
                 case OpCode.LDA:
                 {
-                    itmp = frame.FetchInt32();
-                    evstack.Push(frame.FormalArguments[itmp]);
+                    btmp = frame.FetchByte();
+                    evstack.Push(frame.FormalArguments[btmp]);
                     break;
                 }
 
                 case OpCode.STE:
                 {
-                    itmp = frame.FetchInt32();
+                    btmp = frame.FetchByte();
                     var value = evstack.Pop();
                     var key = evstack.Pop();
                     var indexable = evstack.Pop();
@@ -462,7 +463,7 @@ namespace EVIL.ExecutionEngine
                     }
 
                     indexable.Table.Set(key, value);
-                    if (itmp != 0)
+                    if (btmp != 0)
                     {
                         evstack.Push(new(value, false));
                     }
@@ -632,8 +633,8 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.PNAME:
                 {
-                    itmp = frame.FetchInt32();
-                    evstack.Push(new(frame.Chunk.Parameters[itmp]));
+                    btmp = frame.FetchByte();
+                    evstack.Push(new(frame.Chunk.Parameters[btmp]));
                     break;
                 }
 
@@ -668,7 +669,7 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.ITER:
                 {
-                    itmp = frame.FetchInt32();
+                    itmp = frame.FetchByte();
                     var iterState = IteratorStates.Peek();
                     var result = iterState.MoveNext();
 

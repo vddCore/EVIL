@@ -77,12 +77,22 @@ namespace EVIL.Intermediate
             var paramCount = parameters.Count;
             var localScope = ScopeStack.Peek();
 
+            if (parameters.Count > 255)
+            {
+                throw new CompilerException(
+                    "Upper parameter limit (255) for a function definition has been reached.\n" +
+                    "Perhaps it is time to simplify your function.",
+                    CurrentLine,
+                    CurrentColumn
+                );
+            }
+
             for (var i = 0; i < paramCount; i++)
             {
                 var param = parameters[i];
                 localScope.DefineParameter(param);
 
-                cg.Emit(OpCode.STA, paramCount - i - 1);
+                cg.Emit(OpCode.STA, (byte)(paramCount - i - 1));
             }
 
             foreach (var stmt in block.Statements)

@@ -106,7 +106,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private byte FetchByte()
+        internal byte FetchByte()
         {
             Debug.Assert(IP < Chunk.Instructions.Count);
             return Chunk.Instructions[IP++];

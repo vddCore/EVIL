@@ -26,10 +26,21 @@ namespace EVIL.Intermediate
             Emit(operand);
         }
 
+        public void Emit(OpCode opCode, byte operand)
+        {
+            Emit(opCode);
+            Emit(operand);
+        }
+
         public void Emit(OpCode opCode)
         {
             _instructions.Add((byte)opCode);
             LastOpCode = opCode;
+        }
+
+        private void Emit(byte primitive)
+        {
+            _instructions.Add(primitive);
         }
 
         private void Emit(int primitive)

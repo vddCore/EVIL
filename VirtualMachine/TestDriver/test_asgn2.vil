@@ -1,4 +1,9 @@
-if ({} > {})
-{
-  io.println("yay?");
+fn test(a, b, c, d, e, f, g, h) {
+  io.println(??a);
+  io.println(b + c);
+  io.println(d * e);
+  io.println(f * g);
+  io.println(h + 30);
 }
+
+test(0, 10, 20, 30, 40, 50, 60, 70);

@@ -118,7 +118,7 @@ namespace EVIL.Intermediate
                         case OpCode.LDA:
                         case OpCode.STA:
                         case OpCode.PNAME:
-                            DecodeLocalOp(op, chunk.Parameters);
+                            DecodeParameterOp(op, chunk.Parameters);
                             break;
 
                         case OpCode.LDX:
@@ -136,6 +136,7 @@ namespace EVIL.Intermediate
                         case OpCode.ITER:
                             DecodeParametrizedLoad(op);
                             break;
+                        
                     }
                 }
 
@@ -203,20 +204,6 @@ namespace EVIL.Intermediate
             _disasm.AppendLine();
         }
 
-        private void DecodeLocalOp(OpCode opCode, List<string> locals)
-        {
-            Decode(opCode);
-            var index = FetchInt32();
-            _disasm.Append($" {index:X8}");
-
-            if (Options.EmitLocalHints)
-            {
-                _disasm.Append($" ; {locals[index]}");
-            }
-
-            _disasm.AppendLine();
-        }
-
         private void DecodeExternOp(OpCode opCode, List<ExternInfo> externs)
         {
             Decode(opCode);
@@ -250,7 +237,35 @@ namespace EVIL.Intermediate
         private void DecodeParametrizedLoad(OpCode opCode)
         {
             Decode(opCode);
-            _disasm.AppendLine($" {FetchInt32():X8}");
+            _disasm.AppendLine($" {FetchByte():X2}");
+        }
+        
+        private void DecodeLocalOp(OpCode opCode, List<string> locals)
+        {
+            Decode(opCode);
+            var index = FetchInt32();
+            _disasm.Append($" {index:X8}");
+
+            if (Options.EmitLocalHints)
+            {
+                _disasm.Append($" ; {locals[index]}");
+            }
+
+            _disasm.AppendLine();
+        }
+        
+        private void DecodeParameterOp(OpCode opCode, List<string> parameters)
+        {
+            Decode(opCode);
+            var index = FetchByte();
+            _disasm.Append($" {index:X2}");
+
+            if (Options.EmitParameterHints)
+            {
+                _disasm.Append($" ; {parameters[index]}");
+            }
+
+            _disasm.AppendLine();
         }
 
         private double FetchNumber()
