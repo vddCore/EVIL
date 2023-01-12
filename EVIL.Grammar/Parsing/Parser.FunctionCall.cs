@@ -9,11 +9,11 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode FunctionCall(AstNode left)
         {
-            var parameters = FunctionParameterList(out var line);
+            var parameters = CallParameterList(out var line);
             return new FunctionCallNode(left, parameters) { Line = line };
         }
 
-        private List<AstNode> FunctionParameterList(out int line)
+        private List<AstNode> CallParameterList(out int line)
         {
             line = Match(TokenType.LParenthesis);
             var parameters = new List<AstNode>();
@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     throw new ParserException(
                         $"Unexpected EOF in the function call stated in line {line}.",
-                        Lexer.CopyState()
+                        Lexer.State
                     );
                 }
 

@@ -8,16 +8,24 @@ namespace EVIL.Grammar.Parsing
     public partial class Parser
     {
         private AstNode FunctionDefinition()
-        {         
+        {
             var line = Match(TokenType.Fn);
             string procName = null;
-            
+
             if (CurrentToken.Type == TokenType.Identifier)
             {
-                procName = CurrentToken.Value;                
+                procName = CurrentToken.Value;
                 Match(TokenType.Identifier);
             }
 
+            var parameterList = ParameterList();
+            var statements = FunctionDescent(BlockStatement);
+
+            return new FunctionDefinitionNode(procName, parameterList, statements) {Line = line};
+        }
+
+        private List<string> ParameterList()
+        {
             Match(TokenType.LParenthesis);
             var parameterList = new List<string>();
 
@@ -33,7 +41,7 @@ namespace EVIL.Grammar.Parsing
             }
             Match(TokenType.RParenthesis);
 
-            return new FunctionDefinitionNode(procName, BlockStatement(), parameterList) { Line = line };
+            return parameterList;
         }
     }
 }

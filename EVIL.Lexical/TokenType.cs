@@ -58,7 +58,7 @@
 
         Identifier,
 
-        Decimal,
+        Double,
         Integer,
         HexInteger,
         String,

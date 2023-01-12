@@ -1,5 +1,5 @@
-﻿using EVIL.Grammar;
-using EVIL.Grammar.AST;
+﻿using System;
+using EVIL.Grammar;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
@@ -15,13 +15,9 @@ namespace EVIL.Interpreter.Execution
             {
                 case UnaryOperationType.Plus:
                 {
-                    if (operand.Type == DynValueType.Decimal)
+                    if (operand.Type == DynValueType.Number)
                     {
-                        return new DynValue(operand.Decimal);
-                    }
-                    else if (operand.Type == DynValueType.Integer)
-                    {
-                        return new DynValue(operand.Integer);
+                        return new DynValue(operand.Number);
                     }
 
                     throw new RuntimeException(
@@ -33,15 +29,11 @@ namespace EVIL.Interpreter.Execution
 
                 case UnaryOperationType.Minus:
                 {
-                    if (operand.Type == DynValueType.Decimal)
+                    if (operand.Type == DynValueType.Number)
                     {
-                        return new DynValue(-operand.Decimal);
+                        return new DynValue(-operand.Number);
                     }
-                    else if (operand.Type == DynValueType.Integer)
-                    {
-                        return new DynValue(-operand.Integer);
-                    }
-
+                    
                     throw new RuntimeException(
                         $"Attempt to apply unary - on {operand.Type}.",
                         Environment,
@@ -91,7 +83,7 @@ namespace EVIL.Interpreter.Execution
                     return new DynValue(!operand.IsTruth);
 
                 case UnaryOperationType.BitwiseNot:
-                    if (operand.Type != DynValueType.Integer)
+                    if (operand.Type != DynValueType.Number)
                     {
                         throw new RuntimeException(
                             $"Attempt to negate a {operand.Type}.",
@@ -100,10 +92,10 @@ namespace EVIL.Interpreter.Execution
                         );
                     }
 
-                    return new DynValue(~operand.Integer);
+                    return new DynValue(~(int)operand.Number);
 
                 case UnaryOperationType.Floor:
-                    if (operand.Type != DynValueType.Decimal)
+                    if (operand.Type != DynValueType.Number)
                     {
                         throw new RuntimeException(
                             $"Attempt to retrieve floor value of {operand.Type}.",
@@ -112,7 +104,7 @@ namespace EVIL.Interpreter.Execution
                         );
                     }
                     
-                    return new DynValue(decimal.Floor(operand.Decimal));
+                    return new DynValue(Math.Floor(operand.Number));
 
                 default:
                 {

@@ -18,11 +18,11 @@ namespace EVIL.Interpreter.Execution
             
             var numValue = Visit(decrementationNode.Target);
 
-            if (numValue.Type == DynValueType.Decimal)
+            if (numValue.Type == DynValueType.Number)
             {
                 if (decrementationNode.IsPrefix)
                 {
-                    var retVal = new DynValue(numValue.Decimal - 1);
+                    var retVal = new DynValue(numValue.Number - 1);
                     numValue.CopyFrom(retVal);
                 
                     return retVal;
@@ -30,24 +30,7 @@ namespace EVIL.Interpreter.Execution
                 else
                 {
                     var retVal = numValue.Copy();
-                    numValue.CopyFrom(new DynValue(numValue.Decimal - 1));
-
-                    return retVal;
-                }
-            }
-            else if (numValue.Type == DynValueType.Integer)
-            {
-                if (decrementationNode.IsPrefix)
-                {
-                    var retVal = new DynValue(numValue.Integer - 1);
-                    numValue.CopyFrom(retVal);
-                
-                    return retVal;
-                }
-                else
-                {
-                    var retVal = numValue.Copy();
-                    numValue.CopyFrom(new DynValue(numValue.Integer - 1));
+                    numValue.CopyFrom(new DynValue(numValue.Number - 1));
 
                     return retVal;
                 }

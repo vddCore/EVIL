@@ -21,28 +21,13 @@ namespace EVIL.Interpreter.Abstraction
             }
         }
 
-        public DynValue this[decimal key]
+        public DynValue this[double key]
         {
-            get => GetValueByDecimal(key);
+            get => GetValueByNumber(key);
 
             set
             {
-                var dynKey = GetKeyByDecimal(key);
-
-                if (dynKey != null)
-                    base[dynKey] = value;
-                else
-                    Add(new DynValue(key), value);
-            }
-        }
-
-        public DynValue this[int key]
-        {
-            get => GetValueByInteger(key);
-
-            set
-            {
-                var dynKey = GetKeyByInteger(key);
+                var dynKey = GetKeyByNumber(key);
 
                 if (dynKey != null)
                     base[dynKey] = value;
@@ -55,23 +40,19 @@ namespace EVIL.Interpreter.Abstraction
         {
             get
             {
-                if (key.Type == DynValueType.Decimal)
-                    return this[key.Decimal];
+                if (key.Type == DynValueType.Number)
+                    return this[key.Number];
                 else if (key.Type == DynValueType.String)
                     return this[key.String];
-                else if (key.Type == DynValueType.Integer)
-                    return this[key.Integer];
                 else throw new Exception($"A {key.Type} cannot be used to index a table.");
             }
 
             set
             {
-                if (key.Type == DynValueType.Decimal)
-                    this[key.Decimal] = value;
+                if (key.Type == DynValueType.Number)
+                    this[key.Number] = value;
                 else if (key.Type == DynValueType.String)
                     this[key.String] = value;
-                else if (key.Type == DynValueType.Integer)
-                    this[key.Integer] = value;
                 else throw new Exception($"A {key.Type} cannot be used to index a table.");
             }
         }
@@ -81,10 +62,8 @@ namespace EVIL.Interpreter.Abstraction
             if (key == null)
                 return null;
 
-            if (key.Type == DynValueType.Decimal)
-                return GetKeyByDecimal(key.Decimal);
-            else if (key.Type == DynValueType.Integer)
-                return GetKeyByInteger(key.Integer);
+            if (key.Type == DynValueType.Number)
+                return GetKeyByNumber(key.Number);
             else if (key.Type == DynValueType.String)
                 return GetKeyByString(key.String);
 
@@ -115,41 +94,20 @@ namespace EVIL.Interpreter.Abstraction
             throw new KeyNotFoundException($"Key '{key}' was not found in the table.");
         }
 
-        public DynValue GetKeyByDecimal(decimal key)
+        public DynValue GetKeyByNumber(double key)
         {
             foreach (var k in Keys)
             {
-                if (k.Type == DynValueType.Decimal && k.Decimal == key)
+                if (k.Type == DynValueType.Number && k.Number == key)
                     return k;
             }
 
             return null;
         }
 
-        public DynValue GetValueByDecimal(decimal key)
+        public DynValue GetValueByNumber(double key)
         {
-            var dynKey = GetKeyByDecimal(key);
-
-            if (dynKey != null)
-                return base[dynKey];
-
-            throw new KeyNotFoundException($"Key '{key}' was not found in the table.");
-        }
-
-        public DynValue GetKeyByInteger(int key)
-        {
-            foreach (var k in Keys)
-            {
-                if (k.Type == DynValueType.Integer && k.Integer == key)
-                    return k;
-            }
-
-            return null;
-        }
-
-        public DynValue GetValueByInteger(int key)
-        {
-            var dynKey = GetKeyByInteger(key);
+            var dynKey = GetKeyByNumber(key);
 
             if (dynKey != null)
                 return base[dynKey];

@@ -8,6 +8,11 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode Break()
         {
+            if (_loopDescent == 0)
+            {
+                throw new ParserException("Unexpected 'break' outside of a loop.", Lexer.State);
+            }
+            
             var line = Match(TokenType.Break);
             return new BreakNode { Line = line };
         }

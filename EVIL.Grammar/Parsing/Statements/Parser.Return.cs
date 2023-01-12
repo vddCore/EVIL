@@ -8,6 +8,11 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode Return()
         {
+            if (_functionDescent == 0)
+            {
+                throw new ParserException("Unexpected 'ret' outside of a function.", Lexer.State);
+            }
+
             var line = Match(TokenType.Ret);
             AstNode retNode;
 

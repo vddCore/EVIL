@@ -311,13 +311,13 @@ namespace EVIL.Lexical
         private Token GetDecimalNumber()
         {
             var number = string.Empty;
-            var isDecimal = false;
+            var isDouble = false;
 
             while (char.IsDigit(State.Character) || State.Character == '.')
             {
                 if (State.Character == '.')
                 {
-                    isDecimal = true;
+                    isDouble = true;
                 }
 
                 number += State.Character;
@@ -326,9 +326,9 @@ namespace EVIL.Lexical
 
             try
             {
-                if (isDecimal)
+                if (isDouble)
                 {
-                    return new Token(TokenType.Decimal, number);
+                    return new Token(TokenType.Double, number);
                 }
                 else
                 {

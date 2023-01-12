@@ -9,8 +9,9 @@ namespace EVIL.Grammar.Parsing
         private AstNode DoWhileLoop()
         {
             Match(TokenType.Do);
-            var statements = BlockStatement();
 
+            var statements = LoopDescent(BlockStatement);
+            
             Match(TokenType.While);
             Match(TokenType.LParenthesis);
             var conditionExpression = AssignmentExpression();
