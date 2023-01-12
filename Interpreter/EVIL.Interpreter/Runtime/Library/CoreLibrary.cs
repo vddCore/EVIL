@@ -146,34 +146,6 @@ namespace EVIL.Interpreter.Runtime.Library
             return new DynValue(sb.ToString());
         }
 
-        [ClrFunction("isdef")]
-        public static DynValue IsDefined(Execution.Interpreter interpreter, FunctionArguments args)
-        {
-            args.ExpectAtLeast(1)
-                .ExpectAtMost(2)
-                .ExpectTypeAtIndex(0, DynValueType.String);
-
-            var name = args[0].String;
-
-            var scope = "any";
-
-            if (args.Count > 1)
-            {
-                if (args[1].Type == DynValueType.String)
-                {
-                    scope = args[1].String;
-                }
-            }
-
-            return scope switch
-            {
-                "local" => new(interpreter.Environment.LocalScope.HasMember(name)),
-                "global" => new(interpreter.Environment.GlobalScope.HasMember(name)),
-                "any" => new(interpreter.Environment.LocalScope.FindInScope(name) != null),
-                _ => throw new ClrFunctionException("Unsupported scope type.")
-            };
-        }
-
         [ClrFunction("setglobal")]
         public static DynValue SetGlobal(Execution.Interpreter interpreter, FunctionArguments args)
         {
