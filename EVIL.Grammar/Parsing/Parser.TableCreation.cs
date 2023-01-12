@@ -11,37 +11,52 @@ namespace EVIL.Grammar.Parsing
         {
             var line = Match(Token.LBrace);
             var initializers = new List<AstNode>();
+            
             var keyed = false;
 
             while (CurrentToken.Type != TokenType.RBrace)
             {
-                AstNode key = null;
-                if (CurrentToken.Type == TokenType.LBracket)
+                if (initializers.Count == 0)
                 {
-                    keyed = true;
-                    key = ComputedKeyExpression();
-                    Match(Token.Assign);
-                }
-                else
-                {
-                    var ahead = Lexer.PeekToken(1);
-                    if (ahead.Type == TokenType.Assign)
+                    if (CurrentToken.Type == TokenType.LBracket)
                     {
                         keyed = true;
-                        key = Constant();
-                        
-                        Match(Token.Assign);
                     }
                     else
                     {
-                        initializers.Add(PostfixExpression());
+                        var ahead = Lexer.PeekToken(1);
+                        
+                        if (ahead.Type == TokenType.Associate)
+                        {
+                            keyed = true;
+                        }
                     }
                 }
 
                 if (keyed)
                 {
-                    var value = AssignmentExpression();
-                    initializers.Add(new KeyValuePairNode(key, value));
+                    AstNode key, value;
+                    
+                    if (CurrentToken.Type == TokenType.LBracket)
+                    {
+                        key = ComputedKeyExpression();
+                        Match(Token.Associate);
+                        value = AssignmentExpression();
+
+                        initializers.Add(new KeyValuePairNode(key, value));
+                    }
+                    else
+                    {
+                        key = Constant();
+                        Match(Token.Associate);
+                        value = AssignmentExpression();
+                        
+                        initializers.Add(new KeyValuePairNode(key, value));
+                    }
+                }
+                else
+                {
+                    initializers.Add(AssignmentExpression());
                 }
                 
                 if (CurrentToken.Type == TokenType.RBrace)

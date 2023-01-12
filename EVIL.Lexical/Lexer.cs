@@ -103,6 +103,10 @@ namespace EVIL.Lexical
                 case '%':
                     State.CurrentToken = Token.Modulo;
                     break;
+                case '=' when Peek() == '>':
+                    Advance();
+                    State.CurrentToken = Token.Associate;
+                    break;
                 case '=' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.Equal;

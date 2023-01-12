@@ -20,6 +20,8 @@
         ShiftRight,
         ShiftLeft,
         
+        Associate,
+        
         Dot,
         QuestionMark,
 
