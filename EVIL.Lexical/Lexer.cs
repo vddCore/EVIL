@@ -94,7 +94,7 @@ namespace EVIL.Lexical
                     State.CurrentToken = new Token(TokenType.Divide, "/");
                     break;
                 case '?':
-                    State.CurrentToken = new Token(TokenType.NameOf, "?");
+                    State.CurrentToken = new Token(TokenType.QuestionMark, "?");
                     break;
                 case '%' when Peek() == '=':
                     Advance();
@@ -339,6 +339,7 @@ namespace EVIL.Lexical
                 "undef" => new Token(TokenType.Undef, "undef"),
                 "while" => new Token(TokenType.While, "while"),
                 "do" => new Token(TokenType.Do, "do"),
+                "nameof" => new Token(TokenType.NameOf, "nameof"),
                 "var" => new Token(TokenType.Var, "var"),
                 "in" => new Token(TokenType.In, "in"),
                 "if" => new Token(TokenType.If, "if"),
