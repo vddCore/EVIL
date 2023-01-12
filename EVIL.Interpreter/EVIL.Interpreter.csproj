@@ -93,5 +93,8 @@
     <Compile Update="Execution\Interpreter.Program.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
+    <Compile Update="Execution\Interpreter.DoWhile.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

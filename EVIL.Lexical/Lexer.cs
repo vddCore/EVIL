@@ -338,6 +338,7 @@ namespace EVIL.Lexical
                 "each" => new Token(TokenType.Each, "each"),
                 "undef" => new Token(TokenType.Undef, "undef"),
                 "while" => new Token(TokenType.While, "while"),
+                "do" => new Token(TokenType.Do, "do"),
                 "var" => new Token(TokenType.Var, "var"),
                 "in" => new Token(TokenType.In, "in"),
                 "if" => new Token(TokenType.If, "if"),
