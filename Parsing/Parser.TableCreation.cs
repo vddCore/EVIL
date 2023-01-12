@@ -14,7 +14,7 @@ namespace EVIL.Parsing
 
             while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
-                initializers.Add(Operator());
+                initializers.Add(Assignment());
 
                 if (Scanner.State.CurrentToken.Type == TokenType.RBrace)
                     break;

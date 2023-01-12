@@ -50,7 +50,7 @@ namespace EVIL.Parsing
                     throw new ParserException("Unexpected compound assignment type enum value??");
             }
 
-            var right = Operator();
+            var right = Assignment();
 
             return new CompoundAssignmentNode(variable, right, type) { Line = line };
     }

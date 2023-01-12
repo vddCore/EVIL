@@ -18,7 +18,7 @@ namespace EVIL.Parsing
                     line = Match(TokenType.LBracket);
                 else Match(TokenType.LBracket);
 
-                keyExpressions.Enqueue(Operator());
+                keyExpressions.Enqueue(Assignment());
                 Match(TokenType.RBracket);
             }
 
