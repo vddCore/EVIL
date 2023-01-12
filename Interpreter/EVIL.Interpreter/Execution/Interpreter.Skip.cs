@@ -7,7 +7,7 @@ namespace EVIL.Interpreter.Execution
     {
         public override void Visit(SkipStatement skipStatement)
         {
-            Environment.LoopStackTop.SkipThisIteration = true;
+            Environment.CallStack.Peek().LoopStackTop.SkipThisIteration = true;
         }
     }
 }

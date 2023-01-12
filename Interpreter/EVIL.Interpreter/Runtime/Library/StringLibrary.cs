@@ -126,17 +126,37 @@ namespace EVIL.Interpreter.Runtime.Library
         [ClrFunction("spl")]
         public static DynValue Split(Execution.Interpreter interpreter, FunctionArguments args)
         {
-            args.ExpectExactly(2)
+            args.ExpectAtLeast(2)
+                .ExpectAtMost(3)
                 .ExpectTypeAtIndex(0, DynValueType.String)
                 .ExpectTypeAtIndex(1, DynValueType.String);
+
+            var splitOptions = StringSplitOptions.None;
+            
+            if (args.Count == 3)
+            {
+                args.ExpectTypeAtIndex(2, DynValueType.String);
+                var flags = args[2].String;
+                
+                for (var i = 0; i < flags.Length; i++)
+                {
+                    switch (flags[i])
+                    {
+                        case 't':
+                            splitOptions |= StringSplitOptions.TrimEntries;
+                            break;
+                        case 'r':
+                            splitOptions |= StringSplitOptions.RemoveEmptyEntries;
+                            break;
+                        default: throw new ClrFunctionException($"Unexpected split mode '{flags[i]}'.");
+                    }
+                }
+            }
 
             var str = args[0].String;
             var with = args[1].String;
 
-            if (with.Length > 1)
-                throw new ClrFunctionException("Expected a single character at index 1");
-
-            var splitStuff = str.Split(with);
+            var splitStuff = str.Split(with, splitOptions);
             var retTable = new Table();
 
             for (var i = 0; i < splitStuff.Length; i++)

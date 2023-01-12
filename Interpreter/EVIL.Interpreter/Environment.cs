@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using EVIL.Interpreter.Abstraction;
 using EVIL.Interpreter.Diagnostics;
-using EVIL.Interpreter.Execution;
 using EVIL.Interpreter.Runtime;
 using EVIL.Interpreter.Runtime.Library;
 
@@ -13,24 +12,15 @@ namespace EVIL.Interpreter
     {
         public int CallStackLimit { get; set; } = 72;
 
-        public Stack<StackFrame> CallStack { get; }
-        public Stack<LoopFrame> LoopStack { get; }
-
-        public bool IsInScriptFunctionScope => CallStack.Count > 0;
-        public bool IsInsideLoop => LoopStack.Count > 0;
-
+        public Stack<StackFrame> CallStack { get; } = new();
         public StackFrame StackTop => CallStack.Peek();
-        public LoopFrame LoopStackTop => LoopStack.Peek();
 
         public NameScope LocalScope { get; set; }
-        public NameScope GlobalScope { get; }
+        public NameScope GlobalScope { get; private set; }
 
         public Environment()
         {
-            CallStack = new Stack<StackFrame>();
-            LoopStack = new Stack<LoopFrame>();
-
-            GlobalScope = new NameScope(this, null);
+            Clear();
         }
 
         public void LoadCoreRuntime()
@@ -134,9 +124,19 @@ namespace EVIL.Interpreter
 
         public void Clear()
         {
-            LoopStack.Clear();
-            CallStack.Clear();
+            CallStack.Clear();            
             LocalScope = null;
+            GlobalScope = new NameScope(this, null);
+        }
+
+        public void Begin()
+        {
+            CallStack.Push(new StackFrame("!root_chunk!"));
+        }
+
+        public void End()
+        {
+            CallStack.Pop();
         }
 
         public List<StackFrame> StackTrace()

@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST.Nodes;
+﻿using System.Linq;
+using EVIL.Grammar.AST.Nodes;
 
 namespace EVIL.Interpreter.Execution
 {
@@ -12,24 +13,24 @@ namespace EVIL.Interpreter.Execution
                 {
                     for (var i = 0; i < blockStatement.Statements.Count; i++)
                     {
-                        if (Environment.IsInsideLoop)
+                        var callStackTop = Environment.StackTop;
+
+                        if (callStackTop.ReturnNow)
                         {
-                            var loopStackTop = Environment.LoopStackTop;
+                            for (var j = 0; j < callStackTop.LoopStack.Count; j++)
+                                callStackTop.LoopStack.ElementAt(j).Break();
+
+                            break;
+                        }
+
+                        if (callStackTop.IsInLoop)
+                        {
+                            var loopStackTop = callStackTop.LoopStackTop;
 
                             if (loopStackTop.BreakLoop || loopStackTop.SkipThisIteration)
                                 break;
                         }
 
-                        if (Environment.IsInScriptFunctionScope)
-                        {
-                            var callStackTop = Environment.StackTop;
-                            
-                            if (callStackTop.ReturnNow)
-                            {
-                                break;
-                            }
-                        }
-                        
                         Visit(blockStatement.Statements[i]);
                     }
                 }

@@ -1,5 +1,4 @@
 ﻿using EVIL.Grammar.AST.Nodes;
-using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Execution
 {
@@ -7,7 +6,8 @@ namespace EVIL.Interpreter.Execution
     {
         public override void Visit(BreakStatement breakStatement)
         {
-            Environment.LoopStackTop.Break();
+            Environment.CallStack.Peek()
+                .LoopStackTop.Break();
         }
     }
 }

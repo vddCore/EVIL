@@ -12,8 +12,8 @@ namespace EVIL.Interpreter.Execution
 
             while (Visit(doWhileStatement.Condition).IsTruth)
             {
-                Environment.LoopStack.Push(new LoopFrame());
-                var loopStackTop = Environment.LoopStack.Peek();
+                var loopStackTop = new LoopFrame();
+                Environment.CallStack.Peek().LoopStack.Push(loopStackTop);
 
                 try
                 {
@@ -34,7 +34,7 @@ namespace EVIL.Interpreter.Execution
                 }
                 finally
                 {
-                    Environment.LoopStack.Pop();
+                    Environment.CallStack.Peek().LoopStack.Pop();
                 }
             }
         }
