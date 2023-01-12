@@ -9,6 +9,7 @@ namespace EVIL.Abstraction
         private readonly double _numberValue;
         private readonly string _stringValue;
         private readonly Table _tableValue;
+        private readonly ScriptFunction _functionValue;
 
         public DynValueType Type { get; private set; }
 
@@ -45,11 +46,23 @@ namespace EVIL.Abstraction
             }
         }
 
+        public ScriptFunction Function
+        {
+            get
+            {
+                if (Type != DynValueType.Function)
+                    throw new InvalidDynValueTypeException($"This value is not a function.", DynValueType.Function,
+                        Type);
+
+                return _functionValue;
+            }
+        }
+
         private DynValue(DynValue dynValue)
         {
             Type = dynValue.Type;
 
-            switch(dynValue.Type)
+            switch (dynValue.Type)
             {
                 case DynValueType.Number:
                     _numberValue = dynValue.Number;
@@ -83,12 +96,18 @@ namespace EVIL.Abstraction
             _tableValue = value;
         }
 
+        public DynValue(ScriptFunction function)
+        {
+            Type = DynValueType.Function;
+            _functionValue = function;
+        }
+
         public DynValue AsNumber()
         {
             if (Type == DynValueType.Number)
                 return new DynValue(_numberValue);
 
-            var success = double.TryParse(_stringValue, out double result);
+            var success = double.TryParse(_stringValue, out var result);
 
             if (!success)
                 throw new DynValueConversionException($"Cannot convert string value '{_stringValue}' to number.");
@@ -116,7 +135,7 @@ namespace EVIL.Abstraction
 
         public DynValue Copy()
         {
-            return new DynValue(this);
+            return new(this);
         }
     }
 }

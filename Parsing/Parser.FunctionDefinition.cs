@@ -8,17 +8,28 @@ namespace EVIL.Parsing
     public partial class Parser
     {
         private AstNode FunctionDefinition()
-        {
-            if (IsInsideFunctionDefinition)
-            {
-                throw new ParserException("Nested functions are not supported.");
-            }
-
-            IsInsideFunctionDefinition = true;
-            
+        {         
             var line = Match(TokenType.Fn);
-            var procName = (string)Scanner.State.CurrentToken.Value;
-            Match(TokenType.Identifier);
+            var isAnonymous = false;
+            string procName = null;
+            
+            if (Scanner.State.CurrentToken.Type == TokenType.Identifier)
+            {
+                if (IsInsideFunctionDefinition)
+                {
+                    throw new ParserException("Nested named functions are not supported.");
+                }
+                
+                IsInsideFunctionDefinition = true;
+
+                procName = (string)Scanner.State.CurrentToken.Value;
+                
+                Match(TokenType.Identifier);
+            }
+            else
+            {
+                isAnonymous = true;
+            }
 
             Match(TokenType.LParenthesis);
             var parameterList = new List<string>();
@@ -39,8 +50,11 @@ namespace EVIL.Parsing
             var statementList = FunctionStatementList();
             Match(TokenType.RBrace);
 
-            IsInsideFunctionDefinition = false;
-            
+            if (!isAnonymous)
+            {
+                IsInsideFunctionDefinition = false;
+            }
+
             return new FunctionDefinitionNode(procName, statementList, parameterList) { Line = line };
         }
     }

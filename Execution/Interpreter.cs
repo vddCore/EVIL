@@ -14,7 +14,7 @@ namespace EVIL.Execution
 
         public bool BreakExecution { get; set; }
 
-        public int CallStackLimit { get; set; } = 16;
+        public int CallStackLimit { get; set; } = 256;
 
         public Stack<CallStackItem> CallStack { get; }
         public Stack<LoopStackItem> LoopStack { get; }

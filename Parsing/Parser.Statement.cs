@@ -37,6 +37,8 @@ namespace EVIL.Parsing
                     return PostIncrementation(identifier);
                 else if (token.Type == TokenType.Decrement)
                     return PostDecrementation(identifier);
+                else if (token.Type == TokenType.LParenthesis)
+                    return FunctionCall(identifier);
                 else throw new ParserException($"Expected an assignment or a function call, found '{token.Value}'.", Scanner.State);
             }
             else if (token.Type == TokenType.LocalVar)
