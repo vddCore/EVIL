@@ -8,30 +8,34 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(WhileLoopNode whileLoopNode)
         {
-            try
+            Environment.EnterScope();
             {
-                Environment.LoopStack.Push(new LoopFrame());
-
-                while (Visit(whileLoopNode.Expression).Number != 0)
+                try
                 {
-                    ExecuteStatementList(whileLoopNode.StatementList);
+                    Environment.LoopStack.Push(new LoopFrame());
 
-                    var stackTop = Environment.LoopStackTop;
-
-                    if (stackTop.BreakLoop)
-                        break;
-
-                    if (stackTop.SkipThisIteration)
+                    while (Visit(whileLoopNode.Expression).Number != 0)
                     {
-                        stackTop.SkipThisIteration = false;
+                        ExecuteStatementList(whileLoopNode.StatementList);
+
+                        var stackTop = Environment.LoopStackTop;
+
+                        if (stackTop.BreakLoop)
+                            break;
+
+                        if (stackTop.SkipThisIteration)
+                        {
+                            stackTop.SkipThisIteration = false;
+                        }
                     }
                 }
+                finally
+                {
+                    Environment.LoopStack.Pop();
+                }
             }
-            finally
-            {
-                Environment.LoopStack.Pop();
-            }
-
+            Environment.ExitScope();
+            
             return DynValue.Zero;
         }
 

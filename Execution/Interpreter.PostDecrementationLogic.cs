@@ -8,7 +8,7 @@ namespace EVIL.Execution
         public override DynValue Visit(PostDecrementationNode postDecrementationNode)
         {
             DynValue retVal;
-            var name = postDecrementationNode.Variable.Name;
+            var name = postDecrementationNode.Variable.Identifier;
             var numValue = Environment.LocalScope.FindInScopeChain(name);
 
             if (numValue == null)

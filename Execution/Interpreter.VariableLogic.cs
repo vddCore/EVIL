@@ -7,11 +7,11 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(VariableNode variableNode)
         {
-            var dynValue = Environment.LocalScope.FindInScopeChain(variableNode.Name);
+            var dynValue = Environment.LocalScope.FindInScopeChain(variableNode.Identifier);
 
             if (dynValue == null)
             {
-                throw new RuntimeException($"'{variableNode.Name}' does not exist in the current scope.", variableNode.Line);
+                throw new RuntimeException($"'{variableNode.Identifier}' does not exist in the current scope.", variableNode.Line);
             }
 
             return dynValue;

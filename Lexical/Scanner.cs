@@ -387,8 +387,8 @@ namespace EVIL.Lexical
                 case "while":
                     return new Token(TokenType.While, "while");
 
-                case "local":
-                    return new Token(TokenType.LocalVar, "local");
+                case "var":
+                    return new Token(TokenType.Var, "var");
 
                 case "if":
                     return new Token(TokenType.If, "if");

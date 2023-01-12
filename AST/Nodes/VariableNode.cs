@@ -4,11 +4,11 @@ namespace EVIL.AST.Nodes
 {
     public class VariableNode : AstNode
     {
-        public string Name { get; }
+        public string Identifier { get; }
 
-        public VariableNode(string name)
+        public VariableNode(string identifier)
         {
-            Name = name;
+            Identifier = identifier;
         }
     }
 }

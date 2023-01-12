@@ -36,8 +36,6 @@
         CompareGreaterThan,
         CompareGreaterOrEqualTo,
 
-        LocalVar,
-
         And,
         Or,
 
@@ -52,6 +50,7 @@
         LBracket,
         RBracket,
 
+        Var,
         Identifier,
 
         DecimalNumber,

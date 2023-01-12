@@ -10,7 +10,7 @@ namespace EVIL.Execution
         {
             if (assignmentNode.Left is VariableNode varNode)
             {
-                return VariableAssignment(varNode, assignmentNode.Right, assignmentNode.LocalScope);
+                return VariableAssignment(varNode, assignmentNode.Right);
             }
             else if (assignmentNode.Left is IndexingNode)
             {
@@ -26,30 +26,17 @@ namespace EVIL.Execution
             }
         }
 
-        private DynValue VariableAssignment(VariableNode left, AstNode right, bool isLocal)
+        private DynValue VariableAssignment(VariableNode left, AstNode right)
         {
+            var dynValue = Environment.LocalScope.FindInScopeChain(left.Identifier);
+
+            if (dynValue == null)
+            {
+                throw new RuntimeException($"'{left.Identifier}' was not found in the current scope.", left.Line);
+            }
+            
             var retVal = Visit(right);
-
-            if (isLocal)
-            {
-                if (Environment.IsInScriptFunctionScope)
-                {
-                    return Environment.LocalScope.Set(left.Name, Visit(right));
-                }
-
-                throw new RuntimeException("Local variable assignment outside of a function.", left.Line);
-            }
-            else if (Environment.IsInScriptFunctionScope)
-            {
-                if (Environment.LocalScope.HasMember(left.Name))
-                {
-                    Environment.LocalScope.Set(left.Name, retVal);
-                    return retVal;
-                }
-            }
-
-            retVal = Visit(right);
-            Environment.GlobalScope.Set(left.Name, retVal);
+            dynValue.CopyFrom(retVal);
 
             return retVal;
         }

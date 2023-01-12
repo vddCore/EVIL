@@ -9,47 +9,47 @@ namespace EVIL.Execution
     {
         public override DynValue Visit(EachLoopNode eachLoopNode)
         {
-            var keyName = eachLoopNode.KeyNode.Name;
-            var valueName = eachLoopNode.ValueNode.Name;
+            var keyName = eachLoopNode.KeyNode.Identifier;
+            var valueName = eachLoopNode.ValueNode.Identifier;
 
-            try
+            Environment.EnterScope();
             {
-                var lsItem = new LoopFrame();
-                Environment.LoopStack.Push(lsItem);
-
-                var tableValue = Visit(eachLoopNode.TableNode);
-
-                if (tableValue.Type != DynValueType.Table)
-                    throw new RuntimeException($"Expected a table, got {tableValue.Type.ToString().ToLower()}.",
-                        eachLoopNode.TableNode.Line);
-
-                var actualTable = tableValue.Table;
-
                 try
                 {
-                    Environment.EnterScope();
-                    foreach (var element in actualTable)
-                    {
-                        Environment.LocalScope.Set(keyName, element.Key);
-                        Environment.LocalScope.Set(valueName, element.Value);
+                    var loopFrame = new LoopFrame();
+                    Environment.LoopStack.Push(loopFrame);
 
-                        ExecuteStatementList(eachLoopNode.StatementList);
+                    var tableValue = Visit(eachLoopNode.TableNode);
+
+                    if (tableValue.Type != DynValueType.Table)
+                        throw new RuntimeException($"Expected a table, got {tableValue.Type.ToString().ToLower()}.",
+                            eachLoopNode.TableNode.Line);
+
+                    var actualTable = tableValue.Table;
+
+                    try
+                    {
+                        foreach (var element in actualTable)
+                        {
+                            Environment.LocalScope.Set(keyName, element.Key);
+                            Environment.LocalScope.Set(valueName, element.Value);
+
+                            ExecuteStatementList(eachLoopNode.StatementList);
+                        }
                     }
-                }
-                catch (InvalidOperationException)
-                {
-                    throw new RuntimeException("The table was modified, cannot continue execution.", eachLoopNode.Line);
+                    catch (InvalidOperationException)
+                    {
+                        throw new RuntimeException("The table was modified, cannot continue execution.",
+                            eachLoopNode.Line);
+                    }
                 }
                 finally
                 {
-                    Environment.ExitScope();
+                    Environment.LoopStack.Pop();
                 }
             }
-            finally
-            {
-                Environment.LoopStack.Pop();
-            }
-
+            Environment.ExitScope();
+            
             return DynValue.Zero;
         }
     }
