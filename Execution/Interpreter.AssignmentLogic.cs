@@ -27,28 +27,28 @@ namespace EVIL.Execution
                 if (CallStack.Count > 0)
                 {
                     var stackTop = CallStack.Peek();
-                    var value = Visit(assignmentNode.Right);
+                    val = Visit(assignmentNode.Right);
 
                     if (stackTop.LocalVariableScope.ContainsKey(assignmentNode.Variable.Name))
-                        stackTop.LocalVariableScope[assignmentNode.Variable.Name] = value;
+                        stackTop.LocalVariableScope[assignmentNode.Variable.Name] = val;
                     else
-                        stackTop.LocalVariableScope.Add(assignmentNode.Variable.Name, value);
+                        stackTop.LocalVariableScope.Add(assignmentNode.Variable.Name, val);
 
-                    return value;
+                    return val;
                 }
 
                 throw new RuntimeException("Local variable assignment outside of a function.", assignmentNode.Line);
             }
             else if (CallStack.Count > 0)
             {
-                var value = Visit(assignmentNode.Right);
+                val = Visit(assignmentNode.Right);
 
                 var stackTop = CallStack.Peek();
 
                 if (stackTop.LocalVariableScope.ContainsKey(assignmentNode.Variable.Name))
                 {
-                    stackTop.LocalVariableScope[assignmentNode.Variable.Name] = value;
-                    return value;
+                    stackTop.LocalVariableScope[assignmentNode.Variable.Name] = val;
+                    return val;
                 }
             }
 

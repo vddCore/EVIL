@@ -121,6 +121,8 @@ namespace EVIL.Abstraction
                 return new DynValue(_stringValue);
             else if (Type == DynValueType.Table)
                 return new DynValue($"Table (count: {_tableValue.Count})");
+            else if (Type == DynValueType.Function)
+                return new DynValue($"fn({_functionValue.ParameterNames.Count})");
             return new DynValue(_numberValue.ToString(CultureInfo.InvariantCulture));
         }
 

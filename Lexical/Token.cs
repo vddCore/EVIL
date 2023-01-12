@@ -49,7 +49,10 @@ namespace EVIL.Lexical
                 case TokenType.Modulo: return "%";
                 case TokenType.Multiply: return "*";
                 case TokenType.NameOf: return "?";
-                case TokenType.Nand: return "$";
+                case TokenType.LogicalAnd: return "&";
+                case TokenType.LogicalOr: return "|";
+                case TokenType.LogicalXor: return "^";
+                case TokenType.LogicalNot: return "~";
                 case TokenType.Negation: return "!";
                 case TokenType.Or: return "||";
                 case TokenType.Plus: return "+";
