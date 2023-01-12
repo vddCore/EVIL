@@ -126,16 +126,18 @@ namespace EVIL.Abstraction
             if (Type == DynValueType.String)
                 return new DynValue(_stringValue);
             else if (Type == DynValueType.Table)
-                return new DynValue($"Table (count: {_tableValue.Count})");
+            {
+                return new DynValue($"Table({_tableValue.Count})");
+            }
             else if (Type == DynValueType.Function)
             {
                 if (_functionValue is ScriptFunction sf)
                 {
-                    return new DynValue($"fn({sf.ParameterNames.Count})");
+                    return new DynValue($"Function({sf.ParameterNames.Count})");
                 }
                 else if (_functionValue is ClrFunction cf)
                 {
-                    return new DynValue($"clr_fn({cf.Invokable.Method.GetParameters().Length})");
+                    return new DynValue($"CLR_Function({cf.Invokable.Method.GetParameters().Length})");
                 }
             }
             return new DynValue(_numberValue.ToString(CultureInfo.InvariantCulture));

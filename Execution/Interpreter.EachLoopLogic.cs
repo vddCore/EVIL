@@ -22,7 +22,7 @@ namespace EVIL.Execution
                     var tableValue = Visit(eachLoopNode.TableNode);
 
                     if (tableValue.Type != DynValueType.Table)
-                        throw new RuntimeException($"Expected a table, got {tableValue.Type.ToString().ToLower()}.",
+                        throw new RuntimeException($"Expected a Table, got {tableValue.Type}.",
                             eachLoopNode.TableNode.Line);
 
                     var actualTable = tableValue.Table;
