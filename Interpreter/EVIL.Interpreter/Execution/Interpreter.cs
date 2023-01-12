@@ -24,7 +24,7 @@ namespace EVIL.Interpreter.Execution
         public Interpreter(Environment env)
             => Environment = env;
 
-        public void Execute(string sourceCode)
+        public void Execute(string sourceCode, bool preserveEnvironment = false)
         {
             Lexer.LoadSource(sourceCode);
             Parser = new Parser(Lexer);
@@ -37,7 +37,8 @@ namespace EVIL.Interpreter.Execution
             }
             finally
             {
-                Environment.Clear();
+                if (!preserveEnvironment)
+                    Environment.Clear();
             }
         }
 
@@ -85,7 +86,7 @@ namespace EVIL.Interpreter.Execution
                 {
                     DefinedAtLine = entryNode.Line
                 };
-                
+
                 for (var i = 0; i < entryNode.Parameters.Count; i++)
                 {
                     stackFrame.Parameters.Add(entryNode.Parameters[i]);

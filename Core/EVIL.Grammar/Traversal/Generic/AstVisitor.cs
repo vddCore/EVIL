@@ -28,6 +28,7 @@ namespace EVIL.Grammar.Traversal.Generic
                 {typeof(FunctionCallExpression), (n) => Visit(n as FunctionCallExpression)},
                 {typeof(TableExpression), (n) => Visit(n as TableExpression)},
                 {typeof(IndexerExpression), (n) => Visit(n as IndexerExpression)},
+                {typeof(NameOfExpression), (n) => Visit(n as NameOfExpression)},
                 {typeof(IncrementationExpression), (n) => Visit(n as IncrementationExpression)},
                 {typeof(DecrementationExpression), (n) => Visit(n as DecrementationExpression)},
                 {typeof(ExtraArgumentsExpression), (n) => Visit(n as ExtraArgumentsExpression)},
@@ -84,6 +85,7 @@ namespace EVIL.Grammar.Traversal.Generic
         public abstract T Visit(FunctionCallExpression functionCallExpression);
         public abstract T Visit(TableExpression tableExpression);
         public abstract T Visit(IndexerExpression indexerExpression);
+        public abstract T Visit(NameOfExpression nameOfExpression);
         public abstract T Visit(IncrementationExpression incrementationExpression);
         public abstract T Visit(DecrementationExpression decrementationExpression);
         public abstract T Visit(ExtraArgumentsExpression extraArgumentsExpression);

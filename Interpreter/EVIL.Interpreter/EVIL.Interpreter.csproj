@@ -108,5 +108,11 @@
     <Compile Update="Execution\Interpreter.ExtraArguments.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
+    <Compile Update="Execution\Interpreter.VariableReference.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Execution\Interpreter.NameOfExpression.cs">
+      <DependentUpon>Interpreter.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

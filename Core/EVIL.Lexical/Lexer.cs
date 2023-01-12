@@ -98,6 +98,10 @@ namespace EVIL.Lexical
                 case '/':
                     State.CurrentToken = Token.Divide;
                     break;
+                case '?' when Peek() == '?':
+                    Advance();
+                    State.CurrentToken = Token.NameOf;
+                    break;
                 case '?':
                     State.CurrentToken = Token.QuestionMark;
                     break;
@@ -340,7 +344,6 @@ namespace EVIL.Lexical
                 "undef" => Token.Undef,
                 "while" => Token.While,
                 "do" => Token.Do,
-                "nameof" => Token.NameOf,
                 "var" => Token.Var,
                 "in" => Token.In,
                 "if" => Token.If,

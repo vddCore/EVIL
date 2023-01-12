@@ -7,7 +7,6 @@
         ToNumber,
         ToString,
         Length,
-        NameOf,
         Negation,
         BitwiseNot,
     }
