@@ -18,4 +18,16 @@
       <ProjectReference Include="..\EVIL.ExecutionEngine\EVIL.ExecutionEngine.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Comparisons.String.cs">
+        <DependentUpon>Comparisons.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Comparisons.Number.cs">
+        <DependentUpon>Comparisons.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Comparisons.Chunk.cs">
+        <DependentUpon>Comparisons.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>
