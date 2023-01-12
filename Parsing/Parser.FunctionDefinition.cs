@@ -9,6 +9,13 @@ namespace EVIL.Parsing
     {
         private AstNode FunctionDefinition()
         {
+            if (IsInsideFunctionDefinition)
+            {
+                throw new ParserException("Nested functions are not supported.");
+            }
+
+            IsInsideFunctionDefinition = true;
+            
             var line = Match(TokenType.Fn);
             var procName = (string)Scanner.State.CurrentToken.Value;
             Match(TokenType.Identifier);
@@ -32,6 +39,8 @@ namespace EVIL.Parsing
             var statementList = FunctionStatementList();
             Match(TokenType.RBrace);
 
+            IsInsideFunctionDefinition = false;
+            
             return new FunctionDefinitionNode(procName, statementList, parameterList) { Line = line };
         }
     }
