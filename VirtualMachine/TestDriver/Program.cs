@@ -42,7 +42,7 @@ namespace EVIL.VirtualMachine.TestDriver
             
             Console.WriteLine(disasm.Disassemble(executable));
             Console.WriteLine("---------------------");
-
+            
             var evm = new EVM(executable);
             evm.SetGlobal("print", new DynamicValue(TestClrFunction));
             evm.Run();

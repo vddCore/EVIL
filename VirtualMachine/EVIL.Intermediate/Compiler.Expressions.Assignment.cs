@@ -42,6 +42,8 @@ namespace EVIL.Intermediate
                 cg.Emit(OpCode.DUP);
                 EmitVariableStoreSequence(cg, rootVarRef);
             }
+            
+            //todo indexed
         }
     }
 }

@@ -42,5 +42,14 @@
       <Compile Update="Compiler.Statements.If.cs">
         <DependentUpon>Compiler.cs</DependentUpon>
       </Compile>
+      <Compile Update="Compiler.Statements.For.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Incrementation.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Compiler.Expressions.Decrementation.cs">
+        <DependentUpon>Compiler.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>
