@@ -9,11 +9,5 @@ namespace EVIL.Intermediate.CodeGeneration
 
         public List<Chunk> Chunks { get; } = new();
         public Chunk RootChunk => Chunks[0];
-
-        public Executable(bool createRootChunk = true)
-        {
-            if (createRootChunk)
-                Chunks.Add(new Chunk("!root"));
-        }
     }
 }

@@ -29,6 +29,7 @@ namespace EVIL.Intermediate.CodeGeneration
             ScopeStack.Clear();
 
             _executable = new Executable();
+            _executable.Chunks.Add(new Chunk("!root"));
 
             ChunkDefinitionStack.Push(_executable.RootChunk);
             {

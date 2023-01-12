@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Diagnostics;
-using EVIL.Intermediate;
 using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.ExecutionEngine
@@ -21,16 +20,18 @@ namespace EVIL.ExecutionEngine
         private Stack<DynamicValue> EvaluationStack { get; } = new();
         private Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
-        public Table GlobalTable { get; } = new();
+        public Table GlobalTable { get; }
 
         public bool Running { get; private set; }
 
-        public EVM(Executable executable)
+        public EVM(Executable executable, Table globalTable)
         {
+            GlobalTable = globalTable ?? new Table();
+            
             Executable = executable;
             RuntimeConstPool = new RuntimeConstPool(Executable.ConstPool);
 
-            for(var i = 0; i < executable.Globals.Count; i++)
+            for (var i = 0; i < executable.Globals.Count; i++)
             {
                 var name = executable.Globals[i];
                 
@@ -53,7 +54,7 @@ namespace EVIL.ExecutionEngine
                 }
             }
         }
-
+        
         public string DumpEvaluationStack()
         {
             var sb = new StringBuilder();
