@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode MemberAccess(AstNode indexable)
         {
-            var line = Match(TokenType.MemberAccess);
+            var line = Match(TokenType.Dot);
             var identifier = Scanner.State.CurrentToken.Value.ToString();
             Match(TokenType.Identifier);
 

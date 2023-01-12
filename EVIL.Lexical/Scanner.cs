@@ -58,15 +58,14 @@ namespace EVIL.Lexical
                     Advance();
                     State.CurrentToken = new Token(TokenType.AssignSubtract, "-=");
                 }
-                else if (Peek() == '>')
-                {
-                    Advance();
-                    State.CurrentToken = new Token(TokenType.MemberAccess, "->");
-                }
                 else
                 {
                     State.CurrentToken = new Token(TokenType.Minus, '-');
                 }
+            }
+            else if (State.Character == '.')
+            {
+                State.CurrentToken = new Token(TokenType.Dot, ".");
             }
             else if (State.Character == '+')
             {
@@ -165,11 +164,6 @@ namespace EVIL.Lexical
                 {
                     Advance();
                     State.CurrentToken = new Token(TokenType.ShiftLeft, "<<");
-                }
-                else if (Peek() == '-')
-                {
-                    Advance();
-                    State.CurrentToken = new Token(TokenType.KeyInitializer, "<-");
                 }
                 else
                 {
@@ -445,7 +439,7 @@ namespace EVIL.Lexical
 
         private bool IsLegalIdentifierCharacter(char c)
         {
-            return char.IsLetterOrDigit(c) || c == '.' || c == '_';
+            return char.IsLetterOrDigit(c) || c == '_';
         }
 
         private bool IsLegalHexNumberCharacter(char c)

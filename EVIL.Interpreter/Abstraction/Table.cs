@@ -59,6 +59,9 @@ namespace EVIL.Interpreter.Abstraction
 
         public DynValue GetKeyByDynValue(DynValue key)
         {
+            if (key == null)
+                return null;
+            
             switch (key.Type)
             {
                 case DynValueType.Number:

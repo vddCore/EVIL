@@ -23,7 +23,7 @@ namespace EVIL.Interpreter.Execution
             }
             else if (invokable.Type == DynValueType.Table)
             {
-                return InitTable(functionCallNode, invokable);
+                return Construct(functionCallNode, invokable);
             }
             else
             {
@@ -62,7 +62,7 @@ namespace EVIL.Interpreter.Execution
             if (Environment.CallStack.Count > Environment.CallStackLimit)
             {
                 throw new RuntimeException(
-                    "Call stack overflow.", 
+                    "Call stack overflow.",
                     Environment,
                     functionCallNode.Line
                 );
@@ -85,55 +85,35 @@ namespace EVIL.Interpreter.Execution
             return retVal;
         }
 
-        private DynValue InitTable(FunctionCallNode functionCallNode, DynValue tableValue)
+        private DynValue Construct(FunctionCallNode functionCallNode, DynValue tableValue)
         {
-            if (functionCallNode.Parameters.Count == 1)
-            {
-                var count = Visit(functionCallNode.Parameters[0]);
-
-                if (count.Type != DynValueType.Number || count.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        "Table initializer must be an integer.", 
-                        Environment,
-                        functionCallNode.Line
-                    );
-                }
-
-                tableValue.Table.Clear();
-                for (var i = 0; i < (int)count.Number; i++)
-                {
-                    tableValue.Table[i] = DynValue.Zero;
-                }
-            }
-            else if (functionCallNode.Parameters.Count == 2)
-            {
-                var count = Visit(functionCallNode.Parameters[0]);
-                if (count.Type != DynValueType.Number || count.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        "Table initializer must be an integer.", 
-                        Environment,
-                        functionCallNode.Line
-                    );
-                }
-
-                var value = Visit(functionCallNode.Parameters[1]);
-                for (var i = 0; i < (int)count.Number; i++)
-                {
-                    tableValue.Table[i] = value.Copy();
-                }
-            }
-            else
+            var table = tableValue.Table;
+            
+            if (!table.ContainsKey(table.GetKeyByString(Environment.ConstructorName)))
             {
                 throw new RuntimeException(
-                    $"Attempt to initialize a table using {functionCallNode.Parameters.Count} parameters.",
+                    $"Attempt to construct an object without function '{Environment.ConstructorName}' defined.",
+                    Environment,
+                    functionCallNode.Line
+                );
+            }
+            
+            if(table[Environment.ConstructorName].Type != DynValueType.Function)
+            {
+                throw new RuntimeException(
+                    $"Attempt to construct an object, but table member '{Environment.ConstructorName}' is not a function.",
                     Environment,
                     functionCallNode.Line
                 );
             }
 
-            return tableValue;
+            var constructor = tableValue.Table[Environment.ConstructorName].ScriptFunction;
+            var parameters = new FunctionArguments();
+
+            foreach (var node in functionCallNode.Parameters)
+                parameters.Add(Visit(node));
+
+            return ExecuteScriptFunction(constructor, Environment.ConstructorName, parameters, functionCallNode);
         }
 
         private DynValue ExecuteScriptFunction(ScriptFunction scriptFunction, string name, FunctionArguments args,
@@ -157,12 +137,12 @@ namespace EVIL.Interpreter.Execution
                 if (Environment.LocalScope.HasMember(parameterName))
                 {
                     throw new RuntimeException(
-                        $"Duplicate parameter name '{parameterName}'.", 
+                        $"Duplicate parameter name '{parameterName}'.",
                         Environment,
                         null
                     );
                 }
-                
+
                 if (iterator < args.Count)
                     Environment.LocalScope.Set(parameterName, args[iterator++]);
                 else

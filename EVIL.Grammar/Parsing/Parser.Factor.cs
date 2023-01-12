@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             TokenType.Decrement,
             TokenType.LParenthesis,
             TokenType.LBracket,
-            TokenType.MemberAccess
+            TokenType.Dot
         };
 
         private AstNode Factor(AstNode node = null)
@@ -33,7 +33,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     node = Indexing(node);
                 }
-                else if (token.Type == TokenType.MemberAccess)
+                else if (token.Type == TokenType.Dot)
                 {
                     node = MemberAccess(node);
                 }

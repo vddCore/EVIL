@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using EVIL.Grammar.AST.Nodes;
+﻿using EVIL.Grammar.AST.Nodes;
 using EVIL.Interpreter.Abstraction;
 
 namespace EVIL.Interpreter.Execution
@@ -26,8 +25,8 @@ namespace EVIL.Interpreter.Execution
             {
                 for (var i = 0; i < tableNode.Initializers.Count; i++)
                 {
-                    var node = (KeyedInitializerNode)tableNode.Initializers[i];
-                    tbl[Visit(node.Key)] = Visit(node.Value);
+                    var node = (AssignmentNode)tableNode.Initializers[i];
+                    tbl[Visit(node.Left)] = Visit(node.Right);
                 }
             }
             else
