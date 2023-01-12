@@ -30,11 +30,9 @@ namespace EVIL.Lexical
                 case TokenType.CompareNotEqual: return "!=";
                 case TokenType.Decrement: return "--";
                 case TokenType.Divide: return "/";
-                case TokenType.Do: return "do";
                 case TokenType.Each: return "each";
                 case TokenType.Elif: return "elif";
                 case TokenType.Else: return "else";
-                case TokenType.End: return "end";
                 case TokenType.Exit: return "exit";
                 case TokenType.False: return "false";
                 case TokenType.Fn: return "fn";

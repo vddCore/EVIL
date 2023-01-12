@@ -14,7 +14,6 @@ namespace EVIL.Parsing
             var keyVar = Variable();
             Match(TokenType.Comma);
             var valueVar = Variable();
-            Match(TokenType.RParenthesis);
 
             Match(TokenType.Colon);
 
@@ -30,12 +29,13 @@ namespace EVIL.Parsing
             {
                 tableNode = Variable(identifier);
             }
-
-            Match(TokenType.Do);
+            
+            Match(TokenType.RParenthesis);
+            Match(TokenType.LBrace);
 
             var statements = LoopStatementList();
 
-            Match(TokenType.End);
+            Match(TokenType.RBrace);
 
             return new EachLoopNode(keyVar, valueVar, tableNode, statements) { Line = line };
         }

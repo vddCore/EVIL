@@ -19,11 +19,9 @@ namespace EVIL.Execution
             {
                 var scriptFunction = Environment.Functions[name];
 
-                if (CallStack.Count > 255)
+                if (CallStack.Count > CallStackLimit)
                 {
-                    while (CallStack.Count != 0)
-                        CallStack.Pop();
-
+                    CallStack.Pop();
                     throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
                 }
 
@@ -71,11 +69,9 @@ namespace EVIL.Execution
             {
                 var clrFunction = Environment.BuiltIns[name];
 
-                if (CallStack.Count > 255)
+                if (CallStack.Count > CallStackLimit)
                 {
-                    while (CallStack.Count != 0)
-                        CallStack.Pop();
-
+                    CallStack.Pop();
                     throw new RuntimeException("Call stack overflow.", functionCallNode.Line);
                 }
 
@@ -96,6 +92,12 @@ namespace EVIL.Execution
                 return retVal;
             }
             else throw new RuntimeException($"Function '{name}' does not exist.", functionCallNode.Line);
+        }
+
+        private void EmptyStack()
+        {
+            while (CallStack.Count != 0)
+                CallStack.Pop();
         }
     }
 }

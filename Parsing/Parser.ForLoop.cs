@@ -9,6 +9,7 @@ namespace EVIL.Parsing
         private AstNode ForLoop()
         {
             var line = Match(TokenType.For);
+            Match(TokenType.LParenthesis);
             AstNode assignment;
 
             if (Scanner.State.CurrentToken.Type == TokenType.LocalVar)
@@ -26,10 +27,11 @@ namespace EVIL.Parsing
                 Match(TokenType.Colon);
                 step = Comparison();
             }
+            Match(TokenType.RParenthesis);
 
-            Match(TokenType.Do);
+            Match(TokenType.LBrace);
             var statementList = LoopStatementList();
-            Match(TokenType.End);
+            Match(TokenType.RBrace);
 
             return new ForLoopNode(assignment, targetValue, step, statementList) { Line = line };
         }

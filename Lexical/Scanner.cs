@@ -359,9 +359,6 @@ namespace EVIL.Lexical
                 case "else":
                     return new Token(TokenType.Else, "else");
 
-                case "do":
-                    return new Token(TokenType.Do, "do");
-
                 case "break":
                     return new Token(TokenType.Break, "break");
 
@@ -376,9 +373,6 @@ namespace EVIL.Lexical
 
                 case "false":
                     return new Token(TokenType.False, "false");
-
-                case "end":
-                    return new Token(TokenType.End, "end");
 
                 case "exit":
                     return new Token(TokenType.Exit, "exit");

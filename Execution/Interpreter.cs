@@ -14,6 +14,8 @@ namespace EVIL.Execution
 
         public bool BreakExecution { get; set; }
 
+        public int CallStackLimit { get; set; } = 16;
+
         public Stack<CallStackItem> CallStack { get; }
         public Stack<LoopStackItem> LoopStack { get; }
 
@@ -86,7 +88,7 @@ namespace EVIL.Execution
                 {
                     throw new RuntimeException($"Entry point '{entryPoint}' missing.", null);
                 }
-                
+
                 var csi = new CallStackItem(entryNode.Name);
                 if (entryNode.ParameterNames.Count >= 1)
                 {
@@ -95,13 +97,16 @@ namespace EVIL.Execution
                     {
                         tbl[i] = new DynValue(args[i]);
                     }
-                    
+
                     csi.ParameterScope.Add(entryNode.ParameterNames[0], new DynValue(tbl));
                 }
                 CallStack.Push(csi);
-
                 var result = ExecuteStatementList(entryNode.StatementList);
-                CallStack.Pop();
+
+                if (CallStack.Count > 0)
+                {
+                    CallStack.Pop();
+                }
 
                 return result;
             }

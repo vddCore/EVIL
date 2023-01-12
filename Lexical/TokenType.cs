@@ -62,8 +62,6 @@
         If,
         Elif,
         Else,
-        Do,
-        End,
         Skip,
         Break,
         Ret,

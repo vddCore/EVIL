@@ -40,7 +40,7 @@ namespace EVIL.Parsing
         {
             var statementList = new List<AstNode>();
 
-            while (Scanner.State.CurrentToken.Type != TokenType.End)
+            while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
                     throw new ParserException("Unexpected EOF in a loop block.", Scanner.State);
@@ -55,7 +55,7 @@ namespace EVIL.Parsing
         {
             var statementList = new List<AstNode>();
 
-            while (Scanner.State.CurrentToken.Type != TokenType.End &&
+            while (Scanner.State.CurrentToken.Type != TokenType.RBrace &&
                    Scanner.State.CurrentToken.Type != TokenType.Else &&
                    Scanner.State.CurrentToken.Type != TokenType.Elif)
             {
@@ -72,7 +72,7 @@ namespace EVIL.Parsing
         {
             var statementList = new List<AstNode>();
 
-            while (Scanner.State.CurrentToken.Type != TokenType.End)
+            while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
                     throw new ParserException("Unexpected EOF in function definition.", Scanner.State);

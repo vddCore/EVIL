@@ -14,10 +14,11 @@ namespace EVIL.Parsing
             var expression = Comparison();
 
             Match(TokenType.RParenthesis);
-            Match(TokenType.Do);
+            Match(TokenType.LBrace);
 
             var node = new ConditionNode { Line = line };
             node.IfElifBranches.Add(expression, ConditionStatementList());
+            Match(TokenType.RBrace);
 
             while (Scanner.State.CurrentToken.Type == TokenType.Elif || Scanner.State.CurrentToken.Type == TokenType.Else)
             {
@@ -29,22 +30,22 @@ namespace EVIL.Parsing
                     expression = Comparison();
 
                     Match(TokenType.RParenthesis);
-                    Match(TokenType.Do);
-
+                    
+                    Match(TokenType.LBrace);
                     node.IfElifBranches.Add(expression, ConditionStatementList());
+                    Match(TokenType.RBrace);
                 }
                 else if (Scanner.State.CurrentToken.Type == TokenType.Else)
                 {
                     Match(TokenType.Else);
+                    Match(TokenType.LBrace);
                     node.ElseBranch = ConditionStatementList();
-                    Match(TokenType.End);
+                    Match(TokenType.RBrace);
 
                     return node;
                 }
                 else throw new ParserException($"Expected 'end' or 'else' or 'elif', got {Scanner.State.CurrentToken.Type}", Scanner.State);
             }
-
-            Match(TokenType.End);
             return node;
         }
     }

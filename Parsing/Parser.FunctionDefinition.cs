@@ -27,9 +27,10 @@ namespace EVIL.Parsing
                 Match(TokenType.Comma);
             }
             Match(TokenType.RParenthesis);
-
+            
+            Match(TokenType.LBrace);
             var statementList = FunctionStatementList();
-            Match(TokenType.End);
+            Match(TokenType.RBrace);
 
             return new FunctionDefinitionNode(procName, statementList, parameterList) { Line = line };
         }
