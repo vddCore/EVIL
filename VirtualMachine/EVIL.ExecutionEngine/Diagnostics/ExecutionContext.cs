@@ -693,23 +693,6 @@ namespace EVIL.ExecutionEngine.Diagnostics
                             break;
                         }
 
-                        case OpCode.RGL:
-                        {
-                            itmp = frame.FetchInt32();
-
-                            VirtualMachine.GlobalTable.Unset(new DynamicValue(chunk.Constants.GetStringConstant(itmp)));
-                            break;
-                        }
-
-                        case OpCode.RTE:
-                        {
-                            b = evstack.Pop();
-                            a = evstack.Pop();
-
-                            a.Table.Unset(b);
-                            break;
-                        }
-
                         case OpCode.EACH:
                         {
                             a = evstack.Pop();

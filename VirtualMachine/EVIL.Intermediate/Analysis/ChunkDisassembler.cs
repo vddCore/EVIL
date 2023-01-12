@@ -119,7 +119,6 @@ namespace EVIL.Intermediate.Analysis
                     case OpCode.LDG:
                     case OpCode.STG:
                     case OpCode.GNAME:
-                    case OpCode.RGL:
                         DecodeLdConst(op, chunk.Constants);
                         break;
 

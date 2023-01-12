@@ -118,6 +118,8 @@ namespace EVIL.ExecutionEngine
             {
                 for (var i = 0; i < ExecutionContexts.Count; i++)
                     ExecutionContexts[i].Halt();
+                
+                Running = false;
             }
         }
 
