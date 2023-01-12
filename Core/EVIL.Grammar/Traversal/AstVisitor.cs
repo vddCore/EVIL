@@ -43,7 +43,7 @@ namespace EVIL.Grammar.Traversal
                 {typeof(UndefStatement), (n) => Visit(n as UndefStatement)},
                 {typeof(EachStatement), (n) => Visit(n as EachStatement)},
                 {typeof(ExpressionStatement), (n) => Visit(n as ExpressionStatement)},
-                {typeof(ExpressionStatement), (n) => Visit(n as ExtraArgumentsExpression)}
+                {typeof(ExtraArgumentsExpression), (n) => Visit(n as ExtraArgumentsExpression)}
             };
         }
 

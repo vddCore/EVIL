@@ -8,8 +8,8 @@ namespace EVIL.Interpreter.Execution
     {
         public override DynValue Visit(AssignmentExpression assignmentExpression)
         {
-            var left = Visit(assignmentExpression.Left);
             var right = Visit(assignmentExpression.Right);
+            var left = Visit(assignmentExpression.Left);
 
             switch (assignmentExpression.OperationType)
             {

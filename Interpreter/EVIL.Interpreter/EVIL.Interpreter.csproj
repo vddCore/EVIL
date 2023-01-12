@@ -11,8 +11,8 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EVIL.Grammar\EVIL.Grammar.csproj" />
-    <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.Lexical\EVIL.Lexical.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="_resources" />
