@@ -9,6 +9,8 @@
         {
             KeyNode = keyNode;
             ValueNode = valueNode;
+
+            Reparent(KeyNode, ValueNode);
         }
     }
 }

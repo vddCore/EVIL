@@ -18,12 +18,13 @@ namespace EVIL.Grammar.Parsing
 
         public ProgramNode Parse()
         {
-            var programNode = new ProgramNode(RootStatementList());
+            var programNode = Program();
             Match(TokenType.EOF);
+            
             return programNode;
         }
 
-        private List<AstNode> RootStatementList()
+        private ProgramNode Program()
         {
             var statementList = new List<AstNode>();
 
@@ -34,33 +35,13 @@ namespace EVIL.Grammar.Parsing
                     Lexer.State
                 );
             }
-            
+
             while (CurrentToken.Type != TokenType.EOF)
-                statementList.Add(Statement());
-            
-            return statementList;
-        }
-
-        private List<AstNode> ConditionStatementList()
-        {
-            var statementList = new List<AstNode>();
-
-            while (CurrentToken.Type != TokenType.RBrace &&
-                   CurrentToken.Type != TokenType.Else &&
-                   CurrentToken.Type != TokenType.Elif)
             {
-                if (CurrentToken.Type == TokenType.EOF)
-                {
-                    throw new ParserException(
-                        "Unexpected EOF in condition block.", 
-                        Lexer.State
-                    );
-                }
-
                 statementList.Add(Statement());
             }
 
-            return statementList;
+            return new ProgramNode(statementList);
         }
 
         private int Match(TokenType tokenType)

@@ -14,6 +14,8 @@
             TableNode = tableNode;
 
             Statements = statements;
+
+            Reparent(KeyNode, ValueNode, TableNode, Statements);
         }
     }
 }

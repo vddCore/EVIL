@@ -15,8 +15,12 @@ namespace EVIL.Grammar.AST.Nodes
             Assignments = assignments;
             Condition = condition;
             IterationStatements = iterationStatements;
-
             Statements = statements;
+
+            Reparent(Assignments.ToArray());
+            Reparent(Condition);
+            Reparent(IterationStatements.ToArray());
+            Reparent(Statements);
         }
     }
 }

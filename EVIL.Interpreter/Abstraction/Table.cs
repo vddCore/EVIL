@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+
 namespace EVIL.Interpreter.Abstraction
-{
+{   
     public class Table : Dictionary<DynValue, DynValue>
     {
         public DynValue this[string key]

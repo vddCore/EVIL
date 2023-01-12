@@ -10,38 +10,42 @@ namespace EVIL.Grammar.Parsing
         private AstNode Constant()
         {
             var token = CurrentToken;
-            
-            if (token.Type == TokenType.Decimal)
+
+            switch (token.Type)
             {
-                var line = Match(TokenType.Decimal);
-                return new DecimalNode(decimal.Parse(token.Value)) {Line = line};
+                case TokenType.Decimal:
+                {
+                    var line = Match(TokenType.Decimal);
+                    return new DecimalNode(decimal.Parse(token.Value)) {Line = line};
+                }
+                case TokenType.HexInteger:
+                {
+                    var line = Match(TokenType.HexInteger);
+                    return new IntegerNode(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
+                }
+                case TokenType.Integer:
+                {
+                    var line = Match(TokenType.Integer);
+                    return new IntegerNode(int.Parse(token.Value)) {Line = line};
+                }
+                case TokenType.True:
+                {
+                    var line = Match(TokenType.True);
+                    return new IntegerNode(1) {Line = line};
+                }
+                case TokenType.False:
+                {
+                    var line = Match(TokenType.False);
+                    return new IntegerNode(0) {Line = line};
+                }
+                case TokenType.String:
+                {
+                    var line = Match(TokenType.String);
+                    return new StringNode(token.Value) {Line = line};
+                }
+                default:
+                    throw new ParserException($"Unexpected token [{token}]", Lexer.State);
             }
-            else if (token.Type == TokenType.HexInteger)
-            {
-                var line = Match(TokenType.HexInteger);
-                return new IntegerNode(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
-            }
-            else if (token.Type == TokenType.Integer)
-            {
-                var line = Match(TokenType.Integer);
-                return new IntegerNode(int.Parse(token.Value)) {Line = line};
-            }
-            else if (token.Type == TokenType.True)
-            {
-                var line = Match(TokenType.True);
-                return new IntegerNode(1) {Line = line};
-            }
-            else if (token.Type == TokenType.False)
-            {
-                var line = Match(TokenType.False);
-                return new IntegerNode(0) {Line = line};
-            }
-            else if (token.Type == TokenType.String)
-            {
-                var line = Match(TokenType.String);
-                return new StringNode(token.Value) {Line = line};
-            }
-            else throw new ParserException($"Unexpected token [{token}]", Lexer.State);
         }
     }
 }

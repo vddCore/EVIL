@@ -9,6 +9,8 @@
         {
             Target = target;
             IsPrefix = isPrefix;
+
+            Reparent(Target);
         }
     }
 }

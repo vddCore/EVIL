@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
         public AstNode Skip()
         {
             var line = Match(TokenType.Skip);
-            return new SkipNode() { Line = line };
+            return new SkipNode { Line = line };
         }
     }
 }

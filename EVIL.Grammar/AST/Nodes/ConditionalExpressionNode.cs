@@ -13,6 +13,8 @@
             
             TrueExpression = trueExpression;
             FalseExpression = falseExpression;
+
+            Reparent(Condition, TrueExpression, FalseExpression);
         }
     }
 }

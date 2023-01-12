@@ -11,8 +11,11 @@ namespace EVIL.Grammar.AST.Nodes
         public FunctionDefinitionNode(string identifier, BlockStatementNode statements, List<string> parameterNames)
         {
             Identifier = identifier;
+            
             Statements = statements;
             ParameterNames = parameterNames;
+
+            Reparent(Statements);
         }
     }
 }

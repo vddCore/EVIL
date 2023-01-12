@@ -9,6 +9,7 @@ namespace EVIL.Grammar.AST.Nodes
         public ProgramNode(List<AstNode> statements)
         {
             Statements = statements;
+            Reparent(Statements.ToArray());
         }
 
         public FunctionDefinitionNode FindChildFunctionDefinition(string fnName)

@@ -21,7 +21,12 @@ namespace EVIL.Grammar.Parsing
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
                 if (CurrentToken.Type == TokenType.EOF)
-                    throw new ParserException($"Unexpected EOF in the function call stated in line {line}.");
+                {
+                    throw new ParserException(
+                        $"Unexpected EOF in the function call stated in line {line}.",
+                        Lexer.CopyState()
+                    );
+                }
 
                 parameters.Add(AssignmentExpression());
 

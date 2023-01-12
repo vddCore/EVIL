@@ -13,6 +13,8 @@
             Right = right;
 
             OperationType = operationType;
+
+            Reparent(Left, Right);
         }
     }
 }

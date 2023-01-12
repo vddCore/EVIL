@@ -9,6 +9,8 @@
         {
             Identifier = identifier;
             Right = right;
+
+            Reparent(Right);
         }
     }
 }
