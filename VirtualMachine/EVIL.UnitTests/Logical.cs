@@ -1,11 +1,12 @@
 using EVIL.ExecutionEngine;
+using EVIL.ExecutionEngine.Abstraction;
 using EVIL.UnitTests.Base;
 using NUnit.Framework;
 
 namespace EVIL.UnitTests
 {
     public class Logical : EvmTest
-    {
+    {        
         [Test]
         public void Or()
         {
@@ -60,6 +61,15 @@ namespace EVIL.UnitTests
         {
             var val = EVM.Evaluate("ret null && true;");
             Assert.IsFalse(val.IsTruth);
+        }
+
+        [Test]
+        public void ClrFunctionIsTruthy()
+        {
+            EVM.GlobalTable["clr"] = new DynamicValue((_,_) => DynamicValue.Null);
+
+            var val = EVM.Evaluate("ret clr;");
+            Assert.IsTrue(val.IsTruth);
         }
     }
 }
