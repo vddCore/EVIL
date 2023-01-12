@@ -11,7 +11,11 @@ namespace EVIL.Interpreter.Execution
 
             if (variable == null)
             {
-                throw new RuntimeException("Expected a variable.", undefNode.Line);
+                throw new RuntimeException(
+                    "Expected a variable.",
+                    Environment, 
+                    undefNode.Line
+                );
             }
             
             Environment.LocalScope.UnSetInChain(variable.Identifier);

@@ -12,7 +12,9 @@ namespace EVIL.Interpreter.Execution
             if (numValue.Type != DynValueType.Number)
             {
                 throw new RuntimeException(
-                    "Cannot decrement this value because it's not a number.", decrementationNode.Line
+                    "Cannot decrement this value because it's not a number.", 
+                    Environment,
+                    decrementationNode.Line
                 );
             }
 

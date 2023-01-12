@@ -21,16 +21,25 @@ namespace EVIL.Interpreter.Execution
                 case DynValueType.String:
                 {
                     if (keyValue.Type != DynValueType.Number)
-                        throw new RuntimeException($"Attempt to index a string using {keyValue.Type}.",
-                            indexingNode.Line);
-
+                    {
+                        throw new RuntimeException(
+                            $"Attempt to index a string using {keyValue.Type}.",
+                            Environment,
+                            indexingNode.Line
+                        );
+                    }
+                    
                     var index = (int)keyValue.Number;
 
                     if (index < 0)
                     {
                         if (indexable.String.Length + index < 0)
                         {
-                            throw new RuntimeException("String index out of bounds.", indexingNode.Line);
+                            throw new RuntimeException(
+                                "String index out of bounds.",
+                                Environment,
+                                indexingNode.Line
+                            );
                         }
 
                         return new DynValue(
@@ -41,7 +50,11 @@ namespace EVIL.Interpreter.Execution
                     {
                         if (index >= indexable.String.Length)
                         {
-                            throw new RuntimeException("String index out of bounds.", indexingNode.Line);
+                            throw new RuntimeException(
+                                "String index out of bounds.", 
+                                Environment,
+                                indexingNode.Line
+                            );
                         }
 
                         return new DynValue(
@@ -52,7 +65,11 @@ namespace EVIL.Interpreter.Execution
 
                 case DynValueType.Number:
                 {
-                    throw new RuntimeException($"Attempt to index a {DynValueType.Number}", indexingNode.Line);
+                    throw new RuntimeException(
+                        $"Attempt to index a {DynValueType.Number}", 
+                        Environment,
+                        indexingNode.Line
+                    );
                 }
 
                 case DynValueType.Table:
@@ -64,13 +81,23 @@ namespace EVIL.Interpreter.Execution
                         else if (keyValue.Type == DynValueType.Number)
                             return indexable.Table[keyValue.Number];
                         else
-                            throw new RuntimeException($"Attempt to use {keyValue.Type} as a key.", indexingNode.Line);
+                        {
+                            throw new RuntimeException(
+                                $"Attempt to use {keyValue.Type} as a key.",
+                                Environment,
+                                indexingNode.Line
+                            );
+                        }
                     }
                     catch (Exception e)
                     {
                         if (!indexingNode.WillBeAssigned)
                         {
-                            throw new RuntimeException(e.Message, indexingNode.Line);
+                            throw new RuntimeException(
+                                e.Message,
+                                Environment,
+                                indexingNode.Line
+                            );
                         }
                         
                         indexable.Table[keyValue] = new DynValue(0);
@@ -81,7 +108,11 @@ namespace EVIL.Interpreter.Execution
 
                 default:
                 {
-                    throw new RuntimeException($"Attempt to index {indexable.Type}.", indexingNode.Line);
+                    throw new RuntimeException(
+                        $"Attempt to index {indexable.Type}.", 
+                        Environment,
+                        indexingNode.Line
+                    );
                 }
             }
         }

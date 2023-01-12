@@ -1,6 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.Versioning;
+using System.Text;
+using EVIL.Grammar.Parsing;
+using EVIL.Interpreter.Execution;
+using EVIL.Lexical;
 using Environment = EVIL.Interpreter.Environment;
 
 namespace EVIL.REPL
@@ -65,7 +71,7 @@ namespace EVIL.REPL
                             if (!string.IsNullOrEmpty(_entryPointFunctionName))
                             {
                                 _interpreter.Execute(
-                                    sr.ReadToEnd(), 
+                                    sr.ReadToEnd(),
                                     _entryPointFunctionName,
                                     _entryPointArgs.ToArray()
                                 );
@@ -75,9 +81,40 @@ namespace EVIL.REPL
                                 _interpreter.Execute(sr.ReadToEnd());
                             }
                         }
-                        catch(Exception e)
+                        catch (ExitStatementException)
                         {
-                            Console.WriteLine(e.Message);
+                        }
+                        catch (RuntimeException re)
+                        {
+                            Console.WriteLine($"Runtime error on line {re.Line}: {re.Message}\n");
+
+                            var sb = new StringBuilder();
+
+                            if (re.EvilStackTrace == null || !re.EvilStackTrace.Any())
+                            {
+                                sb.Append("No stack trace available.");
+                            }
+                            else
+                            {
+                                foreach (var frame in re.EvilStackTrace)
+                                {
+                                    sb.AppendLine(
+                                        $"at {frame.FunctionName}({string.Join(',', frame.ParameterNames)})\n" +
+                                        $"   invoked on line {(frame.InvokedAtLine > 0 ? frame.InvokedAtLine.ToString() : "<unknown or entry>")}\n" +
+                                        $"   defined on line {(frame.DefinedAtLine > 0 ? frame.DefinedAtLine.ToString() : "<unknown>")}"
+                                    );
+                                }
+                            }
+
+                            Console.WriteLine(sb.ToString());
+                        }
+                        catch (ParserException pe)
+                        {
+                            Console.WriteLine($"Parser error on line {pe.ScannerState.Line}: {pe.Message}");
+                        }
+                        catch (ScannerException se)
+                        {
+                            Console.WriteLine($"Lexer error on line {se.Line}: {se.Message}");
                         }
                     }
                 }
@@ -86,7 +123,6 @@ namespace EVIL.REPL
                     Console.WriteLine($"File '{args[0]}' does not exist.");
                 }
 
-                
                 if (_stayInteractive)
                     InteractiveMode();
             }

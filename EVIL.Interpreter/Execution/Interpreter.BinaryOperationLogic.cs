@@ -25,10 +25,7 @@ namespace EVIL.Interpreter.Execution
                     return Subtraction(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Multiply:
-                    if (left.Type == DynValueType.Number)
-                        return Multiplication(right, left, binaryOperationNode);
-                    else
-                        return Multiplication(left, right, binaryOperationNode);
+                    return Multiplication(left, right, binaryOperationNode);
 
                 case BinaryOperationType.Divide:
                     return Division(left, right, binaryOperationNode);
@@ -70,15 +67,15 @@ namespace EVIL.Interpreter.Execution
                     return CompareEqual(left, right, binaryOperationNode);
 
                 case BinaryOperationType.And:
-                    return LogicalAnd(left, right, binaryOperationNode);
+                    return LogicalAnd(left, right);
 
                 case BinaryOperationType.Or:
-                    return LogicalOr(left, right, binaryOperationNode);
+                    return LogicalOr(left, right);
 
                 case BinaryOperationType.ExistsIn:
                     return ExistsIn(left, right, binaryOperationNode);
 
-                default: throw new RuntimeException("Unknown binary operation.", binaryOperationNode.Line);
+                default: throw new RuntimeException("Unknown binary operation.", Environment, binaryOperationNode.Line);
             }
         }
 
@@ -99,11 +96,11 @@ namespace EVIL.Interpreter.Execution
                 parameters.AddRange(right.ScriptFunction.ParameterNames);
                 parameters = parameters.Distinct().ToList();
 
-                return new DynValue(new ScriptFunction(stmts, parameters));
+                return new DynValue(new ScriptFunction(stmts, parameters, node.Line));
             }
             else
             {
-                throw new RuntimeException($"Attempt to add {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException($"Attempt to add {left.Type} and {right.Type}.", Environment, node.Line);
             }
         }
 
@@ -115,7 +112,8 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to subtract {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException($"Attempt to subtract {left.Type} and {right.Type}.", Environment,
+                    node.Line);
             }
         }
 
@@ -125,41 +123,48 @@ namespace EVIL.Interpreter.Execution
             {
                 if (right.Type != DynValueType.Number)
                 {
-                    throw new RuntimeException($"Attempt to repeat a string using {right.Type}.", node.Line);
+                    throw new RuntimeException($"Attempt to repeat a string using {right.Type}.", Environment,
+                        node.Line);
                 }
 
-                var sb = new StringBuilder();
-                for (var i = 0; i < right.Number; i++)
-                {
-                    sb.Append(left.String);
-                }
-
-                return new DynValue(sb.ToString());
+                return new DynValue(RepeatString(left.String, right.Number));
             }
             else if (left.Type == DynValueType.Function)
             {
                 if (right.Type != DynValueType.Number)
                 {
-                    throw new RuntimeException($"Attempt to multiply function using {right.Type}.", node.Line);
+                    throw new RuntimeException($"Attempt to multiply a function using {right.Type}.", Environment,
+                        node.Line);
                 }
 
-                var stmts = new List<AstNode>();
-                var parameters = new List<string>(left.ScriptFunction.ParameterNames);
-
-                for (var i = 0; i < right.Number; i++)
-                {
-                    stmts.AddRange(left.ScriptFunction.StatementList);
-                }
-
-                return new DynValue(new ScriptFunction(stmts, parameters));
+                return new DynValue(RepeatFunction(left.ScriptFunction, right.Number, node));
             }
-            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            else if (left.Type == DynValueType.Number)
             {
-                return new DynValue(left.Number * right.Number);
+                if (right.Type == DynValueType.Number)
+                {
+                    return new DynValue(left.Number * right.Number);
+                }
+                else if (right.Type == DynValueType.String)
+                {
+                    return new DynValue(RepeatString(right.String, left.Number));
+                }
+                else if (right.Type == DynValueType.Function)
+                {
+                    return new DynValue(RepeatFunction(right.ScriptFunction, left.Number, node));
+                }
+                else
+                {
+                    throw new RuntimeException($"Attempt to multiply {left.Type} and {right.Type}.", Environment,
+                        node.Line);
+                }
             }
             else
             {
-                throw new RuntimeException($"Attempt to multiply {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to multiply {left.Type} and {right.Type}.",
+                    Environment,
+                    node.Line);
             }
         }
 
@@ -168,13 +173,13 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (right.Number == 0)
-                    throw new RuntimeException("Attempt to divide by zero.", node.Line);
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
 
                 return new DynValue(left.Number / right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt to divide {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException($"Attempt to divide {left.Type} and {right.Type}.", Environment, node.Line);
             }
         }
 
@@ -183,7 +188,7 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (right.Number == 0)
-                    throw new RuntimeException("Attempt to divide by zero.", node.Line);
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
 
                 return new DynValue(
                     left.Number - right.Number * decimal.Floor(left.Number / right.Number)
@@ -191,7 +196,11 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt of modulo operation on {left.Type} by {right.Type}.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt of modulo operation on {left.Type} by {right.Type}.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -201,7 +210,11 @@ namespace EVIL.Interpreter.Execution
             {
                 if (right.Type != DynValueType.Number)
                 {
-                    throw new RuntimeException($"Attempt to left-shift a string using {right.Type}.", node.Line);
+                    throw new RuntimeException(
+                        $"Attempt to left-shift a string using {right.Type}.",
+                        Environment,
+                        node.Line
+                    );
                 }
 
                 if (right.Number > left.String.Length)
@@ -217,14 +230,23 @@ namespace EVIL.Interpreter.Execution
             else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                    throw new RuntimeException("Left-shift operation is only allowed on integer numbers.", node.Line);
+                {
+                    throw new RuntimeException(
+                        "Left-shift operation is only allowed on integer numbers.",
+                        Environment,
+                        node.Line
+                    );
+                }
 
                 return new DynValue((int)left.Number << (int)right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt of bitwise left-shift on {left.Type} using {right.Type}.",
-                    node.Line);
+                throw new RuntimeException(
+                    $"Attempt of bitwise left-shift on {left.Type} using {right.Type}.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -234,7 +256,11 @@ namespace EVIL.Interpreter.Execution
             {
                 if (right.Type != DynValueType.Number)
                 {
-                    throw new RuntimeException($"Attempt to right-shift a string using {right.Type}.", node.Line);
+                    throw new RuntimeException(
+                        $"Attempt to right-shift a string using {right.Type}.",
+                        Environment,
+                        node.Line
+                    );
                 }
 
                 if (right.Number > left.String.Length)
@@ -249,13 +275,23 @@ namespace EVIL.Interpreter.Execution
             else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                    throw new RuntimeException($"Attempt to right-shift a non-integral number.", node.Line);
+                {
+                    throw new RuntimeException(
+                        $"Attempt to right-shift a non-integral number.",
+                        Environment,
+                        node.Line
+                    );
+                }
 
                 return new DynValue((int)left.Number >> (int)right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt to right-shift a {left.Type} using {right.Type}.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to right-shift a {left.Type} using {right.Type}.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -264,13 +300,23 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                    throw new RuntimeException($"Attempt to bitwise AND a non-integral number.", node.Line);
+                {
+                    throw new RuntimeException(
+                        $"Attempt to bitwise AND a non-integral number.",
+                        Environment,
+                        node.Line
+                    );
+                }
 
                 return new DynValue((int)left.Number & (int)right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt to bitwise AND {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to bitwise AND {left.Type} and {right.Type}.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -279,13 +325,23 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                    throw new RuntimeException($"Attempt to bitwise OR a non-integral number.", node.Line);
+                {
+                    throw new RuntimeException(
+                        $"Attempt to bitwise OR a non-integral number.",
+                        Environment,
+                        node.Line
+                    );
+                }
 
                 return new DynValue((int)left.Number | (int)right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt to bitwise OR {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to bitwise OR {left.Type} and {right.Type}.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -294,13 +350,23 @@ namespace EVIL.Interpreter.Execution
             if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
             {
                 if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                    throw new RuntimeException($"Attempt to bitwise XOR a non-integral number.", node.Line);
+                {
+                    throw new RuntimeException(
+                        $"Attempt to bitwise XOR a non-integral number.",
+                        Environment,
+                        node.Line
+                    );
+                }
 
                 return new DynValue((int)left.Number ^ (int)right.Number);
             }
             else
             {
-                throw new RuntimeException($"Attempt to bitwise XOR {left.Type} and {right.Type}.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to bitwise XOR {left.Type} and {right.Type}.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -320,7 +386,11 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '>'.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '>'.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -340,7 +410,11 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '<'.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '<'.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -360,7 +434,11 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '<='.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '<='.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -380,7 +458,11 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '>='.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '>='.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -400,7 +482,11 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '!='.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '!='.", 
+                    Environment,
+                    node.Line
+                );
             }
         }
 
@@ -421,11 +507,15 @@ namespace EVIL.Interpreter.Execution
             }
             else
             {
-                throw new RuntimeException($"Attempt to compare {left.Type} and {right.Type} using '=='.", node.Line);
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '=='.",
+                    Environment,
+                    node.Line
+                );
             }
         }
 
-        private DynValue LogicalAnd(DynValue left, DynValue right, AstNode node)
+        private DynValue LogicalAnd(DynValue left, DynValue right)
         {
             if (left.IsTruth && right.IsTruth)
             {
@@ -437,7 +527,7 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        private DynValue LogicalOr(DynValue left, DynValue right, AstNode node)
+        private DynValue LogicalOr(DynValue left, DynValue right)
         {
             if (left.IsTruth)
             {
@@ -464,7 +554,32 @@ namespace EVIL.Interpreter.Execution
                 return new DynValue(right.String.Contains(left.AsString().String));
             }
 
-            throw new RuntimeException($"Attempt to check existence of {left.Type} in {right.Type}.", node.Line);
+            throw new RuntimeException(
+                $"Attempt to check existence of {left.Type} in {right.Type}.", 
+                Environment,
+                node.Line
+            );
+        }
+
+        private string RepeatString(string str, decimal repetitions)
+        {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < repetitions; i++)
+                sb.Append(str);
+
+            return sb.ToString();
+        }
+
+        private ScriptFunction RepeatFunction(ScriptFunction function, decimal repetitions, AstNode node)
+        {
+            var stmts = new List<AstNode>();
+            var parameters = new List<string>(function.ParameterNames);
+
+            for (var i = 0; i < repetitions; i++)
+                stmts.AddRange(function.StatementList);
+
+            return new ScriptFunction(stmts, parameters, node.Line);
         }
     }
 }

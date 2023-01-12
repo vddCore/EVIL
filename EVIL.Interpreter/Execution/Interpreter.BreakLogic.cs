@@ -8,8 +8,13 @@ namespace EVIL.Interpreter.Execution
         public override DynValue Visit(BreakNode breakNode)
         {
             if (!Environment.IsInsideLoop)
-                throw new RuntimeException("Unexpected 'break' outside a loop.", breakNode.Line);
-
+            {
+                throw new RuntimeException(
+                    "Unexpected 'break' outside a loop.", 
+                    Environment,
+                    breakNode.Line
+                );
+            }
             Environment.LoopStackTop.Break();
             return DynValue.Zero;
         }
