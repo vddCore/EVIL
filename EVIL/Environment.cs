@@ -40,6 +40,7 @@ namespace EVIL
         public void LoadCoreRuntime()
         {
             RegisterPackage<CoreLibrary>();
+            RegisterPackage<IoLibrary>();
             RegisterPackage<StringLibrary>();
             RegisterPackage<TableLibrary>();
             RegisterPackage<MathLibrary>();
