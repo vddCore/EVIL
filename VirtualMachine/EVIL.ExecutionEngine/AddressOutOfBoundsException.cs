@@ -6,8 +6,8 @@ namespace EVIL.ExecutionEngine
     {
         public StackFrame Frame { get; }
 
-        public AddressOutOfBoundsException(StackFrame frame, int addr)
-            : base($"Attempted execution of instruction at address {addr:X8} which is out of bounds.")
+        public AddressOutOfBoundsException(ExecutionContext ctx, StackFrame frame, int addr)
+            : base(ctx, $"Attempted execution of instruction at address {addr:X8} which is out of bounds.")
         {
             Frame = frame;
         }

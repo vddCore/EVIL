@@ -98,10 +98,21 @@ namespace EVIL.CILE
             }
         }
 
-        private static void TerminateWithDump(Exception e)
+        private static void TerminateWithDump(VirtualMachineException vme)
         {
-            Console.WriteLine(e.Message);
-            Console.WriteLine(_evm.DumpCallStack());
+            Console.Write(vme.Message);
+
+            if (vme.InnerException != null)
+            {
+                Console.Write(": ");
+                Console.WriteLine(vme.Message);
+            }
+            else
+            {
+                Console.WriteLine();
+            }
+            
+            Console.WriteLine(vme.ExecutionContext.DumpCallStack());
             
         }
 

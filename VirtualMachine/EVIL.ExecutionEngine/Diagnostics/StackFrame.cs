@@ -14,15 +14,19 @@ namespace EVIL.ExecutionEngine.Diagnostics
         public bool CanExecute => IP < Chunk.Instructions.Count;
 
         public ClrFunction ClrFunction { get; }
+
+        public ExecutionContext ExecutionContext { get; }
         public Chunk Chunk { get; }
         
         public DynamicValue[] Locals { get; }
         public DynamicValue[] FormalArguments { get; }
         public DynamicValue[] ExtraArguments { get; }
 
-        public StackFrame(Chunk chunk, int argCount)
+        public StackFrame(ExecutionContext ctx, Chunk chunk, int argCount)
         {
+            ExecutionContext = ctx;
             Chunk = chunk;
+            
             Locals = new DynamicValue[chunk.Locals.Count];
             FormalArguments = new DynamicValue[chunk.Parameters.Count];
             
@@ -51,7 +55,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
         public void Jump(int addr)
         {
             if (addr >= Chunk.Instructions.Count)
-                throw new AddressOutOfBoundsException(this, addr);
+                throw new AddressOutOfBoundsException(ExecutionContext, this, addr);
 
             IP = addr;
         }

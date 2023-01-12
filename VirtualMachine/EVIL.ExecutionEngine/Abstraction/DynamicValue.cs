@@ -301,6 +301,40 @@ namespace EVIL.ExecutionEngine.Abstraction
             }
         }
 
+        public DynamicValue Add(DynamicValue b)
+        {
+            if (Type == DynamicValueType.String)
+            {
+                if (b.Type != DynamicValueType.String)
+                    throw new UnexpectedTypeException(b.Type, DynamicValueType.String);
+
+                return new(String + b.String);
+            }
+            else if (Type == DynamicValueType.Number)
+            {
+                if (b.Type != DynamicValueType.Number)
+                    throw new UnexpectedTypeException(b.Type, DynamicValueType.Number);
+
+                return new(Number + b.Number);
+            }
+
+            throw new UnexpectedTypeException(Type);
+        }
+
+        public int Compare(DynamicValue b)
+        {
+            if (Type == DynamicValueType.String)
+            {
+                return string.Compare(String, b.String, StringComparison.Ordinal);
+            }
+            else if (Type == DynamicValueType.Number)
+            {
+                return Math.Sign(Number - b.Number);
+            }
+
+            throw new TypeComparisonException(this, b);
+        }
+
         public bool Contains(DynamicValue other)
         {
             switch (Type)
@@ -311,7 +345,7 @@ namespace EVIL.ExecutionEngine.Abstraction
                 case DynamicValueType.Table:
                     return _table.IsSet(other);
             }
-            
+
             throw new UnsupportedOperationException($"Attempted to check if a {other} exists in {Type}. " +
                                                     $"Frankly, that is not supported. I am also struggling to find a " +
                                                     $"proper word that describes the act of checking if X exists in Y. If " +

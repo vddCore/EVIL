@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using EVIL.Intermediate.CodeGeneration;
 
@@ -147,6 +148,19 @@ namespace EVIL.Intermediate.Storage
             {
                 bw.Write(c.Instructions[i]);
             }
+            
+            bw.Write(c.DebugInfo.Count);
+            for (var i = 0; i < c.DebugInfo.Count; i++)
+            {
+                WriteDebugEntry(bw, c.DebugInfo.ElementAt(i));
+            }
+        }
+
+        private static void WriteDebugEntry(BinaryWriter bw, DebugEntry de)
+        {
+            bw.Write(de.Line);
+            bw.Write(de.Column);
+            bw.Write(de.IP);
         }
 
         private static void WriteExtern(BinaryWriter bw, ExternInfo externInfo)

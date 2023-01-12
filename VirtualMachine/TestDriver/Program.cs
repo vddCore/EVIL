@@ -74,8 +74,8 @@ namespace EVIL.VirtualMachine.TestDriver
             var evm = new EVM(_globalTable);
             var exe = BuildExecutable("/codespace/code/evil/testing.vil");
 
-            //EvxLinker.Link(exe, "a.evx");
-            //exe = EvxLoader.Load("a.evx");
+            EvxLinker.Link(exe, "a.evx");
+            exe = EvxLoader.Load("a.evx");
 
             if (exe != null)
             {
@@ -88,8 +88,16 @@ namespace EVIL.VirtualMachine.TestDriver
                 }
                 catch (VirtualMachineException e)
                 {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(evm.DumpCallStack());
+                    Console.Write(e.Message);
+
+                    if (e.InnerException != null)
+                    {
+                        Console.Write(": ");
+                        Console.Write(e.InnerException.Message);
+                    }
+                    
+                    Console.WriteLine();
+                    Console.WriteLine(e.ExecutionContext.DumpCallStack());
                 }
             }
         }
