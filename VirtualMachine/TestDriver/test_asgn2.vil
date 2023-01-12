@@ -1,21 +1,17 @@
-fn main() {
-  var a = 10;
+fn main(a, b) {
+  var x = 5;
+  var y = 5;
   
-  while(true) {
-    io.println(a++);
+  var c = fn(d, e) {
+    var f = fn(g, h) {
+      ret e;
+    };
     
-    if (a > 40) {
-      break;
-    }
-  }
-  
-  a = fn(c, d) {
-    for (var i = 0; i < 123; i++) {
-      io.println("what the dog doin? " + @c + " " + @d);
-    }
+    d += x;
+    ret d * f();
   };
   
-  ret a;
-} 
+  io.println(c(6, 5));
+}
 
-main()(13, 46);
+main(3, 4);

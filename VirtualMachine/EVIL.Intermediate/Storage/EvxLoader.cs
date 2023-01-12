@@ -179,9 +179,9 @@ namespace EVIL.Intermediate.Storage
             var name = ReadString(br);
             var owner = ReadString(br);
             var symId = br.ReadInt32();
-            var isParam = br.ReadBoolean();
+            var type = (ExternInfo.ExternType)br.ReadByte();
 
-            return new ExternInfo(name, owner, symId, isParam);
+            return new ExternInfo(name, owner, symId, type);
         }
 
         private static string ReadString(BinaryReader br)

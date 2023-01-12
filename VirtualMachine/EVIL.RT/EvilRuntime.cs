@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.ExecutionEngine.Interop;
+using EVIL.Interpreter.Runtime.Library;
 
 namespace EVIL.RT
 {
@@ -16,8 +17,13 @@ namespace EVIL.RT
         
         public void LoadCoreRuntime()
         {
+            RegisterPackage<CoreLibrary>();
+            RegisterPackage<FileSystemLibrary>();
             RegisterPackage<IoLibrary>();
+            RegisterPackage<MathLibrary>();
             RegisterPackage<StringLibrary>();
+            RegisterPackage<TableLibrary>();
+            RegisterPackage<TimeLibrary>();
         }
 
         public void RegisterPackage<T>()

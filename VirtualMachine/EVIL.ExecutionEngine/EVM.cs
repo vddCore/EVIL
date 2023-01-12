@@ -171,14 +171,24 @@ namespace EVIL.ExecutionEngine
             CallStack.Clear();
         }
 
-        public void Run()
+        public void Run(params DynamicValue[] rootChunkArgs)
         {
             if (Running)
                 Halt();
 
-            Running = true;
-            InvokeChunk(Executable.RootChunk, 0);
+            if (rootChunkArgs.Length > 255)
+            {
+                throw new InvalidOperationException("Too many arguments for root invocation.");
+            }
 
+            for (var i = 0; i < rootChunkArgs.Length; i++)
+            {
+                EvaluationStack.Push(rootChunkArgs[i]);
+            }
+            
+            InvokeChunk(Executable.RootChunk, (byte)rootChunkArgs.Length);
+            
+            Running = true;
             Resume();
         }
 
@@ -662,26 +672,25 @@ namespace EVIL.ExecutionEngine
                     var chunkClone = frame.Chunk.SubChunks[itmp].ShallowClone();
 
                     if (chunkClone.Externs.Count > 0)
-                    {
+                    {                        
                         var externs = new DynamicValue[chunkClone.Externs.Count];
                         ExternContexts.Add(chunkClone, externs);
 
-                        var eidx = 0;
-                        for (var i = 0; i < frame.FormalArguments.Length; i++)
+                        for (var i = 0; i < chunkClone.Externs.Count; i++)
                         {
-                            externs[eidx++] = frame.FormalArguments[i];
-                        }
-
-                        for (var i = 0; i < frame.Locals.Length; i++)
-                        {
-                            externs[eidx++] = frame.Locals[i];
-                        }
-
-                        if (ExternContexts.TryGetValue(frame.Chunk, out var externContext))
-                        {
-                            for (var i = 0; i < externContext.Length; i++)
+                            var e = chunkClone.Externs[i];
+                            if (e.Type == ExternInfo.ExternType.Local)
                             {
-                                externs[eidx++] = externContext[i];
+                                externs[i] = new(frame.Locals[e.SymbolId], false);
+                            }
+                            else if (e.Type == ExternInfo.ExternType.Parameter)
+                            {
+                                externs[i] = new(frame.FormalArguments[e.SymbolId], false);
+                            }
+                            else if (e.Type == ExternInfo.ExternType.Extern)
+                            {
+                                if(ExternContexts.TryGetValue(frame.Chunk, out var ec))
+                                    externs[i] = new(ec[e.SymbolId], false);
                             }
                         }
                     }

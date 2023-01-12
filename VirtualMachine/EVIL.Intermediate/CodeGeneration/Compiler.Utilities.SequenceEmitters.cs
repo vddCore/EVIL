@@ -1,3 +1,4 @@
+using System.Linq;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Nodes;
 
@@ -12,7 +13,7 @@ namespace EVIL.Intermediate.CodeGeneration
                 CurrentChunk.Constants.FetchOrAddConstant(constant)
             );
         }
-        
+
         private void EmitConstantLoad(CodeGenerator cg, double constant)
         {
             cg.Emit(
@@ -52,6 +53,8 @@ namespace EVIL.Intermediate.CodeGeneration
         private void EmitVariableStore(CodeGenerator cg, VariableReferenceExpression varRef)
         {
             Scope localScope = null;
+            Scope ownerScope;
+            SymbolInfo sym;
 
             if (ScopeStack.Count > 0)
             {
@@ -60,7 +63,7 @@ namespace EVIL.Intermediate.CodeGeneration
 
             if (localScope != null)
             {
-                var (_, sym) = localScope.Find(varRef.Identifier);
+                (ownerScope, sym) = localScope.Find(varRef.Identifier);
 
                 if (sym == SymbolInfo.Undefined)
                 {
@@ -71,21 +74,59 @@ namespace EVIL.Intermediate.CodeGeneration
                     );
                 }
 
-                if (sym.Type == SymbolInfo.SymbolType.Local)
-                {
-                    EmitByteOp(cg, OpCode.STL, (byte)sym.Id);
-                }
-                else if (sym.Type == SymbolInfo.SymbolType.Parameter)
-                {
-                    EmitByteOp(cg, OpCode.STA, (byte)sym.Id);
-                }
-                else if (sym.Type == SymbolInfo.SymbolType.Global)
+                if (sym.Type == SymbolInfo.SymbolType.Global)
                 {
                     EmitGlobalStore(cg, varRef.Identifier);
+                    return;
                 }
-                else if (sym.Type == SymbolInfo.SymbolType.Extern)
+
+                if (localScope.Chunk.Equals(ownerScope.Chunk))
                 {
-                    cg.Emit(OpCode.STX, sym.Id);
+                    if (sym.Type == SymbolInfo.SymbolType.Local)
+                    {
+                        EmitByteOp(cg, OpCode.STL, (byte)sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Parameter)
+                    {
+                        EmitByteOp(cg, OpCode.STA, (byte)sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Extern)
+                    {
+                        cg.Emit(OpCode.STX, sym.Id);
+                    }
+                }
+                else 
+                {
+                    if (sym.Type == SymbolInfo.SymbolType.Local)
+                    {
+                        sym = localScope.DefineExtern(
+                            varRef.Identifier,
+                            ownerScope.Chunk.Name,
+                            sym.Id,
+                            ExternInfo.ExternType.Local
+                        );
+                        cg.Emit(OpCode.STX, sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Parameter)
+                    {
+                        sym = localScope.DefineExtern(
+                            varRef.Identifier,
+                            ownerScope.Chunk.Name,
+                            sym.Id,
+                            ExternInfo.ExternType.Parameter
+                        );
+                        cg.Emit(OpCode.STX, sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Extern)
+                    {
+                        sym = localScope.DefineExtern(
+                            varRef.Identifier,
+                            ownerScope.Chunk.Name,
+                            sym.Id,
+                            ExternInfo.ExternType.Extern
+                        );
+                        cg.Emit(OpCode.STX, sym.Id);
+                    }
                 }
             }
             else
@@ -97,6 +138,8 @@ namespace EVIL.Intermediate.CodeGeneration
         private void EmitVariableLoad(CodeGenerator cg, VariableReferenceExpression varRef)
         {
             Scope localScope = null;
+            Scope ownerScope;
+            SymbolInfo sym;
 
             if (ScopeStack.Count > 0)
             {
@@ -105,23 +148,65 @@ namespace EVIL.Intermediate.CodeGeneration
 
             if (localScope != null)
             {
-                var (_, sym) = localScope.Find(varRef.Identifier);
+                (ownerScope, sym) = localScope.Find(varRef.Identifier);
 
-                if (sym.Type == SymbolInfo.SymbolType.Local)
-                {
-                    EmitByteOp(cg, OpCode.LDL, (byte)sym.Id);
-                }
-                else if (sym.Type == SymbolInfo.SymbolType.Parameter)
-                {
-                    EmitByteOp(cg, OpCode.LDA, (byte)sym.Id);
-                }
-                else if (sym.Type == SymbolInfo.SymbolType.Extern)
-                {
-                    cg.Emit(OpCode.LDX, sym.Id);
-                }
-                else if (sym == SymbolInfo.Undefined || sym == SymbolInfo.Global)
+                if (ownerScope == null)
                 {
                     EmitGlobalLoad(cg, varRef.Identifier);
+                    return;
+                }
+
+                if (localScope.Chunk.Equals(ownerScope.Chunk))
+                {
+                    if (sym.Type == SymbolInfo.SymbolType.Local)
+                    {
+                        EmitByteOp(cg, OpCode.LDL, (byte)sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Parameter)
+                    {
+                        EmitByteOp(cg, OpCode.LDA, (byte)sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Extern)
+                    {
+                        cg.Emit(OpCode.LDX, sym.Id);
+                    }
+                    else if (sym == SymbolInfo.Undefined || sym == SymbolInfo.Global)
+                    {
+                        EmitGlobalLoad(cg, varRef.Identifier);
+                    }
+                }
+                else
+                {
+                    if (sym.Type == SymbolInfo.SymbolType.Local)
+                    {
+                        sym = localScope.DefineExtern(
+                            varRef.Identifier,
+                            ownerScope.Chunk.Name,
+                            sym.Id,
+                            ExternInfo.ExternType.Local
+                        );
+                        cg.Emit(OpCode.LDX, sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Parameter)
+                    {
+                        sym = localScope.DefineExtern(
+                            varRef.Identifier,
+                            ownerScope.Chunk.Name,
+                            sym.Id,
+                            ExternInfo.ExternType.Parameter
+                        );
+                        cg.Emit(OpCode.LDX, sym.Id);
+                    }
+                    else if (sym.Type == SymbolInfo.SymbolType.Extern)
+                    {
+                        sym = localScope.DefineExtern(
+                            varRef.Identifier,
+                            ownerScope.Chunk.Name,
+                            sym.Id,
+                            ExternInfo.ExternType.Extern
+                        );
+                        cg.Emit(OpCode.LDX, sym.Id);
+                    }
                 }
             }
             else
