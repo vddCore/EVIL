@@ -38,10 +38,10 @@ namespace EVIL.Intermediate.CodeGeneration
                     cg.Emit(OpCode.EACH);
                     cg.Emit(OpCode.JUMP, iterLabel);
                     CurrentChunk.UpdateLabel(loopLabel, cg.IP);
-                    cg.Emit(OpCode.STL, valueLocalSym.Id);
+                    EmitByteOp(cg, OpCode.STL, (byte)valueLocalSym.Id);
                     Visit(eachStatement.Body);
                     CurrentChunk.UpdateLabel(iterLabel, cg.IP);
-                    cg.Emit(OpCode.ITER, (byte)0);
+                    EmitByteOp(cg, OpCode.ITER, 0);
                     cg.Emit(OpCode.TJMP, loopLabel);
                     CurrentChunk.UpdateLabel(endLabel, cg.IP);
                     cg.Emit(OpCode.ENDE);
@@ -89,11 +89,11 @@ namespace EVIL.Intermediate.CodeGeneration
                     cg.Emit(OpCode.EACH);
                     cg.Emit(OpCode.JUMP, iterLabel);
                     CurrentChunk.UpdateLabel(loopLabel, cg.IP);
-                    cg.Emit(OpCode.STL, keyLocalSym.Id);
-                    cg.Emit(OpCode.STL, valueLocalSym.Id);
+                    EmitByteOp(cg, OpCode.STL, (byte)keyLocalSym.Id);
+                    EmitByteOp(cg, OpCode.STL, (byte)valueLocalSym.Id);
                     Visit(eachStatement.Body);
                     CurrentChunk.UpdateLabel(iterLabel, cg.IP);
-                    cg.Emit(OpCode.ITER, (byte)1);
+                    EmitByteOp(cg, OpCode.ITER, 1);
                     cg.Emit(OpCode.TJMP, loopLabel);
                     CurrentChunk.UpdateLabel(endLabel, cg.IP);
                     cg.Emit(OpCode.ENDE);

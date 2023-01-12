@@ -1,27 +1,8 @@
-var x = 0;
-
-fn callback_a(arg)
-{
-  io.println("callback_a", arg);
-  
-  if (!x) {
-    x = other_func();
-  }
-  
-  x();
-  x();
-  x();
+fn fact (n, acc) {
+  if (n < 2) ret acc;
+  ret fact(n - 1, n * acc);
 }
 
-fn callback_b(arg1, arg2)
-{
-  io.println("callback_b", arg1, arg2);
-}
-
-fn other_func() {
-  var blah = 10;
-  
-  ret fn() {
-    io.println("asdf" + @(blah++));
-  };
+for (var i = 0; i < 100; i++) {
+  io.println(fact(i, 1));
 }

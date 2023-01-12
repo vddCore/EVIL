@@ -40,7 +40,8 @@
         TJMP  = 0x31, // If [T]rue, [J]u[MP]
         FJMP  = 0x32, // If [F]alse, [J]u[MP]
         CALL  = 0x33, // [CALL] a chunk
-        RETN  = 0x34, // [RET]ur[N] from a chunk
+        TCALL = 0x34, // [T]ail [CALL] a chunk
+        RETN  = 0x35, // [RET]ur[N] from a chunk
         
         // ---------- [ STORAGE: STORE
         STL = 0x41,   // [S]e[T] [L]ocal

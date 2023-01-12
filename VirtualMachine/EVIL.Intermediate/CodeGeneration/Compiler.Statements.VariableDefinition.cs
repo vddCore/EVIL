@@ -24,7 +24,7 @@ namespace EVIL.Intermediate.CodeGeneration
                     if (kvp.Value != null)
                     {
                         Visit(kvp.Value);
-                        cg.Emit(OpCode.STL, sym.Id);
+                        EmitByteOp(cg, OpCode.STL, (byte)sym.Id);
                     }
                 }
                 else

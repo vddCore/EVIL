@@ -21,8 +21,17 @@ namespace EVIL.Intermediate.CodeGeneration
             foreach (var expr in functionCallExpression.Arguments)
                 Visit(expr);
 
-            Visit(functionCallExpression.Callee);
-            cg.Emit(OpCode.CALL, (byte)functionCallExpression.Arguments.Count);
+            if (functionCallExpression.Parent is ReturnStatement && 
+                functionCallExpression.Callee is VariableReferenceExpression varRef
+                && varRef.Identifier == CurrentChunk.Name)
+            {
+                cg.Emit(OpCode.TCALL);
+            }
+            else
+            {
+                Visit(functionCallExpression.Callee);
+                EmitByteOp(cg, OpCode.CALL, (byte)functionCallExpression.Arguments.Count);
+            }
         }
     }
 }

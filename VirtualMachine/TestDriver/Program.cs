@@ -70,8 +70,7 @@ namespace EVIL.VirtualMachine.TestDriver
             rt.LoadCoreRuntime();
             
             var evm = new EVM(exe2, _globalTable);
-            var callback = evm.FindExposedChunk("callback_a");
-            evm.InvokeCallback(callback, new DynamicValue(1234));
+            evm.Run();
         }
     }
 }

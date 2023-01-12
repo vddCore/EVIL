@@ -41,6 +41,14 @@ namespace EVIL.Intermediate.CodeGeneration
             );
         }
 
+        private void EmitByteOp(CodeGenerator cg, OpCode opCode, byte symId)
+        {
+            cg.Emit(
+                opCode,
+                symId
+            );
+        }
+
         private void EmitVariableStore(CodeGenerator cg, VariableReferenceExpression varRef)
         {
             Scope localScope = null;
@@ -65,11 +73,11 @@ namespace EVIL.Intermediate.CodeGeneration
 
                 if (sym.Type == SymbolInfo.SymbolType.Local)
                 {
-                    cg.Emit(OpCode.STL, sym.Id);
+                    EmitByteOp(cg, OpCode.STL, (byte)sym.Id);
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Parameter)
                 {
-                    cg.Emit(OpCode.STA, (byte)sym.Id);
+                    EmitByteOp(cg, OpCode.STA, (byte)sym.Id);
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Global)
                 {
@@ -101,11 +109,11 @@ namespace EVIL.Intermediate.CodeGeneration
 
                 if (sym.Type == SymbolInfo.SymbolType.Local)
                 {
-                    cg.Emit(OpCode.LDL, sym.Id);
+                    EmitByteOp(cg, OpCode.LDL, (byte)sym.Id);
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Parameter)
                 {
-                    cg.Emit(OpCode.LDA, (byte)sym.Id);
+                    EmitByteOp(cg, OpCode.LDA, (byte)sym.Id);
                 }
                 else if (sym.Type == SymbolInfo.SymbolType.Extern)
                 {

@@ -89,7 +89,7 @@ namespace EVIL.Intermediate.CodeGeneration
                 var param = parameters[i];
                 localScope.DefineParameter(param);
 
-                cg.Emit(OpCode.STA, (byte)(paramCount - i - 1));
+                EmitByteOp(cg, OpCode.STA, (byte)(paramCount - i - 1));
             }
 
             foreach (var stmt in block.Statements)
@@ -98,7 +98,8 @@ namespace EVIL.Intermediate.CodeGeneration
             }
 
             if (CurrentChunk.Instructions.Count == 0 ||
-                CurrentChunk.Instructions[^1] != (byte)OpCode.RETN)
+                CurrentChunk.Instructions[^1] != (byte)OpCode.RETN
+                && CurrentChunk.Instructions[^1] != (byte)OpCode.TCALL)
             {
                 EmitConstantLoad(cg, 0);
                 cg.Emit(OpCode.RETN);

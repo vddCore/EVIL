@@ -37,6 +37,6 @@ namespace EVIL.ExecutionEngine
         }
 
         public DynamicValue FetchConst(int id)
-            => _constants[id];
+            => new(_constants[id], false);
     }
 }

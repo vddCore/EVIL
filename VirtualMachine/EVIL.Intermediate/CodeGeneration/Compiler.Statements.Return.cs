@@ -12,8 +12,15 @@ namespace EVIL.Intermediate.CodeGeneration
             {
                 Visit(returnStatement.Expression);
             }
-            
-            cg.Emit(OpCode.RETN);
-        }    
+            else
+            {
+                EmitConstantLoad(cg, 0);
+            }
+
+            if (cg.LastOpCode != OpCode.TCALL)
+            {
+                cg.Emit(OpCode.RETN);
+            }
+        }
     }
 }

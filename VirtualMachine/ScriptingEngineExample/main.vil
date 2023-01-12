@@ -21,7 +21,7 @@ fn update(delta) {
 }
 
 fn draw(context) {
-  for (var i = 0; i < 1000; i++)
+  for (var i = 0; i < 8000; i++)
   {
     chroma.fillrect(20, 20, 30, 30);
   }

@@ -11,8 +11,6 @@ namespace EVIL.ExecutionEngine
 {
     public class EVM
     {
-        private StackFrame _currentStackFrame;
-
         private Executable Executable { get; }
         private RuntimeConstPool RuntimeConstPool { get; }
         
@@ -90,12 +88,15 @@ namespace EVIL.ExecutionEngine
             if (chunk == null)
                 throw new InvalidOperationException($"Chunk was null.");
 
+            if (args.Length > 255)
+                throw new InvalidOperationException("Too many arguments passed to an EVIL function.");
+
             for (var i = 0; i < args.Length; i++)
             {
                 EvaluationStack.Push(args[i]);
             }
 
-            InvokeChunk(chunk, args.Length);
+            InvokeChunk(chunk, (byte)args.Length);
 
             Running = true;
 
@@ -146,7 +147,6 @@ namespace EVIL.ExecutionEngine
             ExternContexts.Clear();
             EvaluationStack.Clear();
             CallStack.Clear();
-            _currentStackFrame = null;
         }
 
         public void Run()
@@ -162,8 +162,13 @@ namespace EVIL.ExecutionEngine
 
         public void Step()
         {
-            var frame = _currentStackFrame;
-            var chunk = _currentStackFrame.Chunk;
+            if (!CallStack.TryPeek(out var frame))
+            {
+                Pause();
+                return;
+            }
+            
+            var chunk = frame.Chunk;
             var evstack = EvaluationStack;
 
             var opCode = frame.FetchOpCode();
@@ -213,10 +218,7 @@ namespace EVIL.ExecutionEngine
                     b = evstack.Pop();
                     a = evstack.Pop();
 
-                    var comparer = ValueComparers.RetrieveComparer(a, b);
-                    var compResult = comparer(a, b);
-
-                    evstack.Push(new(compResult >= 0));
+                    evstack.Push(new(Compare(a, b) >= 0));
                     break;
                 }
 
@@ -225,10 +227,7 @@ namespace EVIL.ExecutionEngine
                     b = evstack.Pop();
                     a = evstack.Pop();
 
-                    var comparer = ValueComparers.RetrieveComparer(a, b);
-                    var compResult = comparer(a, b);
-
-                    evstack.Push(new(compResult > 0));
+                    evstack.Push(new(Compare(a, b) > 0));
                     break;
                 }
 
@@ -237,10 +236,7 @@ namespace EVIL.ExecutionEngine
                     b = evstack.Pop();
                     a = evstack.Pop();
 
-                    var comparer = ValueComparers.RetrieveComparer(a, b);
-                    var compResult = comparer(a, b);
-
-                    evstack.Push(new(compResult <= 0));
+                    evstack.Push(new(Compare(a, b) <= 0));
                     break;
                 }
 
@@ -249,10 +245,7 @@ namespace EVIL.ExecutionEngine
                     b = evstack.Pop();
                     a = evstack.Pop();
 
-                    var comparer = ValueComparers.RetrieveComparer(a, b);
-                    var compResult = comparer(a, b);
-
-                    evstack.Push(new(compResult < 0));
+                    evstack.Push(new(Compare(a, b) < 0));
                     break;
                 }
 
@@ -440,25 +433,23 @@ namespace EVIL.ExecutionEngine
                 case OpCode.LDC:
                 {
                     itmp = frame.FetchInt32();
-                    evstack.Push(
-                        new(RuntimeConstPool.FetchConst(itmp), true)
-                    );
+                    evstack.Push(RuntimeConstPool.FetchConst(itmp));
                     break;
                 }
 
                 case OpCode.LDL:
                 {
-                    itmp = frame.FetchInt32();
-                    a = frame.Locals[itmp];
+                    btmp = frame.FetchByte();
+                    a = frame.Locals[btmp];
                     evstack.Push(a);
                     break;
                 }
 
                 case OpCode.STL:
                 {
-                    itmp = frame.FetchInt32();
+                    btmp = frame.FetchByte();
                     a = evstack.Pop();
-                    frame.Locals[itmp] = a;
+                    frame.Locals[btmp] = a;
                     break;
                 }
 
@@ -487,23 +478,31 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.CALL:
                 {
-                    itmp = frame.FetchByte();
+                    btmp = frame.FetchByte();
                     a = evstack.Pop();
 
                     switch (a.Type)
                     {
                         case DynamicValueType.Function:
-                            InvokeChunk(a.Function, itmp);
+                        {
+                            InvokeChunk(a.Function, btmp);
                             break;
+                        }
 
                         case DynamicValueType.ClrFunction:
-                            InvokeClrFunction(a.ClrFunction, itmp);
+                            InvokeClrFunction(a.ClrFunction, btmp);
                             break;
 
                         default:
                             throw new NonInvokableValueException(a);
                     }
 
+                    break;
+                }
+
+                case OpCode.TCALL:
+                {
+                    frame.Jump(0);
                     break;
                 }
 
@@ -563,10 +562,9 @@ namespace EVIL.ExecutionEngine
                 {
                     CallStack.Pop();
                     
-                    if (!CallStack.TryPeek(out _currentStackFrame))
-                    {
+                    if (!CallStack.TryPeek(out _))
                         Pause();
-                    }
+                    
                     break;
                 }
 
@@ -640,17 +638,17 @@ namespace EVIL.ExecutionEngine
                         ExternContexts.Add(chunkClone, externs);
 
                         var eidx = 0;
-                        for (var i = 0; i < _currentStackFrame.FormalArguments.Length; i++)
+                        for (var i = 0; i < frame.FormalArguments.Length; i++)
                         {
-                            externs[eidx++] = _currentStackFrame.FormalArguments[i];
+                            externs[eidx++] = frame.FormalArguments[i];
                         }
 
-                        for (var i = 0; i < _currentStackFrame.Locals.Length; i++)
+                        for (var i = 0; i < frame.Locals.Length; i++)
                         {
-                            externs[eidx++] = _currentStackFrame.Locals[i];
+                            externs[eidx++] = frame.Locals[i];
                         }
 
-                        if (ExternContexts.TryGetValue(_currentStackFrame.Chunk, out var externContext))
+                        if (ExternContexts.TryGetValue(frame.Chunk, out var externContext))
                         {
                             for (var i = 0; i < externContext.Length; i++)
                             {
@@ -779,6 +777,21 @@ namespace EVIL.ExecutionEngine
             }
         }
 
+        private int Compare(DynamicValue a, DynamicValue b)
+        {
+            if (a.Type == DynamicValueType.String)
+            {
+                return string.Compare(a.String, b.String, StringComparison.Ordinal);
+
+            }
+            else if (a.Type == DynamicValueType.Number)
+            {
+                return Math.Sign(a.Number - b.Number);
+            }
+
+            throw new TypeComparisonException(a, b);
+        }
+
         private void InvokeClrFunction(ClrFunction clrFunction, int argc)
         {
             var args = new DynamicValue[argc];
@@ -790,7 +803,6 @@ namespace EVIL.ExecutionEngine
             var newFrame = new StackFrame(clrFunction);
 
             CallStack.Push(newFrame);
-            _currentStackFrame = newFrame;
             {
                 try
                 {
@@ -807,10 +819,9 @@ namespace EVIL.ExecutionEngine
                 }
             }
             CallStack.Pop();
-            _currentStackFrame = CallStack.Peek();
         }
 
-        private void InvokeChunk(Chunk chunk, int argc)
+        private void InvokeChunk(Chunk chunk, byte argc)
         {
             if (CallStack.Count + 1 > CallStackLimit)
             {
@@ -843,7 +854,6 @@ namespace EVIL.ExecutionEngine
             }
 
             CallStack.Push(newFrame);
-            _currentStackFrame = newFrame;
         }
     }
 }

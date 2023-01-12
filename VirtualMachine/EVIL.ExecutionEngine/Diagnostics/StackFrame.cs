@@ -7,6 +7,8 @@ namespace EVIL.ExecutionEngine.Diagnostics
 {
     public class StackFrame
     {
+        private byte[] _internalBuffer = new byte[16];
+        
         public int IP { get; private set; }
         public bool CanExecute => IP < Chunk.Instructions.Count;
 
@@ -97,12 +99,10 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
         internal byte[] FetchBytes(int len)
         {
-            var data = new byte[len];
-
             for (var i = 0; i < len; i++)
-                data[i] = FetchByte();
+                _internalBuffer[i] = FetchByte();
 
-            return data;
+            return _internalBuffer;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
