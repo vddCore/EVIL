@@ -309,7 +309,7 @@ namespace EVIL.Intermediate.Analysis
             var index = FetchByte();
             _disasm.Append($" {index:X2}");
 
-            if (false && Options.EmitLocalHints)
+            if (Options.EmitLocalHints)
             {
                 _disasm.Append($" ; {locals[index]}");
             }
