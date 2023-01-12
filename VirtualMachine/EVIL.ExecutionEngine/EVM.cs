@@ -547,8 +547,8 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.XIST:
                 {
-                    b = evstack.Pop();
                     a = evstack.Pop();
+                    b = evstack.Pop();
 
                     evstack.Push(new(a.Contains(b)));
                     break;
@@ -591,9 +591,11 @@ namespace EVIL.ExecutionEngine
             var newFrame = new StackFrame(chunk, argc);
 
             var extraArgs = newFrame.ExtraArguments;
-            if (argc < chunk.ParameterCount)
+            var paramCount = chunk.Parameters.Count;
+            
+            if (argc < paramCount)
             {
-                for (var i = argc; i < chunk.ParameterCount; i++)
+                for (var i = argc; i < paramCount; i++)
                 {
                     EvaluationStack.Push(new(0));
                 }

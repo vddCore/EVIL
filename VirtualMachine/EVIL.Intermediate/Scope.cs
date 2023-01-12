@@ -46,7 +46,9 @@ namespace EVIL.Intermediate
             if (IsLocalDefined(name))
                 throw new DuplicateSymbolException($"Local symbol '{name}' was already defined in the current scope.", name);
 
-            var sym = new SymbolInfo(Chunk.LocalCount++, SymbolInfo.SymbolType.Local);
+            var sym = new SymbolInfo(Chunk.Locals.Count, SymbolInfo.SymbolType.Local);
+            Chunk.Locals.Add(name);
+            
             Symbols.Add(name, sym);
 
             return sym;
@@ -57,7 +59,9 @@ namespace EVIL.Intermediate
             if (IsLocalDefined(name))
                 throw new DuplicateSymbolException($"Local symbol '{name}' was already defined in the current scope.", name);
 
-            var sym = new SymbolInfo(Chunk.ParameterCount++, SymbolInfo.SymbolType.Parameter);
+            var sym = new SymbolInfo(Chunk.Parameters.Count, SymbolInfo.SymbolType.Parameter);
+            Chunk.Parameters.Add(name);
+            
             Symbols.Add(name, sym);
 
             return sym;

@@ -47,6 +47,7 @@
         STG = 0x42,   // [S]e[T] [G]lobal
         STA = 0x43,   // [S]e[T] [A]rgument
         STE = 0x44,   // [S]et [T]able [E]ntry
+        RTE = 0x45,   // [R]emove [T]able [E]ntry
         
         // ---------- [ STORAGE: LOAD
         LDC = 0x50,   // [L]oa[D] [C]onstant

@@ -28,9 +28,24 @@ namespace EVIL.Intermediate
             {
                 IP = 0;
                 CurrentChunk = chunk;
-                _disasm.Append($"{chunk.Name} [{chunk.LocalCount} local(s)] [{chunk.ParameterCount} parameter(s)]");
-                _disasm.AppendLine(":");
+                _disasm.Append($"FUNC {chunk.Name}");
 
+                _disasm.Append("(");
+                for (var i = 0; i < chunk.Parameters.Count; i++)
+                {
+                    _disasm.Append(chunk.Parameters[i]);
+
+                    if (i + 1 < chunk.Parameters.Count)
+                        _disasm.Append(", ");
+                }
+                _disasm.AppendLine(") {");
+
+                for (var i = 0; i < chunk.Locals.Count; i++)
+                {
+                    _disasm.AppendLine($" .LOCAL {i} ; {chunk.Locals[i]}");
+                }
+
+                _disasm.AppendLine(" .TEXT {");
                 while (IP < chunk.Instructions.Count)
                 {
                     AppendCurrentIP();
@@ -57,22 +72,31 @@ namespace EVIL.Intermediate
 
                         case OpCode.LDL:
                         case OpCode.STL:
-                        case OpCode.STA:
-                        case OpCode.STE:
+                            DecodeLocalOp(op, chunk.Locals);
+                            break;
+
                         case OpCode.LDA:
+                        case OpCode.STA:
+                            DecodeLocalOp(op, chunk.Parameters);
+                            break;
+
+                        case OpCode.STE:
                         case OpCode.CALL:
                             DecodeParametrizedLoad(op);
                             break;
                     }
                 }
+                
+                _disasm.AppendLine("  }");
+                _disasm.AppendLine("}");
             }
-
+            
             return _disasm.ToString();
         }
 
         private void AppendCurrentIP()
         {
-            _disasm.Append($"  {IP:X8}");
+            _disasm.Append($"    {IP:X8}");
         }
 
         private void Decode(OpCode opCode)
@@ -120,6 +144,13 @@ namespace EVIL.Intermediate
             }
 
             _disasm.AppendLine($" {index:X8} ; {dereferenced}");
+        }
+
+        private void DecodeLocalOp(OpCode opCode, List<string> locals)
+        {
+            Decode(opCode);
+            var index = FetchInt32();
+            _disasm.AppendLine($" {index:X8} ; {locals[index]}");
         }
 
         private void DecodeParametrizedLoad(OpCode opCode)
