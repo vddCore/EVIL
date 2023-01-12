@@ -311,11 +311,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                             if (b.Number == 0)
                             {
-                                throw new VirtualMachineException(
-                                    this, 
-                                    "Attempt to divide by zero.",
-                                    new DivideByZeroException()
-                                );
+                                throw new DivideByZeroException();
                             }
                             
                             evstack.Push(new(a.Number / b.Number));
@@ -329,11 +325,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                             if (b.Number == 0)
                             {
-                                throw new VirtualMachineException(
-                                    this, 
-                                    "Attempt to divide by zero.",
-                                    new DivideByZeroException()
-                                );
+                                throw new DivideByZeroException();
                             }
                             
                             evstack.Push(
@@ -761,7 +753,7 @@ namespace EVIL.ExecutionEngine.Diagnostics
 
                         default:
                         {
-                            throw new VirtualMachineException(this, "Invalid op-code.");
+                            throw new InvalidOpCodeException(opCode);
                         }
                     }
                 }

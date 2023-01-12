@@ -40,13 +40,13 @@ namespace EVIL.UnitTests.Helper
         public static void ExistsIn(DynamicValue tableValue, double key)
         {
             NAssert.AreEqual(DynamicValueType.Table, tableValue.Type);
-            NAssert.IsTrue(tableValue.Table.IsSet(key));
+            ExistsIn(tableValue.Table, key);
         }
 
         public static void ExistsIn(DynamicValue tableValue, string key)
         {
             NAssert.AreEqual(DynamicValueType.Table, tableValue.Type);
-            NAssert.IsTrue(tableValue.Table.IsSet(key));
+            ExistsIn(tableValue.Table, key);
         }
 
         public static void ExistsIn(DynamicValue tableValue, double key, out DynamicValue value)
@@ -59,6 +59,24 @@ namespace EVIL.UnitTests.Helper
         {
             ExistsIn(tableValue, key);
             value = tableValue.Table[key];
+        }
+
+        public static void DoesNotExistIn(Table table, string key)
+            => NAssert.IsFalse(table.IsSet(key));
+
+        public static void DoesNotExistIn(Table table, double key)
+            => NAssert.IsFalse(table.IsSet(key));
+        
+        public static void DoesNotExistIn(DynamicValue tableValue, double key)
+        {
+            NAssert.AreEqual(DynamicValueType.Table, tableValue.Type);
+            DoesNotExistIn(tableValue.Table, key);
+        }
+
+        public static void DoesNotExistIn(DynamicValue tableValue, string key)
+        {
+            NAssert.AreEqual(DynamicValueType.Table, tableValue.Type);
+            DoesNotExistIn(tableValue.Table, key);
         }
 
         public static void ThrowsWithInner<T, U>(TestDelegate code)
