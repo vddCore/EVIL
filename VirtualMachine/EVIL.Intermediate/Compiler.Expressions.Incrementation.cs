@@ -12,7 +12,7 @@ namespace EVIL.Intermediate
             if (incrementationExpression.IsPrefix)
             {
                 Visit(tgt);
-                EmitConstantLoadSequence(cg, 1);
+                EmitConstantLoad(cg, 1);
                 cg.Emit(OpCode.ADD);
                 cg.Emit(OpCode.DUP);
             }
@@ -20,13 +20,13 @@ namespace EVIL.Intermediate
             {
                 Visit(tgt);
                 cg.Emit(OpCode.DUP);
-                EmitConstantLoadSequence(cg, 1);
+                EmitConstantLoad(cg, 1);
                 cg.Emit(OpCode.ADD);
             }
             
             if (tgt is VariableReferenceExpression varRef)
             {
-                EmitVariableStoreSequence(cg, varRef);
+                EmitVariableStore(cg, varRef);
             }
             
             //todo indexed

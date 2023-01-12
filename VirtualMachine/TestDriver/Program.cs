@@ -1,4 +1,7 @@
-﻿using EVIL.ExecutionEngine;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using EVIL.ExecutionEngine;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
@@ -20,6 +23,8 @@ namespace EVIL.VirtualMachine.TestDriver
         
         public static void Main(string[] args)
         {
+            Console.WriteLine(Unsafe.SizeOf<DynamicValue>());
+            
             var lexer = new Lexer();
             var parser = new Parser(lexer, true);
             var compiler = new Compiler();
@@ -39,13 +44,15 @@ namespace EVIL.VirtualMachine.TestDriver
                 Console.WriteLine($"Compilation error on line {e.Line}: {e.Message}");
                 return;
             }
+            Console.WriteLine("-[disASM]-------------");
+            Console.Write(disasm.Disassemble(executable));
             
-            Console.WriteLine(disasm.Disassemble(executable));
-            Console.WriteLine("---------------------");
-            
+            Console.WriteLine("-[progRUN]------------");
             var evm = new EVM(executable);
             evm.SetGlobal("print", new DynamicValue(TestClrFunction));
             evm.Run();
+            Console.WriteLine("-[evSTACK]------------");
+            Console.WriteLine(evm.DumpEvaluationStack());
         }
     }
 }

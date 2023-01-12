@@ -8,42 +8,20 @@ namespace EVIL.Intermediate
         {
             var cg = CurrentChunk.GetCodeGenerator();
 
-            Visit(assignmentExpression.Right);
-
-            if (assignmentExpression.Left is AssignmentExpression)
-            {
-                cg.Emit(OpCode.DUP);
+            if (assignmentExpression.Left is VariableReferenceExpression varRef)
+            {                
                 Visit(assignmentExpression.Left);
-            }
+                Visit(assignmentExpression.Right);
 
-            var currentLeft = assignmentExpression.Left;
-            while (currentLeft is AssignmentExpression ae)
-            {
-                currentLeft = ae.Left;
+                EmitCompoundAssignment(cg, assignmentExpression.OperationType);
+
                 cg.Emit(OpCode.DUP);
+                EmitVariableStore(cg, varRef);
             }
-
-            currentLeft = assignmentExpression.Left;
-            while (currentLeft is AssignmentExpression ae)
+            else
             {
-                currentLeft = ae.Left;
-
-                if (ae.Right is VariableReferenceExpression varRef)
-                {
-                    EmitCompoundAssignmentSequence(cg, varRef, ae.OperationType);
-                    cg.Emit(OpCode.DUP);
-                    EmitVariableStoreSequence(cg, varRef);
-                }
+                throw new CompilerException($"Cannot assign to '{assignmentExpression.Left.GetType().Name}'");
             }
-
-            if (currentLeft is VariableReferenceExpression rootVarRef)
-            {
-                EmitCompoundAssignmentSequence(cg, rootVarRef, assignmentExpression.OperationType);
-                cg.Emit(OpCode.DUP);
-                EmitVariableStoreSequence(cg, rootVarRef);
-            }
-            
-            //todo indexed
         }
     }
 }

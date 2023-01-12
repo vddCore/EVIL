@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
 using EVIL.Intermediate;
@@ -82,8 +83,12 @@ namespace EVIL.ExecutionEngine
             }
         }
 
-        public void Step()
+        [SkipLocalsInit]
+        public unsafe void Step()
         {
+            int x;
+            int* z = &x;
+            
             var frame = _currentStackFrame;
             var opCode = frame.FetchOpCode();
 
@@ -99,6 +104,12 @@ namespace EVIL.ExecutionEngine
             {
                 case OpCode.NOP:
                 {
+                    break;
+                }
+                
+                case OpCode.HLT:
+                {
+                    Halt();
                     break;
                 }
 
@@ -188,12 +199,6 @@ namespace EVIL.ExecutionEngine
                     Debug.Assert(EvaluationStack.Count >= 0);
 
                     EvaluationStack.Pop();
-                    break;
-                }
-
-                case OpCode.HLT:
-                {
-                    Halt();
                     break;
                 }
 
@@ -397,17 +402,17 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.CALL:
                 {
-                    var argc = frame.FetchInt32();
+                    itmp  = frame.FetchInt32();
                     a = EvaluationStack.Pop();
 
                     switch (a.Type)
                     {
                         case DynamicValueType.Function:
-                            InvokeChunk(a.Function, argc);
+                            InvokeChunk(a.Function, itmp);
                             break;
 
                         case DynamicValueType.ClrFunction:
-                            InvokeClrFunction(a, argc);
+                            InvokeClrFunction(a.ClrFunction, itmp);
                             break;
 
                         default:
@@ -448,12 +453,12 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.FJMP:
                 {
-                    var labelId = frame.FetchInt32();
+                    itmp = frame.FetchInt32();
                     a = EvaluationStack.Pop();
 
                     if (!a.IsTruth)
                     {
-                        var addr = Executable.Labels[labelId];
+                        var addr = Executable.Labels[itmp];
                         frame.Jump(addr);
                     }
                     break;
@@ -461,12 +466,12 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.TJMP:
                 {
-                    var labelId = frame.FetchInt32();
+                    itmp = frame.FetchInt32();
                     a = EvaluationStack.Pop();
 
                     if (a.IsTruth)
                     {
-                        var addr = Executable.Labels[labelId];
+                        var addr = Executable.Labels[itmp];
                         frame.Jump(addr);
                     }
                     break;
@@ -493,23 +498,21 @@ namespace EVIL.ExecutionEngine
             Running = false;
         }
 
-        private void InvokeClrFunction(DynamicValue clrFunction, int argc)
+        private void InvokeClrFunction(ClrFunction clrFunction, int argc)
         {
-            var clrFunc = clrFunction.ClrFunction;
-
             var args = new DynamicValue[argc];
             for (var i = 0; i < argc; i++)
             {
                 args[argc - i - 1] = EvaluationStack.Pop();
             }
 
-            var newFrame = new StackFrame(clrFunc);
+            var newFrame = new StackFrame(clrFunction);
 
             CallStack.Push(newFrame);
             _currentStackFrame = newFrame;
             {
                 EvaluationStack.Push(
-                    clrFunc.Invoke(this, args)
+                    clrFunction.Invoke(this, args)
                 );
             }
             CallStack.Pop();
