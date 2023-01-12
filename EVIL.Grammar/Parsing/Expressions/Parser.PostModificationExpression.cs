@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode PostModificationExpression()
         {
             var node = PostfixExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_postModificationOperators.Contains(token.Type))
             {
@@ -35,7 +35,7 @@ namespace EVIL.Grammar.Parsing
                     node = new DecrementationNode(node, false) {Line = line};
                 }
 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

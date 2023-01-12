@@ -90,31 +90,6 @@ namespace EVIL.Interpreter.Execution
                 return new DynValue(left.Decimal + right.Integer);
             else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
                 return new DynValue(left.Integer + right.Integer);
-            else if (left.Type == DynValueType.Function && right.Type == DynValueType.Function)
-            {
-                var stmts = new List<AstNode>();
-                stmts.AddRange(left.ScriptFunction.StatementList);
-                stmts.AddRange(right.ScriptFunction.StatementList);
-
-                var parameters = new List<string>();
-                var leftParameters = left.ScriptFunction.ParameterNames;
-                var rightParameters = right.ScriptFunction.ParameterNames;
-
-                for (var i = 0; i < leftParameters.Count; i++)
-                {
-                    parameters.Add(leftParameters[i]);
-                }
-
-                for (var i = 0; i < rightParameters.Count; i++)
-                {
-                    var param = rightParameters[i];
-
-                    if (!parameters.Contains(param))
-                        parameters.Add(param);
-                }
-
-                return new DynValue(new ScriptFunction(stmts, parameters, node.Line));
-            }
             else
             {
                 throw new RuntimeException($"Attempt to add {left.Type} and {right.Type}.", Environment, node.Line);
@@ -140,27 +115,7 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Multiplication(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.String)
-            {
-                if (right.Type != DynValueType.Integer)
-                {
-                    throw new RuntimeException($"Attempt to repeat a string using {right.Type}.", Environment,
-                        node.Line);
-                }
-
-                return new DynValue(RepeatString(left.String, right.Decimal));
-            }
-            else if (left.Type == DynValueType.Function)
-            {
-                if (right.Type != DynValueType.Integer)
-                {
-                    throw new RuntimeException($"Attempt to multiply a function using {right.Type}.", Environment,
-                        node.Line);
-                }
-
-                return new DynValue(RepeatFunction(left.ScriptFunction, right.Decimal, node));
-            }
-            else if (left.Type == DynValueType.Decimal)
+            if (left.Type == DynValueType.Decimal)
             {
                 if (right.Type == DynValueType.Decimal)
                 {
@@ -180,14 +135,6 @@ namespace EVIL.Interpreter.Execution
                 else if (right.Type == DynValueType.Decimal)
                 {
                     return new DynValue(left.Integer * right.Decimal);
-                }
-                else if (right.Type == DynValueType.String)
-                {
-                    return new DynValue(RepeatString(right.String, left.Decimal));
-                }
-                else if (right.Type == DynValueType.Function)
-                {
-                    return new DynValue(RepeatFunction(right.ScriptFunction, left.Decimal, node));
                 }
             }
 
@@ -635,27 +582,6 @@ namespace EVIL.Interpreter.Execution
                 return right.Copy();
             }
             else return DynValue.Zero;
-        }
-
-        private string RepeatString(string str, decimal repetitions)
-        {
-            var sb = new StringBuilder();
-
-            for (var i = 0; i < repetitions; i++)
-                sb.Append(str);
-
-            return sb.ToString();
-        }
-
-        private ScriptFunction RepeatFunction(ScriptFunction function, decimal repetitions, AstNode node)
-        {
-            var stmts = new List<AstNode>();
-            var parameters = new List<string>(function.ParameterNames);
-
-            for (var i = 0; i < repetitions; i++)
-                stmts.AddRange(function.StatementList);
-
-            return new ScriptFunction(stmts, parameters, node.Line);
         }
     }
 }

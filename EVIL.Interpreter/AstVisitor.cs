@@ -17,6 +17,7 @@ namespace EVIL.Interpreter
             _handlers = new()
             {
                 {typeof(ProgramNode), (n) => Visit(n as ProgramNode)},
+                {typeof(BlockStatementNode), (n) => Visit(n as BlockStatementNode)},
                 {typeof(DecimalNode), (n) => Visit(n as DecimalNode)},
                 {typeof(IntegerNode), (n) => Visit(n as IntegerNode)},
                 {typeof(StringNode), (n) => Visit(n as StringNode)},
@@ -58,6 +59,7 @@ namespace EVIL.Interpreter
         protected abstract void ConstraintCheck(AstNode node);
 
         public abstract DynValue Visit(ProgramNode programNode);
+        public abstract DynValue Visit(BlockStatementNode blockStatementNode);
         public abstract DynValue Visit(DecimalNode decimalNode);
         public abstract DynValue Visit(IntegerNode integerNode);
         public abstract DynValue Visit(StringNode stringNode);

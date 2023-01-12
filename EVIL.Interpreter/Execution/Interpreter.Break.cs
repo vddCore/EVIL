@@ -15,6 +15,7 @@ namespace EVIL.Interpreter.Execution
                     breakNode.Line
                 );
             }
+            
             Environment.LoopStackTop.Break();
             return DynValue.Zero;
         }

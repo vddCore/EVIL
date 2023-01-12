@@ -17,7 +17,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode MultiplicativeExpression()
         {
             var node = UnaryExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_multiplicativeOperators.Contains(token.Type))
             {
@@ -37,7 +37,7 @@ namespace EVIL.Grammar.Parsing
                     node = new BinaryOperationNode(node, UnaryExpression(), BinaryOperationType.Modulo) { Line = line };
                 }                
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
             
             return node;

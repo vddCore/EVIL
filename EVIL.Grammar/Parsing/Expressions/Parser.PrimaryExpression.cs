@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
     {
         public AstNode PrimaryExpression()
         {
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             if (token.Type == TokenType.LParenthesis)
             {

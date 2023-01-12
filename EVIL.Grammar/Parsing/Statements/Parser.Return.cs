@@ -11,7 +11,7 @@ namespace EVIL.Grammar.Parsing
             var line = Match(TokenType.Ret);
             AstNode retNode;
 
-            if (Scanner.State.CurrentToken.Type == TokenType.Semicolon)
+            if (CurrentToken.Type == TokenType.Semicolon)
             {
                 retNode = new IntegerNode(0) { Line = line };
             }

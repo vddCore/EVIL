@@ -11,10 +11,10 @@ namespace EVIL.Grammar.Parsing
             int line;
             AstNode indexer;
             
-            if (Scanner.State.CurrentToken.Type == TokenType.Dot)
+            if (CurrentToken.Type == TokenType.Dot)
             {
                 line = Match(TokenType.Dot);
-                indexer = new StringNode(Scanner.State.CurrentToken.Value.ToString());
+                indexer = new StringNode(CurrentToken.Value.ToString());
                 Match(TokenType.Identifier);
             }
             else // must be bracket then
@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Parsing
                 Match(TokenType.RBracket);
             }
 
-            return new IndexingNode(indexable, indexer, Scanner.State.CurrentToken.Type == TokenType.Assign) {Line = line};
+            return new IndexingNode(indexable, indexer, CurrentToken.Type == TokenType.Assign) {Line = line};
         }
     }
 }

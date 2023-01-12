@@ -9,14 +9,14 @@ namespace EVIL.Grammar.Parsing
         private AstNode LogicalAndExpression()
         {
             var node = InclusiveOrExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (token.Type == TokenType.LogicalAnd)
             {
                 var line = Match(TokenType.LogicalAnd);
                 node = new BinaryOperationNode(node, InclusiveOrExpression(), BinaryOperationType.And) {Line = line};
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

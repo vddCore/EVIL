@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST;
+﻿using System.Globalization;
+using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Nodes;
 using EVIL.Lexical;
 
@@ -8,22 +9,22 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode Constant()
         {
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
             
             if (token.Type == TokenType.Decimal)
             {
                 var line = Match(TokenType.Decimal);
-                return new DecimalNode((decimal)token.Value) {Line = line};
+                return new DecimalNode(decimal.Parse(token.Value)) {Line = line};
             }
             else if (token.Type == TokenType.HexInteger)
             {
                 var line = Match(TokenType.HexInteger);
-                return new IntegerNode((int)token.Value) {Line = line};
+                return new IntegerNode(int.Parse(token.Value, NumberStyles.HexNumber)) {Line = line};
             }
             else if (token.Type == TokenType.Integer)
             {
                 var line = Match(TokenType.Integer);
-                return new IntegerNode((int)token.Value) {Line = line};
+                return new IntegerNode(int.Parse(token.Value)) {Line = line};
             }
             else if (token.Type == TokenType.True)
             {
@@ -40,7 +41,7 @@ namespace EVIL.Grammar.Parsing
                 var line = Match(TokenType.String);
                 return new StringNode(token.Value.ToString()) {Line = line};
             }
-            else throw new ParserException($"Unexpected token [{token}]", Scanner.State);
+            else throw new ParserException($"Unexpected token [{token}]", Lexer.State);
         }
     }
 }

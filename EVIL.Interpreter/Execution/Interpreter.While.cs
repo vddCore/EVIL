@@ -17,14 +17,7 @@ namespace EVIL.Interpreter.Execution
 
                     while (Visit(whileLoopNode.Expression).IsTruth)
                     {
-                        if (whileLoopNode.StatementList.Count > 0)
-                        {
-                            Environment.EnterScope();
-                            {
-                                ExecuteStatementList(whileLoopNode.StatementList);
-                            }
-                            Environment.ExitScope();
-                        }
+                        Visit(whileLoopNode.Statements);
 
                         if (stackTop.BreakLoop)
                         {
@@ -43,9 +36,8 @@ namespace EVIL.Interpreter.Execution
                 }
             }
             Environment.ExitScope();
-            
+
             return DynValue.Zero;
         }
-
     }
 }

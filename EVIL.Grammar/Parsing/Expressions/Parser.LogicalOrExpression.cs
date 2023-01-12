@@ -10,14 +10,14 @@ namespace EVIL.Grammar.Parsing
         private AstNode LogicalOrExpression()
         {
             var node = LogicalAndExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (token.Type == TokenType.LogicalOr)
             {
                 var line = Match(TokenType.LogicalOr);
                 node = new BinaryOperationNode(node, LogicalAndExpression(), BinaryOperationType.Or) {Line = line};
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

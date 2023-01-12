@@ -14,15 +14,13 @@ namespace EVIL.Grammar.Parsing
             var expression = AssignmentExpression();
 
             Match(TokenType.RParenthesis);
-            Match(TokenType.LBrace);
-
             var node = new ConditionNode { Line = line };
-            node.IfElifBranches.Add(expression, ConditionStatementList());
-            Match(TokenType.RBrace);
 
-            while (Scanner.State.CurrentToken.Type == TokenType.Elif || Scanner.State.CurrentToken.Type == TokenType.Else)
+            node.IfElifBranches.Add(expression, BlockStatement());
+
+            while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
             {
-                if (Scanner.State.CurrentToken.Type == TokenType.Elif)
+                if (CurrentToken.Type == TokenType.Elif)
                 {
                     Match(TokenType.Elif);
                     Match(TokenType.LParenthesis);
@@ -30,22 +28,16 @@ namespace EVIL.Grammar.Parsing
                     expression = AssignmentExpression();
 
                     Match(TokenType.RParenthesis);
-                    
-                    Match(TokenType.LBrace);
-                    node.IfElifBranches.Add(expression, ConditionStatementList());
-                    Match(TokenType.RBrace);
+                    node.IfElifBranches.Add(expression, BlockStatement());
                 }
-                else if (Scanner.State.CurrentToken.Type == TokenType.Else)
+                else if (CurrentToken.Type == TokenType.Else)
                 {
                     Match(TokenType.Else);
-                    Match(TokenType.LBrace);
-                    node.ElseBranch = ConditionStatementList();
-                    Match(TokenType.RBrace);
-
-                    return node;
+                    node.ElseBranch = BlockStatement();
                 }
-                else throw new ParserException($"Expected 'end' or 'else' or 'elif', got '{Scanner.State.CurrentToken.Value}'", Scanner.State);
+                else throw new ParserException($"Expected 'end' or 'else' or 'elif', got '{CurrentToken.Value}'", Lexer.State);
             }
+            
             return node;
         }
     }

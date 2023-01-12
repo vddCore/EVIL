@@ -28,13 +28,9 @@ namespace EVIL.Interpreter.Execution
                             break;
                         }
                        
-                        if (!loopStackTop.SkipThisIteration && forLoopNode.StatementList.Count > 0)
+                        if (!loopStackTop.SkipThisIteration)
                         {
-                            Environment.EnterScope();
-                            {
-                                ExecuteStatementList(forLoopNode.StatementList);
-                            }
-                            Environment.ExitScope();
+                            Visit(forLoopNode.Statements);
                         }
                         
                         if (loopStackTop.BreakLoop)

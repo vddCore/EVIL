@@ -10,25 +10,22 @@ namespace EVIL.Interpreter.Execution
         {
             var left = Visit(assignmentNode.Left);
             var right = Visit(assignmentNode.Right);
-            
+
             switch (assignmentNode.OperationType)
             {
                 case AssignmentOperationType.Direct:
                     break;
-                
+
                 case AssignmentOperationType.Add:
                     right = Addition(left, right, assignmentNode);
                     break;
-                    
+
                 case AssignmentOperationType.Subtract:
                     right = Subtraction(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.Multiply:
-                    if (left.Type == DynValueType.Decimal)
-                        right = Multiplication(right, left, assignmentNode);
-                    else
-                        right = Multiplication(left, right, assignmentNode);
+                    right = Multiplication(left, right, assignmentNode);
                     break;
 
                 case AssignmentOperationType.Divide:

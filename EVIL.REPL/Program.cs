@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
-using EVIL.Interpreter.Diagnostics;
 using EVIL.Interpreter.Execution;
 using EVIL.Lexical;
 using Environment = EVIL.Interpreter.Environment;
+using StackFrame = EVIL.Interpreter.Diagnostics.StackFrame;
 
 namespace EVIL.REPL
 {
@@ -16,10 +18,12 @@ namespace EVIL.REPL
         private static Environment _environment;
         private static Interpreter.Execution.Interpreter _interpreter;
         private static bool _stayInteractive;
-        
+        private static Stopwatch _stopwatch = new();
+
         private static string _entryPointFunctionName;
         private static bool _refuseToRunTopLevelCode;
-        
+        private static bool _measure;
+
         private static List<string> _entryPointArgs = new();
 
         internal static void Main(string[] args)
@@ -42,11 +46,15 @@ namespace EVIL.REPL
                         case "-h":
                             Help();
                             return;
-                        
+
                         case "-i":
                             _stayInteractive = true;
                             continue;
-                        
+
+                        case "-m":
+                            _measure = true;
+                            continue;
+
                         case "-e":
                             if (++i >= args.Length)
                             {
@@ -56,14 +64,14 @@ namespace EVIL.REPL
 
                             _entryPointFunctionName = args[i];
                             continue;
-                        
+
                         case "-c":
                             break;
-                       
+
                         case "-r":
                             _refuseToRunTopLevelCode = true;
                             continue;
-                        
+
                         default:
                             _entryPointArgs.Add(args[i]);
                             break;
@@ -71,13 +79,16 @@ namespace EVIL.REPL
                 }
 
                 if (File.Exists(args[0]))
-                {                    
+                {
                     using (var sr = new StreamReader(args[0]))
                     {
                         try
                         {
                             if (!string.IsNullOrEmpty(_entryPointFunctionName))
                             {
+                                if (_measure)
+                                    _stopwatch.Start();
+
                                 _interpreter.Execute(
                                     sr.ReadToEnd(),
                                     _entryPointFunctionName,
@@ -88,6 +99,9 @@ namespace EVIL.REPL
                             }
                             else
                             {
+                                if (_measure)
+                                    _stopwatch.Start();
+
                                 _interpreter.Execute(sr.ReadToEnd());
                             }
                         }
@@ -106,7 +120,7 @@ namespace EVIL.REPL
 
                             sb.AppendLine($": {re.Message}");
                             sb.AppendLine();
-                            
+
                             if (re.EvilStackTrace == null || re.EvilStackTrace.Count == 0)
                             {
                                 sb.Append("No stack trace available.");
@@ -120,11 +134,21 @@ namespace EVIL.REPL
                         }
                         catch (ParserException pe)
                         {
-                            Console.WriteLine($"Parser error on line {pe.ScannerState?.Line}: {pe.Message}");
+                            Console.WriteLine($"Parser error on line {pe.LexerState?.Line}: {pe.Message}");
                         }
-                        catch (ScannerException se)
+                        catch (LexerException se)
                         {
                             Console.WriteLine($"Lexer error on line {se.Line}: {se.Message}");
+                        }
+                        finally
+                        {
+                            if (_measure)
+                            {
+                                _stopwatch.Stop();
+
+                                Console.WriteLine(
+                                    $"Done in {_stopwatch.ElapsedMilliseconds}ms ({_stopwatch.ElapsedTicks}) ticks");
+                            }
                         }
                     }
                 }
@@ -141,7 +165,7 @@ namespace EVIL.REPL
         private static string FormatStackTrace(List<StackFrame> stackTrace)
         {
             var sb = new StringBuilder();
-            
+
             foreach (var frame in stackTrace)
             {
                 sb.AppendLine(
@@ -157,7 +181,8 @@ namespace EVIL.REPL
         private static void Help()
         {
             Console.WriteLine("Ghetto EVIL interpreter with interactive mode.");
-            Console.WriteLine($"Usage: {Path.GetFileName(Assembly.GetExecutingAssembly().Location)} [file] [options] [arguments_to_script]");
+            Console.WriteLine(
+                $"Usage: {Path.GetFileName(Assembly.GetExecutingAssembly().Location)} [file] [options] [arguments_to_script]");
             Console.WriteLine("  -h: this message");
             Console.WriteLine("  -i: stay in interactive mode after executing a script.");
             Console.WriteLine("  -e <name>: specify entry-point function name.");
@@ -168,7 +193,7 @@ namespace EVIL.REPL
         private static void InteractiveMode()
         {
             Console.WriteLine("Entering interactive mode.");
-            
+
             while (true)
             {
                 Console.Write("EVIL> ");

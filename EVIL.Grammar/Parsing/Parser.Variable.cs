@@ -8,11 +8,11 @@ namespace EVIL.Grammar.Parsing
         private VariableNode Variable(string identifier = null)
         {
             var name = identifier;
-            var line = Scanner.State.Line;
+            var line = Lexer.State.Line;
 
             if (identifier == null)
             {
-                name = Scanner.State.CurrentToken.Value.ToString();
+                name = CurrentToken.Value.ToString();
                 line = Match(TokenType.Identifier);
             }
 

@@ -19,7 +19,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode RelationalExpression()
         {
             var node = ShiftExpression();
-            var token = Scanner.State.CurrentToken;
+            var token = CurrentToken;
 
             while (_comparisonOperators.Contains(token.Type))
             {
@@ -52,7 +52,7 @@ namespace EVIL.Grammar.Parsing
                         {Line = line};
                 }
                 
-                token = Scanner.State.CurrentToken;
+                token = CurrentToken;
             }
 
             return node;

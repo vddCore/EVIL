@@ -20,13 +20,8 @@ namespace EVIL.Grammar.Parsing
             var tableNode = AssignmentExpression();
             
             Match(TokenType.RParenthesis);
-            Match(TokenType.LBrace);
 
-            var statements = LoopStatementList();
-
-            Match(TokenType.RBrace);
-
-            return new EachLoopNode(keyVar, valueVar, tableNode, statements) { Line = line };
+            return new EachLoopNode(keyVar, valueVar, tableNode, BlockStatement()) { Line = line };
         }
     }
 }

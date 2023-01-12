@@ -13,23 +13,14 @@ namespace EVIL.Interpreter.Execution
 
                 if (exprResult.IsTruth)
                 {
-                    Environment.EnterScope();
-                    {
-                        ExecuteStatementList(branch.Value);
-                    }
-                    Environment.ExitScope();
-                    
+                    Visit(branch.Value);
                     return DynValue.Zero;
                 }
             }
 
             if (conditionNode.ElseBranch != null)
             {
-                Environment.EnterScope();
-                {
-                    ExecuteStatementList(conditionNode.ElseBranch);
-                }
-                Environment.ExitScope();
+                Visit(conditionNode.ElseBranch);
             }
 
             return DynValue.Zero;
