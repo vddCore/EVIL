@@ -12,7 +12,7 @@ namespace EVIL.Grammar.Parsing
 
             if (identifier == null)
             {
-                name = (string)Scanner.State.CurrentToken.Value;
+                name = Scanner.State.CurrentToken.Value.ToString();
                 line = Match(TokenType.Identifier);
             }
 

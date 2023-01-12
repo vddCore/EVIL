@@ -62,14 +62,12 @@ namespace EVIL.Interpreter.Abstraction
             if (key == null)
                 return null;
             
-            switch (key.Type)
-            {
-                case DynValueType.Number:
+            if(key.Type == DynValueType.Number)
                     return GetKeyByNumber(key.Number);
-                case DynValueType.String:
+            else if(key.Type == DynValueType.String)
                     return GetKeyByString(key.String);
-                default: throw new KeyNotFoundException($"The key '{key.AsString()}' was not found in the dictionary.");
-            }
+            
+            throw new KeyNotFoundException($"A {key.Type} cannot be used as a key.");
         }
 
         public new bool ContainsKey(DynValue key)

@@ -23,6 +23,7 @@
         ShiftLeft,
         
         Dot,
+        New,
 
         Assign,
         AssignAdd,
