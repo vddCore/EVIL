@@ -28,7 +28,7 @@ namespace EVIL.Grammar.Parsing
             return programNode;
         }
 
-        private T FunctionDescent<T>(Func<T> func) where T: AstNode
+        private T FunctionDescent<T>(Func<T> func) where T : AstNode
         {
             _functionDescent++;
             var ret = func();
@@ -37,7 +37,7 @@ namespace EVIL.Grammar.Parsing
             return ret;
         }
 
-        private T LoopDescent<T>(Func<T> func) where T: AstNode
+        private T LoopDescent<T>(Func<T> func) where T : AstNode
         {
             _loopDescent++;
             var ret = func();
@@ -72,8 +72,22 @@ namespace EVIL.Grammar.Parsing
 
             if (!CurrentToken.Equals(token))
             {
+                string actual;
+
+                if (CurrentToken.Value != null)
+                {
+                    actual = $"'{CurrentToken.Value}'";
+                }
+                else
+                {
+                    actual = CurrentToken.Type.ToString().ToLower();
+                    actual = "aeiou".Contains(actual[0])
+                        ? $"an {actual}"
+                        : $"a {actual}";
+                }
+
                 throw new ParserException(
-                    $"Expected '{token.Value}', got '{CurrentToken.Value}'.",
+                    $"Expected '{token.Value}', got {actual}.",
                     Lexer.State
                 );
             }
