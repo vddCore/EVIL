@@ -15,9 +15,6 @@
     <ProjectReference Include="..\..\Core\EVIL.Lexical\EVIL.Lexical.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="_resources" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Execution\Interpreter.Assignment.cs">
       <DependentUpon>Interpreter.cs</DependentUpon>
     </Compile>
