@@ -60,12 +60,12 @@ All regular operators work as you would expect them to work in a C-like language
 [`<-`](https://github.com/Ciastex/EVIL/wiki/Operators#--1) - initializes a table key using a value.  
 
 ##### Arithmetic
-`+` - addition/concatenation  
-`-` - subtraction  
-`/` - division  
-`*` - multiplication  
-`%` - modulo  
-`$` - floor operator  
+[`+`](https://github.com/Ciastex/EVIL/wiki/Operators#-4) - addition/concatenation  
+[`-`](https://github.com/Ciastex/EVIL/wiki/Operators#--2) - subtraction  
+[`/`](https://github.com/Ciastex/EVIL/wiki/Operators#-6) - division  
+[`*`](https://github.com/Ciastex/EVIL/wiki/Operators#-5) - multiplication  
+[`%`](https://github.com/Ciastex/EVIL/wiki/Operators#-7) - modulo  
+[`$`](https://github.com/Ciastex/EVIL/wiki/Operators#-8) - floor operator  
 
 All arithmetic operators support compound versions of themselves (e.g. `+=`)  
 
