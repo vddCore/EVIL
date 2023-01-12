@@ -13,9 +13,7 @@ namespace EVIL.Parsing
             TokenType.Plus,
             TokenType.Minus,
             TokenType.ShiftLeft,
-            TokenType.ShiftRight,
-            TokenType.And,
-            TokenType.Or
+            TokenType.ShiftRight
         };
 
         private AstNode Expression()
@@ -47,17 +45,8 @@ namespace EVIL.Parsing
                     var line = Match(TokenType.ShiftRight);
                     node = new BinaryOperationNode(node, BinaryOperationType.ShiftRight, Term()) { Line = line };
                 }
-                else if (token.Type == TokenType.Or)
-                {
-                    var line = Match(TokenType.Or);
-                    node = new BinaryOperationNode(node, BinaryOperationType.Or, Term()) { Line = line };
-                }
-                else if (token.Type == TokenType.And)
-                {
-                    var line = Match(TokenType.And);
-                    node = new BinaryOperationNode(node, BinaryOperationType.And, Term()) { Line = line };
-                }
             }
+            
             return node;
         }
 

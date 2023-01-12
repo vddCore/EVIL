@@ -203,6 +203,10 @@ namespace EVIL.Lexical
             {
                 State.CurrentToken = new Token(TokenType.Colon, ':');
             }
+            else if (State.Character == ';')
+            {
+                State.CurrentToken = new Token(TokenType.Semicolon, ';');
+            }
             else if (State.Character == '(')
             {
                 State.CurrentToken = new Token(TokenType.LParenthesis, '(');

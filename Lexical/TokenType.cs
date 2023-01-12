@@ -38,6 +38,7 @@
         Assign,
         Comma,
         Colon,
+        Semicolon,
         LParenthesis,
         RParenthesis,
         LBrace,
