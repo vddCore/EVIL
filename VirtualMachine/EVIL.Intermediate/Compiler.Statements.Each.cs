@@ -26,17 +26,26 @@ namespace EVIL.Intermediate
                 {
                     var localScope = ScopeStack.Peek();
                     var valueLocalSym = localScope.DefineLocal(valueLocal.Key);
-                    var iterStatement = CurrentChunk.DefineLabel();
+                    
+                    var iterLabel = CurrentChunk.DefineLabel();
+                    var loopLabel = CurrentChunk.DefineLabel();
+                    var endLabel = CurrentChunk.DefineLabel();
+                    
+                    LoopContinueLabels.Push(iterLabel);
+                    LoopEndLabels.Push(endLabel);
 
                     Visit(eachStatement.Iterable);
                     cg.Emit(OpCode.EACH);
-                    cg.Emit(OpCode.JUMP, iterStatement);
-                    var loopStart = CurrentChunk.DefineLabel(cg.IP);
+                    cg.Emit(OpCode.JUMP, iterLabel);
+                    CurrentChunk.UpdateLabel(loopLabel, cg.IP);
                     cg.Emit(OpCode.STL, valueLocalSym.Id);
                     Visit(eachStatement.Body);
-                    CurrentChunk.UpdateLabel(iterStatement, cg.IP);
+                    CurrentChunk.UpdateLabel(iterLabel, cg.IP);
                     cg.Emit(OpCode.ITER, 0);
-                    cg.Emit(OpCode.TJMP, loopStart);
+                    cg.Emit(OpCode.TJMP, loopLabel);
+                    CurrentChunk.UpdateLabel(endLabel, cg.IP);
+                    cg.Emit(OpCode.ENDE);
+                    
                 }
                 LeaveScope();
             }
@@ -69,18 +78,25 @@ namespace EVIL.Intermediate
                     var keyLocalSym = localScope.DefineLocal(keyLocal.Key);
                     var valueLocalSym = localScope.DefineLocal(valueLocal.Key);
 
-                    var iterStatement = CurrentChunk.DefineLabel();
-
+                    var iterLabel = CurrentChunk.DefineLabel();
+                    var loopLabel = CurrentChunk.DefineLabel();
+                    var endLabel = CurrentChunk.DefineLabel();
+                    
+                    LoopContinueLabels.Push(iterLabel);
+                    LoopEndLabels.Push(endLabel);
+                    
                     Visit(eachStatement.Iterable);
                     cg.Emit(OpCode.EACH);
-                    cg.Emit(OpCode.JUMP, iterStatement);
-                    var loopStart = CurrentChunk.DefineLabel(cg.IP);
+                    cg.Emit(OpCode.JUMP, iterLabel);
+                    CurrentChunk.UpdateLabel(loopLabel, cg.IP);
                     cg.Emit(OpCode.STL, keyLocalSym.Id);
                     cg.Emit(OpCode.STL, valueLocalSym.Id);
                     Visit(eachStatement.Body);
-                    CurrentChunk.UpdateLabel(iterStatement, cg.IP);
+                    CurrentChunk.UpdateLabel(iterLabel, cg.IP);
                     cg.Emit(OpCode.ITER, 1);
-                    cg.Emit(OpCode.TJMP, loopStart);
+                    cg.Emit(OpCode.TJMP, loopLabel);
+                    CurrentChunk.UpdateLabel(endLabel, cg.IP);
+                    cg.Emit(OpCode.ENDE);
                 }
                 LeaveScope();
             }
