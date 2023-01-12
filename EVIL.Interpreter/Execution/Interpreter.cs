@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using EVIL.Grammar.AST;
 using EVIL.Grammar.Traversal.Generic;
 using EVIL.Grammar.Parsing;
 using EVIL.Interpreter.Abstraction;
