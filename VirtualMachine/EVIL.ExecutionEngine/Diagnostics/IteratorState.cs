@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EVIL.ExecutionEngine.Abstraction;
 
-namespace EVIL.ExecutionEngine
+namespace EVIL.ExecutionEngine.Diagnostics
 {
     public class IteratorState
     {

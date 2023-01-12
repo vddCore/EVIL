@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using EVIL.ExecutionEngine.Abstraction;
+using EVIL.ExecutionEngine.Diagnostics;
 using EVIL.Intermediate;
-using StackFrame = EVIL.ExecutionEngine.Diagnostics.StackFrame;
 
 namespace EVIL.ExecutionEngine
 {
@@ -13,14 +12,15 @@ namespace EVIL.ExecutionEngine
     {
         private StackFrame _currentStackFrame;
 
-        private Stack<IteratorState> IteratorStates { get; } = new();
-        private RuntimeConstPool RuntimeConstPool { get; }
-        private Stack<StackFrame> CallStack { get; } = new();
         private Executable Executable { get; }
+        private RuntimeConstPool RuntimeConstPool { get; }
+        
+        private Stack<IteratorState> IteratorStates { get; } = new();
+        private Stack<StackFrame> CallStack { get; } = new();
+        private Stack<DynamicValue> EvaluationStack { get; } = new();
         private Dictionary<Chunk, DynamicValue[]> ExternContexts { get; } = new();
 
         public Table GlobalTable { get; } = new();
-        public Stack<DynamicValue> EvaluationStack { get; } = new();
 
         public bool Running { get; private set; }
 
@@ -29,16 +29,20 @@ namespace EVIL.ExecutionEngine
             Executable = executable;
             RuntimeConstPool = new RuntimeConstPool(Executable.ConstPool);
 
-            foreach (var name in executable.Globals)
+            for(var i = 0; i < executable.Globals.Count; i++)
             {
+                var name = executable.Globals[i];
+                
                 GlobalTable.Set(
                     new DynamicValue(name),
                     DynamicValue.Zero
                 );
             }
 
-            foreach (var c in executable.Chunks)
+            for (var i = 0; i < executable.Chunks.Count; i++)
             {
+                var c = executable.Chunks[i];
+                
                 if (!c.Name.StartsWith('!'))
                 {
                     GlobalTable.Set(
@@ -118,10 +122,7 @@ namespace EVIL.ExecutionEngine
                     b = evstack.Pop();
                     a = evstack.Pop();
 
-                    var comparer = ValueComparers.RetrieveComparer(a, b);
-                    var compResult = comparer(a, b);
-
-                    evstack.Push(new(compResult != 0));
+                    evstack.Push(new(!a.Equals(b)));
                     break;
                 }
 
@@ -130,10 +131,7 @@ namespace EVIL.ExecutionEngine
                     b = evstack.Pop();
                     a = evstack.Pop();
 
-                    var comparer = ValueComparers.RetrieveComparer(a, b);
-                    var compResult = comparer(a, b);
-
-                    evstack.Push(new(compResult == 0));
+                    evstack.Push(new(a.Equals(b)));
                     break;
                 }
 
@@ -196,8 +194,6 @@ namespace EVIL.ExecutionEngine
 
                 case OpCode.POP:
                 {
-                    Debug.Assert(evstack.Count >= 0);
-
                     evstack.Pop();
                     break;
                 }
@@ -644,7 +640,7 @@ namespace EVIL.ExecutionEngine
                 case OpCode.RGL:
                 {
                     itmp = frame.FetchInt32();
-                    
+
                     GlobalTable.Unset(RuntimeConstPool.FetchConst(itmp));
                     break;
                 }
@@ -661,6 +657,10 @@ namespace EVIL.ExecutionEngine
                 case OpCode.EACH:
                 {
                     a = evstack.Pop();
+
+                    if (a.Type != DynamicValueType.Table)
+                        a = new(a.AsTable());
+
                     var iterState = new IteratorState(a.Table);
                     IteratorStates.Push(iterState);
                     break;

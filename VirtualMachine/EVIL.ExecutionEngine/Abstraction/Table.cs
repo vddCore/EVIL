@@ -52,6 +52,16 @@ namespace EVIL.ExecutionEngine.Abstraction
             return Entries.Remove(key);
         }
 
+        public static Table FromString(string str)
+        {
+            var t = new Table();
+
+            for (var i = 0; i < str.Length; i++)
+                t.Set(new(i), new(str[i].ToString()));
+
+            return t;
+        }
+
         [DebuggerHidden]
         private void EnsureValidKeyType(DynamicValue key)
         {
