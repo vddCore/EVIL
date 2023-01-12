@@ -89,9 +89,14 @@ namespace EVIL.VirtualMachine.TestDriver
                     evm.Load(exe);
                     evm.Run();
 
-                    using (var fs = File.OpenWrite("ser.tbl"))
+                    using (var fs = new FileStream("ser.tbl", FileMode.Create))
                     {
                         _globalTable.Get("t").Table.Serialize(fs);
+                    }
+
+                    using (var fs = File.OpenRead("ser.tbl"))
+                    {
+                        var t = Table.Deserialize(fs);
                     }
                 }
                 catch (VirtualMachineException e)

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.Intermediate.Storage
