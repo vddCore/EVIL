@@ -1,10 +1,10 @@
 ﻿namespace EVIL.Grammar.AST.Nodes
 {
-    public class NumberNode : AstNode
+    public class DecimalNode : AstNode
     {
         public decimal Value { get; }
 
-        public NumberNode(decimal number)
+        public DecimalNode(decimal number)
         {
             Value = number;
         }

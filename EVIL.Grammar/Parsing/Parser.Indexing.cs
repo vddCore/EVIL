@@ -20,7 +20,7 @@ namespace EVIL.Grammar.Parsing
             else // must be bracket then
             {
                 line = Match(TokenType.LBracket);
-                indexer = Assignment();
+                indexer = AssignmentExpression();
                 Match(TokenType.RBracket);
             }
 

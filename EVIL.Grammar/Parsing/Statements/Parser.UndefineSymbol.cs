@@ -6,10 +6,10 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AstNode Return()
+        private AstNode UndefineSymbol()
         {
-            var line = Match(TokenType.Ret);
-            return new ReturnNode(Assignment()) { Line = line };
+            var line = Match(TokenType.Undef);
+            return new UndefNode(PostfixExpression()) {Line = line};
         }
     }
 }

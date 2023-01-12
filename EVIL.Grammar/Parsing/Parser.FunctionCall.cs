@@ -9,8 +9,13 @@ namespace EVIL.Grammar.Parsing
     {
         private AstNode FunctionCall(AstNode left)
         {
-            var line = Match(TokenType.LParenthesis);
+            var parameters = FunctionParameterList(out var line);
+            return new FunctionCallNode(left, parameters) { Line = line };
+        }
 
+        private List<AstNode> FunctionParameterList(out int line)
+        {
+            line = Match(TokenType.LParenthesis);
             var parameters = new List<AstNode>();
 
             while (Scanner.State.CurrentToken.Type != TokenType.RParenthesis)
@@ -18,17 +23,15 @@ namespace EVIL.Grammar.Parsing
                 if (Scanner.State.CurrentToken.Type == TokenType.EOF)
                     throw new ParserException($"Unexpected EOF in the function call stated in line {line}.");
 
-                parameters.Add(Assignment());
+                parameters.Add(AssignmentExpression());
 
                 if (Scanner.State.CurrentToken.Type == TokenType.RParenthesis)
                     break;
 
                 Match(TokenType.Comma);
             }
-
             Match(TokenType.RParenthesis);
-
-            return new FunctionCallNode(left, parameters) { Line = line };
+            return parameters;
         }
     }
 }

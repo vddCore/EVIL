@@ -146,7 +146,7 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompareEqual, "==");
+                    State.CurrentToken = new Token(TokenType.Equal, "==");
                 }
                 else
                 {
@@ -158,7 +158,7 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompareLessOrEqualTo, "<=");
+                    State.CurrentToken = new Token(TokenType.LessThanOrEqual, "<=");
                 }
                 else if (Peek() == '<')
                 {
@@ -167,7 +167,7 @@ namespace EVIL.Lexical
                 }
                 else
                 {
-                    State.CurrentToken = new Token(TokenType.CompareLessThan, '<');
+                    State.CurrentToken = new Token(TokenType.LessThan, '<');
                 }
             }
             else if (State.Character == '>')
@@ -175,7 +175,7 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompareGreaterOrEqualTo, ">=");
+                    State.CurrentToken = new Token(TokenType.GreaterThanOrEqual, ">=");
                 }
                 else if (Peek() == '>')
                 {
@@ -184,7 +184,7 @@ namespace EVIL.Lexical
                 }
                 else
                 {
-                    State.CurrentToken = new Token(TokenType.CompareGreaterThan, '>');
+                    State.CurrentToken = new Token(TokenType.GreaterThan, '>');
                 }
             }
             else if (State.Character == '&')
@@ -192,7 +192,7 @@ namespace EVIL.Lexical
                 if (Peek() == '&')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.And, "&&");
+                    State.CurrentToken = new Token(TokenType.LogicalAnd, "&&");
                 }
                 else
                 {
@@ -212,7 +212,7 @@ namespace EVIL.Lexical
                 if (Peek() == '|')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.Or, "||");
+                    State.CurrentToken = new Token(TokenType.LogicalOr, "||");
                 }
                 else
                 {
@@ -268,11 +268,11 @@ namespace EVIL.Lexical
                 if (Peek() == '=')
                 {
                     Advance();
-                    State.CurrentToken = new Token(TokenType.CompareNotEqual, "!=");
+                    State.CurrentToken = new Token(TokenType.NotEqual, "!=");
                 }
                 else
                 {
-                    State.CurrentToken = new Token(TokenType.Negation, '!');
+                    State.CurrentToken = new Token(TokenType.LogicalNot, '!');
                 }
             }
             else if (State.Character == '[')
@@ -353,26 +353,39 @@ namespace EVIL.Lexical
                 Advance();
             }
 
-            return new Token(TokenType.HexNumber, Convert.ToDecimal(int.Parse(number, NumberStyles.HexNumber)));
+            return new Token(TokenType.HexInteger, int.Parse(number, NumberStyles.HexNumber));
         }
 
         private Token GetDecimalNumber()
         {
             var number = string.Empty;
+            var isDecimal = false;
 
             while (char.IsDigit(State.Character) || State.Character == '.')
             {
+                if (State.Character == '.')
+                {
+                    isDecimal = true;
+                }
+                
                 number += State.Character;
                 Advance();
             }
 
             try
             {
-                return new Token(TokenType.DecimalNumber, decimal.Parse(number));
+                if (isDecimal)
+                {
+                    return new Token(TokenType.Decimal, decimal.Parse(number));
+                }
+                else
+                {
+                    return new Token(TokenType.Integer, int.Parse(number));
+                }
             }
             catch (FormatException)
             {
-                throw new ScannerException("Invalid fractional number format.", State.Column, State.Line);
+                throw new ScannerException("Invalid number format.", State.Column, State.Line);
             }
         }
 

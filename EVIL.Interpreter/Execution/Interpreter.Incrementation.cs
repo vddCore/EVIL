@@ -15,32 +15,49 @@ namespace EVIL.Interpreter.Execution
                     incrementationNode.Line
                 );
             }
-            
+
             var numValue = Visit(incrementationNode.Target);
 
-            if (numValue.Type != DynValueType.Number)
+            if (numValue.Type == DynValueType.Decimal)
             {
-                throw new RuntimeException(
-                    "Cannot increment this value because it's not a number.",
-                    Environment,
-                    incrementationNode.Line
-                );
-            }
+                if (incrementationNode.IsPrefix)
+                {
+                    var retVal = new DynValue(numValue.Decimal + 1);
+                    numValue.CopyFrom(retVal);
 
-            if (incrementationNode.IsPrefix)
-            {
-                var retVal = new DynValue(numValue.Number + 1);
-                numValue.CopyFrom(retVal);
-                
-                return retVal;
-            }
-            else
-            {
-                var retVal = numValue.Copy();
-                numValue.CopyFrom(new DynValue(numValue.Number + 1));
+                    return retVal;
+                }
+                else
+                {
+                    var retVal = numValue.Copy();
+                    numValue.CopyFrom(new DynValue(numValue.Decimal + 1));
 
-                return retVal;
+                    return retVal;
+                }
             }
+            else if (numValue.Type == DynValueType.Integer)
+            {
+                if (incrementationNode.IsPrefix)
+                {
+                    var retVal = new DynValue(numValue.Integer + 1);
+                    numValue.CopyFrom(retVal);
+
+                    return retVal;
+                }
+                else
+                {
+                    var retVal = numValue.Copy();
+                    numValue.CopyFrom(new DynValue(numValue.Integer + 1));
+
+                    return retVal;
+                }
+            }
+            
+            throw new RuntimeException(
+                "Cannot increment this value because it's not a number.",
+                Environment,
+                incrementationNode.Line
+            );
         }
     }
 }

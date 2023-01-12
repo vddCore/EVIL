@@ -25,7 +25,7 @@ namespace EVIL.Interpreter.Execution
                     break;
 
                 case AssignmentOperationType.Multiply:
-                    if (left.Type == DynValueType.Number)
+                    if (left.Type == DynValueType.Decimal)
                         right = Multiplication(right, left, assignmentNode);
                     else
                         right = Multiplication(left, right, assignmentNode);

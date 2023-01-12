@@ -17,7 +17,12 @@ namespace EVIL.Grammar.Parsing
         }
 
         public ProgramNode Parse()
-            => new(RootStatementList());
+        {
+            var programNode = new ProgramNode(RootStatementList());
+            Match(TokenType.EOF);
+
+            return programNode;
+        }
 
         private List<AstNode> RootStatementList()
         {

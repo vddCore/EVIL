@@ -71,9 +71,6 @@ namespace EVIL.Interpreter.Execution
                 case BinaryOperationType.Or:
                     return LogicalOr(left, right);
 
-                case BinaryOperationType.ExistsIn:
-                    return ExistsIn(left, right, binaryOperationNode);
-
                 default: throw new RuntimeException("Unknown binary operation.", Environment, binaryOperationNode.Line);
             }
         }
@@ -82,8 +79,14 @@ namespace EVIL.Interpreter.Execution
         {
             if (left.Type == DynValueType.String && right.Type == DynValueType.String)
                 return new DynValue(left.String + right.String);
-            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
-                return new DynValue(left.Number + right.Number);
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
+                return new DynValue(left.Decimal + right.Decimal);
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+                return new DynValue(left.Integer + right.Decimal);
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+                return new DynValue(left.Decimal + right.Integer);
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+                return new DynValue(left.Integer + right.Integer);
             else if (left.Type == DynValueType.Function && right.Type == DynValueType.Function)
             {
                 var stmts = new List<AstNode>();
@@ -93,7 +96,7 @@ namespace EVIL.Interpreter.Execution
                 var parameters = new List<string>();
                 var leftParameters = left.ScriptFunction.ParameterNames;
                 var rightParameters = right.ScriptFunction.ParameterNames;
-                
+
                 for (var i = 0; i < leftParameters.Count; i++)
                 {
                     parameters.Add(leftParameters[i]);
@@ -102,7 +105,7 @@ namespace EVIL.Interpreter.Execution
                 for (var i = 0; i < rightParameters.Count; i++)
                 {
                     var param = rightParameters[i];
-                    
+
                     if (!parameters.Contains(param))
                         parameters.Add(param);
                 }
@@ -117,10 +120,14 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Subtraction(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
-            {
-                return new DynValue(left.Number - right.Number);
-            }
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
+                return new DynValue(left.Decimal - right.Decimal);
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+                return new DynValue(left.Integer - right.Decimal);
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+                return new DynValue(left.Decimal - right.Integer);
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+                return new DynValue(left.Integer - right.Integer);
             else
             {
                 throw new RuntimeException($"Attempt to subtract {left.Type} and {right.Type}.", Environment,
@@ -132,61 +139,90 @@ namespace EVIL.Interpreter.Execution
         {
             if (left.Type == DynValueType.String)
             {
-                if (right.Type != DynValueType.Number)
+                if (right.Type != DynValueType.Integer)
                 {
                     throw new RuntimeException($"Attempt to repeat a string using {right.Type}.", Environment,
                         node.Line);
                 }
 
-                return new DynValue(RepeatString(left.String, right.Number));
+                return new DynValue(RepeatString(left.String, right.Decimal));
             }
             else if (left.Type == DynValueType.Function)
             {
-                if (right.Type != DynValueType.Number)
+                if (right.Type != DynValueType.Integer)
                 {
                     throw new RuntimeException($"Attempt to multiply a function using {right.Type}.", Environment,
                         node.Line);
                 }
 
-                return new DynValue(RepeatFunction(left.ScriptFunction, right.Number, node));
+                return new DynValue(RepeatFunction(left.ScriptFunction, right.Decimal, node));
             }
-            else if (left.Type == DynValueType.Number)
+            else if (left.Type == DynValueType.Decimal)
             {
-                if (right.Type == DynValueType.Number)
+                if (right.Type == DynValueType.Decimal)
                 {
-                    return new DynValue(left.Number * right.Number);
+                    return new DynValue(left.Decimal * right.Decimal);
+                }
+                else if (right.Type == DynValueType.Integer)
+                {
+                    return new DynValue(left.Decimal * right.Integer);
+                }
+            }
+            else if (left.Type == DynValueType.Integer)
+            {
+                if (right.Type == DynValueType.Integer)
+                {
+                    return new DynValue(left.Integer * right.Integer);
+                }
+                else if (right.Type == DynValueType.Decimal)
+                {
+                    return new DynValue(left.Integer * right.Decimal);
                 }
                 else if (right.Type == DynValueType.String)
                 {
-                    return new DynValue(RepeatString(right.String, left.Number));
+                    return new DynValue(RepeatString(right.String, left.Decimal));
                 }
                 else if (right.Type == DynValueType.Function)
                 {
-                    return new DynValue(RepeatFunction(right.ScriptFunction, left.Number, node));
-                }
-                else
-                {
-                    throw new RuntimeException($"Attempt to multiply {left.Type} and {right.Type}.", Environment,
-                        node.Line);
+                    return new DynValue(RepeatFunction(right.ScriptFunction, left.Decimal, node));
                 }
             }
-            else
-            {
-                throw new RuntimeException(
-                    $"Attempt to multiply {left.Type} and {right.Type}.",
-                    Environment,
-                    node.Line);
-            }
+
+            throw new RuntimeException(
+                $"Attempt to multiply {left.Type} and {right.Type}.",
+                Environment,
+                node.Line);
         }
 
         private DynValue Division(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (right.Number == 0)
+                if (right.Decimal == 0)
                     throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
 
-                return new DynValue(left.Number / right.Number);
+                return new DynValue(left.Decimal / right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                if (right.Decimal == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+
+                return new DynValue(left.Integer / right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                if (right.Integer == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+
+                return new DynValue(left.Decimal / right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                if (right.Integer == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+
+                return new DynValue(left.Integer / right.Integer);
             }
             else
             {
@@ -196,13 +232,40 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue Modulus(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (right.Number == 0)
+                if (right.Decimal == 0)
                     throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
 
                 return new DynValue(
-                    left.Number - right.Number * decimal.Floor(left.Number / right.Number)
+                    left.Decimal - right.Decimal * decimal.Floor(left.Decimal / right.Decimal)
+                );
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                if (right.Decimal == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+
+                return new DynValue(
+                    left.Integer - right.Decimal * decimal.Floor(left.Integer / right.Decimal)
+                );
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                if (right.Integer == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+
+                return new DynValue(
+                    left.Decimal - right.Integer * decimal.Floor(left.Decimal / right.Integer)
+                );
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                if (right.Integer == 0)
+                    throw new RuntimeException("Attempt to divide by zero.", Environment, node.Line);
+
+                return new DynValue(
+                    left.Integer - right.Integer * (left.Integer / right.Integer)
                 );
             }
             else
@@ -219,7 +282,7 @@ namespace EVIL.Interpreter.Execution
         {
             if (left.Type == DynValueType.String)
             {
-                if (right.Type != DynValueType.Number)
+                if (right.Type != DynValueType.Integer)
                 {
                     throw new RuntimeException(
                         $"Attempt to left-shift a string using {right.Type}.",
@@ -228,28 +291,19 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
 
-                if (right.Number > left.String.Length)
+                if (right.Integer > left.String.Length)
                     return new DynValue(string.Empty);
-                else if (right.Number < 0)
+                else if (right.Integer < 0)
                 {
-                    var prefix = new string(' ', (int)Math.Abs(right.Number));
+                    var prefix = new string(' ', Math.Abs(right.Integer));
                     return new DynValue(prefix + left.String);
                 }
 
-                return new DynValue(left.String[(int)right.Number..left.String.Length]);
+                return new DynValue(left.String[right.Integer..left.String.Length]);
             }
-            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
             {
-                if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        "Left-shift operation is only allowed on integer numbers.",
-                        Environment,
-                        node.Line
-                    );
-                }
-
-                return new DynValue((int)left.Number << (int)right.Number);
+                return new DynValue(left.Integer << right.Integer);
             }
             else
             {
@@ -265,7 +319,7 @@ namespace EVIL.Interpreter.Execution
         {
             if (left.Type == DynValueType.String)
             {
-                if (right.Type != DynValueType.Number)
+                if (right.Type != DynValueType.Integer)
                 {
                     throw new RuntimeException(
                         $"Attempt to right-shift a string using {right.Type}.",
@@ -274,27 +328,18 @@ namespace EVIL.Interpreter.Execution
                     );
                 }
 
-                if (right.Number > left.String.Length)
+                if (right.Integer > left.String.Length)
                     return new DynValue(string.Empty);
-                else if (right.Number < 0)
+                else if (right.Decimal < 0)
                 {
-                    var prefix = new string(' ', (int)Math.Abs(right.Number));
+                    var prefix = new string(' ', Math.Abs(right.Integer));
                     return new DynValue(left.String + prefix);
                 }
-                return new DynValue(left.String[0..(left.String.Length - (int)right.Number)]);
+                return new DynValue(left.String[0..(left.String.Length - right.Integer)]);
             }
-            else if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
             {
-                if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        $"Attempt to right-shift a non-integral number.",
-                        Environment,
-                        node.Line
-                    );
-                }
-
-                return new DynValue((int)left.Number >> (int)right.Number);
+                return new DynValue(left.Integer >> right.Integer);
             }
             else
             {
@@ -308,18 +353,9 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue BitwiseAnd(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
             {
-                if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        $"Attempt to bitwise AND a non-integral number.",
-                        Environment,
-                        node.Line
-                    );
-                }
-
-                return new DynValue((int)left.Number & (int)right.Number);
+                return new DynValue(left.Integer & right.Integer);
             }
             else
             {
@@ -333,18 +369,9 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue BitwiseOr(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
             {
-                if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        $"Attempt to bitwise OR a non-integral number.",
-                        Environment,
-                        node.Line
-                    );
-                }
-
-                return new DynValue((int)left.Number | (int)right.Number);
+                return new DynValue(left.Integer | right.Integer);
             }
             else
             {
@@ -358,18 +385,9 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue BitwiseXor(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
             {
-                if (left.Number % 1 != 0 || right.Number % 1 != 0)
-                {
-                    throw new RuntimeException(
-                        $"Attempt to bitwise XOR a non-integral number.",
-                        Environment,
-                        node.Line
-                    );
-                }
-
-                return new DynValue((int)left.Number ^ (int)right.Number);
+                return new DynValue(left.Integer ^ right.Integer);
             }
             else
             {
@@ -383,41 +401,25 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareLess(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (left.Number < right.Number)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.Decimal < right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Integer < right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Decimal < right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Integer < right.Integer);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String.Length < right.String.Length)
-                    return new DynValue(1);
-                else return new DynValue(0);
-            }
-            else
-            {
-                throw new RuntimeException(
-                    $"Attempt to compare {left.Type} and {right.Type} using '>'.",
-                    Environment,
-                    node.Line
-                );
-            }
-        }
-
-        private DynValue CompareGreater(DynValue left, DynValue right, AstNode node)
-        {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
-            {
-                if (left.Number > right.Number)
-                    return new DynValue(1);
-                else return new DynValue(0);
-            }
-            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
-            {
-                if (left.String.Length > right.String.Length)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.String.Length < right.String.Length);
             }
             else
             {
@@ -429,19 +431,59 @@ namespace EVIL.Interpreter.Execution
             }
         }
 
-        private DynValue CompareLessOrEqual(DynValue left, DynValue right, AstNode node)
+        private DynValue CompareGreater(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (left.Number <= right.Number)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.Decimal > right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Integer > right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Decimal > right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Integer > right.Integer);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String.Length <= right.String.Length)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.String.Length > right.String.Length);
+            }
+            else
+            {
+                throw new RuntimeException(
+                    $"Attempt to compare {left.Type} and {right.Type} using '>'.",
+                    Environment,
+                    node.Line
+                );
+            }
+        }
+
+        private DynValue CompareLessOrEqual(DynValue left, DynValue right, AstNode node)
+        {
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Decimal <= right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Integer <= right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Decimal <= right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Integer <= right.Integer);
+            }
+            else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
+            {
+                return new DynValue(left.String.Length <= right.String.Length);
             }
             else
             {
@@ -455,17 +497,25 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareGreaterOrEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (left.Number >= right.Number)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.Decimal >= right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Integer >= right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Decimal >= right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Integer >= right.Integer);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String.Length >= right.String.Length)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.String.Length >= right.String.Length);
             }
             else
             {
@@ -479,22 +529,30 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareNotEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (left.Number != right.Number)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.Decimal != right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Integer != right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Decimal != right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Integer != right.Integer);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String != right.String)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.String != right.String);
             }
             else
             {
                 throw new RuntimeException(
-                    $"Attempt to compare {left.Type} and {right.Type} using '!='.", 
+                    $"Attempt to compare {left.Type} and {right.Type} using '!='.",
                     Environment,
                     node.Line
                 );
@@ -503,18 +561,25 @@ namespace EVIL.Interpreter.Execution
 
         private DynValue CompareEqual(DynValue left, DynValue right, AstNode node)
         {
-            if (left.Type == DynValueType.Number && right.Type == DynValueType.Number)
+            if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Decimal)
             {
-                if (left.Number == right.Number)
-                    return new DynValue(1);
-                else return new DynValue(0);
+                return new DynValue(left.Decimal == right.Decimal);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Decimal)
+            {
+                return new DynValue(left.Integer == right.Decimal);
+            }
+            else if (left.Type == DynValueType.Decimal && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Decimal == right.Integer);
+            }
+            else if (left.Type == DynValueType.Integer && right.Type == DynValueType.Integer)
+            {
+                return new DynValue(left.Integer == right.Integer);
             }
             else if (left.Type == DynValueType.String && right.Type == DynValueType.String)
             {
-                if (left.String == right.String)
-                    return new DynValue(1);
-
-                else return new DynValue(0);
+                return new DynValue(left.String == right.String);
             }
             else
             {
@@ -549,27 +614,6 @@ namespace EVIL.Interpreter.Execution
                 return right.Copy();
             }
             else return DynValue.Zero;
-        }
-
-        private DynValue ExistsIn(DynValue left, DynValue right, BinaryOperationNode node)
-        {
-            if (right.Type == DynValueType.Table)
-            {
-                if (left.Type == DynValueType.String || left.Type == DynValueType.Number)
-                {
-                    return new DynValue(right.Table.ContainsKey(left));
-                }
-            }
-            else if (right.Type == DynValueType.String)
-            {
-                return new DynValue(right.String.Contains(left.AsString().String));
-            }
-
-            throw new RuntimeException(
-                $"Attempt to check existence of {left.Type} in {right.Type}.", 
-                Environment,
-                node.Line
-            );
         }
 
         private string RepeatString(string str, decimal repetitions)

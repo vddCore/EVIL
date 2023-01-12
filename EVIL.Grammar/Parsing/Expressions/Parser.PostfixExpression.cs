@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private List<TokenType> _suffixOperators = new()
+        private List<TokenType> _postfixOperators = new()
         {
             TokenType.Increment,
             TokenType.Decrement,
@@ -16,15 +16,13 @@ namespace EVIL.Grammar.Parsing
             TokenType.Dot
         };
 
-        private AstNode Factor(AstNode node = null)
+        private AstNode PostfixExpression()
         {
-            node = node ?? Terminal();
+            var node = PrimaryExpression();
             var token = Scanner.State.CurrentToken;
 
-            while (_suffixOperators.Contains(token.Type))
+            while (_postfixOperators.Contains(token.Type))
             {
-                token = Scanner.State.CurrentToken;
-
                 if (token.Type == TokenType.LParenthesis)
                 {
                     node = FunctionCall(node);
@@ -47,6 +45,8 @@ namespace EVIL.Grammar.Parsing
                     var line = Match(TokenType.Decrement);
                     node = new DecrementationNode(node, false) {Line = line};
                 }
+                
+                token = Scanner.State.CurrentToken;
             }
 
             return node;

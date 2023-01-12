@@ -18,7 +18,6 @@
         Floor,
         NameOf,
         ExistsIn,
-        Negation,
         ShiftRight,
         ShiftLeft,
         
@@ -34,15 +33,16 @@
         AssignBitwiseOr,
         AssignBitwiseXor,
 
-        CompareNotEqual,
-        CompareEqual,
-        CompareLessThan,
-        CompareLessOrEqualTo,
-        CompareGreaterThan,
-        CompareGreaterOrEqualTo,
+        Equal,
+        NotEqual,
+        LessThan,
+        LessThanOrEqual,
+        GreaterThan,
+        GreaterThanOrEqual,
 
-        And,
-        Or,
+        LogicalNot,
+        LogicalAnd,
+        LogicalOr,
 
         Comma,
         Colon,
@@ -57,8 +57,9 @@
         Var,
         Identifier,
 
-        DecimalNumber,
-        HexNumber,
+        Decimal,
+        Integer,
+        HexInteger,
         String,
 
         True,

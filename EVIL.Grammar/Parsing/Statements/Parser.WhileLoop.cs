@@ -10,7 +10,7 @@ namespace EVIL.Grammar.Parsing
         {
             var line = Match(TokenType.While);
             Match(TokenType.LParenthesis);
-            var expression = Assignment();
+            var expression = AssignmentExpression();
             Match(TokenType.RParenthesis);
             
             Match(TokenType.LBrace);

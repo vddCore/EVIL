@@ -22,7 +22,7 @@ namespace EVIL.Interpreter.Runtime.Library
             args.ExpectExactly(1)
                 .ExpectIntegerAtIndex(0);
 
-            return new DynValue(((char)args[0].Number).ToString());
+            return new DynValue(((char)args[0].Decimal).ToString());
         }
         
         [ClrFunction("code")]
@@ -47,7 +47,7 @@ namespace EVIL.Interpreter.Runtime.Library
                 .ExpectIntegerAtIndex(1);
 
             var str = args[0].String;
-            var index = (int)args[1].Number;
+            var index = (int)args[1].Decimal;
 
             if (index >= str.Length)
                 throw new ClrFunctionException("Requested index is outside the provided string.");
@@ -67,7 +67,7 @@ namespace EVIL.Interpreter.Runtime.Library
                     .ExpectIntegerAtIndex(1);
 
                 var str = args[0].String;
-                var startIndex = (int)args[1].Number;
+                var startIndex = (int)args[1].Decimal;
 
                 if (startIndex < 0 || startIndex >= str.Length)
                     throw new ClrFunctionException("The starting index is outside the provided string.");
@@ -81,12 +81,12 @@ namespace EVIL.Interpreter.Runtime.Library
                     .ExpectIntegerAtIndex(2);
 
                 var str = args[0].String;
-                var startIndex = (int)args[1].Number;
+                var startIndex = (int)args[1].Decimal;
 
                 if (startIndex < 0 || startIndex >= str.Length)
                     throw new ClrFunctionException("The starting index is outside the provided string.");
 
-                var length = (int)args[2].Number;
+                var length = (int)args[2].Decimal;
                 if (length < 0 || length + startIndex > str.Length)
                     throw new ClrFunctionException("The provided length of substring exceeds the base string bounds.");
 
@@ -112,13 +112,13 @@ namespace EVIL.Interpreter.Runtime.Library
             args.ExpectAtLeast(1)
                 .ExpectIntegerAtIndex(0);
 
-            var number = (int)args[0].Number;
+            var number = (int)args[0].Decimal;
             var toBase = 10;
 
             if (args.Count == 2)
             {
                 args.ExpectIntegerAtIndex(1);
-                toBase = (int)args[1].Number;
+                toBase = (int)args[1].Decimal;
             }
 
             return new DynValue(Convert.ToString(number, toBase));

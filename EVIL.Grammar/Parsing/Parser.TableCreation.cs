@@ -15,7 +15,7 @@ namespace EVIL.Grammar.Parsing
 
             while (Scanner.State.CurrentToken.Type != TokenType.RBrace)
             {
-                var value = Assignment();
+                var value = AssignmentExpression();
                 
                 if (value is AssignmentNode)
                 {
