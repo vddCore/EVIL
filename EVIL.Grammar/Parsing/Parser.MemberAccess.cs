@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
         private AstNode MemberAccess(AstNode indexable)
         {
             var line = Match(TokenType.MemberAccess);
-            var identifier = (string)Scanner.State.CurrentToken.Value;
+            var identifier = Scanner.State.CurrentToken.Value.ToString();
             Match(TokenType.Identifier);
 
             return new MemberAccessNode(indexable, identifier) {Line = line};

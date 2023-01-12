@@ -75,9 +75,9 @@ namespace EVIL.Interpreter.Abstraction
             }
         }
 
-        private DynValue(DynValue dynValue)
+        private DynValue(DynValue dynValue, bool includeMetaValues = false)
         {
-            CopyFrom(dynValue);
+            CopyFrom(dynValue, includeMetaValues);
         }
 
         public DynValue(bool value)
@@ -162,8 +162,13 @@ namespace EVIL.Interpreter.Abstraction
             return new(this);
         }
 
-        public void CopyFrom(DynValue dynValue)
+        public void CopyFrom(DynValue dynValue, bool includeMetaValues)
         {
+            if (includeMetaValues)
+            {
+                Meta.ReplaceWith(dynValue.Meta);
+            }
+            
             Type = dynValue.Type;
 
             switch (dynValue.Type)

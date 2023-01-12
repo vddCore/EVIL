@@ -367,7 +367,7 @@ namespace EVIL.Lexical
                 Advance();
             }
 
-            return new Token(TokenType.HexNumber, int.Parse(number, NumberStyles.HexNumber));
+            return new Token(TokenType.HexNumber, Convert.ToDecimal(int.Parse(number, NumberStyles.HexNumber)));
         }
 
         private Token GetDecimalNumber()

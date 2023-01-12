@@ -30,5 +30,15 @@ namespace EVIL.Interpreter.Abstraction
                 }
             }
         }
+
+        public void ReplaceWith(MetaValues values)
+        {
+            _metaValues.Clear();
+            
+            foreach (var kvp in values._metaValues)
+            {
+                this[kvp.Key] = kvp.Value.Copy();
+            }
+        }
     }
 }
