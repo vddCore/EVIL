@@ -18,8 +18,10 @@ namespace EVIL.Execution
 
             if (incrementationNode.IsPrefix)
             {
-                numValue.CopyFrom(new DynValue(numValue.Number + 1));
-                return numValue;
+                var retVal = new DynValue(numValue.Number + 1);
+                numValue.CopyFrom(retVal);
+                
+                return retVal;
             }
             else
             {
