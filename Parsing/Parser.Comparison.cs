@@ -17,7 +17,7 @@ namespace EVIL.Parsing
             TokenType.CompareEqual,
             TokenType.CompareNotEqual
         };
-        
+
         private AstNode Comparison()
         {
             var node = Expression();
@@ -45,8 +45,7 @@ namespace EVIL.Parsing
                 else if (token.Type == TokenType.CompareGreaterOrEqualTo)
                 {
                     var line = Match(TokenType.CompareGreaterOrEqualTo);
-                    node = new BinaryOperationNode(node, BinaryOperationType.GreaterOrEqual, Expression())
-                        {Line = line};
+                    node = new BinaryOperationNode(node, BinaryOperationType.GreaterOrEqual, Expression()) {Line = line};
                 }
                 else if (token.Type == TokenType.CompareEqual)
                 {

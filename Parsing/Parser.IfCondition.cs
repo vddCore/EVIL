@@ -44,7 +44,7 @@ namespace EVIL.Parsing
 
                     return node;
                 }
-                else throw new ParserException($"Expected 'end' or 'else' or 'elif', got {Scanner.State.CurrentToken.Type}", Scanner.State);
+                else throw new ParserException($"Expected 'end' or 'else' or 'elif', got '{Scanner.State.CurrentToken.Value}'", Scanner.State);
             }
             return node;
         }
