@@ -8,8 +8,11 @@ namespace EVIL.Intermediate.CodeGeneration
     {
         private CodeGenerator _codeGenerator;
 
+        public int? DefinedOnLine { get; }
+
         public string Name { get; private set; }
         public bool IsPublic { get; private set; }
+        public bool IsRoot => Name == "!root";
         public List<int> Labels { get; private set; } = new();
         public List<string> Parameters { get; private set; } = new();
         public List<string> Locals { get; private set; } = new();
@@ -35,11 +38,18 @@ namespace EVIL.Intermediate.CodeGeneration
             return (-1, -1);
         }
 
-        public Chunk(string name, bool isPublic = true)
+        internal Chunk(string name, bool isPublic = true, int? line = null)
         {
             Name = name;
             IsPublic = isPublic;
+            DefinedOnLine = line;
         }
+
+        public static Chunk CreateNamed(string name, int? line = null)
+            => new(name, true, line);
+        
+        public static Chunk CreateRoot() 
+            => new("!root", false);
 
         public (int, Chunk) CreateSubChunk()
         {

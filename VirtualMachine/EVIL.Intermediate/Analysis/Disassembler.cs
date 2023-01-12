@@ -15,21 +15,28 @@ namespace EVIL.Intermediate.Analysis
         public Disassembler(DisassemblerOptions options = null)
         {
             Options = options ?? new DisassemblerOptions();
-
         }
 
-        public string Disassemble(Executable executable)
+        public string Disassemble(IEnumerable<Chunk> chunks)
         {
             _disasm.Clear();
 
-            for(var ci = 0; ci < executable.Chunks.Count; ci++)
+            foreach (var chunk in chunks)
             {
-                var chunk = executable.Chunks[ci];
-                _disasm.AppendLine(new ChunkDisassembler(chunk, Options, false).ToString());
+                _disasm.AppendLine(
+                    new ChunkDisassembler(
+                        chunk, 
+                        Options, 
+                        false
+                    ).ToString()
+                );
             }
-
+            
             return _disasm.ToString();
         }
+
+        public string Disassemble(Executable executable)
+            => Disassemble(executable.Chunks.ToArray());
 
         private void DumpGlobalList(List<string> globals)
         {

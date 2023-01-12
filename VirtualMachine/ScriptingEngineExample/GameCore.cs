@@ -142,9 +142,9 @@ namespace ScriptingEngineExample
                 _lexer.LoadSource(streamReader.ReadToEnd());
             }
 
-            _parser = new Parser(_lexer, true);
+            _parser = new Parser(_lexer);
             _compiler = new Compiler();
-            _exe = _compiler.Compile(_parser.Parse());
+            _exe = _compiler.Compile(_parser.Parse(true));
 
             _evm = new EVM(_globalTable);
             _evm.Load(_exe);

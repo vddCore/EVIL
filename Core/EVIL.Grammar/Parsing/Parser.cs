@@ -16,14 +16,15 @@ namespace EVIL.Grammar.Parsing
         public Lexer Lexer { get; private set; }
         public Token CurrentToken => Lexer.State.CurrentToken;
 
-        public Parser(Lexer lexer, bool allowTopLevelStatements)
+        public Parser(Lexer lexer)
         {
-            _allowTopLevelStatements = allowTopLevelStatements;
             Lexer = lexer;
         }
 
-        public Program Parse()
+        public Program Parse(bool allowTopLevelStatements)
         {
+            _allowTopLevelStatements = allowTopLevelStatements;            
+            
             var programNode = Program();
             Match(Token.EOF);
 

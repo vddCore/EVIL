@@ -5,7 +5,7 @@ using EVIL.Intermediate.CodeGeneration;
 
 namespace EVIL.Intermediate.Storage
 {
-    public static class EvxLinker
+    public static class EvxWriter
     {
         private static byte[] _linkerData = new byte[32];
 
@@ -13,12 +13,15 @@ namespace EVIL.Intermediate.Storage
         public static readonly byte[] LinkerID = new byte[] { 0x43, 0x56, 0x49, 0x4C }; // CVIL
         public const byte FormatVersion = 1;
 
-        public static void Link(Executable executable, string filePath)
+        public static void Write(Executable executable, string filePath)
         {
-            Link(executable, new FileStream(filePath, FileMode.Create));
+            using (var fs = new FileStream(filePath, FileMode.Create))
+            {
+                Write(executable, fs);
+            }
         }
 
-        public static void Link(Executable executable, Stream outStream)
+        public static void Write(Executable executable, Stream outStream)
         {
             if (executable == null)
                 throw new ArgumentNullException(nameof(executable));

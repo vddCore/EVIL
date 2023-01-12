@@ -43,11 +43,11 @@ namespace EVIL.Interpreter.Runtime.Library
             try
             {
                 var lexer = new Lexer();
-                var parser = new Parser(lexer, false);
+                var parser = new Parser(lexer);
                 var compiler = new Compiler();
 
                 lexer.LoadSource(File.ReadAllText(targetPath));
-                var program = parser.Parse();
+                var program = parser.Parse(false);
                 var exe = compiler.Compile(program);
                 
                 var tempVm = new EVM(new Table());

@@ -32,7 +32,7 @@ namespace EVIL.VirtualMachine.TestDriver
         private static Executable BuildExecutable(string filePath)
         {
             var lexer = new Lexer();
-            var parser = new Parser(lexer, true);
+            var parser = new Parser(lexer);
             var compiler = new Compiler();
             
             EVIL.Grammar.AST.Nodes.Program program;
@@ -40,7 +40,7 @@ namespace EVIL.VirtualMachine.TestDriver
             {
                 var source = File.ReadAllText(filePath);
                 lexer.LoadSource(source);
-                program = parser.Parse();
+                program = parser.Parse(true);
             }
             catch (LexerException le)
             {
@@ -79,7 +79,7 @@ namespace EVIL.VirtualMachine.TestDriver
 
             if (exe != null)
             {
-                EvxLinker.Link(exe, "a.evx");
+                EvxWriter.Write(exe, "a.evx");
                 exe = EvxLoader.Load("a.evx");
                 
                 DisassembleExecutable(exe);

@@ -10,6 +10,14 @@ namespace EVIL.ExecutionEngine.Abstraction
     {
         private static readonly byte[] Magic = { 0x45, 0x54, 0x42, 0x46 };
 
+        public void Serialize(string filePath)
+        {
+            using (var fs = new FileStream(filePath, FileMode.Create))
+            {
+                Serialize(fs);
+            }
+        }
+        
         public void Serialize(Stream outStream)
         {
             lock (_lock)
