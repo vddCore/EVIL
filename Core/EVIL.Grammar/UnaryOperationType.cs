@@ -7,9 +7,8 @@
         ToNumber,
         ToString,
         Length,
-        Negation,
+        LogicalNot,
         BitwiseNot,
-        NameOf,
-        TypeOf,
+        TypeOf
     }
 }

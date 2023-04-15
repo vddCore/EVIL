@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Constants;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -11,10 +12,10 @@ namespace EVIL.Grammar.Parsing
         {
             var (line, col) = Match(Token.LParenthesis);
 
-            if (callee is NullConstant)
+            if (callee is NilConstant)
             {
                 throw new ParserException(
-                    "'null' is not a valid invocation target.",
+                    "'nil' is not a valid invocation target.",
                     (callee.Line, callee.Column)
                 );
             }

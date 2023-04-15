@@ -3,9 +3,9 @@
     public struct Token
     {
         public TokenType Type { get; }
-        public string Value { get; }
+        public string? Value { get; }
 
-        private Token(TokenType type, string value)
+        private Token(TokenType type, string? value)
         {
             Type = type;
             Value = value;
@@ -24,7 +24,7 @@
             return !a.Equals(b);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Token t && t.Type == Type;
         }
@@ -93,9 +93,8 @@
         public static readonly Token RBracket = new(TokenType.RBracket, "]");
         public static readonly Token LParenthesis = new(TokenType.LParenthesis, "(");
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, ")");
-        public static readonly Token ExtraArguments = new(TokenType.ExtraArguments, "...");
 
-        public static readonly Token Loc = new(TokenType.Loc, "loc");
+        public static readonly Token Var = new(TokenType.Var, "var");
 
         public static readonly Token If = new(TokenType.If, "if");
         public static readonly Token Elif = new(TokenType.Elif, "elif");
@@ -103,21 +102,16 @@
 
         public static readonly Token Fn = new(TokenType.Fn, "fn");
         public static readonly Token Ret = new(TokenType.Ret, "ret");
-        public static readonly Token Exit = new(TokenType.Exit, "exit");
-
         public static readonly Token For = new(TokenType.For, "for");
         public static readonly Token Each = new(TokenType.Each, "each");
         public static readonly Token Do = new(TokenType.Do, "do");
         public static readonly Token While = new(TokenType.While, "while");
         public static readonly Token Break = new(TokenType.Break, "break");
         public static readonly Token Skip = new(TokenType.Skip, "skip");
-
         public static readonly Token In = new(TokenType.In, "in");
-        public static readonly Token NameOf = new(TokenType.NameOf, "??");
-
         public static readonly Token False = new(TokenType.False, "false");
         public static readonly Token True = new(TokenType.True, "true");
-        public static readonly Token Null = new(TokenType.Null, "null");
+        public static readonly Token Nil = new(TokenType.Nil, "nil");
         public static readonly Token TypeOf = new(TokenType.TypeOf, "typeof");
 
         public static readonly Token EOF = new(TokenType.EOF, "<EOF>");
@@ -127,6 +121,8 @@
         public static readonly Token String = new(TokenType.String, string.Empty);
         public static readonly Token Identifier = new(TokenType.Identifier, string.Empty);
 
+        public static readonly Token AttributeList = new(TokenType.AttributeList, "#[");
+        
         public static Token CreateHexInteger(string value)
             => new(TokenType.HexInteger, value);
 

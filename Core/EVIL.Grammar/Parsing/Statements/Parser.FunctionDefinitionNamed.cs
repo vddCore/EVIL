@@ -1,12 +1,11 @@
-﻿using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+﻿using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private FunctionDefinition FunctionDefinitionNamed()
+        private FunctionDefinition FunctionDefinition()
         {
             var (line, col) = Match(Token.Fn);
             var funcName = CurrentToken.Value;
@@ -16,7 +15,7 @@ namespace EVIL.Grammar.Parsing
             var parameterList = ParseParameters();
             var statements = FunctionDescent(BlockStatement);
 
-            return new FunctionDefinition(funcName, parameterList, statements) 
+            return new FunctionDefinition(funcName!, parameterList, statements) 
                 { Line = line, Column = col };
         }
     }

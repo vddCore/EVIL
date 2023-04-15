@@ -21,10 +21,6 @@ namespace EVIL.Grammar.Parsing
 
                 return node;
             }
-            else if (token.Type == TokenType.Fn)
-            {
-                return FunctionDefinitionAnonymous();
-            }
             else if (token.Type == TokenType.LBrace)
             {
                 return TableExpression();
@@ -32,10 +28,6 @@ namespace EVIL.Grammar.Parsing
             else if (token.Type == TokenType.Identifier)
             {
                 return VariableReference();
-            }
-            else if (token.Type == TokenType.ExtraArguments)
-            {
-                return FunctionArguments();
             }
 
             return Constant();

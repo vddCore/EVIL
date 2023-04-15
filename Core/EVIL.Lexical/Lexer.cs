@@ -8,7 +8,7 @@ namespace EVIL.Lexical
     {
         private const string HexAlphabet = "abcdefABCDEF0123456789";
 
-        private string _sourceCode;
+        private string? _sourceCode;
 
         public LexerState State { get; set; } = new();
 
@@ -58,11 +58,6 @@ namespace EVIL.Lexical
                 case '.' when char.IsDigit(Peek()):
                     State.CurrentToken = GetDecimalNumber();
                     break;
-                case '.' when Peek() == '.' && Peek(2) == '.':
-                    Advance();
-                    Advance();
-                    State.CurrentToken = Token.ExtraArguments;
-                    break;
                 case '.':
                     State.CurrentToken = Token.Dot;
                     break;
@@ -97,10 +92,6 @@ namespace EVIL.Lexical
                     break;
                 case '/':
                     State.CurrentToken = Token.Divide;
-                    break;
-                case '?' when Peek() == '?':
-                    Advance();
-                    State.CurrentToken = Token.NameOf;
                     break;
                 case '?':
                     State.CurrentToken = Token.QuestionMark;
@@ -237,6 +228,10 @@ namespace EVIL.Lexical
                 case '"':
                     State.CurrentToken = GetString();
                     break;
+                case '#' when Peek() == '[':
+                    Advance();
+                    State.CurrentToken = Token.AttributeList;
+                    break;
                 case '#':
                     State.CurrentToken = Token.Length;
                     break;
@@ -343,7 +338,7 @@ namespace EVIL.Lexical
                 "each" => Token.Each,
                 "while" => Token.While,
                 "do" => Token.Do,
-                "loc" => Token.Loc,
+                "var" => Token.Var,
                 "in" => Token.In,
                 "if" => Token.If,
                 "elif" => Token.Elif,
@@ -353,8 +348,7 @@ namespace EVIL.Lexical
                 "ret" => Token.Ret,
                 "true" => Token.True,
                 "false" => Token.False,
-                "exit" => Token.Exit,
-                "null" => Token.Null,
+                "nil" => Token.Nil,
                 "typeof" => Token.TypeOf,
                 _ => Token.CreateIdentifier(str)
             };
@@ -460,7 +454,7 @@ namespace EVIL.Lexical
 
         private char Peek(int howFar = 1)
         {
-            if (State.Pointer + howFar >= _sourceCode.Length)
+            if (State.Pointer + howFar >= _sourceCode!.Length)
                 return (char)0;
 
             return _sourceCode[State.Pointer + howFar];
@@ -471,7 +465,7 @@ namespace EVIL.Lexical
             State.Pointer++;
             State.Column++;
 
-            if (State.Pointer >= _sourceCode.Length)
+            if (State.Pointer >= _sourceCode!.Length)
             {
                 State.Character = (char)0;
                 return;

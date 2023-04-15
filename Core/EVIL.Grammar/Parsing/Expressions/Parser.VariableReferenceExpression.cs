@@ -1,4 +1,4 @@
-﻿using EVIL.Grammar.AST.Nodes;
+﻿using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -10,7 +10,7 @@ namespace EVIL.Grammar.Parsing
             var identifier = CurrentToken.Value;
             var (line, col) = Match(Token.Identifier);
 
-            return new VariableReferenceExpression(identifier)
+            return new VariableReferenceExpression(identifier!)
                 { Line = line, Column = col };
         }
     }

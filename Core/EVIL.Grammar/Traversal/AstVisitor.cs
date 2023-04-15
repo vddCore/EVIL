@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Constants;
+using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Statements;
 
 namespace EVIL.Grammar.Traversal
 {
@@ -13,38 +15,39 @@ namespace EVIL.Grammar.Traversal
 
         protected AstVisitor()
         {
+#nullable disable
             Handlers = new()
             {
-                {typeof(Program), (n) => Visit(n as Program)},
-                {typeof(BlockStatement), (n) => Visit(n as BlockStatement)},
-                {typeof(ConditionalExpression), (n) => Visit(n as ConditionalExpression)},
-                {typeof(NumberConstant), (n) => Visit(n as NumberConstant)},
-                {typeof(StringConstant), (n) => Visit(n as StringConstant)},
-                {typeof(NullConstant), (n) => Visit(n as NullConstant)},
-                {typeof(AssignmentExpression), (n) => Visit(n as AssignmentExpression)},
-                {typeof(BinaryExpression), (n) => Visit(n as BinaryExpression)},
-                {typeof(UnaryExpression), (n) => Visit(n as UnaryExpression)},
-                {typeof(VariableReferenceExpression), (n) => Visit(n as VariableReferenceExpression)},
-                {typeof(LocalDefinition), (n) => Visit(n as LocalDefinition)},
-                {typeof(FunctionDefinition), (n) => Visit(n as FunctionDefinition)},
-                {typeof(FunctionExpression), (n) => Visit(n as FunctionExpression)},
-                {typeof(FunctionCallExpression), (n) => Visit(n as FunctionCallExpression)},
-                {typeof(IfStatement), (n) => Visit(n as IfStatement)},
-                {typeof(ExitStatement), (n) => Visit(n as ExitStatement)},
-                {typeof(ForStatement), (n) => Visit(n as ForStatement)},
-                {typeof(DoWhileStatement), (n) => Visit(n as DoWhileStatement)},
-                {typeof(WhileStatement), (n) => Visit(n as WhileStatement)},
-                {typeof(ReturnStatement), (n) => Visit(n as ReturnStatement)},
-                {typeof(BreakStatement), (n) => Visit(n as BreakStatement)},
-                {typeof(SkipStatement), (n) => Visit(n as SkipStatement)},
-                {typeof(TableExpression), (n) => Visit(n as TableExpression)},
-                {typeof(IndexerExpression), (n) => Visit(n as IndexerExpression)},
-                {typeof(IncrementationExpression), (n) => Visit(n as IncrementationExpression)},
-                {typeof(DecrementationExpression), (n) => Visit(n as DecrementationExpression)},
-                {typeof(EachStatement), (n) => Visit(n as EachStatement)},
-                {typeof(ExpressionStatement), (n) => Visit(n as ExpressionStatement)},
-                {typeof(ExtraArgumentsExpression), (n) => Visit(n as ExtraArgumentsExpression)},
+                { typeof(BlockStatement), (n) => Visit((BlockStatement)n) },
+                { typeof(ConditionalExpression), (n) => Visit((ConditionalExpression)n) },
+                { typeof(NumberConstant), (n) => Visit((NumberConstant)n) },
+                { typeof(StringConstant), (n) => Visit((StringConstant)n) },
+                { typeof(NilConstant), (n) => Visit((NilConstant)n) },
+                { typeof(BooleanConstant), (n) => Visit((BooleanConstant)n) },
+                { typeof(AssignmentExpression), (n) => Visit((AssignmentExpression)n) },
+                { typeof(BinaryExpression), (n) => Visit((BinaryExpression)n) },
+                { typeof(UnaryExpression), (n) => Visit((UnaryExpression)n) },
+                { typeof(VariableReferenceExpression), (n) => Visit((VariableReferenceExpression)n) },
+                { typeof(VariableDefinition), (n) => Visit((VariableDefinition)n) },
+                { typeof(FunctionDefinition), (n) => Visit((FunctionDefinition)n) },
+                { typeof(FunctionCallExpression), (n) => Visit((FunctionCallExpression)n) },
+                { typeof(IfStatement), (n) => Visit((IfStatement)n) },
+                { typeof(ForStatement), (n) => Visit((ForStatement)n) },
+                { typeof(DoWhileStatement), (n) => Visit((DoWhileStatement)n) },
+                { typeof(WhileStatement), (n) => Visit((WhileStatement)n) },
+                { typeof(ReturnStatement), (n) => Visit((ReturnStatement)n) },
+                { typeof(BreakStatement), (n) => Visit((BreakStatement)n) },
+                { typeof(SkipStatement), (n) => Visit((SkipStatement)n) },
+                { typeof(TableExpression), (n) => Visit((TableExpression)n) },
+                { typeof(IndexerExpression), (n) => Visit((IndexerExpression)n) },
+                { typeof(IncrementationExpression), (n) => Visit((IncrementationExpression)n) },
+                { typeof(DecrementationExpression), (n) => Visit((DecrementationExpression)n) },
+                { typeof(EachStatement), (n) => Visit((EachStatement)n) },
+                { typeof(ExpressionStatement), (n) => Visit((ExpressionStatement)n) },
+                { typeof(AttributeStatement), (n) => Visit((AttributeStatement)n) },
+                { typeof(AttributeListStatement), (n) => Visit((AttributeListStatement)n) }
             };
+#nullable enable
         }
 
         public virtual void Visit(AstNode node)
@@ -52,7 +55,12 @@ namespace EVIL.Grammar.Traversal
             var type = node.GetType();
 
             if (!Handlers.ContainsKey(type))
-                throw new Exception("Forgot to add a node type, idiot.");
+            {
+                throw new Exception(
+                    $"Unknown node type '{type.Name}'. " +
+                    $"It might be that you forgor to add a handler for it."
+                );
+            }
 
             Handlers[type](node);
         }
@@ -62,29 +70,29 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(ConditionalExpression conditionalExpression);
         public abstract void Visit(NumberConstant numberConstant);
         public abstract void Visit(StringConstant stringConstant);
-        public abstract void Visit(NullConstant nullConstant);
+        public abstract void Visit(NilConstant nilConstant);
+        public abstract void Visit(BooleanConstant booleanConstant);
         public abstract void Visit(AssignmentExpression assignmentExpression);
         public abstract void Visit(BinaryExpression binaryExpression);
         public abstract void Visit(UnaryExpression unaryExpression);
         public abstract void Visit(VariableReferenceExpression variableReferenceExpression);
-        public abstract void Visit(LocalDefinition localDefinition);
+        public abstract void Visit(VariableDefinition variableDefinition);
         public abstract void Visit(FunctionDefinition functionDefinition);
-        public abstract void Visit(FunctionExpression functionExpression);
         public abstract void Visit(FunctionCallExpression functionCallExpression);
         public abstract void Visit(IfStatement ifStatement);
-        public abstract void Visit(ExitStatement exitStatement);
         public abstract void Visit(ForStatement forStatement);
         public abstract void Visit(DoWhileStatement doWhileStatement);
         public abstract void Visit(WhileStatement whileStatement);
         public abstract void Visit(ReturnStatement returnStatement);
         public abstract void Visit(BreakStatement breakStatement);
-        public abstract void Visit(SkipStatement nextStatement);
+        public abstract void Visit(SkipStatement skipStatement);
         public abstract void Visit(TableExpression tableExpression);
         public abstract void Visit(IndexerExpression indexerExpression);
         public abstract void Visit(IncrementationExpression incrementationExpression);
         public abstract void Visit(DecrementationExpression decrementationExpression);
         public abstract void Visit(EachStatement eachStatement);
         public abstract void Visit(ExpressionStatement expressionStatement);
-        public abstract void Visit(ExtraArgumentsExpression extraArgumentsExpression);
+        public abstract void Visit(AttributeStatement attributeStatement);
+        public abstract void Visit(AttributeListStatement attributeListStatement);
     }
 }

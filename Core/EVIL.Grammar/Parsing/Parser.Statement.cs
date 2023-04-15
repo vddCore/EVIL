@@ -1,4 +1,6 @@
-﻿using EVIL.Grammar.AST;
+﻿using System.Collections.Generic;
+using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -10,18 +12,13 @@ namespace EVIL.Grammar.Parsing
             var token = CurrentToken;
             Statement node;
 
-            if (!_allowTopLevelStatements && _functionDescent == 0 && token.Type != TokenType.Fn)
-            {
-                throw new ParserException(
-                    "Top-level statements are disallowed.",
-                    (Lexer.State.Line, Lexer.State.Column)
-                );
-            }
-
             switch (token.Type)
             {
+                case TokenType.AttributeList:
+                    return AttributeList();
+
                 case TokenType.Fn:
-                    return FunctionDefinitionNamed();
+                    return FunctionDefinition();
 
                 case TokenType.If:
                     return IfCondition();
@@ -42,12 +39,8 @@ namespace EVIL.Grammar.Parsing
                     node = DoWhileLoop();
                     break;
 
-                case TokenType.Loc:
-                    node = LocalDefinition();
-                    break;
-
-                case TokenType.Exit:
-                    node = Exit();
+                case TokenType.Var:
+                    node = VariableDefinition();
                     break;
 
                 case TokenType.Increment:

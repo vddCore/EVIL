@@ -1,0 +1,59 @@
+#[testsuite]
+fn describe() { ret "basic binary operator sanity checks"; }
+
+#[test(4)]
+fn add() { ret 2+2; }
+
+#[test(2)]
+fn sub() { ret 3-1; }
+
+#[test(4)]
+fn div() { ret 20/5; }
+
+#[test(9)]
+fn mod() { ret 9%1; }
+
+#[test(80)]
+fn mul() { ret 4*20; }
+
+#[test(0x0F00)]
+fn band() { ret 0xFFFF & 0x0F00; }
+
+#[test(0xF0F0)]
+fn bor() { ret 0x00F0 | 0xF000; }
+
+#[test(0x000F)]
+fn bxor() { ret 0xFFFF ^ 0xFFF0; }
+
+#[test(16)]
+fn shl() { ret 1 << 4; }
+
+#[test(32)]
+fn shr() { ret 0x80 >> 2; }
+
+#[test(true)]
+fn exists_str() { ret "a" in "blah"; }
+
+#[test(false)]
+fn notexists_str() { ret "f" in "blah"; }
+
+#[test(true); ignore("compiler behavior not implemented yet")]
+fn exists_tbl() { }
+
+#[test(true)]
+fn eq() { ret 2 == 2; }
+
+#[test(true)]
+fn ne() { ret 10 != 5; }
+
+#[test(true)]
+fn gt() { ret 10 > 2; }
+
+#[test(true)]
+fn lt() { ret 1 < 3; }
+
+#[test(true)]
+fn gte() { ret 2 >= 2; }
+
+#[test(true)]
+fn lte() { ret 4 <= 4; }

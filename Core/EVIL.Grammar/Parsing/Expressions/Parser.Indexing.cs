@@ -1,5 +1,6 @@
 ﻿using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Constants;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -15,7 +16,7 @@ namespace EVIL.Grammar.Parsing
             {
                 (line, col) = Match(Token.Dot);
 
-                indexer = new StringConstant(CurrentToken.Value);
+                indexer = new StringConstant(CurrentToken.Value!);
                 var (keyLine, keyCol) = Match(Token.Identifier);
                 indexer.Line = keyLine;
                 indexer.Column = keyCol;
@@ -26,7 +27,7 @@ namespace EVIL.Grammar.Parsing
 
                 indexer = AssignmentExpression();
 
-                if (indexer is NullConstant)
+                if (indexer is NilConstant)
                 {
                     throw new ParserException(
                         "'null' is not a valid indexer expression.", 
