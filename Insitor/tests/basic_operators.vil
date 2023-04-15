@@ -1,6 +1,3 @@
-#[testsuite]
-fn describe() { ret "basic binary operator sanity checks"; }
-
 #[test(4)]
 fn add() { ret 2+2; }
 
@@ -10,8 +7,8 @@ fn sub() { ret 3-1; }
 #[test(4)]
 fn div() { ret 20/5; }
 
-#[test(9)]
-fn mod() { ret 9%1; }
+#[test(4)]
+fn mod() { ret 9%5; }
 
 #[test(80)]
 fn mul() { ret 4*20; }
@@ -31,29 +28,53 @@ fn shl() { ret 1 << 4; }
 #[test(32)]
 fn shr() { ret 0x80 >> 2; }
 
-#[test(true)]
+#[test]
 fn exists_str() { ret "a" in "blah"; }
 
 #[test(false)]
 fn notexists_str() { ret "f" in "blah"; }
 
-#[test(true); ignore("compiler behavior not implemented yet")]
+#[test; ignore("compiler behavior not implemented yet")]
 fn exists_tbl() { }
 
-#[test(true)]
+#[test]
 fn eq() { ret 2 == 2; }
 
-#[test(true)]
+#[test]
 fn ne() { ret 10 != 5; }
 
-#[test(true)]
+#[test]
 fn gt() { ret 10 > 2; }
 
-#[test(true)]
+#[test]
 fn lt() { ret 1 < 3; }
 
-#[test(true)]
+#[test]
 fn gte() { ret 2 >= 2; }
 
-#[test(true)]
+#[test]
 fn lte() { ret 4 <= 4; }
+
+#[test]
+fn postinc() {
+  var a = 10;
+  ret (a++ == 10) && (a == 11);
+}
+
+#[test]
+fn preinc() { 
+  var a = 10;
+  ret (++a == 11) && (a == 11);
+}
+
+#[test]
+fn postdec() {
+  var a = 10;
+  ret (a-- == 10) && (a == 9);
+}
+
+#[test]
+fn predec() {
+  var a = 10;
+  ret (--a == 9) && (a == 9);
+}

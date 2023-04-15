@@ -46,13 +46,13 @@ namespace Ceres.TranslationEngine
         private void InTopLevelChunk(Action action, string? name = null)
         {
             var chunk = new Chunk { Name = name };
-            
+
             foreach (var attrib in _attributeList)
             {
                 chunk.AddAttribute(attrib);
             }
             _attributeList.Clear();
-            
+
             _chunks.Push(chunk);
             {
                 action();
@@ -127,12 +127,13 @@ namespace Ceres.TranslationEngine
         public override void Visit(ExpressionStatement expressionStatement)
         {
             Visit(expressionStatement.Expression);
+            Chunk.CodeGenerator.Emit(OpCode.POP);
         }
 
         public override void Visit(AttributeStatement attributeStatement)
         {
             var attribute = new ChunkAttribute(attributeStatement.Name);
-            
+
             foreach (var valueNode in attributeStatement.Values)
             {
                 DynamicValue dv;
@@ -160,7 +161,7 @@ namespace Ceres.TranslationEngine
                 }
                 attribute.Values.Add(dv);
             }
-            
+
             _attributeList.Add(attribute);
         }
 
@@ -229,8 +230,17 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(BinaryExpression binaryExpression)
         {
-            Visit(binaryExpression.Right);
-            Visit(binaryExpression.Left);
+            if (binaryExpression.Type == BinaryOperationType.LogicalAnd
+                || binaryExpression.Type == BinaryOperationType.LogicalOr)
+            {
+                Visit(binaryExpression.Left);
+                Visit(binaryExpression.Right);
+            }
+            else
+            {
+                Visit(binaryExpression.Right);
+                Visit(binaryExpression.Left);
+            }
 
             Chunk.CodeGenerator.Emit(
                 binaryExpression.Type switch
@@ -421,12 +431,58 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(IncrementationExpression incrementationExpression)
         {
-            throw new System.NotImplementedException();
+            if (incrementationExpression.Target is VariableReferenceExpression vre)
+            {
+                EmitVarGet(vre.Identifier);
+                if (incrementationExpression.IsPrefix)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.INC);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    EmitVarSet(vre.Identifier);
+                }
+                else
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.INC);
+                    EmitVarSet(vre.Identifier);
+                }
+            }
+            else if (incrementationExpression.Target is IndexerExpression ie)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                throw new CompilerException("Illegal incrementation target.");
+            }
         }
 
         public override void Visit(DecrementationExpression decrementationExpression)
         {
-            throw new System.NotImplementedException();
+            if (decrementationExpression.Target is VariableReferenceExpression vre)
+            {
+                EmitVarGet(vre.Identifier);
+                if (decrementationExpression.IsPrefix) 
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    EmitVarSet(vre.Identifier);
+                }
+                else
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                    EmitVarSet(vre.Identifier);
+                }
+            }
+            else if (decrementationExpression.Target is IndexerExpression ie)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                throw new CompilerException("Illegal incrementation target.");
+            }
         }
 
         public override void Visit(EachStatement eachStatement)

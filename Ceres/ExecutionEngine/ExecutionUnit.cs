@@ -127,6 +127,16 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.MOD:
+                {
+                    a = PopValue();
+                    b = PopValue();
+
+                    PushValue(a.Modulo(b));
+
+                    break;
+                }
+
                 case OpCode.SHL:
                 {
                     a = PopValue();
@@ -410,6 +420,27 @@ namespace Ceres.ExecutionEngine
                     frame.Dispose();
 
                     break;
+                }
+
+                case OpCode.INC:
+                {
+                    a = PopValue();
+                    PushValue(a.Increment());
+                    
+                    break;
+                }
+
+                case OpCode.DEC:
+                {
+                    a = PopValue();
+                    PushValue(a.Decrement());
+                    
+                    break;
+                }
+
+                default:
+                {
+                    throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
                 }
             }
         }

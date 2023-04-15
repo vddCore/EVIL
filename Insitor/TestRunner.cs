@@ -62,7 +62,7 @@ namespace Insitor
             }
         }
 
-        public async Task RunTests()
+        public async Task RunTests(bool disassemble)
         {
             foreach (var testdesc in TestScripts)
             {
@@ -85,9 +85,22 @@ namespace Insitor
 
                 foreach (var chunk in testChunks)
                 {
-                    Disassembler.Disassemble(chunk, TextOut);
+                    if (disassemble)
+                    {
+                        Disassembler.Disassemble(chunk, TextOut);
+                    }
+                    
                     await RunTestChunk(chunk);
-                    TextOut.WriteLine();
+
+                    if (VM.MainFiber.TryPeekValue(out _))
+                    {
+                        TextOut.WriteLine("[!!] Stack imbalance detected.");
+                    }
+
+                    if (disassemble)
+                    {
+                        TextOut.WriteLine();
+                    }
                 }
             }
         }
@@ -114,23 +127,29 @@ namespace Insitor
             {
                 var expected = testAttr.Values[0];
                 await VM.MainFiber.ScheduleAsync(chunk);
-                var actual = VM.MainFiber.PopValue();
-
-                if (expected.IsEqualTo(actual).IsTruth)
+                if (!VM.MainFiber.TryPopValue(out var actual))
                 {
-                    TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
+                    TextOut.WriteLine(
+                        $"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
                 }
                 else
                 {
-                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
+                    if (expected.IsEqualTo(actual).IsTruth)
+                    {
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
+                    }
+                    else
+                    {
+                        TextOut.WriteLine(
+                            $"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
+                    }
                 }
             }
             else
             {
                 await VM.MainFiber.ScheduleAsync(chunk);
-                var returnValue = VM.MainFiber.PeekValue();
 
-                if (returnValue == null)
+                if (!VM.MainFiber.TryPopValue(out var returnValue))
                 {
                     TextOut.WriteLine($"[INCONCLUSIVE] '{chunk.Name}': No return value was returned.");
                 }

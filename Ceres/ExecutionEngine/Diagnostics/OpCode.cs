@@ -26,6 +26,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         YLD,
         POP,
         RET,
+        INC,
+        DEC,
         INVOKE,
         SETGLOBAL,
         GETGLOBAL,

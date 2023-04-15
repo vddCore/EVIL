@@ -30,7 +30,7 @@ namespace Ceres.ExecutionEngine
             MainFiber = Scheduler.CreateFiber(true);
         }
 
-        public void Run()
+        public void Start()
         {
             if (_schedulerTask != null)
             {
