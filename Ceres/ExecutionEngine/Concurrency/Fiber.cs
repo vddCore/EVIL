@@ -220,15 +220,20 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public DynamicValue? PeekValue()
+        public DynamicValue PeekValue()
         {
             lock (_evaluationStack)
             {
-                if (_evaluationStack.Count > 0)
-                    return _evaluationStack.Peek();
+                return _evaluationStack.Peek();
             }
-            
-            return null;
+        }
+
+        public bool TryPeekValue(out DynamicValue value)
+        {
+            lock (_evaluationStack)
+            {
+                return _evaluationStack.TryPeek(out value!);
+            }
         }
 
         public DynamicValue PopValue()
@@ -236,6 +241,14 @@ namespace Ceres.ExecutionEngine.Concurrency
             lock (_evaluationStack)
             {
                 return _evaluationStack.Pop();
+            }
+        }
+
+        public bool TryPopValue(out DynamicValue value)
+        {
+            lock (_evaluationStack)
+            {
+                return _evaluationStack.TryPop(out value!);
             }
         }
 

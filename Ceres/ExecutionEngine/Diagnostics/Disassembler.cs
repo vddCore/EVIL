@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using System.Text;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
@@ -21,23 +20,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             output.WriteLine($"  .LOCALS {chunk.LocalCount}");
             output.WriteLine($"  .PARAMS {chunk.ParameterCount}");
+            
             output.WriteLine();
-            foreach (var attribute in chunk.Attributes)
-            {
-                output.Write($"  .ATTR {attribute.Name}");
-
-                if (attribute.Values.Count > 0)
-                {
-                    output.Write("(");
-                    output.Write(
-                        string.Join(
-                            ", ",
-                            attribute.Values.Select(x => x.ConvertToString().String)
-                        )
-                    );
-                    output.WriteLine(")");
-                }
-            }
+            DumpAttributes(chunk, output);
+            output.WriteLine();
+            
             output.WriteLine("  .TEXT {");
 
             using (var reader = chunk.SpawnCodeReader())
@@ -111,6 +98,36 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             output.WriteLine("  }");
             output.WriteLine("}");
+        }
+
+        private static void DumpAttributes(Chunk chunk, TextWriter output)
+        {
+            foreach (var attribute in chunk.Attributes)
+            {
+                output.Write($"  .ATTR {attribute.Name}");
+
+                if (attribute.Values.Count > 0)
+                {
+                    output.Write("(");
+                    output.Write(
+                        string.Join(
+                            ", ",
+                            attribute.Values.Select(x =>
+                            {
+                                if (x.Type == DynamicValue.DynamicValueType.String)
+                                {
+                                    return $"\"{x.String}\"";
+                                }
+                                
+                                return x.ConvertToString().String;
+                            })
+                        )
+                    );
+                    output.Write(")");
+                }
+                
+                output.WriteLine();
+            }
         }
     }
 }
