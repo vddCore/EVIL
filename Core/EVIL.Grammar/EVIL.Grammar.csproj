@@ -1,17 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
+        <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Update="Parsing\Parser.Statement.cs">
-        <DependentUpon>Parser.cs</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
 </Project>

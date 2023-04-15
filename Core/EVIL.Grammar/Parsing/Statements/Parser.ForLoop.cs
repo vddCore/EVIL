@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -56,9 +56,9 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
 
-            if (token.Type == TokenType.Loc)
+            if (token.Type == TokenType.Var)
             {
-                return LocalDefinition();
+                return VariableDefinition();
             }
             else if (token.Type == TokenType.Identifier)
             {

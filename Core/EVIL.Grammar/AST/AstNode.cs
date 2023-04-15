@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST.Nodes;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace EVIL.Grammar.AST
 {
@@ -7,7 +8,7 @@ namespace EVIL.Grammar.AST
         public int Line { get; set; }
         public int Column { get; set; }
         
-        public AstNode Parent { get; set; }
+        public AstNode? Parent { get; set; }
 
         public bool IsConstant => this is ConstantExpression;
 
@@ -16,5 +17,8 @@ namespace EVIL.Grammar.AST
             for (var i = 0; i < nodes.Length; i++)
                 nodes[i].Parent = this;
         }
+
+        protected void Reparent(IEnumerable<AstNode> nodes) 
+            => Reparent(nodes.ToArray());
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -11,19 +9,13 @@ namespace EVIL.Grammar.Parsing
     {
         private uint _functionDescent;
         private uint _loopDescent;
-        private bool _allowTopLevelStatements;
 
-        public Lexer Lexer { get; private set; }
+        public Lexer Lexer { get; private set; } = new();
         public Token CurrentToken => Lexer.State.CurrentToken;
 
-        public Parser(Lexer lexer)
+        public Program Parse(string source)
         {
-            Lexer = lexer;
-        }
-
-        public Program Parse(bool allowTopLevelStatements)
-        {
-            _allowTopLevelStatements = allowTopLevelStatements;            
+            Lexer.LoadSource(source);
             
             var programNode = Program();
             Match(Token.EOF);
@@ -47,7 +39,7 @@ namespace EVIL.Grammar.Parsing
 
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
-                parameters.Add(CurrentToken.Value);
+                parameters.Add(CurrentToken.Value!);
                 Match(Token.Identifier);
 
                 if (CurrentToken.Type == TokenType.RParenthesis)
@@ -83,6 +75,11 @@ namespace EVIL.Grammar.Parsing
 
             while (CurrentToken.Type != TokenType.EOF)
             {
+                if (CurrentToken.Type != TokenType.Fn && CurrentToken.Type != TokenType.AttributeList)
+                {
+                    throw new ParserException($"Expected 'fn' or an attribute, found: '{CurrentToken}'");
+                }
+                
                 statementList.Add(Statement());
             }
 
@@ -91,7 +88,7 @@ namespace EVIL.Grammar.Parsing
 
         private (int, int) Match(Token token)
         {
-            var (line, column) = (Lexer.State.Line, Lexer.State.Column);
+            var (line, column) = (Lexer!.State.Line, Lexer.State.Column);
 
             if (!CurrentToken.Equals(token))
             {

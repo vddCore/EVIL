@@ -1,6 +1,6 @@
 namespace EVIL.Grammar.AST
 {
-    public class Expression : AstNode
+    public abstract class Expression : AstNode
     {
         public virtual Expression Reduce() => this;
     }

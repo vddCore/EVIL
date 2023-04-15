@@ -1,5 +1,5 @@
 ﻿using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -11,7 +11,7 @@ namespace EVIL.Grammar.Parsing
             var (line, col) = Match(Token.Each);
 
             Match(Token.LParenthesis);
-            var definitions = LocalDefinition();
+            var definitions = VariableDefinition();
 
             Match(Token.Colon);
             var tableNode = AssignmentExpression();

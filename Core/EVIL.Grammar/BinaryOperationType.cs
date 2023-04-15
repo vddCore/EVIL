@@ -2,8 +2,8 @@
 {
     public enum BinaryOperationType
     {
-        Plus,
-        Minus,
+        Add,
+        Subtract,
         Divide,
         Multiply,
         Modulo,

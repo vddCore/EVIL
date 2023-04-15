@@ -1,5 +1,5 @@
 ﻿using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
         private ReturnStatement Return()
         {
             var (line, col) = Match(Token.Ret);
-            Expression expression;
+            Expression? expression;
 
             if (CurrentToken.Type == TokenType.Semicolon)
             {

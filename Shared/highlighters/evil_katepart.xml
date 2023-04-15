@@ -13,7 +13,6 @@
       <item>each</item>
       <item>elif</item>
       <item>else</item>
-      <item>exit</item>
       <item>for</item>
       <item>if</item>
       <item>skip</item>
@@ -24,7 +23,7 @@
       <item>in</item>
       <item>loc</item>
       <item>fn</item>
-      <item>null</item>
+      <item>nil</item>
       <item>typeof</item>
     </list>
     <list name="aliases">

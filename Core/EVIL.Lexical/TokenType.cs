@@ -18,7 +18,6 @@
         Length,
         Increment,
         Decrement,
-        NameOf,
         ShiftRight,
         ShiftLeft,
         
@@ -59,8 +58,8 @@
         RBrace,
         LBracket,
         RBracket,
-        ExtraArguments,
 
+        AttributeList,
         Identifier,
 
         Number,
@@ -81,10 +80,9 @@
         Skip,
         Break,
         Ret,
-        Exit,
-        Loc,
+        Var,
         In,
-        Null,
+        Nil,
         TypeOf,
 
         EOF

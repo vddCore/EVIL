@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -17,42 +17,42 @@ namespace EVIL.Grammar.Parsing
                 {
                     var (line, col) = Match(Token.Number);
                     
-                    return new NumberConstant(double.Parse(token.Value))
+                    return new NumberConstant(double.Parse(token.Value!))
                         { Line = line, Column = col };
                 }
                 case TokenType.HexInteger:
                 {
                     var (line, col) = Match(Token.HexInteger);
                     
-                    return new NumberConstant(int.Parse(token.Value, NumberStyles.HexNumber))
+                    return new NumberConstant(int.Parse(token.Value!, NumberStyles.HexNumber))
                         { Line = line, Column = col };
                 }
                 case TokenType.True:
                 {
                     var (line, col) = Match(Token.True);
                     
-                    return new NumberConstant(1) 
+                    return new BooleanConstant(true) 
                         { Line = line, Column = col };
                 }
                 case TokenType.False:
                 {
                     var (line, col) = Match(Token.False);
                     
-                    return new NumberConstant(0) 
+                    return new BooleanConstant(false)
                         { Line = line, Column = col };
                 }
                 case TokenType.String:
                 {
                     var (line, col) = Match(Token.String);
                     
-                    return new StringConstant(token.Value) 
+                    return new StringConstant(token.Value!) 
                         { Line = line, Column = col };
                 }
-                case TokenType.Null:
+                case TokenType.Nil:
                 {
-                    var (line, col) = Match(Token.Null);
+                    var (line, col) = Match(Token.Nil);
 
-                    return new NullConstant
+                    return new NilConstant
                         { Line = line, Column = col };
                 }
                 default:

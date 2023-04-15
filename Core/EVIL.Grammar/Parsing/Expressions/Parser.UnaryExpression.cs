@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -13,7 +13,6 @@ namespace EVIL.Grammar.Parsing
             TokenType.Minus,
             TokenType.LogicalNot,
             TokenType.BitwiseNot,
-            TokenType.NameOf,
             TokenType.Length,
             TokenType.AsNumber,
             TokenType.AsString
@@ -48,7 +47,7 @@ namespace EVIL.Grammar.Parsing
             {
                 var (line, col) = Match(Token.LogicalNot);
 
-                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Negation)
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.LogicalNot)
                     { Line = line, Column = col };
             }
             else if (token.Type == TokenType.BitwiseNot)
@@ -63,13 +62,6 @@ namespace EVIL.Grammar.Parsing
                 var (line, col) = Match(Token.AsNumber);
 
                 return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber)
-                    { Line = line, Column = col };
-            }
-            else if (token.Type == TokenType.NameOf)
-            {
-                var (line, col) = Match(Token.NameOf);
-                
-                return new UnaryExpression(PostfixExpression(), UnaryOperationType.NameOf)
                     { Line = line, Column = col };
             }
             else if (token.Type == TokenType.Length)

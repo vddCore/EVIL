@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
-using EVIL.Grammar.AST.Nodes;
+using EVIL.Grammar.AST.Constants;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -41,7 +42,7 @@ namespace EVIL.Grammar.Parsing
                     {
                         key = ComputedKeyExpression();
 
-                        if (key is NullConstant)
+                        if (key is NilConstant)
                         {
                             throw new ParserException(
                                 "'null' is not a valid key expression.",
