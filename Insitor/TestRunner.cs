@@ -33,7 +33,7 @@ namespace Insitor
         private void CompileTests()
         {
             var paths = Directory
-                .GetFiles("tests/", "*.vil")
+                .GetFiles(TestDirectory, "*.vil")
                 .ToList();
 
             var parser = new Parser();
