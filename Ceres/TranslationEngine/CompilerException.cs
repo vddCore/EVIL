@@ -8,5 +8,10 @@ namespace Ceres.TranslationEngine
             : base(message)
         {
         }
+        
+        public CompilerException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

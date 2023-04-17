@@ -90,11 +90,19 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public ChunkAttribute[] GetAttributes(string name)
             => _attributes.Where(x => x.Name == name).ToArray();
         
-        public ChunkAttribute? GetAttribute(string name)
-            => _attributes.FirstOrDefault(x => x.Name == name);
+        public ChunkAttribute GetAttribute(string name)
+            => _attributes.First(x => x.Name == name);
+
+        public bool TryGetAttribute(string name, out ChunkAttribute value)
+        {
+            var ret = _attributes.FirstOrDefault(x => x.Name == name);
+            value = ret!;
+            
+            return ret != null;
+        }
 
         public bool HasAttribute(string name)
-            => GetAttribute(name) != null;
+            => TryGetAttribute(name, out _);
         
         public void Dispose()
         {

@@ -38,9 +38,12 @@ namespace Insitor
 
             var parser = new Parser();
             var compiler = new Compiler();
+            compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
 
             foreach (var path in paths)
             {
+                TextOut.WriteLine($"--- [TEST '{path}'] ---");
+                
                 var source = File.ReadAllText(path);
                 try
                 {
@@ -62,7 +65,7 @@ namespace Insitor
             }
         }
 
-        public async Task RunTests(bool disassemble)
+        public async Task RunTests()
         {
             foreach (var testdesc in TestScripts)
             {
@@ -70,7 +73,6 @@ namespace Insitor
                 var failed = 0;
                 var inconclusive = 0;
                 
-                var path = testdesc.Key;
                 var testScript = testdesc.Value;
 
                 var testChunks = testScript.Chunks.Where(
@@ -84,9 +86,7 @@ namespace Insitor
                     TextOut.WriteLine($"Test file '{testScript}' has no tests. Ignoring...");
                     continue;
                 }
-
-                TextOut.WriteLine($"--- [RUNNING TEST SCRIPT '{path}'] ---");
-
+                
                 for (var i = 0; i < testChunks.Count; i++)
                 {
                     var chunk = testChunks[i];
@@ -114,8 +114,9 @@ namespace Insitor
                         inconclusive++;
                     }
                 }
-                
-                TextOut.WriteLine($"{passed} tests passed, {failed} failed, {inconclusive} was ignored/inconclusive.");
+
+                var verb = inconclusive > 1 ? "were" : "was";
+                TextOut.WriteLine($"{passed} tests passed, {failed} failed, {inconclusive} {verb} ignored/inconclusive.");
             }
         }
 
@@ -136,19 +137,20 @@ namespace Insitor
                 return null;
             }
 
-            var testAttr = chunk.GetAttribute("test")!;
+            var testAttr = chunk.GetAttribute("test");
             if (testAttr.Values.Count > 0)
             {
                 var expected = testAttr.Values[0];
                 await VM.MainFiber.ScheduleAsync(chunk);
                 if (!VM.MainFiber.TryPopValue(out var actual))
                 {
-                    TextOut.WriteLine(
-                        $"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
+                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
                     return false;
                 }
                 else
                 {
+                    ApproximateIfSpecified(chunk, ref actual);
+                    
                     if (expected.IsEqualTo(actual).IsTruth)
                     {
                         TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
@@ -156,8 +158,7 @@ namespace Insitor
                     }
                     else
                     {
-                        TextOut.WriteLine(
-                            $"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
+                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
                         return false;
                     }
                 }
@@ -187,11 +188,23 @@ namespace Insitor
             }
         }
 
+        private void ApproximateIfSpecified(Chunk chunk, ref DynamicValue value)
+        {
+            if (chunk.TryGetAttribute("approximate", out var approximateAttr))
+            {
+                var digits = 1;
+                if (approximateAttr.Values.Any())
+                {
+                    digits = (int)approximateAttr.Values[0].Number;
+                }
+
+                value = new DynamicValue(Math.Round(value.Number, digits));
+            }
+        }
+        
         private (bool Ignore, string? Reason) CheckIgnoreStatus(Chunk chunk)
         {
-            var ignoreAttr = chunk.GetAttribute("ignore");
-
-            if (ignoreAttr == null)
+            if (!chunk.TryGetAttribute("ignore", out var ignoreAttr))
             {
                 return (false, null);
             }

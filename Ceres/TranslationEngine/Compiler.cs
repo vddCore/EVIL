@@ -17,6 +17,7 @@ namespace Ceres.TranslationEngine
         private Script _script = new();
 
         private List<ChunkAttribute> _attributeList = new();
+        private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
 
 #nullable disable
         private Scope _rootScope;
@@ -29,6 +30,17 @@ namespace Ceres.TranslationEngine
         {
             Visit(program);
             return _script;
+        }
+
+        public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
+        {
+            if (!_attributeProcessors.TryGetValue(attributeName, out var list))
+            {
+                list = new List<AttributeProcessor>();
+                _attributeProcessors.Add(attributeName, list);
+            }
+
+            list.Add(processor);
         }
 
         public override void Visit(Program program)
@@ -47,19 +59,39 @@ namespace Ceres.TranslationEngine
         {
             var chunk = new Chunk { Name = name };
 
-            foreach (var attrib in _attributeList)
-            {
-                chunk.AddAttribute(attrib);
-            }
-            _attributeList.Clear();
-
             _chunks.Push(chunk);
             {
                 action();
             }
 
+            ApplyAnyPendingAttributes(chunk);
+            
             _script.Chunks.Add(chunk);
             _chunks.Pop();
+        }
+
+        private void ApplyAnyPendingAttributes(Chunk chunk)
+        {
+            foreach (var attrib in _attributeList)
+            {
+                if (_attributeProcessors.TryGetValue(attrib.Name, out var processors))
+                {
+                    foreach (var processor in processors)
+                    {
+                        try
+                        {
+                            processor.Invoke(attrib, chunk);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new AttributeProcessorException(attrib, chunk, e);
+                        }
+                    }
+                }
+                
+                chunk.AddAttribute(attrib);
+            }
+            _attributeList.Clear();
         }
 
         private void InNewScopeDo(Action action)
@@ -183,7 +215,7 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(ConditionalExpression conditionalExpression)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(AssignmentExpression assignmentExpression)
@@ -387,37 +419,37 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(ForStatement forStatement)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(DoWhileStatement doWhileStatement)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(WhileStatement whileStatement)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(BreakStatement breakStatement)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(SkipStatement skipStatement)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(TableExpression tableExpression)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(IndexerExpression indexerExpression)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override void Visit(IncrementationExpression incrementationExpression)
@@ -478,7 +510,7 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(EachStatement eachStatement)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private void EmitVarGet(string identifier)
