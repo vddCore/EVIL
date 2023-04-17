@@ -90,8 +90,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.ADD:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     PushValue(a.Add(b));
 
                     break;
@@ -99,8 +99,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SUB:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     
                     PushValue(a.Subtract(b));
 
@@ -109,8 +109,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.MUL:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     
                     PushValue(a.Multiply(b));
 
@@ -119,8 +119,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.DIV:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     
                     PushValue(a.DivideBy(b));
 
@@ -129,8 +129,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.MOD:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.Modulo(b));
 
@@ -139,8 +139,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SHL:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     
                     PushValue(a.ShiftLeft(b));
 
@@ -149,8 +149,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SHR:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     
                     PushValue(a.ShiftRight(b));
 
@@ -177,8 +177,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.LOR:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.LogicalOr(b));
                     break;
@@ -186,8 +186,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.LAND:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.LogicalAnd(b));
                     break;
@@ -195,8 +195,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.BOR:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.BitwiseOr(b));
                     break;
@@ -204,8 +204,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.BXOR:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.BitwiseXor(b));
                     break;
@@ -213,8 +213,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.BAND:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.BitwiseAnd(b));
                     break;
@@ -230,8 +230,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.CEQ:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.IsEqualTo(b));
                     break;
@@ -239,8 +239,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.CNE:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.IsNotEqualTo(b));
                     break;
@@ -248,8 +248,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.CGT:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.IsGreaterThan(b));
                     break;
@@ -257,8 +257,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.CGE:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.IsGreaterThanOrEqualTo(b));
                     break;
@@ -266,8 +266,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.CLT:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.IsLessThan(b));
                     break;
@@ -275,8 +275,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.CLE:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(a.IsLessThanOrEqualTo(b));
                     break;
@@ -407,8 +407,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.EXISTS:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
 
                     PushValue(b.Contains(a));
                     break;
