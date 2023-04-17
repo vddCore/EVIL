@@ -39,11 +39,10 @@ namespace Insitor
             var parser = new Parser();
             var compiler = new Compiler();
             compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
+            compiler.RegisterAttributeProcessor("disasm", AttributeProcessors.DisasmAttribute);
 
             foreach (var path in paths)
             {
-                TextOut.WriteLine($"--- [TEST '{path}'] ---");
-                
                 var source = File.ReadAllText(path);
                 try
                 {
@@ -72,7 +71,10 @@ namespace Insitor
                 var passed = 0;
                 var failed = 0;
                 var inconclusive = 0;
-                
+
+                var path = testdesc.Key;
+                TextOut.WriteLine($"--- [TEST '{path}'] ---");
+
                 var testScript = testdesc.Value;
 
                 var testChunks = testScript.Chunks.Where(
@@ -86,23 +88,35 @@ namespace Insitor
                     TextOut.WriteLine($"Test file '{testScript}' has no tests. Ignoring...");
                     continue;
                 }
-                
+
                 for (var i = 0; i < testChunks.Count; i++)
                 {
+                    var whenToDisassemble = "failure";
+
                     var chunk = testChunks[i];
-                    
-                    TextOut.Write($"[{i+1}/{testChunks.Count}] ");
+                    if (chunk.TryGetAttribute("disasm", out var attr))
+                    {
+                        whenToDisassemble = attr.Values[0].String;
+                    }
+
+                    TextOut.Write($"[{i + 1}/{testChunks.Count}] ");
                     var result = await RunTestChunk(chunk);
                     if (VM.MainFiber.TryPeekValue(out _))
                     {
                         TextOut.WriteLine("[!!] Stack imbalance detected.");
                     }
-                    
-                    if (result == false)
+
+                    if (whenToDisassemble != "never"
+                        && (whenToDisassemble == "always"
+                            || (whenToDisassemble == "failure" && result == false)
+                        ))
                     {
                         Disassembler.Disassemble(chunk, TextOut);
                         TextOut.WriteLine();
+                    }
 
+                    if (result == false)
+                    {
                         failed++;
                     }
                     else if (result == true)
@@ -115,8 +129,12 @@ namespace Insitor
                     }
                 }
 
-                var verb = inconclusive > 1 ? "were" : "was";
-                TextOut.WriteLine($"{passed} tests passed, {failed} failed, {inconclusive} {verb} ignored/inconclusive.");
+                var verb = (inconclusive > 1 || inconclusive == 0) 
+                    ? "were" 
+                    : "was";
+                
+                TextOut.WriteLine(
+                    $"{passed} tests passed, {failed} failed, {inconclusive} {verb} ignored/inconclusive.");
             }
         }
 
@@ -144,13 +162,14 @@ namespace Insitor
                 await VM.MainFiber.ScheduleAsync(chunk);
                 if (!VM.MainFiber.TryPopValue(out var actual))
                 {
-                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
+                    TextOut.WriteLine(
+                        $"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
                     return false;
                 }
                 else
                 {
                     ApproximateIfSpecified(chunk, ref actual);
-                    
+
                     if (expected.IsEqualTo(actual).IsTruth)
                     {
                         TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
@@ -158,7 +177,8 @@ namespace Insitor
                     }
                     else
                     {
-                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
+                        TextOut.WriteLine(
+                            $"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
                         return false;
                     }
                 }
@@ -201,7 +221,7 @@ namespace Insitor
                 value = new DynamicValue(Math.Round(value.Number, digits));
             }
         }
-        
+
         private (bool Ignore, string? Reason) CheckIgnoreStatus(Chunk chunk)
         {
             if (!chunk.TryGetAttribute("ignore", out var ignoreAttr))

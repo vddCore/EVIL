@@ -74,10 +74,22 @@ fn gte() { ret 2 >= 2; }
 fn lte() { ret 4 <= 4; }
 
 #[test(4)]
-fn str_len() { ret #"test"; }
+fn len_str() { ret #"test"; }
 
 #[test; ignore("compiler behavior not implemented yet.")]
 fn len_tbl() { }
+
+#[test("4")]
+fn tostr_num() { ret @4; }
+
+#[test("asdfg")]
+fn tostr_str() { ret @"asdfg"; }
+
+#[test(2137)]
+fn tonum_int() { ret $"2137"; }
+
+#[test(21.37)]
+fn tonum_double() { ret $"21.37"; }
 
 #[test]
 fn postinc() {

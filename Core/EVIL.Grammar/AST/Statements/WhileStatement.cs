@@ -2,15 +2,15 @@
 {
     public sealed class WhileStatement : Statement
     {
-        public Expression Expression { get; }
+        public Expression Condition { get; }
         public Statement Statement { get; }
 
-        public WhileStatement(Expression expression, Statement statement)
+        public WhileStatement(Expression condition, Statement statement)
         {
-            Expression = expression;
+            Condition = condition;
             Statement = statement;
 
-            Reparent(Expression, Statement);
+            Reparent(Condition, Statement);
         }
     }
 }

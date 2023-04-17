@@ -1,0 +1,49 @@
+﻿#[test(10)]
+fn while_simple() {
+  var a = 0;
+  
+  while (a != 10) {
+    a++;
+  }
+  
+  ret a;
+}
+
+#[test(5)]
+fn while_break() {
+  var a = 0;
+  
+  while (a != 10) {
+    a++;
+    
+    if (a == 5) {
+      break;
+    }
+  }
+  
+  ret a;
+}
+
+#[test(2)]
+fn while_skip() {
+  var a = 10;
+  
+  while (a--) {
+    if (a > 2) {
+      skip;
+    }
+
+    ret a;
+  }
+}
+
+#[test(0)] 
+fn while_false() {
+  var a = 0;
+  
+  while (false) {
+    a = 10;
+  }
+  
+  ret a;
+}
