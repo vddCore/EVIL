@@ -47,3 +47,24 @@ fn while_false() {
   
   ret a;
 }
+
+
+#[test]
+fn while_nested() {
+  var a = 10, b, c;
+  
+  while (a) {
+    a--;
+    b = 10;
+    
+    while (b) {
+      b--;
+      c = 10;
+      while (c) {
+        c--;
+      }
+    }
+  }
+  
+  ret !a && !b && !c;
+}
