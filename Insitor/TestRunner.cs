@@ -66,6 +66,10 @@ namespace Insitor
         {
             foreach (var testdesc in TestScripts)
             {
+                var passed = 0;
+                var failed = 0;
+                var inconclusive = 0;
+                
                 var path = testdesc.Key;
                 var testScript = testdesc.Value;
 
@@ -83,29 +87,39 @@ namespace Insitor
 
                 TextOut.WriteLine($"--- [RUNNING TEST SCRIPT '{path}'] ---");
 
-                foreach (var chunk in testChunks)
+                for (var i = 0; i < testChunks.Count; i++)
                 {
-                    if (disassemble)
-                    {
-                        Disassembler.Disassemble(chunk, TextOut);
-                    }
+                    var chunk = testChunks[i];
                     
-                    await RunTestChunk(chunk);
-
+                    TextOut.Write($"[{i+1}/{testChunks.Count}] ");
+                    var result = await RunTestChunk(chunk);
                     if (VM.MainFiber.TryPeekValue(out _))
                     {
                         TextOut.WriteLine("[!!] Stack imbalance detected.");
                     }
-
-                    if (disassemble)
+                    
+                    if (result == false)
                     {
+                        Disassembler.Disassemble(chunk, TextOut);
                         TextOut.WriteLine();
+
+                        failed++;
+                    }
+                    else if (result == true)
+                    {
+                        passed++;
+                    }
+                    else if (result == null)
+                    {
+                        inconclusive++;
                     }
                 }
+                
+                TextOut.WriteLine($"{passed} tests passed, {failed} failed, {inconclusive} was ignored/inconclusive.");
             }
         }
 
-        private async Task RunTestChunk(Chunk chunk)
+        private async Task<bool?> RunTestChunk(Chunk chunk)
         {
             var (ignore, why) = CheckIgnoreStatus(chunk);
 
@@ -119,7 +133,7 @@ namespace Insitor
                 }
 
                 TextOut.WriteLine();
-                return;
+                return null;
             }
 
             var testAttr = chunk.GetAttribute("test")!;
@@ -131,17 +145,20 @@ namespace Insitor
                 {
                     TextOut.WriteLine(
                         $"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
+                    return false;
                 }
                 else
                 {
                     if (expected.IsEqualTo(actual).IsTruth)
                     {
                         TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
+                        return true;
                     }
                     else
                     {
                         TextOut.WriteLine(
                             $"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
+                        return false;
                     }
                 }
             }
@@ -152,16 +169,19 @@ namespace Insitor
                 if (!VM.MainFiber.TryPopValue(out var returnValue))
                 {
                     TextOut.WriteLine($"[INCONCLUSIVE] '{chunk.Name}': No return value was returned.");
+                    return null;
                 }
                 else
                 {
                     if (returnValue.IsTruth)
                     {
                         TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
+                        return true;
                     }
                     else
                     {
                         TextOut.WriteLine($"[FAILED] '{chunk.Name}': test returned a failure state '{returnValue}'.");
+                        return false;
                     }
                 }
             }

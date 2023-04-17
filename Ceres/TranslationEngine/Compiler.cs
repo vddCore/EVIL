@@ -230,17 +230,8 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.Type == BinaryOperationType.LogicalAnd
-                || binaryExpression.Type == BinaryOperationType.LogicalOr)
-            {
-                Visit(binaryExpression.Left);
-                Visit(binaryExpression.Right);
-            }
-            else
-            {
-                Visit(binaryExpression.Right);
-                Visit(binaryExpression.Left);
-            }
+            Visit(binaryExpression.Left);
+            Visit(binaryExpression.Right);
 
             Chunk.CodeGenerator.Emit(
                 binaryExpression.Type switch

@@ -20,11 +20,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             output.WriteLine($"  .LOCALS {chunk.LocalCount}");
             output.WriteLine($"  .PARAMS {chunk.ParameterCount}");
+
+            if (chunk.Attributes.Any())
+            {
+                output.WriteLine();
+                DumpAttributes(chunk, output);
+            }
             
             output.WriteLine();
-            DumpAttributes(chunk, output);
-            output.WriteLine();
-            
             output.WriteLine("  .TEXT {");
 
             using (var reader = chunk.SpawnCodeReader())
