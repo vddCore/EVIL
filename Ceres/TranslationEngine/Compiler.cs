@@ -243,13 +243,12 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(AssignmentExpression assignmentExpression)
         {
-            Visit(assignmentExpression.Right);
-
             if (assignmentExpression.Left is VariableReferenceExpression vre)
             {
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
                     EmitVarGet(vre.Identifier);
+                    Visit(assignmentExpression.Right);
 
                     Chunk.CodeGenerator.Emit(
                         assignmentExpression.OperationType switch
@@ -267,10 +266,13 @@ namespace Ceres.TranslationEngine
                             _ => throw new CompilerException("Internal error: invalid assignment operation.")
                         }
                     );
-
-                    Chunk.CodeGenerator.Emit(OpCode.DUP);
                 }
-
+                else
+                {
+                    Visit(assignmentExpression.Right);
+                }
+                
+                Chunk.CodeGenerator.Emit(OpCode.DUP);
                 EmitVarSet(vre.Identifier);
             }
             else if (assignmentExpression.Left is IndexerExpression ie)
@@ -280,7 +282,7 @@ namespace Ceres.TranslationEngine
             else
             {
                 throw new CompilerException("Invalid assignment target.");
-            }
+            }            
         }
 
         public override void Visit(BinaryExpression binaryExpression)

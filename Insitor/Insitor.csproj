@@ -12,16 +12,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="tests\basic_operators.vil">
+    <None Update="tests\01_basic_operators.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\ternary_operator.vil">
+    <None Update="tests\02_ternary_operator.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\truth.vil">
+    <None Update="tests\00_truth.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\while_loop.vil">
+    <None Update="tests\04_while_loop.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="tests\03_assignment_operators.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
