@@ -7,26 +7,19 @@ namespace Insitor
 {
     public class TestBuildPhaseException : Exception
     {
-        public LexerException? LexerException { get; }
-        public ParserException? ParserException { get; }
-        public CompilerException? CompilerException { get; }
-
         public TestBuildPhaseException(string message, LexerException lexerException)
-            : base(message)
+            : base(message, lexerException)
         {
-            LexerException = lexerException;
         }
 
         public TestBuildPhaseException(string message, ParserException parserException)
-            : base(message)
+            : base(message, parserException)
         {
-            ParserException = parserException;
         }
 
         public TestBuildPhaseException(string message, CompilerException compilerException)
-            : base(message)
+            : base(message, compilerException)
         {
-            CompilerException = compilerException;
         }
     }
 }

@@ -1,17 +1,17 @@
 #[test(4)]
-fn add_int() { ret 2+2; }
+fn add_int() { ret 2 + 2; }
 
 #[test(2)]
-fn sub_int() { ret 3-1; }
+fn sub_int() { ret 3 - 1; }
 
 #[test(4)]
 fn div_int() { ret 20 / 5; }
 
 #[test(4)]
-fn mod() { ret 9%5; }
+fn mod_int() { ret 9 % 5; }
 
 #[test(80)]
-fn mul() { ret 4*20; }
+fn mul() { ret 4 * 20; }
 
 #[test(21.37)]
 fn add_double() { ret 21 + 0.37; }
@@ -22,6 +22,12 @@ fn sub_double() { ret 3 - 0.863; }
 #[test(213.7)]
 fn div_double() { ret 1923.3 / 9; }
 
+#[test(2.5); approximate]
+fn mod_double() { ret 21 % 3.7; }
+
+#[test(0.2137)]
+fn mul_double() { ret 20 * 0.010685; }
+
 #[test(0x0F00)]
 fn band() { ret 0xFFFF & 0x0F00; }
 
@@ -30,6 +36,9 @@ fn bor() { ret 0x00F0 | 0xF000 | 0x0F00; }
 
 #[test(0x000F)]
 fn bxor() { ret 0xFFFF ^ 0xFFF0; }
+
+#[test(0xFFFF)]
+fn bnot() { ret ~0 & 0xFFFF; }
 
 #[test(16)]
 fn shl() { ret 1 << 4; }
@@ -65,7 +74,10 @@ fn gte() { ret 2 >= 2; }
 fn lte() { ret 4 <= 4; }
 
 #[test(4)]
-fn strlen() { ret #"test"; }
+fn str_len() { ret #"test"; }
+
+#[test; ignore("compiler behavior not implemented yet.")]
+fn len_tbl() { }
 
 #[test]
 fn postinc() {
