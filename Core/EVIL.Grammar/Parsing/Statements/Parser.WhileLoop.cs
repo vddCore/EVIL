@@ -10,12 +10,12 @@ namespace EVIL.Grammar.Parsing
         {
             var (line, col) = Match(Token.While);
             Match(Token.LParenthesis);
-            var expression = AssignmentExpression();
+            var condition = AssignmentExpression();
             Match(Token.RParenthesis);
 
             var statement = LoopDescent(() => Statement());
             
-            return new WhileStatement(expression, statement) 
+            return new WhileStatement(condition, statement) 
                 { Line = line, Column = col };
         }
     }

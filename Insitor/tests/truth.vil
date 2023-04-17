@@ -1,0 +1,8 @@
+﻿#[test(false)]
+fn nil_is_false() { ret nil ? true : false; }
+
+#[test(false)]
+fn zero_is_false() { ret 0 ? true : false; }
+
+#[test(false)]
+fn false_is_false() { ret false ? true : false; }

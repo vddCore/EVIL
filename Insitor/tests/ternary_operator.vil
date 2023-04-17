@@ -1,0 +1,30 @@
+﻿#[test(21.37)]
+fn ternary_true_with_constant() {
+  ret true ? 21.37 : "something went terribly wrong";
+}
+
+#[test("jp2gmd")]
+fn ternary_false_with_constant() {
+  ret false ? "something went terribly wrong" : "jp2gmd";
+}
+
+#[test(213.7)]
+fn ternary_true_with_variable() {
+  var x = 25;
+  ret x / 5 == 5 ? 213.7 : "something went terribly wrong";
+}
+
+#[test(2.137)]
+fn ternary_false_with_variable() {
+  var x = 666;
+  ret x > 999 ? "something went terribly wrong" : 2.137;
+}
+
+#[test("jeszcze jak")]
+fn ternary_true_nested() {
+  ret 21 < 37 
+    ? "jp2gmd" 
+      ? "jeszcze jak" 
+      : "nie wiem" 
+    : "something went terribly wrong";
+}

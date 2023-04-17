@@ -361,6 +361,12 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.TONUMBER:
+                {
+                    PushValue(PopValue().ConvertToNumber());
+                    break;
+                }
+
                 case OpCode.TYPE:
                 {
                     PushValue(PopValue().Type.ToString());
