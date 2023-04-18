@@ -2,13 +2,14 @@
 
 namespace Ceres.TranslationEngine
 {
-    public class LoopContext
+    public class Loop
     {
         public Chunk Chunk { get; }
+        
         public int StartLabel { get; }
         public int EndLabel { get; }
 
-        internal LoopContext(Chunk chunk)
+        internal Loop(Chunk chunk)
         {
             Chunk = chunk;
 

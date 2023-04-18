@@ -24,10 +24,10 @@ namespace Ceres.TranslationEngine
         private List<ChunkAttribute> _attributeList = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
         
-        private readonly Stack<LoopContext> _loopDescent = new();
+        private readonly Stack<Loop> _loopDescent = new();
 
         private Chunk Chunk => _chunks.Peek();
-        private LoopContext Loop => _loopDescent.Peek();
+        private Loop Loop => _loopDescent.Peek();
 
         public Script Compile(Program program)
         {
@@ -108,7 +108,7 @@ namespace Ceres.TranslationEngine
 
         private void InNewLoopDo(Action action)
         {
-            _loopDescent.Push(new LoopContext(Chunk));
+            _loopDescent.Push(new Loop(Chunk));
             {
                 action();
             }

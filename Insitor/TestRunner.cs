@@ -39,6 +39,7 @@ namespace Insitor
 
             var parser = new Parser();
             var compiler = new Compiler();
+            
             compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
             compiler.RegisterAttributeProcessor("disasm", AttributeProcessors.DisasmAttribute);
 
