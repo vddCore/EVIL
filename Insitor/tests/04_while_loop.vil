@@ -48,7 +48,6 @@ fn while_false() {
   ret a;
 }
 
-
 #[test]
 fn while_nested() {
   var a = 10, b, c;

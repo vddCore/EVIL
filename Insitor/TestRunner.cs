@@ -20,6 +20,7 @@ namespace Insitor
         private TextWriter TextOut { get; }
 
         private Dictionary<string, Script> TestScripts { get; } = new();
+        private Dictionary<string, List<(Chunk TestChunk, string FailureReason)>> FailureLog { get; } = new();
 
         public TestRunner(string testDirectory, CeresVM vm, TextWriter? textOut = null)
         {
@@ -70,7 +71,7 @@ namespace Insitor
             {
                 var passed = 0;
                 var failed = 0;
-                var inconclusive = 0;
+                var ignored = 0;
 
                 var path = testdesc.Key;
                 TextOut.WriteLine($"--- [TEST '{path}'] ---");
@@ -100,7 +101,7 @@ namespace Insitor
                     }
 
                     TextOut.Write($"[{i + 1}/{testChunks.Count}] ");
-                    var result = await RunTestChunk(chunk);
+                    var result = await RunTestChunk(chunk, path);
                     if (VM.MainFiber.TryPeekValue(out _))
                     {
                         TextOut.WriteLine("[!!] Stack imbalance detected.");
@@ -123,22 +124,24 @@ namespace Insitor
                     {
                         passed++;
                     }
-                    else if (result == null)
+                    else
                     {
-                        inconclusive++;
+                        ignored++;
                     }
                 }
 
-                var verb = (inconclusive > 1 || inconclusive == 0) 
-                    ? "were" 
+                var verb = (ignored > 1 || ignored == 0)
+                    ? "were"
                     : "was";
-                
-                TextOut.WriteLine(
-                    $"{passed} tests passed, {failed} failed, {inconclusive} {verb} ignored/inconclusive.");
+
+                TextOut.WriteLine($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
+                TextOut.WriteLine();
             }
+            
+            ReportAnyTestFailures();
         }
 
-        private async Task<bool?> RunTestChunk(Chunk chunk)
+        private async Task<bool?> RunTestChunk(Chunk chunk, string path)
         {
             var (ignore, why) = CheckIgnoreStatus(chunk);
 
@@ -162,8 +165,11 @@ namespace Insitor
                 await VM.MainFiber.ScheduleAsync(chunk);
                 if (!VM.MainFiber.TryPopValue(out var actual))
                 {
-                    TextOut.WriteLine(
-                        $"[FAILED] '{chunk.Name}': expected '{expected}', but the test returned no value.");
+                    var msg = $"expected '{expected}', but the test returned no value.";
+
+                    AddTestFailure(path, chunk, msg);
+                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
+
                     return false;
                 }
                 else
@@ -177,8 +183,11 @@ namespace Insitor
                     }
                     else
                     {
-                        TextOut.WriteLine(
-                            $"[FAILED] '{chunk.Name}': {actual} is not equal to expected value '{expected}'.");
+                        var msg = $"{actual} is not equal to expected value '{expected}'.";
+
+                        AddTestFailure(path, chunk, msg);
+                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
+
                         return false;
                     }
                 }
@@ -189,8 +198,12 @@ namespace Insitor
 
                 if (!VM.MainFiber.TryPopValue(out var returnValue))
                 {
-                    TextOut.WriteLine($"[INCONCLUSIVE] '{chunk.Name}': No return value was returned.");
-                    return null;
+                    var msg = "No value was returned.";
+
+                    AddTestFailure(path, chunk, msg);
+                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
+
+                    return false;
                 }
                 else
                 {
@@ -201,7 +214,11 @@ namespace Insitor
                     }
                     else
                     {
-                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': test returned a failure state '{returnValue}'.");
+                        var msg = $"Test returned a failure state '{returnValue}'.";
+
+                        AddTestFailure(path, chunk, msg);
+                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
+
                         return false;
                     }
                 }
@@ -236,6 +253,36 @@ namespace Insitor
             }
 
             return (true, reason);
+        }
+
+        private void AddTestFailure(string path, Chunk testChunk, string failureReason)
+        {
+            if (!FailureLog.TryGetValue(path, out var list))
+            {
+                list = new List<(Chunk TestChunk, string FailureReason)>();
+                FailureLog.Add(path, list);
+            }
+
+            list.Add((testChunk, failureReason));
+        }
+
+        private void ReportAnyTestFailures()
+        {
+            if (FailureLog.Any())
+            {
+                TextOut.WriteLine("There were one or more of test failures:");
+            }
+
+            foreach (var kvp in FailureLog)
+            {
+                TextOut.WriteLine($"  {kvp.Key}: ");
+                foreach (var result in kvp.Value)
+                {
+                    TextOut.WriteLine($"    {result.TestChunk.Name}: {result.FailureReason}");
+                }
+                
+                TextOut.WriteLine();
+            }
         }
     }
 }
