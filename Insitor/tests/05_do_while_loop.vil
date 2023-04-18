@@ -1,0 +1,68 @@
+﻿#[test(10)]
+fn do_while_simple() {
+  var a = 0;
+  
+  do {
+    a++;
+  } while(a != 10);
+  
+  ret a;
+}
+
+#[test(1)]
+fn do_while_executes_at_least_once() {
+  var a = 0;
+  
+  do {
+    a++;
+  } while(false);
+  
+  ret a;
+}
+
+#[test(5)]
+fn do_while_skip() {
+  var a = 10;
+  
+  do {
+    if (a > 5) {
+      a--;
+      skip;
+    }
+    ret a;
+  } while(true);
+}
+
+#[test(5)]
+fn do_while_break() {
+  var a = 10;
+  
+  do {
+    if (a <= 5) {
+      break;
+    }
+    
+    a--;
+  } while(true);
+  
+  ret a;
+}
+
+#[test]
+fn do_while_nested() {
+  var a = 10, b, c;
+  
+  do {
+    a--;
+    b = 10;
+    do {
+      b--;
+      c = 10;
+      do {
+        c--;
+      } while(c);
+    } while(b);
+  } while(a);
+  
+  ret !a && !b && !c;
+}
