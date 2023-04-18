@@ -23,7 +23,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         LDNUM,
         LDSTR,
         ANEG,
-        YLD,
         POP,
         RET,
         INC,
@@ -51,6 +50,10 @@ namespace Ceres.ExecutionEngine.Diagnostics
         CLE,
         FJMP,
         TJMP,
-        JUMP
+        JUMP,
+        TABNEW,
+        TABINIT,
+        TABSET,
+        TABGET
     }
 }

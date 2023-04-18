@@ -45,7 +45,7 @@ namespace EVIL.Grammar.Parsing
                         if (key is NilConstant)
                         {
                             throw new ParserException(
-                                "'null' is not a valid key expression.",
+                                "'nil' is not a valid key expression.",
                                 (key.Line, key.Column)
                             );
                         }
