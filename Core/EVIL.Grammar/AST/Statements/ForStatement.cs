@@ -6,26 +6,22 @@ namespace EVIL.Grammar.AST.Statements
     {
         public List<Statement> Assignments { get; }
         public Expression Condition { get; }
-        public List<Expression> IterationExpressions { get; }
+        public List<Statement> IterationStatements { get; }
         public Statement Statement { get; }
 
         public ForStatement(
             List<Statement> assignments, 
             Expression condition, 
-            List<Expression> iterationExpressions,
+            List<Statement> iterationStatements,
             Statement statement)
         {
             Assignments = assignments;
             Condition = condition;
-            IterationExpressions = iterationExpressions;
+            IterationStatements = iterationStatements;
             Statement = statement;
 
-            for (var i = 0; i < Assignments.Count; i++)
-                Reparent(Assignments[i]);
-
-            for (var i = 0; i < IterationExpressions.Count; i++)
-                Reparent(IterationExpressions[i]);
-
+            Reparent(Assignments);
+            Reparent(IterationStatements);
             Reparent(Condition);
             Reparent(Statement);
         }

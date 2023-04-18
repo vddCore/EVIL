@@ -2,19 +2,25 @@
 
 namespace Ceres.TranslationEngine
 {
-    public class Loop
+    internal class Loop
     {
         public Chunk Chunk { get; }
-        
+
         public int StartLabel { get; }
         public int EndLabel { get; }
+        public int ExtraLabel { get; }
 
-        internal Loop(Chunk chunk)
+        internal Loop(Chunk chunk, bool needsExtraLabel)
         {
             Chunk = chunk;
 
-            StartLabel = chunk.CreateLabel();
-            EndLabel = chunk.CreateLabel();
+            StartLabel = Chunk.CreateLabel();
+            EndLabel = Chunk.CreateLabel();
+
+            if (needsExtraLabel)
+            {
+                ExtraLabel = Chunk.CreateLabel();
+            }
         }
     }
 }

@@ -14,16 +14,16 @@ namespace Ceres.TranslationEngine
     public class Compiler : AstVisitor
     {
         private Script _script = new();
-        
+
 #nullable disable
         private Scope _rootScope;
         private Scope _currentScope;
 #nullable enable
-        
+
         private readonly Stack<Chunk> _chunks = new();
         private List<ChunkAttribute> _attributeList = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
-        
+
         private readonly Stack<Loop> _loopDescent = new();
 
         private Chunk Chunk => _chunks.Peek();
@@ -68,7 +68,7 @@ namespace Ceres.TranslationEngine
             }
 
             ApplyAnyPendingAttributes(chunk);
-            
+
             _script.Chunks.Add(chunk);
             _chunks.Pop();
         }
@@ -91,7 +91,7 @@ namespace Ceres.TranslationEngine
                         }
                     }
                 }
-                
+
                 chunk.AddAttribute(attrib);
             }
             _attributeList.Clear();
@@ -106,9 +106,9 @@ namespace Ceres.TranslationEngine
             _currentScope = _currentScope.Parent!;
         }
 
-        private void InNewLoopDo(Action action)
+        private void InNewLoopDo(Action action, bool needsExtraLabel)
         {
-            _loopDescent.Push(new Loop(Chunk));
+            _loopDescent.Push(new Loop(Chunk, needsExtraLabel));
             {
                 action();
             }
@@ -232,11 +232,11 @@ namespace Ceres.TranslationEngine
 
             Visit(conditionalExpression.Condition);
             Chunk.CodeGenerator.Emit(OpCode.FJMP, elseLabel);
-            
+
             Visit(conditionalExpression.TrueExpression);
             Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
             Chunk.UpdateLabel(elseLabel, Chunk.CodeGenerator.IP);
-            
+
             Visit(conditionalExpression.FalseExpression);
             Chunk.UpdateLabel(endLabel, Chunk.CodeGenerator.IP);
         }
@@ -271,7 +271,7 @@ namespace Ceres.TranslationEngine
                 {
                     Visit(assignmentExpression.Right);
                 }
-                
+
                 Chunk.CodeGenerator.Emit(OpCode.DUP);
                 EmitVarSet(vre.Identifier);
             }
@@ -282,7 +282,7 @@ namespace Ceres.TranslationEngine
             else
             {
                 throw new CompilerException("Invalid assignment target.");
-            }            
+            }
         }
 
         public override void Visit(BinaryExpression binaryExpression)
@@ -444,7 +444,26 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(ForStatement forStatement)
         {
-            throw new NotImplementedException();
+            InNewScopeDo(() =>
+            {
+                foreach (var statement in forStatement.Assignments)
+                    Visit(statement);
+
+                InNewLoopDo(() =>
+                {                    
+                    Visit(forStatement.Condition);
+                    Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
+
+                    Visit(forStatement.Statement);
+                    Chunk.UpdateLabel(Loop.StartLabel, Chunk.CodeGenerator.IP);
+
+                    foreach (var iterationStatement in forStatement.IterationStatements)
+                        Visit(iterationStatement);
+                    
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.ExtraLabel);
+                    Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
+                }, true);
+            });
         }
 
         public override void Visit(DoWhileStatement doWhileStatement)
@@ -452,12 +471,12 @@ namespace Ceres.TranslationEngine
             InNewLoopDo(() =>
             {
                 Visit(doWhileStatement.Statement);
-                
+
                 Visit(doWhileStatement.Condition);
                 Chunk.CodeGenerator.Emit(OpCode.TJMP, Loop.StartLabel);
-                
+
                 Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
-            });
+            }, false);
         }
 
         public override void Visit(WhileStatement whileStatement)
@@ -466,12 +485,12 @@ namespace Ceres.TranslationEngine
             {
                 Visit(whileStatement.Condition);
                 Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
-            
+
                 Visit(whileStatement.Statement);
                 Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
-            
+
                 Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
-            });
+            }, false);
         }
 
         public override void Visit(BreakStatement breakStatement)
@@ -527,7 +546,7 @@ namespace Ceres.TranslationEngine
             if (decrementationExpression.Target is VariableReferenceExpression vre)
             {
                 EmitVarGet(vre.Identifier);
-                if (decrementationExpression.IsPrefix) 
+                if (decrementationExpression.IsPrefix)
                 {
                     Chunk.CodeGenerator.Emit(OpCode.DEC);
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
