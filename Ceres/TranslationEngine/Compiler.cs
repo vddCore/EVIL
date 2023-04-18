@@ -546,7 +546,7 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException("Illegal incrementation target.");
+                throw new CompilerException("Illegal decrementation target.");
             }
         }
 
