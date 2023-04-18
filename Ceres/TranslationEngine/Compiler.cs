@@ -449,7 +449,15 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(DoWhileStatement doWhileStatement)
         {
-            throw new NotImplementedException();
+            InNewLoopDo(() =>
+            {
+                Visit(doWhileStatement.Statement);
+                
+                Visit(doWhileStatement.Condition);
+                Chunk.CodeGenerator.Emit(OpCode.TJMP, Loop.StartLabel);
+                
+                Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
+            });
         }
 
         public override void Visit(WhileStatement whileStatement)
