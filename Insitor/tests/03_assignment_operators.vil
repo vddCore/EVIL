@@ -63,3 +63,27 @@ fn assignment_var_shr() {
   var x = 0xFFFF;
   ret ((x >>= 8) == 0x00FF) && (x == 0x00FF);
 }
+
+#[test]
+fn chained_assignment_direct() {
+  var a, b, c, d;
+  var result = (a = b = c = d = 10);
+  
+  ret a == 10
+   && b == 10
+   && c == 10
+   && d == 10
+   && result == 10;
+}
+
+#[test]
+fn chained_assignment_add() {
+  var a = 5, b = 10, c = 15, d = 20;
+  var result = (a += b += c += d += 5);
+  
+  ret a == 55
+   && b == 50
+   && c == 40
+   && d == 25
+   && result == 55;
+}
