@@ -32,6 +32,9 @@
     <None Update="tests\06_for_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="tests\07_tables.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

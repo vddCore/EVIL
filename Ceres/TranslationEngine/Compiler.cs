@@ -450,7 +450,7 @@ namespace Ceres.TranslationEngine
                     Visit(statement);
 
                 InNewLoopDo(() =>
-                {                    
+                {
                     Visit(forStatement.Condition);
                     Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
 
@@ -459,7 +459,7 @@ namespace Ceres.TranslationEngine
 
                     foreach (var iterationStatement in forStatement.IterationStatements)
                         Visit(iterationStatement);
-                    
+
                     Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.ExtraLabel);
                     Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
                 }, true);
@@ -505,7 +505,40 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(TableExpression tableExpression)
         {
-            throw new NotImplementedException();
+            Chunk.CodeGenerator.Emit(OpCode.TABNEW);
+
+            if (tableExpression.Keyed)
+            {
+                foreach (var expr in tableExpression.Initializers)
+                {
+                    var kvpe = (KeyValuePairExpression)expr;
+                    Visit(kvpe.KeyNode);
+                    Visit(kvpe.ValueNode);
+                    Chunk.CodeGenerator.Emit(OpCode.TABINIT);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < tableExpression.Initializers.Count; i++)
+                {
+                    Visit(tableExpression.Initializers[i]);
+
+                    if (i == 0)
+                    {
+                        Chunk.CodeGenerator.Emit(OpCode.LDZERO);
+                    }
+                    else if (i == 1)
+                    {
+                        Chunk.CodeGenerator.Emit(OpCode.LDONE);
+                    }
+                    else
+                    {
+                        Chunk.CodeGenerator.Emit(OpCode.LDNUM, (double)i);
+                    }
+
+                    Chunk.CodeGenerator.Emit(OpCode.TABINIT);
+                }
+            }
         }
 
         public override void Visit(IndexerExpression indexerExpression)

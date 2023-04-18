@@ -29,6 +29,7 @@ namespace Ceres.ExecutionEngine
             
             DynamicValue a;
             DynamicValue b;
+            DynamicValue c;
 
             switch (opCode)
             {
@@ -282,12 +283,6 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
-                case OpCode.YLD:
-                {
-                    _fiber.Yield();
-                    break;
-                }
-
                 case OpCode.INVOKE:
                 {
                     a = PopValue();
@@ -441,6 +436,22 @@ namespace Ceres.ExecutionEngine
                     a = PopValue();
                     PushValue(a.Decrement());
                     
+                    break;
+                }
+
+                case OpCode.TABNEW:
+                {
+                    PushValue(new DynamicValue(new Table()));
+                    break;
+                }
+
+                case OpCode.TABINIT:
+                {
+                    a = PopValue();
+                    b = PopValue();
+                    c = PeekValue();
+
+                    c.SetEntry(a, b);
                     break;
                 }
 

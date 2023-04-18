@@ -11,6 +11,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 return new(a.Number + b.Number);
             }
 
+            if (a.Type == DynamicValueType.String && b.Type == DynamicValueType.String)
+            {
+                return new(a.String + b.String);
+            }
+
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to add a {a.Type} to a {b.Type}."
             );
