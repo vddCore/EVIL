@@ -1,0 +1,75 @@
+﻿#[test(10)]
+fn for_simple() {
+  var i;
+  for (i = 0; i < 10; ++i) {}
+  ret i;
+}
+
+#[test(10)]
+fn for_simple_skip() {
+  var i;
+  
+  for (i = 0; i < 10; i++) {
+    skip;
+  }
+  
+  ret i;
+}
+
+#[test(5)]
+fn for_simple_break() {
+  var i;
+  
+  for (i = 0; i < 10; i++) {
+    if (i == 5)
+      break;
+  }
+  
+  ret i;
+}
+
+#[test]
+fn for_nested() {
+  var i, j, k;
+  
+  for (i = 0; i < 10; i++) {
+    for (j = 0; j < 10; j++) {
+      for (k = 0; k < 10; k++) { }
+    }
+  }
+  
+  ret i == 10 
+   && j == 10 
+   && k == 10;
+}
+
+#[test(6)]
+fn for_nested_break() {
+  var broken = false;
+  var i;
+  
+  for (i = 10; i < 11; i++) {
+    // todo implement discard pattern
+    for (_=_; true; i--) {
+      if (i == 6) {
+        broken = true;
+        break;
+      }
+    }
+    
+    if (broken) {
+      break;
+    }
+  }
+  
+  ret i;
+}
+
+#[test(20)]
+fn for_multiple_statements() {
+  var j = 0;
+  
+  for (var i = 0; i < 10; i++, j += 2) { }
+  
+  ret j; 
+}

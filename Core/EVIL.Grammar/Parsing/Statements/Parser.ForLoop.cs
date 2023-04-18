@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
 
             List<Statement> assignments;
             Expression condition;
-            List<Expression> iterationExpressions;
+            List<Statement> iterationStatements;
 
             Match(Token.LParenthesis);
             {
@@ -25,7 +25,7 @@ namespace EVIL.Grammar.Parsing
 
                 Match(Token.Semicolon);
 
-                iterationExpressions = ForExpressionList();
+                iterationStatements = ForStatementList();
             }
             Match(Token.RParenthesis);
 
@@ -34,7 +34,7 @@ namespace EVIL.Grammar.Parsing
             return new ForStatement(
                 assignments,
                 condition,
-                iterationExpressions,
+                iterationStatements,
                 statements
             ) { Line = line, Column = col };
         }
@@ -70,14 +70,14 @@ namespace EVIL.Grammar.Parsing
             );
         }
 
-        private List<Expression> ForExpressionList()
+        private List<Statement> ForStatementList()
         {
-            var list = new List<Expression> { AssignmentExpression() };
+            var list = new List<Statement> { new ExpressionStatement(AssignmentExpression()) };
 
             while (CurrentToken.Type == TokenType.Comma)
             {
                 Match(Token.Comma);
-                list.Add(AssignmentExpression());
+                list.Add(new ExpressionStatement(AssignmentExpression()));
             }
 
             return list;
