@@ -6,12 +6,7 @@ fn table_empty() {
 
 #[test]
 fn table_value_init() {
-  var a = { 1, 2, 3, "4", 5 };
-  
-  // todo:
-  // implement more specific check
-  // after indexers are available.
-  
+  var a = { 1, 2, 3, 4, 5 };
   ret (#a == 5) && (typeof(a) == "Table");
 }
 
@@ -29,11 +24,52 @@ fn table_constkeyed_init() {
 #[test]
 fn table_computedkey_init() {
   var a = {
-    [21 + 37] => "jp2gmd",
+    [2 + 1.37] => "jp2gmd",
     [21 + $"37"] => "można, jak najbardziej",    
     [@21 + "37"] => "jeszcze jak",
     [21 + 0.37] => "dla ciebie liczba pierwsza dla niego ostatnia"
   };
   
   ret (#a == 4) && (typeof(a) == "Table");
+}
+
+#[test]
+fn table_initialized_values_match() {
+  var a = { 1, 2, 2.137, 3 };
+  
+  ret a[0] == 1
+   && a[1] == 2
+   && a[2] == 2.137
+   && a[3] == 3;
+}
+
+#[test]
+fn table_constkeyed_initialized_values_match() {
+  var a = {
+    "test" => "result",
+    "yes" => 1234,
+    true => 2137
+  };
+  
+  ret a["test"] == "result"
+   && a["yes"] == 1234
+   && a[true] == 2137;
+}
+
+#[test("uwu")]
+fn table_identifier_indexing() {
+  var a = { "nya" => "uwu" };
+  ret a.nya;
+}
+
+#[test(21.37)]
+fn nested_table_indexing() {
+  var a = { 1, { 2, 3, { 4, 5, 6, { 7, 8, 9, 10, 21.37 } } } };
+  ret a[1][2][3][4];
+}
+
+#[test(213.7)]
+fn nested_table_identifier_indexing() {
+  var a = { "b" => { "c" => { "d" => { "j" => { "p2gmd" => 213.7 } } } } };
+  ret a.b.c.d.j.p2gmd;
 }

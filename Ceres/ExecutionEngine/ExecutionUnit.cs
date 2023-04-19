@@ -447,11 +447,30 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.TABINIT:
                 {
-                    a = PopValue();
                     b = PopValue();
+                    a = PopValue();
                     c = PeekValue();
 
-                    c.SetEntry(a, b);
+                    c.SetEntry(b, a);
+                    break;
+                }
+
+                case OpCode.TABSET:
+                {
+                    b = PopValue();
+                    c = PopValue();
+                    a = PopValue();
+
+                    c.SetEntry(b, a);
+                    break;
+                }
+
+                case OpCode.INDEX:
+                {
+                    a = PopValue();
+                    c = PopValue();
+
+                    PushValue(c.Index(a));
                     break;
                 }
 

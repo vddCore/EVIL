@@ -54,6 +54,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         TABNEW,
         TABINIT,
         TABSET,
-        TABGET
+        INDEX
     }
 }

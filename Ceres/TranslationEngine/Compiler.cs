@@ -512,8 +512,8 @@ namespace Ceres.TranslationEngine
                 foreach (var expr in tableExpression.Initializers)
                 {
                     var kvpe = (KeyValuePairExpression)expr;
-                    Visit(kvpe.KeyNode);
                     Visit(kvpe.ValueNode);
+                    Visit(kvpe.KeyNode);
                     Chunk.CodeGenerator.Emit(OpCode.TABINIT);
                 }
             }
@@ -543,7 +543,9 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(IndexerExpression indexerExpression)
         {
-            throw new NotImplementedException();
+            Visit(indexerExpression.Indexable);
+            Visit(indexerExpression.KeyExpression);
+            Chunk.CodeGenerator.Emit(OpCode.INDEX);
         }
 
         public override void Visit(IncrementationExpression incrementationExpression)
@@ -566,7 +568,22 @@ namespace Ceres.TranslationEngine
             }
             else if (incrementationExpression.Target is IndexerExpression ie)
             {
-                throw new NotImplementedException();
+                Visit(ie);
+
+                if (incrementationExpression.IsPrefix)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.INC);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
+                else
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.INC);
+                }
+                
+                Visit(ie.Indexable);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.TABSET);
             }
             else
             {
@@ -579,22 +596,38 @@ namespace Ceres.TranslationEngine
             if (decrementationExpression.Target is VariableReferenceExpression vre)
             {
                 EmitVarGet(vre.Identifier);
+                {
+                    if (decrementationExpression.IsPrefix)
+                    {
+                        Chunk.CodeGenerator.Emit(OpCode.DEC);
+                        Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    }
+                    else
+                    {
+                        Chunk.CodeGenerator.Emit(OpCode.DUP);
+                        Chunk.CodeGenerator.Emit(OpCode.DEC);
+                    }
+                }
+                EmitVarSet(vre.Identifier);
+            }
+            else if (decrementationExpression.Target is IndexerExpression ie)
+            {
+                Visit(ie);
+
                 if (decrementationExpression.IsPrefix)
                 {
                     Chunk.CodeGenerator.Emit(OpCode.DEC);
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
-                    EmitVarSet(vre.Identifier);
                 }
                 else
                 {
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                     Chunk.CodeGenerator.Emit(OpCode.DEC);
-                    EmitVarSet(vre.Identifier);
                 }
-            }
-            else if (decrementationExpression.Target is IndexerExpression ie)
-            {
-                throw new NotImplementedException();
+                
+                Visit(ie.Indexable);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.TABSET);
             }
             else
             {
