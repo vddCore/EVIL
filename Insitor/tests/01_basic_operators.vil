@@ -52,8 +52,8 @@ fn exists_str() { ret "a" in "blah"; }
 #[test(false)]
 fn notexists_str() { ret "f" in "blah"; }
 
-#[test; ignore("compiler behavior not implemented yet.")]
-fn exists_tbl() { }
+//#[test]
+//fn exists_tbl() { ret }
 
 #[test]
 fn eq() { ret 2 == 2; }
@@ -76,8 +76,8 @@ fn lte() { ret 4 <= 4; }
 #[test(4)]
 fn len_str() { ret #"test"; }
 
-#[test; ignore("compiler behavior not implemented yet.")]
-fn len_tbl() { }
+#[test(4)]
+fn len_tbl() { ret #{2,1,3,7}; }
 
 #[test("4")]
 fn tostr_num() { ret @4; }
@@ -92,27 +92,51 @@ fn tonum_int() { ret $"2137"; }
 fn tonum_double() { ret $"21.37"; }
 
 #[test]
-fn postinc() {
+fn postinc_var() {
   var a = 10;
   ret (a++ == 10) && (a == 11);
 }
 
 #[test]
-fn preinc() { 
+fn postinc_tbl_member() {
+  var a = { 10 };
+  ret (a[0]++ == 10) && (a[0] == 11);
+}
+
+#[test]
+fn preinc_var() { 
   var a = 10;
   ret (++a == 11) && (a == 11);
 }
 
 #[test]
-fn postdec() {
+fn preinc_tbl_member() {
+  var a = { 10 };
+  ret (++a[0] == 11) && (a[0] == 11);
+}
+
+#[test]
+fn postdec_var() {
   var a = 10;
   ret (a-- == 10) && (a == 9);
 }
 
 #[test]
-fn predec() {
+fn postdec_tbl_member() {
+  var a = { 10 };
+  ret (a[0]-- == 10) && (a[0] == 9);
+}
+
+#[test]
+fn predec_var() {
   var a = 10;
   ret (--a == 9) && (a == 9);
+}
+
+#[test]
+fn predec_tbl_member() {
+  var a = { 10 };
+  ret (--a[0] == 9) && (a[0] == 9);
 }
 
 #[test("String")]

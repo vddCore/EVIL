@@ -29,19 +29,6 @@ namespace Ceres.ExecutionEngine.TypeSystem
             );
         }
 
-        public static DynamicValue SetEntry(this DynamicValue a, DynamicValue key, DynamicValue value)
-        {
-            if (a.Type != DynamicValueType.Table)
-            {
-                throw new UnsupportedDynamicValueOperationException(
-                    $"Attempt to use {a.Type} as a Table."
-                );
-            }
-
-            a.Table!.Set(key, value);
-            return value;
-        }
-
         public static DynamicValue GetLength(this DynamicValue a)
         {
             if (a.Type == DynamicValueType.String)
@@ -56,6 +43,42 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to get length of a {a.Type}."
+            );
+        }
+
+        public static DynamicValue Index(this DynamicValue a, DynamicValue key)
+        {
+            if (a.Type == DynamicValueType.Table)
+            {
+                return a.Table![key];
+            }
+
+            if (a.Type == DynamicValueType.String)
+            {
+                if (key.Type != DynamicValueType.Number)
+                {
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to index a {a.Type} using a {key.Type}."
+                    );
+                }
+
+                if (key.Number % 1 != 0)
+                {
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to index a {a.Type} using a fractional number."
+                    );
+                }
+
+                if (key.Number < 0 || key.Number >= a.String!.Length)
+                {
+                    return DynamicValue.Nil;
+                }
+
+                return new(a.String![(int)key.Number]);
+            }
+            
+            throw new UnsupportedDynamicValueOperationException(
+                $"Attempt to index a {a.Type}."
             );
         }
 
