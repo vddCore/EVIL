@@ -52,8 +52,17 @@ fn exists_str() { ret "a" in "blah"; }
 #[test(false)]
 fn notexists_str() { ret "f" in "blah"; }
 
-//#[test]
-//fn exists_tbl() { ret }
+#[test]
+fn exists_tbl() {
+  var a = { "a" => 2137 };
+  ret "a" in a;
+}
+
+#[test(false)]
+fn notexists_tbl() {
+  var a = { };
+  ret "a" in a;
+}
 
 #[test]
 fn eq() { ret 2 == 2; }
