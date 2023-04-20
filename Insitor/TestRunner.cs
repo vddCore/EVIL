@@ -49,7 +49,8 @@ namespace Insitor
                 try
                 {
                     var program = parser.Parse(source);
-                    TestScripts.Add(path, compiler.Compile(program));
+                    var script = compiler.Compile(program);
+                    TestScripts.Add(path, script);
                 }
                 catch (LexerException le)
                 {
@@ -80,9 +81,7 @@ namespace Insitor
                 var testScript = testdesc.Value;
 
                 var testChunks = testScript.Chunks.Where(
-                    x => x.Attributes.FirstOrDefault(
-                        a => a.Name == "test"
-                    ) != null
+                    x => x.HasAttribute("test")
                 ).ToList();
 
                 if (testChunks.Count == 0)
@@ -90,7 +89,21 @@ namespace Insitor
                     TextOut.WriteLine($"Test file '{testScript}' has no tests. Ignoring...");
                     continue;
                 }
+                
+                VM.Global.Clear();
 
+                var nonTestChunks = testScript.Chunks.Where(
+                    x => !x.HasAttribute("test")
+                ).ToList();
+
+                foreach (var chunk in nonTestChunks)
+                {
+                    VM.Global.Set(
+                        chunk.Name!,
+                        new(chunk)
+                    );    
+                }
+                
                 for (var i = 0; i < testChunks.Count; i++)
                 {
                     var whenToDisassemble = "failure";

@@ -8,7 +8,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 {
     public sealed class Frame : IDisposable
     {
-        private BinaryReader _chunkReader;
+        private readonly BinaryReader _chunkReader;
         
         public Fiber Fiber { get; }
         public Chunk Chunk { get; }

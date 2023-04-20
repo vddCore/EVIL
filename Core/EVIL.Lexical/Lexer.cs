@@ -335,7 +335,6 @@ namespace EVIL.Lexical
             {
                 "fn" => Token.Fn,
                 "for" => Token.For,
-                "each" => Token.Each,
                 "while" => Token.While,
                 "do" => Token.Do,
                 "var" => Token.Var,

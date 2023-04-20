@@ -103,7 +103,6 @@
         public static readonly Token Fn = new(TokenType.Fn, "fn");
         public static readonly Token Ret = new(TokenType.Ret, "ret");
         public static readonly Token For = new(TokenType.For, "for");
-        public static readonly Token Each = new(TokenType.Each, "each");
         public static readonly Token Do = new(TokenType.Do, "do");
         public static readonly Token While = new(TokenType.While, "while");
         public static readonly Token Break = new(TokenType.Break, "break");

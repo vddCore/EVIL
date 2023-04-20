@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Grammar;
@@ -221,6 +222,10 @@ namespace Ceres.TranslationEngine
             {
                 Visit(returnStatement.Expression);
             }
+            else
+            {
+                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            }
 
             Chunk.CodeGenerator.Emit(OpCode.RET);
         }
@@ -281,7 +286,7 @@ namespace Ceres.TranslationEngine
                 {
                     Visit(ie);
                     Visit(assignmentExpression.Right);
-                    
+
                     Chunk.CodeGenerator.Emit(
                         assignmentExpression.OperationType switch
                         {
@@ -303,9 +308,9 @@ namespace Ceres.TranslationEngine
                 {
                     Visit(assignmentExpression.Right);
                 }
-                
+
                 Chunk.CodeGenerator.Emit(OpCode.DUP);
-                
+
                 Visit(ie.Indexable);
                 Visit(ie.KeyExpression);
                 Chunk.CodeGenerator.Emit(OpCode.TABSET);
@@ -417,6 +422,7 @@ namespace Ceres.TranslationEngine
                 }
 
                 /* Either we have no instructions in chunk, or it's not a RET. */
+                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
                 Chunk.CodeGenerator.Emit(OpCode.RET);
             }, functionDefinition.Identifier);
         }
@@ -611,7 +617,7 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                     Chunk.CodeGenerator.Emit(OpCode.INC);
                 }
-                
+
                 Visit(ie.Indexable);
                 Visit(ie.KeyExpression);
                 Chunk.CodeGenerator.Emit(OpCode.TABSET);
@@ -655,7 +661,7 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                     Chunk.CodeGenerator.Emit(OpCode.DEC);
                 }
-                
+
                 Visit(ie.Indexable);
                 Visit(ie.KeyExpression);
                 Chunk.CodeGenerator.Emit(OpCode.TABSET);
@@ -664,11 +670,6 @@ namespace Ceres.TranslationEngine
             {
                 throw new CompilerException("Illegal decrementation target.");
             }
-        }
-
-        public override void Visit(EachStatement eachStatement)
-        {
-            throw new NotImplementedException();
         }
 
         private void EmitVarGet(string identifier)

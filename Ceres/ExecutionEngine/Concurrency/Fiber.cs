@@ -13,6 +13,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         private Stack<DynamicValue> _evaluationStack;
         private Stack<Frame> _callStack;
+        
         private ExecutionUnit _executionUnit;
 
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
@@ -42,7 +43,13 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             _evaluationStack = new Stack<DynamicValue>();
             _callStack = new Stack<Frame>();
-            _executionUnit = new ExecutionUnit(virtualMachine.Global, this, _evaluationStack, _callStack);
+            
+            _executionUnit = new ExecutionUnit(
+                virtualMachine.Global,
+                this,
+                _evaluationStack,
+                _callStack
+            );
 
             State = FiberState.Fresh;
         }

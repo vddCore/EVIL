@@ -8,7 +8,7 @@ namespace Ceres.ExecutionEngine
     internal class ExecutionUnit
     {
         public const int CallStackLimit = 128;
-        
+
         private readonly Table _global;
         private readonly Fiber _fiber;
         private readonly Stack<DynamicValue> _evaluationStack;
@@ -26,7 +26,7 @@ namespace Ceres.ExecutionEngine
         {
             var frame = _callStack.Peek();
             var opCode = frame.FetchOpCode();
-            
+
             DynamicValue a;
             DynamicValue b;
             DynamicValue c;
@@ -43,7 +43,7 @@ namespace Ceres.ExecutionEngine
                     PushValue(PeekValue());
                     break;
                 }
-                
+
                 case OpCode.LDNUM:
                 {
                     PushValue(frame.FetchDouble());
@@ -102,7 +102,7 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
-                    
+
                     PushValue(a.Subtract(b));
 
                     break;
@@ -112,7 +112,7 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
-                    
+
                     PushValue(a.Multiply(b));
 
                     break;
@@ -122,7 +122,7 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
-                    
+
                     PushValue(a.DivideBy(b));
 
                     break;
@@ -142,7 +142,7 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
-                    
+
                     PushValue(a.ShiftLeft(b));
 
                     break;
@@ -152,7 +152,7 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
-                    
+
                     PushValue(a.ShiftRight(b));
 
                     break;
@@ -224,7 +224,7 @@ namespace Ceres.ExecutionEngine
                 case OpCode.BNOT:
                 {
                     a = PopValue();
-                    
+
                     PushValue(a.BitwiseNegate());
                     break;
                 }
@@ -300,7 +300,7 @@ namespace Ceres.ExecutionEngine
                     {
                         args[argumentCount - i - 1] = PopValue();
                     }
-                    
+
                     _callStack.Push(new Frame(_fiber, a.Chunk!, args));
                     break;
                 }
@@ -310,7 +310,7 @@ namespace Ceres.ExecutionEngine
                     b = PopValue();
                     a = PopValue();
                     _global[b] = a;
-                    
+
                     break;
                 }
 
@@ -372,7 +372,7 @@ namespace Ceres.ExecutionEngine
                 {
                     a = PopValue();
                     var labelId = frame.FetchInt32();
-                    
+
                     if (!a.IsTruth)
                     {
                         frame.JumpAbsolute(
@@ -381,12 +381,12 @@ namespace Ceres.ExecutionEngine
                     }
                     break;
                 }
-                
+
                 case OpCode.TJMP:
                 {
                     a = PopValue();
                     var labelId = frame.FetchInt32();
-                    
+
                     if (a.IsTruth)
                     {
                         frame.JumpAbsolute(
@@ -395,7 +395,7 @@ namespace Ceres.ExecutionEngine
                     }
                     break;
                 }
-                
+
                 case OpCode.JUMP:
                 {
                     frame.JumpAbsolute(
@@ -427,7 +427,7 @@ namespace Ceres.ExecutionEngine
                 {
                     a = PopValue();
                     PushValue(a.Increment());
-                    
+
                     break;
                 }
 
@@ -435,7 +435,7 @@ namespace Ceres.ExecutionEngine
                 {
                     a = PopValue();
                     PushValue(a.Decrement());
-                    
+
                     break;
                 }
 
@@ -511,7 +511,7 @@ namespace Ceres.ExecutionEngine
             lock (_evaluationStack)
             {
                 _evaluationStack.Push(value);
-            }   
+            }
         }
     }
 }
