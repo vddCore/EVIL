@@ -87,3 +87,48 @@ fn chained_assignment_add() {
    && d == 25
    && result == 55;
 }
+
+#[test]
+fn chained_assignment_sub() {
+  var a = 5, b = 10, c = 15, d = 20;
+  var result = (a -= b -= c -= d -= 5);
+  
+  ret a == -5
+   && b == 10
+   && c == 0
+   && d == 15
+   && result == -5; 
+}
+
+#[test]
+fn chained_assignment_div() {
+  var a = 120, b = 60, c = 30, d = 10;
+  var result = (a /= b /= c /= d /= 2); 
+  
+  ret a == 12
+   && b == 10
+   && c == 6
+   && d == 5
+   && result == 12;
+}
+
+#[test]
+fn assignment_tbl_direct() {
+  var a = {};
+  a[0] = "test";
+  
+  ret #a == 1 && a[0] == "test";
+}
+
+#[test]
+fn assignment_tbl_add() {
+  var a = { 10 };
+  ret ((a[0] += 1) == 11) && (a[0] == 11);
+}
+
+
+#[test]
+fn assignment_tbl_sub() {
+  var a = { 13 };
+  ret ((a[0] -= 1) == 12) && (a[0] == 12);
+}

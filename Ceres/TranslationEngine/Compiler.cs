@@ -277,7 +277,38 @@ namespace Ceres.TranslationEngine
             }
             else if (assignmentExpression.Left is IndexerExpression ie)
             {
-                throw new NotImplementedException();
+                if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
+                {
+                    Visit(ie);
+                    Visit(assignmentExpression.Right);
+                    
+                    Chunk.CodeGenerator.Emit(
+                        assignmentExpression.OperationType switch
+                        {
+                            AssignmentOperationType.Add => OpCode.ADD,
+                            AssignmentOperationType.Subtract => OpCode.SUB,
+                            AssignmentOperationType.Divide => OpCode.DIV,
+                            AssignmentOperationType.Modulo => OpCode.MOD,
+                            AssignmentOperationType.Multiply => OpCode.MUL,
+                            AssignmentOperationType.BitwiseAnd => OpCode.BAND,
+                            AssignmentOperationType.BitwiseOr => OpCode.BOR,
+                            AssignmentOperationType.BitwiseXor => OpCode.BXOR,
+                            AssignmentOperationType.ShiftLeft => OpCode.SHL,
+                            AssignmentOperationType.ShiftRight => OpCode.SHR,
+                            _ => throw new CompilerException("Internal error: invalid assignment operation.")
+                        }
+                    );
+                }
+                else
+                {
+                    Visit(assignmentExpression.Right);
+                }
+                
+                Chunk.CodeGenerator.Emit(OpCode.DUP);
+                
+                Visit(ie.Indexable);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.TABSET);
             }
             else
             {
