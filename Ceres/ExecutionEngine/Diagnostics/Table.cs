@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
@@ -29,7 +30,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public void Set(double key, DynamicValue value)
             => Set(new DynamicValue(key), value);
-        
+
         public void Set(string key, DynamicValue value)
             => Set(new DynamicValue(key), value);
 
@@ -64,11 +65,21 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public bool Contains(double key)
             => Contains(new DynamicValue(key));
-        
-        public bool Contains(DynamicValue key) 
+
+        public bool Contains(DynamicValue key)
             => _values.ContainsKey(key);
 
-        public static DynamicValue CreateNew() 
-            => new(new Table());
+        public void Clear()
+            => _values.Clear();
+
+        public Table GetKeys()
+        {
+            var keys = new Table();
+
+            for (var i = 0; i < _values.Keys.Count; i++)
+                keys.Set(i, _values.Keys.ElementAt(i));
+
+            return keys;
+        }
     }
 }

@@ -1,0 +1,14 @@
+﻿fn noret() { }
+fn add(a, b) { ret a + b; }
+fn get_add_fn() { ret add; } 
+
+#[test(nil)]
+fn no_ret_is_nil() {
+  ret noret();
+}
+
+#[test(4)]
+fn invoke() { ret add(2, 2); }
+
+#[test(6)]
+fn indirect_invoke() { ret get_add_fn()(3, 3); }
