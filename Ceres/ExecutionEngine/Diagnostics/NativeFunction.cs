@@ -1,7 +1,8 @@
 using System.Threading;
+using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public delegate DynamicValue NativeFunction(ExecutionContext context, params DynamicValue[] args);
+    public delegate DynamicValue NativeFunction(Fiber context, params DynamicValue[] args);
 }

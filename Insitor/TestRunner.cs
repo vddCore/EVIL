@@ -91,6 +91,10 @@ namespace Insitor
                 }
                 
                 VM.Global.Clear();
+                VM.Global.Set("__native_func", new((context, args) =>
+                {
+                    return args[3];
+                }));
 
                 var nonTestChunks = testScript.Chunks.Where(
                     x => !x.HasAttribute("test")
