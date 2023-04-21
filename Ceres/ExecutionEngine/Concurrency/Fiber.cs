@@ -12,7 +12,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         private HashSet<Fiber> _waitingFor;
 
         private Stack<DynamicValue> _evaluationStack;
-        private Stack<Frame> _callStack;
+        private Stack<StackFrame> _callStack;
         
         private ExecutionUnit _executionUnit;
 
@@ -42,7 +42,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             _waitingFor = new HashSet<Fiber>();
 
             _evaluationStack = new Stack<DynamicValue>();
-            _callStack = new Stack<Frame>();
+            _callStack = new Stack<StackFrame>();
             
             _executionUnit = new ExecutionUnit(
                 virtualMachine.Global,
@@ -273,7 +273,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         {
             lock (_callStack)
             {
-                _callStack.Push(new Frame(this, chunk, args));
+                _callStack.Push(new ScriptStackFrame(this, chunk, args));
             }
         }
 

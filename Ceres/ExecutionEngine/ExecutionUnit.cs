@@ -12,9 +12,9 @@ namespace Ceres.ExecutionEngine
         private readonly Table _global;
         private readonly Fiber _fiber;
         private readonly Stack<DynamicValue> _evaluationStack;
-        private readonly Stack<Frame> _callStack;
+        private readonly Stack<StackFrame> _callStack;
 
-        public ExecutionUnit(Table global, Fiber fiber, Stack<DynamicValue> evaluationStack, Stack<Frame> callStack)
+        public ExecutionUnit(Table global, Fiber fiber, Stack<DynamicValue> evaluationStack, Stack<StackFrame> callStack)
         {
             _global = global;
             _fiber = fiber;
@@ -24,7 +24,7 @@ namespace Ceres.ExecutionEngine
 
         public void Step()
         {
-            var frame = _callStack.Peek();
+            var frame = _callStack.Peek().As<ScriptStackFrame>();
             var opCode = frame.FetchOpCode();
 
             DynamicValue a;
@@ -286,23 +286,32 @@ namespace Ceres.ExecutionEngine
                 case OpCode.INVOKE:
                 {
                     a = PopValue();
-
-                    if (a.Type != DynamicValue.DynamicValueType.Chunk)
-                    {
-                        throw new UnsupportedDynamicValueOperationException(
-                            $"Attempt to invoke a {a.Number}."
-                        );
-                    }
-
+                    
                     var argumentCount = frame.FetchInt32();
                     var args = new DynamicValue[argumentCount];
                     for (var i = 0; i < argumentCount; i++)
                     {
                         args[argumentCount - i - 1] = PopValue();
                     }
+                    
+                    if (a.Type == DynamicValue.DynamicValueType.Chunk)
+                    {
+                        _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
+                        break;
+                    }
+                    else if (a.Type == DynamicValue.DynamicValueType.NativeFunction)
+                    {
+                        _callStack.Push(new NativeStackFrame(a.NativeFunction!));
+                        {
+                            PushValue(a.NativeFunction!.Invoke(_fiber, args));
+                        }
+                        _callStack.Pop();
+                        break;
+                    }
 
-                    _callStack.Push(new Frame(_fiber, a.Chunk!, args));
-                    break;
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to invoke a {a.Type}."
+                    );
                 }
 
                 case OpCode.SETGLOBAL:

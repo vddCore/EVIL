@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class Frame : IDisposable
+    public sealed class ScriptStackFrame : StackFrame
     {
         private readonly BinaryReader _chunkReader;
-        
+
         public Fiber Fiber { get; }
         public Chunk Chunk { get; }
 
@@ -17,8 +16,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public DynamicValue[]? Locals { get; }
 
         public long IP => _chunkReader.BaseStream.Position;
-        
-        internal Frame(Fiber fiber, Chunk chunk, DynamicValue[] args)
+
+        internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue[] args)
         {
             Fiber = fiber;
             Chunk = chunk;
@@ -49,11 +48,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 Locals = new DynamicValue[chunk.LocalCount];
                 Array.Fill(Locals, DynamicValue.Nil);
             }
-            
+
             _chunkReader = Chunk.SpawnCodeReader();
         }
 
-        internal void Return() 
+        internal void Return()
             => _chunkReader.BaseStream.Seek(0, SeekOrigin.End);
 
         internal void Advance()
@@ -62,11 +61,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
         internal OpCode PeekOpCode()
         {
             var opCode = FetchOpCode();
-            
+
             _chunkReader.BaseStream.Position--;
             return opCode;
         }
-        
+
         internal OpCode FetchOpCode()
             => (OpCode)_chunkReader.ReadByte();
 
@@ -78,17 +77,17 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         internal int FetchInt32()
             => _chunkReader.ReadInt32();
-        
+
         internal long FetchInt64()
             => _chunkReader.ReadInt64();
 
-        internal void JumpAbsolute(long address) 
+        internal void JumpAbsolute(long address)
             => _chunkReader.BaseStream.Seek(address, SeekOrigin.Begin);
 
         internal void JumpRelative(long offset)
             => _chunkReader.BaseStream.Seek(offset, SeekOrigin.Current);
 
-        public void Dispose()
+        public override void Dispose()
         {
             _chunkReader.Dispose();
         }
