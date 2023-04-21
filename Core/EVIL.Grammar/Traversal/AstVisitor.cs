@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
@@ -9,44 +11,31 @@ namespace EVIL.Grammar.Traversal
 {
     public abstract class AstVisitor
     {
-        protected Dictionary<Type, NodeHandler> Handlers { get; }
+        protected Dictionary<Type, NodeHandler> Handlers { get; } = new();
 
         protected delegate void NodeHandler(AstNode node);
 
         protected AstVisitor()
         {
-#nullable disable
-            Handlers = new()
+            var methods = GetType().GetMethods(
+                BindingFlags.Instance
+                | BindingFlags.Public
+            ).Where(x => x.Name == nameof(Visit));
+
+            foreach (var handler in methods)
             {
-                { typeof(BlockStatement), (n) => Visit((BlockStatement)n) },
-                { typeof(ConditionalExpression), (n) => Visit((ConditionalExpression)n) },
-                { typeof(NumberConstant), (n) => Visit((NumberConstant)n) },
-                { typeof(StringConstant), (n) => Visit((StringConstant)n) },
-                { typeof(NilConstant), (n) => Visit((NilConstant)n) },
-                { typeof(BooleanConstant), (n) => Visit((BooleanConstant)n) },
-                { typeof(AssignmentExpression), (n) => Visit((AssignmentExpression)n) },
-                { typeof(BinaryExpression), (n) => Visit((BinaryExpression)n) },
-                { typeof(UnaryExpression), (n) => Visit((UnaryExpression)n) },
-                { typeof(VariableReferenceExpression), (n) => Visit((VariableReferenceExpression)n) },
-                { typeof(VariableDefinition), (n) => Visit((VariableDefinition)n) },
-                { typeof(FunctionDefinition), (n) => Visit((FunctionDefinition)n) },
-                { typeof(FunctionCallExpression), (n) => Visit((FunctionCallExpression)n) },
-                { typeof(IfStatement), (n) => Visit((IfStatement)n) },
-                { typeof(ForStatement), (n) => Visit((ForStatement)n) },
-                { typeof(DoWhileStatement), (n) => Visit((DoWhileStatement)n) },
-                { typeof(WhileStatement), (n) => Visit((WhileStatement)n) },
-                { typeof(ReturnStatement), (n) => Visit((ReturnStatement)n) },
-                { typeof(BreakStatement), (n) => Visit((BreakStatement)n) },
-                { typeof(SkipStatement), (n) => Visit((SkipStatement)n) },
-                { typeof(TableExpression), (n) => Visit((TableExpression)n) },
-                { typeof(IndexerExpression), (n) => Visit((IndexerExpression)n) },
-                { typeof(IncrementationExpression), (n) => Visit((IncrementationExpression)n) },
-                { typeof(DecrementationExpression), (n) => Visit((DecrementationExpression)n) },
-                { typeof(ExpressionStatement), (n) => Visit((ExpressionStatement)n) },
-                { typeof(AttributeStatement), (n) => Visit((AttributeStatement)n) },
-                { typeof(AttributeListStatement), (n) => Visit((AttributeListStatement)n) }
-            };
-#nullable enable
+                var parameters = handler.GetParameters();
+                if (parameters.Length != 1) continue;
+
+                var parameterType = parameters[0].ParameterType;
+
+                if (parameterType == typeof(AstNode)) continue;
+                if (parameterType == typeof(Program)) continue;
+                
+                if (!parameterType.IsAssignableTo(typeof(AstNode))) continue;
+
+                Handlers.Add(parameterType, (n) => handler?.Invoke(this, new object[] { n }));
+            }
         }
 
         public virtual void Visit(AstNode node)
@@ -64,7 +53,12 @@ namespace EVIL.Grammar.Traversal
             Handlers[type](node);
         }
 
-        public abstract void Visit(Program program);
+        public virtual void Visit(Program program)
+        {
+            foreach (var statement in program.Statements)
+                Visit(statement);
+        }
+
         public abstract void Visit(BlockStatement blockStatement);
         public abstract void Visit(ConditionalExpression conditionalExpression);
         public abstract void Visit(NumberConstant numberConstant);
