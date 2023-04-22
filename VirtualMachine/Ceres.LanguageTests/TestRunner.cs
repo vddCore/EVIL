@@ -12,7 +12,7 @@ using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
 
-namespace Insitor
+namespace Ceres.LanguageTests
 {
     public class TestRunner
     {

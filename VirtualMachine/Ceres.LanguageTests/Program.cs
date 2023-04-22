@@ -1,5 +1,5 @@
 ﻿using Ceres.ExecutionEngine;
-using Insitor;
+using Ceres.LanguageTests;
 
 var vm = new CeresVM();
 vm.Start();
