@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace Insitor
 {
     public class TestRunner
     {
+        private Stopwatch Stopwatch { get; } = new();
         private string TestDirectory { get; }
         private CeresVM VM { get; }
         private TextWriter TextOut { get; }
@@ -119,7 +121,9 @@ namespace Insitor
                     }
 
                     TextOut.Write($"[{i + 1}/{testChunks.Count}] ");
+                    
                     var result = await RunTestChunk(chunk, path);
+                    
                     if (VM.MainFiber.TryPeekValue(out _))
                     {
                         TextOut.WriteLine("[!!] Stack imbalance detected.");
@@ -161,6 +165,7 @@ namespace Insitor
 
         private async Task<bool?> RunTestChunk(Chunk chunk, string path)
         {
+
             var (ignore, why) = CheckIgnoreStatus(chunk);
 
             if (ignore)
@@ -180,10 +185,14 @@ namespace Insitor
             if (testAttr.Values.Count > 0)
             {
                 var expected = testAttr.Values[0];
+                Stopwatch.Reset();
+                Stopwatch.Start();
                 await VM.MainFiber.ScheduleAsync(chunk);
+                Stopwatch.Stop();
+
                 if (!VM.MainFiber.TryPopValue(out var actual))
                 {
-                    var msg = $"expected '{expected}', but the test returned no value.";
+                    var msg = $"expected '{expected}', but the test returned no value. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
 
                     AddTestFailure(path, chunk, msg);
                     TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
@@ -194,14 +203,14 @@ namespace Insitor
                 {
                     ApproximateIfSpecified(chunk, ref actual);
 
-                    if (expected.IsEqualTo(actual).IsTruth)
+                    if (DynamicValue.IsTruth(expected.IsEqualTo(actual)))
                     {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]");
                         return true;
                     }
                     else
                     {
-                        var msg = $"{actual} is not equal to expected value '{expected}'.";
+                        var msg = $"{actual} is not equal to expected value '{expected}'. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
 
                         AddTestFailure(path, chunk, msg);
                         TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
@@ -216,7 +225,7 @@ namespace Insitor
 
                 if (!VM.MainFiber.TryPopValue(out var returnValue))
                 {
-                    var msg = "No value was returned.";
+                    var msg = $"No value was returned. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
 
                     AddTestFailure(path, chunk, msg);
                     TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
@@ -225,14 +234,14 @@ namespace Insitor
                 }
                 else
                 {
-                    if (returnValue.IsTruth)
+                    if (DynamicValue.IsTruth(returnValue))
                     {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully.");
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]");
                         return true;
                     }
                     else
                     {
-                        var msg = $"Test returned a failure state '{returnValue}'.";
+                        var msg = $"Test returned a failure state '{returnValue}'. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
 
                         AddTestFailure(path, chunk, msg);
                         TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");

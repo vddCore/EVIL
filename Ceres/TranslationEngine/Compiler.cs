@@ -221,6 +221,12 @@ namespace Ceres.TranslationEngine
             if (returnStatement.Expression != null)
             {
                 Visit(returnStatement.Expression);
+                
+                if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
+                {
+                    if (opCode == OpCode.TAILINVOKE)
+                        return;
+                }
             }
             else
             {
@@ -417,7 +423,7 @@ namespace Ceres.TranslationEngine
 
                 if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
                 {
-                    if (opCode == OpCode.RET)
+                    if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
                         return;
                 }
 
@@ -434,11 +440,20 @@ namespace Ceres.TranslationEngine
                 Visit(functionCallExpression.Arguments[i]);
             }
 
-            Visit(functionCallExpression.Callee);
-            Chunk.CodeGenerator.Emit(
-                OpCode.INVOKE,
-                functionCallExpression.Arguments.Count
-            );
+            if (functionCallExpression.Parent is ReturnStatement
+                && functionCallExpression.Callee is VariableReferenceExpression varRef
+                && varRef.Identifier == Chunk.Name)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);
+            }
+            else
+            {
+                Visit(functionCallExpression.Callee);
+                Chunk.CodeGenerator.Emit(
+                    OpCode.INVOKE,
+                    functionCallExpression.Arguments.Count
+                );
+            }
         }
 
         public override void Visit(IfStatement ifStatement)

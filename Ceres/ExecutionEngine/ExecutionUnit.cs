@@ -14,7 +14,8 @@ namespace Ceres.ExecutionEngine
         private readonly Stack<DynamicValue> _evaluationStack;
         private readonly Stack<StackFrame> _callStack;
 
-        public ExecutionUnit(Table global, Fiber fiber, Stack<DynamicValue> evaluationStack, Stack<StackFrame> callStack)
+        public ExecutionUnit(Table global, Fiber fiber, Stack<DynamicValue> evaluationStack,
+            Stack<StackFrame> callStack)
         {
             _global = global;
             _fiber = fiber;
@@ -286,14 +287,14 @@ namespace Ceres.ExecutionEngine
                 case OpCode.INVOKE:
                 {
                     a = PopValue();
-                    
+
                     var argumentCount = frame.FetchInt32();
                     var args = new DynamicValue[argumentCount];
                     for (var i = 0; i < argumentCount; i++)
                     {
                         args[argumentCount - i - 1] = PopValue();
                     }
-                    
+
                     if (a.Type == DynamicValue.DynamicValueType.Chunk)
                     {
                         _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
@@ -312,6 +313,22 @@ namespace Ceres.ExecutionEngine
                     throw new UnsupportedDynamicValueOperationException(
                         $"Attempt to invoke a {a.Type}."
                     );
+                }
+
+                case OpCode.TAILINVOKE:
+                {
+                    var args = frame.Arguments;
+
+                    if (args != null)
+                    {
+                        for (var i = 0; i < frame.Arguments?.Length; i++)
+                        {
+                            args[args.Length - i - 1] = PopValue();
+                        }
+                    }
+
+                    frame.JumpAbsolute(0);
+                    break;
                 }
 
                 case OpCode.SETGLOBAL:
@@ -379,10 +396,9 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.FJMP:
                 {
-                    a = PopValue();
                     var labelId = frame.FetchInt32();
 
-                    if (!a.IsTruth)
+                    if (!DynamicValue.IsTruth(PopValue()))
                     {
                         frame.JumpAbsolute(
                             frame.Chunk.Labels[labelId]
@@ -393,10 +409,9 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.TJMP:
                 {
-                    a = PopValue();
                     var labelId = frame.FetchInt32();
 
-                    if (a.IsTruth)
+                    if (DynamicValue.IsTruth(PopValue()))
                     {
                         frame.JumpAbsolute(
                             frame.Chunk.Labels[labelId]

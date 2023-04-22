@@ -28,6 +28,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         INC,
         DEC,
         INVOKE,
+        TAILINVOKE,
         SETGLOBAL,
         GETGLOBAL,
         SETLOCAL,
@@ -54,6 +55,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         TABNEW,
         TABINIT,
         TABSET,
-        INDEX
+        INDEX,
     }
 }
