@@ -10,7 +10,6 @@
     <list name="control_flow">
       <item>break</item>
       <item>do</item>
-      <item>each</item>
       <item>elif</item>
       <item>else</item>
       <item>for</item>
@@ -21,7 +20,7 @@
     </list>
     <list name="keywords">
       <item>in</item>
-      <item>loc</item>
+      <item>var</item>
       <item>fn</item>
       <item>nil</item>
       <item>typeof</item>

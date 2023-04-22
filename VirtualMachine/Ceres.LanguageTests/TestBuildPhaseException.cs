@@ -3,7 +3,7 @@ using Ceres.TranslationEngine;
 using EVIL.Grammar;
 using EVIL.Lexical;
 
-namespace Insitor
+namespace Ceres.LanguageTests
 {
     public class TestBuildPhaseException : Exception
     {

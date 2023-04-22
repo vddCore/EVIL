@@ -3,7 +3,7 @@ using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 
-namespace Insitor
+namespace Ceres.LanguageTests
 {
     public static class AttributeProcessors
     {

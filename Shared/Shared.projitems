@@ -9,6 +9,9 @@
     <Import_RootNamespace>Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)..\README.md">
+      <Link>README.md</Link>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_katepart.xml" />
     <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_npp.xml" />
   </ItemGroup>
