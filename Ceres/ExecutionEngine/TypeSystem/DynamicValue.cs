@@ -1,10 +1,11 @@
+using System;
 using System.Text;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 
 namespace Ceres.ExecutionEngine.TypeSystem
 {
-    public sealed record DynamicValue
+    public struct DynamicValue : IEquatable<DynamicValue>
     {
         public enum DynamicValueType
         {
@@ -35,10 +36,6 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public Chunk? Chunk { get; }
         public NativeFunction? NativeFunction { get; }
 
-        public bool IsTruth => this != Nil 
-                            && this != Zero 
-                            && this != False;
-        
         private DynamicValue(DynamicValueType type)
         {
             Type = type;
@@ -52,6 +49,13 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public DynamicValue(Chunk value) : this(DynamicValueType.Chunk) => Chunk = value;
         public DynamicValue(NativeFunction value) : this(DynamicValueType.NativeFunction) => NativeFunction = value;
 
+        public static bool IsTruth(DynamicValue value)
+        {
+            return value != Nil
+                   && value != Zero
+                   && value != False;
+        }
+        
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -85,6 +89,38 @@ namespace Ceres.ExecutionEngine.TypeSystem
             }
 
             return sb.ToString();
+        }
+
+        public bool Equals(DynamicValue other)
+        {
+            return Type == other.Type 
+                   && Number.Equals(other.Number) 
+                   && String == other.String
+                   && Boolean == other.Boolean
+                   && Equals(Table, other.Table) 
+                   && Equals(Fiber, other.Fiber)
+                   && Equals(Chunk, other.Chunk) 
+                   && Equals(NativeFunction, other.NativeFunction);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is DynamicValue other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine((int)Type, Number, String, Boolean, Table, Fiber, Chunk, NativeFunction);
+        }
+
+        public static bool operator ==(DynamicValue left, DynamicValue right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DynamicValue left, DynamicValue right)
+        {
+            return !left.Equals(right);
         }
     }
 }
