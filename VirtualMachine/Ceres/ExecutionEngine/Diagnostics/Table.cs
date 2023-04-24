@@ -26,7 +26,18 @@ namespace Ceres.ExecutionEngine.Diagnostics
             set => Set(key, value);
         }
 
-        public double Length => _values.Count;
+        public bool IsFrozen { get; private set; }
+
+        public double Length
+        {
+            get
+            {
+                lock (_values)
+                {
+                    return _values.Count;
+                }
+            }
+        }
 
         public void Set(double key, DynamicValue value)
             => Set(new DynamicValue(key), value);
@@ -36,13 +47,19 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public void Set(DynamicValue key, DynamicValue value)
         {
-            if (value == DynamicValue.Nil)
+            lock (_values)
             {
-                _values.TryRemove(key, out _);
-            }
-            else
-            {
-                _values.AddOrUpdate(key, (_) => value, (_, _) => value);
+                if (IsFrozen)
+                    return;
+
+                if (value == DynamicValue.Nil)
+                {
+                    _values.TryRemove(key, out _);
+                }
+                else
+                {
+                    _values.AddOrUpdate(key, (_) => value, (_, _) => value);
+                }
             }
         }
 
@@ -54,10 +71,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public DynamicValue Index(DynamicValue key)
         {
-            if (!_values.TryGetValue(key, out var value))
-                return DynamicValue.Nil;
+            lock (_values)
+            {
+                if (!_values.TryGetValue(key, out var value))
+                    return DynamicValue.Nil;
 
-            return value;
+                return value;
+            }
         }
 
         public bool Contains(string key)
@@ -67,17 +87,64 @@ namespace Ceres.ExecutionEngine.Diagnostics
             => Contains(new DynamicValue(key));
 
         public bool Contains(DynamicValue key)
-            => _values.ContainsKey(key);
+        {
+            lock (_values)
+            {
+                return _values.ContainsKey(key);
+            }
+        }
 
         public void Clear()
-            => _values.Clear();
+        {
+            lock (_values)
+            {
+                _values.Clear();
+            }
+        }
+
+        public void Freeze(bool deep = false)
+        {
+            IsFrozen = true;
+
+            if (deep)
+            {
+                lock (_values)
+                {
+                    foreach (var value in _values.Values)
+                    {
+                        if (value.Type == DynamicValue.DynamicValueType.Table)
+                            value.Table!.Freeze(deep);
+                    }
+                }
+            }
+        }
+
+        public void Unfreeze(bool deep = false)
+        {
+            IsFrozen = false;
+
+            if (deep)
+            {
+                lock (_values)
+                {
+                    foreach (var value in _values.Values)
+                    {
+                        if (value.Type == DynamicValue.DynamicValueType.Table)
+                            value.Table!.Freeze();
+                    }
+                }
+            }
+        }
 
         public Table GetKeys()
         {
             var keys = new Table();
 
-            for (var i = 0; i < _values.Keys.Count; i++)
-                keys.Set(i, _values.Keys.ElementAt(i));
+            lock (_values)
+            {
+                for (var i = 0; i < _values.Keys.Count; i++)
+                    keys.Set(i, _values.Keys.ElementAt(i));
+            }
 
             return keys;
         }

@@ -8,7 +8,6 @@ namespace Ceres.ExecutionEngine
 {
     public class CeresVM : IDisposable
     {
-        private CancellationTokenSource? _schedulerCancellationTokenSource;
         private Task? _schedulerTask;
 
         public Table Global { get; }
@@ -40,17 +39,15 @@ namespace Ceres.ExecutionEngine
                 }
             }
             
-            _schedulerCancellationTokenSource?.Dispose();
             _schedulerTask?.Dispose();
+            _schedulerTask = new Task(Scheduler.Run);
             
-            _schedulerTask = new Task(() => Scheduler.Run());
-            _schedulerCancellationTokenSource = new CancellationTokenSource();
             _schedulerTask.Start();
         }
 
         public void Stop()
         {
-            if (_schedulerTask == null || _schedulerCancellationTokenSource == null)
+            if (_schedulerTask == null)
             {
                 return;
             }
@@ -60,12 +57,17 @@ namespace Ceres.ExecutionEngine
                 return;
             }
 
-            _schedulerCancellationTokenSource.Cancel();
+            Scheduler.Stop();
         }
 
         public void Dispose()
         {
-            _schedulerCancellationTokenSource?.Dispose();
+            if (_schedulerTask != null && _schedulerTask.Status == TaskStatus.Running)
+            {
+                Stop();
+            }
+            
+            _schedulerTask?.Wait();
             _schedulerTask?.Dispose();
         }
 
