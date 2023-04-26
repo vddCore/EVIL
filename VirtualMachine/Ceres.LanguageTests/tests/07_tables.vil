@@ -104,6 +104,6 @@ fn table_is_deeply_equal_nested() {
 }
 
 #[test]
-fn table_is_deeply_equal_nested() {
+fn table_is_deeply_not_equal_nested() {
   ret { 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 }; 
 }
