@@ -43,6 +43,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         LNOT,
         LAND,
         LOR,
+        DEQ,
+        DNE,
         CEQ,
         CNE,
         CGT,

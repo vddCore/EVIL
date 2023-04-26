@@ -16,36 +16,36 @@ namespace EVIL.Grammar.Parsing
                 case TokenType.Number:
                 {
                     var (line, col) = Match(Token.Number);
-                    
+
                     return new NumberConstant(double.Parse(token.Value!))
                         { Line = line, Column = col };
                 }
                 case TokenType.HexInteger:
                 {
                     var (line, col) = Match(Token.HexInteger);
-                    
-                    return new NumberConstant(int.Parse(token.Value!, NumberStyles.HexNumber))
+
+                    return new NumberConstant(long.Parse(token.Value!, NumberStyles.HexNumber))
                         { Line = line, Column = col };
                 }
                 case TokenType.True:
                 {
                     var (line, col) = Match(Token.True);
-                    
-                    return new BooleanConstant(true) 
+
+                    return new BooleanConstant(true)
                         { Line = line, Column = col };
                 }
                 case TokenType.False:
                 {
                     var (line, col) = Match(Token.False);
-                    
+
                     return new BooleanConstant(false)
                         { Line = line, Column = col };
                 }
                 case TokenType.String:
                 {
                     var (line, col) = Match(Token.String);
-                    
-                    return new StringConstant(token.Value!) 
+
+                    return new StringConstant(token.Value!)
                         { Line = line, Column = col };
                 }
                 case TokenType.Nil:

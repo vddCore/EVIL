@@ -16,6 +16,8 @@
         GreaterOrEqual,
         Equal,
         NotEqual,
+        DeepEqual,
+        DeepNotEqual,
         LogicalOr,
         LogicalAnd,
         ShiftRight,

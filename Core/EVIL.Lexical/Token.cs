@@ -71,6 +71,9 @@
         public static readonly Token LogicalOr = new(TokenType.LogicalOr, "||");
         public static readonly Token LogicalNot = new(TokenType.LogicalNot, "!");
 
+        public static readonly Token DeepEqual = new(TokenType.DeepEqual, "<==>");
+        public static readonly Token DeepNotEqual = new(TokenType.DeepNotEqual, "<!=>");
+        
         public static readonly Token Equal = new(TokenType.Equal, "==");
         public static readonly Token NotEqual = new(TokenType.NotEqual, "!=");
         public static readonly Token GreaterThan = new(TokenType.GreaterThan, ">");

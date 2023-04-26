@@ -4,7 +4,44 @@ namespace Ceres.ExecutionEngine.TypeSystem
 {
     public static partial class DynamicValueOperations
     {
-        
+        public static DynamicValue IsDeeplyEqualTo(this DynamicValue a, DynamicValue b)
+        {
+            if (a.Type == DynamicValueType.Table && b.Type == DynamicValueType.Table)
+            {
+                return new(a.Table!.IsDeeplyEqualTo(b.Table!));
+            }
+
+            try
+            {
+                return IsEqualTo(a, b);
+            }
+            catch (UnsupportedDynamicValueOperationException)
+            {
+                throw new UnsupportedDynamicValueOperationException(
+                    $"Attempt to deeply compare (<==>) a {a.Type} with a {b.Type}."
+                );
+            }
+        }
+
+        public static DynamicValue IsDeeplyNotEqualTo(this DynamicValue a, DynamicValue b)
+        {
+            if (a.Type == DynamicValueType.Table && b.Type == DynamicValueType.Table)
+            {
+                return new(!a.Table!.IsDeeplyEqualTo(b.Table!));
+            }
+
+            try
+            {
+                return IsNotEqualTo(a, b);
+            }
+            catch (UnsupportedDynamicValueOperationException)
+            {
+                throw new UnsupportedDynamicValueOperationException(
+                    $"Attempt to deeply compare (<!=>) a {a.Type} with a {b.Type}."
+                );
+            }
+        }
+
         public static DynamicValue IsEqualTo(this DynamicValue a, DynamicValue b)
         {
             if (a.Type != b.Type)
@@ -45,7 +82,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public static DynamicValue IsNotEqualTo(this DynamicValue a, DynamicValue b)
         {
             if (a.Type != b.Type)
-                return False;
+                return True;
 
             switch (a.Type)
             {
@@ -126,6 +163,5 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 $"Attempt to compare (<=) a {a.Type} with a {b.Type}."
             );
         }
-
     }
 }

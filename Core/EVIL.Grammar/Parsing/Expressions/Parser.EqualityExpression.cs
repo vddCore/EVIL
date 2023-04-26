@@ -10,7 +10,9 @@ namespace EVIL.Grammar.Parsing
         private List<TokenType> _equalityOperators = new()
         {
             TokenType.Equal,
-            TokenType.NotEqual
+            TokenType.NotEqual,
+            TokenType.DeepEqual,
+            TokenType.DeepNotEqual
         };
 
         private Expression EqualityExpression()
@@ -32,6 +34,20 @@ namespace EVIL.Grammar.Parsing
                     var (line, col) = Match(Token.NotEqual);
 
                     node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.NotEqual)
+                        { Line = line, Column = col };
+                }
+                else if (token.Type == TokenType.DeepEqual)
+                {
+                    var (line, col) = Match(Token.DeepEqual);
+
+                    node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.DeepEqual)
+                        { Line = line, Column = col };
+                }
+                else if (token.Type == TokenType.DeepNotEqual)
+                {
+                    var (line, col) = Match(Token.DeepNotEqual);
+
+                    node = new BinaryExpression(node, RelationalExpression(), BinaryOperationType.DeepNotEqual)
                         { Line = line, Column = col };
                 }
 
