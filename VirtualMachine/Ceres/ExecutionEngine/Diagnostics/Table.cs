@@ -1,10 +1,12 @@
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public class Table
+    public class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
     {
         private ConcurrentDictionary<DynamicValue, DynamicValue> _values = new();
 
@@ -47,10 +49,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public void Set(DynamicValue key, DynamicValue value)
         {
+            if (IsFrozen)
+                return;
+            
             lock (_values)
             {
-                if (IsFrozen)
-                    return;
 
                 if (value == DynamicValue.Nil)
                 {
@@ -124,7 +127,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             IsFrozen = false;
 
             if (deep)
-            {
+            {   
                 lock (_values)
                 {
                     foreach (var value in _values.Values)
@@ -147,6 +150,47 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             return keys;
+        }
+
+        public bool IsDeeplyEqualTo(Table other)
+        {
+            lock (_values)
+            {
+                for (var i = 0; i < _values.Keys.Count; i++)
+                {
+                    var k = _values.Keys.ElementAt(i);
+
+                    if (this[k].Type == DynamicValue.DynamicValueType.Table)
+                    {
+                        if (!DynamicValue.IsTruth(this[k].IsDeeplyEqualTo(other[k])))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (!DynamicValue.IsTruth(this[k].IsEqualTo(other[k])))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>> GetEnumerator()
+        {
+            lock (_values)
+            {
+                return _values.GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

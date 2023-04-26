@@ -73,3 +73,37 @@ fn nested_table_identifier_indexing() {
   var a = { "b" => { "c" => { "d" => { "j" => { "p2gmd" => 213.7 } } } } };
   ret a.b.c.d.j.p2gmd;
 }
+
+#[test("21.37")]
+fn tables_are_references() {
+  var t = { { 21.37 } };
+  var t2 = { t[0] };
+  
+  t2[0][0] = "21.37";
+  ret t[0][0];
+}
+
+#[test]
+fn table_equality_is_by_reference() { 
+  ret { 0, 255, 0 } != { 0, 255, 0 };
+}
+
+#[test]
+fn table_is_deeply_equal_flat() {
+  ret { 0, 255, 0 } <==> { 0, 255, 0 };
+}
+
+#[test]
+fn table_is_deeply_not_equal_flat() {
+  ret { 0, 1, 2 } <!=> { 3, 4, 5 };
+}
+
+#[test]
+fn table_is_deeply_equal_nested() {
+  ret { 0, 1, 2, { 3, 4, 5 }, 21.37 } <==> { 0, 1, 2, { 3, 4, 5 }, 21.37 }; 
+}
+
+#[test]
+fn table_is_deeply_equal_nested() {
+  ret { 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 }; 
+}

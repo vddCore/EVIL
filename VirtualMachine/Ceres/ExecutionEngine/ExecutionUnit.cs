@@ -230,6 +230,24 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.DEQ:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    PushValue(a.IsDeeplyEqualTo(b));
+                    break;
+                }
+
+                case OpCode.DNE:
+                {
+                    b = PopValue();
+                    a = PopValue();
+                    
+                    PushValue(a.IsDeeplyNotEqualTo(b));
+                    break;
+                }
+
                 case OpCode.CEQ:
                 {
                     b = PopValue();

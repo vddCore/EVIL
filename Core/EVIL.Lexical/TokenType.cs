@@ -38,6 +38,8 @@
         AssignShiftRight,
         AssignShiftLeft,
 
+        DeepEqual,
+        DeepNotEqual,
         Equal,
         NotEqual,
         LessThan,

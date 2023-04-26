@@ -348,6 +348,8 @@ namespace Ceres.TranslationEngine
                     BinaryOperationType.ExistsIn => OpCode.EXISTS,
                     BinaryOperationType.LogicalAnd => OpCode.LAND,
                     BinaryOperationType.LogicalOr => OpCode.LOR,
+                    BinaryOperationType.DeepEqual => OpCode.DEQ,
+                    BinaryOperationType.DeepNotEqual => OpCode.DNE,
                     BinaryOperationType.Equal => OpCode.CEQ,
                     BinaryOperationType.NotEqual => OpCode.CNE,
                     BinaryOperationType.Greater => OpCode.CGT,
