@@ -1,7 +1,9 @@
-﻿using Ceres.ExecutionEngine;
+﻿using System.Reflection;
+using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
+using Ceres.Runtime.Modules;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.Runtime
@@ -15,6 +17,32 @@ namespace Ceres.Runtime
         public EvilRuntime(CeresVM vm)
         {
             _vm = vm;
+        }
+
+        public void RegisterBuiltInModules()
+        {
+            RegisterModule<CoreModule>();
+        }
+
+        public void RegisterModule<T>() where T : EvilRuntimeModule
+        {
+            try
+            {
+                var members = FindRegistrableRuntimeMembers(typeof(T));
+
+                foreach (var kvp in members)
+                {
+                    Register(kvp.Key, kvp.Value, true);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new EvilRuntimeException(
+                    $"There was an issue registering a runtime function member, or the entire module. " +
+                    $"See inner exception for details.",
+                    e
+                );
+            }
         }
 
         public DynamicValue Register(string fullyQualifiedName, DynamicValue value, bool replaceIfExists = false)
@@ -86,5 +114,70 @@ namespace Ceres.Runtime
 
         public DynamicValue Register(string fullyQualifiedName, NativeFunction value, bool replaceIfExists = false)
             => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
+
+        private Dictionary<string, NativeFunction> FindRegistrableRuntimeMembers(Type type)
+        {
+            var validRuntimeMembers = new Dictionary<string, NativeFunction>();
+
+            if (!type.IsAssignableTo(typeof(EvilRuntimeModule)))
+            {
+                throw new InvalidOperationException(
+                    $"A type must inherit from {nameof(EvilRuntimeModule)} to be considered a valid runtime module."
+                );
+            }
+
+            if (!type.IsSealed)
+            {
+                throw new InvalidOperationException(
+                    "A type must be sealed to be considered a valid runtime module."
+                );
+            }
+
+            if (type.GetConstructors(BindingFlags.Public).Any())
+            {
+                throw new InvalidOperationException(
+                    "A type must not have any public constructors to be considered a valid runtime module."
+                );
+            }
+
+            var methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (var method in methods)
+            {
+                var methodAttr = method.GetCustomAttribute<EvilRuntimeMemberAttribute>();
+
+                if (methodAttr == null)
+                {
+                    continue;
+                }
+
+                NativeFunction nativeFunction;
+                try
+                {
+                    nativeFunction = method.CreateDelegate<NativeFunction>();
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException(
+                        $"Method '{method.Name}' from '{type.FullName}' does not have a valid signature.",
+                        e
+                    );
+                }
+
+                if (Global.IndexUsingFullyQualifiedName(methodAttr.FullyQualifiedName) != DynamicValue.Nil)
+                {
+                    if (!methodAttr.AllowRedefinition)
+                    {
+                        throw new InvalidOperationException(
+                            $"'{methodAttr.FullyQualifiedName}' is already defined, and the runtime member attribute" +
+                            $"for method '{method.Name}' in '{type.FullName}' doesn't allow redefinition."
+                        );
+                    }
+                }
+
+                validRuntimeMembers.Add(methodAttr.FullyQualifiedName, nativeFunction);
+            }
+
+            return validRuntimeMembers;
+        }
     }
 }
