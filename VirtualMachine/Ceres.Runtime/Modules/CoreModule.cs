@@ -15,7 +15,7 @@ namespace Ceres.Runtime.Modules
                 if (arg.Type != DynamicValue.DynamicValueType.String)
                     value = arg.ConvertToString();
                 
-                Console.Write(value.ConvertToString().String);
+                Console.Write(value.String);
                 Console.Write("\t");
             }
             
