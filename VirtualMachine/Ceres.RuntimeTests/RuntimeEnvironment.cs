@@ -14,8 +14,6 @@ namespace Ceres.RuntimeTests
         [SetUp]
         public void Setup()
         {
-            var t = new Table { new(1), new(2) };
-
             _vm = new CeresVM();
             _evilRuntime = new EvilRuntime(_vm);
             _vm.Start();
@@ -68,7 +66,7 @@ namespace Ceres.RuntimeTests
         {
             var t = new Table();
             
-            var value = _evilRuntime.Register("testvalue", );
+            var value = _evilRuntime.Register("testvalue", t);
 
             Assert.That(
                 _vm.Global["testvalue"],

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
+using Ceres.Runtime;
 using Ceres.TranslationEngine;
 using EVIL.Grammar;
 using EVIL.Grammar.Parsing;
@@ -20,6 +21,7 @@ namespace Ceres.LanguageTests
         private string TestDirectory { get; }
         private CeresVM VM { get; }
         private TextWriter TextOut { get; }
+        private EvilRuntime Runtime { get; }
 
         private Dictionary<string, Script> TestScripts { get; } = new();
         private Dictionary<string, List<(Chunk TestChunk, string FailureReason)>> FailureLog { get; } = new();
@@ -28,6 +30,8 @@ namespace Ceres.LanguageTests
         {
             TestDirectory = testDirectory;
             VM = vm;
+            Runtime = new EvilRuntime(vm);
+            
             TextOut = textOut ?? Console.Out;
 
             CompileTests();
@@ -97,6 +101,8 @@ namespace Ceres.LanguageTests
                 {
                     return args[3];
                 }));
+                
+                Runtime.RegisterBuiltInModules();
 
                 var nonTestChunks = testScript.Chunks.Where(
                     x => !x.HasAttribute("test")

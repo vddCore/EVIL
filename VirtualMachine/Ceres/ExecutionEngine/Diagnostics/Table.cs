@@ -51,10 +51,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             if (IsFrozen)
                 return;
-            
+
             lock (_values)
             {
-
                 if (value == DynamicValue.Nil)
                 {
                     _values.TryRemove(key, out _);
@@ -127,7 +126,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             IsFrozen = false;
 
             if (deep)
-            {   
+            {
                 lock (_values)
                 {
                     foreach (var value in _values.Values)
@@ -178,6 +177,31 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             return true;
+        }
+
+        public DynamicValue IndexUsingFullyQualifiedName(string fullyQualifiedName)
+        {
+            var segments = new Stack<string>(fullyQualifiedName.Split('.'));
+            var currentTable = this;
+            var ret = DynamicValue.Nil;
+
+            lock (_values)
+            {
+                while (segments.Any())
+                {
+                    ret = currentTable[segments.Pop()];
+
+                    if (ret == DynamicValue.Nil)
+                        return ret;
+
+                    if (ret.Type != DynamicValue.DynamicValueType.Table && segments.Any())
+                        return ret;
+
+                    currentTable = ret.Table!;
+                }
+            }
+            
+            return ret;
         }
 
         public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>> GetEnumerator()

@@ -1,0 +1,4 @@
+﻿#[test(3)]
+fn print_test() {
+  ret print("wewoo.", 123, 21.37);
+}

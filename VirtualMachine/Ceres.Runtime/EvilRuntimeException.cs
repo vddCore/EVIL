@@ -6,5 +6,10 @@
             : base(message)
         {
         }
+        
+        public EvilRuntimeException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

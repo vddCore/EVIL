@@ -23,5 +23,3 @@ fn indirect_invoke() { ret get_add_fn()(3, 3); }
 
 #[test(21.37)]
 fn native_invoke() { ret __native_func(1, 2, 3, 21.37); }
-
-
