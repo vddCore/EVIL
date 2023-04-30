@@ -1,4 +1,5 @@
 ﻿using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -24,6 +25,13 @@ namespace EVIL.Grammar.Parsing
             else if (token.Type == TokenType.LBrace)
             {
                 return TableExpression();
+            }
+            else if (token.Type == TokenType.Ellipsis)
+            {
+                var (line, col) = Match(Token.Ellipsis);
+                
+                return new ExtraArgumentsExpression()
+                    { Line = line, Column = col };
             }
             else if (token.Type == TokenType.Identifier)
             {

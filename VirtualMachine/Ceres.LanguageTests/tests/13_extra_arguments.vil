@@ -1,0 +1,8 @@
+﻿fn xargs(a, b, c) {
+  ret ...[0] + ...[1];
+}
+
+#[test(21.37)]
+fn xargs_test() {
+  ret xargs(1, 2, 3, 21, 0.37);
+}

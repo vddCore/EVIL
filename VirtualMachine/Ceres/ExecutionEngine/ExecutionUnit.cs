@@ -243,7 +243,7 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
-                    
+
                     PushValue(a.IsDeeplyNotEqualTo(b));
                     break;
                 }
@@ -333,12 +333,9 @@ namespace Ceres.ExecutionEngine
                 {
                     var args = frame.Arguments;
 
-                    if (args != null)
+                    for (var i = 0; i < frame.Arguments?.Length; i++)
                     {
-                        for (var i = 0; i < frame.Arguments?.Length; i++)
-                        {
-                            args[args.Length - i - 1] = PopValue();
-                        }
+                        args[args.Length - i - 1] = PopValue();
                     }
 
                     frame.JumpAbsolute(0);
@@ -374,13 +371,13 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SETARG:
                 {
-                    frame.Arguments![frame.FetchInt32()] = PopValue();
+                    frame.Arguments[frame.FetchInt32()] = PopValue();
                     break;
                 }
 
                 case OpCode.GETARG:
                 {
-                    PushValue(frame.Arguments![frame.FetchInt32()]);
+                    PushValue(frame.Arguments[frame.FetchInt32()]);
                     break;
                 }
 
@@ -479,7 +476,7 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.TABNEW:
                 {
-                    PushValue(new DynamicValue(new Table()));
+                    PushValue(new Table());
                     break;
                 }
 
@@ -515,21 +512,21 @@ namespace Ceres.ExecutionEngine
                 case OpCode.YIELD:
                 {
                     var argumentCount = frame.FetchInt32();
-                    
+
                     a = PopValue(); // chunk
                     var args = PopArguments(argumentCount);
-                    
+
                     if (a.Type != DynamicValue.DynamicValueType.Chunk)
                     {
                         throw new UnsupportedDynamicValueOperationException(
                             $"Attempt to yield to a {a.Type} value."
                         );
                     }
-                    
+
                     var fiber = _fiber.VirtualMachine.Scheduler.CreateFiber(false);
                     fiber.Schedule(a.Chunk!, args);
                     fiber.Resume();
-                    
+
                     PushValue(fiber);
                     _fiber.WaitFor(fiber);
                     break;
@@ -548,6 +545,12 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.Fiber!.PopValue());
+                    break;
+                }
+
+                case OpCode.XARGS:
+                {
+                    PushValue(frame.ExtraArguments);
                     break;
                 }
 
@@ -584,6 +587,9 @@ namespace Ceres.ExecutionEngine
             => PushValue(new DynamicValue(value));
 
         private void PushValue(Fiber value)
+            => PushValue(new DynamicValue(value));
+
+        private void PushValue(Table value)
             => PushValue(new DynamicValue(value));
 
         private void PushValue(DynamicValue value)

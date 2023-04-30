@@ -59,6 +59,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         TABSET,
         INDEX,
         YIELD,
-        YRET
+        YRET,
+        XARGS
     }
 }
