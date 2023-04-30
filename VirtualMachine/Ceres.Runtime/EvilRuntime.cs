@@ -22,6 +22,7 @@ namespace Ceres.Runtime
         public void RegisterBuiltInModules()
         {
             RegisterModule<CoreModule>();
+            RegisterModule<FiberModule>();
         }
 
         public void RegisterModule<T>() where T : EvilRuntimeModule
