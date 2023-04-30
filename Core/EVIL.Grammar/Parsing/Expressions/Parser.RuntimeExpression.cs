@@ -38,9 +38,20 @@ namespace EVIL.Grammar.Parsing
         {
             var (line, col) = Match(Token.Yield);
 
-            Match(Token.YieldTargetOpen);
-            var target = AssignmentExpression();
-            Match(Token.YieldTargetClose);
+            Match(Token.LessThan);
+
+            Expression target;
+            if (CurrentToken == Token.LBracket)
+            {
+                Match(Token.LBracket);
+                target = AssignmentExpression();
+                Match(Token.RBracket);
+            }
+            else
+            {
+                target = VariableReference();
+            }
+            Match(Token.GreaterThan);
             
             var argumentList = ArgumentList();
             

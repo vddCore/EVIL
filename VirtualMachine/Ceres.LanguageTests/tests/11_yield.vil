@@ -8,8 +8,8 @@ fn delay(ms) {
 
 fn dep_a() {
   if (glob_a--) {
-    yield<[delay]>(10);
-    yield<[dep_b]>();
+    yield<delay>(10);
+    yield<dep_b>();
   }
   
   ret 213.7;
@@ -17,22 +17,26 @@ fn dep_a() {
 
 fn dep_b() {
   if (glob_b--) {
-    yield<[delay]>(10);
-    yield<[dep_a]>(2000);
+    yield<delay>(10);
+    yield<dep_a>(2000);
   }
   
   ret 0.2137;
 }
 
+fn ref_dep_b() {
+  ret dep_b;
+}
+
 #[test(21.37)]
 fn yield_simple() {
-  ret yield<[jp2gmd]>(1, 21, 3);
+  ret yield<jp2gmd>(1, 21, 3);
 }
 
 #[test]
 fn yield_delay() {
   var start = time.stamp();
-  var retval = yield<[delay]>(1000);
+  var retval = yield<delay>(1000);
   
   ret time.stamp() - start >= 1000 
    && retval == 2.137; 
@@ -42,12 +46,27 @@ fn yield_delay() {
 fn yield_interdependent() {
   glob_a = 3;
   glob_b = 3;
-  var a = yield<[dep_a]>();
+  var a = yield<dep_a>();
   
   glob_a = 3;
   glob_b = 3;
-  var b = yield<[dep_b]>();
+  var b = yield<dep_b>();
   
   ret a == 213.7 
    && b == 0.2137;
+}
+
+#[test(21.37)]
+fn yield_identifier() {
+  ret yield<jp2gmd>(1, 21, 3);
+}
+
+#[test(21.37)]
+fn yield_expression_identifier() {
+  ret yield<[jp2gmd]>(1, 21, 3);
+}
+
+#[test(0.2137)]
+fn yield_expression() {
+  ret yield<[ref_dep_b()]>();
 }
