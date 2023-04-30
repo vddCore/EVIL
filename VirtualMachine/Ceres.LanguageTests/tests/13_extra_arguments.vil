@@ -1,8 +1,13 @@
-﻿fn xargs(a, b, c) {
-  ret ...[0] + ...[1];
-}
+﻿fn xargs_1(a, b, c) -> ...[0] + ...[1];
+fn xargs_2() -> ...[0] + ...[1];
+
 
 #[test(21.37)]
-fn xargs_test() {
-  ret xargs(1, 2, 3, 21, 0.37);
+fn xargs_formal_params() {
+  ret xargs_1(1, 2, 3, 21, 0.37);
+}
+
+#[test(2.137)]
+fn xargs_no_formal_params() {
+  ret xargs_2(2, 0.137);
 }
