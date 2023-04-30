@@ -1,3 +1,4 @@
+using System;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.TypeSystem
@@ -71,7 +72,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     throw new DivisionByZeroException();
                 }
 
-                return new(a.Number % b.Number);
+                return new(a.Number - b.Number * Math.Floor(a.Number / b.Number));
             }
 
             throw new UnsupportedDynamicValueOperationException(
