@@ -18,6 +18,7 @@ namespace EVIL.Grammar.Traversal
 #nullable disable
             Handlers = new()
             {
+                { typeof(ArgumentList), (n) => Visit((ArgumentList)n) },
                 { typeof(BlockStatement), (n) => Visit((BlockStatement)n) },
                 { typeof(ConditionalExpression), (n) => Visit((ConditionalExpression)n) },
                 { typeof(NumberConstant), (n) => Visit((NumberConstant)n) },
@@ -45,7 +46,8 @@ namespace EVIL.Grammar.Traversal
                 { typeof(ExpressionStatement), (n) => Visit((ExpressionStatement)n) },
                 { typeof(AttributeStatement), (n) => Visit((AttributeStatement)n) },
                 { typeof(AttributeListStatement), (n) => Visit((AttributeListStatement)n) },
-                { typeof(TypeOfExpression), (n) => Visit((TypeOfExpression)n) }
+                { typeof(TypeOfExpression), (n) => Visit((TypeOfExpression)n) },
+                { typeof(YieldExpression), (n) => Visit((YieldExpression)n) },
             };
 #nullable enable
         }
@@ -66,6 +68,7 @@ namespace EVIL.Grammar.Traversal
         }
 
         public abstract void Visit(Program program);
+        public abstract void Visit(ArgumentList argumentList);
         public abstract void Visit(BlockStatement blockStatement);
         public abstract void Visit(ConditionalExpression conditionalExpression);
         public abstract void Visit(NumberConstant numberConstant);
@@ -74,7 +77,6 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(BooleanConstant booleanConstant);
         public abstract void Visit(AssignmentExpression assignmentExpression);
         public abstract void Visit(BinaryExpression binaryExpression);
-        public abstract void Visit(TypeOfExpression typeOfExpression);
         public abstract void Visit(UnaryExpression unaryExpression);
         public abstract void Visit(VariableReferenceExpression variableReferenceExpression);
         public abstract void Visit(VariableDefinition variableDefinition);
@@ -94,5 +96,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(ExpressionStatement expressionStatement);
         public abstract void Visit(AttributeStatement attributeStatement);
         public abstract void Visit(AttributeListStatement attributeListStatement);
+        public abstract void Visit(TypeOfExpression typeOfExpression);
+        public abstract void Visit(YieldExpression yieldExpression);
     }
 }

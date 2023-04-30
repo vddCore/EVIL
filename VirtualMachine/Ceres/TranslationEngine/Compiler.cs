@@ -58,6 +58,14 @@ namespace Ceres.TranslationEngine
             }
         }
 
+        public override void Visit(ArgumentList argumentList)
+        {
+            for (var i = 0; i < argumentList.Arguments.Count; i++)
+            {
+                Visit(argumentList.Arguments[i]);
+            }
+        }
+
         private void InTopLevelChunk(Action action, string? name = null)
         {
             var chunk = new Chunk { Name = name };
@@ -220,7 +228,7 @@ namespace Ceres.TranslationEngine
             if (returnStatement.Expression != null)
             {
                 Visit(returnStatement.Expression);
-                
+
                 if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
                 {
                     if (opCode == OpCode.TAILINVOKE)
@@ -366,6 +374,19 @@ namespace Ceres.TranslationEngine
             Chunk.CodeGenerator.Emit(OpCode.TYPE);
         }
 
+        public override void Visit(YieldExpression yieldExpression)
+        {
+            Visit(yieldExpression.ArgumentList);
+            Visit(yieldExpression.Target);
+            
+            Chunk.CodeGenerator.Emit(
+                OpCode.YIELD,
+                (int)yieldExpression.ArgumentList.Arguments.Count
+            );
+            
+            Chunk.CodeGenerator.Emit(OpCode.YRET);
+        }
+
         public override void Visit(UnaryExpression unaryExpression)
         {
             Visit(unaryExpression.Right);
@@ -377,7 +398,6 @@ namespace Ceres.TranslationEngine
                     UnaryOperationType.Length => OpCode.LENGTH,
                     UnaryOperationType.BitwiseNot => OpCode.BNOT,
                     UnaryOperationType.LogicalNot => OpCode.LNOT,
-                    UnaryOperationType.TypeOf => OpCode.TYPE,
                     UnaryOperationType.ToString => OpCode.TOSTRING,
                     UnaryOperationType.ToNumber => OpCode.TONUMBER,
                     _ => throw new CompilerException("Internal error: invalid unary operation type.")
@@ -442,10 +462,7 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(FunctionCallExpression functionCallExpression)
         {
-            for (var i = 0; i < functionCallExpression.Arguments.Count; i++)
-            {
-                Visit(functionCallExpression.Arguments[i]);
-            }
+            Visit(functionCallExpression.ArgumentList);
 
             if (functionCallExpression.Parent is ReturnStatement
                 && functionCallExpression.Callee is VariableReferenceExpression varRef
@@ -458,7 +475,7 @@ namespace Ceres.TranslationEngine
                 Visit(functionCallExpression.Callee);
                 Chunk.CodeGenerator.Emit(
                     OpCode.INVOKE,
-                    functionCallExpression.Arguments.Count
+                    functionCallExpression.ArgumentList.Arguments.Count
                 );
             }
         }

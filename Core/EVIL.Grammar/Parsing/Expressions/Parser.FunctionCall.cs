@@ -10,7 +10,7 @@ namespace EVIL.Grammar.Parsing
     {
         private FunctionCallExpression FunctionCall(Expression callee)
         {
-            var (line, col) = Match(Token.LParenthesis);
+            var (line, col) = (Lexer.State.Line, Lexer.State.Column);
 
             if (callee is NilConstant)
             {
@@ -20,28 +20,8 @@ namespace EVIL.Grammar.Parsing
                 );
             }
             
-            var arguments = new List<Expression>();
-
-            while (CurrentToken.Type != TokenType.RParenthesis)
-            {
-                if (CurrentToken.Type == TokenType.EOF)
-                {
-                    throw new ParserException(
-                        $"Unexpected EOF in argument list.",
-                        (line, col)
-                    );
-                }
-
-                arguments.Add(AssignmentExpression());
-
-                if (CurrentToken.Type == TokenType.RParenthesis)
-                    break;
-
-                Match(Token.Comma);
-            }
-            Match(Token.RParenthesis);
-            
-            return new FunctionCallExpression(callee, arguments) { Line = line };
+            return new FunctionCallExpression(callee, ArgumentList()) 
+                { Line = line, Column = col };
         }
     }
 }

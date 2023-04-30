@@ -114,6 +114,14 @@ namespace EVIL.Lexical
                 case '=':
                     State.CurrentToken = Token.Assign;
                     break;
+                case '<' when Peek() == '[':
+                    Advance();
+                    State.CurrentToken = Token.YieldTargetOpen;
+                    break;
+                case ']' when Peek() == '>':
+                    Advance();
+                    State.CurrentToken = Token.YieldTargetClose;
+                    break;
                 case '<' when Peek() == '=' && Peek(2) == '=' && Peek(3) == '>':
                     Advance();
                     Advance();
@@ -361,6 +369,7 @@ namespace EVIL.Lexical
                 "false" => Token.False,
                 "nil" => Token.Nil,
                 "typeof" => Token.TypeOf,
+                "yield" => Token.Yield,
                 _ => Token.CreateIdentifier(str)
             };
         }

@@ -1,31 +1,20 @@
-﻿#[test("String")]
-fn type_str() {
-  ret typeof("jp2gmd");
-}
+﻿fn testchunk() { }
+
+#[test("String")]
+fn type_str() { ret typeof("jp2gmd"); }
 
 #[test("Number")]
-fn type_number() {
-  ret typeof(2137);
-}
+fn type_number() { ret typeof(2137); }
 
 #[test("Boolean")]
-fn type_boolean() {
-  ret typeof(false);
-}
+fn type_boolean() { ret typeof(false); }
 
-fn testchunk() { }
 
 #[test("Chunk")]
-fn type_chunk() {
-  ret typeof(testchunk);
-}
+fn type_chunk() { ret typeof(testchunk); }
 
 #[test("NativeFunction")]
-fn type_nativefunction() {
-  ret typeof(__native_func);
-}
+fn type_nativefunction() { ret typeof(__native_func); }
 
 #[test("Nil")]
-fn type_nil() {
-  ret typeof(nil);
-}
+fn type_nil() { ret typeof(nil); }

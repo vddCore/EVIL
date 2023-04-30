@@ -142,7 +142,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             for (var i = 0; i < _dueForRemoval.Count; i++)
             {
-                _fibers.RemoveAt(i);
+                _fibers.RemoveAt(_dueForRemoval[i]);
             }
 
             _dueForRemoval.Clear();

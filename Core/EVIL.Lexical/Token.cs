@@ -115,6 +115,7 @@
         public static readonly Token True = new(TokenType.True, "true");
         public static readonly Token Nil = new(TokenType.Nil, "nil");
         public static readonly Token TypeOf = new(TokenType.TypeOf, "typeof");
+        public static readonly Token Yield = new(TokenType.Yield, "yield");
 
         public static readonly Token EOF = new(TokenType.EOF, "<EOF>");
 
@@ -124,6 +125,8 @@
         public static readonly Token Identifier = new(TokenType.Identifier, string.Empty);
 
         public static readonly Token AttributeList = new(TokenType.AttributeList, "#[");
+        public static readonly Token YieldTargetOpen = new(TokenType.YieldTargetOpen, "<[");
+        public static readonly Token YieldTargetClose = new(TokenType.YieldTargetClose, "]>");
         
         public static Token CreateHexInteger(string value)
             => new(TokenType.HexInteger, value);

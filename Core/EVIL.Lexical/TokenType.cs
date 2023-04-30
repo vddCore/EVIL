@@ -86,7 +86,10 @@
         In,
         Nil,
         TypeOf,
-
+        Yield,
+        YieldTargetOpen,
+        YieldTargetClose,
+        
         EOF
     }
 }
