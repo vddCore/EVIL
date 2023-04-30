@@ -5,8 +5,8 @@ namespace Ceres.Runtime.Modules
 {
     public sealed class CoreModule : EvilRuntimeModule
     {
-        [EvilRuntimeMember("print", AllowRedefinition = true)]
-        private static DynamicValue Print(Fiber context, params DynamicValue[] args)
+        [EvilRuntimeMember("print")]
+        private static DynamicValue Print(Fiber _, params DynamicValue[] args)
         {
             foreach (var arg in args)
             {
