@@ -125,8 +125,6 @@
         public static readonly Token Identifier = new(TokenType.Identifier, string.Empty);
 
         public static readonly Token AttributeList = new(TokenType.AttributeList, "#[");
-        public static readonly Token YieldTargetOpen = new(TokenType.YieldTargetOpen, "<[");
-        public static readonly Token YieldTargetClose = new(TokenType.YieldTargetClose, "]>");
         
         public static Token CreateHexInteger(string value)
             => new(TokenType.HexInteger, value);
