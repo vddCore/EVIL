@@ -360,6 +360,12 @@ namespace Ceres.TranslationEngine
             );
         }
 
+        public override void Visit(TypeOfExpression typeOfExpression)
+        {
+            Visit(typeOfExpression.Target);
+            Chunk.CodeGenerator.Emit(OpCode.TYPE);
+        }
+
         public override void Visit(UnaryExpression unaryExpression)
         {
             Visit(unaryExpression.Right);

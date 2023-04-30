@@ -71,17 +71,6 @@ namespace EVIL.Grammar.Parsing
                 return new UnaryExpression(PostfixExpression(), UnaryOperationType.Length) 
                     { Line = line, Column = col };
             }
-            else if (token.Type == TokenType.TypeOf)
-            {
-                var (line, col) = Match(Token.TypeOf);
-                
-                Match(Token.LParenthesis);
-                var node = new UnaryExpression(AssignmentExpression(), UnaryOperationType.TypeOf) 
-                    { Line = line, Column = col };
-                Match(Token.RParenthesis);
-
-                return node;
-            }
 
             return PostfixExpression();
         }
