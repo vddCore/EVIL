@@ -188,30 +188,17 @@ namespace Ceres.TranslationEngine
 
             foreach (var valueNode in attributeStatement.Values)
             {
-                DynamicValue dv;
-                if (valueNode is BooleanConstant boolConst)
-                {
-                    dv = new DynamicValue(boolConst.Value);
-                }
-                else if (valueNode is NilConstant)
-                {
-                    dv = DynamicValue.Nil;
-                }
-                else if (valueNode is NumberConstant numConst)
-                {
-                    dv = new DynamicValue(numConst.Value);
-                }
-                else if (valueNode is StringConstant stringConst)
-                {
-                    dv = new DynamicValue(stringConst.Value);
-                }
-                else
-                {
-                    throw new CompilerException(
-                        $"Internal error: unexpected attribute value node type '{valueNode.GetType().FullName}'."
-                    );
-                }
-                attribute.Values.Add(dv);
+                attribute.Values.Add(
+                    GetAttributeConstantValue(valueNode)
+                );
+            }
+
+            foreach (var propertyKvp in attributeStatement.Properties)
+            {
+                attribute.Properties.Add(
+                    propertyKvp.Key,
+                    GetAttributeConstantValue(propertyKvp.Value)
+                );
             }
 
             _attributeList.Add(attribute);
@@ -378,12 +365,12 @@ namespace Ceres.TranslationEngine
         {
             Visit(yieldExpression.ArgumentList);
             Visit(yieldExpression.Target);
-            
+
             Chunk.CodeGenerator.Emit(
                 OpCode.YIELD,
                 (int)yieldExpression.ArgumentList.Arguments.Count
             );
-            
+
             Chunk.CodeGenerator.Emit(OpCode.YRET);
         }
 
@@ -783,6 +770,32 @@ namespace Ceres.TranslationEngine
                 );
 
                 Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
+            }
+        }
+
+        private DynamicValue GetAttributeConstantValue(AstNode valueNode)
+        {
+            if (valueNode is BooleanConstant boolConst)
+            {
+                return new DynamicValue(boolConst.Value);
+            }
+            else if (valueNode is NilConstant)
+            {
+                return DynamicValue.Nil;
+            }
+            else if (valueNode is NumberConstant numConst)
+            {
+                return new DynamicValue(numConst.Value);
+            }
+            else if (valueNode is StringConstant stringConst)
+            {
+                return new DynamicValue(stringConst.Value);
+            }
+            else
+            {
+                throw new CompilerException(
+                    $"Internal error: unexpected attribute value node type '{valueNode.GetType().FullName}'."
+                );
             }
         }
     }
