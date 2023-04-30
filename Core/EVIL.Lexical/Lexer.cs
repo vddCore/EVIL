@@ -44,6 +44,15 @@ namespace EVIL.Lexical
 
             switch (State.Character)
             {
+                case '.' when Peek(1) == '.' && Peek(2) == '.':
+                    Advance();
+                    Advance();
+                    State.CurrentToken = Token.Ellipsis;
+                    break;
+                case '-' when Peek() == '>':
+                    Advance();
+                    State.CurrentToken = Token.RightArrow;
+                    break;
                 case '-' when Peek() == '-':
                     Advance();
                     State.CurrentToken = Token.Decrement;

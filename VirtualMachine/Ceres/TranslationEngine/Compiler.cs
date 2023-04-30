@@ -387,6 +387,17 @@ namespace Ceres.TranslationEngine
             Chunk.CodeGenerator.Emit(OpCode.YRET);
         }
 
+        public override void Visit(ExpressionBodyStatement expressionBodyStatement)
+        {
+            Visit(expressionBodyStatement.Expression);
+            Chunk.CodeGenerator.Emit(OpCode.RET);
+        }
+
+        public override void Visit(ExtraArgumentsExpression extraArgumentsExpression)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.XARGS);
+        }
+
         public override void Visit(UnaryExpression unaryExpression)
         {
             Visit(unaryExpression.Right);
@@ -445,7 +456,7 @@ namespace Ceres.TranslationEngine
                         );
                     }
 
-                    Visit(functionDefinition.Statements);
+                    Visit(functionDefinition.Statement);
                 });
 
                 if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))

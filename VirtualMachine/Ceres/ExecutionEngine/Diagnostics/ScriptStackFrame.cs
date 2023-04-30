@@ -8,11 +8,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
     public sealed class ScriptStackFrame : StackFrame
     {
         private readonly BinaryReader _chunkReader;
+        private Table? _extraArguments;
 
         public Fiber Fiber { get; }
         public Chunk Chunk { get; }
 
-        public DynamicValue[]? Arguments { get; }
+        public DynamicValue[] Arguments { get; }
+        public Table ExtraArguments => _extraArguments ?? (_extraArguments = GetExtraArgumentsTable());
+
         public DynamicValue[]? Locals { get; }
 
         public long IP => _chunkReader.BaseStream.Position;
@@ -50,6 +53,33 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             _chunkReader = Chunk.SpawnCodeReader();
+        }
+
+        internal DynamicValue[] GetExtraArguments()
+        {
+            var size = Arguments.Length - Chunk.ParameterCount;
+            if (size < 0) size = 0;
+            var ret = new DynamicValue[size];
+
+            for (var i = Chunk.ParameterCount; i < Arguments.Length; i++)
+            {
+                ret[i - Chunk.ParameterCount] = Arguments[i];
+            }
+
+            return ret;
+        }
+
+        internal Table GetExtraArgumentsTable()
+        {
+            var ret = new Table();
+
+            for (var i = Chunk.ParameterCount; i < Arguments.Length; i++)
+            {
+                ret[i - Chunk.ParameterCount] = Arguments[i];
+            }
+
+            ret.Freeze();
+            return ret;
         }
 
         internal void Return()

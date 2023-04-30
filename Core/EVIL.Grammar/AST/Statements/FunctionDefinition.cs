@@ -7,16 +7,16 @@ namespace EVIL.Grammar.AST.Statements
         public string Identifier { get; }
 
         public List<string> Parameters { get; }
-        public BlockStatement Statements { get; }
+        public Statement Statement { get; }
 
-        public FunctionDefinition(string identifier, List<string> parameters, BlockStatement statements)
+        public FunctionDefinition(string identifier, List<string> parameters, Statement statement)
         {
             Identifier = identifier;
 
             Parameters = parameters;
-            Statements = statements;
+            Statement = statement;
 
-            Reparent(Statements);
+            Reparent(Statement);
         }
     }
 }

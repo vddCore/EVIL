@@ -21,7 +21,9 @@
         ShiftRight,
         ShiftLeft,
         
+        Ellipsis,
         Associate,
+        RightArrow,
         
         Dot,
         QuestionMark,

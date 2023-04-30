@@ -62,8 +62,10 @@
         public static readonly Token ShiftLeft = new(TokenType.ShiftLeft, "<<");
         public static readonly Token ShiftRight = new(TokenType.ShiftRight, ">>");
 
+        public static readonly Token Ellipsis = new(TokenType.Ellipsis, "...");
         public static readonly Token Associate = new(TokenType.Associate, "=>");
-
+        public static readonly Token RightArrow = new(TokenType.RightArrow, "->");
+        
         public static readonly Token Decrement = new(TokenType.Decrement, "--");
         public static readonly Token Increment = new(TokenType.Increment, "++");
 
