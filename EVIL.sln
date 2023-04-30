@@ -20,6 +20,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.Runtime", "VirtualMac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.RuntimeTests", "VirtualMachine\Ceres.RuntimeTests\Ceres.RuntimeTests.csproj", "{38985664-66DE-4DF7-83E6-708F68AF3D4F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{F12F3290-6350-44AC-9A28-FAFCB371BAC0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Language Reference Manual", "Language Reference Manual", "{71CF56C3-5CCA-47F5-807E-5BCAF0F93147}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\Language Reference Manual\00_intro.md = Docs\Language Reference Manual\00_intro.md
+		Docs\Language Reference Manual\01_script_overview.md = Docs\Language Reference Manual\01_script_overview.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,5 +72,6 @@ Global
 		{411B5E5D-E243-4C80-8E27-24E0D2554248} = {F5F839A9-37E0-4339-BF6B-F21ACCAEB87F}
 		{8A7DA38F-2552-4E3E-ABBB-D68E0517D5F6} = {F5F839A9-37E0-4339-BF6B-F21ACCAEB87F}
 		{38985664-66DE-4DF7-83E6-708F68AF3D4F} = {F5F839A9-37E0-4339-BF6B-F21ACCAEB87F}
+		{71CF56C3-5CCA-47F5-807E-5BCAF0F93147} = {F12F3290-6350-44AC-9A28-FAFCB371BAC0}
 	EndGlobalSection
 EndGlobal
