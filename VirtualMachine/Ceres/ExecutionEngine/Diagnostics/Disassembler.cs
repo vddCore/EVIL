@@ -45,6 +45,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         case OpCode.GETLOCAL:
                         case OpCode.SETARG:
                         case OpCode.GETARG:
+                        case OpCode.YIELD:
                             output.Write(opCode);
                             output.Write(" ");
                             output.WriteLine(reader.ReadInt32());

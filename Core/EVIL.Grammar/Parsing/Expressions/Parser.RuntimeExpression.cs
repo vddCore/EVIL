@@ -14,10 +14,14 @@ namespace EVIL.Grammar.Parsing
             {
                 return TypeOfExpression();
             }
+            else if (token.Type == TokenType.Yield)
+            {
+                return YieldExpression();
+            }
 
             return UnaryExpression();
         }
-        
+
         private TypeOfExpression TypeOfExpression()
         {
             var (line, col) = Match(Token.TypeOf);
@@ -27,6 +31,20 @@ namespace EVIL.Grammar.Parsing
             Match(Token.RParenthesis);
 
             return new TypeOfExpression(target)
+                { Line = line, Column = col };
+        }
+
+        private YieldExpression YieldExpression()
+        {
+            var (line, col) = Match(Token.Yield);
+
+            Match(Token.YieldTargetOpen);
+            var target = AssignmentExpression();
+            Match(Token.YieldTargetClose);
+            
+            var argumentList = ArgumentList();
+            
+            return new YieldExpression(target, argumentList)
                 { Line = line, Column = col };
         }
     }

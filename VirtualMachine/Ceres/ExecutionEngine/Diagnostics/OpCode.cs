@@ -58,5 +58,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         TABINIT,
         TABSET,
         INDEX,
+        YIELD,
+        YRET
     }
 }

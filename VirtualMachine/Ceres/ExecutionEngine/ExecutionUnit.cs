@@ -307,11 +307,7 @@ namespace Ceres.ExecutionEngine
                     a = PopValue();
 
                     var argumentCount = frame.FetchInt32();
-                    var args = new DynamicValue[argumentCount];
-                    for (var i = 0; i < argumentCount; i++)
-                    {
-                        args[argumentCount - i - 1] = PopValue();
-                    }
+                    var args = PopArguments(argumentCount);
 
                     if (a.Type == DynamicValue.DynamicValueType.Chunk)
                     {
@@ -516,6 +512,45 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.YIELD:
+                {
+                    var argumentCount = frame.FetchInt32();
+                    
+                    a = PopValue(); // chunk
+                    var args = PopArguments(argumentCount);
+                    
+                    if (a.Type != DynamicValue.DynamicValueType.Chunk)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to yield to a {a.Type} value."
+                        );
+                    }
+                    
+                    var fiber = _fiber.VirtualMachine.Scheduler.CreateFiber(false);
+                    fiber.Schedule(a.Chunk!, args);
+                    fiber.Resume();
+                    
+                    PushValue(fiber);
+                    _fiber.WaitFor(fiber);
+                    break;
+                }
+
+                case OpCode.YRET:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValue.DynamicValueType.Fiber)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to resume from a {a.Type} value. " +
+                            $"Messing with code generation now, are we?"
+                        );
+                    }
+
+                    PushValue(a.Fiber!.PopValue());
+                    break;
+                }
+
                 default:
                 {
                     throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
@@ -548,12 +583,26 @@ namespace Ceres.ExecutionEngine
         private void PushValue(long value)
             => PushValue(new DynamicValue(value));
 
+        private void PushValue(Fiber value)
+            => PushValue(new DynamicValue(value));
+
         private void PushValue(DynamicValue value)
         {
             lock (_evaluationStack)
             {
                 _evaluationStack.Push(value);
             }
+        }
+
+        private DynamicValue[] PopArguments(int count)
+        {
+            var args = new DynamicValue[count];
+            for (var i = 0; i < count; i++)
+            {
+                args[count - i - 1] = PopValue();
+            }
+
+            return args;
         }
     }
 }

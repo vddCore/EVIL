@@ -4,7 +4,7 @@
     public class EvilRuntimeMemberAttribute : Attribute
     {
         public string FullyQualifiedName { get; }
-        public bool AllowRedefinition { get; init; }
+        public bool AllowRedefinition { get; init; } = true;
 
         public EvilRuntimeMemberAttribute(string fullyQualifiedName)
         {
