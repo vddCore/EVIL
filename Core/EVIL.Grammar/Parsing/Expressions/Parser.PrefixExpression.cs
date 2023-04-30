@@ -14,18 +14,18 @@ namespace EVIL.Grammar.Parsing
             {
                 var (line, col) = Match(Token.Increment);
                 
-                return new IncrementationExpression(UnaryExpression(), true) 
+                return new IncrementationExpression(RuntimeExpression(), true) 
                     { Line = line, Column = col };
             }
             else if (token.Type == TokenType.Decrement)
             {
                 var (line, col) = Match(Token.Decrement);
                 
-                return new DecrementationExpression(UnaryExpression(), true) 
+                return new DecrementationExpression(RuntimeExpression(), true) 
                     { Line = line, Column = col };
             }
 
-            return UnaryExpression();
+            return RuntimeExpression();
         }
     }
 }
