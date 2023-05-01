@@ -6,3 +6,11 @@ fn zero_is_false() { ret 0 ? true : false; }
 
 #[test(false)]
 fn false_is_false() { ret false ? true : false; }
+
+#[test]
+fn nil_coalesced_to_boolean_is_false() {
+  var a = !!nil;
+  
+  ret a == false 
+   && typeof(a) == "Boolean";
+}
