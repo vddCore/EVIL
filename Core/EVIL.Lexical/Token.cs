@@ -118,7 +118,9 @@
         public static readonly Token Nil = new(TokenType.Nil, "nil");
         public static readonly Token TypeOf = new(TokenType.TypeOf, "typeof");
         public static readonly Token Yield = new(TokenType.Yield, "yield");
-
+        public static readonly Token NaN = new(TokenType.NaN, "NaN");
+        public static readonly Token Infinity = new(TokenType.Infinity, "Infinity");
+        
         public static readonly Token EOF = new(TokenType.EOF, "<EOF>");
 
         public static readonly Token Number = new(TokenType.Number, string.Empty);

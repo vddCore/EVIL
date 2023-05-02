@@ -1,0 +1,17 @@
+﻿#[test(nil)]
+fn nil_is_nil() -> nil;
+
+#[test(213.7)]
+fn number_is_number() -> 213.7;
+
+#[test("2137 jp2gmd")]
+fn string_is_string() -> "2137 jp2gmd";
+
+#[test]
+fn nan_is_in_fact_a_number() -> typeof(NaN) == "Number";
+
+#[test]
+fn infinity_is_a_number_too() -> typeof(Infinity) == "Number";
+
+#[test]
+fn can_invert_infinity() -> -Infinity != Infinity;

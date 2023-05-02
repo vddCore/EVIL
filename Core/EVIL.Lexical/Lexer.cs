@@ -371,6 +371,8 @@ namespace EVIL.Lexical
                 "nil" => Token.Nil,
                 "typeof" => Token.TypeOf,
                 "yield" => Token.Yield,
+                "Infinity" => Token.Infinity,
+                "NaN" => Token.NaN,
                 _ => Token.CreateIdentifier(str)
             };
         }

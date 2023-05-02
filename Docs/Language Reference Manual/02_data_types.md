@@ -31,14 +31,8 @@
 >```
 > 
 > **String conversion**  
-> Any `Nil` value is a subject to [`String`](#23-string) type conversion. All string conversion considerations
+> Any [`Nil`](#21-nil) value is subject to [`String`](#23-string) type conversion. All string conversion considerations
 > have been described in section [4.1.5.1](04_expressions.md#to-string-operator).
 > 
 > **Conversion to data types other than specified**  
 > Attempting to convert a [`Nil`](#21-nil) value to an incompatible data type is defined as a runtime error.
-
-### 2.2 `Number`
->#### Synopsis
-> The [`Number`](#22-number) data type represents a double-precision floating-point number compliant with the IEEE-754 
-> standard.
-> 
