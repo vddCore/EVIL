@@ -20,6 +20,20 @@ namespace EVIL.Grammar.Parsing
                     return new NumberConstant(double.Parse(token.Value!))
                         { Line = line, Column = col };
                 }
+                case TokenType.NaN:
+                {
+                    var (line, col) = Match(Token.NaN);
+                    
+                    return new NumberConstant(double.NaN)
+                        { Line = line, Column = col };
+                }
+                case TokenType.Infinity:
+                {
+                    var (line, col) = Match(Token.Infinity);
+
+                    return new NumberConstant(double.PositiveInfinity)
+                        { Line = line, Column = col };
+                }
                 case TokenType.HexInteger:
                 {
                     var (line, col) = Match(Token.HexInteger);

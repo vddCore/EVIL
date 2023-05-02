@@ -12,46 +12,49 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="tests\01_basic_operators.vil">
+    <None Update="tests\02_basic_operators.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\02_ternary_operator.vil">
+    <None Update="tests\03_ternary_operator.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\00_truth.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\04_while_loop.vil">
+    <None Update="tests\05_while_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\03_assignment_operators.vil">
+    <None Update="tests\04_assignment_operators.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\05_do_while_loop.vil">
+    <None Update="tests\06_do_while_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\06_for_loop.vil">
+    <None Update="tests\07_for_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\07_tables.vil">
+    <None Update="tests\08_tables.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\08_invoke.vil">
+    <None Update="tests\09_invoke.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\09_runtime.vil">
+    <None Update="tests\10_runtime.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\10_type.vil">
+    <None Update="tests\11_type.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\11_yield.vil">
+    <None Update="tests\12_yield.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\12_expression_body.vil">
+    <None Update="tests\13_expression_body.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\13_extra_arguments.vil">
+    <None Update="tests\14_extra_arguments.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="tests\01_constants.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

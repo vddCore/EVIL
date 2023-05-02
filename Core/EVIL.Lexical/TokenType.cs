@@ -89,6 +89,8 @@
         Nil,
         TypeOf,
         Yield,
+        NaN,
+        Infinity,
         
         EOF
     }
