@@ -119,8 +119,8 @@
 > to compare the lengths of two strings, see section [4.2.6.1](04_expressions.md#4261-length-of-operator).
 
 > #### Truth characteristics
-> A [`String`](#23-string) value will always evaluate to [`true`](#24-boolean) regardless of the value it may currently 
-> be holding.
+> A [`String`](#23-string) value will always evaluate to [`true`](#24-boolean) when performing logical operations,
+> regardless of the value it may currently be holding.
 
 > #### Type conversions
 > **Boolean coalescence**  
