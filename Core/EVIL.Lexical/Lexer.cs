@@ -403,27 +403,38 @@ namespace EVIL.Lexical
 
                     switch (State.Character)
                     {
-                        case '"':
-                            str += '"';
+                        case 'a':
+                            str += '\a';
                             break;
-
-                        case '\\':
-                            str += '\\';
+                        case 'b':
+                            str += '\b';
                             break;
-
+                        case 'f':
+                            str += '\f';
+                            break;
                         case 'n':
                             str += '\n';
                             break;
-
+                        case 'r':
+                            str += '\r';
+                            break;
+                        case 't':
+                            str += '\t';
+                            break;
+                        case 'x':
                         case 'u':
                             Advance();
                             str += GetUnicodeSequence();
                             continue;
-
-                        case 'r':
-                            str += '\r';
+                        case 'v':
+                            str += '\v';
                             break;
-
+                        case '"':
+                            str += '"';
+                            break;
+                        case '\\':
+                            str += '\\';
+                            break;
                         default:
                             throw new LexerException("Unrecognized escape sequence.", State.Column, State.Line);
                     }
