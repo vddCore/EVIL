@@ -1,16 +1,19 @@
-﻿#[test(false)]
-fn nil_is_false() { ret nil ? true : false; }
-
-#[test(false)]
-fn zero_is_false() { ret 0 ? true : false; }
-
-#[test(false)]
-fn false_is_false() { ret false ? true : false; }
+﻿#[test(false)] fn nil_is_false() -> nil ? true : false;
+#[test(false)] fn zero_is_false() -> 0 ? true : false;
+#[test(false)] fn false_is_false() -> false ? true : false;
 
 #[test]
 fn nil_coalesced_to_boolean_is_false() {
   var a = !!nil;
   
   ret a == false 
+   && typeof(a) == "Boolean";
+}
+
+#[test]
+fn zero_coalesced_to_boolean_is_false() {
+  var a = !!0;
+  
+  ret a == false;
    && typeof(a) == "Boolean";
 }

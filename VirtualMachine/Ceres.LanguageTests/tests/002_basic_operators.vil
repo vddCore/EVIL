@@ -1,104 +1,50 @@
-#[test(4)]
-fn add_int() { ret 2 + 2; }
+#[test] fn eq() -> 2 == 2;
+#[test] fn ne() -> 10 != 5;
+#[test] fn gt() -> 10 > 2;
+#[test] fn lt() -> 1 < 3;
+#[test] fn gte() -> 2 >= 2;
+#[test] fn lte() -> 4 <= 4;
 
-#[test(2)]
-fn sub_int() { ret 3 - 1; }
+#[test(4)] fn add_int() -> 2 + 2;
+#[test(21.37)] fn add_fp64() -> 21 + 0.37;
 
-#[test(4)]
-fn div_int() { ret 20 / 5; }
+#[test(2)] fn sub_int() -> 3 - 1;
+#[test(2.137)] fn sub_fp64() -> 3 - 0.863;
 
-#[test(4)]
-fn mod_int() { ret 9 % 5; }
+#[test(4)] fn div_int() -> 20 / 5;
+#[test(213.7)] fn div_fp64() -> 1923.3 / 9;
 
-#[test(80)]
-fn mul() { ret 4 * 20; }
+#[test(4)] fn mod_int() -> 9 % 5;
+#[test(2.5); approximate] fn mod_fp64() -> 21 % 3.7;
 
-#[test(21.37)]
-fn add_double() { ret 21 + 0.37; }
+#[test(80)] fn mul_int() -> 4 * 20;
+#[test(0.2137)] fn mul_fp64() -> 20 * 0.010685;
 
-#[test(2.137)]
-fn sub_double() { ret 3 - 0.863; }
+#[test(0x0F00)] fn band() -> 0xFFFF & 0x0F00;
+#[test(0x000F)] fn bxor() -> 0xFFFF ^ 0xFFF0;
+#[test(0xFFFF)] fn bnot() -> ~0 & 0xFFFF;
+#[test(0xFFF0)] fn bor() -> 0x00F0 | 0xF000 | 0x0F00;
 
-#[test(213.7)]
-fn div_double() { ret 1923.3 / 9; }
+#[test(16)] fn shl() -> 1 << 4;
+#[test(32)] fn shr() -> 0x80 >> 2;
 
-#[test(2.5); approximate]
-fn mod_double() { ret 21 % 3.7; }
+#[test] fn exist_str() -> "a" in "blah";
+#[test] fn noexist_str() -> !("f" in "blah");
+#[test] fn exist_tbl() -> "a" in { "a" => 2137 };
+#[test] fn noexist_tbl() -> !("a" in { });
 
-#[test(0.2137)]
-fn mul_double() { ret 20 * 0.010685; }
+#[test(7)] fn len_str() -> #"ąćężółń";
+#[test(4)] fn len_tbl() -> #{2,1,3,7};
 
-#[test(0x0F00)]
-fn band() { ret 0xFFFF & 0x0F00; }
+#[test("4")] fn tostr_num() -> @4;
+#[test("asdfg")] fn tostr_str() -> @"asdfg";
+#[test("true")] fn tostr_bool_true() -> @true;
+#[test("false")] fn tostr_bool_false() -> @false;
 
-#[test(0xFFF0)]
-fn bor() { ret 0x00F0 | 0xF000 | 0x0F00; }
-
-#[test(0x000F)]
-fn bxor() { ret 0xFFFF ^ 0xFFF0; }
-
-#[test(0xFFFF)]
-fn bnot() { ret ~0 & 0xFFFF; }
-
-#[test(16)]
-fn shl() { ret 1 << 4; }
-
-#[test(32)]
-fn shr() { ret 0x80 >> 2; }
-
-#[test]
-fn exists_str() { ret "a" in "blah"; }
-
-#[test(false)]
-fn notexists_str() { ret "f" in "blah"; }
-
-#[test]
-fn exists_tbl() {
-  var a = { "a" => 2137 };
-  ret "a" in a;
-}
-
-#[test(false)]
-fn notexists_tbl() {
-  var a = { };
-  ret "a" in a;
-}
-
-#[test]
-fn eq() { ret 2 == 2; }
-
-#[test]
-fn ne() { ret 10 != 5; }
-
-#[test]
-fn gt() { ret 10 > 2; }
-
-#[test]
-fn lt() { ret 1 < 3; }
-
-#[test]
-fn gte() { ret 2 >= 2; }
-
-#[test]
-fn lte() { ret 4 <= 4; }
-
-#[test(4)]
-fn len_str() { ret #"test"; }
-
-#[test(4)]
-fn len_tbl() { ret #{2,1,3,7}; }
-
-#[test("4")]
-fn tostr_num() { ret @4; }
-
-#[test("asdfg")]
-fn tostr_str() { ret @"asdfg"; }
-
-#[test(2137)]
-fn tonum_int() { ret $"2137"; }
-
-#[test(21.37)]
-fn tonum_double() { ret $"21.37"; }
+#[test(2137)] fn tonum_int() -> $"2137";
+#[test(21.37)] fn tonum_fp64() -> $"21.37";
+#[test(0)] fn tonum_bool_false() -> $(false);
+#[test(1)] fn tonum_bool_true() -> $(true);
 
 #[test]
 fn postinc_var() {
@@ -147,9 +93,3 @@ fn predec_tbl_member() {
   var a = { 10 };
   ret (--a[0] == 9) && (a[0] == 9);
 }
-
-#[test(0)]
-fn tonum_boolean_false() -> $(false);
-
-#[test(1)]
-fn tonum_boolean_true() -> $(true);
