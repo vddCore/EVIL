@@ -63,6 +63,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     }
                 }
 
+                case DynamicValueType.Boolean:
+                    return new(a.Boolean ? 1 : 0);
+
                 default:
                 {
                     throw new UnsupportedDynamicValueOperationException(
