@@ -1,12 +1,5 @@
-﻿#[test(21.37)]
-fn ternary_true_with_constant() {
-  ret true ? 21.37 : "something went terribly wrong";
-}
-
-#[test("jp2gmd")]
-fn ternary_false_with_constant() {
-  ret false ? "something went terribly wrong" : "jp2gmd";
-}
+﻿#[test(21.37)] fn ternary_true_with_constant() -> true ? 21.37 : "something went terribly wrong";
+#[test("jp2gmd")] fn ternary_false_with_constant() -> false ? "something went terribly wrong" : "jp2gmd";
 
 #[test(213.7)]
 fn ternary_true_with_variable() {
