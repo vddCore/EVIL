@@ -147,3 +147,9 @@ fn predec_tbl_member() {
   var a = { 10 };
   ret (--a[0] == 9) && (a[0] == 9);
 }
+
+#[test(0)]
+fn tonum_boolean_false() -> $(false);
+
+#[test(1)]
+fn tonum_boolean_true() -> $(true);
