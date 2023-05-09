@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Language Reference Manual",
 		Docs\Language Reference Manual\00_intro.md = Docs\Language Reference Manual\00_intro.md
 		Docs\Language Reference Manual\01_script_overview.md = Docs\Language Reference Manual\01_script_overview.md
 		Docs\Language Reference Manual\02_data_types.md = Docs\Language Reference Manual\02_data_types.md
+		Docs\Language Reference Manual\04_expressions.md = Docs\Language Reference Manual\04_expressions.md
+		Docs\Language Reference Manual\03_statements.md = Docs\Language Reference Manual\03_statements.md
 	EndProjectSection
 EndProject
 Global
