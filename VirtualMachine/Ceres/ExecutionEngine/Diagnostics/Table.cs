@@ -54,6 +54,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             (key, value) = OnSet(key, value);
 
+            if (key == DynamicValue.Nil)
+                return;
+
             lock (_values)
             {
                 if (value == DynamicValue.Nil)

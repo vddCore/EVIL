@@ -102,6 +102,8 @@ namespace Ceres.LanguageTests
                     return args[3];
                 }));
                 
+                VM.Global.Set("__tricky", new DynamicValue(new TrickyTable()));
+                
                 Runtime.RegisterBuiltInModules();
 
                 var nonTestChunks = testScript.Chunks.Where(
