@@ -52,6 +52,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
             if (IsFrozen)
                 return;
 
+            (key, value) = OnSet(key, value);
+
             lock (_values)
             {
                 if (value == DynamicValue.Nil)
@@ -65,6 +67,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
         }
 
+        protected virtual (DynamicValue Key, DynamicValue Value) OnSet(DynamicValue key, DynamicValue value)
+        {
+            return (key, value);
+        }
+
         public DynamicValue Index(double key)
             => Index(new DynamicValue(key));
 
@@ -72,6 +79,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
             => Index(new DynamicValue(key));
 
         public DynamicValue Index(DynamicValue key)
+        {
+            return OnIndex(key);
+        }
+
+        protected virtual DynamicValue OnIndex(DynamicValue key)
         {
             lock (_values)
             {
@@ -89,6 +101,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
             => Contains(new DynamicValue(key));
 
         public bool Contains(DynamicValue key)
+        {
+            return OnContains(key);
+        }
+
+        protected virtual bool OnContains(DynamicValue key)
         {
             lock (_values)
             {
@@ -200,7 +217,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     currentTable = ret.Table!;
                 }
             }
-            
+
             return ret;
         }
 
