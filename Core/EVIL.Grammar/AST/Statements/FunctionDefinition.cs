@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-
-namespace EVIL.Grammar.AST.Statements
+﻿namespace EVIL.Grammar.AST.Statements
 {
     public sealed class FunctionDefinition : Statement
     {
         public string Identifier { get; }
 
-        public List<string> Parameters { get; }
+        public ParameterList ParameterList { get; }
         public Statement Statement { get; }
 
-        public FunctionDefinition(string identifier, List<string> parameters, Statement statement)
+        public FunctionDefinition(string identifier, ParameterList parameterList, Statement statement)
         {
             Identifier = identifier;
 
-            Parameters = parameters;
+            ParameterList = parameterList;
             Statement = statement;
 
             Reparent(Statement);

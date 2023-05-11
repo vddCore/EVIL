@@ -1,0 +1,22 @@
+﻿fn fib_recursive(n, a = 1, b = 1) -> (--n > 0) ? (fib_recursive(n, b, a + b)) : (a); 
+
+fn fib_iterative(n) {
+  var f0 = 0, f1 = 1, f2;
+  
+  while (--n > 0) {
+    f2 = f0 + f1;
+    f0 = f1;
+    f1 = f2;
+  }
+  
+  ret f2;
+}
+
+fn fact_tailrec(n, acc) {
+  if (n <= 0) ret acc;
+  else ret fact_tailrec(n - 1, n * acc); 
+}
+
+#[test(102334155);disasm] fn fibonacci_recursive() -> fib_recursive(40);
+#[test(165580141)] fn fibonacci_iterative() -> fib_iterative(41);
+#[test(3628800)] fn tailrec_invoke() -> fact_tailrec(10, 1);

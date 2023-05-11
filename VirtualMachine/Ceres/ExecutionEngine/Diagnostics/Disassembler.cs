@@ -21,6 +21,18 @@ namespace Ceres.ExecutionEngine.Diagnostics
             output.WriteLine($"  .LOCALS {chunk.LocalCount}");
             output.WriteLine($"  .PARAMS {chunk.ParameterCount}");
 
+            for (var i = 0; i < chunk.ParameterCount; i++)
+            {
+                if (chunk.ParameterInitializers.TryGetValue(i, out var value))
+                {
+                    output.WriteLine($"    .PARAM DO_INIT({i}): {value.ConvertToString().String}");
+                }
+                else
+                {
+                    output.WriteLine($"    .PARAM NO_INIT({i})");
+                }
+            }
+
             if (chunk.Attributes.Any())
             {
                 output.WriteLine();
@@ -116,15 +128,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     output.Write(
                         string.Join(
                             ", ",
-                            attribute.Values.Select(x =>
-                            {
-                                if (x.Type == DynamicValue.DynamicValueType.String)
-                                {
-                                    return $"\"{x.String}\"";
-                                }
-                                
-                                return x.ConvertToString().String;
-                            })
+                            attribute.Values.Select(StringifyDynamicValue)
                         )
                     );
                     output.Write(")");
@@ -132,6 +136,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 
                 output.WriteLine();
             }
+        }
+
+        private static string StringifyDynamicValue(DynamicValue value)
+        {
+            if (value.Type == DynamicValue.DynamicValueType.String)
+            {
+                return $"\"{value.String}\"";
+            }
+                                
+            return value.ConvertToString().String!;
         }
     }
 }
