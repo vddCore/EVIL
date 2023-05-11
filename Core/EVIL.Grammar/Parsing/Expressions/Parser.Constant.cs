@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private Expression Constant()
+        private ConstantExpression Constant()
         {
             var token = CurrentToken;
 

@@ -1,0 +1,11 @@
+﻿#[test(21.37)]
+fn single_parameter_initializer(a = 21.37) -> a;
+
+#[test]
+fn two_parameter_initializers(a = 111, b = "jp2gmd")
+  -> a == 111 && b == "jp2gmd";
+
+#[test]
+fn nil_and_initializer(a, b = true) 
+  -> a == nil 
+  && b == true;

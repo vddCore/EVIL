@@ -12,6 +12,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private MemoryStream _code;
         private List<int> _labels;
         private List<ChunkAttribute> _attributes;
+        private Dictionary<int, DynamicValue> _parameterInitializers;
 
         public string? Name { get; set; }
 
@@ -23,6 +24,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         
         public IReadOnlyList<int> Labels => _labels;
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
+        public IReadOnlyDictionary<int, DynamicValue> ParameterInitializers => _parameterInitializers;
 
         public byte[] Code => _code.GetBuffer();
         public bool IsAnonymous => Name == null;
@@ -32,6 +34,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _code = new MemoryStream(0);
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
+            _parameterInitializers = new Dictionary<int, DynamicValue>();
             
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
@@ -42,7 +45,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _code = new MemoryStream(code, 0, code.Length, true, true);
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
-            
+            _parameterInitializers = new Dictionary<int, DynamicValue>();
+
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
         }
@@ -52,6 +56,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _code = new MemoryStream(code, 0, code.Length, true, true);
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
+            _parameterInitializers = new Dictionary<int, DynamicValue>();
 
             StringPool = new StringPool(stringConstants);
             CodeGenerator = new CodeGenerator(_code, _labels);
@@ -71,6 +76,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public int AllocateLocal()
             => LocalCount++;
+
+        public void InitializeParameter(int parameterId, DynamicValue constant)
+        {
+            if (!_parameterInitializers.TryAdd(parameterId, constant))
+            {
+                throw new InvalidOperationException(
+                    $"Internal compiler error: Attempt to initialize the same parameter symbol twice."
+                );
+            }
+        }
 
         public int CreateLabel()
             => CreateLabel(CodeGenerator.IP);

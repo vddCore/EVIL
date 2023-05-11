@@ -41,6 +41,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             Type = type;
         }
 
+        public DynamicValue()
+            : this(DynamicValueType.Nil)
+        {
+        }
+
         public DynamicValue(double value) : this(DynamicValueType.Number) => Number = value;
         public DynamicValue(string value) : this(DynamicValueType.String) => String = value;
         public DynamicValue(bool value) : this(DynamicValueType.Boolean) => Boolean = value;

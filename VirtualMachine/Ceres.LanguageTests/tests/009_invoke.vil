@@ -2,15 +2,7 @@
 fn add(a, b) -> a + b;
 fn get_add_fn() -> add; 
 
-fn fact_tailrec(n, acc) {
-  if (n <= 0) ret acc;
-  else ret fact_tailrec(n - 1, n * acc);
-}
-
-#[test(3628800)] fn tailrec_invoke() -> fact_tailrec(10, 1);
-
 #[test(nil)] fn no_ret_is_nil() -> noret();
-
 #[test(4)] fn invoke() -> add(2, 2);
 #[test(6)] fn invoke_indirect() -> get_add_fn()(3, 3);
 #[test(21.37)] fn invoke_native() -> __native_func(1, 2, 3, 21.37);

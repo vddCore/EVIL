@@ -36,13 +36,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             for (var i = 0; i < Arguments.Length; i++)
             {
+                if (Chunk.ParameterInitializers.TryGetValue(i, out var initializer))
+                {
+                    Arguments[i] = initializer;
+                }
+
                 if (i < args.Length)
                 {
                     Arguments[i] = args[i];
-                }
-                else
-                {
-                    Arguments[i] = DynamicValue.Nil;
                 }
             }
 

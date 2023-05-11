@@ -58,6 +58,28 @@ namespace Ceres.TranslationEngine
             }
         }
 
+        public override void Visit(ParameterList parameterList)
+        {
+            for (var i = 0; i < parameterList.Parameters.Count; i++)
+            {
+                var parameter = parameterList.Parameters[i];
+                var parameterId = Chunk.AllocateParameter();
+                
+                _currentScope.DefineParameter(
+                    parameter.Name,
+                    parameterId
+                );
+
+                if (parameter.Initializer != null)
+                {
+                    Chunk.InitializeParameter(
+                        parameterId,
+                        ExtractConstantValueFrom(parameter.Initializer)
+                    );
+                }
+            }
+        }
+
         public override void Visit(ArgumentList argumentList)
         {
             for (var i = 0; i < argumentList.Arguments.Count; i++)
@@ -189,7 +211,7 @@ namespace Ceres.TranslationEngine
             foreach (var valueNode in attributeStatement.Values)
             {
                 attribute.Values.Add(
-                    GetAttributeConstantValue(valueNode)
+                    ExtractConstantValueFrom(valueNode)
                 );
             }
 
@@ -197,7 +219,7 @@ namespace Ceres.TranslationEngine
             {
                 attribute.Properties.Add(
                     propertyKvp.Key,
-                    GetAttributeConstantValue(propertyKvp.Value)
+                    ExtractConstantValueFrom(propertyKvp.Value)
                 );
             }
 
@@ -435,14 +457,7 @@ namespace Ceres.TranslationEngine
             {
                 InNewScopeDo(() =>
                 {
-                    for (var i = 0; i < functionDefinition.Parameters.Count; i++)
-                    {
-                        _currentScope.DefineParameter(
-                            functionDefinition.Parameters[i],
-                            Chunk.AllocateParameter()
-                        );
-                    }
-
+                    Visit(functionDefinition.ParameterList);
                     Visit(functionDefinition.Statement);
                 });
 
@@ -773,7 +788,7 @@ namespace Ceres.TranslationEngine
             }
         }
 
-        private DynamicValue GetAttributeConstantValue(AstNode valueNode)
+        private DynamicValue ExtractConstantValueFrom(AstNode valueNode)
         {
             if (valueNode is BooleanConstant boolConst)
             {
@@ -794,7 +809,7 @@ namespace Ceres.TranslationEngine
             else
             {
                 throw new CompilerException(
-                    $"Internal error: unexpected attribute value node type '{valueNode.GetType().FullName}'."
+                    $"Internal error: unexpected constant value node type '{valueNode.GetType().FullName}'."
                 );
             }
         }

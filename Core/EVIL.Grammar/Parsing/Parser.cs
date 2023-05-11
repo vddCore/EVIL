@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
         public Program Parse(string source)
         {
             Lexer.LoadSource(source);
-            
+
             var programNode = Program();
             Match(Token.EOF);
 
@@ -32,24 +32,50 @@ namespace EVIL.Grammar.Parsing
             return ret;
         }
 
-        private List<string> ParseParameters()
+        private ParameterList ParseParameters()
         {
-            Match(Token.LParenthesis);
-            var parameters = new List<string>();
-
+            var (line, col) = Match(Token.LParenthesis);
+            var parameters = new List<ParameterNode>();
+            var hasInitializers = false;
+            
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
-                parameters.Add(CurrentToken.Value!);
-                Match(Token.Identifier);
+                var parameterName = CurrentToken.Value!;
+                ConstantExpression? initializer = null;
 
-                if (CurrentToken.Type == TokenType.RParenthesis)
+                var (pline, pcol) = Match(Token.Identifier);
+
+                if (CurrentToken == Token.Assign)
+                {
+                    Match(Token.Assign);
+                    initializer = Constant();
+                    hasInitializers = true;
+                }
+                else
+                {
+                    if (hasInitializers)
+                    {
+                        throw new ParserException(
+                            "Uninitialized parameters must precede default parameters.",
+                            (pline, pcol)
+                        );
+                    }
+                }
+
+                parameters.Add(
+                    new ParameterNode(parameterName, initializer)
+                        { Line = pline, Column = pcol }
+                );
+
+                if (CurrentToken == Token.RParenthesis)
                     break;
 
                 Match(Token.Comma);
             }
             Match(Token.RParenthesis);
 
-            return parameters;
+            return new ParameterList(parameters)
+                { Line = line, Column = col };
         }
 
         private T LoopDescent<T>(Func<T> func) where T : AstNode
@@ -79,7 +105,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     throw new ParserException($"Expected 'fn' or an attribute, found: '{CurrentToken}'");
                 }
-                
+
                 statementList.Add(Statement());
             }
 
