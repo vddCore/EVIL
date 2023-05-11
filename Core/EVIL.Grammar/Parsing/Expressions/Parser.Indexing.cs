@@ -30,7 +30,7 @@ namespace EVIL.Grammar.Parsing
                 if (indexer is NilConstant)
                 {
                     throw new ParserException(
-                        "'null' is not a valid indexer expression.", 
+                        "'nil' is not a valid indexer expression.", 
                         (indexer.Line, indexer.Column)
                     );
                 }
