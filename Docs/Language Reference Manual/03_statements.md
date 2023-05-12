@@ -115,6 +115,11 @@ child nodes.
 >    respective numerical indices in the exact order the functions were defined in a script, finally setting said Table
 >    as a global with the name all found functions share.
 > 
+> Function parameters can have default value initializers, however, the default values must appear after all the
+> uninitialized parameters. If a parameter is uninitialized, and the amount of arguments doesn't match the parameter 
+> count for a given Chunk, it's assumed to have a value of [`Nil`](02_data_types.md#21-nil). In addition, all parameter
+> initializers are limited to using constant expressions only.
+> 
 > You, my dear reader, have already seen how to define a function in EVIL, assuming you've read one section above, but 
 > for the sake of completeness, I have decided to provide a few examples here as well.
 
@@ -134,4 +139,11 @@ child nodes.
 > 
 > // As above, but shorter - an expression body.
 > fn func_6(a, b) -> a + b;
+> 
+> // As above, but b now has a default value when func_7 is called with just 1 argument.
+> fn func_7(a, b = 21.37) -> a + b;
+> 
+> // Illegal, will throw a parser error, because parameter initializers must appear after all 
+> // uninitialized parameters.
+> fn func_8(a = 21.37, b) -> a + b;
 > ```
