@@ -23,9 +23,7 @@ namespace EVIL.Grammar.Parsing
             }
             else if (CurrentToken == Token.RightArrow)
             {
-                Match(Token.RightArrow);
-                statement = FunctionDescent(() => new ExpressionBodyStatement(AssignmentExpression()));
-                Match(Token.Semicolon);
+                statement = FunctionDescent(ExpressionBody);
             }
             else
             {

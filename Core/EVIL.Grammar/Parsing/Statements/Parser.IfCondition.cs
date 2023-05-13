@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST.Statements;
+﻿using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -13,12 +14,16 @@ namespace EVIL.Grammar.Parsing
             var expression = AssignmentExpression();
 
             Match(Token.RParenthesis);
-            
-            var node = new IfStatement 
+
+            var node = new IfStatement
                 { Line = line, Column = col };
 
             node.AddCondition(expression);
-            node.AddStatement(Statement());
+            node.AddStatement(
+                CurrentToken == Token.RightArrow
+                    ? ExpressionBody()
+                    : Statement()
+            );
 
             while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
             {
@@ -31,19 +36,28 @@ namespace EVIL.Grammar.Parsing
 
                     Match(Token.RParenthesis);
                     node.AddCondition(expression);
-                    node.AddStatement(Statement());
+                    node.AddStatement(
+                        CurrentToken == Token.RightArrow
+                            ? ExpressionBody()
+                            : Statement()
+                    );
                 }
                 else if (CurrentToken.Type == TokenType.Else)
                 {
                     Match(Token.Else);
-                    node.SetElseBranch(Statement());
+                    node.SetElseBranch(
+                        CurrentToken == Token.RightArrow
+                            ? ExpressionBody()
+                            : Statement()
+                    );
                 }
-                else throw new ParserException(
-                    $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",
-                    (Lexer.State.Line, Lexer.State.Column)
-                );
+                else
+                    throw new ParserException(
+                        $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",
+                        (Lexer.State.Line, Lexer.State.Column)
+                    );
             }
-            
+
             return node;
         }
     }

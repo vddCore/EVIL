@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -110,6 +111,15 @@ namespace EVIL.Grammar.Parsing
             }
 
             return new Program(statementList);
+        }
+
+        private ExpressionBodyStatement ExpressionBody()
+        {
+            Match(Token.RightArrow);
+            var stmt = new ExpressionBodyStatement(AssignmentExpression());
+            Match(Token.Semicolon);
+
+            return stmt;
         }
 
         private (int, int) Match(Token token)
