@@ -12,11 +12,11 @@ fn fib_iterative(n) {
   ret f2;
 }
 
-fn fact_tailrec(n, acc) {
+fn fact_tailrec(n, acc = 1) {
   if (n <= 0) ret acc;
   else ret fact_tailrec(n - 1, n * acc); 
 }
 
-#[test(102334155);disasm] fn fibonacci_recursive() -> fib_recursive(40);
+#[test(102334155)] fn fibonacci_recursive() -> fib_recursive(40);
 #[test(165580141)] fn fibonacci_iterative() -> fib_iterative(41);
-#[test(3628800)] fn tailrec_invoke() -> fact_tailrec(10, 1);
+#[test(3628800)] fn tailrec_invoke() -> fact_tailrec(10);
