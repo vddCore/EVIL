@@ -29,10 +29,21 @@ namespace Ceres.TranslationEngine
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
 
+        private int Line { get; set; }
+        private int Column { get; set; }
+
         public Script Compile(Program program)
         {
             Visit(program);
             return _script;
+        }
+
+        public override void Visit(AstNode node)
+        {
+            Line = node.Line;
+            Column = node.Column;
+            
+            base.Visit(node);
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
@@ -64,11 +75,18 @@ namespace Ceres.TranslationEngine
             {
                 var parameter = parameterList.Parameters[i];
                 var parameterId = Chunk.AllocateParameter();
-                
-                _currentScope.DefineParameter(
-                    parameter.Name,
-                    parameterId
-                );
+
+                try
+                {
+                    _currentScope.DefineParameter(
+                        parameter.Name,
+                        parameterId
+                    );
+                }
+                catch (DuplicateSymbolException dse)
+                {
+                    throw new CompilerException(Line, Column, dse.Message, dse);
+                }
 
                 if (parameter.Initializer != null)
                 {
@@ -290,7 +308,7 @@ namespace Ceres.TranslationEngine
                             AssignmentOperationType.BitwiseXor => OpCode.BXOR,
                             AssignmentOperationType.ShiftLeft => OpCode.SHL,
                             AssignmentOperationType.ShiftRight => OpCode.SHR,
-                            _ => throw new CompilerException("Internal error: invalid assignment operation.")
+                            _ => throw new CompilerException(Line, Column, "Internal error: invalid assignment operation.")
                         }
                     );
                 }
@@ -322,7 +340,7 @@ namespace Ceres.TranslationEngine
                             AssignmentOperationType.BitwiseXor => OpCode.BXOR,
                             AssignmentOperationType.ShiftLeft => OpCode.SHL,
                             AssignmentOperationType.ShiftRight => OpCode.SHR,
-                            _ => throw new CompilerException("Internal error: invalid assignment operation.")
+                            _ => throw new CompilerException(Line, Column, "Internal error: invalid assignment operation.")
                         }
                     );
                 }
@@ -339,7 +357,7 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException("Invalid assignment target.");
+                throw new CompilerException(Line, Column, "Invalid assignment target.");
             }
         }
 
@@ -372,7 +390,7 @@ namespace Ceres.TranslationEngine
                     BinaryOperationType.Less => OpCode.CLT,
                     BinaryOperationType.GreaterOrEqual => OpCode.CGE,
                     BinaryOperationType.LessOrEqual => OpCode.CLE,
-                    _ => throw new CompilerException("Internal error: invalid binary operation type.")
+                    _ => throw new CompilerException(Line, Column, "Internal error: invalid binary operation type.")
                 }
             );
         }
@@ -420,7 +438,7 @@ namespace Ceres.TranslationEngine
                     UnaryOperationType.LogicalNot => OpCode.LNOT,
                     UnaryOperationType.ToString => OpCode.TOSTRING,
                     UnaryOperationType.ToNumber => OpCode.TONUMBER,
-                    _ => throw new CompilerException("Internal error: invalid unary operation type.")
+                    _ => throw new CompilerException(Line, Column, "Internal error: invalid unary operation type.")
                 }
             );
         }
@@ -434,10 +452,18 @@ namespace Ceres.TranslationEngine
         {
             foreach (var kvp in variableDefinition.Definitions)
             {
-                var sym = _currentScope.DefineLocal(
-                    kvp.Key,
-                    Chunk.AllocateLocal()
-                );
+                Symbol sym;
+                try
+                {
+                    sym = _currentScope.DefineLocal(
+                        kvp.Key,
+                        Chunk.AllocateLocal()
+                    );
+                }
+                catch (DuplicateSymbolException dse)
+                {
+                    throw new CompilerException(Line, Column, dse.Message, dse);
+                } 
 
                 if (kvp.Value != null)
                 {
@@ -676,7 +702,7 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException("Illegal incrementation target.");
+                throw new CompilerException(Line, Column, "Illegal incrementation target.");
             }
         }
 
@@ -720,7 +746,7 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException("Illegal decrementation target.");
+                throw new CompilerException(Line, Column, "Illegal decrementation target.");
             }
         }
 
@@ -809,6 +835,8 @@ namespace Ceres.TranslationEngine
             else
             {
                 throw new CompilerException(
+                    valueNode.Line,
+                    valueNode.Column,
                     $"Internal error: unexpected constant value node type '{valueNode.GetType().FullName}'."
                 );
             }

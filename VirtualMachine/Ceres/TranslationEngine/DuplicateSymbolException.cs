@@ -1,6 +1,8 @@
+using System;
+
 namespace Ceres.TranslationEngine
 {
-    public class DuplicateSymbolException : CompilerException
+    public class DuplicateSymbolException : Exception
     {
         public string SymbolName { get; }
 
