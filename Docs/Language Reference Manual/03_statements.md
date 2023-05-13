@@ -99,6 +99,7 @@ child nodes.
 > ```
 
 #### 3.1.2 Function definition statement
+##### 3.1.2.1 `fn` Keyword
 > **Synopsis**  
 > The `fn` keyword allows the user to define a [Chunk](05_chunks.md) belonging to a specific 
 > [Script](01_script_overview.md). 
@@ -114,11 +115,6 @@ child nodes.
 > 3. Instead of setting the function as a global, create a [Table](02_data_types.md#25-table), then set functions at the
 >    respective numerical indices in the exact order the functions were defined in a script, finally setting said Table
 >    as a global with the name all found functions share.
-> 
-> Function parameters can have default value initializers, however, the default values must appear after all the
-> uninitialized parameters. If a parameter is uninitialized, and the amount of arguments doesn't match the parameter 
-> count for a given Chunk, it's assumed to have a value of [`Nil`](02_data_types.md#21-nil). In addition, all parameter
-> initializers are limited to using constant expressions only.
 > 
 > You, my dear reader, have already seen how to define a function in EVIL, assuming you've read one section above, but 
 > for the sake of completeness, I have decided to provide a few examples here as well.
@@ -139,11 +135,26 @@ child nodes.
 > 
 > // As above, but shorter - an expression body.
 > fn func_6(a, b) -> a + b;
+> ```
+
+##### 3.1.2.2 Function parameter initializers
+> **Synposis**  
+> Function parameters can have default value initializers, however, the default values must appear after all the
+> uninitialized parameters. If a parameter is uninitialized, and the amount of arguments doesn't match the parameter
+> count for a given Chunk, it's assumed to have a value of [`Nil`](02_data_types.md#21-nil). 
 > 
-> // As above, but b now has a default value when func_7 is called with just 1 argument.
-> fn func_7(a, b = 21.37) -> a + b;
-> 
-> // Illegal, will throw a parser error, because parameter initializers must appear after all 
-> // uninitialized parameters.
-> fn func_8(a = 21.37, b) -> a + b;
+> In addition, all parameter initializers are limited to using constant expressions only, therefore,
+> only [`Nil`](02_data_types.md#21-nil), [`Number`](02_data_types.md#22-number), [`String`](02_data_types.md#23-string),
+> or [`Boolean`](02_data_types.md#24-boolean) data types are allowed as initializer value types.
+
+> **Example: Defining functions with parameter initializers in EVIL**
+> ```
+> // If func_1 is invoked with just one parameter, e.g. func_1(2), then `b' will
+> // be equal to 21.37 because of its default value. Therefore, the result of the
+> // the operation will be 23.37.
+> //
+> fn func_1(a, b = 21.37) -> a + b;
+>
+> // Illegal - initializers must appear after all uninitialized parameters.
+> fn func_2(a = 21.37, b) -> a + b;
 > ```
