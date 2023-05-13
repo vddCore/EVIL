@@ -116,8 +116,6 @@ child nodes.
 >    respective numerical indices in the exact order the functions were defined in a script, finally setting said Table
 >    as a global with the name all found functions share.
 > 
-> You, my dear reader, have already seen how to define a function in EVIL, assuming you've read one section above, but 
-> for the sake of completeness, I have decided to provide a few examples here as well.
 
 > **Example: Defining functions in EVIL**
 > ```
@@ -138,7 +136,7 @@ child nodes.
 > ```
 
 ##### 3.1.2.2 Function parameter initializers
-> **Synposis**  
+> **Synopsis**  
 > Function parameters can have default value initializers, however, the default values must appear after all the
 > uninitialized parameters. If a parameter is uninitialized, and the amount of arguments doesn't match the parameter
 > count for a given Chunk, it's assumed to have a value of [`Nil`](02_data_types.md#21-nil). 
@@ -157,4 +155,61 @@ child nodes.
 >
 > // Illegal - initializers must appear after all uninitialized parameters.
 > fn func_2(a = 21.37, b) -> a + b;
+> ```
+
+### 3.2 Parented statements
+Parented statements are - as the name suggests - statements that cannot exist in a top-level context.
+
+#### 3.2.1 Block statement
+> **Synopsis**  
+> A block statement serves two purposes:
+> 1. Organizes a group of statements into an easily readable piece of information.
+> 2. Enclose a new lexical scope to put local variables into.
+
+> **Example: Demonstration of block statements and scoping in EVIL**
+> ```
+> fn func()
+> // already a block statement here
+> { 
+>   // block statements can be empty
+>   // useless, but there you go
+>   {}
+> 
+>   // `a' is not a local yet, so it refers to a global variable
+>   a = 20; 
+>   {
+>       // func local 0 is created, value is 21.37
+>       var a = 21.37;
+> 
+>       // func local 1 is created, value is 21.37
+>       var b = a;
+> 
+>       // block statements can be nested indefinitely
+>       {
+>           // func local 2 is created, value is 11.11;
+>           var c = 11.11;
+>       }
+> 
+>       // `c' went out of scope, so using it here will get a global `c'
+>       //
+>       // because global `c' was never set, it'll result in a Nil value
+>       // when fetched, so `var d' creates func local 3 and it's initialized
+>       // to global `c' - a Nil value in this scope.
+>       var d = c;
+>   }
+>   
+>   // func local 4 is created, value is copied from global `a' 
+>   /  because local `a' went out of scope, so `b' is 20 now
+>   var b = a; 
+>   {
+>       // func local 5 is created, value is 21.88
+>       var a = 21.88
+> 
+>       // `b' was declared and defined in outer scope,
+>       // so it's still an outer local
+>       b = a;
+>   }
+>   //
+>   // because of the above, `b' (local 4) is 21.88 now.
+> }
 > ```
