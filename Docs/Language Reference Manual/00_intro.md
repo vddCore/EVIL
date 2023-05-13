@@ -108,6 +108,8 @@
 
 █ 5. [Chunks](05_chunks.md)  
 
-█ 6. [Fibers](06_fibers.md)  
+█ 6. [Tables](06_tables.md)  
 
-█ 7. [Formal grammar specification](08_formal_grammar_specification.md)
+█ 7. [Fibers](07_fibers.md)  
+
+█ 8. [Formal grammar specification](08_formal_grammar_specification.md)
