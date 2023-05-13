@@ -24,8 +24,8 @@ namespace Ceres.TranslationEngine
             if (sym != null)
             {
                 throw new DuplicateSymbolException(
-                    $"Symbol '{name}' was already defined in the current scope.",
-                    name
+                    name,
+                    $"Symbol '{name}' was already defined in the current scope."
                 );
             }
 
@@ -42,8 +42,8 @@ namespace Ceres.TranslationEngine
             if (sym != null)
             {
                 throw new DuplicateSymbolException(
-                    $"Symbol '{name}' was already defined in the current scope.",
-                    name
+                    name,
+                    $"Symbol '{name}' was already defined in the current scope."
                 );
             }
 

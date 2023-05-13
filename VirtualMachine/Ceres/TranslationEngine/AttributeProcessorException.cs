@@ -3,7 +3,7 @@ using Ceres.ExecutionEngine.Diagnostics;
 
 namespace Ceres.TranslationEngine
 {
-    public class AttributeProcessorException : CompilerException
+    public class AttributeProcessorException : Exception
     {
         public ChunkAttribute Attribute { get; }
         public Chunk Chunk { get; }
