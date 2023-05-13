@@ -36,3 +36,14 @@ fn mixed_local_and_global_scopes() {
    && glob_a2 == 20
    && glob_b == 2;
 }
+
+#[test(false)]
+fn variables_go_out_of_scope() {{
+  var x = 10; {
+    var y = 20; {
+      var z = 30; {
+        var w = 40;
+      } if (w) -> w;
+    } if (z) -> z;
+  } if (y) -> y;
+} if (x) -> x; ret false; }

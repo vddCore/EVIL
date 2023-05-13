@@ -63,6 +63,9 @@
     <None Update="tests\016_scope.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="tests\017_if_statement.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
