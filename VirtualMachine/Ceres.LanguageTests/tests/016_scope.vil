@@ -1,0 +1,38 @@
+﻿#[test(33)]
+fn out_of_scope_evaluates_to_global() {
+  var a = 10;
+  b = 33;
+  
+  {
+    var b = 21;
+  }
+  
+  ret b;
+}
+
+#[test(21.37)]
+fn local_scope_hides_global_scope() {
+  a = "jp2gmd";
+  
+  var a = 21.37;
+  ret a;
+}
+
+#[test]
+fn mixed_local_and_global_scopes() {
+  a = "jp2gmd"; var b = 2;
+  
+  {
+    glob_a = a;
+    var a = 20;
+    glob_a2 = a;
+    glob_b = b;
+    b = 10;
+  }
+  
+  ret a == "jp2gmd"
+   && b == 10
+   && glob_a == a
+   && glob_a2 == 20
+   && glob_b == 2;
+}
