@@ -92,7 +92,7 @@ namespace Ceres.LanguageTests
 
                 if (testChunks.Count == 0)
                 {
-                    TextOut.WriteLine($"Test file '{testScript}' has no tests. Ignoring...");
+                    TextOut.WriteLine($"Test file '{path}' has no tests. Ignoring...");
                     continue;
                 }
                 
