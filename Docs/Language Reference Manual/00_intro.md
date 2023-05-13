@@ -19,6 +19,8 @@
 ▐ 3.1. [Top-level statements](03_statements.md#31-top-level-statements)  
 ▐→ 3.1.1. [Attribute statement](03_statements.md#311-attribute-statement)  
 ▐→ 3.1.2. [Function definition statement](03_statements.md#312-function-definition-statement)  
+▐━→ 3.1.2.1. [`fn` Keyword](03_statements.md#3121-fn-keyword)  
+▐━→ 3.1.2.2. [Function parameter initializers](03_statements.md#3122-function-parameter-initializers)  
 ▐ 3.2. [Parented statements](03_statements.md#32-parented-statements)  
 ▐→ 3.2.1. [Block statement](03_statements.md#321-block-statement)  
 ▐→ 3.2.2. [Expression statement](03_statements.md#322-expression-statement)  
