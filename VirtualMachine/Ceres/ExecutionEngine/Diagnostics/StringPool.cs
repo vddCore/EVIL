@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ceres.ExecutionEngine
+namespace Ceres.ExecutionEngine.Diagnostics
 {
     public sealed class StringPool
     {
