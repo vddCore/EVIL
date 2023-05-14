@@ -46,4 +46,7 @@ fn variables_go_out_of_scope() {{
       } if (w) -> w;
     } if (z) -> z;
   } if (y) -> y;
-} if (x) -> x; ret false; }
+} 
+if (x) -> x;
+else -> false; 
+}

@@ -7,13 +7,17 @@ using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class Chunk : IDisposable
+    public sealed partial class Chunk : IDisposable
     {
         private MemoryStream _code;
         private List<int> _labels;
         private List<ChunkAttribute> _attributes;
         private Dictionary<int, DynamicValue> _parameterInitializers;
 
+        private readonly Serializer _serializer;
+
+        public const byte FormatVersion = 1;
+        
         public string? Name { get; set; }
 
         public StringPool StringPool { get; }
@@ -27,7 +31,37 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public IReadOnlyDictionary<int, DynamicValue> ParameterInitializers => _parameterInitializers;
 
         public byte[] Code => _code.GetBuffer();
-        public bool IsAnonymous => Name == null;
+        
+        public bool IsAnonymous => !Flags.HasFlag(ChunkFlags.HasName);
+        public bool HasAttributes => Flags.HasFlag(ChunkFlags.HasAttributes);
+
+        public ChunkFlags Flags
+        {
+            get
+            {
+                var ret = ChunkFlags.Empty;
+
+                if (Name != null) 
+                    ret |= ChunkFlags.HasName;
+                
+                if (ParameterCount > 0) 
+                    ret |= ChunkFlags.HasParameters;
+                
+                if (ParameterInitializers.Count > 0) 
+                    ret |= ChunkFlags.HasParameterInitializers;
+                
+                if (LocalCount > 0)
+                    ret |= ChunkFlags.HasLocals;
+                
+                if (Attributes.Count > 0)
+                    ret |= ChunkFlags.HasAttributes;
+
+                if (Labels.Count > 0)
+                    ret |= ChunkFlags.HasLabels;
+                
+                return ret;
+            }
+        }
 
         public Chunk()
         {
@@ -35,6 +69,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
+            _serializer = new Serializer(this);
             
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
@@ -46,6 +81,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
+            _serializer = new Serializer(this);
 
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
@@ -57,6 +93,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
+            _serializer = new Serializer(this);
 
             StringPool = new StringPool(stringConstants);
             CodeGenerator = new CodeGenerator(_code, _labels);
@@ -118,6 +155,12 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public bool HasAttribute(string name)
             => TryGetAttribute(name, out _);
+
+        public void Serialize(Stream stream)
+            => _serializer.Write(stream);
+
+        public static Chunk Deserialize(Stream stream, out byte version, out long timestamp)
+            => Deserializer.Deserialize(stream, out version, out timestamp);
         
         public void Dispose()
         {
