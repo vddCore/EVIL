@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class ChunkAttribute
+    public sealed class ChunkAttribute : IEquatable<ChunkAttribute>
     {
         public string Name { get; }
-        
+
         public List<DynamicValue> Values { get; } = new();
         public Dictionary<string, DynamicValue> Properties { get; } = new();
 
@@ -31,7 +33,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 {
                     return value;
                 }
-                
+
                 return DynamicValue.Nil;
             }
         }
@@ -40,5 +42,31 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             Name = name;
         }
+
+        public bool Equals(ChunkAttribute? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return Name == other.Name
+                   && Values.SequenceEqual(other.Values)
+                   && Properties.SequenceEqual(other.Properties);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return ReferenceEquals(this, obj)
+                   || obj is ChunkAttribute other
+                   && Equals(other);
+        }
+
+        public override int GetHashCode() 
+            => HashCode.Combine(Name, Values, Properties);
+
+        public static bool operator ==(ChunkAttribute? left, ChunkAttribute? right) 
+            => Equals(left, right);
+
+        public static bool operator !=(ChunkAttribute? left, ChunkAttribute? right) 
+            => !Equals(left, right);
     }
 }

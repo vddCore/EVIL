@@ -62,10 +62,8 @@ namespace Ceres.RuntimeTests
                 {
                     var originalAttr = originalChunk.Attributes[i];
                     var chunkAttr = chunk.Attributes[i];
-
-                    Assert.That(chunkAttr.Name, Is.EqualTo(originalAttr.Name));
-                    Assert.That(chunkAttr.Values.SequenceEqual(originalAttr.Values));
-                    Assert.That(chunkAttr.Properties.SequenceEqual(originalAttr.Properties));
+                    
+                    Assert.That(chunkAttr, Is.EqualTo(originalAttr));
                 }
                 
                 Assert.That(chunk.StringPool.ToArray().SequenceEqual(originalChunk.StringPool.ToArray()));
