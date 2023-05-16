@@ -7,12 +7,12 @@ using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed partial class Chunk : IDisposable
+    public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     {
-        private MemoryStream _code;
-        private List<int> _labels;
-        private List<ChunkAttribute> _attributes;
-        private Dictionary<int, DynamicValue> _parameterInitializers;
+        private readonly MemoryStream _code;
+        private readonly List<int> _labels;
+        private readonly List<ChunkAttribute> _attributes;
+        private readonly Dictionary<int, DynamicValue> _parameterInitializers;
 
         private readonly Serializer _serializer;
 
@@ -169,5 +169,48 @@ namespace Ceres.ExecutionEngine.Diagnostics
             
             CodeGenerator.Dispose();
         }
+
+        public bool Equals(Chunk? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return Name == other.Name
+                   && ParameterCount == other.ParameterCount
+                   && _parameterInitializers.SequenceEqual(other._parameterInitializers)
+                   && LocalCount == other.LocalCount
+                   && _labels.SequenceEqual(other._labels)
+                   && _attributes.SequenceEqual(other._attributes)
+                   && StringPool.Equals(other.StringPool)
+                   && Code.SequenceEqual(other.Code);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return ReferenceEquals(this, obj) 
+                   || obj is Chunk other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            
+            hashCode.Add(Name);
+            hashCode.Add(ParameterCount);
+            hashCode.Add(_parameterInitializers);
+            hashCode.Add(LocalCount);
+            hashCode.Add(_labels);
+            hashCode.Add(_attributes);
+            hashCode.Add(StringPool);
+            hashCode.Add(Code);
+            
+            return hashCode.ToHashCode();
+        }
+
+        public static bool operator ==(Chunk? left, Chunk? right)
+            => Equals(left, right);
+
+        public static bool operator !=(Chunk? left, Chunk? right)
+            => !Equals(left, right);
     }
 }

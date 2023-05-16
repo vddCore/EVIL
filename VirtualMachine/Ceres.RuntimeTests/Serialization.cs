@@ -51,23 +51,7 @@ namespace Ceres.RuntimeTests
                 var chunk = Chunk.Deserialize(ms, out var version, out _);
 
                 Assert.That(version, Is.EqualTo(Chunk.FormatVersion));
-                Assert.That(chunk.Name, Is.EqualTo(originalChunk.Name));
-                Assert.That(chunk.ParameterCount, Is.EqualTo(originalChunk.ParameterCount));
-                Assert.That(chunk.ParameterInitializers.SequenceEqual(originalChunk.ParameterInitializers));
-                Assert.That(chunk.LocalCount, Is.EqualTo(originalChunk.LocalCount));
-                Assert.That(chunk.Labels.SequenceEqual(originalChunk.Labels));
-                
-                Assert.That(chunk.Attributes.Count, Is.EqualTo(originalChunk.Attributes.Count));
-                for (var i = 0; i < originalChunk.Attributes.Count; i++)
-                {
-                    var originalAttr = originalChunk.Attributes[i];
-                    var chunkAttr = chunk.Attributes[i];
-                    
-                    Assert.That(chunkAttr, Is.EqualTo(originalAttr));
-                }
-                
-                Assert.That(chunk.StringPool, Is.EqualTo(originalChunk.StringPool));
-                Assert.That(chunk.Code.SequenceEqual(originalChunk.Code));
+                Assert.That(chunk, Is.EqualTo(originalChunk));
             }
         }
     }
