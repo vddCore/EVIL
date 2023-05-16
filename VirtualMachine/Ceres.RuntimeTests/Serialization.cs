@@ -66,7 +66,7 @@ namespace Ceres.RuntimeTests
                     Assert.That(chunkAttr, Is.EqualTo(originalAttr));
                 }
                 
-                Assert.That(chunk.StringPool.ToArray().SequenceEqual(originalChunk.StringPool.ToArray()));
+                Assert.That(chunk.StringPool, Is.EqualTo(originalChunk.StringPool));
                 Assert.That(chunk.Code.SequenceEqual(originalChunk.Code));
             }
         }
