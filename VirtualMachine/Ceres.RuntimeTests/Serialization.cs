@@ -34,7 +34,7 @@ namespace Ceres.RuntimeTests
                          "" +
                          "  if (false) -> 10; " +
                          "  elif (false_too_just_nil) -> 20;" +
-                         "  elif (0) -> 30;" +
+                         "  elif (0) -> 30" +
                          "  else -> \"haha you will never get a 4\";" +
                          "" +
                          "  ret 2+2;" +

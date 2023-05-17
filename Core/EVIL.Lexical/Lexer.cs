@@ -10,12 +10,14 @@ namespace EVIL.Lexical
 
         private string? _sourceCode;
 
-        public LexerState State { get; set; } = new();
+        public LexerState State { get; internal set; } = new();
 
         public LexerState CopyState()
         {
             return new()
             {
+                TokenStartColumn = State.TokenStartColumn,
+                TokenStartLine = State.TokenStartLine,
                 Character = State.Character,
                 Column = State.Column,
                 CurrentToken = State.CurrentToken,
@@ -41,7 +43,8 @@ namespace EVIL.Lexical
             SkipWhitespace();
 
             State.PreviousToken = State.CurrentToken;
-
+            State.TokenStartColumn = State.Column;
+            State.TokenStartLine = State.Line;
             switch (State.Character)
             {
                 case '.' when Peek() == '.' && Peek(2) == '.':
