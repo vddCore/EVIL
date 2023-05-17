@@ -124,7 +124,10 @@ namespace EVIL.Grammar.Parsing
 
         private (int, int) Match(Token token)
         {
-            var (line, column) = (Lexer!.State.Line, Lexer.State.Column);
+            var (line, column) = (
+                Lexer.State.TokenStartLine,
+                Lexer.State.TokenStartColumn
+            );
 
             if (!CurrentToken.Equals(token))
             {
