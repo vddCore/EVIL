@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Ceres.ExecutionEngine.Diagnostics.Debug;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
     public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
-    {
+    {        
         private readonly MemoryStream _code;
         private readonly List<int> _labels;
         private readonly List<ChunkAttribute> _attributes;
         private readonly Dictionary<int, DynamicValue> _parameterInitializers;
-
+        
         private readonly Serializer _serializer;
 
         public const byte FormatVersion = 1;
@@ -22,6 +23,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public StringPool StringPool { get; }
         public CodeGenerator CodeGenerator { get; }
+        public DebugDatabase DebugDatabase { get; }
 
         public int ParameterCount { get; private set; }
         public int LocalCount { get; private set; }
@@ -33,8 +35,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public byte[] Code => _code.GetBuffer();
         
         public bool IsAnonymous => !Flags.HasFlag(ChunkFlags.HasName);
+        public bool HasParameters => Flags.HasFlag(ChunkFlags.HasParameters);
+        public bool HasLocals => Flags.HasFlag(ChunkFlags.HasLocals);
         public bool HasAttributes => Flags.HasFlag(ChunkFlags.HasAttributes);
-
+        public bool HasDebugInfo => Flags.HasFlag(ChunkFlags.HasDebugInfo);
+        
         public ChunkFlags Flags
         {
             get
@@ -58,6 +63,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                 if (Labels.Count > 0)
                     ret |= ChunkFlags.HasLabels;
+
+                if (!DebugDatabase.IsEmpty)
+                    ret |= ChunkFlags.HasDebugInfo;
                 
                 return ret;
             }
@@ -73,6 +81,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
+            DebugDatabase = new DebugDatabase();
         }
 
         public Chunk(byte[] code)
@@ -85,6 +94,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
+            DebugDatabase = new DebugDatabase();
         }
 
         public Chunk(byte[] code, string[] stringConstants)
@@ -97,6 +107,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             StringPool = new StringPool(stringConstants);
             CodeGenerator = new CodeGenerator(_code, _labels);
+            DebugDatabase = new DebugDatabase();
         }
 
         public BinaryReader SpawnCodeReader()
@@ -182,7 +193,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                    && _labels.SequenceEqual(other._labels)
                    && _attributes.SequenceEqual(other._attributes)
                    && StringPool.Equals(other.StringPool)
-                   && Code.SequenceEqual(other.Code);
+                   && Code.SequenceEqual(other.Code)
+                   && DebugDatabase.Equals(other.DebugDatabase);
         }
 
         public override bool Equals(object? obj)
@@ -203,6 +215,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             hashCode.Add(_attributes);
             hashCode.Add(StringPool);
             hashCode.Add(Code);
+            hashCode.Add(DebugDatabase);
             
             return hashCode.ToHashCode();
         }
