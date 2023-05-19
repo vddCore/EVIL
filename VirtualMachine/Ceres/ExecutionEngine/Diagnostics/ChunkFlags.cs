@@ -12,6 +12,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         HasParameterInitializers = 1 << 2,
         HasLocals = 1 << 3,
         HasLabels = 1 << 4,
-        HasAttributes = 1 << 5
+        HasAttributes = 1 << 5,
+        HasDebugInfo = 1 << 6
     }
 }

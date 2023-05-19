@@ -115,8 +115,11 @@ namespace EVIL.Grammar.Parsing
 
         private ExpressionBodyStatement ExpressionBody()
         {
-            Match(Token.RightArrow);
-            var stmt = new ExpressionBodyStatement(AssignmentExpression());
+            var (line, col) = Match(Token.RightArrow);
+            
+            var stmt = new ExpressionBodyStatement(AssignmentExpression())
+                { Line = line, Column = col };
+            
             Match(Token.Semicolon);
 
             return stmt;

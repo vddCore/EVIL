@@ -7,4 +7,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="ExecutionEngine\Diagnostics\Chunk.Deserializer.cs">
+      <DependentUpon>Chunk.cs</DependentUpon>
+    </Compile>
+    <Compile Update="ExecutionEngine\Diagnostics\Chunk.Serializer.cs">
+      <DependentUpon>Chunk.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

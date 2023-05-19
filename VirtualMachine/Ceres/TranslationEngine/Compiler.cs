@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Grammar;
@@ -14,6 +15,7 @@ namespace Ceres.TranslationEngine
     public class Compiler : AstVisitor
     {
         private Script _script = new();
+        private int _lastLine = -1;
 
 #nullable disable
         private Scope _rootScope;
@@ -24,6 +26,7 @@ namespace Ceres.TranslationEngine
         private List<ChunkAttribute> _attributeList = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
 
+        private int _blockDescent = 0;
         private readonly Stack<Loop> _loopDescent = new();
 
         private Chunk Chunk => _chunks.Peek();
@@ -42,7 +45,17 @@ namespace Ceres.TranslationEngine
         {
             Line = node.Line;
             Column = node.Column;
-            
+
+            if (_blockDescent > 0 && Line != _lastLine && _chunks.Any())
+            {
+                Chunk.DebugDatabase.AddDebugRecord(
+                    Line,
+                    Chunk.CodeGenerator.IP
+                );
+
+                _lastLine = Line;
+            }
+
             base.Visit(node);
         }
 
@@ -81,6 +94,11 @@ namespace Ceres.TranslationEngine
                     _currentScope.DefineParameter(
                         parameter.Name,
                         parameterId
+                    );
+
+                    Chunk.DebugDatabase.SetParameterName(
+                        parameterId,
+                        parameter.Name
                     );
                 }
                 catch (DuplicateSymbolException dse)
@@ -167,10 +185,14 @@ namespace Ceres.TranslationEngine
         {
             InNewScopeDo(() =>
             {
-                foreach (var node in blockStatement.Statements)
+                _blockDescent++;
                 {
-                    Visit(node);
+                    foreach (var node in blockStatement.Statements)
+                    {
+                        Visit(node);
+                    }
                 }
+                _blockDescent--;
             });
         }
 
@@ -308,7 +330,8 @@ namespace Ceres.TranslationEngine
                             AssignmentOperationType.BitwiseXor => OpCode.BXOR,
                             AssignmentOperationType.ShiftLeft => OpCode.SHL,
                             AssignmentOperationType.ShiftRight => OpCode.SHR,
-                            _ => throw new CompilerException(Line, Column, "Internal error: invalid assignment operation.")
+                            _ => throw new CompilerException(Line, Column,
+                                "Internal error: invalid assignment operation.")
                         }
                     );
                 }
@@ -340,7 +363,8 @@ namespace Ceres.TranslationEngine
                             AssignmentOperationType.BitwiseXor => OpCode.BXOR,
                             AssignmentOperationType.ShiftLeft => OpCode.SHL,
                             AssignmentOperationType.ShiftRight => OpCode.SHR,
-                            _ => throw new CompilerException(Line, Column, "Internal error: invalid assignment operation.")
+                            _ => throw new CompilerException(Line, Column,
+                                "Internal error: invalid assignment operation.")
                         }
                     );
                 }
@@ -416,8 +440,10 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(ExpressionBodyStatement expressionBodyStatement)
         {
+            _blockDescent++;
             Visit(expressionBodyStatement.Expression);
             Chunk.CodeGenerator.Emit(OpCode.RET);
+            _blockDescent--;
         }
 
         public override void Visit(ExtraArgumentsExpression extraArgumentsExpression)
@@ -455,15 +481,19 @@ namespace Ceres.TranslationEngine
                 Symbol sym;
                 try
                 {
+                    var localId = Chunk.AllocateLocal();
+
                     sym = _currentScope.DefineLocal(
                         kvp.Key,
-                        Chunk.AllocateLocal()
+                        localId
                     );
+
+                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key);
                 }
                 catch (DuplicateSymbolException dse)
                 {
                     throw new CompilerException(Line, Column, dse.Message, dse);
-                } 
+                }
 
                 if (kvp.Value != null)
                 {

@@ -6,11 +6,24 @@ namespace Ceres.ExecutionEngine.Diagnostics
 {
     public static class Disassembler
     {
+        public class DisassemblyOptions
+        {
+            public bool WriteLineNumbersWhenAvailable { get; set; } = true;
+            public bool WriteLocalNames { get; set; } = true;
+            public bool WriteParameterNames { get; set; } = true;
+            
+            public bool WriteStringConstants { get; set; } = true;
+        }
         public static void Disassemble(Chunk chunk, TextWriter output)
         {
             output.Write(".CHUNK ");
 
-            if (!chunk.IsAnonymous)
+            if (chunk.IsAnonymous)
+            {
+                
+                output.Write("[anonymous] ");
+            }
+                else
             {
                 output.Write(chunk.Name);
                 output.Write(" ");
@@ -49,18 +62,51 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     var ip = reader.BaseStream.Position;
                     var opCode = (OpCode)reader.ReadByte();
 
+                    if (chunk.HasDebugInfo)
+                    {
+                        var line = chunk.DebugDatabase.GetLineForIP((int)ip);
+                        if (line > 0)
+                            output.WriteLine($"   line {line}:");
+                    }
                     output.Write($"    {ip:X8}: ");
                     switch (opCode)
                     {
                         case OpCode.INVOKE:
-                        case OpCode.SETLOCAL:
-                        case OpCode.GETLOCAL:
-                        case OpCode.SETARG:
-                        case OpCode.GETARG:
                         case OpCode.YIELD:
                             output.Write(opCode);
                             output.Write(" ");
                             output.WriteLine(reader.ReadInt32());
+                            break;
+                        
+                        case OpCode.SETLOCAL:
+                        case OpCode.GETLOCAL:
+                        case OpCode.SETARG:
+                        case OpCode.GETARG:
+                            output.Write(opCode);
+                            output.Write(" ");
+
+                            var localId = reader.ReadInt32();
+                            output.Write(localId);
+
+                            if (chunk.HasDebugInfo)
+                            {
+                                if (opCode == OpCode.SETLOCAL || opCode == OpCode.GETLOCAL)
+                                {
+                                    if (chunk.DebugDatabase.TryGetLocalName(localId, out var name))
+                                    {
+                                        output.Write($" ({name})");
+                                    }
+                                }
+                                else
+                                {
+                                    if (chunk.DebugDatabase.TryGetParameterName(localId, out var name))
+                                    {
+                                        output.Write($" ({name})");
+                                    }
+                                }
+                            }
+
+                            output.WriteLine();
                             break;
                         
                         case OpCode.FJMP:
@@ -72,8 +118,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             var labelid = reader.ReadInt32();
                             output.Write(labelid);
 
-                            output.Write(" ; ");
-                            output.WriteLine($"{chunk.Labels[(int)labelid]:X8}");
+                            output.WriteLine($" ({chunk.Labels[(int)labelid]:X8})");
                             break;
 
                         case OpCode.LDNUM:
@@ -91,15 +136,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             output.Write(strid);
 
                             var str = chunk.StringPool[strid];
-                            output.Write(" ; ");
 
                             if (str != null)
                             {
-                                output.WriteLine($"\"{str}\"");
+                                output.WriteLine($" (\"{str}\")");
                             }
                             else
                             {
-                                output.WriteLine("<???>");
+                                output.WriteLine(" (<???>)");
                             }
 
                             break;
