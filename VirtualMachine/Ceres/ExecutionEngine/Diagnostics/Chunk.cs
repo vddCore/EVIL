@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Ceres.ExecutionEngine.Diagnostics.Debug;
+using Ceres.ExecutionEngine.Diagnostics.Debugging;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
