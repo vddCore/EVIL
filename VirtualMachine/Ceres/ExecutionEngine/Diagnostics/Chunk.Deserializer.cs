@@ -138,6 +138,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         }
                     }
 
+                    if (flags.HasFlag(ChunkFlags.HasDebugInfo))
+                    {
+                        chunk.DebugDatabase.Deserialize(br);
+                    }
+
                     var stringPoolLength = br.ReadInt32();
                     for (var i = 0; i < stringPoolLength; i++)
                     {
