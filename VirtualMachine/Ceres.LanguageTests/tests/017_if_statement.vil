@@ -18,11 +18,15 @@ fn if_elif_else() {
 
 #[test(21.37)]
 fn only_first_true_elif_is_executed() {
-  if (1 == 2) { ret 1; }
-  elif (3 - 1 == 2) { ret 21.37; }
-  elif (true) { ret 11.11; }
-  elif (@true) { ret "something went terribly wrong"; }
-  else { ret "better fix that parser, sis..."; }
+  var result;
+  
+  if (1 == 2) { result = 1; }
+  elif (3 - 1 == 2) { result = 21.37; }
+  elif (true) { result = 11.11; }
+  elif (@true) { result = "something went terribly wrong"; }
+  else { result = "better fix that parser, sis..."; }
+  
+  ret result;
 }
 
 #[test(3)]

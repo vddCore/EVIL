@@ -134,6 +134,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 }
             }
 
+            private void WriteDebugDatabase(BinaryWriter bw)
+            {
+                if (_chunk.Flags.HasFlag(ChunkFlags.HasDebugInfo))
+                {
+                    _chunk.DebugDatabase.Serialize(bw);
+                }
+            }
+
             private void WriteStringPool(BinaryWriter bw)
             {
                 bw.Write(_chunk.StringPool.Count);
@@ -165,6 +173,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     WriteLocalInfo(bw);
                     WriteLabelInfo(bw);
                     WriteChunkAttributes(bw);
+                    WriteDebugDatabase(bw);
                     WriteStringPool(bw);
                     WriteCodeArea(bw);
                 }

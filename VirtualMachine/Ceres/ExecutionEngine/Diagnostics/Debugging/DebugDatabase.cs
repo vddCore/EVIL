@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Ceres.ExecutionEngine.Diagnostics.Debugging
@@ -63,6 +64,66 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             _parameterNames.Clear();
             _localNames.Clear();
             DefinedOnLine = -1;
+        }
+
+        internal void Serialize(BinaryWriter bw)
+        {
+            bw.Write(DefinedOnLine);
+            
+            bw.Write(_records.Count);
+            foreach (var record in _records)
+            {
+                bw.Write(record.Line);
+                bw.Write(record.IP);
+            }
+
+            bw.Write(_localNames.Count);
+            foreach (var localKvp in _localNames)
+            {
+                bw.Write(localKvp.Key);
+                bw.Write(localKvp.Value);
+            }
+
+            bw.Write(_parameterNames.Count);
+            foreach (var paramKvp in _parameterNames)
+            {
+                bw.Write(paramKvp.Key);
+                bw.Write(paramKvp.Value);
+            }
+        }
+
+        internal void Deserialize(BinaryReader br)
+        {
+            Strip();
+            
+            DefinedOnLine = br.ReadInt32();
+
+            var recordCount = br.ReadInt32();
+            for (var i = 0; i < recordCount; i++)
+            {
+                AddDebugRecord(
+                    br.ReadInt32(),
+                    br.ReadInt32()
+                );
+            }
+
+            var localNameCount = br.ReadInt32();
+            for (var i = 0; i < localNameCount; i++)
+            {
+                SetLocalName(
+                    br.ReadInt32(),
+                    br.ReadString()
+                );
+            }
+
+            var paramNameCount = br.ReadInt32();
+            for (var i = 0; i < paramNameCount; i++)
+            {
+                SetParameterName(
+                    br.ReadInt32(),
+                    br.ReadString()
+                );
+            }
         }
 
         public bool Equals(DebugDatabase? other)
