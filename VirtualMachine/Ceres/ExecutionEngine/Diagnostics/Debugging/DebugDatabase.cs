@@ -10,6 +10,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         private readonly Dictionary<int, string> _parameterNames = new();
         private readonly Dictionary<int, string> _localNames = new();
 
+        public int DefinedOnLine { get; internal set; } = -1;
+
         public DebugRecord AddDebugRecord(int line, int ip)
         {
             var ret = new DebugRecord(line, ip);
@@ -52,13 +54,15 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
 
         public bool IsEmpty => !_records.Any()
                                && !_parameterNames.Any()
-                               && !_localNames.Any();
+                               && !_localNames.Any()
+                               && DefinedOnLine == -1;
 
         public void Strip()
         {
             _records.Clear();
             _parameterNames.Clear();
             _localNames.Clear();
+            DefinedOnLine = -1;
         }
 
         public bool Equals(DebugDatabase? other)
@@ -68,7 +72,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             
             return _records.SequenceEqual(other._records) 
                 && _parameterNames.SequenceEqual(other._parameterNames) 
-                && _localNames.SequenceEqual(other._localNames);
+                && _localNames.SequenceEqual(other._localNames)
+                && DefinedOnLine == other.DefinedOnLine;
         }
 
         public override bool Equals(object? obj) 
@@ -80,7 +85,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             => HashCode.Combine(
                 _records, 
                 _parameterNames,
-                _localNames
+                _localNames,
+                DefinedOnLine
             );
 
         public static bool operator ==(DebugDatabase? left, DebugDatabase? right) 
