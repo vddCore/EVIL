@@ -80,6 +80,15 @@ namespace Ceres.TranslationEngine
             {
                 Visit(node);
             }
+
+            if (_attributeList.Any())
+            {
+                throw new CompilerException(
+                    Line,
+                    Column,
+                    "Stray attributes detected in file."
+                );
+            }
         }
 
         public override void Visit(ParameterList parameterList)
@@ -511,6 +520,8 @@ namespace Ceres.TranslationEngine
         {
             InTopLevelChunk(() =>
             {
+                Chunk.DebugDatabase.DefinedOnLine = functionDefinition.Line;
+                
                 InNewScopeDo(() =>
                 {
                     Visit(functionDefinition.ParameterList);

@@ -20,15 +20,24 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             if (chunk.IsAnonymous)
             {
-                
                 output.Write("[anonymous] ");
             }
-                else
+            else
             {
                 output.Write(chunk.Name);
                 output.Write(" ");
             }
 
+            if (chunk.HasDebugInfo)
+            {
+                if (chunk.DebugDatabase.DefinedOnLine > 0)
+                {
+                    output.Write(
+                        $"(def. on line {chunk.DebugDatabase.DefinedOnLine}) "
+                    );
+                }
+            }
+            
             output.WriteLine("{");
 
             output.WriteLine($"  .LOCALS {chunk.LocalCount}");
@@ -68,6 +77,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         if (line > 0)
                             output.WriteLine($"   line {line}:");
                     }
+                    
                     output.Write($"    {ip:X8}: ");
                     switch (opCode)
                     {
