@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -14,12 +15,6 @@ namespace EVIL.Grammar.Parsing
 
             switch (token.Type)
             {
-                case TokenType.AttributeList:
-                    return AttributeList();
-
-                case TokenType.Fn:
-                    return FunctionDefinition();
-
                 case TokenType.If:
                     return IfCondition();
 

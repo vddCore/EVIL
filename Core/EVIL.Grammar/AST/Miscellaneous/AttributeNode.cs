@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST.Statements
+namespace EVIL.Grammar.AST.Miscellaneous
 {
-    public class AttributeStatement : Statement
+    public class AttributeNode : AstNode
     {
         public string Name { get; }
         
         public List<AstNode> Values { get; }
         public Dictionary<string, AstNode> Properties { get; }
 
-        public AttributeStatement(string name, List<AstNode> values, Dictionary<string, AstNode> properties)
+        public AttributeNode(string name, List<AstNode> values, Dictionary<string, AstNode> properties)
         {
             Name = name;
             Values = values;

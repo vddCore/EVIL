@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
+using EVIL.Grammar.AST.Statements.TopLevel;
 
 namespace EVIL.Grammar.Traversal
 {
@@ -45,7 +48,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(IncrementationExpression), (n) => Visit((IncrementationExpression)n) },
                 { typeof(DecrementationExpression), (n) => Visit((DecrementationExpression)n) },
                 { typeof(ExpressionStatement), (n) => Visit((ExpressionStatement)n) },
-                { typeof(AttributeStatement), (n) => Visit((AttributeStatement)n) },
+                { typeof(AttributeNode), (n) => Visit((AttributeNode)n) },
                 { typeof(AttributeListStatement), (n) => Visit((AttributeListStatement)n) },
                 { typeof(TypeOfExpression), (n) => Visit((TypeOfExpression)n) },
                 { typeof(YieldExpression), (n) => Visit((YieldExpression)n) },
@@ -98,7 +101,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(IncrementationExpression incrementationExpression);
         public abstract void Visit(DecrementationExpression decrementationExpression);
         public abstract void Visit(ExpressionStatement expressionStatement);
-        public abstract void Visit(AttributeStatement attributeStatement);
+        public abstract void Visit(AttributeNode attributeNode);
         public abstract void Visit(AttributeListStatement attributeListStatement);
         public abstract void Visit(TypeOfExpression typeOfExpression);
         public abstract void Visit(YieldExpression yieldExpression);

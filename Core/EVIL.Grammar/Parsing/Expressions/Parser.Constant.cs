@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Lexical;
 
@@ -73,7 +74,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     throw new ParserException(
                         $"Unexpected token {token}",
-                        (Lexer.State.Line, Lexer.State.Column)
+                        (_lexer.State.Line, _lexer.State.Column)
                     );
                 }
             }

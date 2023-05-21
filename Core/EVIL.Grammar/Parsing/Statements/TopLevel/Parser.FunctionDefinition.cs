@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Statements;
+using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -14,7 +16,7 @@ namespace EVIL.Grammar.Parsing
 
             Match(Token.Identifier);
 
-            var parameterList = ParseParameters();
+            var parameterList = ParameterList();
 
             Statement statement;
             if (CurrentToken == Token.LBrace)
@@ -29,7 +31,7 @@ namespace EVIL.Grammar.Parsing
             {
                 throw new ParserException(
                     $"Expected '{{' or '->', found '{CurrentToken.Value}',",
-                    (Lexer.State.Line, Lexer.State.Column)
+                    (_lexer.State.Line, _lexer.State.Column)
                 );
             }
 

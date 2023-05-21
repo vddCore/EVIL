@@ -5,9 +5,12 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Grammar;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
+using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Grammar.Traversal;
 
 namespace Ceres.TranslationEngine
@@ -253,18 +256,18 @@ namespace Ceres.TranslationEngine
             Chunk.CodeGenerator.Emit(OpCode.POP);
         }
 
-        public override void Visit(AttributeStatement attributeStatement)
+        public override void Visit(AttributeNode attributeNode)
         {
-            var attribute = new ChunkAttribute(attributeStatement.Name);
+            var attribute = new ChunkAttribute(attributeNode.Name);
 
-            foreach (var valueNode in attributeStatement.Values)
+            foreach (var valueNode in attributeNode.Values)
             {
                 attribute.Values.Add(
                     ExtractConstantValueFrom(valueNode)
                 );
             }
 
-            foreach (var propertyKvp in attributeStatement.Properties)
+            foreach (var propertyKvp in attributeNode.Properties)
             {
                 attribute.Properties.Add(
                     propertyKvp.Key,

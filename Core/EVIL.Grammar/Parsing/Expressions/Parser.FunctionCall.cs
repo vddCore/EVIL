@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
@@ -10,7 +11,7 @@ namespace EVIL.Grammar.Parsing
     {
         private FunctionCallExpression FunctionCall(Expression callee)
         {
-            var (line, col) = (Lexer.State.Line, Lexer.State.Column);
+            var (line, col) = (_lexer.State.Line, _lexer.State.Column);
 
             if (callee is NilConstant)
             {

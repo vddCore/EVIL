@@ -1,4 +1,4 @@
-namespace EVIL.Grammar.AST
+namespace EVIL.Grammar.AST.Base
 {
     public abstract class ConstantExpression : Expression
     {

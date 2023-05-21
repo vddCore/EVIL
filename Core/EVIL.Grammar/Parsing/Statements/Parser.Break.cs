@@ -11,7 +11,7 @@ namespace EVIL.Grammar.Parsing
             {
                 throw new ParserException(
                     "Unexpected 'break' outside of a loop.", 
-                    (Lexer.State.Column, Lexer.State.Line)
+                    (_lexer.State.Column, _lexer.State.Line)
                 );
             }
             

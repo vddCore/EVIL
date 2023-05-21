@@ -1,4 +1,7 @@
-﻿namespace EVIL.Grammar.AST.Expressions
+﻿using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
+
+namespace EVIL.Grammar.AST.Expressions
 {
     public class YieldExpression : Expression
     {
