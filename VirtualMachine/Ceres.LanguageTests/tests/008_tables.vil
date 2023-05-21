@@ -89,7 +89,7 @@ fn tables_are_references() {
 #[test] fn table_is_deeply_equal_nested() -> { 0, 1, 2, { 3, 4, 5 }, 21.37 } <==> { 0, 1, 2, { 3, 4, 5 }, 21.37 };
 #[test] fn table_is_deeply_not_equal_nested() -> { 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 };
 
-#[test;disasm] 
+#[test] 
 fn table_tricky_works() {
   var first = __tricky.d20;
   var second = __tricky.d20;
