@@ -6,7 +6,7 @@ using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
+    public partial class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
     {
         private ConcurrentDictionary<DynamicValue, DynamicValue> _values = new();
 

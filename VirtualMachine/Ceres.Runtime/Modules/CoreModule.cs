@@ -3,25 +3,20 @@ using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
-    public sealed class CoreModule : EvilRuntimeModule
+    public sealed class CoreModule : RuntimeModule
     {
-        [EvilRuntimeMember("print")]
+        public override string FullyQualifiedName => "core";
+        
+        [RuntimeModuleFunction("print")]
         private static DynamicValue Print(Fiber _, params DynamicValue[] args)
         {
-            foreach (var arg in args)
-            {
-                var value = arg;
+            var str = string.Join(
+                "\t",
+                args.Select(x => x.ConvertToString().String)
+            );
 
-                if (arg.Type != DynamicValue.DynamicValueType.String)
-                    value = arg.ConvertToString();
-                
-                Console.Write(value.String);
-                Console.Write("\t");
-            }
-            
-            Console.WriteLine("\n");
-
-            return new(args.Length);
+            Console.Write(str);
+            return new(str.Length);
         }
     }
 }

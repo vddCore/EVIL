@@ -1,1 +1,1 @@
-﻿#[test(3)] fn print_test() -> print("wewoo.", 123, 21.37);
+﻿#[test(16)] fn print_test() -> core.print("wewoo.", 123, 21.37);

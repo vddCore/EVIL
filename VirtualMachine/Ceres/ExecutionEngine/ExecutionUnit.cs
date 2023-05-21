@@ -325,7 +325,7 @@ namespace Ceres.ExecutionEngine
                     }
 
                     throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to invoke a {a.Type}."
+                        $"Attempt to invoke a {a.Type} value."
                     );
                 }
 
