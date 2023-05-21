@@ -2,7 +2,6 @@ using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.Runtime;
 using NUnit.Framework;
-using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.RuntimeTests
 {

@@ -3,9 +3,9 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
-namespace Ceres.Runtime
+namespace Ceres.Runtime.Extensions
 {
-    public static class NativeFunctionArgumentExtensions
+    public static class FunctionArgumentExtensions
     {
         public static DynamicValue[] ExpectExactly(this DynamicValue[] args, int count)
         {

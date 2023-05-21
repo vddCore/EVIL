@@ -10,6 +10,21 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public List<Chunk> Chunks { get; } = new();
 
+        public Chunk? this[string name]
+        {
+            get
+            {
+                try
+                {
+                    return FindChunkByName(name);
+                }
+                catch (InvalidOperationException)
+                {
+                    return null;
+                }
+            }
+        }
+
         public Chunk FindChunkByName(string name)
         {
             return Chunks.FirstOrDefault(x => x.Name == name)
