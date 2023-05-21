@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -66,7 +67,7 @@ namespace EVIL.Grammar.Parsing
             }
             else throw new ParserException(
                 "Expected a variable definition or an expression.", 
-                (Lexer.State.Line, Lexer.State.Column)
+                (_lexer.State.Line, _lexer.State.Column)
             );
         }
 

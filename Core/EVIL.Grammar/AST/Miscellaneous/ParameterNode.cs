@@ -1,4 +1,6 @@
-﻿namespace EVIL.Grammar.AST
+﻿using EVIL.Grammar.AST.Base;
+
+namespace EVIL.Grammar.AST.Miscellaneous
 {
     public sealed class ParameterNode : AstNode
     {

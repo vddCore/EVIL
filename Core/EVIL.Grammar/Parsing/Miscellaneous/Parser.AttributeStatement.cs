@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -8,7 +10,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AttributeStatement Attribute()
+        private AttributeNode Attribute()
         {
             var name = CurrentToken.Value!;
             var (line, col) = Match(Token.Identifier);
@@ -34,7 +36,7 @@ namespace EVIL.Grammar.Parsing
                         {
                             throw new ParserException(
                                 $"Attribute values must appear before any properties.",
-                                (Lexer.State.Line, Lexer.State.Column)
+                                (_lexer.State.Line, _lexer.State.Column)
                             );
                         }
 
@@ -50,7 +52,7 @@ namespace EVIL.Grammar.Parsing
                 Match(Token.RParenthesis);
             }
 
-            return new AttributeStatement(name, attributeValues, properties)
+            return new AttributeNode(name, attributeValues, properties)
                 { Line = line, Column = col };
         }
     }

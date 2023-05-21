@@ -54,7 +54,7 @@ namespace EVIL.Grammar.Parsing
                 else
                     throw new ParserException(
                         $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",
-                        (Lexer.State.Line, Lexer.State.Column)
+                        (_lexer.State.Line, _lexer.State.Column)
                     );
             }
 

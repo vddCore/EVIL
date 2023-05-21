@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -8,15 +10,17 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
+        private readonly Lexer _lexer = new();
+        
         private uint _functionDescent;
         private uint _loopDescent;
 
-        public Lexer Lexer { get; private set; } = new();
-        public Token CurrentToken => Lexer.State.CurrentToken;
+        public LexerState CurrentState => _lexer.State;
+        public Token CurrentToken => CurrentState.CurrentToken;
 
         public Program Parse(string source)
         {
-            Lexer.LoadSource(source);
+            _lexer.LoadSource(source);
 
             var programNode = Program();
             Match(Token.EOF);
@@ -33,52 +37,6 @@ namespace EVIL.Grammar.Parsing
             return ret;
         }
 
-        private ParameterList ParseParameters()
-        {
-            var (line, col) = Match(Token.LParenthesis);
-            var parameters = new List<ParameterNode>();
-            var hasInitializers = false;
-            
-            while (CurrentToken.Type != TokenType.RParenthesis)
-            {
-                var parameterName = CurrentToken.Value!;
-                ConstantExpression? initializer = null;
-
-                var (pline, pcol) = Match(Token.Identifier);
-
-                if (CurrentToken == Token.Assign)
-                {
-                    Match(Token.Assign);
-                    initializer = Constant();
-                    hasInitializers = true;
-                }
-                else
-                {
-                    if (hasInitializers)
-                    {
-                        throw new ParserException(
-                            "Uninitialized parameters must precede default parameters.",
-                            (pline, pcol)
-                        );
-                    }
-                }
-
-                parameters.Add(
-                    new ParameterNode(parameterName, initializer)
-                        { Line = pline, Column = pcol }
-                );
-
-                if (CurrentToken == Token.RParenthesis)
-                    break;
-
-                Match(Token.Comma);
-            }
-            Match(Token.RParenthesis);
-
-            return new ParameterList(parameters)
-                { Line = line, Column = col };
-        }
-
         private T LoopDescent<T>(Func<T> func) where T : AstNode
         {
             _loopDescent++;
@@ -88,48 +46,11 @@ namespace EVIL.Grammar.Parsing
             return ret;
         }
 
-        private Program Program()
-        {
-            var statementList = new List<Statement>();
-
-            if (CurrentToken == Token.Empty)
-            {
-                throw new ParserException(
-                    "Internal error: lexer is in an invalid state (current token is empty?).",
-                    (-1, -1)
-                );
-            }
-
-            while (CurrentToken.Type != TokenType.EOF)
-            {
-                if (CurrentToken.Type != TokenType.Fn && CurrentToken.Type != TokenType.AttributeList)
-                {
-                    throw new ParserException($"Expected 'fn' or an attribute, found: '{CurrentToken}'");
-                }
-
-                statementList.Add(Statement());
-            }
-
-            return new Program(statementList);
-        }
-
-        private ExpressionBodyStatement ExpressionBody()
-        {
-            var (line, col) = Match(Token.RightArrow);
-            
-            var stmt = new ExpressionBodyStatement(AssignmentExpression())
-                { Line = line, Column = col };
-            
-            Match(Token.Semicolon);
-
-            return stmt;
-        }
-
         private (int, int) Match(Token token)
         {
             var (line, column) = (
-                Lexer.State.TokenStartLine,
-                Lexer.State.TokenStartColumn
+                _lexer.State.TokenStartLine,
+                _lexer.State.TokenStartColumn
             );
 
             if (!CurrentToken.Equals(token))
@@ -152,7 +73,7 @@ namespace EVIL.Grammar.Parsing
                 );
             }
 
-            Lexer.NextToken();
+            _lexer.NextToken();
             return (line, column);
         }
 

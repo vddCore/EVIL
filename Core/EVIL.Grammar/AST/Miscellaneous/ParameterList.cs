@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST
+namespace EVIL.Grammar.AST.Miscellaneous
 {
     public sealed class ParameterList : AstNode
     {

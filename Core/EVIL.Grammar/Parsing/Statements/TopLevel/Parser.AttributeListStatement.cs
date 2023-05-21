@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
+using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -12,11 +14,11 @@ namespace EVIL.Grammar.Parsing
             {
                 throw new ParserException(
                     "Attributes are only valid for top-level functions.",
-                    (Lexer.State.Line, Lexer.State.Column)
+                    (_lexer.State.Line, _lexer.State.Column)
                 );
             }
 
-            var attributes = new List<AttributeStatement>();
+            var attributes = new List<AttributeNode>();
             var (line, col) = Match(Token.AttributeList);
 
             while (true)

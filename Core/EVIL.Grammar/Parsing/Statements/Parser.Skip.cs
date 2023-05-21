@@ -11,7 +11,7 @@ namespace EVIL.Grammar.Parsing
             {
                 throw new ParserException(
                     "Unexpected 'skip' outside of a loop.",
-                    (Lexer.State.Line, Lexer.State.Column)
+                    (_lexer.State.Line, _lexer.State.Column)
                 );
             }
 

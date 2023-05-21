@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EVIL.Grammar.AST
+namespace EVIL.Grammar.AST.Base
 {
     public abstract class AstNode
     {

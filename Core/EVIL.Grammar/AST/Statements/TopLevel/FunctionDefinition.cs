@@ -1,6 +1,9 @@
-﻿namespace EVIL.Grammar.AST.Statements
+﻿using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
+
+namespace EVIL.Grammar.AST.Statements.TopLevel
 {
-    public sealed class FunctionDefinition : Statement
+    public sealed class FunctionDefinition : TopLevelStatement
     {
         public string Identifier { get; }
 

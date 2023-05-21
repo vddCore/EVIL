@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -18,7 +19,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     throw new ParserException(
                         $"Unexpected EOF in a block statement. Unmatched '{{' on line {line}, column {col}.",
-                        (Lexer.State.Column, Lexer.State.Line)
+                        (_lexer.State.Column, _lexer.State.Line)
                     );
                 }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 
 namespace EVIL.Grammar.AST.Expressions
