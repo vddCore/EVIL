@@ -6,9 +6,8 @@ using Ceres.Runtime;
 using Ceres.TranslationEngine;
 using EVIL.Grammar.Parsing;
 using NUnit.Framework;
-using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
-namespace Ceres.RuntimeTests
+namespace Ceres.RuntimeTests.RuntimeModules
 {
     public class CoreModule
     {

@@ -13,11 +13,11 @@ namespace Ceres.Runtime.Extensions
                 .SkipLast(1)
                 .ToArray();
 
-            var funcName = segments.Last();
+            var memberName = segments.Last();
             var currentTable = table;
             foreach (var tableName in tablePath)
             {
-                if (!currentTable!.Contains(tableName))
+                if (!currentTable.Contains(tableName))
                 {
                     currentTable.Set(
                         tableName,
@@ -29,7 +29,7 @@ namespace Ceres.Runtime.Extensions
                     if (currentTable[tableName].Type != DynamicValueType.Table)
                     {
                         throw new EvilRuntimeException(
-                            $"Attempted to register '{value}' as '{fullyQualifiedName}', but '{tableName}' is not a Table."
+                            $"Attempted to set '{value}' as '{fullyQualifiedName}', but '{tableName}' is not a Table."
                         );
                     }
                 }
@@ -37,22 +37,44 @@ namespace Ceres.Runtime.Extensions
                 currentTable = currentTable[tableName].Table!;
             }
 
-            if (currentTable.Contains(funcName) && !replaceIfExists)
+            if (currentTable.Contains(memberName) && !replaceIfExists)
             {
                 throw new EvilRuntimeException(
-                    $"Attempt to register '{value}' as '{fullyQualifiedName}', but '{funcName}' already exists in the target Table."
+                    $"Attempt to set '{value}' as '{fullyQualifiedName}', but '{memberName}' already exists in the target Table."
                 );
             }
 
             if (currentTable.IsFrozen)
             {
                 throw new EvilRuntimeException(
-                    $"Attempt to register '{value}' as '{fullyQualifiedName}', but the target Table is frozen."
+                    $"Attempt to set '{value}' as '{fullyQualifiedName}', but the target Table is frozen."
                 );
             }
 
-            currentTable.Set(funcName, value);
+            currentTable.Set(memberName, value);
             return value;
+        }
+
+        public static bool ContainsPath(this Table table, string fullyQualifiedName)
+        {
+            var segments = fullyQualifiedName.Split(".");
+            var tablePath = segments
+                .SkipLast(1)
+                .ToArray();
+
+            var memberName = segments.Last();
+            var currentTable = table;
+            foreach (var tableName in tablePath)
+            {
+                if (!(currentTable!.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+                {
+                    return false;
+                }
+
+                currentTable = currentTable[tableName].Table!;
+            }
+
+            return currentTable.Contains(memberName);
         }
     }
 }

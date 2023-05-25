@@ -3,11 +3,11 @@
     [AttributeUsage(AttributeTargets.Method)]
     public class RuntimeModuleFunctionAttribute : Attribute
     {
-        public string Name { get; }
+        public string SubNameSpace { get; }
 
-        public RuntimeModuleFunctionAttribute(string name)
+        public RuntimeModuleFunctionAttribute(string subNameSpace)
         {
-            Name = name;
+            SubNameSpace = subNameSpace;
         }
     }
 }
