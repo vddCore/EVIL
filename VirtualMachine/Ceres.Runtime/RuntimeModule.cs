@@ -113,15 +113,15 @@ namespace Ceres.Runtime
             
             foreach (var tuple in validFunctions)
             {
-                if (Contains(tuple.Attribute.Name))
+                if (this.ContainsPath(tuple.Attribute.SubNameSpace))
                 {
                     throw new InvalidOperationException(
-                        $"Attempt to register a duplicate member with name '{tuple.Attribute.Name}' " +
+                        $"Attempt to register a duplicate member with name '{tuple.Attribute.SubNameSpace}' " +
                         $"in '{FullyQualifiedName}'."
                     );
                 }
                 
-                Set(tuple.Attribute.Name, new(tuple.Function));
+                this.SetUsingPath(tuple.Attribute.SubNameSpace, new(tuple.Function));
             }
         }
 
