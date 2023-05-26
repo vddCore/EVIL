@@ -45,6 +45,7 @@ namespace EVIL.Lexical
             State.PreviousToken = State.CurrentToken;
             State.TokenStartColumn = State.Column;
             State.TokenStartLine = State.Line;
+            
             switch (State.Character)
             {
                 case '.' when Peek() == '.' && Peek(2) == '.':

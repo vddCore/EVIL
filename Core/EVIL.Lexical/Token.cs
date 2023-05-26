@@ -1,41 +1,23 @@
 ﻿namespace EVIL.Lexical
 {
-    public struct Token
+    public sealed record Token(TokenType Type, string Value)
     {
-        public TokenType Type { get; }
-        public string? Value { get; }
+        public static Token CreateHexInteger(string value)
+            => new(TokenType.HexInteger, value);
 
-        private Token(TokenType type, string? value)
-        {
-            Type = type;
-            Value = value;
-        }
+        public static Token CreateString(string value)
+            => new(TokenType.String, value);
 
-        public Token Copy()
-            => new(Type, Value);
+        public static Token CreateNumber(string value)
+            => new(TokenType.Number, value);
 
-        public static bool operator ==(Token a, Token b)
-        {
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(Token a, Token b)
-        {
-            return !a.Equals(b);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is Token t && t.Type == Type;
-        }
-
-        public override int GetHashCode()
-        {
-            return (int)Type;
-        }
-
-        public static readonly Token Empty = new(TokenType.Empty, null);
-
+        public static Token CreateIdentifier(string value)
+            => new(TokenType.Identifier, value);
+        
+        public override string ToString()
+            => $"[{Type}: {Value}]";
+        
+        public static readonly Token Empty = new(TokenType.Empty, string.Empty);
         public static readonly Token Assign = new(TokenType.Assign, "=");
         public static readonly Token AssignAdd = new(TokenType.AssignAdd, "+=");
         public static readonly Token AssignSubtract = new(TokenType.AssignSubtract, "-=");
@@ -47,47 +29,37 @@
         public static readonly Token AssignBitwiseXor = new(TokenType.AssignBitwiseXor, "^=");
         public static readonly Token AssignShiftRight = new(TokenType.AssignShiftRight, ">>=");
         public static readonly Token AssignShiftLeft = new(TokenType.AssignShiftLeft, "<<=");
-
         public static readonly Token Plus = new(TokenType.Plus, "+");
         public static readonly Token Minus = new(TokenType.Minus, "-");
         public static readonly Token Divide = new(TokenType.Divide, "/");
         public static readonly Token Multiply = new(TokenType.Multiply, "*");
         public static readonly Token Modulo = new(TokenType.Modulo, "%");
-
         public static readonly Token BitwiseAnd = new(TokenType.BitwiseAnd, "&");
         public static readonly Token BitwiseNot = new(TokenType.BitwiseNot, "~");
         public static readonly Token BitwiseOr = new(TokenType.BitwiseOr, "|");
         public static readonly Token BitwiseXor = new(TokenType.BitwiseXor, "^");
-
         public static readonly Token ShiftLeft = new(TokenType.ShiftLeft, "<<");
         public static readonly Token ShiftRight = new(TokenType.ShiftRight, ">>");
-
         public static readonly Token Ellipsis = new(TokenType.Ellipsis, "...");
         public static readonly Token Associate = new(TokenType.Associate, "=>");
         public static readonly Token RightArrow = new(TokenType.RightArrow, "->");
-        
         public static readonly Token Decrement = new(TokenType.Decrement, "--");
         public static readonly Token Increment = new(TokenType.Increment, "++");
-
         public static readonly Token LogicalAnd = new(TokenType.LogicalAnd, "&&");
         public static readonly Token LogicalOr = new(TokenType.LogicalOr, "||");
         public static readonly Token LogicalNot = new(TokenType.LogicalNot, "!");
-
         public static readonly Token DeepEqual = new(TokenType.DeepEqual, "<==>");
         public static readonly Token DeepNotEqual = new(TokenType.DeepNotEqual, "<!=>");
-        
         public static readonly Token Equal = new(TokenType.Equal, "==");
         public static readonly Token NotEqual = new(TokenType.NotEqual, "!=");
         public static readonly Token GreaterThan = new(TokenType.GreaterThan, ">");
         public static readonly Token LessThan = new(TokenType.LessThan, "<");
         public static readonly Token GreaterThanOrEqual = new(TokenType.GreaterThanOrEqual, ">=");
         public static readonly Token LessThanOrEqual = new(TokenType.LessThanOrEqual, "<=");
-
         public static readonly Token Length = new(TokenType.Length, "#");
         public static readonly Token AsNumber = new(TokenType.AsNumber, "$");
         public static readonly Token AsString = new(TokenType.AsString, "@");
         public static readonly Token QuestionMark = new(TokenType.QuestionMark, "?");
-
         public static readonly Token Colon = new(TokenType.Colon, ":");
         public static readonly Token Semicolon = new(TokenType.Semicolon, ";");
         public static readonly Token Comma = new(TokenType.Comma, ",");
@@ -98,13 +70,10 @@
         public static readonly Token RBracket = new(TokenType.RBracket, "]");
         public static readonly Token LParenthesis = new(TokenType.LParenthesis, "(");
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, ")");
-
         public static readonly Token Var = new(TokenType.Var, "var");
-
         public static readonly Token If = new(TokenType.If, "if");
         public static readonly Token Elif = new(TokenType.Elif, "elif");
         public static readonly Token Else = new(TokenType.Else, "else");
-
         public static readonly Token Fn = new(TokenType.Fn, "fn");
         public static readonly Token Ret = new(TokenType.Ret, "ret");
         public static readonly Token For = new(TokenType.For, "for");
@@ -120,29 +89,11 @@
         public static readonly Token Yield = new(TokenType.Yield, "yield");
         public static readonly Token NaN = new(TokenType.NaN, "NaN");
         public static readonly Token Infinity = new(TokenType.Infinity, "Infinity");
-        
         public static readonly Token EOF = new(TokenType.EOF, "<EOF>");
-
         public static readonly Token Number = new(TokenType.Number, string.Empty);
         public static readonly Token HexInteger = new(TokenType.HexInteger, string.Empty);
         public static readonly Token String = new(TokenType.String, string.Empty);
         public static readonly Token Identifier = new(TokenType.Identifier, string.Empty);
-
         public static readonly Token AttributeList = new(TokenType.AttributeList, "#[");
-        
-        public static Token CreateHexInteger(string value)
-            => new(TokenType.HexInteger, value);
-
-        public static Token CreateString(string value)
-            => new(TokenType.String, value);
-
-        public static Token CreateNumber(string value)
-            => new(TokenType.Number, value);
-
-        public static Token CreateIdentifier(string value)
-            => new(TokenType.Identifier, value);
-
-        public override string ToString()
-            => $"[{Type}: {Value}]";
     }
 }

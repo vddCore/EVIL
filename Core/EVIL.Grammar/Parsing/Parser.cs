@@ -53,7 +53,7 @@ namespace EVIL.Grammar.Parsing
                 _lexer.State.TokenStartColumn
             );
 
-            if (!CurrentToken.Equals(token))
+            if (CurrentToken.Type != token.Type)
             {
                 var expected = $"'{token.Value}'";
                 if (string.IsNullOrEmpty(token.Value))
