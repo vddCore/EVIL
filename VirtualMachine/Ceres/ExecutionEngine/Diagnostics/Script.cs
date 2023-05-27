@@ -25,10 +25,21 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
         }
 
+        public Chunk? this[int id]
+        {
+            get
+            {
+                if (id < 0 || id >= Chunks.Count)
+                    return null;
+
+                return Chunks[id];
+            }
+        }
+
         public Chunk FindChunkByName(string name)
         {
             return Chunks.FirstOrDefault(x => x.Name == name)
-                   ?? throw new InvalidOperationException($"Chunk {name} not found.");
+                ?? throw new InvalidOperationException($"Chunk {name} not found.");
         }
     }
 }
