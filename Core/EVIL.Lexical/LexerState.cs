@@ -7,12 +7,24 @@
 
         public Token PreviousToken { get; internal set; } = Token.Empty;
         public Token CurrentToken { get; internal set; } = Token.Empty;
-        
+
         public char Character { get; internal set; }
 
         public int Pointer { get; internal set; }
         public int Column { get; internal set; }
         public int Line { get; internal set; }
+
+        public LexerState Copy() => new()
+        {
+            TokenStartColumn = TokenStartColumn,
+            TokenStartLine = TokenStartLine,
+            Character = Character,
+            Column = Column,
+            CurrentToken = CurrentToken,
+            Line = Line,
+            Pointer = Pointer,
+            PreviousToken = PreviousToken
+        };
 
         internal void Reset()
         {
