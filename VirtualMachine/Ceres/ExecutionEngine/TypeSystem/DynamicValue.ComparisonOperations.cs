@@ -50,28 +50,31 @@ namespace Ceres.ExecutionEngine.TypeSystem
             switch (a.Type)
             {
                 case DynamicValueType.Nil:
-                    return new(b.Type == DynamicValueType.Nil);
+                    return b.Type == DynamicValueType.Nil;
 
                 case DynamicValueType.Number:
-                    return new(a.Number.Equals(b.Number));
+                    return a.Number.Equals(b.Number);
 
                 case DynamicValueType.String:
-                    return new(a.String == b.String);
+                    return a.String == b.String;
 
                 case DynamicValueType.Boolean:
-                    return new DynamicValue(a.Boolean == b.Boolean);
+                    return a.Boolean == b.Boolean;
 
                 case DynamicValueType.Table:
-                    return new DynamicValue(a.Table == b.Table);
+                    return a.Table == b.Table;
 
                 case DynamicValueType.Fiber:
-                    return new DynamicValue(a.Fiber == b.Fiber);
+                    return a.Fiber == b.Fiber;
 
                 case DynamicValueType.Chunk:
-                    return new DynamicValue(a.Chunk == b.Chunk);
+                    return a.Chunk == b.Chunk;
 
                 case DynamicValueType.NativeFunction:
-                    return new DynamicValue(a.NativeFunction == b.NativeFunction);
+                    return a.NativeFunction == b.NativeFunction;
+                
+                case DynamicValueType.NativeObject:
+                    return a.NativeObject == b.NativeObject;
             }
 
             throw new UnsupportedDynamicValueOperationException(
@@ -87,28 +90,31 @@ namespace Ceres.ExecutionEngine.TypeSystem
             switch (a.Type)
             {
                 case DynamicValueType.Nil:
-                    return new(b.Type != DynamicValueType.Nil);
+                    return b.Type != DynamicValueType.Nil;
 
                 case DynamicValueType.Number:
-                    return new(!a.Number.Equals(b.Number));
+                    return !a.Number.Equals(b.Number);
 
                 case DynamicValueType.String:
-                    return new(a.String != b.String);
+                    return a.String != b.String;
 
                 case DynamicValueType.Boolean:
-                    return new DynamicValue(a.Boolean != b.Boolean);
+                    return a.Boolean != b.Boolean;
 
                 case DynamicValueType.Table:
-                    return new DynamicValue(a.Table != b.Table);
+                    return a.Table != b.Table;
 
                 case DynamicValueType.Fiber:
-                    return new DynamicValue(a.Fiber != b.Fiber);
+                    return a.Fiber != b.Fiber;
 
                 case DynamicValueType.Chunk:
-                    return new DynamicValue(a.Chunk != b.Chunk);
+                    return a.Chunk != b.Chunk;
 
                 case DynamicValueType.NativeFunction:
-                    return new DynamicValue(a.NativeFunction != b.NativeFunction);
+                    return a.NativeFunction != b.NativeFunction;
+                
+                case DynamicValueType.NativeObject:
+                    return a.NativeObject != b.NativeObject;
             }
 
             throw new UnsupportedDynamicValueOperationException(

@@ -11,15 +11,15 @@ namespace Ceres.ExecutionEngine.TypeSystem
             switch (a.Type)
             {
                 case DynamicValueType.Nil:
-                    return new("nil");
+                    return "nil";
                 case DynamicValueType.Number:
-                    return new(a.Number.ToString(CultureInfo.InvariantCulture));
+                    return a.Number.ToString(CultureInfo.InvariantCulture);
                 case DynamicValueType.String:
-                    return new(a.String!);
+                    return a.String!;
                 case DynamicValueType.Boolean:
-                    return new(a.Boolean.ToString().ToLowerInvariant());
+                    return a.Boolean.ToString().ToLowerInvariant();
                 case DynamicValueType.Table:
-                    return new DynamicValue($"Table[{a.Table!.Length}]");
+                    return $"Table[{a.Table!.Length}]";
                 case DynamicValueType.Fiber:
                 {
                     unsafe
@@ -27,14 +27,15 @@ namespace Ceres.ExecutionEngine.TypeSystem
                         var fib = a.Fiber!;
                         var reference = __makeref(fib);
 
-                        return new DynamicValue($"Fiber[{**(IntPtr**)&reference}]");
+                        return $"Fiber[{**(IntPtr**)&reference}]";
                     }
                 }
                 case DynamicValueType.Chunk:
-                    return new DynamicValue(a.Chunk!.Name!);
+                    return a.Chunk!.Name!;
                 case DynamicValueType.NativeFunction:
-                    return new DynamicValue($"NativeFunction[{a.NativeFunction!.Method.Name}]");
-
+                    return $"NativeFunction[{a.NativeFunction!.Method.Name}]";
+                case DynamicValueType.NativeObject:
+                    return $"NativeObject[{a.NativeObject}]";
                 default:
                 {
                     throw new UnsupportedDynamicValueOperationException(
@@ -52,7 +53,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 {
                     try
                     {
-                        return new(double.Parse(a.String!));
+                        return double.Parse(a.String!);
                     }
                     catch (FormatException fe)
                     {
@@ -64,7 +65,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 }
 
                 case DynamicValueType.Boolean:
-                    return new(a.Boolean ? 1 : 0);
+                    return a.Boolean ? 1 : 0;
 
                 default:
                 {

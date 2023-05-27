@@ -48,9 +48,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 return type switch
                 {
                     DynamicValueType.Nil => Nil,
-                    DynamicValueType.Number => new DynamicValue(br.ReadDouble()),
-                    DynamicValueType.String => new DynamicValue(br.ReadString()),
-                    DynamicValueType.Boolean => new DynamicValue(br.ReadBoolean()),
+                    DynamicValueType.Number => br.ReadDouble(),
+                    DynamicValueType.String => br.ReadString(),
+                    DynamicValueType.Boolean => br.ReadBoolean(),
                     _ => throw new ChunkDeserializationException($"Unexpected constant value type '{type}'.")
                 };
             }

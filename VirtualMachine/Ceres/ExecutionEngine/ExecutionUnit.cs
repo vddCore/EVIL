@@ -577,21 +577,6 @@ namespace Ceres.ExecutionEngine
             }
         }
 
-        private void PushValue(string value)
-            => PushValue(new DynamicValue(value));
-
-        private void PushValue(double value)
-            => PushValue(new DynamicValue(value));
-
-        private void PushValue(long value)
-            => PushValue(new DynamicValue(value));
-
-        private void PushValue(Fiber value)
-            => PushValue(new DynamicValue(value));
-
-        private void PushValue(Table value)
-            => PushValue(new DynamicValue(value));
-
         private void PushValue(DynamicValue value)
         {
             lock (_evaluationStack)

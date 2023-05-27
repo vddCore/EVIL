@@ -8,9 +8,7 @@ namespace Ceres.Runtime.Modules
         public override string FullyQualifiedName => "time";
         
         [RuntimeModuleFunction("stamp")]
-        private static DynamicValue Timestamp(Fiber fiber, params DynamicValue[] args)
-        {
-            return new DynamicValue(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
-        }
+        private static DynamicValue Timestamp(Fiber fiber, params DynamicValue[] args) 
+            => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 }   

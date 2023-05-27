@@ -16,7 +16,7 @@ namespace Ceres.Runtime.Modules
             );
 
             Console.Write(str);
-            return new(str.Length);
+            return str.Length;
         }
     }
 }

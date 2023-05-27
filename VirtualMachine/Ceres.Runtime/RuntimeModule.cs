@@ -24,7 +24,7 @@ namespace Ceres.Runtime
 
         public DynamicValue AttachTo(Table table)
         {
-            var ret = new DynamicValue(this);
+            var ret = this;
 
             table.SetUsingPath(
                 FullyQualifiedName,
