@@ -9,6 +9,20 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "math";
 
+        public MathModule()
+        {
+            AddGetter("pi", (_) => Math.PI);
+            AddGetter("e", (_) => Math.E);
+            AddGetter("tau", (_) => Math.Tau);
+        }
+
+        [RuntimeModuleFunction("abs")]
+        private static DynamicValue Abs(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Abs(value);
+        }
+
         [RuntimeModuleFunction("sqrt")]
         private static DynamicValue Sqrt(Fiber _, params DynamicValue[] args)
         {
