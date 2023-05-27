@@ -102,7 +102,7 @@ namespace Ceres.LanguageTests
                     return args[3];
                 }));
                 
-                VM.Global.Set("__tricky", new DynamicValue(new TrickyTable()));
+                VM.Global.Set("__tricky", new TrickyTable());
                 
                 Runtime.RegisterBuiltInModules();
 
@@ -270,7 +270,7 @@ namespace Ceres.LanguageTests
                     digits = (int)approximateAttr.Values[0].Number;
                 }
 
-                value = new DynamicValue(Math.Round(value.Number, digits));
+                value = Math.Round(value.Number, digits);
             }
         }
 

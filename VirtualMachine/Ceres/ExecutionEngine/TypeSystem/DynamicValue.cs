@@ -16,7 +16,8 @@ namespace Ceres.ExecutionEngine.TypeSystem
             Table,
             Fiber,
             Chunk,
-            NativeFunction
+            NativeFunction,
+            NativeObject
         }
 
         public static readonly DynamicValue Nil = new(DynamicValueType.Nil);
@@ -35,6 +36,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public Fiber? Fiber { get; }
         public Chunk? Chunk { get; }
         public NativeFunction? NativeFunction { get; }
+        public object? NativeObject { get; }
 
         private DynamicValue(DynamicValueType type)
         {
@@ -53,14 +55,13 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public DynamicValue(Fiber value) : this(DynamicValueType.Fiber) => Fiber = value;
         public DynamicValue(Chunk value) : this(DynamicValueType.Chunk) => Chunk = value;
         public DynamicValue(NativeFunction value) : this(DynamicValueType.NativeFunction) => NativeFunction = value;
-
-        public static bool IsTruth(DynamicValue value)
-        {
-            return value != Nil
-                   && value != Zero
-                   && value != False;
-        }
+        public DynamicValue(object? value) : this(DynamicValueType.NativeObject) => NativeObject = value;
         
+        public static bool IsTruth(DynamicValue value) 
+            => value != Nil
+            && value != Zero
+            && value != False;
+
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -96,36 +97,50 @@ namespace Ceres.ExecutionEngine.TypeSystem
             return sb.ToString();
         }
 
-        public bool Equals(DynamicValue other)
-        {
-            return Type == other.Type 
-                   && Number.Equals(other.Number) 
-                   && String == other.String
-                   && Boolean == other.Boolean
-                   && Equals(Table, other.Table) 
-                   && Equals(Fiber, other.Fiber)
-                   && Equals(Chunk, other.Chunk) 
-                   && Equals(NativeFunction, other.NativeFunction);
-        }
+        public bool Equals(DynamicValue other) 
+            => Type == other.Type 
+            && Number.Equals(other.Number) 
+            && String == other.String
+            && Boolean == other.Boolean
+            && Equals(Table, other.Table) 
+            && Equals(Fiber, other.Fiber)
+            && Equals(Chunk, other.Chunk) 
+            && Equals(NativeFunction, other.NativeFunction);
 
-        public override bool Equals(object? obj)
-        {
-            return obj is DynamicValue other && Equals(other);
-        }
+        public override bool Equals(object? obj) 
+            => obj is DynamicValue other 
+            && Equals(other);
 
         public override int GetHashCode()
         {
-            return HashCode.Combine((int)Type, Number, String, Boolean, Table, Fiber, Chunk, NativeFunction);
+            var hashCode = new HashCode();
+            
+            hashCode.Add((int)Type);
+            hashCode.Add(Number);
+            hashCode.Add(String);
+            hashCode.Add(Boolean);
+            hashCode.Add(Table);
+            hashCode.Add(Fiber);
+            hashCode.Add(Chunk);
+            hashCode.Add(NativeFunction);
+            hashCode.Add(NativeObject);
+            
+            return hashCode.ToHashCode();
         }
 
-        public static bool operator ==(DynamicValue left, DynamicValue right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(DynamicValue left, DynamicValue right) 
+            => left.Equals(right);
 
-        public static bool operator !=(DynamicValue left, DynamicValue right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(DynamicValue left, DynamicValue right) 
+            => !left.Equals(right);
+
+        public static implicit operator DynamicValue(double value) => new(value);
+        public static implicit operator DynamicValue(string value) => new(value);
+        public static implicit operator DynamicValue(bool value) => new(value);
+        public static implicit operator DynamicValue(Table value) => new(value);
+        public static implicit operator DynamicValue(Fiber value) => new(value);
+        public static implicit operator DynamicValue(Chunk value) => new(value);
+        public static implicit operator DynamicValue(NativeFunction value) => new(value);
+        public static DynamicValue FromObject(object value) => new(value);
     }
 }

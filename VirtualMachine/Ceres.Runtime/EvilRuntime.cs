@@ -30,26 +30,5 @@ namespace Ceres.Runtime
 
         public DynamicValue Register(string fullyQualifiedName, DynamicValue value, bool replaceIfExists = true)
             => Global.SetUsingPath(fullyQualifiedName, value, replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, double value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, string value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, bool value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, Table value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, Chunk value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, Fiber value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
-
-        public DynamicValue Register(string fullyQualifiedName, NativeFunction value, bool replaceIfExists = true)
-            => Register(fullyQualifiedName, new DynamicValue(value), replaceIfExists);
     }
 }

@@ -21,7 +21,7 @@ namespace Ceres.Runtime.Extensions
                 {
                     currentTable.Set(
                         tableName,
-                        new DynamicValue(new Table())
+                        new Table()
                     );
                 }
                 else

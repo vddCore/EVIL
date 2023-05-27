@@ -60,7 +60,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
                     var value = _vm.MainFiber.PopValue();
 
-                    Assert.That(value, Is.EqualTo(new DynamicValue(12)));
+                    Assert.That(value, Is.EqualTo((DynamicValue)12));
                     ms.Seek(0, SeekOrigin.Begin);
 
                     using (var sr = new StreamReader(ms, leaveOpen: true))

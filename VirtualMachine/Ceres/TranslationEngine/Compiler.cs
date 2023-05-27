@@ -862,7 +862,7 @@ namespace Ceres.TranslationEngine
         {
             if (valueNode is BooleanConstant boolConst)
             {
-                return new DynamicValue(boolConst.Value);
+                return boolConst.Value;
             }
             else if (valueNode is NilConstant)
             {
@@ -870,11 +870,11 @@ namespace Ceres.TranslationEngine
             }
             else if (valueNode is NumberConstant numConst)
             {
-                return new DynamicValue(numConst.Value);
+                return numConst.Value;
             }
             else if (valueNode is StringConstant stringConst)
             {
-                return new DynamicValue(stringConst.Value);
+                return stringConst.Value;
             }
             else
             {
