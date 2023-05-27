@@ -22,7 +22,35 @@ namespace Ceres.Runtime.Modules
             args.ExpectNumberAt(0, out var value);
             return Math.Abs(value);
         }
+        
+        [RuntimeModuleFunction("acos")]
+        private static DynamicValue Acos(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Acos(value);
+        }
+        
+        [RuntimeModuleFunction("acosh")]
+        private static DynamicValue Acosh(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Acosh(value);
+        }
 
+        [RuntimeModuleFunction("asin")]
+        private static DynamicValue Asin(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Asin(value);
+        }
+        
+        [RuntimeModuleFunction("asinh")]
+        private static DynamicValue Asinh(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Asinh(value);
+        }
+        
         [RuntimeModuleFunction("sqrt")]
         private static DynamicValue Sqrt(Fiber _, params DynamicValue[] args)
         {
