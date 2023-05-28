@@ -1,4 +1,6 @@
-﻿using Ceres.ExecutionEngine;
+﻿using System;
+using Ceres.ExecutionEngine;
+using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.TranslationEngine;
@@ -42,12 +44,17 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var prog = _parser.Parse(source);
             var script = _compiler.Compile(prog);
-            
+
             _vm.MainFiber.ScheduleAsync(script[0]!)
                 .GetAwaiter()
                 .GetResult();
 
-            return _vm.MainFiber.PopValue();
+            if (_vm.MainFiber.State == FiberState.Finished)
+            {
+                return _vm.MainFiber.PopValue();
+            }
+
+            throw new Exception("Test failed.");
         }
     }
 }
