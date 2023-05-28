@@ -14,7 +14,6 @@ namespace Ceres.Runtime
         public RuntimeModule()
         {
             RegisterNativeFunctions();
-            Freeze(true);
         }
 
         public DynamicValue AttachTo(Table table)
