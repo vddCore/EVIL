@@ -23,6 +23,7 @@ namespace Ceres.Runtime
         {
             RegisterModule<CoreModule>();
             RegisterModule<MathModule>();
+            RegisterModule<StringModule>();
             RegisterModule<TimeModule>();
         }
 
