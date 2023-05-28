@@ -1,6 +1,5 @@
 ﻿using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
-using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 
@@ -135,6 +134,17 @@ namespace Ceres.Runtime.Modules
             return Math.Floor(value);
         }
 
+        [RuntimeModuleFunction("lerp")]
+        private static DynamicValue Lerp(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var a)
+                .ExpectNumberAt(1, out var b)
+                .ExpectNumberAt(2, out var t);
+
+            t = Math.Clamp(t, 0.0, 1.0);
+            return a * (1 - t) + b * t;
+        }
+        
         [RuntimeModuleFunction("log")]
         private static DynamicValue Log(Fiber _, params DynamicValue[] args)
         {
@@ -254,6 +264,20 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectNumberAt(0, out var value);
             return Math.Truncate(value);
+        }
+
+        [RuntimeModuleFunction("rad2deg")]
+        private static DynamicValue Rad2Deg(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var radians);
+            return radians * (180.0 / Math.PI);
+        }
+        
+        [RuntimeModuleFunction("deg2rad")]
+        private static DynamicValue Deg2Rad(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var degrees);
+            return degrees * (Math.PI / 180.0);
         }
     }
 }
