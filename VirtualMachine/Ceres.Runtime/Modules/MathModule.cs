@@ -51,11 +51,138 @@ namespace Ceres.Runtime.Modules
             return Math.Asinh(value);
         }
         
-        [RuntimeModuleFunction("sqrt")]
-        private static DynamicValue Sqrt(Fiber _, params DynamicValue[] args)
+        [RuntimeModuleFunction("atan")]
+        private static DynamicValue Atan(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var value);
-            return Math.Sqrt(value);
+            return Math.Atan(value);
+        }
+        
+        [RuntimeModuleFunction("atanh")]
+        private static DynamicValue Atanh(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Atanh(value);
+        }
+        
+        [RuntimeModuleFunction("atan2")]
+        private static DynamicValue Atan2(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var y)
+                .ExpectNumberAt(1, out var x);
+            
+            return Math.Atan2(y, x);
+        }
+        
+        [RuntimeModuleFunction("cbrt")]
+        private static DynamicValue Cbrt(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Cbrt(value);
+        }
+        
+        [RuntimeModuleFunction("ceil")]
+        private static DynamicValue Ceiling(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Ceiling(value);
+        }
+        
+        [RuntimeModuleFunction("clamp")]
+        private static DynamicValue Clamp(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value)
+                .ExpectNumberAt(1, out var min)
+                .ExpectNumberAt(2, out var max);
+
+            return Math.Clamp(value, min, max);
+        }
+        
+        [RuntimeModuleFunction("cos")]
+        private static DynamicValue Cos(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Cos(value);
+        }
+        
+        [RuntimeModuleFunction("cosh")]
+        private static DynamicValue Cosh(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Cosh(value);
+        }
+        
+        [RuntimeModuleFunction("exp")]
+        private static DynamicValue Exp(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Exp(value);
+        }
+        
+        [RuntimeModuleFunction("floor")]
+        private static DynamicValue Floor(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Floor(value);
+        }
+
+        [RuntimeModuleFunction("log")]
+        private static DynamicValue Log(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value)
+                .ExpectNumberAt(1, out var @base);
+            
+            return Math.Log(value, @base);
+        }
+        
+        [RuntimeModuleFunction("log2")]
+        private static DynamicValue Log2(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Log2(value);
+        }
+        
+        [RuntimeModuleFunction("log10")]
+        private static DynamicValue Log10(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Log10(value);
+        }
+        
+        [RuntimeModuleFunction("max")]
+        private static DynamicValue Max(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var a)
+                .ExpectNumberAt(1, out var b);
+            
+            return Math.Max(a, b);
+        }
+        
+        [RuntimeModuleFunction("min")]
+        private static DynamicValue Min(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var a)
+                .ExpectNumberAt(1, out var b);
+            
+            return Math.Min(a, b);
+        }
+        
+        [RuntimeModuleFunction("pow")]
+        private static DynamicValue Pow(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var x)
+                .ExpectNumberAt(1, out var y);
+            
+            return Math.Pow(x, y);
+        }
+        
+        [RuntimeModuleFunction("round")]
+        private static DynamicValue Round(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var x)
+                .ExpectNumberAt(1, out var y);
+
+            return Math.Round(x, (int)y);
         }
 
         [RuntimeModuleFunction("sin")]
@@ -63,13 +190,6 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectNumberAt(0, out var value);
             return Math.Sin(value);
-        }
-
-        [RuntimeModuleFunction("cos")]
-        private static DynamicValue Cos(Fiber _, params DynamicValue[] args)
-        {
-            args.ExpectNumberAt(0, out var value);
-            return Math.Cos(value);
         }
 
         [RuntimeModuleFunction("sincos")]
@@ -83,6 +203,13 @@ namespace Ceres.Runtime.Modules
                 { "sin", result.Sin },
                 { "cos", result.Cos }
             };
+        }
+        
+        [RuntimeModuleFunction("sqrt")]
+        private static DynamicValue Sqrt(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Sqrt(value);
         }
     }
 }
