@@ -5,7 +5,7 @@ using Ceres.Runtime.Extensions;
 
 namespace Ceres.Runtime.Modules
 {
-    public class MathModule : RuntimeModule
+    public sealed class MathModule : RuntimeModule
     {
         public override string FullyQualifiedName => "math";
 
