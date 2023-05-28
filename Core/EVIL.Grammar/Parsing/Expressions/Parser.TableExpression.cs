@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
@@ -24,14 +25,13 @@ namespace EVIL.Grammar.Parsing
                     {
                         keyed = true;
                     }
-                    else
+                    else if (_lexer.PeekToken(1) == Token.Associate)
                     {
-                        var ahead = _lexer.PeekToken(1);
-
-                        if (ahead.Type == TokenType.Associate)
-                        {
-                            keyed = true;
-                        }
+                        keyed = true;
+                    }
+                    else if (CurrentToken.Type == TokenType.Identifier && _lexer.PeekToken(1) == Token.Colon)
+                    {
+                        keyed = true;
                     }
                 }
 
@@ -50,7 +50,7 @@ namespace EVIL.Grammar.Parsing
                                 (key.Line, key.Column)
                             );
                         }
-                        
+
                         Match(Token.Associate);
                         value = AssignmentExpression();
 
@@ -58,8 +58,31 @@ namespace EVIL.Grammar.Parsing
                     }
                     else
                     {
-                        key = Constant();
-                        Match(Token.Associate);
+                        if (CurrentToken.Type == TokenType.Identifier)
+                        {
+                            var keyValue = CurrentToken.Value;
+                            var (kline, kcol) = Match(Token.Identifier);
+
+                            if (CurrentToken == Token.Colon)
+                            {
+                                Match(Token.Colon);
+                                key = new StringConstant(keyValue)
+                                    { Line = kline, Column = kcol };
+                            }
+                            else
+                            {
+                                throw new ParserException(
+                                    "Identifier-style keys must be followed by a colon.",
+                                    (CurrentState.TokenStartLine, CurrentState.TokenStartColumn)
+                                );
+                            }
+                        }
+                        else
+                        {
+                            key = Constant();
+                            Match(Token.Associate);
+                        }
+
                         value = AssignmentExpression();
 
                         initializers.Add(new KeyValuePairExpression(key, value));

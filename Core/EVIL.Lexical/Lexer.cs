@@ -70,7 +70,7 @@ namespace EVIL.Lexical
                     break;
                 case '.' when char.IsDigit(Peek()):
                     State.CurrentToken = GetDecimalNumber();
-                    break;
+                    return;
                 case '.':
                     State.CurrentToken = Token.Dot;
                     break;
