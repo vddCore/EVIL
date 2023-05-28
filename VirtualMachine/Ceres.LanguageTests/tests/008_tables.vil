@@ -21,6 +21,12 @@ fn table_constkeyed_init() {
   ret (#a == 3) && (typeof(a) == "Table");
 }
 
+#[test(64.11);approximate(2)]
+fn table_identkeyed() {
+  var vec = { x: 21.37, y: 42.74 };
+  ret vec.x + vec.y;
+}
+
 #[test]
 fn table_computedkey_init() {
   var a = {
@@ -31,6 +37,19 @@ fn table_computedkey_init() {
   };
   
   ret (#a == 4) && (typeof(a) == "Table");
+}
+
+#[test]
+fn table_mixed_keying() {
+  var a = { 
+    b: "haha funny",
+    [213 + .7] => "blah",
+    "c" => "yayy"
+  };
+  
+  ret a.b == "haha funny"
+   && a[213.7] == "blah"
+   && a.c == "yayy";
 }
 
 #[test]
@@ -58,7 +77,7 @@ fn table_constkeyed_initialized_values_match() {
 
 #[test("uwu")]
 fn table_identifier_indexing() {
-  var a = { "nya" => "uwu" };
+  var a = { nya: "uwu" };
   ret a.nya;
 }
 
@@ -70,7 +89,8 @@ fn nested_table_indexing() {
 
 #[test(213.7)]
 fn nested_table_identifier_indexing() {
-  var a = { "b" => { "c" => { "d" => { "j" => { "p2gmd" => 213.7 } } } } };
+  var a = { b: { c: { d: { j: { p2gmd: 213.7 } } } } };
+  
   ret a.b.c.d.j.p2gmd;
 }
 
