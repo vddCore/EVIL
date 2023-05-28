@@ -143,6 +143,28 @@ namespace Ceres.RuntimeTests.RuntimeModules
         }
 
         [Test]
+        public void Lerp()
+        {
+            var t = RunEvilCode(
+                "fn test() -> {" +
+                "  math.round(math.lerp(0, 100, 0.0), 0)," +
+                "  math.round(math.lerp(0, 100, 0.2), 0)," +
+                "  math.round(math.lerp(0, 100, 0.4), 0)," +
+                "  math.round(math.lerp(0, 100, 0.6), 0)," +
+                "  math.round(math.lerp(0, 100, 0.8), 0)," +
+                "  math.round(math.lerp(0, 100, 1.0), 0) " +
+                "};"
+            ).Table!;
+
+            Assert.That(t[0].Number, Is.EqualTo(0));
+            Assert.That(t[1].Number, Is.EqualTo(20));
+            Assert.That(t[2].Number, Is.EqualTo(40));
+            Assert.That(t[3].Number, Is.EqualTo(60));
+            Assert.That(t[4].Number, Is.EqualTo(80));
+            Assert.That(t[5].Number, Is.EqualTo(100));
+        }
+        
+        [Test]
         public void Log()
         {
             Assert.That(
@@ -205,7 +227,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "  math.round(3.6662137, 1)" +
                 "};"
             ).Table!;
-            
+
             Assert.That(t[0].Number, Is.EqualTo(4));
             Assert.That(t[1].Number, Is.EqualTo(3.7));
         }
@@ -227,7 +249,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
             Assert.That(Math.Round(ret["sin"].Number, 1), Is.EqualTo(0.5));
             Assert.That(Math.Round(ret["cos"].Number, 1), Is.EqualTo(0.9));
         }
-        
+
         [Test]
         public void Sinh()
         {
@@ -245,7 +267,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 Is.EqualTo((DynamicValue)20)
             );
         }
-        
+
         [Test]
         public void Tan()
         {
@@ -254,7 +276,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 Is.EqualTo(0.6)
             );
         }
-        
+
         [Test]
         public void Tanh()
         {
@@ -263,13 +285,31 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 Is.EqualTo(0.3)
             );
         }
-        
+
         [Test]
         public void Trunc()
         {
             Assert.That(
                 Math.Round(RunEvilCode("fn test() -> math.trunc(13333.411321443134213);").Number, 1),
                 Is.EqualTo(13333)
+            );
+        }
+
+        [Test]
+        public void Rad2Deg()
+        {
+            Assert.That(
+                Math.Round(RunEvilCode("fn test() -> math.rad2deg(1.1);").Number, 1),
+                Is.EqualTo(63)
+            );
+        }
+
+        [Test]
+        public void Deg2Rad()
+        {
+            Assert.That(
+                Math.Round(RunEvilCode("fn test() -> math.deg2rad(21.37);").Number, 1),
+                Is.EqualTo(0.4)
             );
         }
     }
