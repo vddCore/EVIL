@@ -1,4 +1,5 @@
-﻿using Ceres.ExecutionEngine.Concurrency;
+﻿using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
@@ -14,6 +15,14 @@ namespace Ceres.Runtime.Modules
             AddGetter("pi", (_) => Math.PI);
             AddGetter("e", (_) => Math.E);
             AddGetter("tau", (_) => Math.Tau);
+
+            Set("rand", new PropertyTable
+            {
+                { "i32", (_) => Random.Shared.Next() },
+                { "i64", (_) => Random.Shared.NextInt64() },
+                { "f32", (_) => Random.Shared.NextSingle() },
+                { "f64", (_) => Random.Shared.NextDouble() }
+            });
         }
 
         [RuntimeModuleFunction("abs")]
@@ -180,9 +189,16 @@ namespace Ceres.Runtime.Modules
         private static DynamicValue Round(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var x)
-                .ExpectNumberAt(1, out var y);
+                .ExpectNumberAt(1, out var decimals);
 
-            return Math.Round(x, (int)y);
+            return Math.Round(x, (int)decimals);
+        }
+        
+        [RuntimeModuleFunction("sign")]
+        private static DynamicValue Sign(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var x);
+            return Math.Sign(x);
         }
 
         [RuntimeModuleFunction("sin")]
@@ -205,11 +221,39 @@ namespace Ceres.Runtime.Modules
             };
         }
         
+        [RuntimeModuleFunction("sinh")]
+        private static DynamicValue Sinh(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Sinh(value);
+        }
+        
         [RuntimeModuleFunction("sqrt")]
         private static DynamicValue Sqrt(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var value);
             return Math.Sqrt(value);
+        }
+        
+        [RuntimeModuleFunction("tan")]
+        private static DynamicValue Tan(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Tan(value);
+        }
+        
+        [RuntimeModuleFunction("tanh")]
+        private static DynamicValue Tanh(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Tanh(value); 
+        }
+        
+        [RuntimeModuleFunction("trunc")]
+        private static DynamicValue Trunc(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNumberAt(0, out var value);
+            return Math.Truncate(value);
         }
     }
 }

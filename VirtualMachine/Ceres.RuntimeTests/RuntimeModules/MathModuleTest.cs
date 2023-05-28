@@ -227,6 +227,15 @@ namespace Ceres.RuntimeTests.RuntimeModules
             Assert.That(Math.Round(ret["sin"].Number, 1), Is.EqualTo(0.5));
             Assert.That(Math.Round(ret["cos"].Number, 1), Is.EqualTo(0.9));
         }
+        
+        [Test]
+        public void Sinh()
+        {
+            Assert.That(
+                Math.Round(RunEvilCode("fn test() -> math.sinh(math.pi/8);").Number, 1),
+                Is.EqualTo(0.4)
+            );
+        }
 
         [Test]
         public void Sqrt()
@@ -234,6 +243,33 @@ namespace Ceres.RuntimeTests.RuntimeModules
             Assert.That(
                 RunEvilCode("fn test() -> math.sqrt(400);"),
                 Is.EqualTo((DynamicValue)20)
+            );
+        }
+        
+        [Test]
+        public void Tan()
+        {
+            Assert.That(
+                Math.Round(RunEvilCode("fn test() -> math.tan(math.pi/6);").Number, 1),
+                Is.EqualTo(0.6)
+            );
+        }
+        
+        [Test]
+        public void Tanh()
+        {
+            Assert.That(
+                Math.Round(RunEvilCode("fn test() -> math.tanh(math.pi/9.5);").Number, 1),
+                Is.EqualTo(0.3)
+            );
+        }
+        
+        [Test]
+        public void Trunc()
+        {
+            Assert.That(
+                Math.Round(RunEvilCode("fn test() -> math.trunc(13333.411321443134213);").Number, 1),
+                Is.EqualTo(13333)
             );
         }
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
 
-namespace Ceres.ExecutionEngine.Diagnostics
+namespace Ceres.ExecutionEngine.Collections
 {
     public class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
     {
