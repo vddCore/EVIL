@@ -309,10 +309,17 @@ namespace Ceres.ExecutionEngine
 
                     var argumentCount = frame.FetchInt32();
                     var args = PopArguments(argumentCount);
-
+                    
                     if (a.Type == DynamicValue.DynamicValueType.Chunk)
                     {
                         _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
+                        
+                        _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
+                            _fiber,
+                            a.Chunk!,
+                            false
+                        );
+                        
                         break;
                     }
                     else if (a.Type == DynamicValue.DynamicValueType.NativeFunction)
@@ -339,6 +346,12 @@ namespace Ceres.ExecutionEngine
                         args[args.Length - i - 1] = PopValue();
                     }
 
+                    _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
+                        _fiber,
+                        _callStack.Peek().As<ScriptStackFrame>().Chunk,
+                        true
+                    );
+                    
                     frame.JumpAbsolute(0);
                     break;
                 }

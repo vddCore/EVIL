@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.ExecutionEngine.Diagnostics.Debugging;
 
 namespace Ceres.ExecutionEngine
 {
@@ -11,6 +12,8 @@ namespace Ceres.ExecutionEngine
     {
         private Task? _schedulerTask;
 
+        internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
+        
         public Table Global { get; }
         
         public FiberScheduler Scheduler { get; }
@@ -28,6 +31,11 @@ namespace Ceres.ExecutionEngine
             Scheduler.SetCrashHandler(DefaultCrashHandler);
             
             MainFiber = Scheduler.CreateFiber(true);
+        }
+
+        public void SetOnChunkInvoke(ChunkInvokeHandler? handler)
+        {
+            OnChunkInvoke = handler;
         }
 
         public void Start()
