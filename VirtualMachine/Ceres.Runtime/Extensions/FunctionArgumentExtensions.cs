@@ -58,6 +58,17 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
 
+        public static DynamicValue[] ExpectIntegerAt(this DynamicValue[] args, int index, out long value)
+        {
+            args.ExpectTypeAt(index, DynamicValueType.Number);
+            var num = args[index].Number;
+            if (num % 1 != 0)
+                throw new EvilRuntimeException($"Expected an integer at argument index {index}.");
+            
+            value = (long)args[index].Number;
+            return args;
+        }
+
         public static DynamicValue[] ExpectStringAt(this DynamicValue[] args, int index, out string value)
         {
             args.ExpectTypeAt(index, DynamicValueType.String);

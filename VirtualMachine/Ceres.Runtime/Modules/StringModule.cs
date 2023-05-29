@@ -46,7 +46,7 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectExactly(2)
                 .ExpectStringAt(0, out var str)
-                .ExpectNumberAt(1, out var count);
+                .ExpectIntegerAt(1, out var count);
 
             var sb = new StringBuilder();
             for (var i = 0; i < (int)count; i++) 
@@ -89,7 +89,7 @@ namespace Ceres.Runtime.Modules
             args.ExpectExactly(3)
                 .ExpectStringAt(0, out var source)
                 .ExpectCharAt(1, out var pad)
-                .ExpectNumberAt(2, out var totalWidth);
+                .ExpectIntegerAt(2, out var totalWidth);
 
             return source.PadLeft((int)totalWidth, pad);
         }
@@ -100,7 +100,7 @@ namespace Ceres.Runtime.Modules
             args.ExpectExactly(3)
                 .ExpectStringAt(0, out var source)
                 .ExpectCharAt(1, out var pad)
-                .ExpectNumberAt(2, out var totalWidth);
+                .ExpectIntegerAt(2, out var totalWidth);
 
             return source.PadRight((int)totalWidth, pad);
         }
