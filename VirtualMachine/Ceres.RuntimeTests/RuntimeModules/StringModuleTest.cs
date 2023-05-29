@@ -30,5 +30,47 @@ namespace Ceres.RuntimeTests.RuntimeModules
             var s = RunEvilCode("fn test() -> str.join(\"|\", 1, \"test\", true);").String!;
             Assert.That(s, Is.EqualTo("1|test|true"));
         }
+
+        [Test]
+        public void Repeat()
+        {
+            var s = RunEvilCode("fn test() -> str.rep(\"test\", 4);").String!;
+            Assert.That(s, Is.EqualTo("testtesttesttest"));
+        }
+
+        [Test]
+        public void IndexOf()
+        {
+            var n = RunEvilCode("fn test() -> str.index_of(\"hello, world!\", \"w\");").Number;
+            Assert.That(n, Is.EqualTo(7));
+        }
+        
+        [Test]
+        public void IsEmpty()
+        {
+            var b = RunEvilCode("fn test() -> str.is_empty(\"\");").Boolean;
+            Assert.That(b, Is.True);
+        }
+        
+        [Test]
+        public void IsWhiteSpace()
+        {
+            var b = RunEvilCode("fn test() -> str.is_whitespace(\"  \");").Boolean;
+            Assert.That(b, Is.True);
+        }
+
+        [Test]
+        public void LeftPad()
+        {
+            var s = RunEvilCode("fn test() -> str.lpad(\"2137\", \"0\", 8);").String!;
+            Assert.That(s, Is.EqualTo("00002137"));
+        }
+        
+        [Test]
+        public void RightPad()
+        {
+            var s = RunEvilCode("fn test() -> str.rpad(\"2137\", \"0\", 8);").String!;
+            Assert.That(s, Is.EqualTo("21370000"));
+        }
     }
 }
