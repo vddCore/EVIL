@@ -16,5 +16,19 @@ namespace Ceres.RuntimeTests.RuntimeModules
             Assert.That(t[1].String, Is.EqualTo("def"));
             Assert.That(t[2].String, Is.EqualTo("ghi"));
         }
+
+        [Test]
+        public void JoinEmpty()
+        {
+            var s = RunEvilCode("fn test() -> str.join(str.empty);").String!;
+            Assert.That(s, Is.EqualTo(string.Empty));
+        }
+        
+        [Test]
+        public void JoinVarious()
+        {
+            var s = RunEvilCode("fn test() -> str.join(\"|\", 1, \"test\", true);").String!;
+            Assert.That(s, Is.EqualTo("1|test|true"));
+        }
     }
 }

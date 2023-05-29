@@ -30,5 +30,14 @@ namespace Ceres.Runtime.Modules
 
             return table;
         }
+
+        [RuntimeModuleFunction("join")]
+        private static DynamicValue Join(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAtLeast(1)
+                .ExpectStringAt(0, out string delim);
+
+            return string.Join(delim, args.Skip(1).Select(x => x.ConvertToString().String!));
+        }
     }
 }
