@@ -66,6 +66,18 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
 
+        public static DynamicValue[] ExpectCharAt(this DynamicValue[] args, int index, out char value)
+        {
+            args.ExpectTypeAt(index, DynamicValueType.String);
+
+            var str = args[index].String!;
+            if (str.Length != 1)
+                throw new EvilRuntimeException($"Expected a single character at argument index {index}.");
+            
+            value = str[0];
+            return args;
+        }
+
         public static DynamicValue[] ExpectBooleanAt(this DynamicValue[] args, int index, out bool value)
         {
             args.ExpectTypeAt(index, DynamicValueType.Boolean);
