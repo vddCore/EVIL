@@ -8,6 +8,16 @@ namespace Ceres.Runtime.Extensions
 {
     public static class FunctionArgumentExtensions
     {
+        public static Table ToTable(this DynamicValue[] args)
+        {
+            var ret = new Table();
+
+            for (var i = 0; i < args.Length; i++)
+                ret[i] = args[i];
+            
+            return ret;
+        }
+        
         public static DynamicValue[] ExpectExactly(this DynamicValue[] args, int count)
         {
             if (count != args.Length)
@@ -108,6 +118,21 @@ namespace Ceres.Runtime.Extensions
         {
             args.ExpectTypeAt(index, DynamicValueType.Boolean);
             value = args[index].Boolean;
+
+            return args;
+        }
+        
+        public static DynamicValue[] OptionalBooleanAt(this DynamicValue[] args, int index, bool defaultValue, out bool value)
+        {
+            value = defaultValue;
+            
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+                
+                args.ExpectBooleanAt(index, out value);
+            }
 
             return args;
         }
