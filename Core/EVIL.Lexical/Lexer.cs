@@ -45,7 +45,7 @@ namespace EVIL.Lexical
             State.PreviousToken = State.CurrentToken;
             State.TokenStartColumn = State.Column;
             State.TokenStartLine = State.Line;
-            
+
             switch (State.Character)
             {
                 case '.' when Peek() == '.' && Peek(2) == '.':
@@ -251,6 +251,7 @@ namespace EVIL.Lexical
                     State.CurrentToken = Token.EOF;
                     break;
                 case '"':
+                case '\'':
                     State.CurrentToken = GetString();
                     break;
                 case '#' when Peek() == '[':
@@ -394,9 +395,20 @@ namespace EVIL.Lexical
         private Token GetString()
         {
             var str = string.Empty;
+            var encapsulator = State.Character;
+
+            if (encapsulator != '"' && encapsulator != '\'')
+            {
+                throw new LexerException(
+                    "Strings can only be encapsulated in '' or \"\".",
+                    State.Column,
+                    State.Line
+                );
+            }
+            
             Advance();
 
-            while (State.Character != '"')
+            while (State.Character != encapsulator)
             {
                 if (State.Character == (char)0)
                     throw new LexerException("Unterminated string.", State.Column, State.Line);
@@ -435,6 +447,9 @@ namespace EVIL.Lexical
                             break;
                         case '"':
                             str += '"';
+                            break;
+                        case '\'':
+                            str += '\'';
                             break;
                         case '\\':
                             str += '\\';
