@@ -68,6 +68,21 @@ namespace Ceres.Runtime.Extensions
             value = (long)args[index].Number;
             return args;
         }
+        
+        public static DynamicValue[] OptionalIntegerAt(this DynamicValue[] args, int index, long defaultValue, out long value)
+        {
+            value = defaultValue;
+            
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+                
+                args.ExpectIntegerAt(index, out value);
+            }
+
+            return args;
+        }
 
         public static DynamicValue[] ExpectStringAt(this DynamicValue[] args, int index, out string value)
         {

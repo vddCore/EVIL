@@ -1,8 +1,11 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
+using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.Runtime.Modules
 {
@@ -15,10 +18,11 @@ namespace Ceres.Runtime.Modules
             AddGetter("empty", (_) => string.Empty);
         }
 
-        [RuntimeModuleFunction("spl")]
+        [RuntimeModuleFunction("spl", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
-            args.ExpectStringAt(0, out var src)
+            args.ExpectExactly(2)
+                .ExpectStringAt(0, out var src)
                 .ExpectStringAt(1, out var delim);
 
             var segments = src.Split(delim);
@@ -32,7 +36,7 @@ namespace Ceres.Runtime.Modules
             return table;
         }
 
-        [RuntimeModuleFunction("join")]
+        [RuntimeModuleFunction("join", ReturnType = DynamicValueType.String)]
         private static DynamicValue Join(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -41,7 +45,7 @@ namespace Ceres.Runtime.Modules
             return string.Join(delim, args.Skip(1).Select(x => x.ConvertToString().String!));
         }
 
-        [RuntimeModuleFunction("rep")]
+        [RuntimeModuleFunction("rep", ReturnType = DynamicValueType.String)]
         private static DynamicValue Repeat(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -55,7 +59,7 @@ namespace Ceres.Runtime.Modules
             return sb.ToString();
         }
 
-        [RuntimeModuleFunction("index_of")]
+        [RuntimeModuleFunction("index_of", ReturnType = DynamicValueType.Number)]
         private static DynamicValue IndexOf(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -65,7 +69,7 @@ namespace Ceres.Runtime.Modules
             return haystack.IndexOf(needle, StringComparison.InvariantCulture);
         }
 
-        [RuntimeModuleFunction("is_empty")]
+        [RuntimeModuleFunction("is_empty", ReturnType = DynamicValueType.Boolean)]
         private static DynamicValue IsEmpty(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -74,7 +78,7 @@ namespace Ceres.Runtime.Modules
             return string.IsNullOrEmpty(value);
         }
         
-        [RuntimeModuleFunction("is_whitespace")]
+        [RuntimeModuleFunction("is_whitespace", ReturnType = DynamicValueType.Boolean)]
         private static DynamicValue IsWhiteSpace(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -83,7 +87,7 @@ namespace Ceres.Runtime.Modules
             return string.IsNullOrWhiteSpace(value);
         }
 
-        [RuntimeModuleFunction("lpad")]
+        [RuntimeModuleFunction("lpad", ReturnType = DynamicValueType.String)]
         private static DynamicValue LeftPad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -94,7 +98,7 @@ namespace Ceres.Runtime.Modules
             return source.PadLeft((int)totalWidth, pad);
         }
         
-        [RuntimeModuleFunction("rpad")]
+        [RuntimeModuleFunction("rpad", ReturnType = DynamicValueType.String)]
         private static DynamicValue RightPad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -103,6 +107,129 @@ namespace Ceres.Runtime.Modules
                 .ExpectIntegerAt(2, out var totalWidth);
 
             return source.PadRight((int)totalWidth, pad);
+        }
+        
+        [RuntimeModuleFunction("ucase", ReturnType = DynamicValueType.String)]
+        private static DynamicValue UpperCase(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(1)
+                .ExpectStringAt(0, out var source);
+
+            return source.ToUpper(CultureInfo.InvariantCulture);
+        }
+        
+        [RuntimeModuleFunction("lcase", ReturnType = DynamicValueType.String)]
+        private static DynamicValue LowerCase(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(1)
+                .ExpectStringAt(0, out var source);
+
+            return source.ToLower(CultureInfo.InvariantCulture);
+        }
+
+        [RuntimeModuleFunction("sub", ReturnType = DynamicValueType.String)]
+        private static DynamicValue Substring(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAtLeast(2)
+                .ExpectAtMost(3)
+                .ExpectStringAt(0, out var source)
+                .ExpectIntegerAt(1, out var startIndex)
+                .OptionalIntegerAt(2, defaultValue: -1, out var endIndex);
+
+            if (endIndex > 0)
+            {
+                if (startIndex > endIndex)
+                    return Nil;
+
+                try
+                {
+                    return source.Substring(
+                        (int)startIndex,
+                        (int)(source.Length - endIndex)
+                    );
+                }
+                catch
+                {
+                    return Nil;
+                }
+            }
+            else
+            {
+                try
+                {
+                    return source.Substring((int)startIndex);
+                }
+                catch
+                {
+                    return Nil;
+                }
+            }
+        }
+
+        [RuntimeModuleFunction("starts_with", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue StartsWith(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(2)
+                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(1, out var start);
+
+            return source.StartsWith(start);
+        }
+
+        [RuntimeModuleFunction("ends_with", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue EndsWith(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(2)
+                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(1, out var end);
+
+            return source.EndsWith(end);
+        }
+        
+        [RuntimeModuleFunction("rmatch", ReturnType = DynamicValueType.Table)]
+        private static DynamicValue RegexMatch(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(2)
+                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(1, out var regex);
+
+            if (!Regex.IsMatch(source, regex))
+                return Nil;
+
+            var ret = new Table();
+            
+            var matches = Regex.Matches(source, regex);
+            foreach (Match match in matches)
+            {
+                var matchTable = new Table
+                {
+                    { "name", match.Name },
+                    { "value", match.Value },
+                    { "starts_at", match.Index },
+                    { "length", match.Length },
+                    { "groups", new Table() }
+                };
+                
+                foreach (Group group in match.Groups)
+                {
+                    var groupTable = new Table
+                    {
+                        { "name", group.Name },
+                        { "value", group.Value },
+                        { "starts_at", group.Index },
+                        { "length", group.Length }
+                    };
+                    
+                    matchTable["groups"].Table!.Add(
+                        matchTable["groups"].Table!.Length,
+                        groupTable
+                    );
+                }
+
+                ret.Add(ret.Length, matchTable);
+            }
+
+            return ret;
         }
     }
 }
