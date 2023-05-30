@@ -29,6 +29,10 @@ namespace Ceres.ExecutionEngine.Collections
             }
         }
 
+        public Table()
+        {
+        }
+
         public void Add(DynamicValue key, DynamicValue value)
             => Set(key, value);
 
@@ -140,6 +144,35 @@ namespace Ceres.ExecutionEngine.Collections
             }
 
             return keys;
+        }
+
+        public Table ShallowCopy()
+        {
+            var copy = new Table();
+            
+            foreach (var kvp in this) 
+                copy[kvp.Key] = kvp.Value;
+
+            return copy;
+        }
+
+        public Table DeepCopy()
+        {
+            var copy = new Table();
+
+            foreach (var kvp in this)
+            {
+                if (kvp.Value.Type == DynamicValue.DynamicValueType.Table)
+                {
+                    copy[kvp.Key] = kvp.Value.Table!.DeepCopy();
+                }
+                else
+                {
+                    copy[kvp.Key] = kvp.Value;
+                }
+            }
+            
+            return copy;
         }
 
         public bool IsDeeplyEqualTo(Table other)

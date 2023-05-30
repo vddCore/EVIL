@@ -13,7 +13,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         private Stack<DynamicValue> _evaluationStack;
         private Stack<StackFrame> _callStack;
-        
+
         private ExecutionUnit _executionUnit;
 
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
@@ -33,6 +33,17 @@ namespace Ceres.ExecutionEngine.Concurrency
                 }
             }
         }
+        
+        public IReadOnlyCollection<StackFrame> CallStack
+        {
+            get
+            {
+                lock (_callStack)
+                {
+                    return _callStack;
+                }
+            }
+        }
 
         internal Fiber(CeresVM virtualMachine)
         {
@@ -43,7 +54,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             _evaluationStack = new Stack<DynamicValue>();
             _callStack = new Stack<StackFrame>();
-            
+
             _executionUnit = new ExecutionUnit(
                 virtualMachine.Global,
                 this,
