@@ -1,4 +1,5 @@
-﻿using Ceres.ExecutionEngine.Collections;
+﻿using System.Text;
+using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -65,6 +66,9 @@ namespace Ceres.Runtime.Modules
                     {
                         { "is_script", true },
                         { "fn_name", ssf.Chunk.Name ?? "<unknown>" },
+                        { "ip", ssf.IP },
+                        { "line", ssf.Chunk.HasDebugInfo ? ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP) : Nil },
+                        { "locals", ssf.Locals?.ToTable() ?? Nil },
                         { "args", ssf.Arguments.ToTable() },
                         { "xargs", ssf.ExtraArguments.DeepCopy() },
                         { "def_on_line", ssf.Chunk.HasDebugInfo ? ssf.Chunk.DebugDatabase.DefinedOnLine : Nil },
@@ -82,6 +86,15 @@ namespace Ceres.Runtime.Modules
             }
             
             return ret;
+        }
+
+        [RuntimeModuleFunction("strace_s", ReturnType = DynamicValueType.Table)]
+        private static DynamicValue StackTraceString(Fiber fiber, params DynamicValue[] args)
+        {
+            args.ExpectAtMost(1)
+                .OptionalBooleanAt(0, defaultValue: false, out var skipNativeFrames);
+
+            return fiber.StackTrace(skipNativeFrames);
         }
     }
 }

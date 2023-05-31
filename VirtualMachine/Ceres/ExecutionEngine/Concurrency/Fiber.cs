@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -33,7 +34,7 @@ namespace Ceres.ExecutionEngine.Concurrency
                 }
             }
         }
-        
+
         public IReadOnlyCollection<StackFrame> CallStack
         {
             get
@@ -65,6 +66,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             State = FiberState.Fresh;
         }
 
+
         public void Schedule(Chunk chunk, params DynamicValue[] args)
         {
             lock (_scheduledChunks)
@@ -79,6 +81,41 @@ namespace Ceres.ExecutionEngine.Concurrency
         {
             Schedule(chunk, args);
             await WaitUntilFinished();
+        }
+
+        public string StackTrace(bool skipNativeFrames)
+        {
+            var sb = new StringBuilder();
+            
+            StackFrame[] callStack;
+
+            if (skipNativeFrames)
+            {
+                callStack = CallStack.Where(x => x is ScriptStackFrame).ToArray();
+            }
+            else
+            {
+                callStack = CallStack.ToArray();
+            }
+
+            for (var i = 0; i < callStack.Length; i++)
+            {
+                if (callStack[i] is ScriptStackFrame ssf)
+                {
+                    sb.Append($"at {ssf.Chunk.Name ?? "<unknown>"}");
+                    if (ssf.Chunk.HasDebugInfo)
+                    {
+                        sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)}");
+                    }
+                    sb.AppendLine();
+                }
+                else if (callStack[i] is NativeStackFrame nsf)
+                {
+                    sb.AppendLine($"at {nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
+                }
+            }
+
+            return sb.ToString();
         }
 
         public void Step()
