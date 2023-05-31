@@ -21,7 +21,7 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         }
         
         public int GetLineForIP(int ip) 
-            => _records.FirstOrDefault(x => x.IP == ip).Line;
+            => _records.FirstOrDefault(x => x.IP <= ip).Line;
 
         public void SetParameterName(int id, string name)
         {

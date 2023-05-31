@@ -19,6 +19,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public DynamicValue[]? Locals { get; }
 
+        public long PreviousOpCodeIP { get; private set; }
         public long IP => _chunkReader.BaseStream.Position;
 
         internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue[] args)
@@ -87,11 +88,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
         internal void Return()
             => _chunkReader.BaseStream.Seek(0, SeekOrigin.End);
 
-        internal void Advance()
+        internal void Advance() 
             => _chunkReader.BaseStream.Position++;
 
         internal OpCode PeekOpCode()
-        {
+        {            
             var opCode = FetchOpCode();
 
             _chunkReader.BaseStream.Position--;
@@ -99,7 +100,10 @@ namespace Ceres.ExecutionEngine.Diagnostics
         }
 
         internal OpCode FetchOpCode()
-            => (OpCode)_chunkReader.ReadByte();
+        {
+            PreviousOpCodeIP = IP;
+            return (OpCode)_chunkReader.ReadByte();
+        }
 
         internal byte FetchByte()
             => _chunkReader.ReadByte();
