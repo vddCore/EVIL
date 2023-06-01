@@ -43,7 +43,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         protected DynamicValue RunEvilCode(string source)
         {
             var prog = _parser.Parse(source);
-            var script = _compiler.Compile(prog);
+            var script = _compiler.Compile(prog, "!module_test_file!");
 
             foreach (var chunk in script.Chunks) 
                 _vm.Global[chunk.Name] = chunk;

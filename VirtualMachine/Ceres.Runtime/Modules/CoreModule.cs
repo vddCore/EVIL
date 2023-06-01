@@ -71,7 +71,8 @@ namespace Ceres.Runtime.Modules
                         { "locals", ssf.Locals?.ToTable() ?? Nil },
                         { "args", ssf.Arguments.ToTable() },
                         { "xargs", ssf.ExtraArguments.DeepCopy() },
-                        { "def_on_line", ssf.Chunk.HasDebugInfo ? ssf.Chunk.DebugDatabase.DefinedOnLine : Nil },
+                        { "def_on_line", ssf.Chunk.DebugDatabase.DefinedOnLine > 0 ? ssf.Chunk.DebugDatabase.DefinedOnLine : Nil },
+                        { "def_in_file", !string.IsNullOrEmpty(ssf.Chunk.DebugDatabase.DefinedInFile) ? ssf.Chunk.DebugDatabase.DefinedInFile : Nil }
                     };
                 }
                 else if (callStack[i] is NativeStackFrame nsf && !skipNativeFrames)

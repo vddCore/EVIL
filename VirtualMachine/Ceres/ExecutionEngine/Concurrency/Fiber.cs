@@ -86,7 +86,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         public string StackTrace(bool skipNativeFrames)
         {
             var sb = new StringBuilder();
-            
+
             StackFrame[] callStack;
 
             if (skipNativeFrames)
@@ -103,15 +103,23 @@ namespace Ceres.ExecutionEngine.Concurrency
                 if (callStack[i] is ScriptStackFrame ssf)
                 {
                     sb.Append($"at {ssf.Chunk.Name ?? "<unknown>"}");
-                    if (ssf.Chunk.HasDebugInfo)
+
+                    if (!string.IsNullOrEmpty(ssf.Chunk.DebugDatabase.DefinedInFile))
+                    {
+                        sb.Append($" in {ssf.Chunk.DebugDatabase.DefinedInFile}");
+                    }
+                    
+                    if (ssf.Chunk.DebugDatabase.DefinedOnLine > 0)
                     {
                         sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)}");
                     }
+                    
                     sb.AppendLine();
                 }
                 else if (callStack[i] is NativeStackFrame nsf)
                 {
-                    sb.AppendLine($"at {nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
+                    sb.AppendLine(
+                        $"at {nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
                 }
             }
 
