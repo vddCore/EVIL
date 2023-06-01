@@ -38,8 +38,12 @@ namespace Ceres.TranslationEngine
         private int Line { get; set; }
         private int Column { get; set; }
 
-        public Script Compile(Program program)
+        private string CurrentFileName { get; set; } = string.Empty;
+
+        public Script Compile(Program program, string fileName = "")
         {
+            CurrentFileName = fileName;
+            
             Visit(program);
             return _script;
         }
@@ -139,7 +143,8 @@ namespace Ceres.TranslationEngine
         private void InTopLevelChunk(Action action, string? name = null)
         {
             var chunk = new Chunk { Name = name };
-
+            chunk.DebugDatabase.DefinedInFile = CurrentFileName;
+            
             _chunks.Push(chunk);
             {
                 action();

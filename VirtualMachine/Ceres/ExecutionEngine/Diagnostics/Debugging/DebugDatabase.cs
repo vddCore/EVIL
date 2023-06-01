@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 
@@ -12,6 +13,7 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         private readonly Dictionary<int, string> _localNames = new();
 
         public int DefinedOnLine { get; internal set; } = -1;
+        public string DefinedInFile { get; internal set; } = string.Empty;
 
         public DebugRecord AddDebugRecord(int line, int ip)
         {
@@ -64,11 +66,13 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             _parameterNames.Clear();
             _localNames.Clear();
             DefinedOnLine = -1;
+            DefinedInFile = string.Empty;
         }
 
         internal void Serialize(BinaryWriter bw)
         {
             bw.Write(DefinedOnLine);
+            bw.Write(DefinedInFile);
             
             bw.Write(_records.Count);
             foreach (var record in _records)
@@ -97,6 +101,7 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             Strip();
             
             DefinedOnLine = br.ReadInt32();
+            DefinedInFile = br.ReadString();
 
             var recordCount = br.ReadInt32();
             for (var i = 0; i < recordCount; i++)
@@ -134,7 +139,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             return _records.SequenceEqual(other._records) 
                 && _parameterNames.SequenceEqual(other._parameterNames) 
                 && _localNames.SequenceEqual(other._localNames)
-                && DefinedOnLine == other.DefinedOnLine;
+                && DefinedOnLine == other.DefinedOnLine
+                && DefinedInFile == other.DefinedInFile;
         }
 
         public override bool Equals(object? obj) 
@@ -147,7 +153,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
                 _records, 
                 _parameterNames,
                 _localNames,
-                DefinedOnLine
+                DefinedOnLine,
+                DefinedInFile
             );
 
         public static bool operator ==(DebugDatabase? left, DebugDatabase? right) 
