@@ -90,6 +90,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "fn test() {\n" +
                 "   var test = 20;\n" +
                 "   var test2 = 21;\n" +
+                "\n" +
                 "   ret nested_0();\n" +
                 "}\n"
             ).String!;
@@ -98,7 +99,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
             Assert.That(s.Contains("at nested_2 in !module_test_file!: line 2"));
             Assert.That(s.Contains("at nested_1 in !module_test_file!: line 5"));
             Assert.That(s.Contains("at nested_0 in !module_test_file!: line 8"));
-            Assert.That(s.Contains("at test in !module_test_file!: line 13"));
+            Assert.That(s.Contains("at test in !module_test_file!: line 14"));
         }
     }
 }

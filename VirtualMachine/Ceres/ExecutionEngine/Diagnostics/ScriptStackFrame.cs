@@ -101,8 +101,10 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         internal OpCode FetchOpCode()
         {
-            PreviousOpCodeIP = IP;
-            return (OpCode)_chunkReader.ReadByte();
+            var opCode = (OpCode)_chunkReader.ReadByte();
+            PreviousOpCodeIP = IP - 1;
+
+            return opCode;
         }
 
         internal byte FetchByte()
