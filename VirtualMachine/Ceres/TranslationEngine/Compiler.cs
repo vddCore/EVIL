@@ -18,7 +18,6 @@ namespace Ceres.TranslationEngine
     public class Compiler : AstVisitor
     {
         private Script _script = new();
-        private int _lastLine = -1;
 
 #nullable disable
         private Scope _rootScope;
@@ -53,17 +52,15 @@ namespace Ceres.TranslationEngine
             Line = node.Line;
             Column = node.Column;
 
-            if (_blockDescent > 0 && Line != _lastLine && _chunks.Any())
+            base.Visit(node);
+            
+            if (_blockDescent > 0 && _chunks.Any())
             {
                 Chunk.DebugDatabase.AddDebugRecord(
                     Line,
                     Chunk.CodeGenerator.IP
                 );
-
-                _lastLine = Line;
             }
-
-            base.Visit(node);
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)

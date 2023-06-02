@@ -8,22 +8,34 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
 {
     public sealed class DebugDatabase : IEquatable<DebugDatabase>
     {
-        private readonly HashSet<DebugRecord> _records = new();
+        private readonly Dictionary<int, HashSet<int>> _records = new();
         private readonly Dictionary<int, string> _parameterNames = new();
         private readonly Dictionary<int, string> _localNames = new();
 
         public int DefinedOnLine { get; internal set; } = -1;
         public string DefinedInFile { get; internal set; } = string.Empty;
 
-        public DebugRecord AddDebugRecord(int line, int ip)
+        public void AddDebugRecord(int line, int ip)
         {
-            var ret = new DebugRecord(line, ip);
-            _records.Add(ret);
-            return ret;
+            if (!_records.TryGetValue(line, out var addresses))
+            {
+                addresses = new HashSet<int>();
+                _records.Add(line, addresses);
+            }
+
+            addresses.Add(ip);
         }
-        
-        public int GetLineForIP(int ip) 
-            => _records.FirstOrDefault(x => x.IP <= ip).Line;
+
+        public int GetLineForIP(int ip)
+        {
+            foreach (var kvp in _records)
+            {
+                if (kvp.Value.Contains(ip))
+                    return kvp.Key;
+            }
+
+            return -1;
+        }
 
         public void SetParameterName(int id, string name)
         {
@@ -77,8 +89,11 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             bw.Write(_records.Count);
             foreach (var record in _records)
             {
-                bw.Write(record.Line);
-                bw.Write(record.IP);
+                bw.Write(record.Key);
+                bw.Write(record.Value.Count);
+
+                foreach (var addr in record.Value) 
+                    bw.Write(addr);
             }
 
             bw.Write(_localNames.Count);
@@ -106,10 +121,16 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             var recordCount = br.ReadInt32();
             for (var i = 0; i < recordCount; i++)
             {
-                AddDebugRecord(
-                    br.ReadInt32(),
-                    br.ReadInt32()
-                );
+                var line = br.ReadInt32();
+                var addrCount = br.ReadInt32();
+
+                for (var j = 0; j < addrCount; j++)
+                {
+                    AddDebugRecord(
+                        line,
+                        br.ReadInt32()
+                    );
+                }
             }
 
             var localNameCount = br.ReadInt32();
@@ -135,8 +156,15 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
+
+            var recordsEqual = true;
+            recordsEqual &= _records.Keys.SequenceEqual(other._records.Keys);
+            foreach (var kvp in _records)
+            {
+                recordsEqual &= kvp.Value.SequenceEqual(other._records[kvp.Key]);
+            }
             
-            return _records.SequenceEqual(other._records) 
+            return recordsEqual
                 && _parameterNames.SequenceEqual(other._parameterNames) 
                 && _localNames.SequenceEqual(other._localNames)
                 && DefinedOnLine == other.DefinedOnLine
