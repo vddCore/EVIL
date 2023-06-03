@@ -12,8 +12,6 @@ namespace EVIL.Grammar.Parsing
             switch (token.Type)
             {
                 case TokenType.AttributeList:
-                    return AttributeList();
-
                 case TokenType.Fn:
                     return FunctionDefinition();
             }

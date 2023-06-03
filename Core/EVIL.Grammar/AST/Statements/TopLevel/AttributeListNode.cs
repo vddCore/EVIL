@@ -4,11 +4,11 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 namespace EVIL.Grammar.AST.Statements.TopLevel
 {
-    public class AttributeListStatement : TopLevelStatement
+    public class AttributeListNode : TopLevelStatement
     {
         public List<AttributeNode> Attributes { get; }
 
-        public AttributeListStatement(List<AttributeNode> attributes)
+        public AttributeListNode(List<AttributeNode> attributes)
         {
             Attributes = attributes;
             Reparent(Attributes);

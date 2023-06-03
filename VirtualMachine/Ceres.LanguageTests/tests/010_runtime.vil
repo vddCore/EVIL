@@ -1,2 +1,2 @@
-﻿#[test(16)] fn print_test() -> core.print("wewoo.", 123, 21.37);
+﻿#[test(18)] fn print_test() -> io.print("wewoo.", 123, 21.37, "\n");
 #[test(20)] fn sqrt_test() -> math.sqrt(400);

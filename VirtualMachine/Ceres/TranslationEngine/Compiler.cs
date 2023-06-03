@@ -25,7 +25,6 @@ namespace Ceres.TranslationEngine
 #nullable enable
 
         private readonly Stack<Chunk> _chunks = new();
-        private List<ChunkAttribute> _attributeList = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
 
         private int _blockDescent = 0;
@@ -47,13 +46,8 @@ namespace Ceres.TranslationEngine
             return _script;
         }
 
-        public override void Visit(AstNode node)
+        private void AddCurrentLocationToDebugDatabase()
         {
-            Line = node.Line;
-            Column = node.Column;
-
-            base.Visit(node);
-            
             if (_blockDescent > 0 && _chunks.Any())
             {
                 Chunk.DebugDatabase.AddDebugRecord(
@@ -61,6 +55,17 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.IP
                 );
             }
+
+        }
+
+        public override void Visit(AstNode node)
+        {
+            Line = node.Line;
+            Column = node.Column;
+
+            AddCurrentLocationToDebugDatabase();
+            base.Visit(node);
+            AddCurrentLocationToDebugDatabase();
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
@@ -83,15 +88,6 @@ namespace Ceres.TranslationEngine
             foreach (var node in program.Statements)
             {
                 Visit(node);
-            }
-
-            if (_attributeList.Any())
-            {
-                throw new CompilerException(
-                    Line,
-                    Column,
-                    "Stray attributes detected in file."
-                );
             }
         }
 
@@ -142,39 +138,14 @@ namespace Ceres.TranslationEngine
             var chunk = new Chunk { Name = name };
             chunk.DebugDatabase.DefinedInFile = CurrentFileName;
             
+            
             _chunks.Push(chunk);
             {
                 action();
             }
 
-            ApplyAnyPendingAttributes(chunk);
-
             _script.Chunks.Add(chunk);
             _chunks.Pop();
-        }
-
-        private void ApplyAnyPendingAttributes(Chunk chunk)
-        {
-            foreach (var attrib in _attributeList)
-            {
-                if (_attributeProcessors.TryGetValue(attrib.Name, out var processors))
-                {
-                    foreach (var processor in processors)
-                    {
-                        try
-                        {
-                            processor.Invoke(attrib, chunk);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new AttributeProcessorException(attrib, chunk, e);
-                        }
-                    }
-                }
-
-                chunk.AddAttribute(attrib);
-            }
-            _attributeList.Clear();
         }
 
         private void InNewScopeDo(Action action)
@@ -276,14 +247,23 @@ namespace Ceres.TranslationEngine
                     ExtractConstantValueFrom(propertyKvp.Value)
                 );
             }
-
-            _attributeList.Add(attribute);
-        }
-
-        public override void Visit(AttributeListStatement attributeListStatement)
-        {
-            foreach (var attr in attributeListStatement.Attributes)
-                Visit(attr);
+            
+            Chunk.AddAttribute(attribute);
+            
+            if (_attributeProcessors.TryGetValue(attribute.Name, out var processors))
+            {
+                foreach (var processor in processors)
+                {
+                    try
+                    {
+                        processor.Invoke(attribute, Chunk);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new AttributeProcessorException(attribute, Chunk, e);
+                    }
+                }
+            }
         }
 
         public override void Visit(ReturnStatement returnStatement)
@@ -536,12 +516,21 @@ namespace Ceres.TranslationEngine
                 if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
                 {
                     if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
+                    {
+                        foreach (var attr in functionDefinition.Attributes)
+                            Visit(attr);
+                        
                         return;
+                    }
                 }
 
                 /* Either we have no instructions in chunk, or it's not a RET. */
                 Chunk.CodeGenerator.Emit(OpCode.LDNIL);
                 Chunk.CodeGenerator.Emit(OpCode.RET);
+                
+                foreach (var attr in functionDefinition.Attributes)
+                    Visit(attr);
+                
             }, functionDefinition.Identifier);
         }
 

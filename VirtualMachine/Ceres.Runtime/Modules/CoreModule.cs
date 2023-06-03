@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Ceres.ExecutionEngine.Collections;
+﻿using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -11,34 +10,6 @@ namespace Ceres.Runtime.Modules
     public sealed class CoreModule : RuntimeModule
     {
         public override string FullyQualifiedName => "core";
-        
-        [RuntimeModuleFunction("print", ReturnType = DynamicValueType.Number)]
-        private static DynamicValue Print(Fiber _, params DynamicValue[] args)
-        {
-            args.ExpectAtLeast(1);
-            
-            var str = string.Join(
-                "\t",
-                args.Select(x => x.ConvertToString().String)
-            );
-
-            Console.Write(str);
-            return str.Length;
-        }
-        
-        [RuntimeModuleFunction("println", ReturnType = DynamicValueType.Number)]
-        private static DynamicValue PrintLine(Fiber _, params DynamicValue[] args)
-        {
-            var str = string.Join(
-                "\t",
-                args.Select(x => x.ConvertToString().String)
-            );
-
-            Console.Write(str);
-            Console.Write(Environment.NewLine);
-            
-            return str.Length + Environment.NewLine.Length;
-        }
 
         [RuntimeModuleFunction("strace", ReturnType = DynamicValueType.Table)]
         private static DynamicValue StackTrace(Fiber fiber, params DynamicValue[] args)
@@ -89,7 +60,7 @@ namespace Ceres.Runtime.Modules
             return ret;
         }
 
-        [RuntimeModuleFunction("strace_s", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("strace_s", ReturnType = DynamicValueType.String)]
         private static DynamicValue StackTraceString(Fiber fiber, params DynamicValue[] args)
         {
             args.ExpectAtMost(1)

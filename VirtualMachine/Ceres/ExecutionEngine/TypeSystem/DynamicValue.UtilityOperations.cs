@@ -78,7 +78,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             }
             
             throw new UnsupportedDynamicValueOperationException(
-                $"Attempt to index a {a.Type}."
+                $"Attempt to index a {a.Type} value."
             );
         }
 

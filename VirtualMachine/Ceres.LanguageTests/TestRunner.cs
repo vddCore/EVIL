@@ -55,7 +55,7 @@ namespace Ceres.LanguageTests
                 try
                 {
                     var program = parser.Parse(source);
-                    var script = compiler.Compile(program);
+                    var script = compiler.Compile(program, Path.GetFileName(path));
                     TestScripts.Add(path, script);
                 }
                 catch (LexerException le)

@@ -49,7 +49,6 @@ namespace EVIL.Grammar.Traversal
                 { typeof(DecrementationExpression), (n) => Visit((DecrementationExpression)n) },
                 { typeof(ExpressionStatement), (n) => Visit((ExpressionStatement)n) },
                 { typeof(AttributeNode), (n) => Visit((AttributeNode)n) },
-                { typeof(AttributeListStatement), (n) => Visit((AttributeListStatement)n) },
                 { typeof(TypeOfExpression), (n) => Visit((TypeOfExpression)n) },
                 { typeof(YieldExpression), (n) => Visit((YieldExpression)n) },
                 { typeof(ExpressionBodyStatement), (n) => Visit((ExpressionBodyStatement)n) },
@@ -102,7 +101,6 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(DecrementationExpression decrementationExpression);
         public abstract void Visit(ExpressionStatement expressionStatement);
         public abstract void Visit(AttributeNode attributeNode);
-        public abstract void Visit(AttributeListStatement attributeListStatement);
         public abstract void Visit(TypeOfExpression typeOfExpression);
         public abstract void Visit(YieldExpression yieldExpression);
         public abstract void Visit(ExpressionBodyStatement expressionBodyStatement);
