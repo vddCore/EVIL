@@ -1,6 +1,8 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Lexical;
@@ -11,6 +13,13 @@ namespace EVIL.Grammar.Parsing
     {
         private FunctionDefinition FunctionDefinition()
         {
+            var attributes = new List<AttributeNode>();
+
+            while (CurrentToken == Token.AttributeList)
+            {
+                attributes.AddRange(AttributeList().Attributes);
+            }
+            
             var (line, col) = Match(Token.Fn);
             var funcName = CurrentToken.Value!;
 
@@ -35,8 +44,12 @@ namespace EVIL.Grammar.Parsing
                 );
             }
 
-            return new FunctionDefinition(funcName, parameterList, statement)
-                { Line = line, Column = col };
+            return new FunctionDefinition(
+                funcName,
+                parameterList,
+                statement,
+                attributes
+            ) { Line = line, Column = col };
         }
     }
 }

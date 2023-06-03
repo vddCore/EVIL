@@ -1,7 +1,5 @@
 ﻿using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
-using Ceres.ExecutionEngine.Concurrency;
-using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.Runtime.Modules;
@@ -22,6 +20,7 @@ namespace Ceres.Runtime
         public void RegisterBuiltInModules()
         {
             RegisterModule<CoreModule>();
+            RegisterModule<IoModule>();
             RegisterModule<MathModule>();
             RegisterModule<StringModule>();
             RegisterModule<TimeModule>();

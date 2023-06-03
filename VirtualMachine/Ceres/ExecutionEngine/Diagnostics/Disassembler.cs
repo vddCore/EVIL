@@ -64,6 +64,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             output.WriteLine();
             output.WriteLine("  .TEXT {");
 
+            var prevLine = -1;
             using (var reader = chunk.SpawnCodeReader())
             {
                 while (reader.BaseStream.Position < reader.BaseStream.Length)
@@ -74,8 +75,15 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     if (chunk.HasDebugInfo)
                     {
                         var line = chunk.DebugDatabase.GetLineForIP((int)ip);
+
                         if (line > 0)
-                            output.WriteLine($"   line {line}:");
+                        {
+                            if (prevLine != line)
+                            {
+                                output.WriteLine($"   line {line}:");
+                                prevLine = line;
+                            }
+                        }
                     }
                     
                     output.Write($"    {ip:X8}: ");

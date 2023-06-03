@@ -341,7 +341,7 @@ namespace Ceres.ExecutionEngine
                 {
                     var args = frame.Arguments;
 
-                    for (var i = 0; i < frame.Arguments?.Length; i++)
+                    for (var i = 0; i < frame.Arguments.Length; i++)
                     {
                         args[args.Length - i - 1] = PopValue();
                     }
