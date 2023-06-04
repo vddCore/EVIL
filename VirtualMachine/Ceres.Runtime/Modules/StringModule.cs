@@ -68,6 +68,16 @@ namespace Ceres.Runtime.Modules
             
             return haystack.IndexOf(needle, StringComparison.InvariantCulture);
         }
+        
+        [RuntimeModuleFunction("last_index_of", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue LastIndexOf(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(2)
+                .ExpectStringAt(0, out var haystack)
+                .ExpectStringAt(1, out var needle);
+            
+            return haystack.LastIndexOf(needle, StringComparison.InvariantCulture);
+        }
 
         [RuntimeModuleFunction("is_empty", ReturnType = DynamicValueType.Boolean)]
         private static DynamicValue IsEmpty(Fiber _, params DynamicValue[] args)
@@ -107,6 +117,60 @@ namespace Ceres.Runtime.Modules
                 .ExpectIntegerAt(2, out var totalWidth);
 
             return source.PadRight((int)totalWidth, pad);
+        }
+        
+        [RuntimeModuleFunction("trim", ReturnType = DynamicValueType.String)]
+        private static DynamicValue TrimtTrim(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAtLeast(1)
+                .ExpectStringAt(0, out var source);
+
+            var chars = new char[args.Length - 1];
+            if (args.Length > 1)
+            {
+                for (var i = 1; i < args.Length; i++)
+                {
+                    args.ExpectCharAt(i, out chars[i - 1]);
+                }
+            }
+
+            return source.Trim(chars.ToArray());
+        }
+        
+        [RuntimeModuleFunction("ltrim", ReturnType = DynamicValueType.String)]
+        private static DynamicValue LeftTrim(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAtLeast(1)
+                .ExpectStringAt(0, out var source);
+
+            var chars = new char[args.Length - 1];
+            if (args.Length > 1)
+            {
+                for (var i = 1; i < args.Length; i++)
+                {
+                    args.ExpectCharAt(i, out chars[i - 1]);
+                }
+            }
+
+            return source.TrimStart(chars.ToArray());
+        }
+        
+        [RuntimeModuleFunction("rtrim", ReturnType = DynamicValueType.String)]
+        private static DynamicValue RightTrim(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAtLeast(1)
+                .ExpectStringAt(0, out var source);
+
+            var chars = new char[args.Length - 1];
+            if (args.Length > 1)
+            {
+                for (var i = 1; i < args.Length; i++)
+                {
+                    args.ExpectCharAt(i, out chars[i - 1]);
+                }
+            }
+
+            return source.TrimEnd(chars.ToArray());
         }
         
         [RuntimeModuleFunction("ucase", ReturnType = DynamicValueType.String)]
