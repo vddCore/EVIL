@@ -46,6 +46,13 @@ namespace Ceres.RuntimeTests.RuntimeModules
         }
         
         [Test]
+        public void LastIndexOf()
+        {
+            var n = RunEvilCode("fn test() -> str.last_index_of('hello hello hello hello', 'hello');").Number;
+            Assert.That(n, Is.EqualTo(18));
+        }
+        
+        [Test]
         public void IsEmpty()
         {
             var b = RunEvilCode("fn test() -> str.is_empty('');").Boolean;
@@ -71,6 +78,27 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var s = RunEvilCode("fn test() -> str.rpad('2137', '0', 8);").String!;
             Assert.That(s, Is.EqualTo("21370000"));
+        }
+        
+        [Test]
+        public void LeftTrim()
+        {
+            var s = RunEvilCode("fn test() -> str.ltrim('21372', '2');").String!;
+            Assert.That(s, Is.EqualTo("1372"));
+        }
+        
+        [Test]
+        public void RightTrim()
+        {
+            var s = RunEvilCode("fn test() -> str.rtrim('21372', '2', '7');").String!;
+            Assert.That(s, Is.EqualTo("213"));
+        }
+        
+        [Test]
+        public void Trim()
+        {
+            var s = RunEvilCode("fn test() -> str.trim('21372', '2');").String!;
+            Assert.That(s, Is.EqualTo("137"));
         }
         
         [Test]
