@@ -1,5 +1,6 @@
 ﻿using Ceres.Runtime.Modules;
 using NUnit.Framework;
+using Shouldly;
 
 namespace Ceres.RuntimeTests.RuntimeModules
 {
@@ -8,164 +9,183 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void Split()
         {
-            var t = RunEvilCode(
+            var t = EvilTestResult(
                 "fn test() -> str.spl('abc|def|ghi', '|');"
             ).Table!;
 
-            Assert.That(t[0].String, Is.EqualTo("abc"));
-            Assert.That(t[1].String, Is.EqualTo("def"));
-            Assert.That(t[2].String, Is.EqualTo("ghi"));
+            t[0].ShouldBe("abc");
+            t[1].ShouldBe("def");
+            t[2].ShouldBe("ghi");
         }
 
         [Test]
         public void JoinEmpty()
         {
-            var s = RunEvilCode("fn test() -> str.join(str.empty);").String!;
-            Assert.That(s, Is.EqualTo(string.Empty));
+            EvilTestResult(
+                "fn test() -> str.join(str.empty);"
+            ).ShouldBe(string.Empty);
         }
-        
+
         [Test]
         public void JoinVarious()
         {
-            var s = RunEvilCode("fn test() -> str.join('|', 1, 'test', true);").String!;
-            Assert.That(s, Is.EqualTo("1|test|true"));
+            EvilTestResult(
+                "fn test() -> str.join('|', 1, 'test', true);"
+            ).ShouldBe("1|test|true");
         }
 
         [Test]
         public void Repeat()
         {
-            var s = RunEvilCode("fn test() -> str.rep('test', 4);").String!;
-            Assert.That(s, Is.EqualTo("testtesttesttest"));
+            EvilTestResult(
+                "fn test() -> str.rep('test', 4);"
+            ).ShouldBe("testtesttesttest");
         }
 
         [Test]
         public void IndexOf()
         {
-            var n = RunEvilCode("fn test() -> str.index_of('hello, world!', 'w');").Number;
-            Assert.That(n, Is.EqualTo(7));
+            EvilTestResult(
+                "fn test() -> str.index_of('hello, world!', 'w');"
+            ).ShouldBe(7);
         }
-        
+
         [Test]
         public void LastIndexOf()
         {
-            var n = RunEvilCode("fn test() -> str.last_index_of('hello hello hello hello', 'hello');").Number;
-            Assert.That(n, Is.EqualTo(18));
+            EvilTestResult(
+                "fn test() -> str.last_index_of('hello hello hello hello', 'hello');"
+            ).ShouldBe(18);
         }
-        
+
         [Test]
         public void IsEmpty()
         {
-            var b = RunEvilCode("fn test() -> str.is_empty('');").Boolean;
-            Assert.That(b, Is.True);
+            EvilTestResult(
+                "fn test() -> str.is_empty('');"
+            ).ShouldBe(true);
         }
-        
+
         [Test]
         public void IsWhiteSpace()
         {
-            var b = RunEvilCode("fn test() -> str.is_whitespace('');").Boolean;
-            Assert.That(b, Is.True);
+            EvilTestResult(
+                "fn test() -> str.is_whitespace('');"
+            ).ShouldBe(true);
         }
 
         [Test]
         public void LeftPad()
         {
-            var s = RunEvilCode("fn test() -> str.lpad('2137', '0', 8);").String!;
-            Assert.That(s, Is.EqualTo("00002137"));
+            EvilTestResult(
+                "fn test() -> str.lpad('2137', '0', 8);"
+            ).ShouldBe("00002137");
         }
-        
+
         [Test]
         public void RightPad()
         {
-            var s = RunEvilCode("fn test() -> str.rpad('2137', '0', 8);").String!;
-            Assert.That(s, Is.EqualTo("21370000"));
+            EvilTestResult(
+                "fn test() -> str.rpad('2137', '0', 8);"
+            ).ShouldBe("21370000");
         }
-        
+
         [Test]
         public void LeftTrim()
         {
-            var s = RunEvilCode("fn test() -> str.ltrim('21372', '2');").String!;
-            Assert.That(s, Is.EqualTo("1372"));
+            EvilTestResult(
+                "fn test() -> str.ltrim('21372', '2');"
+            ).ShouldBe("1372");
         }
-        
+
         [Test]
         public void RightTrim()
         {
-            var s = RunEvilCode("fn test() -> str.rtrim('21372', '2', '7');").String!;
-            Assert.That(s, Is.EqualTo("213"));
+            EvilTestResult(
+                "fn test() -> str.rtrim('21372', '2', '7');"
+            ).ShouldBe("213");
         }
-        
+
         [Test]
         public void Trim()
         {
-            var s = RunEvilCode("fn test() -> str.trim('21372', '2');").String!;
-            Assert.That(s, Is.EqualTo("137"));
+            EvilTestResult(
+                "fn test() -> str.trim('21372', '2');"
+            ).ShouldBe("137");
         }
-        
+
         [Test]
         public void UpperCase()
         {
-            var s = RunEvilCode("fn test() -> str.ucase('i was lowercase. ą.');").String!;
-            Assert.That(s, Is.EqualTo("I WAS LOWERCASE. Ą."));
+            EvilTestResult(
+                "fn test() -> str.ucase('i was lowercase. ą.');"
+            ).ShouldBe("I WAS LOWERCASE. Ą.");
         }
-        
+
         [Test]
         public void LowerCase()
         {
-            var s = RunEvilCode("fn test() -> str.lcase('I WAS UPPERCASE ONCE. Ą.');").String!;
-            Assert.That(s, Is.EqualTo("i was uppercase once. ą."));
+            EvilTestResult(
+                "fn test() -> str.lcase('I WAS UPPERCASE ONCE. Ą.');"
+            ).ShouldBe("i was uppercase once. ą.");
         }
 
         [Test]
         public void SubstringFrom()
         {
-            var s = RunEvilCode("fn test() -> str.sub('hello, world', 7);").String!;
-            Assert.That(s, Is.EqualTo("world"));
+            EvilTestResult(
+                "fn test() -> str.sub('hello, world', 7);"
+            ).ShouldBe("world");
         }
-        
+
         [Test]
         public void SubstringFromWithNil()
         {
-            var s = RunEvilCode("fn test() -> str.sub('hello, world', 7, nil);").String!;
-            Assert.That(s, Is.EqualTo("world"));
+            EvilTestResult(
+                "fn test() -> str.sub('hello, world', 7, nil);"
+            ).ShouldBe("world");
         }
-        
+
         [Test]
         public void SubstringFromTo()
         {
-            var s = RunEvilCode("fn test() -> str.sub('hello, world', 3, 7);").String!;
-            Assert.That(s, Is.EqualTo("lo, w"));
+            EvilTestResult(
+                "fn test() -> str.sub('hello, world', 3, 7);"
+            ).ShouldBe("lo, w");
         }
 
         [Test]
         public void StartsWith()
         {
-            var s = RunEvilCode("fn test() -> str.starts_with('hello, world', 'hel');").Boolean!;
-            Assert.That(s, Is.EqualTo(true));
+            EvilTestResult(
+                "fn test() -> str.starts_with('hello, world', 'hel');"
+            ).ShouldBe(true);
         }
-        
+
         [Test]
         public void EndsWith()
         {
-            var s = RunEvilCode("fn test() -> str.ends_with('hello, world', 'orld');").Boolean!;
-            Assert.That(s, Is.EqualTo(true));
+            EvilTestResult(
+                "fn test() -> str.ends_with('hello, world', 'orld');"
+            ).ShouldBe(true);
         }
 
         [Test]
         public void RegexMatch()
         {
-            var t = RunEvilCode(
+            var t = EvilTestResult(
                 "fn test() -> str.rmatch(" +
                 "   'This 21 is 37 an example 00 of 12 a test string 99.'," +
-               @"   '(\\w+) (\\d+)'" +
+                @"   '(\\w+) (\\d+)'" +
                 ");"
             ).Table!;
 
-            Assert.That(t.Length, Is.EqualTo(5));
-            Assert.That(t[0].Table!["value"].String!, Is.EqualTo("This 21"));
-            Assert.That(t[1].Table!["value"].String!, Is.EqualTo("is 37"));
-            Assert.That(t[2].Table!["value"].String!, Is.EqualTo("example 00"));
-            Assert.That(t[3].Table!["value"].String!, Is.EqualTo("of 12"));
-            Assert.That(t[4].Table!["value"].String!, Is.EqualTo("string 99"));
+            t.Length.ShouldBe(5);
+            t[0].Table!["value"].ShouldBe("This 21");
+            t[1].Table!["value"].ShouldBe("is 37");
+            t[2].Table!["value"].ShouldBe("example 00");
+            t[3].Table!["value"].ShouldBe("of 12");
+            t[4].Table!["value"].ShouldBe("string 99");
         }
     }
 }

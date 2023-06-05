@@ -40,7 +40,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
             _compiler = null;
         }
 
-        protected DynamicValue RunEvilCode(string source)
+        protected DynamicValue EvilTestResult(string source)
         {
             var prog = _parser.Parse(source);
             var script = _compiler.Compile(prog, "!module_test_file!");

@@ -1,5 +1,6 @@
 ﻿using Ceres.Runtime.Modules;
 using NUnit.Framework;
+using Shouldly;
 
 namespace Ceres.RuntimeTests.RuntimeModules
 {
@@ -8,21 +9,25 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void StackTrace()
         {
-            var t = RunEvilCode("fn test(a = 1, b = 2, c = 3) -> core.strace(true);").Table!;
+            var t = EvilTestResult(
+                "fn test(a = 1, b = 2, c = 3) -> core.strace(true);"
+            ).Table!;
             var frame = t[0].Table!;
 
-            Assert.That(frame["is_script"].Boolean, Is.EqualTo(true));
-            Assert.That(frame["fn_name"].String!, Is.EqualTo("test"));
-            Assert.That(frame["def_on_line"].Number, Is.EqualTo(1));
-            Assert.That(frame["args"].Table![0].Number, Is.EqualTo(1));
-            Assert.That(frame["args"].Table![1].Number, Is.EqualTo(2));
-            Assert.That(frame["args"].Table![2].Number, Is.EqualTo(3));
+            frame["is_script"].ShouldBe(true);
+            frame["fn_name"].ShouldBe("test");
+            frame["def_on_line"].ShouldBe(1);
+
+            var args = frame["args"].Table!;
+            args[0].ShouldBe(1);
+            args[1].ShouldBe(2);
+            args[2].ShouldBe(3);
         }
 
         [Test]
         public void StackTraceString()
         {
-            var s = RunEvilCode(
+            var s = EvilTestResult(
                 "fn nested_2() {\n" +
                 "   ret core.strace_s();\n" +
                 "}\n" +
@@ -43,11 +48,30 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "}\n"
             ).String!;
 
-            Assert.That(s.Contains("at Ceres.Runtime.Modules.CoreModule::StackTraceString"));
-            Assert.That(s.Contains("at nested_2 in !module_test_file!: line 2"));
-            Assert.That(s.Contains("at nested_1 in !module_test_file!: line 5"));
-            Assert.That(s.Contains("at nested_0 in !module_test_file!: line 8"));
-            Assert.That(s.Contains("at test in !module_test_file!: line 14"));
+            s.ShouldContain(
+                "at Ceres.Runtime.Modules.CoreModule::StackTraceString",
+                Case.Sensitive
+            );
+
+            s.ShouldContain(
+                "at nested_2 in !module_test_file!: line 2",
+                Case.Sensitive
+            );
+
+            s.ShouldContain(
+                "at nested_1 in !module_test_file!: line 5",
+                Case.Sensitive
+            );
+
+            s.ShouldContain(
+                "at nested_0 in !module_test_file!: line 8",
+                Case.Sensitive
+            );
+
+            s.ShouldContain(
+                "at test in !module_test_file!: line 14",
+                Case.Sensitive
+            );
         }
     }
 }
