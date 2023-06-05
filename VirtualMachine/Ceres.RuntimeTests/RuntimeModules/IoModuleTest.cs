@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Modules;
 using NUnit.Framework;
+using Shouldly;
 
 namespace Ceres.RuntimeTests.RuntimeModules
 {
@@ -19,12 +19,13 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 using (var sw = new StreamWriter(ms) { AutoFlush = true })
                 {
                     Console.SetOut(sw);
-                    Assert.That(RunEvilCode(src), Is.EqualTo((DynamicValue)12));
+                    
+                    EvilTestResult(src).ShouldBe(12);
                     ms.Seek(0, SeekOrigin.Begin);
 
                     using (var sr = new StreamReader(ms, leaveOpen: true))
                     {
-                        Assert.That(sr.ReadToEnd(), Is.EqualTo("hello, world"));
+                        sr.ReadToEnd().ShouldBe("hello, world");
                     }
                 }
             }
@@ -43,12 +44,13 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 using (var sw = new StreamWriter(ms) { AutoFlush = true })
                 {
                     Console.SetOut(sw);
-                    Assert.That(RunEvilCode(src), Is.EqualTo((DynamicValue)14));
+                    
+                    EvilTestResult(src).ShouldBe(14);
                     ms.Seek(0, SeekOrigin.Begin);
 
                     using (var sr = new StreamReader(ms, leaveOpen: true))
                     {
-                        Assert.That(sr.ReadToEnd(), Is.EqualTo($"hello, world{Environment.NewLine}"));
+                        sr.ReadToEnd().ShouldBe($"hello, world{Environment.NewLine}");
                     }
                 }
             }
