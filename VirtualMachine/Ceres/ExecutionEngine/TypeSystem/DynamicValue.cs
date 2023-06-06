@@ -143,5 +143,106 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public static implicit operator DynamicValue(Chunk value) => new(value);
         public static implicit operator DynamicValue(NativeFunction value) => new(value);
         public static DynamicValue FromObject(object value) => new(value);
+
+        public static explicit operator double(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Number)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
+
+            return value.Number;
+        }
+        
+        public static explicit operator float(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Number)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
+
+            return (float)value.Number;
+        }
+        
+        public static explicit operator int(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Number)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
+
+            return (int)value.Number;
+        }
+        
+        public static explicit operator uint(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Number)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
+
+            return (uint)value.Number;
+        }
+        
+        public static explicit operator long(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Number)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
+
+            return (long)value.Number;
+        }
+        
+        public static explicit operator ulong(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Number)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
+
+            return (ulong)value.Number;
+        }
+        
+        public static explicit operator string(DynamicValue value)
+        {
+            return value.ConvertToString().String!;
+        }
+        
+        public static explicit operator bool(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Boolean)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Boolean.");
+
+            return value.Boolean;
+        }
+
+        public static explicit operator Table(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Table)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Table.");
+
+            return value.Table!;
+        }
+
+        public static explicit operator Fiber(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Fiber)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Fiber.");
+
+            return value.Fiber!;
+        }
+        
+        public static explicit operator Chunk(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Chunk)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Chunk.");
+
+            return value.Chunk!;
+        }
+        
+        public static explicit operator NativeFunction(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.NativeFunction)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeFunction.");
+
+            return value.NativeFunction!;
+        }
+
+        public static object ToObject(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.NativeObject)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeObject.");
+
+            return value.NativeObject!;
+        }
     }
 }
