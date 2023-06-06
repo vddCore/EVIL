@@ -1,4 +1,5 @@
-﻿using Ceres.Runtime.Modules;
+﻿using Ceres.ExecutionEngine.Collections;
+using Ceres.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
 
@@ -12,13 +13,13 @@ namespace Ceres.RuntimeTests.RuntimeModules
             var t = EvilTestResult(
                 "fn test(a = 1, b = 2, c = 3) -> core.strace(true);"
             ).Table!;
-            var frame = t[0].Table!;
+            var frame = (Table)t[0];
 
             frame["is_script"].ShouldBe(true);
             frame["fn_name"].ShouldBe("test");
             frame["def_on_line"].ShouldBe(1);
 
-            var args = frame["args"].Table!;
+            var args = (Table)frame["args"];
             args[0].ShouldBe(1);
             args[1].ShouldBe(2);
             args[2].ShouldBe(3);
@@ -27,7 +28,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void StackTraceString()
         {
-            var s = EvilTestResult(
+            var s = (string)EvilTestResult(
                 "fn nested_2() {\n" +
                 "   ret core.strace_s();\n" +
                 "}\n" +
@@ -46,7 +47,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "\n" +
                 "   ret nested_0();\n" +
                 "}\n"
-            ).String!;
+            );
 
             s.ShouldContain(
                 "at Ceres.Runtime.Modules.CoreModule::StackTraceString",
