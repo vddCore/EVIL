@@ -137,6 +137,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
         public static implicit operator DynamicValue(double value) => new(value);
         public static implicit operator DynamicValue(string value) => new(value);
+        public static implicit operator DynamicValue(char value) => new(value.ToString());
         public static implicit operator DynamicValue(bool value) => new(value);
         public static implicit operator DynamicValue(Table value) => new(value);
         public static implicit operator DynamicValue(Fiber value) => new(value);

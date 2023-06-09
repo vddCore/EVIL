@@ -18,6 +18,23 @@ namespace Ceres.Runtime.Modules
             AddGetter("empty", (_) => string.Empty);
         }
 
+        [RuntimeModuleFunction("explode", ReturnType = DynamicValueType.Table)]
+        private static DynamicValue Explode(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(1)
+                .ExpectStringAt(0, out var str);
+
+            var chars = str.ToCharArray();
+            var table = new Table();
+            
+            for (var i = 0; i < chars.Length; i++)
+            {
+                table[i] = chars[i];
+            }
+
+            return table;
+        }
+        
         [RuntimeModuleFunction("spl", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
@@ -120,7 +137,7 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("trim", ReturnType = DynamicValueType.String)]
-        private static DynamicValue TrimtTrim(Fiber _, params DynamicValue[] args)
+        private static DynamicValue Trim(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
                 .ExpectStringAt(0, out var source);

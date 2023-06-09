@@ -1,4 +1,5 @@
-﻿using Ceres.Runtime.Modules;
+﻿using Ceres.ExecutionEngine.Collections;
+using Ceres.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
 
@@ -7,11 +8,26 @@ namespace Ceres.RuntimeTests.RuntimeModules
     public class StringModuleTest : ModuleTest<StringModule>
     {
         [Test]
+        public void Explode()
+        {
+            var t = (Table)EvilTestResult(
+                "fn test() -> str.explode('abcdef');"
+            );
+
+            t[0].ShouldBe("a");
+            t[1].ShouldBe("b");
+            t[2].ShouldBe("c");
+            t[3].ShouldBe("d");
+            t[4].ShouldBe("e");
+            t[5].ShouldBe("f");
+        }
+        
+        [Test]
         public void Split()
         {
-            var t = EvilTestResult(
+            var t = (Table)EvilTestResult(
                 "fn test() -> str.spl('abc|def|ghi', '|');"
-            ).Table!;
+            );
 
             t[0].ShouldBe("abc");
             t[1].ShouldBe("def");
