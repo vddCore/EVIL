@@ -7,6 +7,8 @@ namespace Ceres.TranslationEngine
         public int Line { get; }
         public int Column { get; }
 
+        public override string Message => $"{base.Message} (line {Line}, column {Column})";
+
         public CompilerException(int line, int column, string message)
             : base(message)
         {

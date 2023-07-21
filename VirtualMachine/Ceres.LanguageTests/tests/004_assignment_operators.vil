@@ -1,72 +1,72 @@
 ﻿#[test]
 fn assignment_var_direct() {
-  var x = 20;
+  rw var x = 20;
   ret ((x = 10) == 10) && (x == 10);
 }
 
 #[test]
 fn assignment_var_add() {
-  var x = 10;
+  rw var x = 10;
   ret ((x += 1) == 11) && (x == 11);
 }
 
 #[test]
 fn assignment_var_sub() {
-  var x = 13;
+  rw var x = 13;
   ret ((x -= 1) == 12) && (x == 12);
 }
 
 #[test]
 fn assignment_var_div() {
-  var x = 26;
+  rw var x = 26;
   ret ((x /= 2) == 13) && (x == 13);
 }
 
 #[test]
 fn assignment_var_mod() {
-  var x = 30;
+  rw var x = 30;
   ret ((x %= 16) == 14) && (x == 14);
 }
 
 #[test]
 fn assignment_var_mul() {
-  var x = 7.5;
+  rw var x = 7.5;
   ret ((x *= 2) == 15) && (x == 15);
 }
 
 #[test]
 fn assignment_var_band() {
-  var x = 0xFFFF;
+  rw var x = 0xFFFF;
   ret ((x &= 0x0FF0) == 0x0FF0) && (x == 0x0FF0);
 }
 
 #[test]
 fn assignment_var_bor() {
-  var x = 0xF000;
+  rw var x = 0xF000;
   ret ((x |= 0x0FF0) == 0xFFF0) && (x == 0xFFF0);
 }
 
 #[test]
 fn assignment_var_bxor() {
-  var x = 0xF0F0;
+  rw var x = 0xF0F0;
   ret ((x ^= 0xFFFF) == 0x0F0F) && (x == 0x0F0F);
 }
 
 #[test]
 fn assignment_var_shl() {
-  var x = 0xF;
+  rw var x = 0xF;
   ret ((x <<= 16) == 0xF0000) && (x == 0xF0000);
 }
 
 #[test]
 fn assignment_var_shr() {
-  var x = 0xFFFF;
+  rw var x = 0xFFFF;
   ret ((x >>= 8) == 0x00FF) && (x == 0x00FF);
 }
 
 #[test]
 fn chained_assignment_direct() {
-  var a, b, c, d;
+  rw var a, b, c, d;
   var result = (a = b = c = d = 10);
   
   ret a == 10
@@ -78,7 +78,7 @@ fn chained_assignment_direct() {
 
 #[test]
 fn chained_assignment_add() {
-  var a = 5, b = 10, c = 15, d = 20;
+  rw var a = 5, b = 10, c = 15, d = 20;
   var result = (a += b += c += d += 5);
   
   ret a == 55
@@ -90,7 +90,7 @@ fn chained_assignment_add() {
 
 #[test]
 fn chained_assignment_sub() {
-  var a = 5, b = 10, c = 15, d = 20;
+  rw var a = 5, b = 10, c = 15, d = 20;
   var result = (a -= b -= c -= d -= 5);
   
   ret a == -5
@@ -102,7 +102,7 @@ fn chained_assignment_sub() {
 
 #[test]
 fn chained_assignment_div() {
-  var a = 120, b = 60, c = 30, d = 10;
+  rw var a = 120, b = 60, c = 30, d = 10;
   var result = (a /= b /= c /= d /= 2); 
   
   ret a == 12

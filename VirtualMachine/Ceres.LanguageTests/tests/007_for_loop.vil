@@ -1,13 +1,13 @@
 ﻿#[test(10)]
 fn for_simple() {
-  var i;
+  rw var i;
   for (i = 0; i < 10; ++i) {}
   ret i;
 }
 
 #[test(10)]
 fn for_simple_skip() {
-  var i;
+  rw var i;
   
   for (i = 0; i < 10; i++) {
     skip;
@@ -18,7 +18,7 @@ fn for_simple_skip() {
 
 #[test(5)]
 fn for_simple_break() {
-  var i;
+  rw var i;
   
   for (i = 0; i < 10; i++) {
     if (i == 5)
@@ -30,7 +30,7 @@ fn for_simple_break() {
 
 #[test]
 fn for_nested() {
-  var i, j, k;
+  rw var i, j, k;
   
   for (i = 0; i < 10; i++) {
     for (j = 0; j < 10; j++) {
@@ -45,8 +45,8 @@ fn for_nested() {
 
 #[test(6)]
 fn for_nested_break() {
-  var broken = false;
-  var i;
+  rw var broken = false;
+  rw var i;
   
   for (i = 10; i < 11; i++) {
     // todo implement discard pattern
@@ -67,9 +67,9 @@ fn for_nested_break() {
 
 #[test(20)]
 fn for_multiple_statements() {
-  var j = 0;
+  rw var j = 0;
   
-  for (var i = 0; i < 10; i++, j += 2) { }
+  for (rw var i = 0; i < 10; i++, j += 2) { }
   
   ret j; 
 }

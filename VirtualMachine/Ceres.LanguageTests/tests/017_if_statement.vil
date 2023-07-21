@@ -18,7 +18,7 @@ fn if_elif_else() {
 
 #[test(21.37)]
 fn only_first_true_elif_is_executed() {
-  var result;
+  rw var result;
   
   if (1 == 2) { result = 1; }
   elif (3 - 1 == 2) { result = 21.37; }
