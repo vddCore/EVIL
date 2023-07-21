@@ -30,9 +30,13 @@ namespace EVIL.Grammar.Parsing
                 case TokenType.Do:
                     node = DoWhileLoop();
                     break;
+                
+                case TokenType.Rw:
+                    node = ReadWriteVariableDefinition();
+                    break;
 
                 case TokenType.Var:
-                    node = VariableDefinition();
+                    node = VariableDefinition(false);
                     break;
 
                 case TokenType.Increment:

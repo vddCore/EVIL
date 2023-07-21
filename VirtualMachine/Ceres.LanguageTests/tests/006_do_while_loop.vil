@@ -1,6 +1,6 @@
 ﻿#[test(10)]
 fn do_while_simple() {
-  var a = 0;
+  rw var a = 0;
   
   do {
     a++;
@@ -11,7 +11,7 @@ fn do_while_simple() {
 
 #[test(1)]
 fn do_while_executes_at_least_once() {
-  var a = 0;
+  rw var a = 0;
   
   do {
     a++;
@@ -22,7 +22,7 @@ fn do_while_executes_at_least_once() {
 
 #[test(5)]
 fn do_while_skip() {
-  var a = 10;
+  rw var a = 10;
   
   do {
     if (a > 5) {
@@ -35,7 +35,7 @@ fn do_while_skip() {
 
 #[test(5)]
 fn do_while_break() {
-  var a = 10;
+  rw var a = 10;
   
   do {
     if (a <= 5) {
@@ -50,7 +50,7 @@ fn do_while_break() {
 
 #[test]
 fn do_while_nested() {
-  var a = 10, b, c;
+  rw var a = 10, b, c;
   
   do {
     a--;

@@ -88,6 +88,7 @@
         public static readonly Token Nil = new(TokenType.Nil, TokenClass.Keyword, "nil");
         public static readonly Token TypeOf = new(TokenType.TypeOf, TokenClass.Keyword, "typeof");
         public static readonly Token Yield = new(TokenType.Yield, TokenClass.Keyword, "yield");
+        public static readonly Token Rw = new(TokenType.Rw, TokenClass.Keyword, "rw");
 
         public static readonly Token NaN = new(TokenType.NaN, TokenClass.Alias, "NaN");
         public static readonly Token Infinity = new(TokenType.Infinity, TokenClass.Alias, "Infinity");

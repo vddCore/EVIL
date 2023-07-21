@@ -89,6 +89,7 @@
         Nil,
         TypeOf,
         Yield,
+        Rw,
         NaN,
         Infinity,
         

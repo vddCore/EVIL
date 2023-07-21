@@ -102,7 +102,8 @@ namespace Ceres.TranslationEngine
                 {
                     _currentScope.DefineParameter(
                         parameter.Name,
-                        parameterId
+                        parameterId,
+                        parameter.ReadWrite
                     );
 
                     Chunk.DebugDatabase.SetParameterName(
@@ -306,6 +307,15 @@ namespace Ceres.TranslationEngine
         {
             if (assignmentExpression.Left is VariableReferenceExpression vre)
             {
+                if (!IsVarWriteable(vre.Identifier, out var sym))
+                {
+                    throw new CompilerException(
+                        vre.Line,
+                        vre.Column,
+                        $"Attempt to write a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'"
+                    );
+                }
+                
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
                     EmitVarGet(vre.Identifier);
@@ -479,7 +489,8 @@ namespace Ceres.TranslationEngine
 
                     sym = _currentScope.DefineLocal(
                         kvp.Key,
-                        localId
+                        localId,
+                        variableDefinition.ReadWrite
                     );
 
                     Chunk.DebugDatabase.SetLocalName(localId, kvp.Key);
@@ -702,6 +713,15 @@ namespace Ceres.TranslationEngine
         {
             if (incrementationExpression.Target is VariableReferenceExpression vre)
             {
+                if (!IsVarWriteable(vre.Identifier, out var sym))
+                {
+                    throw new CompilerException(
+                        vre.Line,
+                        vre.Column,
+                        $"Attempt to write a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'"
+                    );
+                }
+                
                 EmitVarGet(vre.Identifier);
                 if (incrementationExpression.IsPrefix)
                 {
@@ -745,6 +765,15 @@ namespace Ceres.TranslationEngine
         {
             if (decrementationExpression.Target is VariableReferenceExpression vre)
             {
+                if (!IsVarWriteable(vre.Identifier, out var sym))
+                {
+                    throw new CompilerException(
+                        vre.Line,
+                        vre.Column,
+                        $"Attempt to write a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'"
+                    );
+                }
+                
                 EmitVarGet(vre.Identifier);
                 {
                     if (decrementationExpression.IsPrefix)
@@ -783,6 +812,19 @@ namespace Ceres.TranslationEngine
             {
                 throw new CompilerException(Line, Column, "Illegal decrementation target.");
             }
+        }
+
+        private bool IsVarWriteable(string identifier, out Symbol? sym)
+        {
+            sym = _currentScope.Find(identifier);
+
+            if (sym == null)
+            {
+                // Globals are always writeable.
+                return true;
+            }
+
+            return sym.ReadWrite;
         }
 
         private void EmitVarGet(string identifier)
