@@ -15,6 +15,13 @@ namespace EVIL.Grammar.Parsing
             
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
+                var rw = false;
+                if (CurrentToken.Type == TokenType.Rw)
+                {
+                    rw = true;
+                    Match(Token.Rw);
+                }
+                    
                 var parameterName = CurrentToken.Value!;
                 ConstantExpression? initializer = null;
 
@@ -38,7 +45,7 @@ namespace EVIL.Grammar.Parsing
                 }
 
                 parameters.Add(
-                    new ParameterNode(parameterName, initializer)
+                    new ParameterNode(parameterName, rw, initializer)
                         { Line = pline, Column = pcol }
                 );
 

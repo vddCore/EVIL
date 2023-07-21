@@ -1,7 +1,7 @@
-﻿fn fib_recursive(n, a = 1, b = 1) -> (--n > 0) ? (fib_recursive(n, b, a + b)) : (a); 
+﻿fn fib_recursive(rw n, a = 1, b = 1) -> (--n > 0) ? (fib_recursive(n, b, a + b)) : (a); 
 
-fn fib_iterative(n) {
-  var f0 = 0, f1 = 1, f2;
+fn fib_iterative(rw n) {
+  rw var f0 = 0, f1 = 1, f2;
   
   while (--n > 0) {
     f2 = f0 + f1;

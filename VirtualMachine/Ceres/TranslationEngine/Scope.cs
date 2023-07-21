@@ -17,7 +17,7 @@ namespace Ceres.TranslationEngine
             Parent = parent;
         }
 
-        public Symbol DefineLocal(string name, int id)
+        public Symbol DefineLocal(string name, int id, bool writeable)
         {
             var sym = Find(name);
             
@@ -29,13 +29,13 @@ namespace Ceres.TranslationEngine
                 );
             }
 
-            var symbol = new Symbol(name, id, Symbol.SymbolType.Local);
+            var symbol = new Symbol(name, id, Symbol.SymbolType.Local, writeable);
             Symbols.Add(name, symbol);
 
             return symbol;
         }
 
-        public Symbol DefineParameter(string name, int id)
+        public Symbol DefineParameter(string name, int id, bool writeable)
         {
             var sym = Find(name);
             
@@ -47,7 +47,7 @@ namespace Ceres.TranslationEngine
                 );
             }
 
-            var symbol = new Symbol(name, id, Symbol.SymbolType.Parameter);
+            var symbol = new Symbol(name, id, Symbol.SymbolType.Parameter, writeable);
             Symbols.Add(name, symbol);
 
             return symbol;

@@ -20,7 +20,7 @@ fn local_scope_hides_global_scope() {
 
 #[test]
 fn mixed_local_and_global_scopes() {
-  a = "jp2gmd"; var b = 2;
+  a = "jp2gmd"; rw var b = 2;
   
   {
     glob_a = a;
