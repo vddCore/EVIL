@@ -46,12 +46,10 @@ namespace EVIL.Grammar.Parsing
             return ret;
         }
 
-        private (int, int) Match(Token token)
+        private (int, int) Match(Token token, string? customErrorMessage = null)
         {
-            var (line, column) = (
-                _lexer.State.TokenStartLine,
-                _lexer.State.TokenStartColumn
-            );
+            var line = _lexer.State.TokenStartLine;
+            var column = _lexer.State.TokenStartColumn;
 
             if (CurrentToken.Type != token.Type)
             {
@@ -67,8 +65,19 @@ namespace EVIL.Grammar.Parsing
                     actual = WithArticle(CurrentToken.Type.ToString());
                 }
 
+                if (customErrorMessage != null)
+                {
+                    customErrorMessage = customErrorMessage
+                            .Replace("$expected", expected)
+                            .Replace("$actual", actual);
+                }
+                else
+                {
+                    customErrorMessage = $"Expected {expected}, got {actual}.";
+                }
+                
                 throw new ParserException(
-                    $"Expected {expected}, got {actual}.",
+                    customErrorMessage,
                     (line, column)
                 );
             }

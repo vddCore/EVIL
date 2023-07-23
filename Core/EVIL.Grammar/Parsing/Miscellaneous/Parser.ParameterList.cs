@@ -25,7 +25,7 @@ namespace EVIL.Grammar.Parsing
                 var parameterName = CurrentToken.Value!;
                 ConstantExpression? initializer = null;
 
-                var (pline, pcol) = Match(Token.Identifier);
+                var (pline, pcol) = Match(Token.Identifier, "Expected $expected or ')', found $actual.");
 
                 if (CurrentToken == Token.Assign)
                 {
