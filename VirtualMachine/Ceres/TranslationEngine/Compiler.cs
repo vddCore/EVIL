@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
+using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar;
-using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Grammar.AST.Statements.TopLevel;
+using EVIL.Grammar.Parsing;
 using EVIL.Grammar.Traversal;
+using EVIL.Lexical;
 
 namespace Ceres.TranslationEngine
 {
@@ -27,21 +29,66 @@ namespace Ceres.TranslationEngine
         private readonly Stack<Chunk> _chunks = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
 
-        private int _blockDescent = 0;
+        private int _blockDescent;
         private readonly Stack<Loop> _loopDescent = new();
 
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
+
+        private CompilerLog Log { get; }
 
         private int Line { get; set; }
         private int Column { get; set; }
 
         private string CurrentFileName { get; set; } = string.Empty;
 
+        public Compiler()
+        {
+            Log = new CompilerLog(this);
+        }
+
+        public Script Compile(string source, string fileName = "")
+        {
+            CurrentFileName = fileName;
+
+            var parser = new Parser();
+
+            try
+            {
+                var program = parser.Parse(source);
+                return Compile(program, fileName);
+            }
+            catch (LexerException le)
+            {
+                Log.TerminateWithFatal(
+                    le.Message, 
+                    CurrentFileName,
+                    EvilMessageCode.LexerError,
+                    line: Line,
+                    column: Column,
+                    innerException: le
+                );
+            }
+            catch (ParserException pe)
+            {
+                Log.TerminateWithFatal(
+                    pe.Message,
+                    CurrentFileName,
+                    EvilMessageCode.ParserError,
+                    line: pe.Line,
+                    column: pe.Column,
+                    innerException: pe
+                );
+            }
+
+            // Dummy return to keep compiler happy.
+            return null!;
+        }
+
         public Script Compile(Program program, string fileName = "")
         {
             CurrentFileName = fileName;
-            
+
             Visit(program);
             return _script;
         }
@@ -55,7 +102,6 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.IP
                 );
             }
-
         }
 
         public override void Visit(AstNode node)
@@ -113,7 +159,14 @@ namespace Ceres.TranslationEngine
                 }
                 catch (DuplicateSymbolException dse)
                 {
-                    throw new CompilerException(Line, Column, dse.Message, dse);
+                    Log.TerminateWithFatal(
+                        dse.Message,
+                        CurrentFileName,
+                        EvilMessageCode.DuplicateSymbolInScope,
+                        Line,
+                        Column,
+                        dse
+                    );
                 }
 
                 if (parameter.Initializer != null)
@@ -138,8 +191,8 @@ namespace Ceres.TranslationEngine
         {
             var chunk = new Chunk { Name = name };
             chunk.DebugDatabase.DefinedInFile = CurrentFileName;
-            
-            
+
+
             _chunks.Push(chunk);
             {
                 action();
@@ -248,9 +301,9 @@ namespace Ceres.TranslationEngine
                     ExtractConstantValueFrom(propertyKvp.Value)
                 );
             }
-            
+
             Chunk.AddAttribute(attribute);
-            
+
             if (_attributeProcessors.TryGetValue(attribute.Name, out var processors))
             {
                 foreach (var processor in processors)
@@ -309,13 +362,15 @@ namespace Ceres.TranslationEngine
             {
                 if (!IsVarWriteable(vre.Identifier, out var sym))
                 {
-                    throw new CompilerException(
-                        vre.Line,
-                        vre.Column,
-                        $"Attempt to write a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'"
+                    Log.TerminateWithFatal(
+                        $"Attempt to write to a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'",
+                        CurrentFileName,
+                        EvilMessageCode.AttemptToWriteReadOnlyLocal,
+                        Line,
+                        Column
                     );
                 }
-                
+
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
                     EmitVarGet(vre.Identifier);
@@ -334,8 +389,13 @@ namespace Ceres.TranslationEngine
                             AssignmentOperationType.BitwiseXor => OpCode.BXOR,
                             AssignmentOperationType.ShiftLeft => OpCode.SHL,
                             AssignmentOperationType.ShiftRight => OpCode.SHR,
-                            _ => throw new CompilerException(Line, Column,
-                                "Internal error: invalid assignment operation.")
+                            _ => Log.TerminateWithInternalFailure(
+                                $"Invalid assignment operation type '{assignmentExpression.OperationType}'.",
+                                CurrentFileName,
+                                line: Line,
+                                column: Column,
+                                dummyReturn: OpCode.NOOP
+                            )
                         }
                     );
                 }
@@ -367,8 +427,13 @@ namespace Ceres.TranslationEngine
                             AssignmentOperationType.BitwiseXor => OpCode.BXOR,
                             AssignmentOperationType.ShiftLeft => OpCode.SHL,
                             AssignmentOperationType.ShiftRight => OpCode.SHR,
-                            _ => throw new CompilerException(Line, Column,
-                                "Internal error: invalid assignment operation.")
+                            _ => Log.TerminateWithInternalFailure(
+                                $"Invalid assignment operation type '{assignmentExpression.OperationType}'.",
+                                CurrentFileName,
+                                line: Line,
+                                column: Column,
+                                dummyReturn: OpCode.NOOP
+                            )
                         }
                     );
                 }
@@ -385,7 +450,13 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException(Line, Column, "Invalid assignment target.");
+                Log.TerminateWithFatal(
+                    "Illegal assignment target.",
+                    CurrentFileName,
+                    EvilMessageCode.IllegalAssignmentTarget,
+                    Line,
+                    Column
+                );
             }
         }
 
@@ -418,7 +489,13 @@ namespace Ceres.TranslationEngine
                     BinaryOperationType.Less => OpCode.CLT,
                     BinaryOperationType.GreaterOrEqual => OpCode.CGE,
                     BinaryOperationType.LessOrEqual => OpCode.CLE,
-                    _ => throw new CompilerException(Line, Column, "Internal error: invalid binary operation type.")
+                    _ => Log.TerminateWithInternalFailure(
+                        $"Invalid binary operation type '{binaryExpression.Type}'.",
+                        CurrentFileName,
+                        line: Line,
+                        column: Column,
+                        dummyReturn: OpCode.NOOP
+                    )
                 }
             );
         }
@@ -436,7 +513,7 @@ namespace Ceres.TranslationEngine
 
             Chunk.CodeGenerator.Emit(
                 OpCode.YIELD,
-                (int)yieldExpression.ArgumentList.Arguments.Count
+                yieldExpression.ArgumentList.Arguments.Count
             );
 
             Chunk.CodeGenerator.Emit(OpCode.YRET);
@@ -468,7 +545,13 @@ namespace Ceres.TranslationEngine
                     UnaryOperationType.LogicalNot => OpCode.LNOT,
                     UnaryOperationType.ToString => OpCode.TOSTRING,
                     UnaryOperationType.ToNumber => OpCode.TONUMBER,
-                    _ => throw new CompilerException(Line, Column, "Internal error: invalid unary operation type.")
+                    _ => Log.TerminateWithInternalFailure(
+                        $"Invalid unary operation type '{unaryExpression.Type}'.",
+                        CurrentFileName,
+                        line: Line,
+                        column: Column,
+                        dummyReturn: OpCode.NOOP
+                    )
                 }
             );
         }
@@ -497,7 +580,17 @@ namespace Ceres.TranslationEngine
                 }
                 catch (DuplicateSymbolException dse)
                 {
-                    throw new CompilerException(Line, Column, dse.Message, dse);
+                    Log.TerminateWithFatal(
+                        dse.Message,
+                        CurrentFileName,
+                        EvilMessageCode.DuplicateSymbolInScope,
+                        Line,
+                        Column,
+                        dse
+                    );
+
+                    // Dummy return to keep compiler happy.
+                    return;
                 }
 
                 if (kvp.Value != null)
@@ -517,7 +610,7 @@ namespace Ceres.TranslationEngine
             InTopLevelChunk(() =>
             {
                 Chunk.DebugDatabase.DefinedOnLine = functionDefinition.Line;
-                
+
                 InNewScopeDo(() =>
                 {
                     Visit(functionDefinition.ParameterList);
@@ -530,7 +623,7 @@ namespace Ceres.TranslationEngine
                     {
                         foreach (var attr in functionDefinition.Attributes)
                             Visit(attr);
-                        
+
                         return;
                     }
                 }
@@ -538,10 +631,9 @@ namespace Ceres.TranslationEngine
                 /* Either we have no instructions in chunk, or it's not a RET. */
                 Chunk.CodeGenerator.Emit(OpCode.LDNIL);
                 Chunk.CodeGenerator.Emit(OpCode.RET);
-                
+
                 foreach (var attr in functionDefinition.Attributes)
                     Visit(attr);
-                
             }, functionDefinition.Identifier);
         }
 
@@ -715,13 +807,15 @@ namespace Ceres.TranslationEngine
             {
                 if (!IsVarWriteable(vre.Identifier, out var sym))
                 {
-                    throw new CompilerException(
-                        vre.Line,
-                        vre.Column,
-                        $"Attempt to write a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'"
+                    Log.TerminateWithFatal(
+                        $"Attempt to write to a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'",
+                        CurrentFileName,
+                        EvilMessageCode.AttemptToWriteReadOnlyLocal,
+                        Line,
+                        Column
                     );
                 }
-                
+
                 EmitVarGet(vre.Identifier);
                 if (incrementationExpression.IsPrefix)
                 {
@@ -757,7 +851,13 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException(Line, Column, "Illegal incrementation target.");
+                Log.TerminateWithFatal(
+                    "Illegal incrementation target.",
+                    CurrentFileName,
+                    EvilMessageCode.IllegalIncrementationTarget,
+                    Line,
+                    Column
+                );
             }
         }
 
@@ -767,13 +867,15 @@ namespace Ceres.TranslationEngine
             {
                 if (!IsVarWriteable(vre.Identifier, out var sym))
                 {
-                    throw new CompilerException(
-                        vre.Line,
-                        vre.Column,
-                        $"Attempt to write a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'"
+                    Log.TerminateWithFatal(
+                        $"Attempt to write to a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'",
+                        CurrentFileName,
+                        EvilMessageCode.AttemptToWriteReadOnlyLocal,
+                        Line,
+                        Column
                     );
                 }
-                
+
                 EmitVarGet(vre.Identifier);
                 {
                     if (decrementationExpression.IsPrefix)
@@ -810,7 +912,13 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException(Line, Column, "Illegal decrementation target.");
+                Log.TerminateWithFatal(
+                    "Illegal decrementation target.",
+                    CurrentFileName,
+                    EvilMessageCode.IllegalDecrementationTarget,
+                    Line,
+                    Column
+                );
             }
         }
 
@@ -837,14 +945,14 @@ namespace Ceres.TranslationEngine
                 {
                     Chunk.CodeGenerator.Emit(
                         OpCode.GETLOCAL,
-                        (int)sym.Id
+                        sym.Id
                     );
                 }
                 else
                 {
                     Chunk.CodeGenerator.Emit(
                         OpCode.GETARG,
-                        (int)sym.Id
+                        sym.Id
                     );
                 }
             }
@@ -869,14 +977,14 @@ namespace Ceres.TranslationEngine
                 {
                     Chunk.CodeGenerator.Emit(
                         OpCode.SETLOCAL,
-                        (int)sym.Id
+                        sym.Id
                     );
                 }
                 else
                 {
                     Chunk.CodeGenerator.Emit(
                         OpCode.SETARG,
-                        (int)sym.Id
+                        sym.Id
                     );
                 }
             }
@@ -911,11 +1019,16 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                throw new CompilerException(
-                    valueNode.Line,
-                    valueNode.Column,
-                    $"Internal error: unexpected constant value node type '{valueNode.GetType().FullName}'."
+                Log.TerminateWithInternalFailure(
+                    $"Unexpected constant value node type '{valueNode.GetType().FullName}'.",
+                    CurrentFileName,
+                    line: valueNode.Line,
+                    column: valueNode.Column,
+                    dummyReturn: DynamicValue.Zero
                 );
+
+                // Dummy return to keep compiler happy.
+                return DynamicValue.Zero;
             }
         }
     }

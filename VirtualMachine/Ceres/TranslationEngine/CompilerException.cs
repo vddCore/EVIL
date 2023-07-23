@@ -1,26 +1,22 @@
 using System;
+using Ceres.TranslationEngine.Diagnostics;
 
 namespace Ceres.TranslationEngine
 {
     public class CompilerException : Exception
     {
-        public int Line { get; }
-        public int Column { get; }
+        public CompilerLog Log { get; }
 
-        public override string Message => $"{base.Message} (line {Line}, column {Column})";
-
-        public CompilerException(int line, int column, string message)
-            : base(message)
+        public CompilerException(CompilerLog log)
+            : base("A fatal compiler compiler error occurred.")
         {
-            Line = line;
-            Column = column;
+            Log = log;
         }
         
-        public CompilerException(int line, int column, string message, Exception innerException)
-            : base(message, innerException)
+        public CompilerException(CompilerLog log, Exception? innerException)
+            : base("A fatal compiler compiler error occurred.", innerException)
         {
-            Line = line;
-            Column = column;
+            Log = log;
         }
     }
 }

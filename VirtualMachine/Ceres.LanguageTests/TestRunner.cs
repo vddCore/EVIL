@@ -43,7 +43,6 @@ namespace Ceres.LanguageTests
                 .GetFiles(TestDirectory, "*.vil")
                 .ToList();
 
-            var parser = new Parser();
             var compiler = new Compiler();
             
             compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
@@ -54,21 +53,12 @@ namespace Ceres.LanguageTests
                 var source = File.ReadAllText(path);
                 try
                 {
-                    var program = parser.Parse(source);
-                    var script = compiler.Compile(program, Path.GetFileName(path));
+                    var script = compiler.Compile(source, Path.GetFileName(path));
                     TestScripts.Add(path, script);
-                }
-                catch (LexerException le)
-                {
-                    throw new TestBuildPhaseException($"Failed to parse file '{path}'.", le);
-                }
-                catch (ParserException pe)
-                {
-                    throw new TestBuildPhaseException($"Failed to parse file '{path}'.", pe);
                 }
                 catch (CompilerException ce)
                 {
-                    throw new TestBuildPhaseException($"Failed to compile file '{path}'.", ce);
+                    throw new TestBuildPhaseException($"Failed to compile the file '{path}':\n{ce.Log}", ce);
                 }
             }
         }
