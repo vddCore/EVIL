@@ -9,3 +9,9 @@ fn two_parameter_initializers(a = 111, b = "jp2gmd")
 fn nil_and_initializer(a, b = true) 
   -> a == nil 
   && b == true;
+  
+#[test(21.37)]
+fn rw_optional_param(a, rw b = 22) {
+  b = 21.37;
+  ret b;
+}
