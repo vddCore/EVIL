@@ -17,7 +17,7 @@ namespace Ceres.TranslationEngine
             Parent = parent;
         }
 
-        public Symbol DefineLocal(string name, int id, bool writeable)
+        public Symbol DefineLocal(string name, int id, bool writeable, int definedOnLine)
         {
             var sym = Find(name);
             
@@ -29,13 +29,13 @@ namespace Ceres.TranslationEngine
                 );
             }
 
-            var symbol = new Symbol(name, id, Symbol.SymbolType.Local, writeable);
+            var symbol = new Symbol(name, id, Symbol.SymbolType.Local, writeable, definedOnLine);
             Symbols.Add(name, symbol);
 
             return symbol;
         }
 
-        public Symbol DefineParameter(string name, int id, bool writeable)
+        public Symbol DefineParameter(string name, int id, bool writeable, int definedOnLine)
         {
             var sym = Find(name);
             
@@ -47,7 +47,7 @@ namespace Ceres.TranslationEngine
                 );
             }
 
-            var symbol = new Symbol(name, id, Symbol.SymbolType.Parameter, writeable);
+            var symbol = new Symbol(name, id, Symbol.SymbolType.Parameter, writeable, definedOnLine);
             Symbols.Add(name, symbol);
 
             return symbol;
@@ -66,6 +66,19 @@ namespace Ceres.TranslationEngine
             }
 
             return null;
+        }
+        
+        public bool IsSymbolWriteable(string identifier, out Symbol? sym)
+        {
+            sym = Find(identifier);
+
+            if (sym == null)
+            {
+                // Globals are always writeable.
+                return true;
+            }
+
+            return sym.ReadWrite;
         }
 
         public Scope Descend()
