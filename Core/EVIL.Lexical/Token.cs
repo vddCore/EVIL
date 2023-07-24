@@ -1,7 +1,23 @@
-﻿namespace EVIL.Lexical
+﻿using System;
+
+namespace EVIL.Lexical
 {
-    public sealed record Token(TokenType Type, TokenClass Class, string Value)
+    public struct Token : IEquatable<Token>
     {
+        public TokenType Type { get; }
+        public TokenClass Class { get; }
+        public string Value { get; }
+
+        public int Line { get; init; }
+        public int Column { get; init; }
+
+        public Token(TokenType type, TokenClass @class, string value)
+        {
+            Type = type;
+            Class = @class;
+            Value = value;
+        }
+
         public static Token CreateHexInteger(string value)
             => new(TokenType.HexInteger, TokenClass.Literal, value);
 
@@ -16,6 +32,21 @@
 
         public override string ToString()
             => $"[{Type}: {Value}]";
+        
+        public bool Equals(Token other) 
+            => Type == other.Type && Class == other.Class && Value == other.Value;
+
+        public override bool Equals(object? obj) 
+            => obj is Token other && Equals(other);
+
+        public override int GetHashCode() 
+            => HashCode.Combine((int)Type, (int)Class, Value);
+
+        public static bool operator ==(Token left, Token right) 
+            => left.Equals(right);
+
+        public static bool operator !=(Token left, Token right) 
+            => !left.Equals(right);
 
         public static readonly Token Assign = new(TokenType.Assign, TokenClass.Operator, "=");
         public static readonly Token AssignAdd = new(TokenType.AssignAdd, TokenClass.Operator, "+=");

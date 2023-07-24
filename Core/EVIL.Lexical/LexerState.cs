@@ -2,9 +2,6 @@
 {
     public class LexerState
     {
-        public int TokenStartColumn { get; internal set; }
-        public int TokenStartLine { get; internal set; }
-
         public Token PreviousToken { get; internal set; } = Token.Empty;
         public Token CurrentToken { get; internal set; } = Token.Empty;
 
@@ -16,8 +13,6 @@
 
         public LexerState Copy() => new()
         {
-            TokenStartColumn = TokenStartColumn,
-            TokenStartLine = TokenStartLine,
             Character = Character,
             Column = Column,
             CurrentToken = CurrentToken,
@@ -28,8 +23,6 @@
 
         internal void Reset()
         {
-            TokenStartColumn = -1;
-            TokenStartLine = -1;
             PreviousToken = Token.Empty;
             CurrentToken = Token.Empty;
             Character = (char)0;

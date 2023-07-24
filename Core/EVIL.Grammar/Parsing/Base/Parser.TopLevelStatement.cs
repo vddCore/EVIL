@@ -18,7 +18,7 @@ namespace EVIL.Grammar.Parsing
 
             throw new ParserException(
                 $"Expected 'fn' or '#[]', found '{token.Value}'.",
-                (_lexer.State.TokenStartColumn, _lexer.State.TokenStartLine)
+                (token.Line, token.Column)
             );
         }
     }

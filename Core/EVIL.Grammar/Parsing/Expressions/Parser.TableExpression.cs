@@ -73,7 +73,7 @@ namespace EVIL.Grammar.Parsing
                             {
                                 throw new ParserException(
                                     "Identifier-style keys must be followed by a colon.",
-                                    (CurrentState.TokenStartLine, CurrentState.TokenStartColumn)
+                                    (CurrentToken.Line, CurrentToken.Column)
                                 );
                             }
                         }
