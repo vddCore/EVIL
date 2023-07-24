@@ -8,8 +8,7 @@ namespace Ceres.TranslationEngine.Diagnostics
 {
     public sealed class CompilerLog
     {
-        private readonly Compiler _compiler;
-        private readonly List<CompilerMessage> _messages;
+        private readonly List<CompilerMessage> _messages = new();
 
         public CompilerMessageSeverity MinimumSeverityLevel { get; set; } = CompilerMessageSeverity.Warning;
         
@@ -19,12 +18,6 @@ namespace Ceres.TranslationEngine.Diagnostics
 
         public int VerboseCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Verbose);
         public int WarningCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Warning);
-
-        public CompilerLog(Compiler compiler)
-        {
-            _compiler = compiler;
-            _messages = new();
-        }
 
         public void Clear() 
             => _messages.Clear();

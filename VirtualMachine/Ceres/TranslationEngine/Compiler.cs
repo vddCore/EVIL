@@ -17,7 +17,7 @@ using EVIL.Lexical;
 
 namespace Ceres.TranslationEngine
 {
-    public class Compiler : AstVisitor
+    public partial class Compiler : AstVisitor
     {
         private Script _script = new();
 
@@ -35,18 +35,13 @@ namespace Ceres.TranslationEngine
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
 
-        private CompilerLog Log { get; }
+        private CompilerLog Log { get; } = new();
 
         private int Line { get; set; }
         private int Column { get; set; }
 
         private string CurrentFileName { get; set; } = string.Empty;
-
-        public Compiler()
-        {
-            Log = new CompilerLog(this);
-        }
-
+        
         public Script Compile(string source, string fileName = "")
         {
             CurrentFileName = fileName;
@@ -103,6 +98,53 @@ namespace Ceres.TranslationEngine
                 );
             }
         }
+        
+        private void InTopLevelChunk(Action action, string? name = null)
+        {
+            var chunk = new Chunk { Name = name };
+            chunk.DebugDatabase.DefinedInFile = CurrentFileName;
+
+            _chunks.Push(chunk);
+            {
+                action();
+            }
+
+            _script.Chunks.Add(chunk);
+            _chunks.Pop();
+        }
+
+        private void InNewScopeDo(Action action)
+        {
+            _currentScope = _currentScope!.Descend();
+            {
+                action();
+            }
+            _currentScope = _currentScope.Parent!;
+        }
+
+        private void InNewLoopDo(Action action, bool needsExtraLabel)
+        {
+            _loopDescent.Push(new Loop(Chunk, needsExtraLabel));
+            {
+                action();
+            }
+            _loopDescent.Pop();
+        }
+
+        public override void Visit(BlockStatement blockStatement)
+        {
+            InNewScopeDo(() =>
+            {
+                _blockDescent++;
+                {
+                    foreach (var node in blockStatement.Statements)
+                    {
+                        Visit(node);
+                    }
+                }
+                _blockDescent--;
+            });
+        }
 
         public override void Visit(AstNode node)
         {
@@ -149,7 +191,8 @@ namespace Ceres.TranslationEngine
                     _currentScope.DefineParameter(
                         parameter.Name,
                         parameterId,
-                        parameter.ReadWrite
+                        parameter.ReadWrite,
+                        parameter.Line
                     );
 
                     Chunk.DebugDatabase.SetParameterName(
@@ -185,54 +228,6 @@ namespace Ceres.TranslationEngine
             {
                 Visit(argumentList.Arguments[i]);
             }
-        }
-
-        private void InTopLevelChunk(Action action, string? name = null)
-        {
-            var chunk = new Chunk { Name = name };
-            chunk.DebugDatabase.DefinedInFile = CurrentFileName;
-
-
-            _chunks.Push(chunk);
-            {
-                action();
-            }
-
-            _script.Chunks.Add(chunk);
-            _chunks.Pop();
-        }
-
-        private void InNewScopeDo(Action action)
-        {
-            _currentScope = _currentScope!.Descend();
-            {
-                action();
-            }
-            _currentScope = _currentScope.Parent!;
-        }
-
-        private void InNewLoopDo(Action action, bool needsExtraLabel)
-        {
-            _loopDescent.Push(new Loop(Chunk, needsExtraLabel));
-            {
-                action();
-            }
-            _loopDescent.Pop();
-        }
-
-        public override void Visit(BlockStatement blockStatement)
-        {
-            InNewScopeDo(() =>
-            {
-                _blockDescent++;
-                {
-                    foreach (var node in blockStatement.Statements)
-                    {
-                        Visit(node);
-                    }
-                }
-                _blockDescent--;
-            });
         }
 
         public override void Visit(NilConstant nilConstant)
@@ -360,16 +355,7 @@ namespace Ceres.TranslationEngine
         {
             if (assignmentExpression.Left is VariableReferenceExpression vre)
             {
-                if (!IsVarWriteable(vre.Identifier, out var sym))
-                {
-                    Log.TerminateWithFatal(
-                        $"Attempt to write to a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'",
-                        CurrentFileName,
-                        EvilMessageCode.AttemptToWriteReadOnlyLocal,
-                        Line,
-                        Column
-                    );
-                }
+                ThrowIfVarReadOnly(vre.Identifier);
 
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
@@ -573,7 +559,8 @@ namespace Ceres.TranslationEngine
                     sym = _currentScope.DefineLocal(
                         kvp.Key,
                         localId,
-                        variableDefinition.ReadWrite
+                        variableDefinition.ReadWrite,
+                        variableDefinition.Line
                     );
 
                     Chunk.DebugDatabase.SetLocalName(localId, kvp.Key);
@@ -805,16 +792,7 @@ namespace Ceres.TranslationEngine
         {
             if (incrementationExpression.Target is VariableReferenceExpression vre)
             {
-                if (!IsVarWriteable(vre.Identifier, out var sym))
-                {
-                    Log.TerminateWithFatal(
-                        $"Attempt to write to a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'",
-                        CurrentFileName,
-                        EvilMessageCode.AttemptToWriteReadOnlyLocal,
-                        Line,
-                        Column
-                    );
-                }
+                ThrowIfVarReadOnly(vre.Identifier);
 
                 EmitVarGet(vre.Identifier);
                 if (incrementationExpression.IsPrefix)
@@ -865,16 +843,7 @@ namespace Ceres.TranslationEngine
         {
             if (decrementationExpression.Target is VariableReferenceExpression vre)
             {
-                if (!IsVarWriteable(vre.Identifier, out var sym))
-                {
-                    Log.TerminateWithFatal(
-                        $"Attempt to write to a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}'",
-                        CurrentFileName,
-                        EvilMessageCode.AttemptToWriteReadOnlyLocal,
-                        Line,
-                        Column
-                    );
-                }
+                ThrowIfVarReadOnly(vre.Identifier);
 
                 EmitVarGet(vre.Identifier);
                 {
@@ -919,83 +888,6 @@ namespace Ceres.TranslationEngine
                     Line,
                     Column
                 );
-            }
-        }
-
-        private bool IsVarWriteable(string identifier, out Symbol? sym)
-        {
-            sym = _currentScope.Find(identifier);
-
-            if (sym == null)
-            {
-                // Globals are always writeable.
-                return true;
-            }
-
-            return sym.ReadWrite;
-        }
-
-        private void EmitVarGet(string identifier)
-        {
-            var sym = _currentScope.Find(identifier);
-
-            if (sym != null)
-            {
-                if (sym.Type == Symbol.SymbolType.Local)
-                {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.GETLOCAL,
-                        sym.Id
-                    );
-                }
-                else
-                {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.GETARG,
-                        sym.Id
-                    );
-                }
-            }
-            else
-            {
-                Chunk.CodeGenerator.Emit(
-                    OpCode.LDSTR,
-                    (int)Chunk.StringPool.FetchOrAdd(identifier)
-                );
-
-                Chunk.CodeGenerator.Emit(OpCode.GETGLOBAL);
-            }
-        }
-
-        private void EmitVarSet(string identifier)
-        {
-            var sym = _currentScope.Find(identifier);
-
-            if (sym != null)
-            {
-                if (sym.Type == Symbol.SymbolType.Local)
-                {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.SETLOCAL,
-                        sym.Id
-                    );
-                }
-                else
-                {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.SETARG,
-                        sym.Id
-                    );
-                }
-            }
-            else
-            {
-                Chunk.CodeGenerator.Emit(
-                    OpCode.LDSTR,
-                    (int)Chunk.StringPool.FetchOrAdd(identifier)
-                );
-
-                Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
             }
         }
 
