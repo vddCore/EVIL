@@ -48,8 +48,8 @@ namespace EVIL.Grammar.Parsing
 
         private (int, int) Match(Token token, string? customErrorMessage = null)
         {
-            var line = _lexer.State.TokenStartLine;
-            var column = _lexer.State.TokenStartColumn;
+            var line = CurrentToken.Line;
+            var column = CurrentToken.Column;
 
             if (CurrentToken.Type != token.Type)
             {
