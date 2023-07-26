@@ -4,13 +4,13 @@ namespace EVIL.Lexical
 {
     public class LexerException : Exception
     {
-        public int Column { get; }
         public int Line { get; }
+        public int Column { get; }
 
-        public LexerException(string message, int column, int line) : base(message)
+        public LexerException(string message, int line, int column) : base(message)
         {
-            Column = column;
             Line = line;
+            Column = column;
         }
     }
 }
