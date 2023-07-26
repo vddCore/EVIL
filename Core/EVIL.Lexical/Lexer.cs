@@ -290,7 +290,7 @@ namespace EVIL.Lexical
                     }
                 }
 
-                throw new LexerException($"Unexpected token '{State.Character}'", line, col);
+                throw new LexerException($"Unexpected token '{State.Character}'", col, line);
             }
 
             Advance();
@@ -340,7 +340,7 @@ namespace EVIL.Lexical
             }
             catch (FormatException)
             {
-                throw new LexerException("Invalid number format.", State.Column, State.Line);
+                throw new LexerException("Invalid number format.", State.Line, State.Column);
             }
         }
 
@@ -392,6 +392,8 @@ namespace EVIL.Lexical
 
         private Token GetString()
         {
+            var (line, col) = (State.Line, State.Column);
+            
             var str = string.Empty;
             var encapsulator = State.Character;
 
@@ -399,8 +401,7 @@ namespace EVIL.Lexical
             {
                 throw new LexerException(
                     "Strings can only be encapsulated in '' or \"\".",
-                    State.Column,
-                    State.Line
+                    line, col
                 );
             }
             
@@ -409,7 +410,7 @@ namespace EVIL.Lexical
             while (State.Character != encapsulator)
             {
                 if (State.Character == (char)0)
-                    throw new LexerException("Unterminated string.", State.Column, State.Line);
+                    throw new LexerException("Unterminated string.", line, col);
 
                 if (State.Character == '\\')
                 {
@@ -453,7 +454,7 @@ namespace EVIL.Lexical
                             str += '\\';
                             break;
                         default:
-                            throw new LexerException("Unrecognized escape sequence.", State.Column, State.Line);
+                            throw new LexerException("Unrecognized escape sequence.", State.Line, State.Column);
                     }
 
                     Advance();
@@ -482,9 +483,7 @@ namespace EVIL.Lexical
                 {
                     throw new LexerException(
                         "Invalid universal character code.",
-                        State.Column,
-                        State.Line
-                    );
+                        State.Line, State.Column);
                 }
             }
 

@@ -20,6 +20,7 @@ namespace Ceres.Runtime
         public void RegisterBuiltInModules()
         {
             RegisterModule<CoreModule>();
+            RegisterModule<EvilModule>();
             RegisterModule<IoModule>();
             RegisterModule<MathModule>();
             RegisterModule<StringModule>();

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
+using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.TranslationEngine;
@@ -9,7 +11,7 @@ using NUnit.Framework;
 
 namespace Ceres.RuntimeTests.RuntimeModules
 {
-    public abstract class ModuleTest<T> where T: RuntimeModule, new()
+    public abstract class ModuleTest<T> where T : RuntimeModule, new()
     {
         private CeresVM _vm;
         private EvilRuntime _evilRuntime;
@@ -42,11 +44,11 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
         protected DynamicValue EvilTestResult(string source)
         {
-            var prog = _parser.Parse(source);
-            var script = _compiler.Compile(prog, "!module_test_file!");
+            var script = _compiler.Compile(source, "!module_test_file!");
 
-            foreach (var chunk in script.Chunks) 
+            foreach (var chunk in script.Chunks)
                 _vm.Global[chunk.Name] = chunk;
+
 
             _vm.MainFiber.ScheduleAsync(script["test"]!)
                 .GetAwaiter()
