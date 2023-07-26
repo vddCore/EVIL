@@ -19,6 +19,8 @@ namespace Ceres.TranslationEngine.Diagnostics
         public int VerboseCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Verbose);
         public int WarningCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Warning);
 
+        public bool HasAnyMessages => VerboseCount > 0 || WarningCount > 0;
+        
         public void Clear() 
             => _messages.Clear();
 

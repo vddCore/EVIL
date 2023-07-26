@@ -290,7 +290,7 @@ namespace EVIL.Lexical
                     }
                 }
 
-                throw new LexerException($"Unexpected token '{State.Character}'", State.Column, State.Line);
+                throw new LexerException($"Unexpected token '{State.Character}'", line, col);
             }
 
             Advance();

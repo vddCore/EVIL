@@ -35,13 +35,13 @@ namespace Ceres.TranslationEngine
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
 
-        private CompilerLog Log { get; } = new();
-
         private int Line { get; set; }
         private int Column { get; set; }
 
         private string CurrentFileName { get; set; } = string.Empty;
         
+        public CompilerLog Log { get; } = new();
+
         public Script Compile(string source, string fileName = "")
         {
             CurrentFileName = fileName;
@@ -56,7 +56,7 @@ namespace Ceres.TranslationEngine
             catch (LexerException le)
             {
                 Log.TerminateWithFatal(
-                    le.Message, 
+                    le.Message,
                     CurrentFileName,
                     EvilMessageCode.LexerError,
                     line: Line,
@@ -98,7 +98,7 @@ namespace Ceres.TranslationEngine
                 );
             }
         }
-        
+
         private void InTopLevelChunk(Action action, string? name = null)
         {
             var chunk = new Chunk { Name = name };
@@ -192,7 +192,8 @@ namespace Ceres.TranslationEngine
                         parameter.Name,
                         parameterId,
                         parameter.ReadWrite,
-                        parameter.Line
+                        parameter.Line,
+                        parameter.Column
                     );
 
                     Chunk.DebugDatabase.SetParameterName(
@@ -560,7 +561,8 @@ namespace Ceres.TranslationEngine
                         kvp.Key,
                         localId,
                         variableDefinition.ReadWrite,
-                        variableDefinition.Line
+                        variableDefinition.Line,
+                        variableDefinition.Column
                     );
 
                     Chunk.DebugDatabase.SetLocalName(localId, kvp.Key);

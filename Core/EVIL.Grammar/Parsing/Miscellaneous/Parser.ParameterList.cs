@@ -12,6 +12,7 @@ namespace EVIL.Grammar.Parsing
             var (line, col) = Match(Token.LParenthesis);
             var parameters = new List<ParameterNode>();
             var hasInitializers = false;
+            var preceedingComma = false;
             
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
@@ -25,7 +26,12 @@ namespace EVIL.Grammar.Parsing
                 var parameterName = CurrentToken.Value!;
                 ConstantExpression? initializer = null;
 
-                var (pline, pcol) = Match(Token.Identifier, "Expected $expected or ')', found $actual.");
+                var (pline, pcol) = Match(
+                    Token.Identifier,
+                    preceedingComma 
+                        ? "Expected $expected, got $actual."
+                        : "Expected $expected or ')', got $actual."
+                );
 
                 if (CurrentToken == Token.Assign)
                 {
@@ -52,7 +58,8 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken == Token.RParenthesis)
                     break;
 
-                Match(Token.Comma);
+                Match(Token.Comma, "Expected $expected or ')', got $actual");
+                preceedingComma = true;
             }
             Match(Token.RParenthesis);
 

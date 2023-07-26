@@ -2,7 +2,7 @@
 #[test("jp2gmd")] fn ternary_false_with_constant() -> false ? "something went terribly wrong" : "jp2gmd";
 
 #[test(213.7)]
-fn ternary_true_with_variable) {
+fn ternary_true_with_variable() {
   var x = 25;
   ret x / 5 == 5 ? 213.7 : "something went terribly wrong";
 }
