@@ -10,19 +10,25 @@ namespace Ceres.TranslationEngine
 
             if (sym != null)
             {
-                if (sym.Type == Symbol.SymbolType.Local)
+                switch (sym.Type)
                 {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.SETLOCAL,
-                        sym.Id
-                    );
-                }
-                else
-                {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.SETARG,
-                        sym.Id
-                    );
+                    case Symbol.SymbolType.Local:
+                    {
+                        Chunk.CodeGenerator.Emit(
+                            OpCode.SETLOCAL,
+                            sym.Id
+                        );
+                        break;
+                    }
+
+                    case Symbol.SymbolType.Parameter:
+                    {
+                        Chunk.CodeGenerator.Emit(
+                            OpCode.SETARG,
+                            sym.Id
+                        );
+                        break;
+                    }
                 }
             }
             else
@@ -35,26 +41,32 @@ namespace Ceres.TranslationEngine
                 Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
             }
         }
-        
+
         private void EmitVarGet(string identifier)
         {
             var sym = _currentScope.Find(identifier);
 
             if (sym != null)
             {
-                if (sym.Type == Symbol.SymbolType.Local)
+                switch (sym.Type)
                 {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.GETLOCAL,
-                        sym.Id
-                    );
-                }
-                else
-                {
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.GETARG,
-                        sym.Id
-                    );
+                    case Symbol.SymbolType.Local:
+                    {
+                        Chunk.CodeGenerator.Emit(
+                            OpCode.GETLOCAL,
+                            sym.Id
+                        );
+                        break;
+                    }
+
+                    case Symbol.SymbolType.Parameter:
+                    {
+                        Chunk.CodeGenerator.Emit(
+                            OpCode.GETARG,
+                            sym.Id
+                        );
+                        break;
+                    }
                 }
             }
             else

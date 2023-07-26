@@ -5,8 +5,11 @@ namespace Ceres.TranslationEngine
         int Id, 
         Symbol.SymbolType Type,
         bool ReadWrite,
-        int DefinedOnLine)
+        int DefinedOnLine,
+        int DefinedOnColumn)
     {
+        public string TypeName => Type.ToString().ToLower();
+        
         public enum SymbolType
         {
             Local,
