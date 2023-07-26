@@ -26,10 +26,10 @@ namespace Ceres.RuntimeTests
         public void ChunkSerializeDeserialize()
         {
             var source = "#[jp2;gmd(2137)] fn main(a, b = 123, c = \"brokuł\") { " +
-                         "  var f = 33.3, " +
+                         "  rw var f = 33.3, " +
                          "      s = \"teststring\";" +
                          "" +
-                         "  for (var i = 0; i < 10; i++)" +
+                         "  for (rw var i = 0; i < 10; i++)" +
                          "      f += 2;" +
                          "" +
                          "  if (false) -> 10; " +
@@ -38,7 +38,7 @@ namespace Ceres.RuntimeTests
                          "  else -> \"haha you will never get a 4\";" +
                          "" +
                          "  ret 2+2;" +
-                         "}";
+                         "}";   
 
             var program = _parser.Parse(source);
             var script = _compiler.Compile(program);
