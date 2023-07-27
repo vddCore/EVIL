@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -12,12 +13,11 @@ namespace EVIL.Grammar.Parsing
         {
             var (line, col) = Match(Token.Var);
 
-            var definitions = new Dictionary<string, Expression?>();
+            var definitions = new Dictionary<IdentifierNode, Expression?>();
 
             while (true)
             {
-                var identifier = CurrentToken.Value;
-                Match(Token.Identifier);
+                var identifier = Identifier();
 
                 Expression? initializer = null;
                 if (CurrentToken.Type == TokenType.Assign)
@@ -26,7 +26,7 @@ namespace EVIL.Grammar.Parsing
                     initializer = AssignmentExpression();
                 }
 
-                definitions.Add(identifier!, initializer);
+                definitions.Add(identifier, initializer);
 
                 if (CurrentToken.Type == TokenType.Comma)
                 {

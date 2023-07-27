@@ -4,17 +4,19 @@ namespace EVIL.Grammar.AST.Miscellaneous
 {
     public sealed class ParameterNode : AstNode
     {
-        public string Name { get; }
+        public IdentifierNode Identifier { get; }
         public bool ReadWrite { get; }
         
         public ConstantExpression? Initializer { get; }
 
-        public ParameterNode(string name, bool readWrite, ConstantExpression? initializer)
+        public ParameterNode(IdentifierNode identifier, bool readWrite, ConstantExpression? initializer)
         {
-            Name = name;
+            Identifier = identifier;
             ReadWrite = readWrite;
             Initializer = initializer;
 
+            Reparent(Identifier);
+            
             if (Initializer != null)
                 Reparent(Initializer);
         }

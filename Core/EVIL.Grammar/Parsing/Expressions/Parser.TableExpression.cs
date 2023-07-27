@@ -60,14 +60,13 @@ namespace EVIL.Grammar.Parsing
                     {
                         if (CurrentToken.Type == TokenType.Identifier)
                         {
-                            var keyValue = CurrentToken.Value;
-                            var (kline, kcol) = Match(Token.Identifier);
+                            var keyIdentifier = Identifier();
 
                             if (CurrentToken == Token.Colon)
                             {
                                 Match(Token.Colon);
-                                key = new StringConstant(keyValue)
-                                    { Line = kline, Column = kcol };
+                                key = new StringConstant(keyIdentifier.Name)
+                                    { Line = keyIdentifier.Line, Column = keyIdentifier.Column };
                             }
                             else
                             {
@@ -84,7 +83,6 @@ namespace EVIL.Grammar.Parsing
                         }
 
                         value = AssignmentExpression();
-
                         initializers.Add(new KeyValuePairExpression(key, value));
                     }
                 }

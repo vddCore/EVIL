@@ -23,12 +23,10 @@ namespace EVIL.Grammar.Parsing
                     Match(Token.Rw);
                 }
                     
-                var parameterName = CurrentToken.Value!;
                 ConstantExpression? initializer = null;
 
-                var (pline, pcol) = Match(
-                    Token.Identifier,
-                    preceedingComma 
+                var parameterIdentifier = Identifier(
+                    preceedingComma
                         ? "Expected $expected, got $actual."
                         : "Expected $expected or ')', got $actual."
                 );
@@ -45,14 +43,14 @@ namespace EVIL.Grammar.Parsing
                     {
                         throw new ParserException(
                             "Uninitialized parameters must precede default parameters.",
-                            (pline, pcol)
+                            (parameterIdentifier.Line, parameterIdentifier.Column)
                         );
                     }
                 }
 
                 parameters.Add(
-                    new ParameterNode(parameterName, rw, initializer)
-                        { Line = pline, Column = pcol }
+                    new ParameterNode(parameterIdentifier, rw, initializer)
+                        { Line = parameterIdentifier.Line, Column = parameterIdentifier.Column }
                 );
 
                 if (CurrentToken == Token.RParenthesis)

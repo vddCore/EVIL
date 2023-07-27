@@ -5,18 +5,23 @@ namespace EVIL.Grammar.AST.Miscellaneous
 {
     public class AttributeNode : AstNode
     {
-        public string Name { get; }
+        public IdentifierNode Identifier { get; }
         
         public List<AstNode> Values { get; }
-        public Dictionary<string, AstNode> Properties { get; }
+        public Dictionary<IdentifierNode, AstNode> Properties { get; }
 
-        public AttributeNode(string name, List<AstNode> values, Dictionary<string, AstNode> properties)
+        public AttributeNode(
+            IdentifierNode identifier,
+            List<AstNode> values,
+            Dictionary<IdentifierNode, AstNode> properties)
         {
-            Name = name;
+            Identifier = identifier;
             Values = values;
             Properties = properties;
 
+            Reparent(Identifier);
             Reparent(values);
+            Reparent(Properties.Keys);
             Reparent(Properties.Values);
         }
     }

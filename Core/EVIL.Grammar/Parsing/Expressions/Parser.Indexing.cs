@@ -17,10 +17,12 @@ namespace EVIL.Grammar.Parsing
             {
                 (line, col) = Match(Token.Dot);
 
-                indexer = new StringConstant(CurrentToken.Value!);
-                var (keyLine, keyCol) = Match(Token.Identifier);
-                indexer.Line = keyLine;
-                indexer.Column = keyCol;
+                var identifier = Identifier();
+                indexer = new StringConstant(identifier.Name)
+                {
+                    Line = identifier.Line,
+                    Column = identifier.Column
+                };
             }
             else // must be bracket then
             {
