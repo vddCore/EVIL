@@ -189,7 +189,7 @@ namespace Ceres.TranslationEngine
                 try
                 {
                     _currentScope.DefineParameter(
-                        parameter.Name,
+                        parameter.Identifier.Name,
                         parameterId,
                         parameter.ReadWrite,
                         parameter.Line,
@@ -198,7 +198,7 @@ namespace Ceres.TranslationEngine
 
                     Chunk.DebugDatabase.SetParameterName(
                         parameterId,
-                        parameter.Name
+                        parameter.Identifier.Name
                     );
                 }
                 catch (DuplicateSymbolException dse)
@@ -281,7 +281,7 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(AttributeNode attributeNode)
         {
-            var attribute = new ChunkAttribute(attributeNode.Name);
+            var attribute = new ChunkAttribute(attributeNode.Identifier.Name);
 
             foreach (var valueNode in attributeNode.Values)
             {
@@ -293,7 +293,7 @@ namespace Ceres.TranslationEngine
             foreach (var propertyKvp in attributeNode.Properties)
             {
                 attribute.Properties.Add(
-                    propertyKvp.Key,
+                    propertyKvp.Key.Name,
                     ExtractConstantValueFrom(propertyKvp.Value)
                 );
             }
@@ -558,14 +558,14 @@ namespace Ceres.TranslationEngine
                     var localId = Chunk.AllocateLocal();
 
                     sym = _currentScope.DefineLocal(
-                        kvp.Key,
+                        kvp.Key.Name,
                         localId,
                         variableDefinition.ReadWrite,
                         variableDefinition.Line,
                         variableDefinition.Column
                     );
 
-                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key);
+                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name);
                 }
                 catch (DuplicateSymbolException dse)
                 {
@@ -623,7 +623,7 @@ namespace Ceres.TranslationEngine
 
                 foreach (var attr in functionDefinition.Attributes)
                     Visit(attr);
-            }, functionDefinition.Identifier);
+            }, functionDefinition.Identifier.Name);
         }
 
         public override void Visit(FunctionCallExpression functionCallExpression)

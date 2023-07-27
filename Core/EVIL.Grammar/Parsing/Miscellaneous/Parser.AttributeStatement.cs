@@ -12,11 +12,9 @@ namespace EVIL.Grammar.Parsing
     {
         private AttributeNode Attribute()
         {
-            var name = CurrentToken.Value!;
-            var (line, col) = Match(Token.Identifier);
-
+            var attributeIdentifier = Identifier();
             var attributeValues = new List<AstNode>();
-            var properties = new Dictionary<string, AstNode>();
+            var properties = new Dictionary<IdentifierNode, AstNode>();
 
             if (CurrentToken == Token.LParenthesis)
             {
@@ -25,10 +23,10 @@ namespace EVIL.Grammar.Parsing
                 {
                     if (CurrentToken == Token.Identifier)
                     {
-                        var identifier = CurrentToken.Value!;
-                        Match(Token.Identifier);
+                        var attributePropertyIdentifier = Identifier();
+                        
                         Match(Token.Assign);
-                        properties.Add(identifier, Constant());
+                        properties.Add(attributePropertyIdentifier, Constant());
                     }
                     else
                     {
@@ -52,8 +50,8 @@ namespace EVIL.Grammar.Parsing
                 Match(Token.RParenthesis);
             }
 
-            return new AttributeNode(name, attributeValues, properties)
-                { Line = line, Column = col };
+            return new AttributeNode(attributeIdentifier, attributeValues, properties)
+                { Line = attributeIdentifier.Line, Column = attributeIdentifier.Column };
         }
     }
 }

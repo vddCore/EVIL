@@ -21,10 +21,7 @@ namespace EVIL.Grammar.Parsing
             }
             
             var (line, col) = Match(Token.Fn);
-            var funcName = CurrentToken.Value!;
-
-            Match(Token.Identifier);
-
+            var functionIdentifier = Identifier();
             var parameterList = ParameterList();
 
             Statement statement;
@@ -45,7 +42,7 @@ namespace EVIL.Grammar.Parsing
             }
 
             return new FunctionDefinition(
-                funcName,
+                functionIdentifier,
                 parameterList,
                 statement,
                 attributes
