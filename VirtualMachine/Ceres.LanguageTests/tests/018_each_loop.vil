@@ -1,0 +1,76 @@
+﻿#[test]
+fn each_basic_table() {
+  var t = { x: 21.37, y: "haha funny number" };
+  
+  rw var tvar_1 = nil;
+  rw var tvar_2 = nil;
+  
+  each (var key : t) {
+    if (key == "x") {
+      tvar_1 = t[key];
+    } elif (key == "y") {
+      tvar_2 = t[key];
+    }
+  }
+  
+  ret tvar_1 == 21.37
+   && tvar_2 == "haha funny number";
+}
+
+#[test(44.51);approximate(2)]
+fn each_basic_table_skip() {
+  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  
+  rw var tvar_1 = nil;
+  
+  each (var key : t) {
+    if (key != "z") {
+      skip;
+    }
+    
+    tvar_1 = t[key];
+  }
+  
+  ret tvar_1;
+}
+
+#[test(11.11);approximate(2)]
+fn each_basic_table_break() {
+  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  
+  rw var tvar_1 = nil;
+  
+  each (var key : t) {
+    if (key == "y") {
+      tvar_1 = t[key];
+      break;
+    }
+  }
+  
+  ret tvar_1;
+}
+
+#[test]
+fn each_kv_table() {
+  var t = { x: "21.37", y: "haha funny number" };
+  
+  rw var tvar_k1 = nil;
+  rw var tvar_v1 = nil;
+  rw var tvar_k2 = nil;
+  rw var tvar_v2 = nil;
+  
+  each (var key, value : t) {
+    if (key == "x") {
+      tvar_k1 = key;
+      tvar_v1 = value;
+    } elif (key == "y") {
+      tvar_k2 = key;
+      tvar_v2 = value;
+    }
+  }
+  
+  ret tvar_k1 == "x"
+   && tvar_v1 == "21.37"
+   && tvar_k2 == "y"
+   && tvar_v2 == "haha funny number";
+}

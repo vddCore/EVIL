@@ -91,6 +91,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     {
                         case OpCode.INVOKE:
                         case OpCode.YIELD:
+                        case OpCode.NEXT:
                             output.Write(opCode);
                             output.Write(" ");
                             output.WriteLine(reader.ReadInt32());

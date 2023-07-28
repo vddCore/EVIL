@@ -374,6 +374,7 @@ namespace EVIL.Lexical
                 "typeof" => Token.TypeOf,
                 "yield" => Token.Yield,
                 "rw" => Token.Rw,
+                "each" => Token.Each,
                 "Infinity" => Token.Infinity,
                 "NaN" => Token.NaN,
                 _ => Token.CreateIdentifier(str)

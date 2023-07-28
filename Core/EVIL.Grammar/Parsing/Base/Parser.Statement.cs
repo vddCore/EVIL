@@ -23,6 +23,9 @@ namespace EVIL.Grammar.Parsing
 
                 case TokenType.While:
                     return WhileLoop();
+                
+                case TokenType.Each:
+                    return EachLoop();
 
                 case TokenType.LBrace:
                     return BlockStatement();
