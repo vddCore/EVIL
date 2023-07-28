@@ -309,17 +309,17 @@ namespace Ceres.ExecutionEngine
 
                     var argumentCount = frame.FetchInt32();
                     var args = PopArguments(argumentCount);
-                    
+
                     if (a.Type == DynamicValue.DynamicValueType.Chunk)
                     {
                         _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
-                        
+
                         _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
                             _fiber,
                             a.Chunk!,
                             false
                         );
-                        
+
                         break;
                     }
                     else if (a.Type == DynamicValue.DynamicValueType.NativeFunction)
@@ -351,7 +351,7 @@ namespace Ceres.ExecutionEngine
                         _callStack.Peek().As<ScriptStackFrame>().Chunk,
                         true
                     );
-                    
+
                     frame.JumpAbsolute(0);
                     break;
                 }
@@ -565,6 +565,46 @@ namespace Ceres.ExecutionEngine
                 case OpCode.XARGS:
                 {
                     PushValue(frame.ExtraArguments);
+                    break;
+                }
+
+                case OpCode.EACH:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValue.DynamicValueType.String)
+                    {
+                        a = Table.FromString(a.String!);
+                    }
+                    else if (a.Type != DynamicValue.DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to iterate over a {a.Type} value."
+                        );
+                    }
+
+                    PushValue(new DynamicValue(a.Table!.GetEnumerator()));
+                    break;
+                }
+
+                case OpCode.NEXT:
+                {
+                    var isKeyValue = frame.FetchInt32() != 0;
+                    a = PeekValue();
+                    var enumerator = (IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>)a.NativeObject!;
+                    var next = enumerator.MoveNext();
+
+                    if (next)
+                    {
+                        if (isKeyValue)
+                        {
+                            PushValue(enumerator.Current.Value);
+                        }
+
+                        PushValue(enumerator.Current.Key);
+                    }
+                    
+                    PushValue(next);
                     break;
                 }
 

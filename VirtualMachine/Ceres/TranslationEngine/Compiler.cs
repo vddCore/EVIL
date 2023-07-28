@@ -39,7 +39,7 @@ namespace Ceres.TranslationEngine
         private int Column { get; set; }
 
         private string CurrentFileName { get; set; } = string.Empty;
-        
+
         public CompilerLog Log { get; } = new();
 
         public Script Compile(string source, string fileName = "")
@@ -153,7 +153,6 @@ namespace Ceres.TranslationEngine
 
             AddCurrentLocationToDebugDatabase();
             base.Visit(node);
-            AddCurrentLocationToDebugDatabase();
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
@@ -705,6 +704,60 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.ExtraLabel);
                     Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
                 }, true);
+            });
+        }
+
+        public override void Visit(EachStatement eachStatement)
+        {
+            InNewScopeDo(() =>
+            {
+                int keyLocal = Chunk.AllocateLocal();
+                int valueLocal = -1;
+                var isKeyValue = false;
+                
+                _currentScope.DefineLocal(
+                    eachStatement.KeyIdentifier.Name,
+                    keyLocal,
+                    false,
+                    eachStatement.KeyIdentifier.Line,
+                    eachStatement.KeyIdentifier.Column
+                );
+
+                if (eachStatement.ValueIdentifier != null)
+                {
+                    valueLocal = Chunk.AllocateLocal();
+
+                    _currentScope.DefineLocal(
+                        eachStatement.ValueIdentifier.Name,
+                        valueLocal,
+                        false,
+                        eachStatement.ValueIdentifier.Line,
+                        eachStatement.ValueIdentifier.Column
+                    );
+
+                    isKeyValue = true;
+                }
+
+                Visit(eachStatement.Iterable);
+                Chunk.CodeGenerator.Emit(OpCode.EACH);
+                
+                InNewLoopDo(() =>
+                {
+                    Chunk.UpdateLabel(Loop.StartLabel, Chunk.CodeGenerator.IP);
+                    Chunk.CodeGenerator.Emit(OpCode.NEXT, isKeyValue ? 1 : 0);
+                    Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
+                    Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, keyLocal);
+
+                    if (isKeyValue)
+                    {
+                        Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, valueLocal);
+                    }
+
+                    Visit(eachStatement.Statement);
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
+                    Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
+                    Chunk.CodeGenerator.Emit(OpCode.POP);
+                }, false);
             });
         }
 

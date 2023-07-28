@@ -40,6 +40,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(ForStatement), (n) => Visit((ForStatement)n) },
                 { typeof(DoWhileStatement), (n) => Visit((DoWhileStatement)n) },
                 { typeof(WhileStatement), (n) => Visit((WhileStatement)n) },
+                { typeof(EachStatement), (n) => Visit((EachStatement)n) },
                 { typeof(ReturnStatement), (n) => Visit((ReturnStatement)n) },
                 { typeof(BreakStatement), (n) => Visit((BreakStatement)n) },
                 { typeof(SkipStatement), (n) => Visit((SkipStatement)n) },
@@ -92,6 +93,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(ForStatement forStatement);
         public abstract void Visit(DoWhileStatement doWhileStatement);
         public abstract void Visit(WhileStatement whileStatement);
+        public abstract void Visit(EachStatement eachStatement);
         public abstract void Visit(ReturnStatement returnStatement);
         public abstract void Visit(BreakStatement breakStatement);
         public abstract void Visit(SkipStatement skipStatement);

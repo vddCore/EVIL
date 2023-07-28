@@ -60,6 +60,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         INDEX,
         YIELD,
         YRET,
-        XARGS
+        XARGS,
+        EACH,
+        NEXT
     }
 }
