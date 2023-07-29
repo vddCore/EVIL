@@ -583,15 +583,17 @@ namespace Ceres.ExecutionEngine
                         );
                     }
 
-                    PushValue(new DynamicValue(a.Table!.GetEnumerator()));
+                    frame.PushEnumerator(a.Table!);
                     break;
                 }
 
                 case OpCode.NEXT:
                 {
                     var isKeyValue = frame.FetchInt32() != 0;
-                    a = PeekValue();
-                    var enumerator = (IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>)a.NativeObject!;
+                    var enumerator = frame.CurrentEnumerator ?? throw new VirtualMachineException(
+                        "Attempt to iterate without an active iterator."
+                    );
+                    
                     var next = enumerator.MoveNext();
 
                     if (next)
@@ -605,6 +607,12 @@ namespace Ceres.ExecutionEngine
                     }
                     
                     PushValue(next);
+                    break;
+                }
+
+                case OpCode.ENDE:
+                {
+                    frame.PopEnumerator();
                     break;
                 }
 
