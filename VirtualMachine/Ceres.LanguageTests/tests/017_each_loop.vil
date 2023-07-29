@@ -50,6 +50,17 @@ fn each_basic_table_break() {
   ret tvar_1;
 }
 
+#[test(11.11);approximate(2)]
+fn each_basic_table_ret() {
+  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  
+  each (var key : t) {
+    if (key == "y") {
+      ret t[key];
+    }
+  }
+}
+
 #[test]
 fn each_kv_table() {
   var t = { x: "21.37", y: "haha funny number" };
@@ -75,13 +86,52 @@ fn each_kv_table() {
    && tvar_v2 == "haha funny number";
 }
 
+#[test]
+fn each_kv_table_skip() {
+  var t = { x: "21.37", y: "haha funny number", z: "11111111" };
+
+  rw var tvar_k = nil;
+  rw var tvar_v = nil;
+
+  each (var key, value : t) {
+    if (key != "z") {
+      skip;
+    }
+    
+    tvar_k = key;
+    tvar_v = value;
+  }
+
+  ret tvar_k == "z"
+   && tvar_v == "11111111";
+}
+
+#[test]
+fn each_kv_table_break() {
+  var t = { x: "21.37", y: "haha funny number", z: "11111111" };
+
+  rw var tvar_k = nil;
+  rw var tvar_v = nil;
+
+  each (var key, value : t) {
+    if (key == "y") {
+      tvar_k = key;
+      tvar_v = value;
+      break;
+    }
+  }
+
+  ret tvar_k == "y"
+   && tvar_v == "haha funny number";
+}
+
 #[test(11.11);approximate(2)]
-fn each_basic_table_ret() {
+fn each_kv_table_ret() {
   var t = { x: 21.37, y: 11.11, z: 44.51 };
   
-  each (var key : t) {
+  each (var key, value : t) {
     if (key == "y") {
-      ret t[key];
+      ret value;
     }
   }
 }
