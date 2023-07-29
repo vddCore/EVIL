@@ -14,6 +14,7 @@ using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Grammar.Parsing;
 using EVIL.Grammar.Traversal;
 using EVIL.Lexical;
+using static Ceres.TranslationEngine.Loop;
 
 namespace Ceres.TranslationEngine
 {
@@ -34,7 +35,8 @@ namespace Ceres.TranslationEngine
 
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
-
+        private bool InsideLoop => _loopDescent.Any();
+        
         private int Line { get; set; }
         private int Column { get; set; }
 
@@ -122,9 +124,9 @@ namespace Ceres.TranslationEngine
             _currentScope = _currentScope.Parent!;
         }
 
-        private void InNewLoopDo(Action action, bool needsExtraLabel)
+        private void InNewLoopDo(LoopKind kind, Action action, bool needsExtraLabel)
         {
-            _loopDescent.Push(new Loop(Chunk, needsExtraLabel));
+            _loopDescent.Push(new Loop(Chunk, kind, needsExtraLabel));
             {
                 action();
             }
@@ -331,7 +333,7 @@ namespace Ceres.TranslationEngine
             {
                 Chunk.CodeGenerator.Emit(OpCode.LDNIL);
             }
-
+            
             Chunk.CodeGenerator.Emit(OpCode.RET);
         }
 
@@ -690,7 +692,7 @@ namespace Ceres.TranslationEngine
                 foreach (var statement in forStatement.Assignments)
                     Visit(statement);
 
-                InNewLoopDo(() =>
+                InNewLoopDo(LoopKind.For, () =>
                 {
                     Visit(forStatement.Condition);
                     Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
@@ -741,7 +743,7 @@ namespace Ceres.TranslationEngine
                 Visit(eachStatement.Iterable);
                 Chunk.CodeGenerator.Emit(OpCode.EACH);
                 
-                InNewLoopDo(() =>
+                InNewLoopDo(LoopKind.Each, () =>
                 {
                     Chunk.UpdateLabel(Loop.StartLabel, Chunk.CodeGenerator.IP);
                     Chunk.CodeGenerator.Emit(OpCode.NEXT, isKeyValue ? 1 : 0);
@@ -756,14 +758,14 @@ namespace Ceres.TranslationEngine
                     Visit(eachStatement.Statement);
                     Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
                     Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
-                    Chunk.CodeGenerator.Emit(OpCode.POP);
+                    Chunk.CodeGenerator.Emit(OpCode.EEND);
                 }, false);
             });
         }
 
         public override void Visit(DoWhileStatement doWhileStatement)
         {
-            InNewLoopDo(() =>
+            InNewLoopDo(LoopKind.DoWhile, () =>
             {
                 Visit(doWhileStatement.Statement);
 
@@ -776,7 +778,7 @@ namespace Ceres.TranslationEngine
 
         public override void Visit(WhileStatement whileStatement)
         {
-            InNewLoopDo(() =>
+            InNewLoopDo(LoopKind.While, () =>
             {
                 Visit(whileStatement.Condition);
                 Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);

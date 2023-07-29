@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
@@ -10,6 +11,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
     {
         private readonly BinaryReader _chunkReader;
         private Table? _extraArguments;
+        
+        private Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _tableEnumerators = new();
 
         public Fiber Fiber { get; }
         public Chunk Chunk { get; }
@@ -21,6 +24,17 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public long PreviousOpCodeIP { get; private set; }
         public long IP => _chunkReader.BaseStream.Position;
+
+        public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>? CurrentEnumerator
+        {
+            get
+            {
+                if (_tableEnumerators.TryPeek(out var enumerator))
+                    return enumerator;
+
+                return null;
+            }
+        }
 
         internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue[] args)
         {
@@ -85,6 +99,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return ret;
         }
 
+        internal void PushEnumerator(Table table)
+        {
+            _tableEnumerators.Push(table.GetEnumerator());
+        }
+
+        internal void PopEnumerator()
+        {
+            _tableEnumerators.Pop();
+        }
+        
         internal void Return()
             => _chunkReader.BaseStream.Seek(0, SeekOrigin.End);
 

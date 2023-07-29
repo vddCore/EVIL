@@ -48,7 +48,7 @@
     <None Update="tests\011_type.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\012_yield.vil">
+    <None Update="tests\099_yield.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\013_extra_arguments.vil">
@@ -63,10 +63,10 @@
     <None Update="tests\016_scope.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\017_if_statement.vil">
+    <None Update="tests\012_if_statement.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\018_each_loop.vil">
+    <None Update="tests\017_each_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
