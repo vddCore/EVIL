@@ -610,7 +610,7 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
-                case OpCode.ENDE:
+                case OpCode.EEND:
                 {
                     frame.PopEnumerator();
                     break;
