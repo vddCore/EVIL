@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Marshaling;
+using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class Script
+    public sealed class Script : IDynamicValueProvider
     {
         public int MainChunkID { get; set; }
 
@@ -39,7 +42,24 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Chunk FindChunkByName(string name)
         {
             return Chunks.FirstOrDefault(x => x.Name == name)
-                ?? throw new InvalidOperationException($"Chunk {name} not found.");
+                   ?? throw new InvalidOperationException($"Chunk {name} not found.");
+        }
+
+        public DynamicValue ToDynamicValue()
+        {
+            var chunks = new Table();
+
+            for (var i = 0; i < Chunks.Count; i++)
+            {
+                var chunk = Chunks[i];
+                chunks[chunk.Name!] = chunk;
+            }
+
+            return new Table
+            {
+                { "main_chunk", MainChunkID },
+                { "chunks", chunks }
+            };
         }
     }
 }

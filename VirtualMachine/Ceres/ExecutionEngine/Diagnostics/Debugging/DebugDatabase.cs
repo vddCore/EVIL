@@ -9,8 +9,12 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
     public sealed class DebugDatabase : IEquatable<DebugDatabase>
     {
         private readonly Dictionary<int, HashSet<int>> _records = new();
+
         private readonly Dictionary<int, string> _parameterNames = new();
+        private readonly Dictionary<int, bool> _parameterRwStates = new();
+
         private readonly Dictionary<int, string> _localNames = new();
+        private readonly Dictionary<int, bool> _localRwStates = new();
 
         public int DefinedOnLine { get; internal set; } = -1;
         public string DefinedInFile { get; internal set; } = string.Empty;
@@ -37,14 +41,24 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             return -1;
         }
 
-        public void SetParameterName(int id, string name)
+        public void SetParameterName(int id, string name, bool rw)
         {
             if (!_parameterNames.TryAdd(id, name))
+            {
                 _parameterNames[id] = name;
+            }
+
+            if (!_parameterRwStates.TryAdd(id, rw))
+            {
+                _parameterRwStates[id] = rw;
+            }
         }
 
-        public bool RemoveParameterName(int id) 
-            => _parameterNames.Remove(id);
+        public bool RemoveParameterName(int id)
+        {
+            _parameterRwStates.Remove(id);
+            return _parameterNames.Remove(id);
+        }
 
         public bool HasParameterNameFor(int id)
             => _parameterNames.ContainsKey(id);
@@ -52,20 +66,36 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         public bool TryGetParameterName(int id, out string parameterName)
             => _parameterNames.TryGetValue(id, out parameterName!);
 
-        public void SetLocalName(int id, string name)
+        public bool TryGetParameterRwState(int id, out bool rw)
+            => _parameterRwStates.TryGetValue(id, out rw);
+
+        public void SetLocalName(int id, string name, bool rw)
         {
             if (!_localNames.TryAdd(id, name))
+            {
                 _localNames[id] = name;
+            }
+
+            if (!_localRwStates.TryAdd(id, rw))
+            {
+                _localRwStates[id] = rw;
+            }
         }
 
         public bool RemoveLocalName(int id)
-            => _localNames.Remove(id);
+        {
+            _localRwStates.Remove(id);
+            return _localNames.Remove(id);
+        }
 
         public bool HasLocalNameFor(int id)
             => _localNames.ContainsKey(id);
 
         public bool TryGetLocalName(int id, out string localName)
             => _localNames.TryGetValue(id, out localName!);
+
+        public bool TryGetLocalRwState(int id, out bool rw)
+            => _localRwStates.TryGetValue(id, out rw);
 
         public bool IsEmpty => !_records.Any()
                                && !_parameterNames.Any()
@@ -85,14 +115,14 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         {
             bw.Write(DefinedOnLine);
             bw.Write(DefinedInFile);
-            
+
             bw.Write(_records.Count);
             foreach (var record in _records)
             {
                 bw.Write(record.Key);
                 bw.Write(record.Value.Count);
 
-                foreach (var addr in record.Value) 
+                foreach (var addr in record.Value)
                     bw.Write(addr);
             }
 
@@ -101,6 +131,7 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             {
                 bw.Write(localKvp.Key);
                 bw.Write(localKvp.Value);
+                bw.Write(_localRwStates[localKvp.Key]);
             }
 
             bw.Write(_parameterNames.Count);
@@ -108,13 +139,14 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             {
                 bw.Write(paramKvp.Key);
                 bw.Write(paramKvp.Value);
+                bw.Write(_parameterRwStates[paramKvp.Key]);
             }
         }
 
         internal void Deserialize(BinaryReader br)
         {
             Strip();
-            
+
             DefinedOnLine = br.ReadInt32();
             DefinedInFile = br.ReadString();
 
@@ -138,7 +170,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             {
                 SetLocalName(
                     br.ReadInt32(),
-                    br.ReadString()
+                    br.ReadString(),
+                    br.ReadBoolean()
                 );
             }
 
@@ -147,7 +180,8 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             {
                 SetParameterName(
                     br.ReadInt32(),
-                    br.ReadString()
+                    br.ReadString(),
+                    br.ReadBoolean()
                 );
             }
         }
@@ -163,32 +197,34 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
             {
                 recordsEqual &= kvp.Value.SequenceEqual(other._records[kvp.Key]);
             }
-            
+
             return recordsEqual
-                && _parameterNames.SequenceEqual(other._parameterNames) 
-                && _localNames.SequenceEqual(other._localNames)
-                && DefinedOnLine == other.DefinedOnLine
-                && DefinedInFile == other.DefinedInFile;
+                   && _parameterNames.SequenceEqual(other._parameterNames)
+                   && _parameterRwStates.SequenceEqual(other._parameterRwStates)
+                   && _localNames.SequenceEqual(other._localNames)
+                   && _localRwStates.SequenceEqual(other._localRwStates)
+                   && DefinedOnLine == other.DefinedOnLine
+                   && DefinedInFile == other.DefinedInFile;
         }
 
-        public override bool Equals(object? obj) 
-            => ReferenceEquals(this, obj) 
-            || obj is DebugDatabase other 
-            && Equals(other);
+        public override bool Equals(object? obj)
+            => ReferenceEquals(this, obj)
+               || obj is DebugDatabase other
+               && Equals(other);
 
-        public override int GetHashCode() 
+        public override int GetHashCode()
             => HashCode.Combine(
-                _records, 
+                _records,
                 _parameterNames,
                 _localNames,
                 DefinedOnLine,
                 DefinedInFile
             );
 
-        public static bool operator ==(DebugDatabase? left, DebugDatabase? right) 
+        public static bool operator ==(DebugDatabase? left, DebugDatabase? right)
             => Equals(left, right);
 
-        public static bool operator !=(DebugDatabase? left, DebugDatabase? right) 
+        public static bool operator !=(DebugDatabase? left, DebugDatabase? right)
             => !Equals(left, right);
     }
 }
