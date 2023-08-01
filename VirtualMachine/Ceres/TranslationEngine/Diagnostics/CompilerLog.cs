@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Marshaling;
+using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.TranslationEngine.Diagnostics
 {
-    public sealed class CompilerLog
+    public sealed class CompilerLog : IDynamicValueProvider
     {
         private readonly List<CompilerMessage> _messages = new();
 
@@ -132,6 +135,28 @@ namespace Ceres.TranslationEngine.Diagnostics
                 sb.AppendLine(message.ToString());
             
             return sb.ToString();
+        }
+
+        public DynamicValue ToDynamicValue()
+        {
+            var ret = new Table();
+
+            for (var i = 0; i < Messages.Count; i++)
+            {
+                var msg = Messages[i];
+
+                ret[i] = new Table
+                {
+                    { "severity", (int)msg.Severity },
+                    { "message", msg.Message },
+                    { "file_name", msg.FileName ?? DynamicValue.Nil },
+                    { "message_code", msg.MessageCode },
+                    { "line", msg.Line },
+                    { "column", msg.Column }
+                };
+            }
+
+            return ret;
         }
     }
 }

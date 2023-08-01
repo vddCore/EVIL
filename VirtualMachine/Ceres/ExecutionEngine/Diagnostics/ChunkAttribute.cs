@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Marshaling;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class ChunkAttribute : IEquatable<ChunkAttribute>
+    public sealed class ChunkAttribute : IEquatable<ChunkAttribute>, IDynamicValueProvider
     {
         public string Name { get; }
 
@@ -68,5 +70,27 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public static bool operator !=(ChunkAttribute? left, ChunkAttribute? right) 
             => !Equals(left, right);
+        
+        public DynamicValue ToDynamicValue()
+        {
+            var values = new Table();
+            for (var i = 0; i < Values.Count; i++)
+            {
+                values[i] = Values[i];
+            }
+
+            var properties = new Table();
+            foreach (var kvp in Properties)
+            {
+                properties[kvp.Key] = kvp.Value;
+            }
+
+            return new Table
+            {
+                { "name", Name },
+                { "values", values },
+                { "properties", properties }
+            };
+        }
     }
 }

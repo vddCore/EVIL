@@ -244,6 +244,6 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeObject.");
 
             return value.NativeObject!;
-        }
+        }        
     }
 }

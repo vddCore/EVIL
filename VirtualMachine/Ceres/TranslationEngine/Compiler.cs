@@ -155,6 +155,7 @@ namespace Ceres.TranslationEngine
 
             AddCurrentLocationToDebugDatabase();
             base.Visit(node);
+            AddCurrentLocationToDebugDatabase();
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
@@ -199,7 +200,8 @@ namespace Ceres.TranslationEngine
 
                     Chunk.DebugDatabase.SetParameterName(
                         parameterId,
-                        parameter.Identifier.Name
+                        parameter.Identifier.Name,
+                        parameter.ReadWrite
                     );
                 }
                 catch (DuplicateSymbolException dse)
@@ -566,7 +568,7 @@ namespace Ceres.TranslationEngine
                         variableDefinition.Column
                     );
 
-                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name);
+                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name, variableDefinition.ReadWrite);
                 }
                 catch (DuplicateSymbolException dse)
                 {

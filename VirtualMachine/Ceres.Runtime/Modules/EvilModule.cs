@@ -4,7 +4,6 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.TranslationEngine;
-using Ceres.TranslationEngine.Diagnostics;
 
 namespace Ceres.Runtime.Modules
 {
@@ -28,7 +27,7 @@ namespace Ceres.Runtime.Modules
                 return new Table
                 {
                     { "success", true },
-                    { "script", MarshalScript(script) }
+                    { "script", script.ToDynamicValue() }
                 };
             }
             catch (CompilerException e)
@@ -37,45 +36,80 @@ namespace Ceres.Runtime.Modules
                 {
                     { "success", false },
                     { "message", e.Message },
-                    { "log", MarshalCompilerLog(e.Log) }
+                    { "log", e.Log.ToDynamicValue() }
                 };
             }
         }
 
-        private static Table MarshalScript(Script script)
+        [RuntimeModuleFunction("reflect", ReturnType = DynamicValue.DynamicValueType.Table)]
+        private static DynamicValue Reflect(Fiber fiber, params DynamicValue[] args)
         {
-            var chunks = new Table();
+            args.ExpectExactly(1)
+                .ExpectChunkAt(0, out var chunk);
 
-            for (var i = 0; i < script.Chunks.Count; i++)
+            var attrs = new Table();
+            for (var i = 0; i < chunk.Attributes.Count; i++)
             {
-                var chunk = script.Chunks[i];
-                chunks[chunk.Name!] = chunk;
+                attrs[i] = chunk.Attributes[i].ToDynamicValue();
             }
-            
+
             return new Table
             {
-                { "main_chunk", script.MainChunkID },
-                { "chunks", chunks }
+                { "name", chunk.Name ?? DynamicValue.Nil },
+                { "attributes", attrs },
+                { "local_info", BuildLocalInfo(chunk) },
+                { "param_info", BuildParameterInfo(chunk) }
             };
         }
-
-        private static Table MarshalCompilerLog(CompilerLog log)
+        
+        private static Table BuildLocalInfo(Chunk chunk)
         {
             var ret = new Table();
 
-            for (var i = 0; i < log.Messages.Count; i++)
+            for (var i = 0; i < chunk.LocalCount; i++)
             {
-                var msg = log.Messages[i];
-
-                ret[i] = new Table
+                var local = new Table { { "id", i } };
+                
+                if (chunk.DebugDatabase.TryGetLocalName(i, out var localName))
                 {
-                    { "severity", (int)msg.Severity },
-                    { "message", msg.Message },
-                    { "file_name", msg.FileName ?? DynamicValue.Nil },
-                    { "message_code", msg.MessageCode },
-                    { "line", msg.Line },
-                    { "column", msg.Column }
-                };
+                    local["name"] = localName;
+                }
+
+                if (chunk.DebugDatabase.TryGetLocalRwState(i, out var rw))
+                {
+                    local["is_rw"] = rw;
+                }
+
+                ret[i] = local;
+            }
+
+            return ret;
+        }
+
+        private static Table BuildParameterInfo(Chunk chunk)
+        {
+            var ret = new Table();
+
+            for (var i = 0; i < chunk.ParameterCount; i++)
+            {
+                var param = new Table { { "id", i } };
+
+                if (chunk.DebugDatabase.TryGetParameterName(i, out var parameterName))
+                {
+                    param["name"] = parameterName;
+                }
+
+                if (chunk.ParameterInitializers.ContainsKey(i))
+                {
+                    param["default_value"] = chunk.ParameterInitializers[i];
+                }
+
+                if (chunk.DebugDatabase.TryGetParameterRwState(i, out var rw))
+                {
+                    param["is_rw"] = rw;
+                }
+
+                ret[i] = param;
             }
 
             return ret;
