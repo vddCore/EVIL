@@ -135,11 +135,32 @@ namespace Ceres.ExecutionEngine.Collections
 
             lock (_values)
             {
-                for (var i = 0; i < _values.Keys.Count; i++)
-                    keys.Set(i, _values.Keys.ElementAt(i));
+                var i = 0;
+
+                foreach (var kvp in _values)
+                {
+                    keys.Set(i++, kvp.Key);
+                }
             }
 
             return keys;
+        }
+
+        public Table GetValues()
+        {
+            var values = new Table();
+
+            lock (_values)
+            {
+                var i = 0;
+
+                foreach (var kvp in _values)
+                {
+                    values.Set(i++, kvp.Value);
+                }
+            }
+            
+            return values;
         }
 
         public Table ShallowCopy()
