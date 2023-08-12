@@ -16,8 +16,9 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
             using (var ms = new MemoryStream())
             {
-                using (var sw = new StreamWriter(ms) { AutoFlush = true })
+                using (var sw = new StreamWriter(ms))
                 {
+                    sw.AutoFlush = true;
                     Console.SetOut(sw);
                     
                     EvilTestResult(src).ShouldBe(12);
@@ -41,8 +42,9 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
             using (var ms = new MemoryStream())
             {
-                using (var sw = new StreamWriter(ms) { AutoFlush = true })
-                {
+                using (var sw = new StreamWriter(ms))
+                    {
+                        sw.AutoFlush = true;
                     Console.SetOut(sw);
                     
                     EvilTestResult(src).ShouldBe(14);
