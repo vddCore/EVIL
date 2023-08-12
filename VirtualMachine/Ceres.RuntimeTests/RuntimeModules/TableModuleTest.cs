@@ -101,5 +101,50 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 kvp.Value.ShouldBeOneOf("is", "test", "evil runtime");
             }
         }
+
+        [Test]
+        public void ShallowCopy()
+        {
+            var t = EvilTestResult(
+                "fn test() {" +
+                "   var t1 = { 1, 2, 3 };" +
+                "   var t2 = { 'test', t1 };" +
+                "   var t3 = tbl.cpy(t2);" +
+                "" +
+                "   ret { t1: t1, t2: t2, t3: t3 };" +
+                "}"
+            ).Table!;
+
+            var t1 = t["t1"].Table!;
+            var t2 = t["t2"].Table!;
+            var t3 = t["t3"].Table!;
+
+            t1.ShouldBeEquivalentTo(t3[1]);
+            t1.ShouldBeEquivalentTo(t2[1]);
+            t3[1].ShouldBeEquivalentTo(t2[1]);
+        }
+        
+        [Test]
+        public void DeepCopy()
+        {
+            var t = EvilTestResult(
+                "fn test() {" +
+                "   var t1 = { 1, 2, 3 };" +
+                "   var t2 = { 'test', t1 };" +
+                "   var t3 = tbl.cpy(t2, true);" +
+                "" +
+                "   ret { t1: t1, t2: t2, t3: t3 };" +
+                "}"
+            ).Table!;
+
+            var t1 = t["t1"].Table!;
+            var t2 = t["t2"].Table!;
+            var t3 = t["t3"].Table!;
+
+            t1.IsDeeplyEqualTo(t3[1].Table!).ShouldBeTrue();
+            t1.IsDeeplyEqualTo(t2[1].Table!).ShouldBeTrue();
+            t3[1].Table!.IsDeeplyEqualTo(t2[1].Table!).ShouldBeTrue();
+            t2[1].Table!.ShouldNotBeSameAs(t3[1].Table!);
+        }
     }
 }
