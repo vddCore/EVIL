@@ -37,5 +37,27 @@ namespace Ceres.RuntimeTests.RuntimeModules
             var evilStamp = t["stamp"].Number!;
             evilStamp.ShouldBeInRange(stamp, stamp + 100);
         }
+
+        [Test]
+        public void StampMs()
+        {
+            var ms = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var evilMs = EvilTestResult(
+                "fn test() -> time.stamp.ms;"
+            ).Number;
+
+            evilMs.ShouldBeInRange(ms, ms + 1000);
+        }
+        
+        [Test]
+        public void StampSecs()
+        {
+            var secs = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var evilSecs = EvilTestResult(
+                "fn test() -> time.stamp.secs;"
+            ).Number;
+
+            evilSecs.ShouldBeInRange(secs, secs + 2);
+        }
     }
 }

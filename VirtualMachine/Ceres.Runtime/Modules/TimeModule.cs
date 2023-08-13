@@ -1,5 +1,4 @@
 ﻿using Ceres.ExecutionEngine.Collections;
-using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
@@ -11,15 +10,16 @@ namespace Ceres.Runtime.Modules
         public override string FullyQualifiedName => "time";
 
         [RuntimeModuleGetter("now", ReturnType = DynamicValueType.Table)]
-        private static DynamicValue GetNowDateTime(DynamicValue key)
+        private static DynamicValue GetNow(DynamicValue key)
             => CreateDateTimeTable(DateTime.Now);
 
-        [RuntimeModuleFunction("stamp", ReturnType = DynamicValueType.Number)]
-        private static DynamicValue Timestamp(Fiber fiber, params DynamicValue[] args)
-        {
-            args.ExpectNone();
-            return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        }
+        [RuntimeModuleGetter("stamp.ms", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue GetStampMillis(DynamicValue key) 
+            => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        
+        [RuntimeModuleGetter("stamp.secs", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue GetStampSeconds(DynamicValue key) 
+            => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         private static Table CreateDateTimeTable(DateTime dt)
         {

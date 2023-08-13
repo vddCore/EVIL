@@ -32,19 +32,19 @@ namespace Ceres.Runtime
         private void RegisterNativeFunctions()
         {
             var validFunctions = GetType().GetMethods(
-                BindingFlags.Public
-                | BindingFlags.NonPublic
-                | BindingFlags.Static
-            ).Where(HasSupportedFunctionSignature)
-             .Where(HasRequiredFunctionAttribute)
-             .Select(x => 
-             {
-                var nativeFunction = x.CreateDelegate<NativeFunction>(null);
-                var attribute = x.GetCustomAttribute<RuntimeModuleFunctionAttribute>()!;
+                    BindingFlags.Public
+                    | BindingFlags.NonPublic
+                    | BindingFlags.Static
+                ).Where(HasSupportedFunctionSignature)
+                .Where(HasRequiredFunctionAttribute)
+                .Select(x =>
+                {
+                    var nativeFunction = x.CreateDelegate<NativeFunction>(null);
+                    var attribute = x.GetCustomAttribute<RuntimeModuleFunctionAttribute>()!;
 
-                return (Function: nativeFunction, Attribute: attribute);
-             });
-            
+                    return (Function: nativeFunction, Attribute: attribute);
+                });
+
             foreach (var tuple in validFunctions)
             {
                 if (this.ContainsPath(tuple.Attribute.SubNameSpace))
@@ -54,7 +54,7 @@ namespace Ceres.Runtime
                         $"in '{FullyQualifiedName}'."
                     );
                 }
-                
+
                 this.SetUsingPath(tuple.Attribute.SubNameSpace, new(tuple.Function));
             }
         }
@@ -79,15 +79,15 @@ namespace Ceres.Runtime
                     | BindingFlags.NonPublic
                     | BindingFlags.Static
                 ).Where(HasSupportedGetterSignature)
-                 .Where(HasRequiredGetterAttribute)
-                 .Select(x => 
-                 {
-                     var getter = x.CreateDelegate<TableGetter>(null);
-                     var attribute = x.GetCustomAttribute<RuntimeModuleGetterAttribute>()!;
+                .Where(HasRequiredGetterAttribute)
+                .Select(x =>
+                {
+                    var getter = x.CreateDelegate<TableGetter>(null);
+                    var attribute = x.GetCustomAttribute<RuntimeModuleGetterAttribute>()!;
 
-                     return (Getter: getter, Attribute: attribute);
-                 });
-            
+                    return (Getter: getter, Attribute: attribute);
+                });
+
             foreach (var tuple in validGetters)
             {
                 if (this.ContainsPath(tuple.Attribute.SubNameSpace))
@@ -103,11 +103,24 @@ namespace Ceres.Runtime
 
                 var subNameSpaceParts = tuple.Attribute.SubNameSpace.Split('.');
                 var targetName = subNameSpaceParts[subNameSpaceParts.Length - 1];
-                
+
                 if (subNameSpaceParts.Length >= 2)
                 {
                     var subNameSpace = string.Join('.', subNameSpaceParts[0..^1]);
-                    var propTable = new PropertyTable();
+
+                    var dynval = IndexUsingFullyQualifiedName(subNameSpace);
+
+                    PropertyTable propTable;
+                    
+                    if (dynval == DynamicValue.Nil)
+                    {
+                        propTable = new PropertyTable();
+                    }
+                    else
+                    {
+                        propTable = (PropertyTable)dynval.Table!;
+                    }
+                    
                     propTable.AddGetter(targetName, tuple.Getter);
                     this.SetUsingPath(subNameSpace, propTable);
                 }
@@ -117,7 +130,7 @@ namespace Ceres.Runtime
                 }
             }
         }
-        
+
         private bool HasRequiredGetterAttribute(MethodInfo method)
             => method.GetCustomAttribute<RuntimeModuleGetterAttribute>() != null;
 
