@@ -10,16 +10,14 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "time";
 
-        public TimeModule()
-        {
-            AddGetter("now", (_) => CreateDateTimeTable(DateTime.Now));
-        }
+        [RuntimeModuleGetter("now", ReturnType = DynamicValueType.Table)]
+        private static DynamicValue GetNowDateTime(DynamicValue key)
+            => CreateDateTimeTable(DateTime.Now);
 
         [RuntimeModuleFunction("stamp", ReturnType = DynamicValueType.Number)]
         private static DynamicValue Timestamp(Fiber fiber, params DynamicValue[] args)
         {
             args.ExpectNone();
-
             return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 

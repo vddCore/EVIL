@@ -14,6 +14,7 @@ namespace Ceres.Runtime
         public RuntimeModule()
         {
             RegisterNativeFunctions();
+            RegisterNativeGetters();
         }
 
         public DynamicValue AttachTo(Table table)
@@ -42,7 +43,7 @@ namespace Ceres.Runtime
                 var attribute = x.GetCustomAttribute<RuntimeModuleFunctionAttribute>()!;
 
                 return (Function: nativeFunction, Attribute: attribute);
-            });
+             });
             
             foreach (var tuple in validFunctions)
             {
@@ -67,7 +68,66 @@ namespace Ceres.Runtime
 
             return parameters.Length == 2
                    && parameters[0].ParameterType.IsAssignableTo(typeof(Fiber))
-                   && parameters[1].ParameterType.IsAssignableTo(typeof(DynamicValue[]));
+                   && parameters[1].ParameterType.IsAssignableTo(typeof(DynamicValue[]))
+                   && method.ReturnType.IsAssignableTo(typeof(DynamicValue));
+        }
+
+        private void RegisterNativeGetters()
+        {
+            var validGetters = GetType().GetMethods(
+                    BindingFlags.Public
+                    | BindingFlags.NonPublic
+                    | BindingFlags.Static
+                ).Where(HasSupportedGetterSignature)
+                 .Where(HasRequiredGetterAttribute)
+                 .Select(x => 
+                 {
+                     var getter = x.CreateDelegate<TableGetter>(null);
+                     var attribute = x.GetCustomAttribute<RuntimeModuleGetterAttribute>()!;
+
+                     return (Getter: getter, Attribute: attribute);
+                 });
+            
+            foreach (var tuple in validGetters)
+            {
+                if (this.ContainsPath(tuple.Attribute.SubNameSpace))
+                {
+                    throw new InvalidOperationException(
+                        $"Attempt to register a duplicate member with name '{tuple.Attribute.SubNameSpace}' " +
+                        $"in '{FullyQualifiedName}'."
+                    );
+                }
+
+                if (string.IsNullOrEmpty(tuple.Attribute.SubNameSpace))
+                    continue;
+
+                var subNameSpaceParts = tuple.Attribute.SubNameSpace.Split('.');
+                var targetName = subNameSpaceParts[subNameSpaceParts.Length - 1];
+                
+                if (subNameSpaceParts.Length >= 2)
+                {
+                    var subNameSpace = string.Join('.', subNameSpaceParts[0..^1]);
+                    var propTable = new PropertyTable();
+                    propTable.AddGetter(targetName, tuple.Getter);
+                    this.SetUsingPath(subNameSpace, propTable);
+                }
+                else
+                {
+                    AddGetter(targetName, tuple.Getter);
+                }
+            }
+        }
+        
+        private bool HasRequiredGetterAttribute(MethodInfo method)
+            => method.GetCustomAttribute<RuntimeModuleGetterAttribute>() != null;
+
+        private bool HasSupportedGetterSignature(MethodInfo method)
+        {
+            var parameters = method.GetParameters();
+
+            return parameters.Length == 1
+                   && parameters[0].ParameterType.IsAssignableTo(typeof(DynamicValue))
+                   && method.ReturnType.IsAssignableTo(typeof(DynamicValue));
         }
     }
 }
