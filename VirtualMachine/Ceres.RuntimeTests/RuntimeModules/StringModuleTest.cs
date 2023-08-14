@@ -8,6 +8,14 @@ namespace Ceres.RuntimeTests.RuntimeModules
     public class StringModuleTest : ModuleTest<StringModule>
     {
         [Test]
+        public void ToChar()
+        {
+            EvilTestResult(
+                "fn test() -> str.chr(0x65);"
+            ).ShouldBe("e");
+        }
+        
+        [Test]
         public void Explode()
         {
             var t = (Table)EvilTestResult(
