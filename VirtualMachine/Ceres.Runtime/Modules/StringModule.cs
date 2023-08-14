@@ -18,6 +18,22 @@ namespace Ceres.Runtime.Modules
             AddGetter("empty", (_) => string.Empty);
         }
 
+        [RuntimeModuleFunction("chr", ReturnType = DynamicValueType.String)]
+        private static DynamicValue ToCharacter(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(1)
+                .ExpectIntegerAt(0, out var num);
+
+            if (num < 0 || num >= ushort.MaxValue)
+            {
+                throw new EvilRuntimeException(
+                    "Expected a number in range of 0-65535"
+                );
+            }
+
+            return ((char)num).ToString();
+        }
+
         [RuntimeModuleFunction("explode", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Explode(Fiber _, params DynamicValue[] args)
         {
