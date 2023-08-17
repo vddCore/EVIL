@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Ceres.Runtime\Ceres.Runtime.csproj" />
-    <ProjectReference Include="..\Ceres\Ceres.csproj" />
+    <ProjectReference Include="..\..\Ceres\Ceres.csproj" />
+    <ProjectReference Include="..\..\Ceres.Runtime\Ceres.Runtime.csproj" />
   </ItemGroup>
 
   <ItemGroup>
