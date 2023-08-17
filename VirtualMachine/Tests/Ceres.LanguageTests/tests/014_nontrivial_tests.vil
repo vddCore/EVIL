@@ -17,6 +17,35 @@ fn fact_tailrec(n, acc = 1) {
   else ret fact_tailrec(n - 1, n * acc); 
 }
 
+fn bubble_sort(a) {
+  rw var i, t, j = #a, s = true;
+  
+  while (s) {
+    s = false;
+    
+    for (i = 1; i < j; i++) {
+      if (a[i] < a[i - 1]) {
+        t = a[i];
+        a[i] = a[i - 1];
+        a[i - 1] = t;
+        s = true;
+      }
+    }
+    
+    j--;
+  }
+}
+
 #[test(102334155)] fn fibonacci_recursive() -> fib_recursive(40);
 #[test(165580141)] fn fibonacci_iterative() -> fib_iterative(41);
 #[test(3628800)] fn tailrec_invoke() -> fact_tailrec(10);
+
+#[test]
+fn bubblesort_invoke() {
+  var a = { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
+  
+  // Tables are always passed by reference.
+  bubble_sort(a);
+  
+  ret a <==> { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 };
+}
