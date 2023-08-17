@@ -179,18 +179,20 @@ namespace Ceres.LanguageTests
                 return null;
             }
 
+            Stopwatch.Reset();
+            Stopwatch.Start();
+            await VM.MainFiber.ScheduleAsync(chunk);
+            Stopwatch.Stop();
+            var stamp = $"{Stopwatch.Elapsed.TotalMicroseconds}μs";
+            
             var testAttr = chunk.GetAttribute("test");
             if (testAttr.Values.Count > 0)
             {
                 var expected = testAttr.Values[0];
-                Stopwatch.Reset();
-                Stopwatch.Start();
-                await VM.MainFiber.ScheduleAsync(chunk);
-                Stopwatch.Stop();
 
                 if (!VM.MainFiber.TryPopValue(out var actual))
                 {
-                    var msg = $"expected '{expected}', but the test returned no value. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
+                    var msg = $"expected '{expected}', but the test returned no value. [{stamp}]";
 
                     AddTestFailure(path, chunk, msg);
                     TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
@@ -203,12 +205,12 @@ namespace Ceres.LanguageTests
 
                     if (DynamicValue.IsTruth(expected.IsEqualTo(actual)))
                     {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]");
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{stamp}]");
                         return true;
                     }
                     else
                     {
-                        var msg = $"{actual} is not equal to expected value '{expected}'. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
+                        var msg = $"{actual} is not equal to expected value '{expected}'. [{stamp}]";
 
                         AddTestFailure(path, chunk, msg);
                         TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
@@ -219,11 +221,9 @@ namespace Ceres.LanguageTests
             }
             else
             {
-                await VM.MainFiber.ScheduleAsync(chunk);
-
                 if (!VM.MainFiber.TryPopValue(out var returnValue))
                 {
-                    var msg = $"No value was returned. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
+                    var msg = $"No value was returned. [{stamp}]";
 
                     AddTestFailure(path, chunk, msg);
                     TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
@@ -234,12 +234,12 @@ namespace Ceres.LanguageTests
                 {
                     if (DynamicValue.IsTruth(returnValue))
                     {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]");
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{stamp}]");
                         return true;
                     }
                     else
                     {
-                        var msg = $"Test returned a failure state '{returnValue}'. [{Stopwatch.ElapsedMilliseconds}ms, {Stopwatch.ElapsedTicks} tick(s)]";
+                        var msg = $"Test returned a failure state '{returnValue}'. [{stamp}]";
 
                         AddTestFailure(path, chunk, msg);
                         TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
