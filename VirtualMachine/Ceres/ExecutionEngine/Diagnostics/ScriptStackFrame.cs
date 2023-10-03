@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -12,13 +13,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private readonly BinaryReader _chunkReader;
         private Table? _extraArguments;
         
-        private Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _tableEnumerators = new();
+        private readonly Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _tableEnumerators = new();
 
         public Fiber Fiber { get; }
         public Chunk Chunk { get; }
 
         public DynamicValue[] Arguments { get; }
-        public Table ExtraArguments => _extraArguments ?? (_extraArguments = GetExtraArgumentsTable());
+        public Table ExtraArguments => _extraArguments ??= GetExtraArgumentsTable();
 
         public DynamicValue[]? Locals { get; }
 
@@ -99,19 +100,19 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return ret;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PushEnumerator(Table table)
-        {
-            _tableEnumerators.Push(table.GetEnumerator());
-        }
+            => _tableEnumerators.Push(table.GetEnumerator());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PopEnumerator()
-        {
-            _tableEnumerators.Pop();
-        }
-        
+            => _tableEnumerators.Pop();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Return()
             => _chunkReader.BaseStream.Seek(0, SeekOrigin.End);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Advance() 
             => _chunkReader.BaseStream.Position++;
 
@@ -123,27 +124,34 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return opCode;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal OpCode FetchOpCode()
         {
             PreviousOpCodeIP = IP;
             return (OpCode)_chunkReader.ReadByte();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal byte FetchByte()
             => _chunkReader.ReadByte();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal double FetchDouble()
             => _chunkReader.ReadDouble();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal int FetchInt32()
             => _chunkReader.ReadInt32();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal long FetchInt64()
             => _chunkReader.ReadInt64();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void JumpAbsolute(long address)
             => _chunkReader.BaseStream.Seek(address, SeekOrigin.Begin);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void JumpRelative(long offset)
             => _chunkReader.BaseStream.Seek(offset, SeekOrigin.Current);
 

@@ -305,6 +305,11 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.INVOKE:
                 {
+                    if (_callStack.Count >= CallStackLimit)
+                    {
+                        throw new VirtualMachineException("Call stack overflow.");
+                    }
+                    
                     a = PopValue();
 
                     var argumentCount = frame.FetchInt32();
@@ -322,7 +327,8 @@ namespace Ceres.ExecutionEngine
 
                         break;
                     }
-                    else if (a.Type == DynamicValue.DynamicValueType.NativeFunction)
+
+                    if (a.Type == DynamicValue.DynamicValueType.NativeFunction)
                     {
                         _callStack.Push(new NativeStackFrame(a.NativeFunction!));
                         {
