@@ -18,7 +18,7 @@ namespace EVIL.Grammar.Parsing
         public LexerState CurrentState => _lexer.State;
         public Token CurrentToken => CurrentState.CurrentToken;
 
-        public Program Parse(string source)
+        public ProgramNode Parse(string source)
         {
             _lexer.LoadSource(source);
 

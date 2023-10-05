@@ -3,11 +3,11 @@ using EVIL.Grammar.AST.Base;
 
 namespace EVIL.Grammar.AST.Miscellaneous
 {
-    public sealed class Program : AstNode
+    public sealed class ProgramNode : AstNode
     {
         public List<TopLevelStatement> Statements { get; } 
 
-        public Program(List<TopLevelStatement> statements)
+        public ProgramNode(List<TopLevelStatement> statements)
         {
             Statements = statements;
             Reparent(Statements);

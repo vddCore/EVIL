@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private Program Program()
+        private ProgramNode Program()
         {
             var statementList = new List<TopLevelStatement>();
 
@@ -26,7 +26,7 @@ namespace EVIL.Grammar.Parsing
                 );
             }
 
-            return new Program(statementList);
+            return new ProgramNode(statementList);
         }
     }
 }

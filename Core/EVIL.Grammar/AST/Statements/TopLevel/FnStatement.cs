@@ -4,14 +4,14 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 namespace EVIL.Grammar.AST.Statements.TopLevel
 {
-    public sealed class FunctionDefinition : TopLevelStatement
+    public sealed class FnStatement : TopLevelStatement
     {
         public IdentifierNode Identifier { get; }
         public ParameterList ParameterList { get; }
         public Statement Statement { get; }
         public List<AttributeNode> Attributes { get; }
 
-        public FunctionDefinition(
+        public FnStatement(
             IdentifierNode identifier,
             ParameterList parameterList,
             Statement statement,

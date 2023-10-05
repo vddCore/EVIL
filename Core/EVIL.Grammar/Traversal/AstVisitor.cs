@@ -33,9 +33,9 @@ namespace EVIL.Grammar.Traversal
                 { typeof(BinaryExpression), (n) => Visit((BinaryExpression)n) },
                 { typeof(UnaryExpression), (n) => Visit((UnaryExpression)n) },
                 { typeof(VariableReferenceExpression), (n) => Visit((VariableReferenceExpression)n) },
-                { typeof(VariableDefinition), (n) => Visit((VariableDefinition)n) },
-                { typeof(FunctionDefinition), (n) => Visit((FunctionDefinition)n) },
-                { typeof(FunctionCallExpression), (n) => Visit((FunctionCallExpression)n) },
+                { typeof(VarStatement), (n) => Visit((VarStatement)n) },
+                { typeof(FnStatement), (n) => Visit((FnStatement)n) },
+                { typeof(InvocationExpression), (n) => Visit((InvocationExpression)n) },
                 { typeof(IfStatement), (n) => Visit((IfStatement)n) },
                 { typeof(ForStatement), (n) => Visit((ForStatement)n) },
                 { typeof(DoWhileStatement), (n) => Visit((DoWhileStatement)n) },
@@ -73,7 +73,7 @@ namespace EVIL.Grammar.Traversal
             Handlers[type](node);
         }
 
-        public abstract void Visit(Program program);
+        public abstract void Visit(ProgramNode programNode);
         public abstract void Visit(ParameterList parameterList);
         public abstract void Visit(ArgumentList argumentList);
         public abstract void Visit(BlockStatement blockStatement);
@@ -86,9 +86,9 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(BinaryExpression binaryExpression);
         public abstract void Visit(UnaryExpression unaryExpression);
         public abstract void Visit(VariableReferenceExpression variableReferenceExpression);
-        public abstract void Visit(VariableDefinition variableDefinition);
-        public abstract void Visit(FunctionDefinition functionDefinition);
-        public abstract void Visit(FunctionCallExpression functionCallExpression);
+        public abstract void Visit(VarStatement varStatement);
+        public abstract void Visit(FnStatement fnStatement);
+        public abstract void Visit(InvocationExpression invocationExpression);
         public abstract void Visit(IfStatement ifStatement);
         public abstract void Visit(ForStatement forStatement);
         public abstract void Visit(DoWhileStatement doWhileStatement);
