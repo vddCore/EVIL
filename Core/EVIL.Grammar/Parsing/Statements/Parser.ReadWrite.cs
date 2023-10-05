@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public VariableDefinition ReadWriteVariableDefinition()
+        public VarStatement ReadWriteVariableDefinition()
         {
             Match(Token.Rw);
             return VariableDefinition(true);

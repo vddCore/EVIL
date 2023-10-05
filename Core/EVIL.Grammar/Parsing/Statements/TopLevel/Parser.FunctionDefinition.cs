@@ -11,7 +11,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private FunctionDefinition FunctionDefinition()
+        private FnStatement FunctionDefinition()
         {
             var attributes = new List<AttributeNode>();
 
@@ -41,7 +41,7 @@ namespace EVIL.Grammar.Parsing
                 );
             }
 
-            return new FunctionDefinition(
+            return new FnStatement(
                 functionIdentifier,
                 parameterList,
                 statement,

@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private FunctionCallExpression FunctionCall(Expression callee)
+        private InvocationExpression FunctionCall(Expression callee)
         {
             var (line, col) = (_lexer.State.Line, _lexer.State.Column);
 
@@ -21,7 +21,7 @@ namespace EVIL.Grammar.Parsing
                 );
             }
             
-            return new FunctionCallExpression(callee, ArgumentList()) 
+            return new InvocationExpression(callee, ArgumentList()) 
                 { Line = line, Column = col };
         }
     }
