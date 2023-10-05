@@ -5,15 +5,125 @@
     <Nullable>enable</Nullable>
     <LangVersion>11.0</LangVersion>
   </PropertyGroup>
+  
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj"/>
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="ExecutionEngine\Diagnostics\Chunk.Deserializer.cs">
       <DependentUpon>Chunk.cs</DependentUpon>
     </Compile>
     <Compile Update="ExecutionEngine\Diagnostics\Chunk.Serializer.cs">
       <DependentUpon>Chunk.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Constant.Boolean.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Constant.Nil.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Constant.Number.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Constant.String.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Assignment.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Binary.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Conditional.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Decrementation.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.ExtraArguments.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Incrementation.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Indexer.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Invocation.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Table.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.TypeOf.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Unary.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.VariableReference.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Yield.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.List.Argument.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.List.Parameter.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Node.Attribute.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Node.Program.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Block.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Break.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.DoWhile.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Each.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Expression.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.ExpressionBody.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Fn.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.For.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.If.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Return.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Skip.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Var.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.While.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Utilities.Emit.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Utlities.Safeguards.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
