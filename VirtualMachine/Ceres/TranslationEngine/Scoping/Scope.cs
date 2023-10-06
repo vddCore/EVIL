@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 
-namespace Ceres.TranslationEngine
+namespace Ceres.TranslationEngine.Scoping
 {
-    public class Scope
+    internal class Scope
     {
-        public Dictionary<string, Symbol> Symbols { get; } = new();
-
         public Scope? Parent { get; }
+        
+        public Dictionary<string, Symbol> Symbols { get; } = new();
 
         private Scope()
         {
@@ -17,7 +17,12 @@ namespace Ceres.TranslationEngine
             Parent = parent;
         }
 
-        public Symbol DefineLocal(string name, int id, bool writeable, int definedOnLine, int definedOnColumn)
+        public Symbol DefineLocal(
+            string name,
+            int id,
+            bool writeable,
+            int definedOnLine,
+            int definedOnColumn)
         {
             var sym = Find(name);
             
@@ -29,13 +34,25 @@ namespace Ceres.TranslationEngine
                 );
             }
 
-            var symbol = new Symbol(name, id, Symbol.SymbolType.Local, writeable, definedOnLine, definedOnColumn);
+            var symbol = new Symbol(
+                name,
+                id,
+                Symbol.SymbolType.Local,
+                writeable,
+                definedOnLine,
+                definedOnColumn
+            );
             Symbols.Add(name, symbol);
 
             return symbol;
         }
 
-        public Symbol DefineParameter(string name, int id, bool writeable, int definedOnLine, int definedOnColumn)
+        public Symbol DefineParameter(
+            string name,
+            int id,
+            bool writeable, 
+            int definedOnLine,
+            int definedOnColumn)
         {
             var sym = Find(name);
             
@@ -47,7 +64,14 @@ namespace Ceres.TranslationEngine
                 );
             }
 
-            var symbol = new Symbol(name, id, Symbol.SymbolType.Parameter, writeable, definedOnLine, definedOnColumn);
+            var symbol = new Symbol(
+                name,
+                id,
+                Symbol.SymbolType.Parameter,
+                writeable,
+                definedOnLine,
+                definedOnColumn
+            );
             Symbols.Add(name, symbol);
 
             return symbol;
@@ -80,6 +104,9 @@ namespace Ceres.TranslationEngine
 
             return sym.ReadWrite;
         }
+
+        public void Clear()
+            => Symbols.Clear();
 
         public Scope Descend()
             => new(this);

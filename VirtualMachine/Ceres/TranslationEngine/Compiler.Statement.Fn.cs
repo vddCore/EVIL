@@ -11,7 +11,7 @@ namespace Ceres.TranslationEngine
             {
                 Chunk.DebugDatabase.DefinedOnLine = fnStatement.Line;
 
-                InNewScopeDo(() =>
+                InNewLocalScopeDo(() =>
                 {
                     Visit(fnStatement.ParameterList);
                     Visit(fnStatement.Statement);

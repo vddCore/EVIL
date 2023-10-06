@@ -7,13 +7,13 @@ namespace Ceres.TranslationEngine
     {
           public override void Visit(EachStatement eachStatement)
         {
-            InNewScopeDo(() =>
+            InNewLocalScopeDo(() =>
             {
                 int keyLocal = Chunk.AllocateLocal();
                 int valueLocal = -1;
                 var isKeyValue = false;
                 
-                _currentScope.DefineLocal(
+                CurrentScope.DefineLocal(
                     eachStatement.KeyIdentifier.Name,
                     keyLocal,
                     false,
@@ -25,7 +25,7 @@ namespace Ceres.TranslationEngine
                 {
                     valueLocal = Chunk.AllocateLocal();
 
-                    _currentScope.DefineLocal(
+                    CurrentScope.DefineLocal(
                         eachStatement.ValueIdentifier.Name,
                         valueLocal,
                         false,

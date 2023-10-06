@@ -14,7 +14,7 @@ namespace Ceres.TranslationEngine
 
                 try
                 {
-                    _currentScope.DefineParameter(
+                    CurrentScope.DefineParameter(
                         parameter.Identifier.Name,
                         parameterId,
                         parameter.ReadWrite,

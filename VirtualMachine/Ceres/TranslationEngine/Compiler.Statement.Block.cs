@@ -6,7 +6,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(BlockStatement blockStatement)
         {
-            InNewScopeDo(() =>
+            InNewLocalScopeDo(() =>
             {
                 _blockDescent++;
                 {

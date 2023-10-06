@@ -1,5 +1,6 @@
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
+using Ceres.TranslationEngine.Scoping;
 using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
@@ -15,7 +16,7 @@ namespace Ceres.TranslationEngine
                 {
                     var localId = Chunk.AllocateLocal();
 
-                    sym = _currentScope.DefineLocal(
+                    sym = CurrentScope.DefineLocal(
                         kvp.Key.Name,
                         localId,
                         varStatement.ReadWrite,
