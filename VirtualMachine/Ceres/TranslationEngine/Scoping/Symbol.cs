@@ -1,3 +1,5 @@
+using Ceres.ExecutionEngine.Diagnostics;
+
 namespace Ceres.TranslationEngine.Scoping
 {
     internal record Symbol(
@@ -6,14 +8,16 @@ namespace Ceres.TranslationEngine.Scoping
         Symbol.SymbolType Type,
         bool ReadWrite,
         int DefinedOnLine,
-        int DefinedOnColumn)
+        int DefinedOnColumn,
+        ClosureInfo? ClosureInfo)
     {
         public string TypeName => Type.ToString().ToLower();
         
         public enum SymbolType
         {
             Local,
-            Parameter
+            Parameter,
+            Closure
         }
     }
 }
