@@ -8,6 +8,18 @@ fn generate_closure_with_parameter_value(x) {
     };
 }
 
+fn filter_table(t, predicate) {
+    var result = { };
+    
+    each (var k, v : t) {
+        if (predicate(k, v)) {    
+            result[k] = v;
+        }
+    }
+    
+    ret result;
+}
+
 #[test(12)]
 fn basic_closure_hides_local() {
     var a = 10;
@@ -39,9 +51,7 @@ fn basic_closure_captures_parameter() {
 #[test(21.37);approximate(2)]
 fn nested_closure_captures_outside_local() {
     var a = 21;
-    var f = fn() {
-        ret fn() { ret a + .37; };
-    };
+    var f = (fn() -> (fn() -> a + .37));
     
     ret f()();
 }
@@ -61,7 +71,6 @@ fn nested_closure_captures_closure_local() {
 #[test(21.37);approximate(2)]
 fn nested_closure_captures_closure_parameter() {
     var a = 111;
-    The 
     var f = fn(a) {
         ret fn() { ret a + .37; };
     };
@@ -71,7 +80,7 @@ fn nested_closure_captures_closure_parameter() {
 
 #[test(21.37);approximate(2)]
 fn extreme_closure_nesting() {
-    var a = 10;
+    rw var a = 10;
     ret test_invocation(fn(b) {
         var f = fn(c) {
             ret fn() { ret a + b + c; };
@@ -80,3 +89,15 @@ fn extreme_closure_nesting() {
         ret f(2);
     }(9)) + .37;
 }
+
+#[test]
+fn predicate_anonymous_function() {
+    var t = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+    var t2 = filter_table(
+        t, 
+        fn(k, v) -> v % 2 == 0
+    ); 
+    
+    ret #t2 == #t / 2; 
+}
+

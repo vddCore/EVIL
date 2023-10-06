@@ -18,11 +18,16 @@ namespace EVIL.Grammar.Parsing
                 { Line = line, Column = col };
 
             node.AddCondition(expression);
-            node.AddStatement(
-                CurrentToken == Token.RightArrow
-                    ? ExpressionBody()
-                    : Statement()
-            );
+
+            if (CurrentToken == Token.RightArrow)
+            {
+                node.AddStatement(ExpressionBody());
+                Match(Token.Semicolon);
+            }
+            else
+            {
+                node.AddStatement(Statement());
+            }
 
             while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
             {
@@ -35,20 +40,28 @@ namespace EVIL.Grammar.Parsing
 
                     Match(Token.RParenthesis);
                     node.AddCondition(expression);
-                    node.AddStatement(
-                        CurrentToken == Token.RightArrow
-                            ? ExpressionBody()
-                            : Statement()
-                    );
+                    if (CurrentToken == Token.RightArrow)
+                    {
+                        node.AddStatement(ExpressionBody());
+                        Match(Token.Semicolon);
+                    }
+                    else
+                    {
+                        node.AddStatement(Statement());
+                    }
                 }
                 else if (CurrentToken.Type == TokenType.Else)
                 {
                     Match(Token.Else);
-                    node.SetElseBranch(
-                        CurrentToken == Token.RightArrow
-                            ? ExpressionBody()
-                            : Statement()
-                    );
+                    if (CurrentToken == Token.RightArrow)
+                    {
+                        node.SetElseBranch(ExpressionBody());
+                        Match(Token.Semicolon);
+                    }
+                    else
+                    {
+                        node.SetElseBranch(Statement());
+                    }
                 }
                 else
                     throw new ParserException(
