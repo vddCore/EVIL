@@ -1,0 +1,82 @@
+fn test_invocation(f) {
+    ret f();
+}
+
+fn generate_closure_with_parameter_value(x) {
+    ret fn(a) {
+        ret a + x;
+    };
+}
+
+#[test(12)]
+fn basic_closure_hides_local() {
+    var a = 10;
+    
+    var f = fn(a) {
+        ret a;
+    };
+    
+    ret f(12);
+}
+
+#[test(12)]
+fn basic_closure_captures_local() {
+    var b = 10;
+    
+    var f = fn() {
+        ret b + 2;
+    };
+    
+    ret test_invocation(f);
+}
+
+#[test(12)]
+fn basic_closure_captures_parameter() {
+    var f = generate_closure_with_parameter_value(10);
+    ret f(2);
+}
+
+#[test(21.37);approximate(2)]
+fn nested_closure_captures_outside_local() {
+    var a = 21;
+    var f = fn() {
+        ret fn() { ret a + .37; };
+    };
+    
+    ret f()();
+}
+
+#[test(21.37);approximate(2)]
+fn nested_closure_captures_closure_local() {
+    var a = 111;
+    
+    var f = fn() {
+        var a = 21;
+        ret fn() { ret a + .37; };
+    };
+    
+    ret f()();
+}
+
+#[test(21.37);approximate(2)]
+fn nested_closure_captures_closure_parameter() {
+    var a = 111;
+    The 
+    var f = fn(a) {
+        ret fn() { ret a + .37; };
+    };
+    
+    ret f(21)();
+}
+
+#[test(21.37);approximate(2)]
+fn extreme_closure_nesting() {
+    var a = 10;
+    ret test_invocation(fn(b) {
+        var f = fn(c) {
+            ret fn() { ret a + b + c; };
+        };
+        
+        ret f(2);
+    }(9)) + .37;
+}

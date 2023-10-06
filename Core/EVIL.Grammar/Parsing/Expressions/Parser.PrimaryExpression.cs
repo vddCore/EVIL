@@ -33,6 +33,10 @@ namespace EVIL.Grammar.Parsing
                 return new ExtraArgumentsExpression()
                     { Line = line, Column = col };
             }
+            else if (token.Type == TokenType.Fn)
+            {
+                return FnExpression();
+            }
             else if (token.Type == TokenType.Identifier)
             {
                 return VariableReference();

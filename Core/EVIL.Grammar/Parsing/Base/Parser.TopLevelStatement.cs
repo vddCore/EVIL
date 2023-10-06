@@ -13,7 +13,7 @@ namespace EVIL.Grammar.Parsing
             {
                 case TokenType.AttributeList:
                 case TokenType.Fn:
-                    return FunctionDefinition();
+                    return FnStatement();
             }
 
             throw new ParserException(

@@ -104,7 +104,7 @@ namespace Ceres.ExecutionEngine
                     for (var i = 0; i < chunk.ClosureCount; i++)
                     {
                         var closure = chunk.Closures[i];
-                        var sourceFrame = _callStack.ElementAt(closure.NestingLevel).As<ScriptStackFrame>();
+                        var sourceFrame = _callStack.ElementAt(closure.NestingLevel - 1).As<ScriptStackFrame>();
 
                         if (closure.IsParameter)
                         {
@@ -350,7 +350,14 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValue.DynamicValueType.Chunk)
                     {
-                        _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
+                        var newFrame = new ScriptStackFrame(_fiber, a.Chunk!, args);
+
+                        for (var i = 0; i < a.Chunk!.ClosureCount; i++)
+                        {
+                            newFrame.Closures![i] = a.Chunk.Closures[i].Value;
+                        }
+                        
+                        _callStack.Push(newFrame);
 
                         _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
                             _fiber,

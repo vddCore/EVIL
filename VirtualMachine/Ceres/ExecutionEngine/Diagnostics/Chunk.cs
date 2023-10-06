@@ -216,7 +216,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 _closures = new(_closures),
                 _labels = new(_labels),
                 _attributes = new(_attributes),
-                _parameterInitializers = new(_parameterInitializers)
+                _parameterInitializers = new(_parameterInitializers),
+                _subChunks = new(_subChunks)
             };
         }
         

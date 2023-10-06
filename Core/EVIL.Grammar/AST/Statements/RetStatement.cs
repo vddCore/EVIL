@@ -2,11 +2,11 @@
 
 namespace EVIL.Grammar.AST.Statements
 {
-    public sealed class ReturnStatement : Statement
+    public sealed class RetStatement : Statement
     {
         public Expression? Expression { get; }
 
-        public ReturnStatement(Expression? expression)
+        public RetStatement(Expression? expression)
         {
             Expression = expression;
 

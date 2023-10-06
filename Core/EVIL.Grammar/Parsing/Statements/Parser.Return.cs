@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private ReturnStatement Return()
+        private RetStatement Return()
         {
             var (line, col) = Match(Token.Ret);
             Expression? expression;
@@ -20,7 +20,7 @@ namespace EVIL.Grammar.Parsing
                 expression = AssignmentExpression();
             }
 
-            return new ReturnStatement(expression)
+            return new RetStatement(expression)
                 { Line = line, Column = col };
         }
     }
