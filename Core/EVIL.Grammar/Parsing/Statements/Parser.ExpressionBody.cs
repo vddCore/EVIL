@@ -12,8 +12,6 @@ namespace EVIL.Grammar.Parsing
             var stmt = new ExpressionBodyStatement(AssignmentExpression())
                 { Line = line, Column = col };
             
-            Match(Token.Semicolon);
-
             return stmt;
         }
     }

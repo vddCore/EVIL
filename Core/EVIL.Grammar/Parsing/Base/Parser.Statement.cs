@@ -6,6 +6,8 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
+        private int _semicolonExemptions = 0;
+        
         private Statement Statement()
         {
             var token = CurrentToken;
@@ -62,7 +64,15 @@ namespace EVIL.Grammar.Parsing
                     break;
             }
 
-            Match(Token.Semicolon);
+            if (_semicolonExemptions == 0)
+            {
+                Match(Token.Semicolon);
+            }
+            else
+            {
+                _semicolonExemptions--;
+            }
+
             return node;
         }
     }
