@@ -9,9 +9,6 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.TranslationEngine;
-using EVIL.Grammar;
-using EVIL.Grammar.Parsing;
-using EVIL.Lexical;
 
 namespace Ceres.LanguageTests
 {

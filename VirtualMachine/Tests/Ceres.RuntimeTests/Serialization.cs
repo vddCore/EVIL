@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine;
 using EVIL.Grammar.Parsing;

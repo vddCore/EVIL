@@ -1,4 +1,3 @@
-using System.Threading;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 

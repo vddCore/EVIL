@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using EVIL.Grammar.AST;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Lexical;
