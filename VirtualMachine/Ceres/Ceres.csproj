@@ -107,7 +107,7 @@
     <Compile Update="TranslationEngine\Compiler.Statement.If.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
-    <Compile Update="TranslationEngine\Compiler.Statement.Return.cs">
+    <Compile Update="TranslationEngine\Compiler.Statement.Ret.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Statement.Skip.cs">
@@ -123,6 +123,9 @@
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Utlities.Safeguards.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Fn.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
   </ItemGroup>

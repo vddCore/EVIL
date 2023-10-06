@@ -5,11 +5,11 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler
     {
-        public override void Visit(ReturnStatement returnStatement)
+        public override void Visit(RetStatement retStatement)
         {
-            if (returnStatement.Expression != null)
+            if (retStatement.Expression != null)
             {
-                Visit(returnStatement.Expression);
+                Visit(retStatement.Expression);
 
                 if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
                 {
@@ -21,8 +21,15 @@ namespace Ceres.TranslationEngine
             {
                 Chunk.CodeGenerator.Emit(OpCode.LDNIL);
             }
-            
-            Chunk.CodeGenerator.Emit(OpCode.RET);
+
+            if (_closedScopes.Count > 1)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.CRET);
+            }
+            else
+            {
+                Chunk.CodeGenerator.Emit(OpCode.RET);
+            }
         }
     }
 }

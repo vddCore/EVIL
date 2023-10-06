@@ -10,7 +10,7 @@ namespace Ceres.TranslationEngine
         {
             Visit(invocationExpression.ArgumentList);
 
-            if (invocationExpression.Parent is ReturnStatement
+            if (invocationExpression.Parent is RetStatement
                 && invocationExpression.Callee is VariableReferenceExpression varRef
                 && varRef.Identifier == Chunk.Name)
             {

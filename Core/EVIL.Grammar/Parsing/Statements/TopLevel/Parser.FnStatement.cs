@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private FnStatement FunctionDefinition()
+        private FnStatement FnStatement()
         {
             var attributes = new List<AttributeNode>();
 

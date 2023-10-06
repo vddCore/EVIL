@@ -7,7 +7,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(FnStatement fnStatement)
         {
-            InTopLevelChunk(() =>
+            InTopLevelChunkDo(() =>
             {
                 Chunk.DebugDatabase.DefinedOnLine = fnStatement.Line;
 

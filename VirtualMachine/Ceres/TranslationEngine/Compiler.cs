@@ -35,7 +35,7 @@ namespace Ceres.TranslationEngine
             {
                 if (_closedScopes.Count == 0)
                     _closedScopes.Add(RootScope);
-                
+
                 return _closedScopes[0];
             }
 
@@ -43,14 +43,14 @@ namespace Ceres.TranslationEngine
             {
                 if (_closedScopes.Count == 0)
                     _closedScopes.Add(RootScope);
-                
+
                 _closedScopes[0] = value;
             }
         }
-        
+
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
-        
+
         private int Line { get; set; }
         private int Column { get; set; }
 
@@ -119,7 +119,7 @@ namespace Ceres.TranslationEngine
                 );
             }
         }
-        
+
         private void InNewLocalScopeDo(Action action)
         {
             CurrentScope = CurrentScope.Descend();
@@ -138,7 +138,21 @@ namespace Ceres.TranslationEngine
             _closedScopes.RemoveAt(0);
         }
 
-        private void InTopLevelChunk(Action action, string? name = null)
+        private int InSubChunkDo(Action action)
+        {
+            var result = Chunk.AllocateSubChunk();
+            result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
+
+            _chunks.Push(result.SubChunk);
+            {
+                action();
+            }
+            _chunks.Pop();
+
+            return result.Id;
+        }
+
+        private void InTopLevelChunkDo(Action action, string? name = null)
         {
             var chunk = new Chunk { Name = name };
             chunk.DebugDatabase.DefinedInFile = CurrentFileName;
@@ -147,9 +161,8 @@ namespace Ceres.TranslationEngine
             {
                 action();
             }
-
-            _script.Chunks.Add(chunk);
             _chunks.Pop();
+            _script.Chunks.Add(chunk);
         }
 
         private void InNewLoopDo(LoopKind kind, Action action, bool needsExtraLabel)
