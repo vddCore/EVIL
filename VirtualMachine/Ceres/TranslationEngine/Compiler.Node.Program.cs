@@ -1,5 +1,4 @@
 using Ceres.ExecutionEngine.Diagnostics;
-using Ceres.TranslationEngine.Scoping;
 using EVIL.Grammar.AST.Miscellaneous;
 
 namespace Ceres.TranslationEngine

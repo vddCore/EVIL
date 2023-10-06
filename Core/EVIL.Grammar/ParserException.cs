@@ -1,5 +1,4 @@
 ﻿using System;
-using EVIL.Lexical;
 
 namespace EVIL.Grammar
 {

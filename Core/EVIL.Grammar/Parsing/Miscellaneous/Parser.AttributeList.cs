@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.AST.Statements;
 using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Lexical;
 

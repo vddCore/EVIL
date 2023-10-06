@@ -1,6 +1,5 @@
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
-using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.Runtime;
 using NUnit.Framework;
 
