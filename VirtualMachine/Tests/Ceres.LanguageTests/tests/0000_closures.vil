@@ -1,24 +1,8 @@
-fn test_invocation(f) {
-    ret f();
-}
+fn test_invocation(f) 
+  -> f();
 
-fn generate_closure_with_parameter_value(x) {
-    ret fn(a) {
-        ret a + x;
-    };
-}
-
-fn filter_table(t, predicate) {
-    var result = { };
-    
-    each (var k, v : t) {
-        if (predicate(k, v)) {    
-            result[k] = v;
-        }
-    }
-    
-    ret result;
-}
+fn generate_closure_with_parameter_value(x)
+    -> (fn(a) -> a + x);
 
 #[test(12)]
 fn basic_closure_hides_local() {
@@ -80,7 +64,7 @@ fn nested_closure_captures_closure_parameter() {
 
 #[test(21.37);approximate(2)]
 fn extreme_closure_nesting() {
-    rw var a = 10;
+    var a = 10;
     ret test_invocation(fn(b) {
         var f = fn(c) {
             ret fn() { ret a + b + c; };
@@ -88,6 +72,19 @@ fn extreme_closure_nesting() {
         
         ret f(2);
     }(9)) + .37;
+}
+
+
+fn filter_table(t, predicate) {
+    var result = { };
+    
+    each (var k, v : t) {
+        if (predicate(k, v)) {    
+            result[k] = v;
+        }
+    }
+    
+    ret result;
 }
 
 #[test]
@@ -101,3 +98,54 @@ fn predicate_anonymous_function() {
     ret #t2 == #t / 2; 
 }
 
+fn delay(ms) { 
+  var end = time.stamp.ms + ms;
+  while(time.stamp.ms < end){}
+  
+  ret 2.137;
+}
+
+fn spawn_yielding_closure() {
+  ret fn() {
+    var start = time.stamp.ms;
+    var retval = yield<delay>(500);
+    
+    ret { 
+      stamp_result: time.stamp.ms,
+      retval: retval
+    };
+  };
+}
+
+#[test]
+fn yield_delay_from_closure() {
+  var f = spawn_yielding_closure();
+  var r = yield<f>();
+  
+  ret r.stamp_result >= 1000 
+   && r.retval == 2.137;
+}
+
+fn spawn_closure_for_loop(a) {
+  ret fn(b) -> a + b;
+}
+
+fn all(t, predicate) {
+  rw var result = true;
+  
+  each (var k, v : t) {
+    result &= predicate(k, v);
+  }
+  
+  ret result;
+}
+
+#[test]
+fn spawn_closures_in_loop() {
+  var results = { };
+  for (rw var i = 0; i < 10; i++) {
+    results[i] = spawn_closure_for_loop(i)(1);
+  }
+  
+  ret all(results, fn(k, v) -> v == k + 1);
+}
