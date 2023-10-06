@@ -22,6 +22,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             {
                 return new((long)a.Number & (long)b.Number);
             }
+
+            if (a.Type == DynamicValueType.Boolean && b.Type == DynamicValueType.Boolean)
+            {
+                return new(a.Boolean & b.Boolean);
+            }
             
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to bitwise-and a {a.Type} and a {b.Type}."
@@ -35,6 +40,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 return new((long)a.Number | (long)b.Number);
             }
             
+            if (a.Type == DynamicValueType.Boolean && b.Type == DynamicValueType.Boolean)
+            {
+                return new(a.Boolean | b.Boolean);
+            }
+            
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to bitwise-or a {a.Type} and a {b.Type}."
             );
@@ -45,6 +55,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             if (a.Type == DynamicValueType.Number && b.Type == DynamicValueType.Number)
             {
                 return new((long)a.Number ^ (long)b.Number);
+            }
+            
+            if (a.Type == DynamicValueType.Boolean && b.Type == DynamicValueType.Boolean)
+            {
+                return new(a.Boolean ^ b.Boolean);
             }
             
             throw new UnsupportedDynamicValueOperationException(
