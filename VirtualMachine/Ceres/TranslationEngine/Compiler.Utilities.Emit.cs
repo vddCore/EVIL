@@ -1,4 +1,5 @@
 ﻿using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.TranslationEngine.Scoping;
 
 namespace Ceres.TranslationEngine
 {
@@ -6,7 +7,7 @@ namespace Ceres.TranslationEngine
     {
         private void EmitVarSet(string identifier)
         {
-            var sym = _currentScope.Find(identifier);
+            var sym = CurrentScope.Find(identifier);
 
             if (sym != null)
             {
@@ -44,7 +45,7 @@ namespace Ceres.TranslationEngine
 
         private void EmitVarGet(string identifier)
         {
-            var sym = _currentScope.Find(identifier);
+            var sym = CurrentScope.Find(identifier);
 
             if (sym != null)
             {

@@ -6,7 +6,7 @@ namespace Ceres.TranslationEngine
     {
         private void ThrowIfVarReadOnly(string identifier)
         {
-            if (!_currentScope.IsSymbolWriteable(identifier, out var sym))
+            if (!CurrentScope.IsSymbolWriteable(identifier, out var sym))
             {
                 Log.TerminateWithFatal(
                     $"Attempt to set a value of a read-only {sym!.Type.ToString().ToLower()} `{sym.Name}' " +

@@ -7,7 +7,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(ForStatement forStatement)
         {
-            InNewScopeDo(() =>
+            InNewLocalScopeDo(() =>
             {
                 foreach (var statement in forStatement.Assignments)
                     Visit(statement);

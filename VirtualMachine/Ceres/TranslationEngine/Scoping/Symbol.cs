@@ -1,6 +1,6 @@
-namespace Ceres.TranslationEngine
+namespace Ceres.TranslationEngine.Scoping
 {
-    public record Symbol(
+    internal record Symbol(
         string Name, 
         int Id, 
         Symbol.SymbolType Type,

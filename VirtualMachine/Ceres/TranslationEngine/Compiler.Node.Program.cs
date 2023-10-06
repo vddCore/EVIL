@@ -1,4 +1,5 @@
 using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.TranslationEngine.Scoping;
 using EVIL.Grammar.AST.Miscellaneous;
 
 namespace Ceres.TranslationEngine
@@ -8,8 +9,10 @@ namespace Ceres.TranslationEngine
         public override void Visit(ProgramNode programNode)
         {
             _script = new Script();
-            _rootScope = Scope.CreateRoot();
-            _currentScope = _rootScope;
+            _closedScopes.Clear();
+            
+            RootScope.Clear();
+            _closedScopes.Add(RootScope);
 
             foreach (var node in programNode.Statements)
             {
