@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
@@ -15,7 +16,10 @@ namespace Ceres.ExecutionEngine
         private readonly Stack<DynamicValue> _evaluationStack;
         private readonly Stack<StackFrame> _callStack;
 
-        public ExecutionUnit(Table global, Fiber fiber, Stack<DynamicValue> evaluationStack,
+        public ExecutionUnit(
+            Table global,
+            Fiber fiber,
+            Stack<DynamicValue> evaluationStack,
             Stack<StackFrame> callStack)
         {
             _global = global;
@@ -88,6 +92,35 @@ namespace Ceres.ExecutionEngine
                         frame.FetchInt32()
                     ]!);
 
+                    break;
+                }
+
+                case OpCode.LDCNK:
+                {
+                    var chunk = frame.Chunk.SubChunks[
+                        frame.FetchInt32()
+                    ].Clone();
+
+                    for (var i = 0; i < chunk.ClosureCount; i++)
+                    {
+                        var closure = chunk.Closures[i];
+                        var sourceFrame = _callStack.ElementAt(closure.NestingLevel).As<ScriptStackFrame>();
+
+                        if (closure.IsParameter)
+                        {
+                            closure.Value = sourceFrame.Arguments[closure.EnclosedId];
+                        }
+                        else if (closure.IsClosure)
+                        {
+                            closure.Value = sourceFrame.Closures![closure.EnclosedId];
+                        }
+                        else
+                        {
+                            closure.Value = sourceFrame.Locals![closure.EnclosedId];
+                        }
+                    }
+
+                    PushValue(chunk);
                     break;
                 }
 
@@ -401,6 +434,18 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.SETCLOSURE:
+                {
+                    frame.Closures![frame.FetchInt32()] = PopValue();
+                    break;
+                }
+
+                case OpCode.GETCLOSURE:
+                {
+                    PushValue(frame.Closures![frame.FetchInt32()]);
+                    break;
+                }
+
                 case OpCode.LENGTH:
                 {
                     PushValue(PopValue().GetLength());
@@ -475,6 +520,15 @@ namespace Ceres.ExecutionEngine
                     _callStack.Pop();
                     frame.Dispose();
 
+                    break;
+                }
+
+                case OpCode.CRET:
+                {
+                    _callStack.Pop();
+                    frame.Chunk.Dispose();
+                    frame.Dispose();
+                    
                     break;
                 }
 

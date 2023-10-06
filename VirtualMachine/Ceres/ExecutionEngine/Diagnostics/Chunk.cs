@@ -11,26 +11,32 @@ namespace Ceres.ExecutionEngine.Diagnostics
     public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     {        
         private readonly MemoryStream _code;
-        private readonly List<int> _labels;
-        private readonly List<ChunkAttribute> _attributes;
-        private readonly Dictionary<int, DynamicValue> _parameterInitializers;
+        private List<int> _labels;
+        private List<ChunkAttribute> _attributes;
+        private Dictionary<int, DynamicValue> _parameterInitializers;
+        private List<ClosureInfo> _closures;
+        private List<Chunk> _subChunks;
         
         private readonly Serializer _serializer;
 
-        public const byte FormatVersion = 1;
+        public const byte FormatVersion = 2;
         
         public string? Name { get; set; }
 
         public StringPool StringPool { get; }
         public CodeGenerator CodeGenerator { get; }
-        public DebugDatabase DebugDatabase { get; }
+        public DebugDatabase DebugDatabase { get; private set; }
 
         public int ParameterCount { get; private set; }
         public int LocalCount { get; private set; }
+        public int ClosureCount => Closures.Count;
+        public int SubChunkCount => SubChunks.Count;
         
         public IReadOnlyList<int> Labels => _labels;
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
         public IReadOnlyDictionary<int, DynamicValue> ParameterInitializers => _parameterInitializers;
+        public IReadOnlyList<ClosureInfo> Closures => _closures;
+        public IReadOnlyList<Chunk> SubChunks => _subChunks;
 
         public byte[] Code => _code.GetBuffer();
         
@@ -77,6 +83,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
+            _closures = new List<ClosureInfo>();
+            _subChunks = new List<Chunk>();
             _serializer = new Serializer(this);
             
             StringPool = new StringPool();
@@ -90,6 +98,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
+            _closures = new List<ClosureInfo>();
+            _subChunks = new List<Chunk>();
             _serializer = new Serializer(this);
 
             StringPool = new StringPool();
@@ -103,6 +113,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _labels = new List<int>();
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
+            _closures = new List<ClosureInfo>();
+            _subChunks = new List<Chunk>();
             _serializer = new Serializer(this);
 
             StringPool = new StringPool(stringConstants);
@@ -124,6 +136,24 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public int AllocateLocal()
             => LocalCount++;
+
+        public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, bool isParameter, bool isClosure)
+        {
+            var id = ClosureCount;
+            var ret = new ClosureInfo(nestingLevel, enclosedId, isParameter, isClosure);
+            _closures.Add(ret);
+
+            return (id, ret);
+        }
+
+        public (int Id, Chunk SubChunk) AllocateSubChunk()
+        {
+            var id = SubChunkCount;
+            var chunk = new Chunk { Name = $"<$anonymous_{id}>" };
+
+            _subChunks.Add(chunk);
+            return (id, chunk);
+        }
 
         public void InitializeParameter(int parameterId, DynamicValue constant)
         {
@@ -172,6 +202,23 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public static Chunk Deserialize(Stream stream, out byte version, out long timestamp)
             => Deserializer.Deserialize(stream, out version, out timestamp);
+
+        public Chunk Clone()
+        {
+            return new Chunk(
+                _code.ToArray(),
+                StringPool.ToArray()
+            ) {
+                Name = Name,
+                LocalCount = LocalCount,
+                ParameterCount = ParameterCount,
+                DebugDatabase = DebugDatabase,
+                _closures = new(_closures),
+                _labels = new(_labels),
+                _attributes = new(_attributes),
+                _parameterInitializers = new(_parameterInitializers)
+            };
+        }
         
         public void Dispose()
         {
@@ -190,6 +237,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                    && ParameterCount == other.ParameterCount
                    && _parameterInitializers.SequenceEqual(other._parameterInitializers)
                    && LocalCount == other.LocalCount
+                   && _closures.SequenceEqual(other._closures)
                    && _labels.SequenceEqual(other._labels)
                    && _attributes.SequenceEqual(other._attributes)
                    && StringPool.Equals(other.StringPool)
@@ -211,6 +259,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             hashCode.Add(ParameterCount);
             hashCode.Add(_parameterInitializers);
             hashCode.Add(LocalCount);
+            hashCode.Add(_closures);
             hashCode.Add(_labels);
             hashCode.Add(_attributes);
             hashCode.Add(StringPool);

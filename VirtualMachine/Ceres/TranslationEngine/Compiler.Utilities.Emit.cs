@@ -7,29 +7,67 @@ namespace Ceres.TranslationEngine
     {
         private void EmitVarSet(string identifier)
         {
-            var sym = CurrentScope.Find(identifier);
+            var symbolInfo = FindSymbolInClosedScopes(identifier);
 
-            if (sym != null)
+            if (symbolInfo != null)
             {
-                switch (sym.Type)
-                {
-                    case Symbol.SymbolType.Local:
-                    {
-                        Chunk.CodeGenerator.Emit(
-                            OpCode.SETLOCAL,
-                            sym.Id
-                        );
-                        break;
-                    }
+                var level = symbolInfo.Value.ClosedScopeLevel;
+                var sym = symbolInfo.Value.Symbol;
 
-                    case Symbol.SymbolType.Parameter:
+                if (level == 0)
+                {
+                    switch (sym.Type)
                     {
-                        Chunk.CodeGenerator.Emit(
-                            OpCode.SETARG,
-                            sym.Id
-                        );
-                        break;
+                        case Symbol.SymbolType.Local:
+                        {
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.SETLOCAL,
+                                sym.Id
+                            );
+                            break;
+                        }
+
+                        case Symbol.SymbolType.Parameter:
+                        {
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.SETARG,
+                                sym.Id
+                            );
+                            break;
+                        }
+
+                        case Symbol.SymbolType.Closure:
+                        {
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.SETCLOSURE,
+                                sym.Id
+                            );
+                            break;
+                        }
                     }
+                }
+                else
+                {
+                    var result = Chunk.AllocateClosure(
+                        level,
+                        sym.Id,
+                        sym.Type == Symbol.SymbolType.Parameter,
+                        sym.Type == Symbol.SymbolType.Closure
+                    );
+
+                    CurrentScope.DefineClosure(
+                        sym.Name,
+                        result.Id,
+                        sym.ReadWrite,
+                        sym.DefinedOnLine,
+                        sym.DefinedOnColumn,
+                        result.Closure
+                    );
+
+                    Chunk.CodeGenerator.Emit(
+                        OpCode.SETCLOSURE,
+                        result.Id
+                    );
                 }
             }
             else
@@ -45,29 +83,68 @@ namespace Ceres.TranslationEngine
 
         private void EmitVarGet(string identifier)
         {
-            var sym = CurrentScope.Find(identifier);
+            var symbolInfo = FindSymbolInClosedScopes(identifier);
 
-            if (sym != null)
+            if (symbolInfo != null)
             {
-                switch (sym.Type)
-                {
-                    case Symbol.SymbolType.Local:
-                    {
-                        Chunk.CodeGenerator.Emit(
-                            OpCode.GETLOCAL,
-                            sym.Id
-                        );
-                        break;
-                    }
+                var level = symbolInfo.Value.ClosedScopeLevel;
+                var sym = symbolInfo.Value.Symbol;
 
-                    case Symbol.SymbolType.Parameter:
+                if (level == 0)
+                {
+                    switch (sym.Type)
                     {
-                        Chunk.CodeGenerator.Emit(
-                            OpCode.GETARG,
-                            sym.Id
-                        );
-                        break;
+                        case Symbol.SymbolType.Local:
+                        {
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.GETLOCAL,
+                                sym.Id
+                            );
+                            break;
+                        }
+
+                        case Symbol.SymbolType.Parameter:
+                        {
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.GETARG,
+                                sym.Id
+                            );
+                            break;
+                        }
+
+                        case Symbol.SymbolType.Closure:
+                        {
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.GETCLOSURE,
+                                sym.Id
+                            );
+
+                            break;
+                        }
                     }
+                }
+                else
+                {
+                    var result = Chunk.AllocateClosure(
+                        level,
+                        sym.Id,
+                        sym.Type == Symbol.SymbolType.Parameter,
+                        sym.Type == Symbol.SymbolType.Closure
+                    );
+
+                    CurrentScope.DefineClosure(
+                        sym.Name,
+                        result.Id,
+                        sym.ReadWrite,
+                        sym.DefinedOnLine,
+                        sym.DefinedOnColumn,
+                        result.Closure
+                    );
+
+                    Chunk.CodeGenerator.Emit(
+                        OpCode.GETCLOSURE,
+                        result.Id
+                    );
                 }
             }
             else
@@ -79,6 +156,22 @@ namespace Ceres.TranslationEngine
 
                 Chunk.CodeGenerator.Emit(OpCode.GETGLOBAL);
             }
+        }
+
+        private (int ClosedScopeLevel, Symbol Symbol)? FindSymbolInClosedScopes(string identifier)
+        {
+            for (var i = 0; i < _closedScopes.Count; i++)
+            {
+                var scope = _closedScopes[i];
+                var result = scope.Find(identifier);
+
+                if (result != null)
+                {
+                    return (i, result.Value.Symbol);
+                }
+            }
+
+            return null;
         }
     }
 }
