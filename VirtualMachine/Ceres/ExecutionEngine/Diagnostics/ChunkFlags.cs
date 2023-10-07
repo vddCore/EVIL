@@ -13,6 +13,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         HasLocals = 1 << 3,
         HasLabels = 1 << 4,
         HasAttributes = 1 << 5,
-        HasDebugInfo = 1 << 6
+        HasDebugInfo = 1 << 6,
+        HasClosures = 1 << 7,
+        HasSubChunks = 1 << 8
     }
 }

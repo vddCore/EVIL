@@ -22,7 +22,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Table ExtraArguments => _extraArguments ??= GetExtraArgumentsTable();
 
         public DynamicValue[]? Locals { get; }
-        public DynamicValue[]? Closures { get; }
         
         public long PreviousOpCodeIP { get; private set; }
         public long IP => _chunkReader.BaseStream.Position;
@@ -69,12 +68,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
             {
                 Locals = new DynamicValue[chunk.LocalCount];
                 Array.Fill(Locals, DynamicValue.Nil);
-            }
-
-            if (chunk.ClosureCount > 0)
-            {
-                Closures = new DynamicValue[chunk.ClosureCount];
-                Array.Fill(Closures, DynamicValue.Nil);
             }
 
             _chunkReader = Chunk.SpawnCodeReader();

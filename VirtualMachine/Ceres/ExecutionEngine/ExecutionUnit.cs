@@ -112,7 +112,7 @@ namespace Ceres.ExecutionEngine
                         }
                         else if (closure.IsClosure)
                         {
-                            closure.Value = sourceFrame.Closures![closure.EnclosedId];
+                            closure.Value = sourceFrame.Chunk.Closures[closure.EnclosedId].Value;
                         }
                         else
                         {
@@ -350,14 +350,7 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValue.DynamicValueType.Chunk)
                     {
-                        var newFrame = new ScriptStackFrame(_fiber, a.Chunk!, args);
-
-                        for (var i = 0; i < a.Chunk!.ClosureCount; i++)
-                        {
-                            newFrame.Closures![i] = a.Chunk.Closures[i].Value;
-                        }
-                        
-                        _callStack.Push(newFrame);
+                        _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
 
                         _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
                             _fiber,
@@ -443,13 +436,18 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SETCLOSURE:
                 {
-                    frame.Closures![frame.FetchInt32()] = PopValue();
+                    frame.Chunk.Closures[
+                        frame.FetchInt32()
+                    ].Value = PopValue();
+                    
                     break;
                 }
 
                 case OpCode.GETCLOSURE:
                 {
-                    PushValue(frame.Closures![frame.FetchInt32()]);
+                    PushValue(frame.Chunk.Closures[
+                        frame.FetchInt32()
+                    ].Value);
                     break;
                 }
 

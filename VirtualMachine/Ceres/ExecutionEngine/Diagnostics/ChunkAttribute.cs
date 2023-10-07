@@ -7,7 +7,7 @@ using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class ChunkAttribute : IEquatable<ChunkAttribute>, IDynamicValueProvider
+    public sealed record ChunkAttribute : IDynamicValueProvider
     {
         public string Name { get; }
 
@@ -55,22 +55,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
                    && Properties.SequenceEqual(other.Properties);
         }
 
-        public override bool Equals(object? obj)
-        {
-            return ReferenceEquals(this, obj)
-                   || obj is ChunkAttribute other
-                   && Equals(other);
-        }
-
         public override int GetHashCode() 
             => HashCode.Combine(Name, Values, Properties);
 
-        public static bool operator ==(ChunkAttribute? left, ChunkAttribute? right) 
-            => Equals(left, right);
-
-        public static bool operator !=(ChunkAttribute? left, ChunkAttribute? right) 
-            => !Equals(left, right);
-        
         public DynamicValue ToDynamicValue()
         {
             var values = new Table();

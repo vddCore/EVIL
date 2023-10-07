@@ -114,6 +114,36 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         }
                     }
 
+                    if (flags.HasFlag(ChunkFlags.HasClosures))
+                    {
+                        var closureCount = br.ReadInt32();
+
+                        for (var i = 0; i < closureCount; i++)
+                        {
+                            chunk._closures.Add(
+                                new ClosureInfo(
+                                    br.ReadInt32(),
+                                    br.ReadInt32(),
+                                    br.ReadBoolean(),
+                                    br.ReadBoolean()
+                                )
+                            );
+                        }
+                    }
+
+                    if (flags.HasFlag(ChunkFlags.HasSubChunks))
+                    {
+                        var subChunkCount = br.ReadInt32();
+
+                        for (var i = 0; i < subChunkCount; i++)
+                        {
+                            var subChunk = Deserialize(stream, out _, out _);
+                            
+                            chunk._subChunks.Add(subChunk);
+                            subChunk.Parent = chunk;
+                        }
+                    }
+
                     if (flags.HasFlag(ChunkFlags.HasLocals))
                     {
                         chunk.LocalCount = br.ReadInt32();
