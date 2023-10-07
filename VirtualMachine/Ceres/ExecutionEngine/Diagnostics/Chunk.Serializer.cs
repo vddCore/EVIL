@@ -22,44 +22,44 @@ namespace Ceres.ExecutionEngine.Diagnostics
             {
                 bw.Write(new[]
                 {
-                    (byte)'E', 
+                    (byte)'E',
                     (byte)'V',
                     (byte)'C',
                     Chunk.FormatVersion
                 });
-                
+
                 bw.Write(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
                 bw.Write((int)_chunk.Flags);
             }
 
             private void WriteConstValue(BinaryWriter bw, DynamicValue value)
             {
-               bw.Write((byte)value.Type);
-               switch (value.Type)
-               {
-                   case DynamicValueType.Nil:
-                       break;
-                   
-                   case DynamicValueType.Number:
-                       bw.Write(value.Number);
-                       break;
-                   
-                   case DynamicValueType.String:
-                       bw.Write(value.String!);
-                       break;
-                   
-                   case DynamicValueType.Boolean:
-                       bw.Write(value.Boolean);
-                       break;
-                   
-                   default: throw new InvalidOperationException("Invalid constant value type.");
-               }
+                bw.Write((byte)value.Type);
+                switch (value.Type)
+                {
+                    case DynamicValueType.Nil:
+                        break;
+
+                    case DynamicValueType.Number:
+                        bw.Write(value.Number);
+                        break;
+
+                    case DynamicValueType.String:
+                        bw.Write(value.String!);
+                        break;
+
+                    case DynamicValueType.Boolean:
+                        bw.Write(value.Boolean);
+                        break;
+
+                    default: throw new InvalidOperationException("Invalid constant value type.");
+                }
             }
 
             private void WriteAttribute(BinaryWriter bw, ChunkAttribute attribute)
             {
                 bw.Write(attribute.Name);
-                
+
                 bw.Write(attribute.Values.Count);
                 foreach (var value in attribute.Values)
                 {
@@ -73,7 +73,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     WriteConstValue(bw, property.Value);
                 }
             }
-            
+
             private void WriteName(BinaryWriter bw)
             {
                 if (_chunk.Flags.HasFlag(ChunkFlags.HasName))
@@ -97,6 +97,38 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     {
                         bw.Write(kvp.Key);
                         WriteConstValue(bw, kvp.Value);
+                    }
+                }
+            }
+
+            private void WriteClosureInfo(BinaryWriter bw)
+            {
+                if (_chunk.Flags.HasFlag(ChunkFlags.HasClosures))
+                {
+                    bw.Write(_chunk.ClosureCount);
+
+                    for (var i = 0; i < _chunk.ClosureCount; i++)
+                    {
+                        var closure = _chunk.Closures[i];
+                        
+                        bw.Write(closure.NestingLevel);
+                        bw.Write(closure.EnclosedId);
+                        bw.Write(closure.IsParameter);
+                        bw.Write(closure.IsClosure);
+                    }
+                }
+            }
+
+            private void WriteSubChunks(BinaryWriter bw)
+            {
+                if (_chunk.Flags.HasFlag(ChunkFlags.HasSubChunks))
+                {
+                    bw.Write(_chunk.SubChunkCount);
+
+                    for (var i = 0; i < _chunk.SubChunkCount; i++)
+                    {
+                        var subChunk = _chunk.SubChunks[i];
+                        subChunk.Serialize(bw.BaseStream);
                     }
                 }
             }
@@ -153,16 +185,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             private void WriteCodeArea(BinaryWriter bw)
-            {               
+            {
                 bw.Write(_chunk.Code.Length);
                 bw.Write(_chunk.Code);
-                
+
                 using (var md5 = MD5.Create())
                 {
                     bw.Write(md5.ComputeHash(_chunk.Code));
                 }
             }
-            
+
             public void Write(Stream stream)
             {
                 using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
@@ -170,6 +202,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     WriteHeader(bw);
                     WriteName(bw);
                     WriteParameterInfo(bw);
+                    WriteClosureInfo(bw);
+                    WriteSubChunks(bw);
                     WriteLocalInfo(bw);
                     WriteLabelInfo(bw);
                     WriteChunkAttributes(bw);

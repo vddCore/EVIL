@@ -5,7 +5,7 @@ fn generate_closure_with_parameter_value(x)
     -> (fn(a) -> a + x);
 
 #[test(12)]
-fn basic_closure_hides_local() {
+fn basic_closure_parameter_hides_local() {
     var a = 10;
     
     var f = fn(a) {
@@ -143,9 +143,83 @@ fn all(t, predicate) {
 #[test]
 fn spawn_closures_in_loop() {
   var results = { };
-  for (rw var i = 0; i < 10; i++) {
+  for (rw var i = 0; i < 11; i++) {
     results[i] = spawn_closure_for_loop(i)(1);
   }
   
-  ret all(results, fn(k, v) -> v == k + 1);
+  ret all(results, fn(k,v) -> v == k + 1);
+}
+
+#[test(59)]
+fn many_subchunks_capture_same_local_no_change() {
+  var local_a = 10;
+  
+  var f1 = fn(x) -> local_a + x;
+  var f2 = fn(x) -> local_a * x;
+  var f3 = fn(x) -> local_a - x;
+  var f4 = fn(x) -> local_a / x;
+  
+  ret (f1(2) + f2(4) + f3(5) + f4(5));
+}
+
+#[test(59)]
+fn many_subchunks_capture_same_local_after_change() {
+  rw var local_a = 11;
+  var f1 = fn(x) -> local_a + x;
+  
+  local_a = 10;
+  var f2 = fn(x) -> local_a * x;
+  
+  local_a = 9;
+  var f3 = fn(x) -> local_a - x;
+  
+  local_a = 8;
+  var f4 = fn(x) -> local_a / x;
+  
+  ret f1(2) + f2(4) + f3(5) + f4(4);
+}
+
+fn invoke_func_out_of_scope(f) -> f();
+
+#[test]
+fn after_invocation_var_return() {
+  var f = fn() -> 21.37;
+  var res = f();
+  var res2 = invoke_func_out_of_scope(f);
+  
+  ret res == res2;
+}
+
+fn make_counter() {
+  rw var counter = 0;
+  
+  ret fn() {
+    counter++;
+    ret counter;
+  };
+}
+
+#[test(10)]
+fn internal_closure_state_is_preserved() {
+  var counter = make_counter();
+  rw var result = 0;
+  
+  for (rw var i = 0; i < 10; i++) {
+    result = counter();
+  }
+    
+  ret result;
+}
+
+#[test]
+fn parameter_is_preserved() {
+  var start_at = fn (x) {
+    ret fn(y) -> x + y;
+  };
+  
+  var f1 = start_at(1);
+  var f2 = start_at(5);
+  var f3 = start_at(9);
+  
+  ret f1(3) == 4 && f2(3) == 8 && f3(3) == 12;
 }

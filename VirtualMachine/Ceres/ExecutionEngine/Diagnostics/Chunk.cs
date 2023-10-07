@@ -22,6 +22,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public const byte FormatVersion = 2;
         
         public string? Name { get; set; }
+        public Chunk? Parent { get; private set; }
 
         public StringPool StringPool { get; }
         public CodeGenerator CodeGenerator { get; }
@@ -45,6 +46,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public bool HasLocals => Flags.HasFlag(ChunkFlags.HasLocals);
         public bool HasAttributes => Flags.HasFlag(ChunkFlags.HasAttributes);
         public bool HasDebugInfo => Flags.HasFlag(ChunkFlags.HasDebugInfo);
+        public bool HasClosures => Flags.HasFlag(ChunkFlags.HasClosures);
+        public bool HasSubChunks => Flags.HasFlag(ChunkFlags.HasSubChunks);
         
         public ChunkFlags Flags
         {
@@ -52,7 +55,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             {
                 var ret = ChunkFlags.Empty;
 
-                if (Name != null) 
+                if (Name != null && Name != "<$") 
                     ret |= ChunkFlags.HasName;
                 
                 if (ParameterCount > 0) 
@@ -72,6 +75,12 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                 if (!DebugDatabase.IsEmpty)
                     ret |= ChunkFlags.HasDebugInfo;
+
+                if (ClosureCount > 0)
+                    ret |= ChunkFlags.HasClosures;
+
+                if (SubChunkCount > 0)
+                    ret |= ChunkFlags.HasSubChunks;
                 
                 return ret;
             }
@@ -149,7 +158,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public (int Id, Chunk SubChunk) AllocateSubChunk()
         {
             var id = SubChunkCount;
-            var chunk = new Chunk { Name = $"<$anonymous_{id}>" };
+            var chunk = new Chunk
+            {
+                Parent = this,
+                Name = $"<$__anonymous_{id}>"
+            };
 
             _subChunks.Add(chunk);
             return (id, chunk);
@@ -205,7 +218,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public Chunk Clone()
         {
-            return new Chunk(
+            var clone = new Chunk(
                 _code.ToArray(),
                 StringPool.ToArray()
             ) {
@@ -213,12 +226,25 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 LocalCount = LocalCount,
                 ParameterCount = ParameterCount,
                 DebugDatabase = DebugDatabase,
-                _closures = new(_closures),
                 _labels = new(_labels),
                 _attributes = new(_attributes),
                 _parameterInitializers = new(_parameterInitializers),
                 _subChunks = new(_subChunks)
             };
+
+            foreach (var closure in _closures)
+            {
+                clone._closures.Add(
+                    new(
+                        closure.NestingLevel,
+                        closure.EnclosedId,
+                        closure.IsParameter,
+                        closure.IsClosure
+                    )
+                );
+            }
+
+            return clone;
         }
         
         public void Dispose()
@@ -235,6 +261,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             if (ReferenceEquals(this, other)) return true;
 
             return Name == other.Name
+                   && Parent == other.Parent
                    && ParameterCount == other.ParameterCount
                    && _parameterInitializers.SequenceEqual(other._parameterInitializers)
                    && LocalCount == other.LocalCount
