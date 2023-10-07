@@ -93,6 +93,7 @@
         NaN,
         Infinity,
         
+        Include,
         EOF
     }
 }

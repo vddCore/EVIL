@@ -20,6 +20,7 @@ namespace EVIL.Grammar.Traversal
 #nullable disable
             Handlers = new()
             {
+                { typeof(IncludeStatement), (n) => Visit((IncludeStatement)n) },
                 { typeof(ArgumentList), (n) => Visit((ArgumentList)n) },
                 { typeof(ParameterList), (n) => Visit((ParameterList)n) },
                 { typeof(BlockStatement), (n) => Visit((BlockStatement)n) },
@@ -76,6 +77,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(ProgramNode programNode);
         public abstract void Visit(ParameterList parameterList);
         public abstract void Visit(ArgumentList argumentList);
+        public abstract void Visit(IncludeStatement includeStatement);
         public abstract void Visit(BlockStatement blockStatement);
         public abstract void Visit(ConditionalExpression conditionalExpression);
         public abstract void Visit(NumberConstant numberConstant);
