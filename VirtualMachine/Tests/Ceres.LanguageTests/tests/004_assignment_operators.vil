@@ -1,73 +1,73 @@
 ﻿#[test]
 fn assignment_var_direct() {
-  rw var x = 20;
+  rw val x = 20;
   ret ((x = 10) == 10) && (x == 10);
 }
 
 #[test]
 fn assignment_var_add() {
-  rw var x = 10;
+  rw val x = 10;
   ret ((x += 1) == 11) && (x == 11);
 }
 
 #[test]
 fn assignment_var_sub() {
-  rw var x = 13;
+  rw val x = 13;
   ret ((x -= 1) == 12) && (x == 12);
 }
 
 #[test]
 fn assignment_var_div() {
-  rw var x = 26;
+  rw val x = 26;
   ret ((x /= 2) == 13) && (x == 13);
 }
 
 #[test]
 fn assignment_var_mod() {
-  rw var x = 30;
+  rw val x = 30;
   ret ((x %= 16) == 14) && (x == 14);
 }
 
 #[test]
 fn assignment_var_mul() {
-  rw var x = 7.5;
+  rw val x = 7.5;
   ret ((x *= 2) == 15) && (x == 15);
 }
 
 #[test]
 fn assignment_var_band() {
-  rw var x = 0xFFFF;
+  rw val x = 0xFFFF;
   ret ((x &= 0x0FF0) == 0x0FF0) && (x == 0x0FF0);
 }
 
 #[test]
 fn assignment_var_bor() {
-  rw var x = 0xF000;
+  rw val x = 0xF000;
   ret ((x |= 0x0FF0) == 0xFFF0) && (x == 0xFFF0);
 }
 
 #[test]
 fn assignment_var_bxor() {
-  rw var x = 0xF0F0;
+  rw val x = 0xF0F0;
   ret ((x ^= 0xFFFF) == 0x0F0F) && (x == 0x0F0F);
 }
 
 #[test]
 fn assignment_var_shl() {
-  rw var x = 0xF;
+  rw val x = 0xF;
   ret ((x <<= 16) == 0xF0000) && (x == 0xF0000);
 }
 
 #[test]
 fn assignment_var_shr() {
-  rw var x = 0xFFFF;
+  rw val x = 0xFFFF;
   ret ((x >>= 8) == 0x00FF) && (x == 0x00FF);
 }
 
 #[test]
 fn chained_assignment_direct() {
-  rw var a, b, c, d;
-  var result = (a = b = c = d = 10);
+  rw val a, b, c, d;
+  val result = (a = b = c = d = 10);
   
   ret a == 10
    && b == 10
@@ -78,8 +78,8 @@ fn chained_assignment_direct() {
 
 #[test]
 fn chained_assignment_add() {
-  rw var a = 5, b = 10, c = 15, d = 20;
-  var result = (a += b += c += d += 5);
+  rw val a = 5, b = 10, c = 15, d = 20;
+  val result = (a += b += c += d += 5);
   
   ret a == 55
    && b == 50
@@ -90,8 +90,8 @@ fn chained_assignment_add() {
 
 #[test]
 fn chained_assignment_sub() {
-  rw var a = 5, b = 10, c = 15, d = 20;
-  var result = (a -= b -= c -= d -= 5);
+  rw val a = 5, b = 10, c = 15, d = 20;
+  val result = (a -= b -= c -= d -= 5);
   
   ret a == -5
    && b == 10
@@ -102,8 +102,8 @@ fn chained_assignment_sub() {
 
 #[test]
 fn chained_assignment_div() {
-  rw var a = 120, b = 60, c = 30, d = 10;
-  var result = (a /= b /= c /= d /= 2); 
+  rw val a = 120, b = 60, c = 30, d = 10;
+  val result = (a /= b /= c /= d /= 2); 
   
   ret a == 12
    && b == 10
@@ -114,7 +114,7 @@ fn chained_assignment_div() {
 
 #[test]
 fn assignment_tbl_direct() {
-  var a = {};
+  val a = {};
   a[0] = "test";
   
   ret #a == 1 && a[0] == "test";
@@ -122,13 +122,13 @@ fn assignment_tbl_direct() {
 
 #[test]
 fn assignment_tbl_add() {
-  var a = { 10 };
+  val a = { 10 };
   ret ((a[0] += 1) == 11) && (a[0] == 11);
 }
 
 
 #[test]
 fn assignment_tbl_sub() {
-  var a = { 13 };
+  val a = { 13 };
   ret ((a[0] -= 1) == 12) && (a[0] == 12);
 }

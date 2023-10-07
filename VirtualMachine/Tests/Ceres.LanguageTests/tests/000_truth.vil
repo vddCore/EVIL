@@ -4,7 +4,7 @@
 
 #[test]
 fn nil_coalesced_to_boolean_is_false() {
-  var a = !!nil;
+  val a = !!nil;
   
   ret a == false 
    && typeof(a) == "Boolean";
@@ -12,7 +12,7 @@ fn nil_coalesced_to_boolean_is_false() {
 
 #[test]
 fn zero_coalesced_to_boolean_is_false() {
-  var a = !!0;
+  val a = !!0;
   
   ret a == false
    && typeof(a) == "Boolean";

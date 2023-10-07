@@ -1,7 +1,7 @@
 ﻿fn fib_recursive(rw n, a = 1, b = 1) -> (--n > 0) ? (fib_recursive(n, b, a + b)) : (a); 
 
 fn fib_iterative(rw n) {
-  rw var f0 = 0, f1 = 1, f2;
+  rw val f0 = 0, f1 = 1, f2;
   
   while (--n > 0) {
     f2 = f0 + f1;
@@ -18,7 +18,7 @@ fn fact_tailrec(n, acc = 1) {
 }
 
 fn bubble_sort(a) {
-  rw var i, t, j = #a, s = true;
+  rw val i, t, j = #a, s = true;
   
   while (s) {
     s = false;
@@ -42,7 +42,7 @@ fn bubble_sort(a) {
 
 #[test]
 fn bubblesort_invoke() {
-  var a = { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
+  val a = { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
   
   // Tables are always passed by reference.
   bubble_sort(a);

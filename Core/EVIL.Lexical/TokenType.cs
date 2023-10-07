@@ -84,7 +84,7 @@
         Skip,
         Break,
         Ret,
-        Var,
+        Val,
         In,
         Nil,
         TypeOf,

@@ -1,7 +1,7 @@
 ﻿fn jp2gmd(a, b, c) -> b + 0.37;
 
 fn delay(ms) { 
-  var end = time.stamp.ms + ms;
+  val end = time.stamp.ms + ms;
   while(time.stamp.ms < end){}
   
   ret 2.137;
@@ -34,8 +34,8 @@ fn yield_simple() {
 
 #[test]
 fn yield_delay() {
-  var start = time.stamp.ms;
-  var retval = yield<delay>(1000);
+  val start = time.stamp.ms;
+  val retval = yield<delay>(1000);
   
   ret time.stamp.ms - start >= 1000 
    && retval == 2.137; 
@@ -45,11 +45,11 @@ fn yield_delay() {
 fn yield_interdependent() {
   glob_a = 3;
   glob_b = 3;
-  var a = yield<dep_a>();
+  val a = yield<dep_a>();
   
   glob_a = 3;
   glob_b = 3;
-  var b = yield<dep_b>();
+  val b = yield<dep_b>();
   
   ret a == 213.7 
    && b == 0.2137;

@@ -10,7 +10,7 @@ namespace EVIL.Grammar.Parsing
     {
         private VarStatement VariableDefinition(bool readWrite)
         {
-            var (line, col) = Match(Token.Var);
+            var (line, col) = Match(Token.Val);
 
             var definitions = new Dictionary<IdentifierNode, Expression?>();
 

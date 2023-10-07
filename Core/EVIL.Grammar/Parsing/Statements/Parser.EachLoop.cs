@@ -10,8 +10,17 @@ namespace EVIL.Grammar.Parsing
         {
             var (line, col) = Match(Token.Each);
             Match(Token.LParenthesis);
+
+            if (CurrentToken == Token.Val)
+            {
+                throw new ParserException(
+                    "Each-loop variables must be `rw'.",
+                    (_lexer.State.Line, _lexer.State.Column)
+                );
+            }
             
-            Match(Token.Var);
+            Match(Token.Rw);
+            Match(Token.Val);
             var keyIdentifier = Identifier();
             IdentifierNode? valueIdentifier = null;
             

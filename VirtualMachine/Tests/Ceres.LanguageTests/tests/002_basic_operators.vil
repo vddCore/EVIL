@@ -48,48 +48,48 @@
 
 #[test]
 fn postinc_var() {
-  rw var a = 10;
+  rw val a = 10;
   ret (a++ == 10) && (a == 11);
 }
 
 #[test]
 fn postinc_tbl_member() {
-  var a = { 10 };
+  val a = { 10 };
   ret (a[0]++ == 10) && (a[0] == 11);
 }
 
 #[test]
 fn preinc_var() { 
-  rw var a = 10;
+  rw val a = 10;
   ret (++a == 11) && (a == 11);
 }
 
 #[test]
 fn preinc_tbl_member() {
-  var a = { 10 };
+  val a = { 10 };
   ret (++a[0] == 11) && (a[0] == 11);
 }
 
 #[test]
 fn postdec_var() {
-  rw var a = 10;
+  rw val a = 10;
   ret (a-- == 10) && (a == 9);
 }
 
 #[test]
 fn postdec_tbl_member() {
-  var a = { 10 };
+  val a = { 10 };
   ret (a[0]-- == 10) && (a[0] == 9);
 }
 
 #[test]
 fn predec_var() {
-  rw var a = 10;
+  rw val a = 10;
   ret (--a == 9) && (a == 9);
 }
 
 #[test]
 fn predec_tbl_member() {
-  var a = { 10 };
+  val a = { 10 };
   ret (--a[0] == 9) && (a[0] == 9);
 }

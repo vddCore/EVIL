@@ -38,7 +38,7 @@ namespace EVIL.Grammar.Parsing
                     node = ReadWriteVariableDefinition();
                     break;
 
-                case TokenType.Var:
+                case TokenType.Val:
                     node = VariableDefinition(false);
                     break;
 
