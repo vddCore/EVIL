@@ -102,7 +102,7 @@ namespace EVIL.Lexical
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, TokenClass.Operator, ")");
         public static readonly Token AttributeList = new(TokenType.AttributeList, TokenClass.Operator, "#[");
 
-        public static readonly Token Var = new(TokenType.Var, TokenClass.Keyword, "var");
+        public static readonly Token Val = new(TokenType.Val, TokenClass.Keyword, "val");
         public static readonly Token If = new(TokenType.If, TokenClass.Keyword, "if");
         public static readonly Token Elif = new(TokenType.Elif, TokenClass.Keyword, "elif");
         public static readonly Token Else = new(TokenType.Else, TokenClass.Keyword, "else");

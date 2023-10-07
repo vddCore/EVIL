@@ -6,9 +6,9 @@ fn generate_closure_with_parameter_value(x)
 
 #[test(12)]
 fn basic_closure_parameter_hides_local() {
-    var a = 10;
+    val a = 10;
     
-    var f = fn(a) {
+    val f = fn(a) {
         ret a;
     };
     
@@ -17,9 +17,9 @@ fn basic_closure_parameter_hides_local() {
 
 #[test(12)]
 fn basic_closure_captures_local() {
-    var b = 10;
+    val b = 10;
     
-    var f = fn() {
+    val f = fn() {
         ret b + 2;
     };
     
@@ -28,24 +28,24 @@ fn basic_closure_captures_local() {
 
 #[test(12)]
 fn basic_closure_captures_parameter() {
-    var f = generate_closure_with_parameter_value(10);
+    val f = generate_closure_with_parameter_value(10);
     ret f(2);
 }
 
 #[test(21.37);approximate(2)]
 fn nested_closure_captures_outside_local() {
-    var a = 21;
-    var f = (fn() -> (fn() -> a + .37));
+    val a = 21;
+    val f = (fn() -> (fn() -> a + .37));
     
     ret f()();
 }
 
 #[test(21.37);approximate(2)]
 fn nested_closure_captures_closure_local() {
-    var a = 111;
+    val a = 111;
     
-    var f = fn() {
-        var a = 21;
+    val f = fn() {
+        val a = 21;
         ret fn() { ret a + .37; };
     };
     
@@ -54,8 +54,8 @@ fn nested_closure_captures_closure_local() {
 
 #[test(21.37);approximate(2)]
 fn nested_closure_captures_closure_parameter() {
-    var a = 111;
-    var f = fn(a) {
+    val a = 111;
+    val f = fn(a) {
         ret fn() { ret a + .37; };
     };
     
@@ -64,9 +64,9 @@ fn nested_closure_captures_closure_parameter() {
 
 #[test(21.37);approximate(2)]
 fn extreme_closure_nesting() {
-    var a = 10;
+    val a = 10;
     ret test_invocation(fn(b) {
-        var f = fn(c) {
+        val f = fn(c) {
             ret fn() { ret a + b + c; };
         };
         
@@ -76,9 +76,9 @@ fn extreme_closure_nesting() {
 
 
 fn filter_table(t, predicate) {
-    var result = { };
+    val result = { };
     
-    each (var k, v : t) {
+    each (rw val k, v : t) {
         if (predicate(k, v)) {    
             result[k] = v;
         }
@@ -89,8 +89,8 @@ fn filter_table(t, predicate) {
 
 #[test]
 fn predicate_anonymous_function() {
-    var t = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
-    var t2 = filter_table(
+    val t = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+    val t2 = filter_table(
         t, 
         fn(k, v) -> v % 2 == 0
     ); 
@@ -99,7 +99,7 @@ fn predicate_anonymous_function() {
 }
 
 fn delay(ms) { 
-  var end = time.stamp.ms + ms;
+  val end = time.stamp.ms + ms;
   while(time.stamp.ms < end){}
   
   ret 2.137;
@@ -107,8 +107,8 @@ fn delay(ms) {
 
 fn spawn_yielding_closure() {
   ret fn() {
-    var start = time.stamp.ms;
-    var retval = yield<delay>(500);
+    val start = time.stamp.ms;
+    val retval = yield<delay>(500);
     
     ret { 
       stamp_result: time.stamp.ms,
@@ -119,8 +119,8 @@ fn spawn_yielding_closure() {
 
 #[test]
 fn yield_delay_from_closure() {
-  var f = spawn_yielding_closure();
-  var r = yield<f>();
+  val f = spawn_yielding_closure();
+  val r = yield<f>();
   
   ret r.stamp_result >= 1000 
    && r.retval == 2.137;
@@ -131,9 +131,9 @@ fn spawn_closure_for_loop(a) {
 }
 
 fn all(t, predicate) {
-  rw var result = true;
+  rw val result = true;
   
-  each (var k, v : t) {
+  each (rw val k, v : t) {
     result &= predicate(k, v);
   }
   
@@ -142,8 +142,8 @@ fn all(t, predicate) {
 
 #[test]
 fn spawn_closures_in_loop() {
-  var results = { };
-  for (rw var i = 0; i < 11; i++) {
+  val results = { };
+  for (rw val i = 0; i < 11; i++) {
     results[i] = spawn_closure_for_loop(i)(1);
   }
   
@@ -152,29 +152,29 @@ fn spawn_closures_in_loop() {
 
 #[test(59)]
 fn many_subchunks_capture_same_local_no_change() {
-  var local_a = 10;
+  val local_a = 10;
   
-  var f1 = fn(x) -> local_a + x;
-  var f2 = fn(x) -> local_a * x;
-  var f3 = fn(x) -> local_a - x;
-  var f4 = fn(x) -> local_a / x;
+  val f1 = fn(x) -> local_a + x;
+  val f2 = fn(x) -> local_a * x;
+  val f3 = fn(x) -> local_a - x;
+  val f4 = fn(x) -> local_a / x;
   
   ret (f1(2) + f2(4) + f3(5) + f4(5));
 }
 
 #[test(59)]
 fn many_subchunks_capture_same_local_after_change() {
-  rw var local_a = 11;
-  var f1 = fn(x) -> local_a + x;
+  rw val local_a = 11;
+  val f1 = fn(x) -> local_a + x;
   
   local_a = 10;
-  var f2 = fn(x) -> local_a * x;
+  val f2 = fn(x) -> local_a * x;
   
   local_a = 9;
-  var f3 = fn(x) -> local_a - x;
+  val f3 = fn(x) -> local_a - x;
   
   local_a = 8;
-  var f4 = fn(x) -> local_a / x;
+  val f4 = fn(x) -> local_a / x;
   
   ret f1(2) + f2(4) + f3(5) + f4(4);
 }
@@ -183,15 +183,15 @@ fn invoke_func_out_of_scope(f) -> f();
 
 #[test]
 fn after_invocation_var_return() {
-  var f = fn() -> 21.37;
-  var res = f();
-  var res2 = invoke_func_out_of_scope(f);
+  val f = fn() -> 21.37;
+  val res = f();
+  val res2 = invoke_func_out_of_scope(f);
   
   ret res == res2;
 }
 
 fn make_counter() {
-  rw var counter = 0;
+  rw val counter = 0;
   
   ret fn() {
     counter++;
@@ -201,10 +201,10 @@ fn make_counter() {
 
 #[test(10)]
 fn internal_closure_state_is_preserved() {
-  var counter = make_counter();
-  rw var result = 0;
+  val counter = make_counter();
+  rw val result = 0;
   
-  for (rw var i = 0; i < 10; i++) {
+  for (rw val i = 0; i < 10; i++) {
     result = counter();
   }
     
@@ -213,13 +213,13 @@ fn internal_closure_state_is_preserved() {
 
 #[test]
 fn parameter_is_preserved() {
-  var start_at = fn (x) {
+  val start_at = fn (x) {
     ret fn(y) -> x + y;
   };
   
-  var f1 = start_at(1);
-  var f2 = start_at(5);
-  var f3 = start_at(9);
+  val f1 = start_at(1);
+  val f2 = start_at(5);
+  val f3 = start_at(9);
   
   ret f1(3) == 4 && f2(3) == 8 && f3(3) == 12;
 }

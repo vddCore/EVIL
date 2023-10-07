@@ -1,11 +1,11 @@
 ﻿#[test]
 fn each_basic_table() {
-  var t = { x: 21.37, y: "haha funny number" };
+  val t = { x: 21.37, y: "haha funny number" };
 
-  rw var tvar_1 = nil;
-  rw var tvar_2 = nil;
+  rw val tvar_1 = nil;
+  rw val tvar_2 = nil;
 
-  each (var key : t) {
+  each (rw val key : t) {
     if (key == "x") {
       tvar_1 = t[key];
     } elif (key == "y") {
@@ -19,11 +19,11 @@ fn each_basic_table() {
 
 #[test(44.51);approximate(2)]
 fn each_basic_table_skip() {
-  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  val t = { x: 21.37, y: 11.11, z: 44.51 };
 
-  rw var tvar_1 = nil;
+  rw val tvar_1 = nil;
 
-  each (var key : t) {
+  each (rw val key : t) {
     if (key != "z") {
       skip;
     }
@@ -36,11 +36,11 @@ fn each_basic_table_skip() {
 
 #[test(11.11);approximate(2)]
 fn each_basic_table_break() {
-  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  val t = { x: 21.37, y: 11.11, z: 44.51 };
 
-  rw var tvar_1 = nil;
+  rw val tvar_1 = nil;
 
-  each (var key : t) {
+  each (rw val key : t) {
     if (key == "y") {
       tvar_1 = t[key];
       break;
@@ -52,9 +52,9 @@ fn each_basic_table_break() {
 
 #[test(11.11);approximate(2)]
 fn each_basic_table_ret() {
-  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  val t = { x: 21.37, y: 11.11, z: 44.51 };
   
-  each (var key : t) {
+  each (rw val key : t) {
     if (key == "y") {
       ret t[key];
     }
@@ -63,14 +63,14 @@ fn each_basic_table_ret() {
 
 #[test]
 fn each_kv_table() {
-  var t = { x: "21.37", y: "haha funny number" };
+  val t = { x: "21.37", y: "haha funny number" };
 
-  rw var tvar_k1 = nil;
-  rw var tvar_v1 = nil;
-  rw var tvar_k2 = nil;
-  rw var tvar_v2 = nil;
+  rw val tvar_k1 = nil;
+  rw val tvar_v1 = nil;
+  rw val tvar_k2 = nil;
+  rw val tvar_v2 = nil;
 
-  each (var key, value : t) {
+  each (rw val key, value : t) {
     if (key == "x") {
       tvar_k1 = key;
       tvar_v1 = value;
@@ -88,12 +88,12 @@ fn each_kv_table() {
 
 #[test]
 fn each_kv_table_skip() {
-  var t = { x: "21.37", y: "haha funny number", z: "11111111" };
+  val t = { x: "21.37", y: "haha funny number", z: "11111111" };
 
-  rw var tvar_k = nil;
-  rw var tvar_v = nil;
+  rw val tvar_k = nil;
+  rw val tvar_v = nil;
 
-  each (var key, value : t) {
+  each (rw val key, value : t) {
     if (key != "z") {
       skip;
     }
@@ -108,12 +108,12 @@ fn each_kv_table_skip() {
 
 #[test]
 fn each_kv_table_break() {
-  var t = { x: "21.37", y: "haha funny number", z: "11111111" };
+  val t = { x: "21.37", y: "haha funny number", z: "11111111" };
 
-  rw var tvar_k = nil;
-  rw var tvar_v = nil;
+  rw val tvar_k = nil;
+  rw val tvar_v = nil;
 
-  each (var key, value : t) {
+  each (rw val key, value : t) {
     if (key == "y") {
       tvar_k = key;
       tvar_v = value;
@@ -127,9 +127,9 @@ fn each_kv_table_break() {
 
 #[test(11.11);approximate(2)]
 fn each_kv_table_ret() {
-  var t = { x: 21.37, y: 11.11, z: 44.51 };
+  val t = { x: 21.37, y: 11.11, z: 44.51 };
   
-  each (var key, value : t) {
+  each (rw val key, value : t) {
     if (key == "y") {
       ret value;
     }

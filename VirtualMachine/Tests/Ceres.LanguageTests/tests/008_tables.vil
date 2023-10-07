@@ -1,18 +1,18 @@
 ﻿#[test]
 fn table_empty() {
-  var a = {};
+  val a = {};
   ret (#a == 0) && (typeof(a) == "Table");
 }
 
 #[test]
 fn table_value_init() {
-  var a = { 1, 2, 3, 4, 5 };
+  val a = { 1, 2, 3, 4, 5 };
   ret (#a == 5) && (typeof(a) == "Table");
 }
 
 #[test]
 fn table_constkeyed_init() {
-  var a = {
+  val a = {
     "key_a" => 123,
     "key_b" => 234,
     2137 => { "jp", 2, "gmd"}
@@ -23,13 +23,13 @@ fn table_constkeyed_init() {
 
 #[test(64.11);approximate(2)]
 fn table_identkeyed() {
-  var vec = { x: 21.37, y: 42.74 };
+  val vec = { x: 21.37, y: 42.74 };
   ret vec.x + vec.y;
 }
 
 #[test]
 fn table_computedkey_init() {
-  var a = {
+  val a = {
     [2 + 1.37] => "jp2gmd",
     [21 + $"37"] => "można, jak najbardziej",    
     [@21 + "37"] => "jeszcze jak",
@@ -41,7 +41,7 @@ fn table_computedkey_init() {
 
 #[test]
 fn table_mixed_keying() {
-  var a = { 
+  val a = { 
     b: "haha funny",
     [213 + .7] => "blah",
     "c" => "yayy"
@@ -54,7 +54,7 @@ fn table_mixed_keying() {
 
 #[test]
 fn table_initialized_values_match() {
-  var a = { 1, 2, 2.137, 3 };
+  val a = { 1, 2, 2.137, 3 };
   
   ret a[0] == 1
    && a[1] == 2
@@ -64,7 +64,7 @@ fn table_initialized_values_match() {
 
 #[test]
 fn table_constkeyed_initialized_values_match() {
-  var a = {
+  val a = {
     "test" => "result",
     "yes" => 1234,
     true => 2137
@@ -77,27 +77,27 @@ fn table_constkeyed_initialized_values_match() {
 
 #[test("uwu")]
 fn table_identifier_indexing() {
-  var a = { nya: "uwu" };
+  val a = { nya: "uwu" };
   ret a.nya;
 }
 
 #[test(21.37)]
 fn nested_table_indexing() {
-  var a = { 1, { 2, 3, { 4, 5, 6, { 7, 8, 9, 10, 21.37 } } } };
+  val a = { 1, { 2, 3, { 4, 5, 6, { 7, 8, 9, 10, 21.37 } } } };
   ret a[1][2][3][4];
 }
 
 #[test(213.7)]
 fn nested_table_identifier_indexing() {
-  var a = { b: { c: { d: { j: { p2gmd: 213.7 } } } } };
+  val a = { b: { c: { d: { j: { p2gmd: 213.7 } } } } };
   
   ret a.b.c.d.j.p2gmd;
 }
 
 #[test("21.37")]
 fn tables_are_references() {
-  var t = { { 21.37 } };
-  var t2 = { t[0] };
+  val t = { { 21.37 } };
+  val t2 = { t[0] };
   
   t2[0][0] = "21.37";
   ret t[0][0];
@@ -111,10 +111,10 @@ fn tables_are_references() {
 
 #[test] 
 fn table_tricky_works() {
-  var first = __tricky.d20;
-  var second = __tricky.d20;
-  var third = __tricky.d20;
-  var fourth = __tricky.d20;
+  val first = __tricky.d20;
+  val second = __tricky.d20;
+  val third = __tricky.d20;
+  val fourth = __tricky.d20;
   
   __tricky.d20 = 1337;
   

@@ -1,10 +1,10 @@
 ﻿#[test(33)]
 fn out_of_scope_evaluates_to_global() {
-  var a = 10;
+  val a = 10;
   b = 33;
   
   {
-    var b = 21;
+    val b = 21;
   }
   
   ret b;
@@ -14,17 +14,17 @@ fn out_of_scope_evaluates_to_global() {
 fn local_scope_hides_global_scope() {
   a = "jp2gmd";
   
-  var a = 21.37;
+  val a = 21.37;
   ret a;
 }
 
 #[test]
 fn mixed_local_and_global_scopes() {
-  a = "jp2gmd"; rw var b = 2;
+  a = "jp2gmd"; rw val b = 2;
   
   {
     glob_a = a;
-    var a = 20;
+    val a = 20;
     glob_a2 = a;
     glob_b = b;
     b = 10;
@@ -39,10 +39,10 @@ fn mixed_local_and_global_scopes() {
 
 #[test(false)]
 fn variables_go_out_of_scope() {{
-  var x = 10; {
-    var y = 20; {
-      var z = 30; {
-        var w = 40;
+  val x = 10; {
+    val y = 20; {
+      val z = 30; {
+        val w = 40;
       } if (w) -> w;
     } if (z) -> z;
   } if (y) -> y;

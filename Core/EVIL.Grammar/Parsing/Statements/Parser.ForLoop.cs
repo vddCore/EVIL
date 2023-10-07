@@ -56,11 +56,15 @@ namespace EVIL.Grammar.Parsing
         {
             var token = CurrentToken;
 
-            if (token.Type == TokenType.Var)
+            if (token.Type == TokenType.Val)
             {
-                return VariableDefinition(false);
+                throw new ParserException(
+                    "For-loop `val' declarators must be `rw'.",
+                    (_lexer.State.Line, _lexer.State.Column)
+                );
             }
-            else if (token.Type == TokenType.Rw)
+            
+            if (token.Type == TokenType.Rw)
             {
                 return ReadWriteVariableDefinition();
             }
