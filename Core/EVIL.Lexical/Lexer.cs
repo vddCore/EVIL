@@ -42,6 +42,16 @@ namespace EVIL.Lexical
 
             State.PreviousToken = State.CurrentToken;
             var (line, col) = (State.Line, State.Column);
+
+            if (col == 1)
+            {
+                if (State.Character == '#' && PeekString(7) == "include")
+                {
+                    Advance(8);
+                    State.CurrentToken = Token.Include with { Line = line, Column = col };
+                    return;
+                }
+            }
             
             switch (State.Character)
             {
@@ -511,26 +521,44 @@ namespace EVIL.Lexical
             return _sourceCode[State.Pointer + howFar];
         }
 
-        private void Advance()
+        private string PeekString(int length = 1)
         {
-            if (State.Character == '\n')
-            {
-                State.Column = 1;
-                State.Line++;
-            }
-            else
-            {
-                State.Column++;
-            }
+            var sb = new StringBuilder();
 
-            if (State.Pointer + 1 < _sourceCode!.Length)
+            for (var i = 1; i <= length; i++)
             {
-                State.Pointer++;
-                State.Character = _sourceCode[State.Pointer];
+                if (State.Pointer + i >= _sourceCode!.Length)
+                    break;
+
+                sb.Append(_sourceCode[State.Pointer + i]);
             }
-            else
+            
+            return sb.ToString();
+        }
+
+        private void Advance(int howFar = 1)
+        {
+            for (var i = 0; i < howFar; i++)
             {
-                State.Character = '\0';
+                if (State.Character == '\n')
+                {
+                    State.Column = 1;
+                    State.Line++;
+                }
+                else
+                {
+                    State.Column++;
+                }
+
+                if (State.Pointer + 1 < _sourceCode!.Length)
+                {
+                    State.Pointer++;
+                    State.Character = _sourceCode[State.Pointer];
+                }
+                else
+                {
+                    State.Character = '\0';
+                }
             }
         }
     }

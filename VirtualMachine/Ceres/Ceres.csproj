@@ -128,5 +128,8 @@
     <Compile Update="TranslationEngine\Compiler.Expression.Fn.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Include.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

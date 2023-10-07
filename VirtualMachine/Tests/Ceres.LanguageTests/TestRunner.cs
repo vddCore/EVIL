@@ -25,7 +25,7 @@ namespace Ceres.LanguageTests
 
         public TestRunner(string testDirectory, CeresVM vm, TextWriter? textOut = null)
         {
-            TestDirectory = testDirectory;
+            TestDirectory = Path.GetFullPath(testDirectory);
             VM = vm;
             Runtime = new EvilRuntime(vm);
             
@@ -41,7 +41,7 @@ namespace Ceres.LanguageTests
                 .ToList();
 
             var compiler = new Compiler();
-            
+            compiler.RegisterIncludeProcessor(IncludeProcessor);
             compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
             compiler.RegisterAttributeProcessor("disasm", AttributeProcessors.DisasmAttribute);
 
@@ -50,13 +50,46 @@ namespace Ceres.LanguageTests
                 var source = File.ReadAllText(path);
                 try
                 {
-                    var script = compiler.Compile(source, Path.GetFileName(path));
+                    var script = compiler.Compile(source, Path.GetFullPath(path));
                     TestScripts.Add(path, script);
                 }
                 catch (CompilerException ce)
                 {
                     throw new TestBuildPhaseException($"Failed to compile the file '{path}':\n{ce.Log}", ce);
                 }
+            }
+            
+            if (compiler.Log.HasAnyMessages)
+            {
+                TextOut.Write(compiler.Log.ToString());
+            }
+        }
+
+        private IEnumerable<Chunk> IncludeProcessor(Compiler compiler, Script script, string path)
+        {
+            var fullPathToInclude = Path.Combine(
+                Path.GetDirectoryName(compiler.CurrentFileName)!,
+                path
+            );
+
+            if (!File.Exists(fullPathToInclude))
+            {
+                throw new FileNotFoundException("Cannot find the included file.", fullPathToInclude);
+            }
+
+            var includeCompiler = new Compiler();
+            includeCompiler.RegisterIncludeProcessor(IncludeProcessor);
+            
+            try
+            {
+                var includedScript = includeCompiler.Compile(File.ReadAllText(fullPathToInclude), fullPathToInclude);
+                return includedScript.Chunks;
+            }
+            catch (CompilerException ce)
+            {
+                throw new TestBuildPhaseException(
+                    $"Failed to compile the included file '{path}':\n{ce.Log}", ce
+                );
             }
         }
 
@@ -202,7 +235,7 @@ namespace Ceres.LanguageTests
 
                     if (DynamicValue.IsTruth(expected.IsEqualTo(actual)))
                     {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{stamp}]");
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
                         return true;
                     }
                     else
@@ -231,7 +264,7 @@ namespace Ceres.LanguageTests
                 {
                     if (DynamicValue.IsTruth(returnValue))
                     {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}': test completed successfully. [{stamp}]");
+                        TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
                         return true;
                     }
                     else

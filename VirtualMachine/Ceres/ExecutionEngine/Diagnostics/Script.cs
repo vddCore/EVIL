@@ -45,6 +45,21 @@ namespace Ceres.ExecutionEngine.Diagnostics
                    ?? throw new InvalidOperationException($"Chunk {name} not found.");
         }
 
+        public bool TryFindChunkByName(string name, out Chunk chunk)
+        {
+            chunk = null!;
+
+            try
+            {
+                chunk = FindChunkByName(name);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public DynamicValue ToDynamicValue()
         {
             var chunks = new Table();
