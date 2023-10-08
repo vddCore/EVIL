@@ -69,10 +69,10 @@
     <None Update="tests\017_each_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\0000_closures.vil">
+    <None Update="tests\018_closures.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\00000_include.vil">
+    <None Update="tests\019_include.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\lib\test.vil">

@@ -27,7 +27,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
                         var fib = a.Fiber!;
                         var reference = __makeref(fib);
 
+#pragma warning disable 8500
                         return $"Fiber[{**(IntPtr**)&reference}]";
+#pragma warning restore 8500
                     }
                 }
                 case DynamicValueType.Chunk:

@@ -85,16 +85,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
             
             public static Chunk Deserialize(Stream stream, out byte version, out long timestamp)
             {
-                var chunk = new Chunk();
+                Chunk chunk;
                 
                 using (var br = new BinaryReader(stream, Encoding.UTF8, true))
                 {
                     ReadHeader(br, out version, out timestamp, out var flags);
 
-                    if (flags.HasFlag(ChunkFlags.HasName))
-                    {
-                        chunk.Name = ReadName(br);
-                    }
+                    chunk = new Chunk(ReadName(br));
 
                     if (flags.HasFlag(ChunkFlags.HasParameters))
                     {

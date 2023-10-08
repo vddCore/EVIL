@@ -153,9 +153,9 @@ namespace Ceres.TranslationEngine
             return result.Id;
         }
 
-        private void InTopLevelChunkDo(Action action, string? name = null)
+        private void InTopLevelChunkDo(Action action, string name, out bool wasExistingReplaced, out Chunk replacedChunk)
         {
-            var chunk = new Chunk { Name = name };
+            var chunk = _script.CreateChunk(name, out wasExistingReplaced, out replacedChunk);
             chunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
             _chunks.Push(chunk);
@@ -163,7 +163,6 @@ namespace Ceres.TranslationEngine
                 action();
             }
             _chunks.Pop();
-            _script.Chunks.Add(chunk);
         }
 
         private void InNewLoopDo(LoopKind kind, Action action, bool needsExtraLabel)

@@ -46,18 +46,9 @@ namespace Ceres.TranslationEngine
 
                 foreach (var chunk in chunks)
                 {
-                    if (chunk.Name == null)
-                    {
-                        Log.TerminateWithFatal(
-                            $"Attempt to add a function with no name in the included file '{includeStatement.Path}'",
-                            CurrentFileName,
-                            EvilMessageCode.IncludedScriptChunkNameIsNull,
-                            includeStatement.Line,
-                            includeStatement.Column
-                        );
-                    }
+                    _script.AddChunk(chunk, out var replacedExisting, out var conflictingChunk);
 
-                    if (_script.TryFindChunkByName(chunk.Name, out var conflictingChunk))
+                    if (replacedExisting)
                     {
                         Log.EmitWarning(
                             $"Redefining function '{conflictingChunk.Name}' initially defined in '{conflictingChunk.DebugDatabase.DefinedInFile}' " +
@@ -67,11 +58,7 @@ namespace Ceres.TranslationEngine
                             includeStatement.Line,
                             includeStatement.Column
                         );
-
-                        _script.Chunks.Remove(conflictingChunk);
                     }
-
-                    _script.Chunks.Add(chunk);
                 }
             }
         }

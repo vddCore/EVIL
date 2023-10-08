@@ -75,12 +75,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             private void WriteName(BinaryWriter bw)
-            {
-                if (_chunk.Flags.HasFlag(ChunkFlags.HasName))
-                {
-                    bw.Write(_chunk.Name!);
-                }
-            }
+                => bw.Write(_chunk.Name);
 
             private void WriteParameterInfo(BinaryWriter bw)
             {
@@ -110,7 +105,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     for (var i = 0; i < _chunk.ClosureCount; i++)
                     {
                         var closure = _chunk.Closures[i];
-                        
+
                         bw.Write(closure.NestingLevel);
                         bw.Write(closure.EnclosedId);
                         bw.Write(closure.IsParameter);

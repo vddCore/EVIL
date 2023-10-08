@@ -6,8 +6,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
     public enum ChunkFlags
     {
         Empty = 0,
-        
-        HasName = 1 << 0,
+        Reserved = 1 << 0,
         HasParameters = 1 << 1,
         HasParameterInitializers = 1 << 2,
         HasLocals = 1 << 3,

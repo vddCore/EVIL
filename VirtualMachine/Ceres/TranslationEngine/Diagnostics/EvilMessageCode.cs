@@ -10,8 +10,8 @@
         public const int LexerError = 0006;
         public const int ParserError = 0007;
         public const int IncludeFoundButNoIncludeProcessorsPresent = 0008;
-        public const int IncludedScriptChunkNameIsNull = 0009;
-        public const int IncludedFileRedefinedExistingChunk = 0010;
-        public const int IncludeProcessorThrew = 0011;
+        public const int IncludedFileRedefinedExistingChunk = 0009;
+        public const int IncludeProcessorThrew = 0010;
+        public const int FnStatementRedefinedExistingChunk = 0011;
     }
 }

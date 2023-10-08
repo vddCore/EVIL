@@ -27,15 +27,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             output.Write($"{indent}.CHUNK ");
 
-            if (chunk.IsAnonymous)
-            {
-                output.Write("[anonymous] ");
-            }
-            else
-            {
-                output.Write(chunk.Name);
-                output.Write(" ");
-            }
+            output.Write(chunk.Name);
+            output.Write(" ");
 
             if (chunk.HasDebugInfo)
             {
@@ -132,10 +125,10 @@ namespace Ceres.ExecutionEngine.Diagnostics
                                 var names = new List<string>();
                                 var closureFrom = chunk;
                                 var nesting = closure.NestingLevel;
-                                
+
                                 while (closureFrom?.Parent != null)
                                 {
-                                    closureFrom = closureFrom?.Parent;
+                                    closureFrom = closureFrom.Parent;
                                     names.Add($"'{closureFrom?.Name ?? "???"}'");
                                 }
 
@@ -145,7 +138,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                                 }
 
                                 names.Reverse();
-                                
+
                                 output.Write($" ({closureType} {closure.EnclosedId} in {string.Join(" -> ", names)})");
                             }
 
@@ -164,7 +157,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             if (options.WriteSubChunkNames)
                             {
                                 var subChunk = chunk.SubChunks[chunkId];
-                                output.Write($" (subchunk {chunkId} '{subChunk.Name ?? "<no name>"}')");
+                                output.Write($" (subchunk {chunkId} '{subChunk.Name}')");
                             }
 
                             output.WriteLine();
@@ -219,7 +212,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                             if (options.WriteLabelAddresses)
                             {
-                                output.Write($" ({chunk.Labels[(int)labelid]:X8})");
+                                output.Write($" ({chunk.Labels[labelid]:X8})");
                             }
 
                             output.WriteLine();
