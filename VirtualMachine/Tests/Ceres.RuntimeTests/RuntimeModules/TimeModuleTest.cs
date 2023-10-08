@@ -15,7 +15,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t = time.now;" +
+                "   val t = time.now;" +
                 "   ret { now: t, stamp: t.as_stamp() }; " +
                 "}"
             ).Table!;

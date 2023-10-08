@@ -42,8 +42,8 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "}\n" +
                 "" +
                 "fn test() {\n" +
-                "   var test = 20;\n" +
-                "   var test2 = 21;\n" +
+                "   val test = 20;\n" +
+                "   val test2 = 21;\n" +
                 "\n" +
                 "   ret nested_0();\n" +
                 "}\n"

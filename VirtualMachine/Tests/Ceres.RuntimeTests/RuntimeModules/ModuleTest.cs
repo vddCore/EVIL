@@ -47,7 +47,6 @@ namespace Ceres.RuntimeTests.RuntimeModules
             foreach (var chunk in script.Chunks)
                 _vm.Global[chunk.Name] = chunk;
 
-
             _vm.MainFiber.ScheduleAsync(script["test"]!)
                 .GetAwaiter()
                 .GetResult();
