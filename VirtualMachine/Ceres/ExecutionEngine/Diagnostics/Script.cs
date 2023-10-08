@@ -9,9 +9,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
 {
     public sealed class Script : IDynamicValueProvider
     {
-        public int MainChunkID { get; set; }
+        private List<Chunk> _chunks = new();
 
-        public List<Chunk> Chunks { get; } = new();
+        public IReadOnlyList<Chunk> Chunks => _chunks;
 
         public Chunk? this[string name]
         {
@@ -39,11 +39,49 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
         }
 
+        public Chunk CreateChunk(string name, out bool replacedExisting, out Chunk replacedChunk)
+        {
+            replacedExisting = false;
+            replacedChunk = null!;
+            
+            var chunk = new Chunk(name);
+            AddChunk(chunk, out replacedExisting, out replacedChunk);
+            return chunk;
+        }
+
+        public void AddChunk(Chunk chunk, out bool replacedExisting, out Chunk replacedChunk)
+        {
+            replacedExisting = false;
+            replacedChunk = null!;
+
+            if (TryFindChunkByName(chunk.Name, out replacedChunk))
+            {
+                _chunks.Remove(replacedChunk);
+                replacedExisting = true;
+            }
+
+            _chunks.Add(chunk);
+        }
+
+        public bool RemoveChunk(string name)
+        {
+            if (!TryFindChunkByName(name, out var chunk))
+                return false;
+
+            return _chunks.Remove(chunk);
+        }
+
+        public bool RemoveChunk(Chunk chunk)
+            => _chunks.Remove(chunk);
+
         public Chunk FindChunkByName(string name)
         {
             return Chunks.FirstOrDefault(x => x.Name == name)
                    ?? throw new InvalidOperationException($"Chunk {name} not found.");
         }
+
+        public bool ChunkExists(string name)
+            => Chunks.FirstOrDefault(x => x.Name == name) != null;
 
         public bool TryFindChunkByName(string name, out Chunk chunk)
         {
@@ -72,7 +110,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             return new Table
             {
-                { "main_chunk", MainChunkID },
                 { "chunks", chunks }
             };
         }

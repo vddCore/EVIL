@@ -20,8 +20,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private readonly Serializer _serializer;
 
         public const byte FormatVersion = 2;
-        
-        public string? Name { get; set; }
+
+        public string Name { get; set; }
         public Chunk? Parent { get; private set; }
 
         public StringPool StringPool { get; }
@@ -41,7 +41,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public byte[] Code => _code.GetBuffer();
         
-        public bool IsAnonymous => !Flags.HasFlag(ChunkFlags.HasName);
         public bool HasParameters => Flags.HasFlag(ChunkFlags.HasParameters);
         public bool HasLocals => Flags.HasFlag(ChunkFlags.HasLocals);
         public bool HasAttributes => Flags.HasFlag(ChunkFlags.HasAttributes);
@@ -55,9 +54,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
             {
                 var ret = ChunkFlags.Empty;
 
-                if (Name != null && Name != "<$") 
-                    ret |= ChunkFlags.HasName;
-                
                 if (ParameterCount > 0) 
                     ret |= ChunkFlags.HasParameters;
                 
@@ -86,7 +82,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
         }
 
-        public Chunk()
+        public Chunk(string name)
         {
             _code = new MemoryStream(0);
             _labels = new List<int>();
@@ -95,13 +91,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _closures = new List<ClosureInfo>();
             _subChunks = new List<Chunk>();
             _serializer = new Serializer(this);
-            
+
+            Name = name;
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
             DebugDatabase = new DebugDatabase();
         }
 
-        public Chunk(byte[] code)
+        public Chunk(string name, byte[] code)
         {
             _code = new MemoryStream(code, 0, code.Length, true, true);
             _labels = new List<int>();
@@ -111,12 +108,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _subChunks = new List<Chunk>();
             _serializer = new Serializer(this);
 
+            Name = name;
             StringPool = new StringPool();
             CodeGenerator = new CodeGenerator(_code, _labels);
             DebugDatabase = new DebugDatabase();
         }
 
-        public Chunk(byte[] code, string[] stringConstants)
+        public Chunk(string name, byte[] code, string[] stringConstants)
         {
             _code = new MemoryStream(code, 0, code.Length, true, true);
             _labels = new List<int>();
@@ -126,6 +124,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _subChunks = new List<Chunk>();
             _serializer = new Serializer(this);
 
+            Name = name;
             StringPool = new StringPool(stringConstants);
             CodeGenerator = new CodeGenerator(_code, _labels);
             DebugDatabase = new DebugDatabase();
@@ -158,11 +157,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public (int Id, Chunk SubChunk) AllocateSubChunk()
         {
             var id = SubChunkCount;
-            var chunk = new Chunk
-            {
-                Parent = this,
-                Name = $"<$__anonymous_{id}>"
-            };
+            var chunk = new Chunk($"<$__anonymous_{id}>") { Parent = this };
 
             _subChunks.Add(chunk);
             return (id, chunk);
@@ -219,6 +214,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Chunk Clone()
         {
             var clone = new Chunk(
+                Name,
                 _code.ToArray(),
                 StringPool.ToArray()
             ) {

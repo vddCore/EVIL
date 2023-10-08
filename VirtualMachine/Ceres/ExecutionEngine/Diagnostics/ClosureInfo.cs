@@ -1,8 +1,9 @@
+using System;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public class ClosureInfo
+    public record ClosureInfo
     {
         internal DynamicValue Value { get; set; }
         
@@ -19,5 +20,21 @@ namespace Ceres.ExecutionEngine.Diagnostics
             IsParameter = isParameter;
             IsClosure = isClosure;
         }
+
+        public virtual bool Equals(ClosureInfo? other)
+        {
+            return NestingLevel == other?.NestingLevel
+                && EnclosedId == other?.EnclosedId
+                && IsParameter == other?.IsParameter
+                && IsClosure == other?.IsClosure;
+        }
+
+        public override int GetHashCode()
+            => HashCode.Combine(
+                NestingLevel,
+                EnclosedId,
+                IsParameter,
+                IsClosure
+            );
     }
 }
