@@ -223,3 +223,22 @@ fn parameter_is_preserved() {
   
   ret f1(3) == 4 && f2(3) == 8 && f3(3) == 12;
 }
+
+#[test]
+fn closures_in_each() {
+  val result_data = { };
+  val test_data = { 1, 2, 3, 4, 5 };
+  
+  each (rw val k, v : test_data) {
+    (fn(k, v) -> result_data[k] = v)(k, v);
+  } 
+  
+  rw val result = true;
+  
+  each (rw val k, v : result_data) {
+    result &= k in test_data;
+    result &= v == result_data[k];
+  }
+  
+  ret result;
+}
