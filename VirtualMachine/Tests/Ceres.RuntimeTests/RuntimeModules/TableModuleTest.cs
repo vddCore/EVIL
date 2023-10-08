@@ -11,7 +11,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t = { 1, 2, 3, 4 };" +
+                "   val t = { 1, 2, 3, 4 };" +
                 "   tbl.clear(t);" +
                 "   ret t;" +
                 "}"
@@ -25,7 +25,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t = {};" +
+                "   val t = {};" +
                 "   ret tbl.freeze(t);" +
                 "}"
             ).Table!;
@@ -38,7 +38,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t = {};" +
+                "   val t = {};" +
                 "   ret tbl.unfreeze(tbl.freeze(t));" +
                 "}"
             ).Table!;
@@ -51,7 +51,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var b = EvilTestResult(
                 "fn test() {" +
-                "   var t = {};" +
+                "   val t = {};" +
                 "   tbl.freeze(t);" +
                 "   ret tbl.is_frozen(t);" +
                 "}"
@@ -65,7 +65,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t = {" +
+                "   val t = {" +
                 "       this: 'is'," +
                 "       a: 'test'," +
                 "       of: 'evil runtime'" +
@@ -86,7 +86,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t = {" +
+                "   val t = {" +
                 "       this: 'is'," +
                 "       a: 'test'," +
                 "       of: 'evil runtime'" +
@@ -107,15 +107,15 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t1 = { 1, 2, 3 };" +
-                "   var t2 = { 'test', t1 };" +
-                "   var t3 = tbl.cpy(t2);" +
+                "   val t1 = { 1, 2, 3 };" +
+                "   val t2 = { 'test', t1 };" +
+                "   val t3 = tbl.cpy(t2);" +
                 "" +
                 "   ret { t1: t1, t2: t2, t3: t3 };" +
                 "}"
             ).Table!;
 
-            var t1 = t["t1"].Table!;
+            var t1 = t["t1"];
             var t2 = t["t2"].Table!;
             var t3 = t["t3"].Table!;
 
@@ -129,9 +129,9 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var t1 = { 1, 2, 3 };" +
-                "   var t2 = { 'test', t1 };" +
-                "   var t3 = tbl.cpy(t2, true);" +
+                "   val t1 = { 1, 2, 3 };" +
+                "   val t2 = { 'test', t1 };" +
+                "   val t3 = tbl.cpy(t2, true);" +
                 "" +
                 "   ret { t1: t1, t2: t2, t3: t3 };" +
                 "}"

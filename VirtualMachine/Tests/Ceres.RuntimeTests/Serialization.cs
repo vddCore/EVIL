@@ -25,11 +25,13 @@ namespace Ceres.RuntimeTests
         public void ChunkSerializeDeserialize()
         {
             var source = "#[jp2;gmd(2137)] fn main(a, b = 123, c = \"brokuł\") { " +
-                         "  rw var f = 33.3, " +
+                         "  rw val f = 33.3, " +
                          "      s = \"teststring\";" +
                          "" +
-                         "  for (rw var i = 0; i < 10; i++)" +
+                         "  for (rw val i = 0; i < 10; i++)" +
                          "      f += 2;" +
+                         "" +
+                         "  val f1 = fn(a, b) -> a + b * f;" +
                          "" +
                          "  if (false) -> 10; " +
                          "  elif (false_too_just_nil) -> 20;" +

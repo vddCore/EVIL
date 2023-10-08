@@ -13,7 +13,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test() {" +
-                "   var result = evil.compile('fn test() {" +
+                "   val result = evil.compile('fn test() {" +
                 "       ret \"i was compiled from within evil :dobry_jezu:\";" +
                 "   }');" +
                 "" +
@@ -36,8 +36,8 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "#[attrib] fn reflected(a, b = 'hi', rw c = 21) {" +
-                "   var local_1 = 12;" +
-                "   rw var local_2 = 10;" +
+                "   val local_1 = 12;" +
+                "   rw val local_2 = 10;" +
                 "}" +
                 "" +
                 "fn test() -> evil.reflect(reflected);"
