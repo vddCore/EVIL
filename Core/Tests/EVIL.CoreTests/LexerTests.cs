@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Shouldly;
 using static EVIL.Lexical.Token;
 
-namespace EVIL.CoreTests.LexerTests
+namespace EVIL.CoreTests
 {
     public class LexerTests
     {
