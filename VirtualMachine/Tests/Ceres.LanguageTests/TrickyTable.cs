@@ -1,6 +1,7 @@
 ﻿using System;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.LanguageTests
 {
@@ -15,7 +16,7 @@ namespace Ceres.LanguageTests
                 return DynamicValue.Nil;
             }
             
-            if (key.Type == DynamicValue.DynamicValueType.String && key.String == "d20")
+            if (key.Type == DynamicValueType.String && key.String == "d20")
             {
                 return new(Random.Shared.Next(0, 21));
             }
@@ -25,7 +26,7 @@ namespace Ceres.LanguageTests
 
         protected override (DynamicValue Key, DynamicValue Value) OnSet(DynamicValue key, DynamicValue value)
         {
-            if (key.Type == DynamicValue.DynamicValueType.String && key.String == "d20")
+            if (key.Type == DynamicValueType.String && key.String == "d20")
                 return (DynamicValue.Nil, DynamicValue.Nil);
 
             return base.OnSet(key, value);
@@ -33,7 +34,7 @@ namespace Ceres.LanguageTests
 
         protected override bool OnContains(DynamicValue key)
         {
-            if (key.Type == DynamicValue.DynamicValueType.String && key.String == "d20")
+            if (key.Type == DynamicValueType.String && key.String == "d20")
             {
                 return false;
             }

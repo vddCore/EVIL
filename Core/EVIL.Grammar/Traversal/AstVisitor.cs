@@ -29,6 +29,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(StringConstant), (n) => Visit((StringConstant)n) },
                 { typeof(NilConstant), (n) => Visit((NilConstant)n) },
                 { typeof(BooleanConstant), (n) => Visit((BooleanConstant)n) },
+                { typeof(TypeCodeConstant), (n) => Visit((TypeCodeConstant)n) },
                 { typeof(AssignmentExpression), (n) => Visit((AssignmentExpression)n) },
                 { typeof(BinaryExpression), (n) => Visit((BinaryExpression)n) },
                 { typeof(UnaryExpression), (n) => Visit((UnaryExpression)n) },
@@ -55,6 +56,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(ExpressionBodyStatement), (n) => Visit((ExpressionBodyStatement)n) },
                 { typeof(ExtraArgumentsExpression), (n) => Visit((ExtraArgumentsExpression)n) },
                 { typeof(FnExpression), (n) => Visit((FnExpression)n) },
+                { typeof(IsExpression), (n) => Visit((IsExpression)n)}
             };
 #nullable enable
         }
@@ -84,6 +86,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(StringConstant stringConstant);
         public abstract void Visit(NilConstant nilConstant);
         public abstract void Visit(BooleanConstant booleanConstant);
+        public abstract void Visit(TypeCodeConstant typeCodeConstant);
         public abstract void Visit(AssignmentExpression assignmentExpression);
         public abstract void Visit(BinaryExpression binaryExpression);
         public abstract void Visit(UnaryExpression unaryExpression);
@@ -110,5 +113,6 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(ExpressionBodyStatement expressionBodyStatement);
         public abstract void Visit(ExtraArgumentsExpression extraArgumentsExpression);
         public abstract void Visit(FnExpression fnExpression);
+        public abstract void Visit(IsExpression isExpression);
     }
 }

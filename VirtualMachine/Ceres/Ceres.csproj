@@ -11,6 +11,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\EVIL.CommonTypes\EVIL.CommonTypes.csproj" />
     <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj"/>
   </ItemGroup>
   
@@ -133,6 +134,12 @@
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Statement.Include.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Constant.TypeCode.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Is.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
   </ItemGroup>

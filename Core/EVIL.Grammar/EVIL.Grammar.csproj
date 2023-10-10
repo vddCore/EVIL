@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\EVIL.CommonTypes\EVIL.CommonTypes.csproj" />
         <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
     </ItemGroup>
 </Project>

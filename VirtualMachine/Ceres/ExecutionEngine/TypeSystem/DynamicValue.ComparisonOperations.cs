@@ -1,3 +1,4 @@
+using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.TypeSystem
@@ -69,6 +70,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
                 case DynamicValueType.Chunk:
                     return a.Chunk == b.Chunk;
+                
+                case DynamicValueType.TypeCode:
+                    return a.TypeCode == b.TypeCode;
 
                 case DynamicValueType.NativeFunction:
                     return a.NativeFunction == b.NativeFunction;
@@ -109,6 +113,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
                 case DynamicValueType.Chunk:
                     return a.Chunk != b.Chunk;
+                
+                case DynamicValueType.TypeCode:
+                    return a.TypeCode != b.TypeCode;
 
                 case DynamicValueType.NativeFunction:
                     return a.NativeFunction != b.NativeFunction;

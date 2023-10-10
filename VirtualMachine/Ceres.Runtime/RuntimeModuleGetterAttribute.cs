@@ -1,5 +1,6 @@
 ﻿using System;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime
 {
@@ -7,7 +8,7 @@ namespace Ceres.Runtime
     public class RuntimeModuleGetterAttribute : Attribute
     {
         public string SubNameSpace { get; }
-        public DynamicValue.DynamicValueType ReturnType { get; set; }
+        public DynamicValueType ReturnType { get; set; }
 
         public RuntimeModuleGetterAttribute(string subNameSpace)
         {

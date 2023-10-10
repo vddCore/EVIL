@@ -374,6 +374,7 @@ namespace EVIL.Lexical
                 "val" => Token.Val,
                 "in" => Token.In,
                 "if" => Token.If,
+                "is" => Token.Is,
                 "elif" => Token.Elif,
                 "else" => Token.Else,
                 "break" => Token.Break,
@@ -387,6 +388,16 @@ namespace EVIL.Lexical
                 "each" => Token.Each,
                 "Infinity" => Token.Infinity,
                 "NaN" => Token.NaN,
+                "Nil" => Token.NilTypeCode,
+                "Number" => Token.NumberTypeCode,
+                "String" => Token.StringTypeCode,
+                "Boolean" => Token.BooleanTypeCode,
+                "Table" => Token.TableTypeCode,
+                "Fiber" => Token.FiberTypeCode,
+                "Function" => Token.ChunkTypeCode,
+                "Type" => Token.TypeCodeTypeCode,
+                "NativeFunction" => Token.NativeFunctionTypeCode,
+                "NativeObject" => Token.NativeObjectTypeCode,
                 _ => Token.CreateIdentifier(str)
             };
         }

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Collections
 {
@@ -105,7 +106,7 @@ namespace Ceres.ExecutionEngine.Collections
                 {
                     foreach (var value in _values.Values)
                     {
-                        if (value.Type == DynamicValue.DynamicValueType.Table)
+                        if (value.Type == DynamicValueType.Table)
                             value.Table!.Freeze(deep);
                     }
                 }
@@ -122,7 +123,7 @@ namespace Ceres.ExecutionEngine.Collections
                 {
                     foreach (var value in _values.Values)
                     {
-                        if (value.Type == DynamicValue.DynamicValueType.Table)
+                        if (value.Type == DynamicValueType.Table)
                             value.Table!.Freeze();
                     }
                 }
@@ -179,7 +180,7 @@ namespace Ceres.ExecutionEngine.Collections
 
             foreach (var kvp in this)
             {
-                if (kvp.Value.Type == DynamicValue.DynamicValueType.Table)
+                if (kvp.Value.Type == DynamicValueType.Table)
                 {
                     copy[kvp.Key] = kvp.Value.Table!.DeepCopy();
                 }
@@ -200,7 +201,7 @@ namespace Ceres.ExecutionEngine.Collections
                 {
                     var k = _values.Keys.ElementAt(i);
 
-                    if (this[k].Type == DynamicValue.DynamicValueType.Table)
+                    if (this[k].Type == DynamicValueType.Table)
                     {
                         if (!DynamicValue.IsTruth(this[k].IsDeeplyEqualTo(other[k])))
                         {
@@ -235,7 +236,7 @@ namespace Ceres.ExecutionEngine.Collections
                     if (ret == DynamicValue.Nil)
                         return ret;
 
-                    if (ret.Type != DynamicValue.DynamicValueType.Table && segments.Any())
+                    if (ret.Type != DynamicValueType.Table && segments.Any())
                         return ret;
 
                     currentTable = ret.Table!;

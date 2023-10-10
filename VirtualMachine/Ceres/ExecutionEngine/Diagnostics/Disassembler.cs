@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
@@ -218,15 +219,20 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             output.WriteLine();
                             break;
 
+                        case OpCode.LDTYPE:
+                            var typeCode = reader.ReadInt32();
+                            
+                            output.Write(opCode);
+                            output.Write(" ");
+                            output.Write(typeCode);
+                            output.Write($" ; {(DynamicValueType)typeCode}");
+                            output.WriteLine();
+                            break;
+
                         case OpCode.LDNUM:
                             output.Write(opCode);
                             output.Write(" ");
-
-                            if (options.WriteNumericConstants)
-                            {
-                                output.Write(reader.ReadDouble());
-                            }
-
+                            output.Write(reader.ReadDouble());
                             output.WriteLine();
                             break;
 
@@ -304,7 +310,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         private static string StringifyDynamicValue(DynamicValue value)
         {
-            if (value.Type == DynamicValue.DynamicValueType.String)
+            if (value.Type == DynamicValueType.String)
             {
                 return $"\"{value.String}\"";
             }

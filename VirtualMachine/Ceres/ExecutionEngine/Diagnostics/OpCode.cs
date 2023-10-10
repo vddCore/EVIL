@@ -23,6 +23,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         LDNUM,
         LDSTR,
         LDCNK,
+        LDTYPE,
         ANEG,
         POP,
         RET,
