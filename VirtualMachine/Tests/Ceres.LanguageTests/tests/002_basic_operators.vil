@@ -16,6 +16,7 @@
 
 #[test(4)] fn mod_int() -> 9 % 5;
 #[test(2.5); approximate] fn mod_fp64() -> 21 % 3.7;
+#[test(4)] fn mod_fp64_neg() -> (-1) % 4;
 
 #[test(80)] fn mul_int() -> 4 * 20;
 #[test(0.2137)] fn mul_fp64() -> 20 * 0.010685;
