@@ -136,7 +136,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     var (line, col) = Match(Token.TypeCodeTypeCode);
                     
-                    return new TypeCodeConstant(DynamicValueType.TypeCode)
+                    return new TypeCodeConstant(DynamicValueType.Type)
                         { Line = line, Column = col };
                 }
                 case TokenType.NativeFunctionTypeCode:
