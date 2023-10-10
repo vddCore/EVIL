@@ -4,6 +4,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Nullable>enable</Nullable>
     <LangVersion>11.0</LangVersion>
+    
+    <Version>1.0.0</Version>
+    <AssemblyName>Ceres</AssemblyName>
+    <AssemblyTitle>Ceres</AssemblyTitle>
   </PropertyGroup>
   
   <ItemGroup>
