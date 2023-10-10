@@ -53,7 +53,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         bw.Write(value.Boolean);
                         break;
                     
-                    case DynamicValueType.TypeCode:
+                    case DynamicValueType.Type:
                         bw.Write((byte)value.TypeCode);
                         break;
                     

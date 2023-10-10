@@ -35,7 +35,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 }
                 case DynamicValueType.Chunk:
                     return a.Chunk!.Name!;
-                case DynamicValueType.TypeCode:
+                case DynamicValueType.Type:
                     return a.TypeCode.ToString();
                 case DynamicValueType.NativeFunction:
                     return $"NativeFunction[{a.NativeFunction!.Method.Name}]";
@@ -72,7 +72,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 case DynamicValueType.Boolean:
                     return a.Boolean ? 1 : 0;
 
-                case DynamicValueType.TypeCode:
+                case DynamicValueType.Type:
                     return (int)a.TypeCode;
                 
                 default:

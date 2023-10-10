@@ -443,10 +443,27 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SETCLOSURE:
                 {
-                    frame.Chunk.Closures[
-                        frame.FetchInt32()
-                    ].Value = PopValue();
+                    var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
+                    var targetFrame = _callStack.ElementAt(closureInfo.NestingLevel).As<ScriptStackFrame>();
                     
+                    var value = PopValue();
+                    closureInfo.Value = value;
+
+                    if (targetFrame.Chunk.SubChunks.FirstOrDefault(x => x.Name == frame.Chunk.Name) != null)
+                    {
+                        // fixme: only works for 1-level nesting. for now.
+                        //        i need sleep.
+                        //
+                        if (closureInfo.IsParameter)
+                        {
+                            targetFrame.Arguments[closureInfo.EnclosedId] = value;
+                        }
+                        else
+                        {
+                            targetFrame.Locals![closureInfo.EnclosedId] = value;
+                        }
+                    }
+
                     break;
                 }
 
@@ -455,6 +472,7 @@ namespace Ceres.ExecutionEngine
                     PushValue(frame.Chunk.Closures[
                         frame.FetchInt32()
                     ].Value);
+                    
                     break;
                 }
 
