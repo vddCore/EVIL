@@ -35,11 +35,11 @@ namespace EVIL.Grammar.Parsing
                     break;
                 
                 case TokenType.Rw:
-                    node = ReadWriteVariableDefinition();
+                    node = ReadWriteValStatement();
                     break;
 
                 case TokenType.Val:
-                    node = VariableDefinition(false);
+                    node = ValStatement(false);
                     break;
 
                 case TokenType.Increment:

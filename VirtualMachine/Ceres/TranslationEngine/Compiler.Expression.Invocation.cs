@@ -11,7 +11,7 @@ namespace Ceres.TranslationEngine
             Visit(invocationExpression.ArgumentList);
 
             if (invocationExpression.Parent is RetStatement
-                && invocationExpression.Callee is VariableReferenceExpression varRef
+                && invocationExpression.Callee is SymbolReferenceExpression varRef
                 && varRef.Identifier == Chunk.Name)
             {
                 Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);

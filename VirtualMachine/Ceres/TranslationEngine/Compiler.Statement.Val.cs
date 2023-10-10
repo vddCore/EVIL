@@ -7,9 +7,9 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler
     {
-        public override void Visit(VarStatement varStatement)
+        public override void Visit(ValStatement valStatement)
         {
-            foreach (var kvp in varStatement.Definitions)
+            foreach (var kvp in valStatement.Definitions)
             {
                 Symbol sym;
                 try
@@ -19,12 +19,12 @@ namespace Ceres.TranslationEngine
                     sym = CurrentScope.DefineLocal(
                         kvp.Key.Name,
                         localId,
-                        varStatement.ReadWrite,
-                        varStatement.Line,
-                        varStatement.Column
+                        valStatement.ReadWrite,
+                        valStatement.Line,
+                        valStatement.Column
                     );
 
-                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name, varStatement.ReadWrite);
+                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name, valStatement.ReadWrite);
                 }
                 catch (DuplicateSymbolException dse)
                 {

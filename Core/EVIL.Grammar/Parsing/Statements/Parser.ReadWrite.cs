@@ -5,10 +5,10 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public VarStatement ReadWriteVariableDefinition()
+        public ValStatement ReadWriteValStatement()
         {
             Match(Token.Rw);
-            return VariableDefinition(true);
+            return ValStatement(true);
         }    
     }
 }

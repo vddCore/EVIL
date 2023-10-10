@@ -9,7 +9,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(AssignmentExpression assignmentExpression)
         {
-            if (assignmentExpression.Left is VariableReferenceExpression vre)
+            if (assignmentExpression.Left is SymbolReferenceExpression vre)
             {
                 ThrowIfVarReadOnly(vre.Identifier);
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace EVIL.Grammar.AST.Base
@@ -12,6 +13,15 @@ namespace EVIL.Grammar.AST.Base
 
         public bool IsConstant => this is ConstantExpression;
 
+        internal T CopyMetadata<T>(AstNode from) where T : AstNode
+        {
+            Line = from.Line;
+            Column = from.Column;
+            Parent = from.Parent;
+            
+            return (this as T)!;
+        }
+        
         protected void Reparent(params AstNode[] nodes)
         {
             for (var i = 0; i < nodes.Length; i++)

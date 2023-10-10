@@ -66,7 +66,7 @@ namespace EVIL.Grammar.Parsing
             
             if (token.Type == TokenType.Rw)
             {
-                return ReadWriteVariableDefinition();
+                return ReadWriteValStatement();
             }
             else if (token.Type == TokenType.Identifier)
             {

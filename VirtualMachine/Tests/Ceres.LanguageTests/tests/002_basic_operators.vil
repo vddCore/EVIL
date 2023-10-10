@@ -16,7 +16,7 @@
 
 #[test(4)] fn mod_int() -> 9 % 5;
 #[test(2.5); approximate] fn mod_fp64() -> 21 % 3.7;
-#[test(4)] fn mod_fp64_neg() -> (-1) % 4;
+#[test(3)] fn mod_fp64_neg() -> (-1) % 4;
 
 #[test(80)] fn mul_int() -> 4 * 20;
 #[test(0.2137)] fn mul_fp64() -> 20 * 0.010685;
@@ -26,8 +26,10 @@
 #[test(0xFFFF)] fn bnot() -> ~0 & 0xFFFF;
 #[test(0xFFF0)] fn bor() -> 0x00F0 | 0xF000 | 0x0F00;
 
-#[test(16)] fn shl() -> 1 << 4;
-#[test(32)] fn shr() -> 0x80 >> 2;
+#[test(16)] fn shl_num() -> 1 << 4;
+#[test(32)] fn shr_num() -> 0x80 >> 2;
+#[test("aaaaaa");disasm("always")] fn shl_str() -> "nyaaaaaa" << 2;
+#[test("nyaaaa")] fn shr_str() -> "nyaaaaaa" >> 2;
 
 #[test] fn exist_str() -> "a" in "blah";
 #[test] fn noexist_str() -> !("f" in "blah");

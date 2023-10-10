@@ -39,7 +39,7 @@ namespace EVIL.Grammar.Parsing
             }
             else if (token.Type == TokenType.Identifier)
             {
-                return VariableReference();
+                return SymbolReference();
             }
 
             return Constant();
