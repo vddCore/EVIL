@@ -3,25 +3,13 @@ using System.Text;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine.TypeSystem
 {
     public struct DynamicValue : IEquatable<DynamicValue>
     {
-        public enum DynamicValueType
-        {
-            Nil,
-            Number,
-            String,
-            Boolean,
-            Table,
-            Fiber,
-            Chunk,
-            NativeFunction,
-            NativeObject
-        }
-
-        public static readonly DynamicValue Nil = new(DynamicValueType.Nil);
+        public static readonly DynamicValue Nil = new();
         public static readonly DynamicValue One = new((double)1);
         public static readonly DynamicValue Zero = new((double)0);
         public static readonly DynamicValue True = new(true);
@@ -36,27 +24,68 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public Table? Table { get; }
         public Fiber? Fiber { get; }
         public Chunk? Chunk { get; }
+        public DynamicValueType TypeCode { get; }
         public NativeFunction? NativeFunction { get; }
         public object? NativeObject { get; }
 
-        private DynamicValue(DynamicValueType type)
-        {
-            Type = type;
-        }
-
         public DynamicValue()
-            : this(DynamicValueType.Nil)
         {
+            Type = DynamicValueType.Nil;
+        }
+        
+        public DynamicValue(double value)
+        {
+            Number = value;
+            Type = DynamicValueType.Number;
         }
 
-        public DynamicValue(double value) : this(DynamicValueType.Number) => Number = value;
-        public DynamicValue(string value) : this(DynamicValueType.String) => String = value;
-        public DynamicValue(bool value) : this(DynamicValueType.Boolean) => Boolean = value;
-        public DynamicValue(Table value) : this(DynamicValueType.Table) => Table = value;
-        public DynamicValue(Fiber value) : this(DynamicValueType.Fiber) => Fiber = value;
-        public DynamicValue(Chunk value) : this(DynamicValueType.Chunk) => Chunk = value;
-        public DynamicValue(NativeFunction value) : this(DynamicValueType.NativeFunction) => NativeFunction = value;
-        public DynamicValue(object? value) : this(DynamicValueType.NativeObject) => NativeObject = value;
+        public DynamicValue(string value)
+        {
+            String = value;
+            Type = DynamicValueType.String;
+        }
+
+        public DynamicValue(bool value)
+        {
+            Boolean = value;
+            Type = DynamicValueType.Boolean;
+        }
+
+        public DynamicValue(Table value)
+        {
+            Table = value;
+            Type = DynamicValueType.Table;
+        }
+
+        public DynamicValue(Fiber value)
+        {
+            Fiber = value;
+            Type = DynamicValueType.Fiber;
+        }
+
+        public DynamicValue(Chunk value)
+        {
+            Chunk = value;
+            Type = DynamicValueType.Chunk;
+        }
+
+        public DynamicValue(DynamicValueType value)
+        {
+            TypeCode = value;
+            Type = DynamicValueType.TypeCode;
+        }
+
+        public DynamicValue(NativeFunction value)
+        {
+            NativeFunction = value;
+            Type = DynamicValueType.NativeFunction;
+        }
+
+        public DynamicValue(object? value)
+        {
+            NativeObject = value;
+            Type = DynamicValueType.NativeObject;
+        }
         
         public static bool IsTruth(DynamicValue value) 
             => value != Nil
@@ -106,6 +135,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             && Equals(Table, other.Table) 
             && Equals(Fiber, other.Fiber)
             && Equals(Chunk, other.Chunk) 
+            && TypeCode == other.TypeCode
             && Equals(NativeFunction, other.NativeFunction);
 
         public override bool Equals(object? obj) 
@@ -123,6 +153,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             hashCode.Add(Table);
             hashCode.Add(Fiber);
             hashCode.Add(Chunk);
+            hashCode.Add(TypeCode);
             hashCode.Add(NativeFunction);
             hashCode.Add(NativeObject);
             
@@ -142,6 +173,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public static implicit operator DynamicValue(Table value) => new(value);
         public static implicit operator DynamicValue(Fiber value) => new(value);
         public static implicit operator DynamicValue(Chunk value) => new(value);
+        public static implicit operator DynamicValue(DynamicValueType value) => new(value);
         public static implicit operator DynamicValue(NativeFunction value) => new(value);
         public static DynamicValue FromObject(object value) => new(value);
 
@@ -228,6 +260,14 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Chunk.");
 
             return value.Chunk!;
+        }
+
+        public static explicit operator DynamicValueType(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.TypeCode)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a TypeCode");
+
+            return value.TypeCode;
         }
         
         public static explicit operator NativeFunction(DynamicValue value)

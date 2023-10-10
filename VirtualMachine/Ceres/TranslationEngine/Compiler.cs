@@ -229,6 +229,10 @@ namespace Ceres.TranslationEngine
             {
                 return stringConst.Value;
             }
+            else if (valueNode is TypeCodeConstant typeCodeConst)
+            {
+                return typeCodeConst.Value;
+            }
             else
             {
                 Log.TerminateWithInternalFailure(

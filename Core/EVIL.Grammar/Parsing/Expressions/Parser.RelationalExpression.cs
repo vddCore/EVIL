@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
@@ -21,6 +22,24 @@ namespace EVIL.Grammar.Parsing
             var node = ShiftExpression();
             var token = CurrentToken;
 
+            if (token.Type == TokenType.Is)
+            {
+                var (line, col) = Match(Token.Is);
+
+                var right = Constant();
+
+                if (right is not TypeCodeConstant typeCodeConstant)
+                {
+                    throw new ParserException(
+                        "Expected a type code constant.",
+                        (right.Line, right.Column)
+                    );
+                }
+
+                return new IsExpression(node, typeCodeConstant)
+                    { Line = line, Column = col };
+            }
+            
             while (_comparisonOperators.Contains(token.Type))
             {
                 if (token.Type == TokenType.LessThan)

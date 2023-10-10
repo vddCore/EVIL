@@ -2,6 +2,7 @@
 using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.LanguageTests
 {
@@ -19,7 +20,7 @@ namespace Ceres.LanguageTests
                 throw new Exception("Only valid on tests returning a value.");
             }
 
-            if (testAttribute.Values[0].Type != DynamicValue.DynamicValueType.Number)
+            if (testAttribute.Values[0].Type != DynamicValueType.Number)
             {
                 throw new Exception("Only valid on tests returning a number.");
             }
@@ -42,7 +43,7 @@ namespace Ceres.LanguageTests
         {
             if (disasmAttribute.Values.Any())
             {
-                if (disasmAttribute.Values[0].Type != DynamicValue.DynamicValueType.String)
+                if (disasmAttribute.Values[0].Type != DynamicValueType.String)
                 {
                     throw new Exception("Only accepts a string.");
                 }

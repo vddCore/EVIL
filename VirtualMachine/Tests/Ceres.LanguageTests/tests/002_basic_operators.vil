@@ -28,7 +28,7 @@
 
 #[test(16)] fn shl_num() -> 1 << 4;
 #[test(32)] fn shr_num() -> 0x80 >> 2;
-#[test("aaaaaa");disasm("always")] fn shl_str() -> "nyaaaaaa" << 2;
+#[test("aaaaaa")] fn shl_str() -> "nyaaaaaa" << 2;
 #[test("nyaaaa")] fn shr_str() -> "nyaaaaaa" >> 2;
 
 #[test] fn exist_str() -> "a" in "blah";

@@ -6,14 +6,14 @@
 fn nil_coalesced_to_boolean_is_false() {
   val a = !!nil;
   
-  ret a == false 
-   && typeof(a) == "Boolean";
+  ret a is Boolean 
+   && a == false;
 }
 
 #[test]
 fn zero_coalesced_to_boolean_is_false() {
   val a = !!0;
   
-  ret a == false
-   && typeof(a) == "Boolean";
+  ret a is Boolean
+   && a == false;
 }

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Lexical;
@@ -30,13 +31,13 @@ namespace EVIL.Grammar.Parsing
                         (line, col) = Match(Token.Number);
                     }
 
-                    return new NumberConstant(sign * double.Parse(token.Value!))
+                    return new NumberConstant(sign * double.Parse(token.Value))
                         { Line = line, Column = col };
                 }
                 case TokenType.NaN:
                 {
                     var (line, col) = Match(Token.NaN);
-                    
+
                     return new NumberConstant(double.NaN)
                         { Line = line, Column = col };
                 }
@@ -51,7 +52,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     var (line, col) = Match(Token.HexInteger);
 
-                    return new NumberConstant(long.Parse(token.Value!, NumberStyles.HexNumber))
+                    return new NumberConstant(long.Parse(token.Value, NumberStyles.HexNumber))
                         { Line = line, Column = col };
                 }
                 case TokenType.True:
@@ -72,7 +73,7 @@ namespace EVIL.Grammar.Parsing
                 {
                     var (line, col) = Match(Token.String);
 
-                    return new StringConstant(token.Value!)
+                    return new StringConstant(token.Value)
                         { Line = line, Column = col };
                 }
                 case TokenType.Nil:
@@ -80,6 +81,76 @@ namespace EVIL.Grammar.Parsing
                     var (line, col) = Match(Token.Nil);
 
                     return new NilConstant
+                        { Line = line, Column = col };
+                }
+                case TokenType.NilTypeCode:
+                {
+                    var (line, col) = Match(Token.NilTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Nil)
+                        { Line = line, Column = col };
+                }
+                case TokenType.NumberTypeCode:
+                {
+                    var (line, col) = Match(Token.NumberTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Number)
+                        { Line = line, Column = col };
+                }
+                case TokenType.StringTypeCode:
+                {
+                    var (line, col) = Match(Token.StringTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.String)
+                        { Line = line, Column = col };
+                }
+                case TokenType.BooleanTypeCode:
+                {
+                    var (line, col) = Match(Token.BooleanTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Boolean)
+                        { Line = line, Column = col };
+                }
+                case TokenType.TableTypeCode:
+                {
+                    var (line, col) = Match(Token.TableTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Table)
+                        { Line = line, Column = col };
+                }
+                case TokenType.FiberTypeCode:
+                {
+                    var (line, col) = Match(Token.FiberTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Fiber)
+                        { Line = line, Column = col };
+                }
+                case TokenType.ChunkTypeCode:
+                {
+                    var (line, col) = Match(Token.ChunkTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Chunk)
+                        { Line = line, Column = col };
+                }
+                case TokenType.TypeCodeTypeCode:
+                {
+                    var (line, col) = Match(Token.TypeCodeTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.TypeCode)
+                        { Line = line, Column = col };
+                }
+                case TokenType.NativeFunctionTypeCode:
+                {
+                    var (line, col) = Match(Token.NativeFunctionTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.NativeFunction)
+                        { Line = line, Column = col };
+                }
+                case TokenType.NativeObjectTypeCode:
+                {
+                    var (line, col) = Match(Token.NativeObjectTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.NativeObject)
                         { Line = line, Column = col };
                 }
                 default:

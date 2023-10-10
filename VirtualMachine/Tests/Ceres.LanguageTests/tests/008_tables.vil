@@ -1,13 +1,13 @@
 ﻿#[test]
 fn table_empty() {
   val a = {};
-  ret (#a == 0) && (typeof(a) == "Table");
+  ret (#a == 0) && (a is Table);
 }
 
 #[test]
 fn table_value_init() {
   val a = { 1, 2, 3, 4, 5 };
-  ret (#a == 5) && (typeof(a) == "Table");
+  ret (#a == 5) && (a is Table);
 }
 
 #[test]
@@ -18,7 +18,7 @@ fn table_constkeyed_init() {
     2137 => { "jp", 2, "gmd"}
   };
   
-  ret (#a == 3) && (typeof(a) == "Table");
+  ret (#a == 3) && (a is Table);
 }
 
 #[test(64.11);approximate(2)]
@@ -36,7 +36,7 @@ fn table_computedkey_init() {
     [21 + 0.37] => "dla ciebie liczba pierwsza dla niego ostatnia"
   };
   
-  ret (#a == 4) && (typeof(a) == "Table");
+  ret (#a == 4) && (a is Table);
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn table_tricky_works() {
   ret first == nil
    && second == nil
    && third == nil
-   && typeof(fourth) == "Number"
+   && fourth is Number
    && __tricky.d20 != 1337
    && !("d20" in __tricky); 
 }

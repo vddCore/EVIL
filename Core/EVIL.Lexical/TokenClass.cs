@@ -7,6 +7,7 @@
         Identifier,
         Literal,
         Alias,
-        Meta
+        Meta,
+        TypeCode
     }
 }

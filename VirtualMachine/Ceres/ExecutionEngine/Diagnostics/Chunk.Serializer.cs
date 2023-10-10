@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.Diagnostics
@@ -51,7 +52,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     case DynamicValueType.Boolean:
                         bw.Write(value.Boolean);
                         break;
-
+                    
+                    case DynamicValueType.TypeCode:
+                        bw.Write((byte)value.TypeCode);
+                        break;
+                    
                     default: throw new InvalidOperationException("Invalid constant value type.");
                 }
             }

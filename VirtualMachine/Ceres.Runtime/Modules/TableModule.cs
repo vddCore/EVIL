@@ -1,6 +1,7 @@
 ﻿using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -8,7 +9,7 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "tbl";
 
-        [RuntimeModuleFunction("clear", ReturnType = DynamicValue.DynamicValueType.Nil)]
+        [RuntimeModuleFunction("clear", ReturnType = DynamicValueType.Nil)]
         private static DynamicValue Clear(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -19,7 +20,7 @@ namespace Ceres.Runtime.Modules
             return DynamicValue.Nil;
         }
 
-        [RuntimeModuleFunction("freeze", ReturnType = DynamicValue.DynamicValueType.Table)]
+        [RuntimeModuleFunction("freeze", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Freeze(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -30,7 +31,7 @@ namespace Ceres.Runtime.Modules
             return table;
         }
         
-        [RuntimeModuleFunction("unfreeze", ReturnType = DynamicValue.DynamicValueType.Table)]
+        [RuntimeModuleFunction("unfreeze", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Unfreeze(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -41,7 +42,7 @@ namespace Ceres.Runtime.Modules
             return table;
         }
         
-        [RuntimeModuleFunction("is_frozen", ReturnType = DynamicValue.DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("is_frozen", ReturnType = DynamicValueType.Boolean)]
         private static DynamicValue /*IsFrozen is already a symbol...*/ _IsFrozen(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -50,7 +51,7 @@ namespace Ceres.Runtime.Modules
             return table.IsFrozen;  
         }
 
-        [RuntimeModuleFunction("keys", ReturnType = DynamicValue.DynamicValueType.Table)]
+        [RuntimeModuleFunction("keys", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Keys(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)

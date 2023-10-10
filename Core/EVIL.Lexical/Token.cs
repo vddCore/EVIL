@@ -114,6 +114,7 @@ namespace EVIL.Lexical
         public static readonly Token Break = new(TokenType.Break, TokenClass.Keyword, "break");
         public static readonly Token Skip = new(TokenType.Skip, TokenClass.Keyword, "skip");
         public static readonly Token In = new(TokenType.In, TokenClass.Keyword, "in");
+        public static readonly Token Is = new(TokenType.Is, TokenClass.Keyword, "is");
         public static readonly Token False = new(TokenType.False, TokenClass.Keyword, "false");
         public static readonly Token True = new(TokenType.True, TokenClass.Keyword, "true");
         public static readonly Token Nil = new(TokenType.Nil, TokenClass.Keyword, "nil");
@@ -125,6 +126,16 @@ namespace EVIL.Lexical
         public static readonly Token NaN = new(TokenType.NaN, TokenClass.Alias, "NaN");
         public static readonly Token Infinity = new(TokenType.Infinity, TokenClass.Alias, "Infinity");
 
+        public static readonly Token NilTypeCode = new(TokenType.NilTypeCode, TokenClass.TypeCode, "Nil");
+        public static readonly Token NumberTypeCode = new(TokenType.NumberTypeCode, TokenClass.TypeCode, "Number");
+        public static readonly Token StringTypeCode = new(TokenType.StringTypeCode, TokenClass.TypeCode, "String");
+        public static readonly Token BooleanTypeCode = new(TokenType.BooleanTypeCode, TokenClass.TypeCode, "Boolean");
+        public static readonly Token TableTypeCode = new(TokenType.TableTypeCode, TokenClass.TypeCode, "Table");
+        public static readonly Token FiberTypeCode = new(TokenType.FiberTypeCode, TokenClass.TypeCode, "Fiber");
+        public static readonly Token ChunkTypeCode = new(TokenType.ChunkTypeCode, TokenClass.TypeCode, "Function");
+        public static readonly Token TypeCodeTypeCode = new(TokenType.TypeCodeTypeCode, TokenClass.TypeCode, "Type");
+        public static readonly Token NativeFunctionTypeCode = new(TokenType.NativeFunctionTypeCode, TokenClass.TypeCode, "NativeFunction");
+        public static readonly Token NativeObjectTypeCode = new(TokenType.NativeObjectTypeCode, TokenClass.TypeCode, "NativeObject");
 
         public static readonly Token Identifier = new(TokenType.Identifier, TokenClass.Identifier, string.Empty);
         public static readonly Token Number = new(TokenType.Number, TokenClass.Literal, string.Empty);

@@ -4,6 +4,7 @@ using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine
 {
@@ -121,6 +122,12 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(chunk);
+                    break;
+                }
+
+                case OpCode.LDTYPE:
+                {
+                    PushValue((DynamicValueType)frame.FetchInt32());
                     break;
                 }
 
@@ -348,7 +355,7 @@ namespace Ceres.ExecutionEngine
                     var argumentCount = frame.FetchInt32();
                     var args = PopArguments(argumentCount);
 
-                    if (a.Type == DynamicValue.DynamicValueType.Chunk)
+                    if (a.Type == DynamicValueType.Chunk)
                     {
                         _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
 
@@ -361,7 +368,7 @@ namespace Ceres.ExecutionEngine
                         break;
                     }
 
-                    if (a.Type == DynamicValue.DynamicValueType.NativeFunction)
+                    if (a.Type == DynamicValueType.NativeFunction)
                     {
                         _callStack.Push(new NativeStackFrame(a.NativeFunction!));
                         {
@@ -471,7 +478,7 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.TYPE:
                 {
-                    PushValue(PopValue().Type.ToString());
+                    PushValue(PopValue().Type);
                     break;
                 }
 
@@ -595,7 +602,7 @@ namespace Ceres.ExecutionEngine
                     a = PopValue(); // chunk
                     var args = PopArguments(argumentCount);
 
-                    if (a.Type != DynamicValue.DynamicValueType.Chunk)
+                    if (a.Type != DynamicValueType.Chunk)
                     {
                         throw new UnsupportedDynamicValueOperationException(
                             $"Attempt to yield to a {a.Type} value."
@@ -615,7 +622,7 @@ namespace Ceres.ExecutionEngine
                 {
                     a = PopValue();
 
-                    if (a.Type != DynamicValue.DynamicValueType.Fiber)
+                    if (a.Type != DynamicValueType.Fiber)
                     {
                         throw new UnsupportedDynamicValueOperationException(
                             $"Attempt to resume from a {a.Type} value. " +
@@ -637,11 +644,11 @@ namespace Ceres.ExecutionEngine
                 {
                     a = PopValue();
 
-                    if (a.Type == DynamicValue.DynamicValueType.String)
+                    if (a.Type == DynamicValueType.String)
                     {
                         a = Table.FromString(a.String!);
                     }
-                    else if (a.Type != DynamicValue.DynamicValueType.Table)
+                    else if (a.Type != DynamicValueType.Table)
                     {
                         throw new UnsupportedDynamicValueOperationException(
                             $"Attempt to iterate over a {a.Type} value."

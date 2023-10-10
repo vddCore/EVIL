@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.TypeSystem
@@ -34,6 +35,8 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 }
                 case DynamicValueType.Chunk:
                     return a.Chunk!.Name!;
+                case DynamicValueType.TypeCode:
+                    return a.TypeCode.ToString();
                 case DynamicValueType.NativeFunction:
                     return $"NativeFunction[{a.NativeFunction!.Method.Name}]";
                 case DynamicValueType.NativeObject:
@@ -69,6 +72,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 case DynamicValueType.Boolean:
                     return a.Boolean ? 1 : 0;
 
+                case DynamicValueType.TypeCode:
+                    return (int)a.TypeCode;
+                
                 default:
                 {
                     throw new UnsupportedDynamicValueOperationException(
