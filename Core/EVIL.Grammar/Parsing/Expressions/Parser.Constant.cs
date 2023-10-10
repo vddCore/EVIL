@@ -13,11 +13,24 @@ namespace EVIL.Grammar.Parsing
 
             switch (token.Type)
             {
+                case TokenType.Minus:
                 case TokenType.Number:
                 {
-                    var (line, col) = Match(Token.Number);
+                    var (line, col) = (0, 0);
+                    var sign = 1;
+                    if (token.Type == TokenType.Minus)
+                    {
+                        sign = -1;
+                        (line, col) = Match(Token.Minus);
+                        token = CurrentToken;
+                        Match(Token.Number);
+                    }
+                    else
+                    {
+                        (line, col) = Match(Token.Number);
+                    }
 
-                    return new NumberConstant(double.Parse(token.Value!))
+                    return new NumberConstant(sign * double.Parse(token.Value!))
                         { Line = line, Column = col };
                 }
                 case TokenType.NaN:

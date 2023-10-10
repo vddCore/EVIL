@@ -3,6 +3,10 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>11.0</LangVersion>
+        
+        <Version>1.2.1</Version>
+        <AssemblyName>EVIL.Grammar</AssemblyName>
+        <AssemblyTitle>EVIL.Grammar</AssemblyTitle>
     </PropertyGroup>
 
     <ItemGroup>
