@@ -1,4 +1,6 @@
-﻿namespace Ceres.Runtime
+﻿using System;
+
+namespace Ceres.Runtime
 {
     public class EvilRuntimeException : Exception
     {
