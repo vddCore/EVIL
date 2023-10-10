@@ -58,9 +58,12 @@ namespace Ceres.TranslationEngine
         public string CurrentFileName { get; private set; } = string.Empty;
 
         public CompilerLog Log { get; } = new();
+        public bool OptimizeCodeGeneration { get; set; }
 
-        public Compiler()
+        public Compiler(bool optimizeCodeGeneration = true)
         {
+            OptimizeCodeGeneration = optimizeCodeGeneration;
+            
             _closedScopes.Add(RootScope);
         }
 
@@ -178,6 +181,11 @@ namespace Ceres.TranslationEngine
         {
             Line = node.Line;
             Column = node.Column;
+
+            if (node is Expression expression && OptimizeCodeGeneration)
+            {
+                node = expression.Reduce();
+            }
 
             AddCurrentLocationToDebugDatabase();
             base.Visit(node);

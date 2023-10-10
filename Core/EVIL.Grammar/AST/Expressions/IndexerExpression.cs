@@ -29,15 +29,15 @@ namespace EVIL.Grammar.AST.Expressions
             
             stack.Push(GetKeyStringRepresentation());
             
-            while (current is IndexerExpression indexable)
+            while (current is IndexerExpression indexerExpression)
             {
-                stack.Push(indexable.GetKeyStringRepresentation());
-                current = indexable.Indexable;
+                stack.Push(indexerExpression.GetKeyStringRepresentation());
+                current = indexerExpression.Indexable;
             }
 
-            if (current is VariableReferenceExpression vn)
+            if (current is SymbolReferenceExpression symbolReferenceExpression)
             {
-                stack.Push(vn.Identifier);
+                stack.Push(symbolReferenceExpression.Identifier);
             }
 
             return string.Join('.', stack);
@@ -47,9 +47,9 @@ namespace EVIL.Grammar.AST.Expressions
         {
             return KeyExpression switch
             {
-                NumberConstant num => num.Value.ToString(CultureInfo.InvariantCulture),
-                StringConstant str => str.Value,
-                VariableReferenceExpression vn => vn.Identifier,
+                NumberConstant numberConstant => numberConstant.Value.ToString(CultureInfo.InvariantCulture),
+                StringConstant stringConstant => stringConstant.Value,
+                SymbolReferenceExpression symbolReferenceExpression => symbolReferenceExpression.Identifier,
                 _ => "???"
             };
         }

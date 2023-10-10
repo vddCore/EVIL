@@ -4,12 +4,12 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 namespace EVIL.Grammar.AST.Statements
 {
-    public sealed class VarStatement : Statement
+    public sealed class ValStatement : Statement
     {
         public Dictionary<IdentifierNode, Expression?> Definitions { get; }
         public bool ReadWrite { get; }
 
-        public VarStatement(
+        public ValStatement(
             Dictionary<IdentifierNode, Expression?> definitions,
             bool readWrite)
         {

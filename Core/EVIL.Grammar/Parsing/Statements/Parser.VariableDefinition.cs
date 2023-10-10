@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private VarStatement VariableDefinition(bool readWrite)
+        private ValStatement ValStatement(bool readWrite)
         {
             var (line, col) = Match(Token.Val);
 
@@ -36,7 +36,7 @@ namespace EVIL.Grammar.Parsing
                 break;
             }
 
-            return new VarStatement(definitions, readWrite)
+            return new ValStatement(definitions, readWrite)
                 { Line = line, Column = col };
         }
     }

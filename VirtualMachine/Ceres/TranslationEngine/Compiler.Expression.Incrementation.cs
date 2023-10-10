@@ -8,7 +8,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(IncrementationExpression incrementationExpression)
         {
-            if (incrementationExpression.Target is VariableReferenceExpression vre)
+            if (incrementationExpression.Target is SymbolReferenceExpression vre)
             {
                 ThrowIfVarReadOnly(vre.Identifier);
 

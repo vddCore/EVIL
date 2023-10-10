@@ -32,8 +32,8 @@ namespace EVIL.Grammar.Traversal
                 { typeof(AssignmentExpression), (n) => Visit((AssignmentExpression)n) },
                 { typeof(BinaryExpression), (n) => Visit((BinaryExpression)n) },
                 { typeof(UnaryExpression), (n) => Visit((UnaryExpression)n) },
-                { typeof(VariableReferenceExpression), (n) => Visit((VariableReferenceExpression)n) },
-                { typeof(VarStatement), (n) => Visit((VarStatement)n) },
+                { typeof(SymbolReferenceExpression), (n) => Visit((SymbolReferenceExpression)n) },
+                { typeof(ValStatement), (n) => Visit((ValStatement)n) },
                 { typeof(FnStatement), (n) => Visit((FnStatement)n) },
                 { typeof(InvocationExpression), (n) => Visit((InvocationExpression)n) },
                 { typeof(IfStatement), (n) => Visit((IfStatement)n) },
@@ -87,8 +87,8 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(AssignmentExpression assignmentExpression);
         public abstract void Visit(BinaryExpression binaryExpression);
         public abstract void Visit(UnaryExpression unaryExpression);
-        public abstract void Visit(VariableReferenceExpression variableReferenceExpression);
-        public abstract void Visit(VarStatement varStatement);
+        public abstract void Visit(SymbolReferenceExpression symbolReferenceExpression);
+        public abstract void Visit(ValStatement valStatement);
         public abstract void Visit(FnStatement fnStatement);
         public abstract void Visit(InvocationExpression invocationExpression);
         public abstract void Visit(IfStatement ifStatement);

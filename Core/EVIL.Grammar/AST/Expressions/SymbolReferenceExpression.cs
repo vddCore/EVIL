@@ -2,11 +2,11 @@
 
 namespace EVIL.Grammar.AST.Expressions
 {
-    public sealed class VariableReferenceExpression : Expression
+    public sealed class SymbolReferenceExpression : Expression
     {
         public string Identifier { get; }
 
-        public VariableReferenceExpression(string identifier)
+        public SymbolReferenceExpression(string identifier)
         {
             Identifier = identifier;
         }

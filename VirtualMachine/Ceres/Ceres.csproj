@@ -66,7 +66,7 @@
     <Compile Update="TranslationEngine\Compiler.Expression.Unary.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
-    <Compile Update="TranslationEngine\Compiler.Expression.VariableReference.cs">
+    <Compile Update="TranslationEngine\Compiler.Expression.SymbolReference.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Expression.Yield.cs">
@@ -117,7 +117,7 @@
     <Compile Update="TranslationEngine\Compiler.Statement.Skip.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
-    <Compile Update="TranslationEngine\Compiler.Statement.Var.cs">
+    <Compile Update="TranslationEngine\Compiler.Statement.Val.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Statement.While.cs">

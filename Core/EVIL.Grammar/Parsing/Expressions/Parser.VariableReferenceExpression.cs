@@ -4,11 +4,11 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private VariableReferenceExpression VariableReference()
+        private SymbolReferenceExpression SymbolReference()
         {
             var identifier = Identifier();
             
-            return new VariableReferenceExpression(identifier.Name)
+            return new SymbolReferenceExpression(identifier.Name)
                 { Line = identifier.Line, Column = identifier.Column };
         }
     }
