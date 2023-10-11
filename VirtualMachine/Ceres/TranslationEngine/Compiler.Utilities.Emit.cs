@@ -11,6 +11,7 @@ namespace Ceres.TranslationEngine
 
             if (symbolInfo != null)
             {
+                var ownerScope = symbolInfo.Value.OwnerScope;
                 var level = symbolInfo.Value.ClosedScopeLevel;
                 var sym = symbolInfo.Value.Symbol;
 
@@ -51,6 +52,7 @@ namespace Ceres.TranslationEngine
                     var result = Chunk.AllocateClosure(
                         level,
                         sym.Id,
+                        ownerScope.FunctionName,
                         sym.Type == Symbol.SymbolType.Parameter,
                         sym.Type == Symbol.SymbolType.Closure
                     );
@@ -87,6 +89,7 @@ namespace Ceres.TranslationEngine
 
             if (symbolInfo != null)
             {
+                var ownerScope = symbolInfo.Value.OwnerScope;
                 var level = symbolInfo.Value.ClosedScopeLevel;
                 var sym = symbolInfo.Value.Symbol;
 
@@ -128,6 +131,7 @@ namespace Ceres.TranslationEngine
                     var result = Chunk.AllocateClosure(
                         level,
                         sym.Id,
+                        ownerScope.FunctionName,
                         sym.Type == Symbol.SymbolType.Parameter,
                         sym.Type == Symbol.SymbolType.Closure
                     );
@@ -158,7 +162,7 @@ namespace Ceres.TranslationEngine
             }
         }
 
-        private (int ClosedScopeLevel, Symbol Symbol)? FindSymbolInClosedScopes(string identifier)
+        private (int ClosedScopeLevel, Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
         {
             for (var i = 0; i < _closedScopes.Count; i++)
             {
@@ -167,7 +171,7 @@ namespace Ceres.TranslationEngine
 
                 if (result != null)
                 {
-                    return (i, result.Value.Symbol);
+                    return (i, result.Value.Symbol, scope);
                 }
             }
 

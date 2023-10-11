@@ -10,31 +10,34 @@ namespace Ceres.TranslationEngine
         {
             InTopLevelChunkDo(() =>
             {
-                Chunk.DebugDatabase.DefinedOnLine = fnStatement.Line;
-
-                InNewLocalScopeDo(() =>
+                InNewClosedScopeDo(() =>
                 {
-                    Visit(fnStatement.ParameterList);
-                    Visit(fnStatement.Statement);
-                });
+                    Chunk.DebugDatabase.DefinedOnLine = fnStatement.Line;
 
-                if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
-                {
-                    if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
+                    InNewLocalScopeDo(() =>
                     {
-                        foreach (var attr in fnStatement.Attributes)
-                            Visit(attr);
+                        Visit(fnStatement.ParameterList);
+                        Visit(fnStatement.Statement);
+                    });
 
-                        return;
+                    if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
+                    {
+                        if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
+                        {
+                            foreach (var attr in fnStatement.Attributes)
+                                Visit(attr);
+
+                            return;
+                        }
                     }
-                }
 
-                /* Either we have no instructions in chunk, or it's not a RET. */
-                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-                Chunk.CodeGenerator.Emit(OpCode.RET);
+                    /* Either we have no instructions in chunk, or it's not a RET. */
+                    Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+                    Chunk.CodeGenerator.Emit(OpCode.RET);
 
-                foreach (var attr in fnStatement.Attributes)
-                    Visit(attr);
+                    foreach (var attr in fnStatement.Attributes)
+                        Visit(attr);
+                });
             }, fnStatement.Identifier.Name, out var wasExistingReplaced, out var replacedChunk);
 
             if (wasExistingReplaced)

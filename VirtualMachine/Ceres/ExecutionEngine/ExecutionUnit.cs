@@ -444,16 +444,23 @@ namespace Ceres.ExecutionEngine
                 case OpCode.SETCLOSURE:
                 {
                     var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
-                    var targetFrame = _callStack.ElementAt(closureInfo.NestingLevel).As<ScriptStackFrame>();
+
+                    ScriptStackFrame? targetFrame = null;
+                    foreach(var tmpFrame in _callStack)
+                    {
+                        var tmpScriptFrame = tmpFrame.As<ScriptStackFrame>();
+                        
+                        if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
+                        {
+                            targetFrame = tmpScriptFrame;
+                            break;
+                        }
+                    }
                     
                     var value = PopValue();
-                    closureInfo.Value = value;
 
-                    if (targetFrame.Chunk.SubChunks.FirstOrDefault(x => x.Name == frame.Chunk.Name) != null)
+                    if (targetFrame != null)
                     {
-                        // fixme: only works for 1-level nesting. for now.
-                        //        i need sleep.
-                        //
                         if (closureInfo.IsParameter)
                         {
                             targetFrame.Arguments[closureInfo.EnclosedId] = value;
@@ -463,16 +470,46 @@ namespace Ceres.ExecutionEngine
                             targetFrame.Locals![closureInfo.EnclosedId] = value;
                         }
                     }
+                    else
+                    {
+                        closureInfo.Value = value;
+                    }
 
                     break;
                 }
 
                 case OpCode.GETCLOSURE:
                 {
-                    PushValue(frame.Chunk.Closures[
-                        frame.FetchInt32()
-                    ].Value);
+                    var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
                     
+                    ScriptStackFrame? targetFrame = null;
+                    foreach(var tmpFrame in _callStack)
+                    {
+                        var tmpScriptFrame = tmpFrame.As<ScriptStackFrame>();
+                        
+                        if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
+                        {
+                            targetFrame = tmpScriptFrame;
+                            break;
+                        }
+                    }
+
+                    if (targetFrame != null)
+                    {
+                        if (closureInfo.IsParameter)
+                        {
+                            PushValue(targetFrame.Arguments[closureInfo.EnclosedId]);
+                        }
+                        else
+                        {
+                            PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
+                        }
+                    }
+                    else
+                    {
+                        PushValue(closureInfo.Value);
+                    }
+
                     break;
                 }
 

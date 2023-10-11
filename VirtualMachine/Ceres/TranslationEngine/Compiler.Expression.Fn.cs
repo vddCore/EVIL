@@ -7,21 +7,21 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(FnExpression fnExpression)
         {
-            InNewClosedScopeDo(() =>
+            var id = InSubChunkDo(() =>
             {
-                var id = InSubChunkDo(() =>
+                InNewClosedScopeDo(() =>
                 {
                     Chunk.DebugDatabase.DefinedOnLine = fnExpression.Line;
 
                     Visit(fnExpression.ParameterList);
                     Visit(fnExpression.Statement);
                 });
-                
-                Chunk.CodeGenerator.Emit(
-                    OpCode.LDCNK,
-                    id
-                );
             });
+
+            Chunk.CodeGenerator.Emit(
+                OpCode.LDCNK,
+                id
+            );
         }
     }
 }

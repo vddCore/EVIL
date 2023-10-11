@@ -162,7 +162,7 @@ fn many_subchunks_capture_same_local_no_change() {
   ret (f1(2) + f2(4) + f3(5) + f4(5));
 }
 
-#[test(59)]
+#[test(47)]
 fn many_subchunks_capture_same_local_after_change() {
   rw val local_a = 11;
   val f1 = fn(x) -> local_a + x;

@@ -145,10 +145,17 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public int AllocateLocal()
             => LocalCount++;
 
-        public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, bool isParameter, bool isClosure)
+        public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, string enclosedFunctionName, bool isParameter, bool isClosure)
         {
             var id = ClosureCount;
-            var ret = new ClosureInfo(nestingLevel, enclosedId, isParameter, isClosure);
+            var ret = new ClosureInfo(
+                nestingLevel,
+                enclosedId,
+                enclosedFunctionName,
+                isParameter,
+                isClosure
+            );
+            
             _closures.Add(ret);
 
             return (id, ret);
@@ -157,7 +164,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public (int Id, Chunk SubChunk) AllocateSubChunk()
         {
             var id = SubChunkCount;
-            var chunk = new Chunk($"<$__anonymous_{id}>") { Parent = this };
+            var chunk = new Chunk($"{Name}_?{id}") { Parent = this };
 
             _subChunks.Add(chunk);
             return (id, chunk);
@@ -234,6 +241,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     new(
                         closure.NestingLevel,
                         closure.EnclosedId,
+                        closure.EnclosedFunctionName,
                         closure.IsParameter,
                         closure.IsClosure
                     )

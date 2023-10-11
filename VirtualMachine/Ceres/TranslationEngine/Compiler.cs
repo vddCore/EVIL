@@ -28,22 +28,25 @@ namespace Ceres.TranslationEngine
         private readonly Stack<Loop> _loopDescent = new();
 
         private readonly List<Scope> _closedScopes = new();
-        private Scope RootScope { get; } = Scope.CreateRoot();
 
         private Scope CurrentScope
         {
             get
             {
-                if (_closedScopes.Count == 0)
-                    _closedScopes.Add(RootScope);
+                if (!_closedScopes.Any())
+                {
+                    throw new InvalidOperationException("Internal error: no scopes defined.");
+                }
 
                 return _closedScopes[0];
             }
 
             set
             {
-                if (_closedScopes.Count == 0)
-                    _closedScopes.Add(RootScope);
+                if (!_closedScopes.Any())
+                {
+                    throw new InvalidOperationException("Internal error: no scopes defined");
+                }
 
                 _closedScopes[0] = value;
             }
@@ -63,8 +66,6 @@ namespace Ceres.TranslationEngine
         public Compiler(bool optimizeCodeGeneration = true)
         {
             OptimizeCodeGeneration = optimizeCodeGeneration;
-            
-            _closedScopes.Add(RootScope);
         }
 
         public Script Compile(string source, string fileName = "")
@@ -135,7 +136,7 @@ namespace Ceres.TranslationEngine
 
         private void InNewClosedScopeDo(Action action)
         {
-            _closedScopes.Insert(0, Scope.CreateRoot());
+            _closedScopes.Insert(0, Scope.CreateRoot(Chunk.Name));
             {
                 action();
             }
