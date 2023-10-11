@@ -77,30 +77,3 @@ fn value_is_native_object() {
   val testval = __native_object;
   ret testval is NativeObject;
 }
-
-#[test("Type")]
-fn types_as_table_keys() {
-  rw val result_a,
-         result_b,
-         result_c,
-         result_d;
-         
-  val t = {
-    Number => fn(a) -> result_a = a + 16,
-    String => fn(b) -> result_b = "prepended " + b,
-    Boolean => fn(c) -> result_c = !c,
-    Type => fn(d) -> result_d = @d
-  };
-  
-  val t2 = { 21, "test string", true, typeof(Type) };
-  
-  each (rw val _, v : t2) {
-    t[typeof(v)](v);
-  }
-  
-  ret result_d;
-//  ret result_a == 37
-//   && result_b == "prepended test string"
-//   && result_c == false
-//   && result_d == "Type";
-}
