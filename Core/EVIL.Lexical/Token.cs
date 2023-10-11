@@ -115,6 +115,7 @@ namespace EVIL.Lexical
         public static readonly Token Skip = new(TokenType.Skip, TokenClass.Keyword, "skip");
         public static readonly Token In = new(TokenType.In, TokenClass.Keyword, "in");
         public static readonly Token Is = new(TokenType.Is, TokenClass.Keyword, "is");
+        public static readonly Token IsNot = new(TokenType.IsNot, TokenClass.Keyword, "!is");
         public static readonly Token False = new(TokenType.False, TokenClass.Keyword, "false");
         public static readonly Token True = new(TokenType.True, TokenClass.Keyword, "true");
         public static readonly Token Nil = new(TokenType.Nil, TokenClass.Keyword, "nil");

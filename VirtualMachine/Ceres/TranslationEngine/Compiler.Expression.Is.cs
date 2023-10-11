@@ -7,10 +7,10 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(IsExpression isExpression)
         {
-            Visit(isExpression.Left);
+            Visit(isExpression.Target);
             Chunk.CodeGenerator.Emit(OpCode.TYPE);
-            Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)isExpression.Right.Value);
-            Chunk.CodeGenerator.Emit(OpCode.CEQ);
+            Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)isExpression.Type.Value);
+            Chunk.CodeGenerator.Emit(isExpression.Invert ? OpCode.CNE : OpCode.CEQ);
         }
     }
 }

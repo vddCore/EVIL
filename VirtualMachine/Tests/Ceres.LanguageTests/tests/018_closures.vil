@@ -268,3 +268,4 @@ fn modify_external_scope_closure() {
    && result_c == false
    && result_d == "Type";
 }
+
