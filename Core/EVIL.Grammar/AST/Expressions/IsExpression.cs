@@ -5,15 +5,17 @@ namespace EVIL.Grammar.AST.Expressions
 {
     public class IsExpression : Expression
     {
-        public Expression Left { get; }
-        public TypeCodeConstant Right { get; }
+        public Expression Target { get; }
+        public TypeCodeConstant Type { get; }
+        public bool Invert { get; }
 
-        public IsExpression(Expression left, TypeCodeConstant right)
+        public IsExpression(Expression target, TypeCodeConstant type, bool invert)
         {
-            Left = left;
-            Right = right;
+            Target = target;
+            Type = type;
+            Invert = invert;
 
-            Reparent(Left, Right);
+            Reparent(Target, Type);
         }
     }
 }

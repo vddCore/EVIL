@@ -56,14 +56,14 @@ namespace EVIL.CoreTests
                 "while break yield false " +
                 "skip each elif else true " +
                 "val ret for nil " +
-                "if rw do in fn"
+                "if rw do in fn is !is"
             );
 
             Expect(TypeOf);
             Expect(While, Break, Yield, False);
             Expect(Skip, Each, Elif, Else, True);
             Expect(Val, Ret, For, Nil);
-            Expect(If, Rw, Do, In, Fn);
+            Expect(If, Rw, Do, In, Fn, Token.Is, IsNot);
             Expect(EOF);
         }
 
@@ -193,6 +193,21 @@ namespace EVIL.CoreTests
                 (TokenType.String, "this is a \uABCD \x1234")
             );
 
+            Expect(EOF);
+        }
+
+        [Test]
+        public void TypeCodes()
+        {
+            _lexer.LoadSource(
+                "Nil Number Boolean String " +
+                "Table Function Type " +
+                "NativeFunction NativeObject"
+            );
+            
+            Expect(NilTypeCode, NumberTypeCode, BooleanTypeCode, StringTypeCode);
+            Expect(TableTypeCode, ChunkTypeCode, TypeCodeTypeCode);
+            Expect(NativeFunctionTypeCode, NativeObjectTypeCode);
             Expect(EOF);
         }
 

@@ -87,6 +87,7 @@
         Val,
         In,
         Is,
+        IsNot,
         Nil,
         TypeOf,
         Yield,
