@@ -13,7 +13,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         private HashSet<Fiber> _waitingFor;
 
         private Stack<DynamicValue> _evaluationStack;
-        private Stack<StackFrame> _callStack;
+        private CallStack _callStack;
 
         private ExecutionUnit _executionUnit;
 
@@ -35,7 +35,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public IReadOnlyCollection<StackFrame> CallStack
+        public CallStack CallStack
         {
             get
             {
@@ -54,7 +54,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             _waitingFor = new HashSet<Fiber>();
 
             _evaluationStack = new Stack<DynamicValue>();
-            _callStack = new Stack<StackFrame>();
+            _callStack = new CallStack();
 
             _executionUnit = new ExecutionUnit(
                 virtualMachine.Global,
@@ -87,16 +87,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         {
             var sb = new StringBuilder();
 
-            StackFrame[] callStack;
-
-            if (skipNativeFrames)
-            {
-                callStack = CallStack.Where(x => x is ScriptStackFrame).ToArray();
-            }
-            else
-            {
-                callStack = CallStack.ToArray();
-            }
+            var callStack = CallStack.ToArray(skipNativeFrames);
 
             for (var i = 0; i < callStack.Length; i++)
             {
@@ -133,7 +124,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             lock (_callStack)
             {
-                if (!_callStack.Any())
+                if (_callStack.Count == 0)
                 {
                     lock (_scheduledChunks)
                     {
@@ -258,10 +249,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             lock (_callStack)
             {
-                foreach (var frame in _callStack)
-                    frame.Dispose();
-
-                _callStack.Clear();
+                _callStack.DisposeAllAndClear();
             }
         }
 

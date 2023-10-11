@@ -20,16 +20,7 @@ namespace Ceres.Runtime.Modules
                 .OptionalBooleanAt(0, defaultValue: false, out var skipNativeFrames);
             
             var ret = new Table();
-            StackFrame[] callStack;
-
-            if (skipNativeFrames)
-            {
-                callStack = fiber.CallStack.Where(x => x is ScriptStackFrame).ToArray();
-            }
-            else
-            {
-                callStack = fiber.CallStack.ToArray();
-            }
+            var callStack = fiber.CallStack.ToArray(skipNativeFrames);
             
             for (var i = 0; i < callStack.Length; i++)
             {
