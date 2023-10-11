@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
@@ -10,18 +9,16 @@ namespace Ceres.ExecutionEngine
 {
     internal class ExecutionUnit
     {
-        public const int CallStackLimit = 128;
-
         private readonly Table _global;
         private readonly Fiber _fiber;
+        private readonly CallStack _callStack;
         private readonly Stack<DynamicValue> _evaluationStack;
-        private readonly Stack<StackFrame> _callStack;
 
         public ExecutionUnit(
             Table global,
             Fiber fiber,
             Stack<DynamicValue> evaluationStack,
-            Stack<StackFrame> callStack)
+            CallStack callStack)
         {
             _global = global;
             _fiber = fiber;
@@ -105,7 +102,7 @@ namespace Ceres.ExecutionEngine
                     for (var i = 0; i < chunk.ClosureCount; i++)
                     {
                         var closure = chunk.Closures[i];
-                        var sourceFrame = _callStack.ElementAt(closure.NestingLevel - 1).As<ScriptStackFrame>();
+                        var sourceFrame = _callStack[closure.NestingLevel - 1].As<ScriptStackFrame>();
 
                         if (closure.IsParameter)
                         {
@@ -344,12 +341,7 @@ namespace Ceres.ExecutionEngine
                 }
 
                 case OpCode.INVOKE:
-                {
-                    if (_callStack.Count >= CallStackLimit)
-                    {
-                        throw new VirtualMachineException("Call stack overflow.");
-                    }
-                    
+                {                   
                     a = PopValue();
 
                     var argumentCount = frame.FetchInt32();
@@ -446,9 +438,10 @@ namespace Ceres.ExecutionEngine
                     var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
 
                     ScriptStackFrame? targetFrame = null;
-                    foreach(var tmpFrame in _callStack)
+                    
+                    for (var i = 0; i < _callStack.Count; i++)
                     {
-                        var tmpScriptFrame = tmpFrame.As<ScriptStackFrame>();
+                        var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
                         
                         if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                         {
@@ -483,9 +476,9 @@ namespace Ceres.ExecutionEngine
                     var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
                     
                     ScriptStackFrame? targetFrame = null;
-                    foreach(var tmpFrame in _callStack)
+                    for (var i = 0; i < _callStack.Count; i++)
                     {
-                        var tmpScriptFrame = tmpFrame.As<ScriptStackFrame>();
+                        var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
                         
                         if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                         {
