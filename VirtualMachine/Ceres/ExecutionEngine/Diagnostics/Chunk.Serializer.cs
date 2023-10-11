@@ -113,6 +113,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                         bw.Write(closure.NestingLevel);
                         bw.Write(closure.EnclosedId);
+                        bw.Write(closure.EnclosedFunctionName);
                         bw.Write(closure.IsParameter);
                         bw.Write(closure.IsClosure);
                     }

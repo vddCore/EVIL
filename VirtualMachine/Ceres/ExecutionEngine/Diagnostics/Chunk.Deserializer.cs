@@ -123,6 +123,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                                 new ClosureInfo(
                                     br.ReadInt32(),
                                     br.ReadInt32(),
+                                    br.ReadString(),
                                     br.ReadBoolean(),
                                     br.ReadBoolean()
                                 )

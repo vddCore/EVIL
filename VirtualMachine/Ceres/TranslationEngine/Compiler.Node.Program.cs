@@ -10,9 +10,6 @@ namespace Ceres.TranslationEngine
             _script = new Script();
             _closedScopes.Clear();
             
-            RootScope.Clear();
-            _closedScopes.Add(RootScope);
-
             foreach (var node in programNode.Statements)
             {
                 Visit(node);
