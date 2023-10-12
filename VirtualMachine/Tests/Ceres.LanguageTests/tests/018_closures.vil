@@ -62,7 +62,7 @@ fn nested_closure_captures_closure_parameter() {
     ret f(21)();
 }
 
-#[test(21.37);approximate(2);disasm("always")]
+#[test(21.37);approximate(2)]
 fn extreme_closure_nesting() {
     val a = 10;
     ret test_invocation(fn(b) {
@@ -243,7 +243,7 @@ fn closures_in_each() {
   ret result;
 }
 
-#[test;disasm("always")]
+#[test]
 fn modify_external_scope_closure() {
   rw val result_a,
          result_b,
