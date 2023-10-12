@@ -105,7 +105,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             for (var i = 0; i < Chunks.Count; i++)
             {
                 var chunk = Chunks[i];
-                chunks[chunk.Name!] = chunk;
+                chunks[chunk.Name] = chunk;
             }
 
             return new Table

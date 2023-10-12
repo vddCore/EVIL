@@ -134,7 +134,7 @@ namespace Ceres.LanguageTests
                 foreach (var chunk in nonTestChunks)
                 {
                     VM.Global.Set(
-                        chunk.Name!,
+                        chunk.Name,
                         new(chunk)
                     );    
                 }
