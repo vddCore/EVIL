@@ -19,7 +19,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         private readonly Serializer _serializer;
 
-        public const byte FormatVersion = 2;
+        public const byte FormatVersion = 3;
 
         public string Name { get; set; }
         public Chunk? Parent { get; private set; }
@@ -47,6 +47,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public bool HasDebugInfo => Flags.HasFlag(ChunkFlags.HasDebugInfo);
         public bool HasClosures => Flags.HasFlag(ChunkFlags.HasClosures);
         public bool HasSubChunks => Flags.HasFlag(ChunkFlags.HasSubChunks);
+        public bool IsSubChunk => Flags.HasFlag(ChunkFlags.IsSubChunk);
 
         public ChunkFlags Flags
         {
@@ -77,6 +78,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                 if (SubChunkCount > 0)
                     ret |= ChunkFlags.HasSubChunks;
+
+                if (Parent != null)
+                    ret |= ChunkFlags.IsSubChunk;
 
                 return ret;
             }
