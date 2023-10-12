@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
-using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.LanguageTests

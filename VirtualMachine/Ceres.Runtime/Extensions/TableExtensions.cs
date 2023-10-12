@@ -2,7 +2,6 @@
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
-using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.Runtime.Extensions
 {
@@ -68,7 +67,7 @@ namespace Ceres.Runtime.Extensions
             var currentTable = table;
             foreach (var tableName in tablePath)
             {
-                if (!(currentTable!.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+                if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
                 {
                     return false;
                 }

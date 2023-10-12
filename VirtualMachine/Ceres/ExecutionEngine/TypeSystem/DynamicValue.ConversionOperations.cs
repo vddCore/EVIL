@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using EVIL.CommonTypes.TypeSystem;
-using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.TypeSystem
 {
@@ -34,7 +33,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     }
                 }
                 case DynamicValueType.Chunk:
-                    return a.Chunk!.Name!;
+                    return a.Chunk!.Name;
                 case DynamicValueType.Type:
                     return a.TypeCode.ToString();
                 case DynamicValueType.NativeFunction:
