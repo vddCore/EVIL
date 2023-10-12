@@ -9,14 +9,14 @@ using Ceres.ExecutionEngine.TypeSystem;
 namespace Ceres.ExecutionEngine.Diagnostics
 {
     public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
-    {        
+    {
         private readonly MemoryStream _code;
         private List<int> _labels;
         private List<ChunkAttribute> _attributes;
         private Dictionary<int, DynamicValue> _parameterInitializers;
         private List<ClosureInfo> _closures;
         private List<Chunk> _subChunks;
-        
+
         private readonly Serializer _serializer;
 
         public const byte FormatVersion = 2;
@@ -32,7 +32,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public int LocalCount { get; private set; }
         public int ClosureCount => Closures.Count;
         public int SubChunkCount => SubChunks.Count;
-        
+
         public IReadOnlyList<int> Labels => _labels;
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
         public IReadOnlyDictionary<int, DynamicValue> ParameterInitializers => _parameterInitializers;
@@ -40,29 +40,29 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public IReadOnlyList<Chunk> SubChunks => _subChunks;
 
         public byte[] Code => _code.GetBuffer();
-        
+
         public bool HasParameters => Flags.HasFlag(ChunkFlags.HasParameters);
         public bool HasLocals => Flags.HasFlag(ChunkFlags.HasLocals);
         public bool HasAttributes => Flags.HasFlag(ChunkFlags.HasAttributes);
         public bool HasDebugInfo => Flags.HasFlag(ChunkFlags.HasDebugInfo);
         public bool HasClosures => Flags.HasFlag(ChunkFlags.HasClosures);
         public bool HasSubChunks => Flags.HasFlag(ChunkFlags.HasSubChunks);
-        
+
         public ChunkFlags Flags
         {
             get
             {
                 var ret = ChunkFlags.Empty;
 
-                if (ParameterCount > 0) 
+                if (ParameterCount > 0)
                     ret |= ChunkFlags.HasParameters;
-                
-                if (ParameterInitializers.Count > 0) 
+
+                if (ParameterInitializers.Count > 0)
                     ret |= ChunkFlags.HasParameterInitializers;
-                
+
                 if (LocalCount > 0)
                     ret |= ChunkFlags.HasLocals;
-                
+
                 if (Attributes.Count > 0)
                     ret |= ChunkFlags.HasAttributes;
 
@@ -77,7 +77,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                 if (SubChunkCount > 0)
                     ret |= ChunkFlags.HasSubChunks;
-                
+
                 return ret;
             }
         }
@@ -155,7 +155,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 isParameter,
                 isClosure
             );
-            
+
             _closures.Add(ret);
 
             return (id, ret);
@@ -164,7 +164,28 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public (int Id, Chunk SubChunk) AllocateSubChunk()
         {
             var id = SubChunkCount;
-            var chunk = new Chunk($"{Name}_?{id}") { Parent = this };
+
+            string BuildName()
+            {
+                var list = new List<string>();
+
+                if (Parent == null)
+                {
+                    return $"{Name}$?{id}";
+                }
+                else
+                {
+                    list.AddRange(
+                        Name.Split('$')
+                            .Where(x => !string.IsNullOrEmpty(x))
+                    );
+                }
+
+                list.Add($"?{id}");
+                return string.Join("$", list);
+            }
+
+            var chunk = new Chunk(BuildName()) { Parent = this };
 
             _subChunks.Add(chunk);
             return (id, chunk);
@@ -182,22 +203,22 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public int CreateLabel()
             => CreateLabel(CodeGenerator.IP);
-        
+
         public int CreateLabel(int ip)
         {
             _labels.Add(ip);
             return _labels.Count - 1;
         }
 
-        public void AddAttribute(ChunkAttribute attribute) 
+        public void AddAttribute(ChunkAttribute attribute)
             => _attributes.Add(attribute);
 
-        public void UpdateLabel(int id, int ip) 
+        public void UpdateLabel(int id, int ip)
             => _labels[id] = ip;
 
         public ChunkAttribute[] GetAttributes(string name)
             => _attributes.Where(x => x.Name == name).ToArray();
-        
+
         public ChunkAttribute GetAttribute(string name)
             => _attributes.First(x => x.Name == name);
 
@@ -205,7 +226,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             var ret = _attributes.FirstOrDefault(x => x.Name == name);
             value = ret!;
-            
+
             return ret != null;
         }
 
@@ -224,7 +245,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 Name,
                 _code.ToArray(),
                 StringPool.ToArray()
-            ) {
+            )
+            {
                 Name = Name,
                 LocalCount = LocalCount,
                 ParameterCount = ParameterCount,
@@ -250,12 +272,12 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             return clone;
         }
-        
+
         public void Dispose()
         {
             _code.Dispose();
             _labels.Clear();
-            
+
             CodeGenerator.Dispose();
         }
 
@@ -279,14 +301,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public override bool Equals(object? obj)
         {
-            return ReferenceEquals(this, obj) 
+            return ReferenceEquals(this, obj)
                    || obj is Chunk other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
-            
+
             hashCode.Add(Name);
             hashCode.Add(ParameterCount);
             hashCode.Add(_parameterInitializers);
@@ -297,7 +319,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             hashCode.Add(StringPool);
             hashCode.Add(Code);
             hashCode.Add(DebugDatabase);
-            
+
             return hashCode.ToHashCode();
         }
 
