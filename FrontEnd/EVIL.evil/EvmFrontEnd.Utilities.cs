@@ -5,7 +5,7 @@ using Ceres.Runtime;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
 
-namespace EVIL.EVM
+namespace EVIL.evil
 {
     public partial class EvmFrontEnd
     {

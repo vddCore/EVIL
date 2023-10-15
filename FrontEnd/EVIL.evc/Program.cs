@@ -6,13 +6,12 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine;
 using Mono.Options;
 
-namespace EVIL.EVM
+namespace EVIL.evc
 {
     internal class Program
     {
         public static void Main(string[] args)
         {
-            new EvmFrontEnd().Run(new[] { "-h" });
         }
     }
 }

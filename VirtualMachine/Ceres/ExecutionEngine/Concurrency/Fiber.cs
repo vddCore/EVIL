@@ -88,7 +88,6 @@ namespace Ceres.ExecutionEngine.Concurrency
             var sb = new StringBuilder();
 
             var callStack = CallStack.ToArray(skipNativeFrames);
-
             for (var i = 0; i < callStack.Length; i++)
             {
                 if (callStack[i] is ScriptStackFrame ssf)
@@ -110,7 +109,7 @@ namespace Ceres.ExecutionEngine.Concurrency
                 else if (callStack[i] is NativeStackFrame nsf)
                 {
                     sb.AppendLine(
-                        $"at {nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
+                        $"at clr!{nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
                 }
             }
 
