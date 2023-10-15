@@ -70,11 +70,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
             {
                 return _frames.Take(_currentPointer + 1)
                     .Where(x => x is ScriptStackFrame)
+                    .Reverse()
                     .ToArray()!;
             }
             else
             {
                 return _frames.Take(_currentPointer + 1)
+                    .Reverse()
                     .ToArray()!;
             }
         }

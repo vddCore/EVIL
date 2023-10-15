@@ -4,13 +4,10 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\VirtualMachine\Ceres.Runtime\Ceres.Runtime.csproj" />
-    <ProjectReference Include="..\..\VirtualMachine\Ceres\Ceres.csproj" />
-  </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VirtualMachine\Ceres\Ceres.csproj" />
   </ItemGroup>
 </Project>

@@ -159,5 +159,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             _chunkReader.Dispose();
         }
+
+        public override string ToString()
+            => $"{Chunk.Name}:{Chunk.DebugDatabase.GetLineForIP((int)IP)}) @ {IP:X8}";
     }
 }

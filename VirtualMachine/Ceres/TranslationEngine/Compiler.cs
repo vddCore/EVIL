@@ -63,7 +63,7 @@ namespace Ceres.TranslationEngine
         public CompilerLog Log { get; } = new();
         public bool OptimizeCodeGeneration { get; set; }
 
-        public Compiler(bool optimizeCodeGeneration = true)
+        public Compiler(bool optimizeCodeGeneration = false)
         {
             OptimizeCodeGeneration = optimizeCodeGeneration;
         }

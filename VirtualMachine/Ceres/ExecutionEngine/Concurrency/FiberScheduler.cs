@@ -17,7 +17,8 @@ namespace Ceres.ExecutionEngine.Concurrency
         private FiberCrashHandler? _crashHandler;
 
         public IReadOnlyList<Fiber> Fibers => _fibers;
-
+        public bool IsRunning => _running;
+        
         public FiberScheduler(CeresVM vm)
         {
             _vm = vm;

@@ -12,5 +12,8 @@
         public override void Dispose()
         {
         }
+
+        public override string ToString()
+            => $"clr!{NativeFunction.Method.DeclaringType!.FullName}::{NativeFunction.Method.Name}";
     }
 }
