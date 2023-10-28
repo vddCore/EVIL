@@ -614,7 +614,20 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
-                case OpCode.TABINIT:
+                case OpCode.ARRNEW:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Number)
+                    {
+                        throw new UnsupportedDynamicValueOperationException("Array size must be a Number.");
+                    }
+                    
+                    PushValue(new Array((int)a.Number));
+                    break;
+                }
+
+                case OpCode.ELINIT:
                 {
                     b = PopValue();
                     a = PopValue();
@@ -624,7 +637,7 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
-                case OpCode.TABSET:
+                case OpCode.ELSET:
                 {
                     b = PopValue();
                     c = PopValue();
@@ -694,16 +707,23 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValueType.String)
                     {
-                        a = Table.FromString(a.String!);
+                        a = Array.FromString(a.String!);
                     }
-                    else if (a.Type != DynamicValueType.Table)
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        frame.PushEnumerator(a.Table!);
+                    }
+                    else if (a.Type == DynamicValueType.Array)
+                    {
+                        frame.PushEnumerator(a.Array!);
+                    }
+                    else
                     {
                         throw new UnsupportedDynamicValueOperationException(
                             $"Attempt to iterate over a {a.Type} value."
                         );
                     }
-
-                    frame.PushEnumerator(a.Table!);
                     break;
                 }
 

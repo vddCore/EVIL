@@ -46,6 +46,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(BreakStatement), (n) => Visit((BreakStatement)n) },
                 { typeof(SkipStatement), (n) => Visit((SkipStatement)n) },
                 { typeof(TableExpression), (n) => Visit((TableExpression)n) },
+                { typeof(ArrayExpression), (n) => Visit((ArrayExpression)n) },
                 { typeof(IndexerExpression), (n) => Visit((IndexerExpression)n) },
                 { typeof(IncrementationExpression), (n) => Visit((IncrementationExpression)n) },
                 { typeof(DecrementationExpression), (n) => Visit((DecrementationExpression)n) },
@@ -103,6 +104,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(BreakStatement breakStatement);
         public abstract void Visit(SkipStatement skipStatement);
         public abstract void Visit(TableExpression tableExpression);
+        public abstract void Visit(ArrayExpression arrayExpression);
         public abstract void Visit(IndexerExpression indexerExpression);
         public abstract void Visit(IncrementationExpression incrementationExpression);
         public abstract void Visit(DecrementationExpression decrementationExpression);

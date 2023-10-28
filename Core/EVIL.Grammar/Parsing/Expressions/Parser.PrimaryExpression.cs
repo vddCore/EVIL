@@ -26,6 +26,10 @@ namespace EVIL.Grammar.Parsing
             {
                 return TableExpression();
             }
+            else if (token.Type == TokenType.Array)
+            {
+                return ArrayExpression();
+            }
             else if (token.Type == TokenType.Ellipsis)
             {
                 var (line, col) = Match(Token.Ellipsis);

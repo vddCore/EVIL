@@ -258,17 +258,5 @@ namespace Ceres.ExecutionEngine.Collections
         {
             return GetEnumerator();
         }
-
-        public static Table FromString(string s)
-        {
-            var t = new Table();
-            
-            for (var i = 0; i < s.Length; i++)
-            {
-                t[i] = s[i].ToString();
-            }
-
-            return t;
-        }
     }
 }

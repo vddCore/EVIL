@@ -52,7 +52,7 @@ namespace EVIL.Lexical
                     return;
                 }
             }
-            
+
             switch (State.Character)
             {
                 case '.' when Peek() == '.' && Peek(2) == '.':
@@ -162,6 +162,7 @@ namespace EVIL.Lexical
                     {
                         State.CurrentToken = Token.ShiftLeft with { Line = line, Column = col };
                     }
+
                     break;
                 }
                 case '<':
@@ -183,6 +184,7 @@ namespace EVIL.Lexical
                     {
                         State.CurrentToken = Token.ShiftRight with { Line = line, Column = col };
                     }
+
                     break;
                 }
                 case '>':
@@ -300,12 +302,13 @@ namespace EVIL.Lexical
                                 return;
                             }
                         }
+
                         State.CurrentToken = GetDecimalNumber() with { Line = line, Column = col };
                         return;
                     }
                 }
 
-                throw new LexerException($"Unexpected token '{State.Character}'", col, line);
+                    throw new LexerException($"Unexpected token '{State.Character}'", col, line);
             }
 
             Advance();
@@ -391,6 +394,7 @@ namespace EVIL.Lexical
                 "typeof" => Token.TypeOf,
                 "yield" => Token.Yield,
                 "each" => Token.Each,
+                "array" => Token.Array,
                 "Infinity" => Token.Infinity,
                 "NaN" => Token.NaN,
                 "Nil" => Token.NilTypeCode,
@@ -398,6 +402,7 @@ namespace EVIL.Lexical
                 "String" => Token.StringTypeCode,
                 "Boolean" => Token.BooleanTypeCode,
                 "Table" => Token.TableTypeCode,
+                "Array" => Token.ArrayTypeCode,
                 "Fiber" => Token.FiberTypeCode,
                 "Function" => Token.ChunkTypeCode,
                 "Type" => Token.TypeCodeTypeCode,
@@ -420,7 +425,7 @@ namespace EVIL.Lexical
         private Token GetString()
         {
             var (line, col) = (State.Line, State.Column);
-            
+
             var str = string.Empty;
             var encapsulator = State.Character;
 
@@ -431,7 +436,7 @@ namespace EVIL.Lexical
                     line, col
                 );
             }
-            
+
             Advance();
 
             while (State.Character != encapsulator)
@@ -548,7 +553,7 @@ namespace EVIL.Lexical
 
                 sb.Append(_sourceCode[State.Pointer + i]);
             }
-            
+
             return sb.ToString();
         }
 

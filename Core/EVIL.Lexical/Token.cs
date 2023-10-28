@@ -101,6 +101,7 @@ namespace EVIL.Lexical
         public static readonly Token LParenthesis = new(TokenType.LParenthesis, TokenClass.Operator, "(");
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, TokenClass.Operator, ")");
         public static readonly Token AttributeList = new(TokenType.AttributeList, TokenClass.Operator, "#[");
+        public static readonly Token Array = new(TokenType.Array, TokenClass.Operator, "array");
 
         public static readonly Token Val = new(TokenType.Val, TokenClass.Keyword, "val");
         public static readonly Token If = new(TokenType.If, TokenClass.Keyword, "if");
@@ -132,6 +133,7 @@ namespace EVIL.Lexical
         public static readonly Token StringTypeCode = new(TokenType.StringTypeCode, TokenClass.TypeCode, "String");
         public static readonly Token BooleanTypeCode = new(TokenType.BooleanTypeCode, TokenClass.TypeCode, "Boolean");
         public static readonly Token TableTypeCode = new(TokenType.TableTypeCode, TokenClass.TypeCode, "Table");
+        public static readonly Token ArrayTypeCode = new(TokenType.ArrayTypeCode, TokenClass.TypeCode, "Array");
         public static readonly Token FiberTypeCode = new(TokenType.FiberTypeCode, TokenClass.TypeCode, "Fiber");
         public static readonly Token ChunkTypeCode = new(TokenType.ChunkTypeCode, TokenClass.TypeCode, "Function");
         public static readonly Token TypeCodeTypeCode = new(TokenType.TypeCodeTypeCode, TokenClass.TypeCode, "Type");

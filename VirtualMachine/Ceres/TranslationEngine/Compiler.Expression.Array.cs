@@ -1,3 +1,4 @@
+using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 
@@ -5,25 +6,26 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler
     {
-        public override void Visit(TableExpression tableExpression)
+        public override void Visit(ArrayExpression arrayExpression)
         {
-            Chunk.CodeGenerator.Emit(OpCode.TABNEW);
-
-            if (tableExpression.Keyed)
+            if (arrayExpression.SizeExpression == null)
             {
-                foreach (var expr in tableExpression.Initializers)
-                {
-                    var kvpe = (KeyValuePairExpression)expr;
-                    Visit(kvpe.ValueNode);
-                    Visit(kvpe.KeyNode);
-                    Chunk.CodeGenerator.Emit(OpCode.ELINIT);
-                }
+                Chunk.CodeGenerator.Emit(
+                    OpCode.LDNUM,
+                    (double)arrayExpression.Initializers.Count
+                );
             }
             else
             {
-                for (var i = 0; i < tableExpression.Initializers.Count; i++)
+                Visit(arrayExpression.SizeExpression);
+            }
+            
+            Chunk.CodeGenerator.Emit(OpCode.ARRNEW);
+            if (arrayExpression.Initializers.Any())
+            {
+                for (var i = 0; i < arrayExpression.Initializers.Count; i++)
                 {
-                    Visit(tableExpression.Initializers[i]);
+                    Visit(arrayExpression.Initializers[i]);
 
                     if (i == 0)
                     {

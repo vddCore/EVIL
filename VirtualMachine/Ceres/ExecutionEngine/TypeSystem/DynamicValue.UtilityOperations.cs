@@ -23,6 +23,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 }
             }
 
+            if (a.Type == DynamicValueType.Array)
+            {
+                return new(a.Array!.IndexOf(b) > 0);
+            }
+
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to check if a {a.Type} contains a {b.Type}."
             );
@@ -33,6 +38,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             if (a.Type == DynamicValueType.String)
             {
                 return new(a.String!.Length);
+            }
+
+            if (a.Type == DynamicValueType.Array)
+            {
+                return new(a.Array!.Length);
             }
 
             if (a.Type == DynamicValueType.Table)
@@ -46,10 +56,22 @@ namespace Ceres.ExecutionEngine.TypeSystem
         }
 
         public static DynamicValue Index(this DynamicValue a, DynamicValue key)
-        {
+        {           
             if (a.Type == DynamicValueType.Table)
             {
                 return a.Table![key];
+            }
+            
+            if (a.Type == DynamicValueType.Array)
+            {
+                if (key.Type != DynamicValueType.Number)
+                {
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to index an {a.Type} using a {key.Type}."
+                    );
+                }
+
+                return a.Array![(int)key.Number];
             }
 
             if (a.Type == DynamicValueType.String)

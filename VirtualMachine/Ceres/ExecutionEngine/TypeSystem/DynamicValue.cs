@@ -5,6 +5,8 @@ using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 
+using Array = Ceres.ExecutionEngine.Collections.Array;
+
 namespace Ceres.ExecutionEngine.TypeSystem
 {
     public struct DynamicValue : IEquatable<DynamicValue>
@@ -22,6 +24,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public string? String { get; }
         public bool Boolean { get; }
         public Table? Table { get; }
+        public Array? Array { get; }
         public Fiber? Fiber { get; }
         public Chunk? Chunk { get; }
         public DynamicValueType TypeCode { get; }
@@ -55,6 +58,12 @@ namespace Ceres.ExecutionEngine.TypeSystem
         {
             Table = value;
             Type = DynamicValueType.Table;
+        }
+
+        public DynamicValue(Array value)
+        {
+            Array = value;
+            Type = DynamicValueType.Array;
         }
 
         public DynamicValue(Fiber value)
@@ -133,6 +142,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             && String == other.String
             && Boolean == other.Boolean
             && Equals(Table, other.Table) 
+            && Equals(Array, other.Array)
             && Equals(Fiber, other.Fiber)
             && Equals(Chunk, other.Chunk) 
             && TypeCode == other.TypeCode
@@ -151,6 +161,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             hashCode.Add(String);
             hashCode.Add(Boolean);
             hashCode.Add(Table);
+            hashCode.Add(Array);
             hashCode.Add(Fiber);
             hashCode.Add(Chunk);
             hashCode.Add(TypeCode);
@@ -171,6 +182,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public static implicit operator DynamicValue(char value) => new(value.ToString());
         public static implicit operator DynamicValue(bool value) => new(value);
         public static implicit operator DynamicValue(Table value) => new(value);
+        public static implicit operator DynamicValue(Array value) => new(value);
         public static implicit operator DynamicValue(Fiber value) => new(value);
         public static implicit operator DynamicValue(Chunk value) => new(value);
         public static implicit operator DynamicValue(DynamicValueType value) => new(value);
@@ -244,6 +256,14 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Table.");
 
             return value.Table!;
+        }
+
+        public static explicit operator Array(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Array)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to an Array.");
+
+            return value.Array!;
         }
 
         public static explicit operator Fiber(DynamicValue value)

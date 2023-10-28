@@ -142,5 +142,8 @@
     <Compile Update="TranslationEngine\Compiler.Expression.Is.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Array.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
