@@ -81,7 +81,7 @@
     <None Update="tests\lib\test2.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\0000_array.vil">
+    <None Update="tests\020_array.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
