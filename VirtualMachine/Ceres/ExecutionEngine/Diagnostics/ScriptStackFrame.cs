@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
+using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
@@ -13,7 +14,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private readonly BinaryReader _chunkReader;
         private Table? _extraArguments;
         
-        private readonly Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _tableEnumerators = new();
+        private readonly Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _collectionEnumerators = new();
 
         public Fiber Fiber { get; }
         public Chunk Chunk { get; }
@@ -30,7 +31,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             get
             {
-                if (_tableEnumerators.TryPeek(out var enumerator))
+                if (_collectionEnumerators.TryPeek(out var enumerator))
                     return enumerator;
 
                 return null;
@@ -67,7 +68,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             if (chunk.LocalCount > 0)
             {
                 Locals = new DynamicValue[chunk.LocalCount];
-                Array.Fill(Locals, DynamicValue.Nil);
+                System.Array.Fill(Locals, DynamicValue.Nil);
             }
 
             _chunkReader = Chunk.SpawnCodeReader();
@@ -102,11 +103,15 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PushEnumerator(Table table)
-            => _tableEnumerators.Push(table.GetEnumerator());
+            => _collectionEnumerators.Push(table.GetEnumerator());
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PushEnumerator(Array array)
+            => _collectionEnumerators.Push(array.GetEnumerator());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PopEnumerator()
-            => _tableEnumerators.Pop();
+            => _collectionEnumerators.Pop();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Return()

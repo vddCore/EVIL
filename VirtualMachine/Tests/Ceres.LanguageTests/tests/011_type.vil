@@ -5,6 +5,7 @@
 #[test(Boolean)] fn type_boolean() -> typeof(false);
 #[test(String)] fn type_str() -> typeof("jp2gmd");
 #[test(Table)] fn type_table() -> typeof({});
+#[test(Array)] fn arr_type() -> typeof(array(10));
 #[test(Function)] fn type_chunk() -> typeof(testchunk);
 #[test(Type)] fn type_type() -> typeof(typeof(0));
 #[test(NativeFunction)] fn type_nativefunction() -> typeof(__native_func);

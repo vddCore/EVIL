@@ -118,6 +118,13 @@ namespace EVIL.Grammar.Parsing
                     return new TypeCodeConstant(DynamicValueType.Table)
                         { Line = line, Column = col };
                 }
+                case TokenType.ArrayTypeCode:
+                {
+                    var (line, col) = Match(Token.ArrayTypeCode);
+                    
+                    return new TypeCodeConstant(DynamicValueType.Array)
+                        { Line = line, Column = col };
+                }
                 case TokenType.FiberTypeCode:
                 {
                     var (line, col) = Match(Token.FiberTypeCode);

@@ -43,7 +43,7 @@ namespace Ceres.TranslationEngine
 
                 Visit(ie.Indexable);
                 Visit(ie.KeyExpression);
-                Chunk.CodeGenerator.Emit(OpCode.TABSET);
+                Chunk.CodeGenerator.Emit(OpCode.ELSET);
             }
             else
             {

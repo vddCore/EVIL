@@ -7,6 +7,7 @@ namespace EVIL.CommonTypes.TypeSystem
         String,
         Boolean,
         Table,
+        Array,
         Fiber,
         Chunk,
         Type,

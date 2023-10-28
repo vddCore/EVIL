@@ -62,6 +62,7 @@
         RBrace,
         LBracket,
         RBracket,
+        Array,
 
         AttributeList,
         Identifier,
@@ -100,6 +101,7 @@
         StringTypeCode,
         BooleanTypeCode,
         TableTypeCode,
+        ArrayTypeCode,
         FiberTypeCode,
         ChunkTypeCode,
         TypeCodeTypeCode,
