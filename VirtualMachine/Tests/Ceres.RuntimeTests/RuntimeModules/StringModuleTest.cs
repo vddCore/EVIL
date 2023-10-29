@@ -18,28 +18,28 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void Explode()
         {
-            var t = (Table)EvilTestResult(
+            var array = (Array)EvilTestResult(
                 "fn test() -> str.explode('abcdef');"
             );
 
-            t[0].ShouldBe("a");
-            t[1].ShouldBe("b");
-            t[2].ShouldBe("c");
-            t[3].ShouldBe("d");
-            t[4].ShouldBe("e");
-            t[5].ShouldBe("f");
+            array[0].ShouldBe("a");
+            array[1].ShouldBe("b");
+            array[2].ShouldBe("c");
+            array[3].ShouldBe("d");
+            array[4].ShouldBe("e");
+            array[5].ShouldBe("f");
         }
         
         [Test]
         public void Split()
         {
-            var t = (Table)EvilTestResult(
+            var array = (Array)EvilTestResult(
                 "fn test() -> str.spl('abc|def|ghi', '|');"
             );
 
-            t[0].ShouldBe("abc");
-            t[1].ShouldBe("def");
-            t[2].ShouldBe("ghi");
+            array[0].ShouldBe("abc");
+            array[1].ShouldBe("def");
+            array[2].ShouldBe("ghi");
         }
 
         [Test]
@@ -197,19 +197,19 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void RegexMatch()
         {
-            var t = EvilTestResult(
+            var array = (Array)EvilTestResult(
                 "fn test() -> str.rmatch(" +
                 "   'This 21 is 37 an example 00 of 12 a test string 99.'," +
                 @"   '(\\w+) (\\d+)'" +
                 ");"
-            ).Table!;
+            );
 
-            t.Length.ShouldBe(5);
-            t[0].Table!["value"].ShouldBe("This 21");
-            t[1].Table!["value"].ShouldBe("is 37");
-            t[2].Table!["value"].ShouldBe("example 00");
-            t[3].Table!["value"].ShouldBe("of 12");
-            t[4].Table!["value"].ShouldBe("string 99");
+            array.Length.ShouldBe(5);
+            array[0].Table!["value"].ShouldBe("This 21");
+            array[1].Table!["value"].ShouldBe("is 37");
+            array[2].Table!["value"].ShouldBe("example 00");
+            array[3].Table!["value"].ShouldBe("of 12");
+            array[4].Table!["value"].ShouldBe("string 99");
         }
     }
 }

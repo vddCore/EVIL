@@ -12,7 +12,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             var t = EvilTestResult(
                 "fn test(a = 1, b = 2, c = 3) -> core.strace(true);"
-            ).Table!;
+            ).Array!;
             var frame = (Table)t[0];
 
             frame["is_script"].ShouldBe(true);
@@ -50,7 +50,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
             );
 
             s.ShouldContain(
-                "at Ceres.Runtime.Modules.CoreModule::StackTraceString",
+                "at clr!Ceres.Runtime.Modules.CoreModule::StackTraceString",
                 Case.Sensitive
             );
 
