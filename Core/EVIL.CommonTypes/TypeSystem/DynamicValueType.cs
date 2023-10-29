@@ -10,7 +10,7 @@ namespace EVIL.CommonTypes.TypeSystem
         Array,
         Fiber,
         Chunk,
-        Type,
+        TypeCode,
         NativeFunction,
         NativeObject
     }

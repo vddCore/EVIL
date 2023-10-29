@@ -52,7 +52,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     DynamicValueType.Number => br.ReadDouble(),
                     DynamicValueType.String => br.ReadString(),
                     DynamicValueType.Boolean => br.ReadBoolean(),
-                    DynamicValueType.Type => br.ReadByte(),
+                    DynamicValueType.TypeCode => br.ReadByte(),
                     _ => throw new ChunkDeserializationException($"Unexpected constant value type '{type}'.")
                 };
             }

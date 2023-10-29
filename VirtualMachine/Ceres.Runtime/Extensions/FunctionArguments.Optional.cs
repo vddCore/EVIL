@@ -2,6 +2,7 @@
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.Runtime.Extensions
@@ -82,6 +83,21 @@ namespace Ceres.Runtime.Extensions
 
             return args;
         }
+
+        public static DynamicValue[] OptionalArrayAt(this DynamicValue[] args, int index, Array defaultValue, out Array value)
+        {
+            value = defaultValue;
+            
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+
+                args.ExpectArrayAt(index, out value);
+            }
+
+            return args;
+        }
         
         public static DynamicValue[] OptionalFiberAt(this DynamicValue[] args, int index, Fiber defaultValue, out Fiber value)
         {
@@ -112,6 +128,21 @@ namespace Ceres.Runtime.Extensions
 
             return args;
         }
+
+        public static DynamicValue[] OptionalTypeCodeAt(this DynamicValue[] args, int index, DynamicValueType defaultValue, out DynamicValueType value)
+        {
+            value = defaultValue;
+
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+
+                args.ExpectTypeCodeAt(index, out value);
+            }
+
+            return args;
+        }
         
         public static DynamicValue[] OptionalNativeFunctionAt(this DynamicValue[] args, int index, NativeFunction defaultValue, out NativeFunction value)
         {
@@ -123,6 +154,36 @@ namespace Ceres.Runtime.Extensions
                     return args;
                 
                 args.ExpectNativeFunctionAt(index, out value);
+            }
+
+            return args;
+        }
+        
+        public static DynamicValue[] OptionalNativeObjectAt(this DynamicValue[] args, int index, object? defaultValue, out object? value)
+        {
+            value = defaultValue;
+            
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+                
+                args.ExpectNativeObjectAt(index, out value);
+            }
+
+            return args;
+        }
+
+        public static DynamicValue[] OptionalNativeObjectAt<T>(this DynamicValue[] args, int index, T defaultValue, out T value)
+        {
+            value = defaultValue;
+
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+
+                args.ExpectNativeObjectAt(index, out value);
             }
 
             return args;

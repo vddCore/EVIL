@@ -66,6 +66,14 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
 
+        public static DynamicValue[] ExpectArrayAt(this DynamicValue[] args, int index, out Array value)
+        {
+            args.ExpectTypeAt(index, DynamicValueType.Array);
+            value = args[index].Array!;
+
+            return args;
+        }
+        
         public static DynamicValue[] ExpectFiberAt(this DynamicValue[] args, int index, out Fiber value)
         {
             args.ExpectTypeAt(index, DynamicValueType.Fiber);
@@ -78,6 +86,14 @@ namespace Ceres.Runtime.Extensions
         {
             args.ExpectTypeAt(index, DynamicValueType.Chunk);
             value = args[index].Chunk!;
+
+            return args;
+        }
+
+        public static DynamicValue[] ExpectTypeCodeAt(this DynamicValue[] args, int index, out DynamicValueType value)
+        {
+            args.ExpectTypeAt(index, DynamicValueType.TypeCode);
+            value = args[index].TypeCode;
 
             return args;
         }
@@ -96,6 +112,21 @@ namespace Ceres.Runtime.Extensions
             args.ExpectTypeAt(index, DynamicValueType.NativeObject);
             value = args[index].NativeObject;
 
+            return args;
+        }
+
+        public static DynamicValue[] ExpectNativeObjectAt<T>(this DynamicValue[] args, int index, out T value)
+        {
+            args.ExpectTypeAt(index, DynamicValueType.NativeObject);
+            
+            if (args[index].NativeObject is not T tValue)
+            {
+                throw new EvilRuntimeException(
+                    $"A NativeObject value is not the expected CLR type '{typeof(T).FullName}'."
+                );
+            }
+
+            value = tValue;
             return args;
         }
     }

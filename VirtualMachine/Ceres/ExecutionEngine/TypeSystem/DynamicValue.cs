@@ -81,7 +81,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public DynamicValue(DynamicValueType value)
         {
             TypeCode = value;
-            Type = DynamicValueType.Type;
+            Type = DynamicValueType.TypeCode;
         }
 
         public DynamicValue(NativeFunction value)
@@ -284,7 +284,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
         public static explicit operator DynamicValueType(DynamicValue value)
         {
-            if (value.Type != DynamicValueType.Type)
+            if (value.Type != DynamicValueType.TypeCode)
                 throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a TypeCode");
 
             return value.TypeCode;
