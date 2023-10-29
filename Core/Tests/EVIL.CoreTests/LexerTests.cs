@@ -75,7 +75,8 @@ namespace EVIL.CoreTests
                 "+ - / * % & ~ | ^ << >> " +
                 "... => -> -- ++ && || ! " +
                 "<==> <!=> == != > < >= <= " +
-                "# $ @ ? : ; , . { } [ ] ( ) #["
+                "# $ @ ? : ; , . { } [ ] ( ) #[ " +
+                "array"
             );
             
             Expect(
@@ -104,6 +105,8 @@ namespace EVIL.CoreTests
                 Comma, Dot, LBrace, RBrace, LBracket, RBracket, LParenthesis,
                 RParenthesis, AttributeList
             );
+
+            Expect(Token.Array);
 
             Expect(EOF);
         }

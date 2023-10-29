@@ -21,6 +21,7 @@ namespace Ceres.Runtime
         {
             RegisterModule<CoreModule>();
             RegisterModule<EvilModule>();
+            RegisterModule<FsModule>();
             RegisterModule<IoModule>();
             RegisterModule<MathModule>();
             RegisterModule<StringModule>();
