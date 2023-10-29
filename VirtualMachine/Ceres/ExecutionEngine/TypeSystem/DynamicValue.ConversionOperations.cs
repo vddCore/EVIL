@@ -33,9 +33,14 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     }
                 }
                 case DynamicValueType.Chunk:
-                    return a.Chunk!.Name;
+                    return $"Function[{a.Chunk!.Name}]({a.Chunk.ParameterCount})";
                 case DynamicValueType.TypeCode:
-                    return a.TypeCode.ToString();
+                    return a.TypeCode switch
+                    {
+                        DynamicValueType.Chunk => "Function",
+                        DynamicValueType.TypeCode => "Type",
+                        _ => a.TypeCode.ToString()
+                    };
                 case DynamicValueType.NativeFunction:
                     return $"NativeFunction[{a.NativeFunction!.Method.Name}]";
                 case DynamicValueType.NativeObject:
