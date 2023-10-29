@@ -71,7 +71,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 case DynamicValueType.Chunk:
                     return a.Chunk == b.Chunk;
                 
-                case DynamicValueType.Type:
+                case DynamicValueType.TypeCode:
                     return a.TypeCode == b.TypeCode;
 
                 case DynamicValueType.NativeFunction:
@@ -114,7 +114,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 case DynamicValueType.Chunk:
                     return a.Chunk != b.Chunk;
                 
-                case DynamicValueType.Type:
+                case DynamicValueType.TypeCode:
                     return a.TypeCode != b.TypeCode;
 
                 case DynamicValueType.NativeFunction:
