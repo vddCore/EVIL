@@ -9,6 +9,7 @@ using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
+using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.Runtime.Modules
 {
@@ -37,24 +38,24 @@ namespace Ceres.Runtime.Modules
             return ((char)num).ToString();
         }
 
-        [RuntimeModuleFunction("explode", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("explode", ReturnType = DynamicValueType.Array)]
         private static DynamicValue Explode(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectStringAt(0, out var str);
 
             var chars = str.ToCharArray();
-            var table = new Table();
+            var array = new Array(chars.Length);
             
             for (var i = 0; i < chars.Length; i++)
             {
-                table[i] = chars[i];
+                array[i] = chars[i];
             }
 
-            return table;
+            return array;
         }
         
-        [RuntimeModuleFunction("spl", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("spl", ReturnType = DynamicValueType.Array)]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -62,21 +63,21 @@ namespace Ceres.Runtime.Modules
                 .ExpectStringAt(1, out var delim);
 
             var segments = src.Split(delim);
-            var table = new Table();
+            var array = new Array(segments.Length);
 
             for (var i = 0; i < segments.Length; i++)
             {
-                table.Add(i, segments[i]);
+                array[i] = segments[i];
             }
 
-            return table;
+            return array;
         }
 
         [RuntimeModuleFunction("join", ReturnType = DynamicValueType.String)]
         private static DynamicValue Join(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
-                .ExpectStringAt(0, out string delim);
+                .ExpectStringAt(0, out var delim);
 
             return string.Join(delim, args.Skip(1).Select(x => x.ConvertToString().String!));
         }
@@ -286,7 +287,7 @@ namespace Ceres.Runtime.Modules
             return source.EndsWith(end);
         }
         
-        [RuntimeModuleFunction("rmatch", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("rmatch", ReturnType = DynamicValueType.Array)]
         private static DynamicValue RegexMatch(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -296,11 +297,12 @@ namespace Ceres.Runtime.Modules
             if (!Regex.IsMatch(source, regex))
                 return Nil;
 
-            var ret = new Table();
-            
             var matches = Regex.Matches(source, regex);
-            foreach (Match match in matches)
+            var array = new Array(matches.Count);
+            for (var i = 0; i < matches.Count; i++)
             {
+                var match = matches[i];
+                
                 var matchTable = new Table
                 {
                     { "name", match.Name },
@@ -326,10 +328,10 @@ namespace Ceres.Runtime.Modules
                     );
                 }
 
-                ret.Add(ret.Length, matchTable);
+                array[i] = matchTable;
             }
 
-            return ret;
+            return array;
         }
     }
 }

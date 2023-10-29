@@ -12,20 +12,20 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "core";
 
-        [RuntimeModuleFunction("strace", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("strace", ReturnType = DynamicValueType.Array)]
         private static DynamicValue StackTrace(Fiber fiber, params DynamicValue[] args)
         {
             args.ExpectAtMost(1)
                 .OptionalBooleanAt(0, defaultValue: false, out var skipNativeFrames);
             
-            var ret = new Table();
             var callStack = fiber.CallStack.ToArray(skipNativeFrames);
+            var array = new Array(callStack.Length);
             
             for (var i = 0; i < callStack.Length; i++)
             {
                 if (callStack[i] is ScriptStackFrame ssf)
                 {
-                    ret[i] = new Table
+                    array[i] = new Table
                     {
                         { "is_script", true },
                         { "fn_name", ssf.Chunk.Name ?? "<unknown>" },
@@ -40,7 +40,7 @@ namespace Ceres.Runtime.Modules
                 }
                 else if (callStack[i] is NativeStackFrame nsf && !skipNativeFrames)
                 {
-                    ret[i] = new Table
+                    array[i] = new Table
                     {
                         { "is_script", false },
                         { "fn_name", nsf.NativeFunction.Method.Name },
@@ -49,7 +49,7 @@ namespace Ceres.Runtime.Modules
                 }
             }
             
-            return ret;
+            return array;
         }
 
         [RuntimeModuleFunction("strace_s", ReturnType = DynamicValueType.String)]
