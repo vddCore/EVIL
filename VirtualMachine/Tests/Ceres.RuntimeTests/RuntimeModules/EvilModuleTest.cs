@@ -45,14 +45,14 @@ namespace Ceres.RuntimeTests.RuntimeModules
             ).Table!;
 
             t["name"].ShouldBe("reflected");
-            t["attributes"].Type.ShouldBe(DynamicValueType.Table);
+            t["attributes"].Type.ShouldBe(DynamicValueType.Array);
 
-            var attributes = t["attributes"].Table!;
+            var attributes = t["attributes"].Array!;
             attributes[0].Type.ShouldBe(DynamicValueType.Table);
             attributes[0].Table!["name"].ShouldBe("attrib");
 
-            t["local_info"].Type.ShouldBe(DynamicValueType.Table);
-            var locals = t["local_info"].Table!;
+            t["local_info"].Type.ShouldBe(DynamicValueType.Array);
+            var locals = t["local_info"].Array!;
             locals[0].Type.ShouldBe(DynamicValueType.Table);
             locals[0].Table!["id"].ShouldBe(0);
             locals[0].Table!["name"].ShouldBe("local_1");
@@ -63,8 +63,8 @@ namespace Ceres.RuntimeTests.RuntimeModules
             locals[1].Table!["name"].ShouldBe("local_2");
             locals[1].Table!["is_rw"].ShouldBe(true);
             
-            t["param_info"].Type.ShouldBe(DynamicValueType.Table);
-            var parameters = t["param_info"].Table!;
+            t["param_info"].Type.ShouldBe(DynamicValueType.Array);
+            var parameters = t["param_info"].Array!;
             parameters[0].Type.ShouldBe(DynamicValueType.Table);
             parameters[0].Table!["id"].ShouldBe(0);
             parameters[0].Table!["name"].ShouldBe("a");
