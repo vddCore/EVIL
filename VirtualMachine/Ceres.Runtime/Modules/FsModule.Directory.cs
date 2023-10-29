@@ -10,7 +10,7 @@ using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.Runtime.Modules
 {
-    public partial class FsModule
+    public partial class FsModule : RuntimeModule
     {
         [RuntimeModuleFunction("dir.exists", ReturnType = DynamicValueType.Boolean)]
         private static DynamicValue DirectoryExists(Fiber _, params DynamicValue[] args)

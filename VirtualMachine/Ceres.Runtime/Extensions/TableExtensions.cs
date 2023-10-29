@@ -7,7 +7,8 @@ namespace Ceres.Runtime.Extensions
 {
     public static class TableExtensions
     {
-        public static DynamicValue SetUsingPath(this Table table, string fullyQualifiedName, DynamicValue value, bool replaceIfExists = true)
+        public static DynamicValue SetUsingPath<TSubTable>(this Table table, string fullyQualifiedName, DynamicValue value, bool replaceIfExists = true)
+            where TSubTable: Table, new()
         {
             var segments = fullyQualifiedName.Split(".");
             var tablePath = segments
@@ -22,7 +23,7 @@ namespace Ceres.Runtime.Extensions
                 {
                     currentTable.Set(
                         tableName,
-                        new Table()
+                        new TSubTable()
                     );
                 }
                 else
