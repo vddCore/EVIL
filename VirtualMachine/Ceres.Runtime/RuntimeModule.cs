@@ -23,7 +23,7 @@ namespace Ceres.Runtime
         {
             var ret = this;
 
-            table.SetUsingPath(
+            table.SetUsingPath<Table>(
                 FullyQualifiedName,
                 ret
             );
@@ -57,7 +57,10 @@ namespace Ceres.Runtime
                     );
                 }
 
-                this.SetUsingPath(tuple.Attribute.SubNameSpace, new(tuple.Function));
+                this.SetUsingPath<PropertyTable>(
+                    tuple.Attribute.SubNameSpace,
+                    new(tuple.Function)
+                );
             }
         }
 
@@ -124,7 +127,7 @@ namespace Ceres.Runtime
                     }
                     
                     propTable.AddGetter(targetName, tuple.Getter);
-                    this.SetUsingPath(subNameSpace, propTable);
+                    this.SetUsingPath<PropertyTable>(subNameSpace, propTable);
                 }
                 else
                 {

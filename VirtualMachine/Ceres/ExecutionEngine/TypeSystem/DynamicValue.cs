@@ -48,6 +48,12 @@ namespace Ceres.ExecutionEngine.TypeSystem
             Type = DynamicValueType.String;
         }
 
+        public DynamicValue(char value)
+        {
+            String = value.ToString();
+            Type = DynamicValueType.String;
+        }
+
         public DynamicValue(bool value)
         {
             Boolean = value;

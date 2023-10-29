@@ -32,6 +32,6 @@ namespace Ceres.Runtime
             => new T().AttachTo(Global);
 
         public DynamicValue Register(string fullyQualifiedName, DynamicValue value, bool replaceIfExists = true)
-            => Global.SetUsingPath(fullyQualifiedName, value, replaceIfExists);
+            => Global.SetUsingPath<PropertyTable>(fullyQualifiedName, value, replaceIfExists);
     }
 }
