@@ -48,7 +48,7 @@ namespace Ceres.Runtime.Modules
             args.ExpectExactly(1)
                 .ExpectChunkAt(0, out var chunk);
 
-            var attrs = new Table();
+            var attrs = new Array(chunk.Attributes.Count);
             for (var i = 0; i < chunk.Attributes.Count; i++)
             {
                 attrs[i] = chunk.Attributes[i].ToDynamicValue();
@@ -56,16 +56,16 @@ namespace Ceres.Runtime.Modules
 
             return new Table
             {
-                { "name", chunk.Name ?? DynamicValue.Nil },
+                { "name", chunk.Name },
                 { "attributes", attrs },
                 { "local_info", BuildLocalInfo(chunk) },
                 { "param_info", BuildParameterInfo(chunk) }
             };
         }
         
-        private static Table BuildLocalInfo(Chunk chunk)
+        private static Array BuildLocalInfo(Chunk chunk)
         {
-            var ret = new Table();
+            var array = new Array(chunk.LocalCount);
 
             for (var i = 0; i < chunk.LocalCount; i++)
             {
@@ -81,15 +81,15 @@ namespace Ceres.Runtime.Modules
                     local["is_rw"] = rw;
                 }
 
-                ret[i] = local;
+                array[i] = local;
             }
 
-            return ret;
+            return array;
         }
 
-        private static Table BuildParameterInfo(Chunk chunk)
+        private static Array BuildParameterInfo(Chunk chunk)
         {
-            var ret = new Table();
+            var array = new Array(chunk.ParameterCount);
 
             for (var i = 0; i < chunk.ParameterCount; i++)
             {
@@ -110,10 +110,10 @@ namespace Ceres.Runtime.Modules
                     param["is_rw"] = rw;
                 }
 
-                ret[i] = param;
+                array[i] = param;
             }
 
-            return ret;
+            return array;
         }
     }
 }
