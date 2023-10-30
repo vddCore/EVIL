@@ -53,7 +53,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void PathGetBadNameChars()
         {
             var result = EvilTestResult(
-                "fn test() -> fs.path.bad_name_chars;"
+                "fn test() -> fs.path.bad_fname_chars;"
             );
 
             result.Type.ShouldBe(DynamicValueType.Array);
@@ -68,6 +68,18 @@ namespace Ceres.RuntimeTests.RuntimeModules
         }
         
         [Test]
+        public void PathGetTempDirPath()
+        {
+            var tempDir = Path.GetTempPath();
+            var result = EvilTestResult(
+                "fn test() -> fs.path.temp_dir;"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.String);
+            result.ShouldBe(tempDir);
+        }
+        
+        [Test]
         public void PathCombine()
         {
             var result = EvilTestResult(
@@ -77,6 +89,86 @@ namespace Ceres.RuntimeTests.RuntimeModules
             result.Type.ShouldBe(DynamicValueType.String);
             result.ShouldBe("c:/weird stuff/test");
         }
+
+        [Test]
+        public void PathGetFileNameWithExtension()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.get_fname('/var/lib/something.so.1');"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.String);
+            result.ShouldBe("something.so.1");
+        }
         
+        [Test]
+        public void PathGetFileNameWithoutExtension()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.get_fname(" +
+                $"  '/var/lib/something.so.1'," +
+                $"  true" +
+                $");"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.String);
+            result.ShouldBe("something.so");
+        }
+
+        [Test]
+        public void PathExists()
+        {
+            var path = Path.Combine(
+                Path.GetTempPath(),
+                Path.GetTempFileName()
+            ).Replace('\\', '/');
+            
+            File.Create(path).Dispose();
+
+            var resultFile = EvilTestResult(
+                $"fn test() -> fs.path.exists('{path}');"
+            );
+            resultFile.Type.ShouldBe(DynamicValueType.Boolean);
+            resultFile.ShouldBe(true);
+            File.Delete(path);
+
+            Directory.CreateDirectory(path);
+
+            var resultDirectory = EvilTestResult(
+                $"fn test() -> fs.path.exists('{path}');"
+            );
+            resultDirectory.Type.ShouldBe(DynamicValueType.Boolean);
+            resultDirectory.ShouldBe(true);
+            Directory.Delete(path, true);
+        }
+
+        [Test]
+        public void PathGetExtension()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.get_ext('dobry_jezu.exe');"
+            );
+
+            result.Type.ShouldBe(DynamicValueType.String);
+            result.ShouldBe(".exe");
+        }
+        
+        [Test]
+        public void PathHasExtension()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.has_ext('dobry_jezu.exe');"
+            );
+
+            result.Type.ShouldBe(DynamicValueType.Boolean);
+            result.ShouldBe(true);
+            
+            result = EvilTestResult(
+                $"fn test() -> fs.path.has_ext('dobry_jezu');"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.Boolean);
+            result.ShouldBe(false);
+        }
     }
 }
