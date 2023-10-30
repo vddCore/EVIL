@@ -9,7 +9,7 @@ using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.Runtime.Modules
 {
-    public partial class FsModule : RuntimeModule
+    public partial class FsModule
     {
         [RuntimeModuleGetter("path.sep", ReturnType = DynamicValueType.String)]
         private static DynamicValue GetPathSeparator(DynamicValue key)
@@ -57,7 +57,11 @@ namespace Ceres.Runtime.Modules
                 return Nil;
             }
         }
-        
+
+        [RuntimeModuleGetter("path.rand_fname", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathGetRandomFileName(DynamicValue key)
+            => Path.GetRandomFileName();
+
         [RuntimeModuleFunction("path.cmb", ReturnType = DynamicValueType.Array)]
         private static DynamicValue PathCombine(Fiber _, params DynamicValue[] args)
         {
@@ -99,6 +103,23 @@ namespace Ceres.Runtime.Modules
                 {
                     return Path.GetFileName(path);
                 }
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+
+        [RuntimeModuleFunction("path.get_dname", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathGetDirectoryName(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path);
+
+            try
+            {
+                ClearError();
+                return Path.GetDirectoryName(path)!.Replace('\\', '/');
             }
             catch (Exception e)
             {
