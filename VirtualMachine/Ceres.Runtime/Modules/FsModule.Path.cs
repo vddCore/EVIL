@@ -31,7 +31,7 @@ namespace Ceres.Runtime.Modules
             return array;
         }
 
-        [RuntimeModuleGetter("path.bad_name_chars", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleGetter("path.bad_fname_chars", ReturnType = DynamicValueType.Array)]
         private static DynamicValue GetRestrictedNameChars(DynamicValue key)
         {
             var invalidNameChars = Path.GetInvalidFileNameChars();
@@ -43,8 +43,23 @@ namespace Ceres.Runtime.Modules
             return array;
         }
         
+        [RuntimeModuleGetter("path.temp_dir", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathGetTempDirPath(DynamicValue key)
+        {
+            try
+            {
+                ClearError();
+                return Path.GetTempPath();
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+        
         [RuntimeModuleFunction("path.cmb", ReturnType = DynamicValueType.Array)]
-        private static DynamicValue PathCombine(Fiber fiber, params DynamicValue[] args)
+        private static DynamicValue PathCombine(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2);
 
@@ -56,7 +71,85 @@ namespace Ceres.Runtime.Modules
 
             try
             {
+                ClearError();
                 return Path.Combine(pathSegments).Replace('\\', '/');
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+
+        [RuntimeModuleFunction("path.get_fname", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathGetFileName(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path)
+                .OptionalBooleanAt(1, false, out var withoutExtension);
+
+            try
+            {
+                ClearError();
+
+                if (withoutExtension)
+                {
+                    return Path.GetFileNameWithoutExtension(path);
+                }
+                else
+                {
+                    return Path.GetFileName(path);
+                }
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+
+        [RuntimeModuleFunction("path.exists", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue PathExists(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path);
+
+            try
+            {
+                ClearError();
+                return Path.Exists(path);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+        
+        [RuntimeModuleFunction("path.get_ext", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathGetExtension(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path);
+
+            try
+            {
+                ClearError();
+                return Path.GetExtension(path);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+        
+        [RuntimeModuleFunction("path.has_ext", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue PathHasExtension(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path);
+
+            try
+            {
+                ClearError();
+                return Path.HasExtension(path);
             }
             catch (Exception e)
             {
