@@ -114,6 +114,19 @@ namespace Ceres.RuntimeTests.RuntimeModules
             result.Type.ShouldBe(DynamicValueType.String);
             result.ShouldBe("something.so");
         }
+        
+        [Test]
+        public void PathGetDirectoryName()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.get_dname(" +
+                $"  'c:/program files (x86)/btw/buy/deadlink.exe'" +
+                $");"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.String);
+            result.ShouldBe("c:/program files (x86)/btw/buy");
+        }
 
         [Test]
         public void PathExists()
@@ -169,6 +182,17 @@ namespace Ceres.RuntimeTests.RuntimeModules
             
             result.Type.ShouldBe(DynamicValueType.Boolean);
             result.ShouldBe(false);
+        }
+
+        [Test]
+        public void PathGetRandomFileName()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.rand_fname;"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.String);
+            string.IsNullOrEmpty(result.String!).ShouldBe(false);
         }
     }
 }
