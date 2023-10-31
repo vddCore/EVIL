@@ -178,5 +178,57 @@ namespace Ceres.Runtime.Modules
                 return Nil;
             }
         }
+        
+        [RuntimeModuleFunction("path.chg_ext", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathChangeExtension(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path)
+                .ExpectStringAt(1, out var newExt);
+
+            try
+            {
+                ClearError();
+                return Path.ChangeExtension(path, newExt);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+        
+        [RuntimeModuleFunction("path.rm_ext", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathRemoveExtension(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path);
+
+            try
+            {
+                ClearError();
+                return Path.ChangeExtension(path, null);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+        
+        [RuntimeModuleFunction("path.get_full", ReturnType = DynamicValueType.String)]
+        private static DynamicValue PathGetFullPath(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path);
+
+            try
+            {
+                ClearError();
+                return Path.GetFullPath(path);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
     }
 }
