@@ -80,6 +80,17 @@ namespace Ceres.RuntimeTests.RuntimeModules
         }
         
         [Test]
+        public void PathGetRandomFileName()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.rand_fname;"
+            );
+            
+            result.Type.ShouldBe(DynamicValueType.String);
+            string.IsNullOrEmpty(result.String!).ShouldBe(false);
+        }
+        
+        [Test]
         public void PathCombine()
         {
             var result = EvilTestResult(
@@ -185,14 +196,30 @@ namespace Ceres.RuntimeTests.RuntimeModules
         }
 
         [Test]
-        public void PathGetRandomFileName()
+        public void PathChangeExtension()
         {
             var result = EvilTestResult(
-                $"fn test() -> fs.path.rand_fname;"
+                $"fn test() -> fs.path.chg_ext(" +
+                $"  '/root/dobry_jezu.exe'," +
+                $"  '.png'" +
+                $");"
             );
-            
+
             result.Type.ShouldBe(DynamicValueType.String);
-            string.IsNullOrEmpty(result.String!).ShouldBe(false);
+            result.ShouldBe("/root/dobry_jezu.png");
+        }
+        
+        [Test]
+        public void PathRemoveExtension()
+        {
+            var result = EvilTestResult(
+                $"fn test() -> fs.path.rm_ext(" +
+                $"  '/root/dobry_jezu.exe'" +
+                $");"
+            );
+
+            result.Type.ShouldBe(DynamicValueType.String);
+            result.ShouldBe("/root/dobry_jezu");
         }
     }
 }
