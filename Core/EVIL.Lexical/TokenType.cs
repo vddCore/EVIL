@@ -55,6 +55,7 @@
 
         Comma,
         Colon,
+        DoubleColon,
         Semicolon,
         LParenthesis,
         RParenthesis,
@@ -63,6 +64,7 @@
         LBracket,
         RBracket,
         Array,
+        Self,
 
         AttributeList,
         Identifier,

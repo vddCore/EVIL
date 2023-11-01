@@ -32,6 +32,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public int LocalCount { get; private set; }
         public int ClosureCount => Closures.Count;
         public int SubChunkCount => SubChunks.Count;
+        public bool IsSelfAware { get; private set; }
 
         public IReadOnlyList<int> Labels => _labels;
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
@@ -82,6 +83,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 if (Parent != null)
                     ret |= ChunkFlags.IsSubChunk;
 
+                if (IsSelfAware)
+                    ret |= ChunkFlags.IsSelfAware;
+                
                 return ret;
             }
         }
@@ -142,6 +146,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 false
             );
         }
+
+        public void MarkSelfAware()
+            => IsSelfAware = true;
 
         public int AllocateParameter()
             => ParameterCount++;
@@ -255,6 +262,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 LocalCount = LocalCount,
                 ParameterCount = ParameterCount,
                 DebugDatabase = DebugDatabase,
+                IsSelfAware = IsSelfAware,
                 _labels = new(_labels),
                 _attributes = new(_attributes),
                 _parameterInitializers = new(_parameterInitializers),
@@ -292,6 +300,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             return Name == other.Name
                    && Parent == other.Parent
+                   && IsSelfAware == other.IsSelfAware
                    && ParameterCount == other.ParameterCount
                    && _parameterInitializers.SequenceEqual(other._parameterInitializers)
                    && LocalCount == other.LocalCount
@@ -314,6 +323,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             var hashCode = new HashCode();
 
             hashCode.Add(Name);
+            hashCode.Add(IsSelfAware);
             hashCode.Add(ParameterCount);
             hashCode.Add(_parameterInitializers);
             hashCode.Add(LocalCount);

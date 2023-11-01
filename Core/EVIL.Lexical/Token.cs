@@ -91,6 +91,7 @@ namespace EVIL.Lexical
         public static readonly Token AsString = new(TokenType.AsString, TokenClass.Operator, "@");
         public static readonly Token QuestionMark = new(TokenType.QuestionMark, TokenClass.Operator, "?");
         public static readonly Token Colon = new(TokenType.Colon, TokenClass.Operator, ":");
+        public static readonly Token DoubleColon = new(TokenType.DoubleColon, TokenClass.Operator, "::");
         public static readonly Token Semicolon = new(TokenType.Semicolon, TokenClass.Operator, ";");
         public static readonly Token Comma = new(TokenType.Comma, TokenClass.Operator, ",");
         public static readonly Token Dot = new(TokenType.Dot, TokenClass.Operator, ".");
@@ -102,6 +103,7 @@ namespace EVIL.Lexical
         public static readonly Token RParenthesis = new(TokenType.RParenthesis, TokenClass.Operator, ")");
         public static readonly Token AttributeList = new(TokenType.AttributeList, TokenClass.Operator, "#[");
         public static readonly Token Array = new(TokenType.Array, TokenClass.Operator, "array");
+        public static readonly Token Self = new(TokenType.Self, TokenClass.Operator, "self");
 
         public static readonly Token Val = new(TokenType.Val, TokenClass.Keyword, "val");
         public static readonly Token If = new(TokenType.If, TokenClass.Keyword, "if");

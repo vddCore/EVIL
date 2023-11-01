@@ -95,6 +95,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                     chunk = new Chunk(ReadName(br));
 
+                    if (flags.HasFlag(ChunkFlags.IsSelfAware))
+                    {
+                        chunk.MarkSelfAware();
+                    }
+
                     if (flags.HasFlag(ChunkFlags.HasParameters))
                     {
                         chunk.ParameterCount = br.ReadInt32();

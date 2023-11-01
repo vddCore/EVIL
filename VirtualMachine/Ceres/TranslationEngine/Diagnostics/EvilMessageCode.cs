@@ -13,5 +13,7 @@
         public const int IncludedFileRedefinedExistingChunk = 0009;
         public const int IncludeProcessorThrew = 0010;
         public const int FnStatementRedefinedExistingChunk = 0011;
+        public const int SelfUsedInSelfUnawareFunction = 0012;
+
     }
 }
