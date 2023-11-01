@@ -6,6 +6,7 @@ using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using EVIL.CommonTypes.TypeSystem;
+using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.Runtime.Modules
@@ -55,7 +56,7 @@ namespace Ceres.Runtime.Modules
                 return false;
             }
         }
-        
+
         [RuntimeModuleFunction("file.move", ReturnType = DynamicValueType.Boolean)]
         private static DynamicValue FileMove(Fiber _, params DynamicValue[] args)
         {
@@ -83,7 +84,7 @@ namespace Ceres.Runtime.Modules
             try
             {
                 ClearError();
-                
+
                 var lines = File.ReadLines(path, Encoding.UTF8).ToArray();
                 var array = new Array(lines.Length);
 
@@ -95,7 +96,185 @@ namespace Ceres.Runtime.Modules
             catch (Exception e)
             {
                 SetError(e.Message);
+                return Nil;
+            }
+        }
+
+        [RuntimeModuleFunction("file.open", ReturnType = DynamicValueType.NativeObject)]
+        private static DynamicValue FileOpen(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path)
+                .OptionalStringAt(1, "rw", out var modeString);
+
+            try
+            {
+                ClearError();
+
+                var (access, mode) = AccessAndModeFromString(modeString);
+                var stream = File.Open(path, mode, access, FileShare.ReadWrite);
+
+                return FromObject(stream);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+
+        [RuntimeModuleFunction("file.close", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue FileClose(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream);
+
+            try
+            {
+                ClearError();
+                
+                stream.Close();
+                stream.Dispose();
+                return true;
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
                 return false;
+            }
+        }
+
+        [RuntimeModuleFunction("file.seek", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue FileSeek(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream)
+                .ExpectIntegerAt(1, out var offset)
+                .OptionalIntegerAt(2, (long)SeekOrigin.Begin, out var seekOrigin);
+
+            try
+            {
+                ClearError();
+                return stream.Seek(offset, (SeekOrigin)seekOrigin);
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return -1;
+            }
+        }
+        
+        [RuntimeModuleFunction("file.tell", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue FileTell(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream);
+
+            try
+            {
+                ClearError();
+                return stream.Position;
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return -1;
+            }
+        }
+
+        [RuntimeModuleFunction("file.write", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue FileWrite(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream)
+                .ExpectArrayAt(1, out var array)
+                .OptionalIntegerAt(2, 0, out var offset)
+                .OptionalIntegerAt(3, array.Length, out var count)
+                .OptionalBooleanAt(4, true, out var autoFlush);
+
+            try
+            {
+                ClearError();
+
+                var bytes = new byte[array.Length];
+                for (var i = 0; i < array.Length; i++)
+                {
+                    if (array[i].Type != DynamicValueType.Number)
+                    {
+                        throw new InvalidDataException(
+                            "Only byte arrays can be written to a file stream."
+                        );
+                    }
+
+                    bytes[i] = (byte)array[i].Number;
+                }
+
+                stream.Write(bytes, (int)offset, (int)count);
+
+                if (autoFlush)
+                {
+                    stream.Flush();
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return false;
+            }
+        }
+        
+        [RuntimeModuleFunction("file.write_s", ReturnType = DynamicValueType.Boolean)]
+        private static DynamicValue FileWriteString(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream)
+                .ExpectStringAt(1, out var str)
+                .OptionalStringAt(2, "utf-8", out var encodingName)
+                .OptionalBooleanAt(3, true, out var autoFlush);
+
+            try
+            {
+                ClearError();
+
+                var encoding = Encoding.GetEncoding(encodingName);
+                stream.Write(encoding.GetBytes(str));
+
+                if (autoFlush)
+                {
+                    stream.Flush();
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return false;
+            }
+        }
+
+        [RuntimeModuleFunction("file.read", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue FileRead(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream)
+                .ExpectArrayAt(1, out var array)
+                .OptionalIntegerAt(2, 0, out var offset)
+                .OptionalIntegerAt(3, array.Length, out var count);
+
+            try
+            {
+                ClearError();
+
+                var bytes = new byte[array.Length];
+                var readCount = stream.Read(bytes, (int)offset, (int)count);
+
+                for (var i = 0; i < readCount; i++)
+                {
+                    array[i] = bytes[i];
+                }
+
+                return readCount;
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return -1;
             }
         }
     }

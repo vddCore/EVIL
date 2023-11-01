@@ -1,3 +1,5 @@
+using System.IO;
+using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
@@ -10,8 +12,20 @@ namespace Ceres.Runtime.Modules
 
         private static DynamicValue _error = Nil;
 
+        private static readonly Table _origin = new Table()
+        {
+            { "BEGIN", (long)SeekOrigin.Begin },
+            { "CURRENT", (long)SeekOrigin.Current },
+            { "END", (long)SeekOrigin.End }
+        }.Freeze();
+        
+        public FsModule()
+        {
+            Set("origin", _origin);
+        }
+
         [RuntimeModuleGetter("error", ReturnType = DynamicValueType.String)]
-        private static DynamicValue GetError(DynamicValue key)
+        private static DynamicValue GetError(DynamicValue _)
             => _error;
 
         private static void ClearError()
@@ -19,5 +33,6 @@ namespace Ceres.Runtime.Modules
         
         private static void SetError(string error)
             => _error = error;
+        
     }
 }

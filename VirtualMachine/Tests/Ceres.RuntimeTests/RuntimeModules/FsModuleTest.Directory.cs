@@ -7,7 +7,7 @@ using Shouldly;
 
 namespace Ceres.RuntimeTests.RuntimeModules
 {
-    public partial class FsModuleTest : ModuleTest<FsModule>
+    public partial class FsModuleTest
     {
         [Test]
         public void DirectoryExists()
