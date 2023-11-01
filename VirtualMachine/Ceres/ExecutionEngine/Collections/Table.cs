@@ -96,7 +96,7 @@ namespace Ceres.ExecutionEngine.Collections
             }
         }
 
-        public void Freeze(bool deep = false)
+        public Table Freeze(bool deep = false)
         {
             IsFrozen = true;
 
@@ -111,9 +111,11 @@ namespace Ceres.ExecutionEngine.Collections
                     }
                 }
             }
+
+            return this;
         }
 
-        public void Unfreeze(bool deep = false)
+        public Table Unfreeze(bool deep = false)
         {
             IsFrozen = false;
 
@@ -128,6 +130,8 @@ namespace Ceres.ExecutionEngine.Collections
                     }
                 }
             }
+
+            return this;
         }
 
         public Table GetKeys()
