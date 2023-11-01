@@ -225,6 +225,10 @@ namespace EVIL.Lexical
                 case ',':
                     State.CurrentToken = Token.Comma with { Line = line, Column = col };
                     break;
+                case ':' when Peek() == ':':
+                    Advance();
+                    State.CurrentToken = Token.DoubleColon with { Line = line, Column = col };
+                    break;
                 case ':':
                     State.CurrentToken = Token.Colon with { Line = line, Column = col };
                     break;
@@ -395,6 +399,7 @@ namespace EVIL.Lexical
                 "yield" => Token.Yield,
                 "each" => Token.Each,
                 "array" => Token.Array,
+                "self" => Token.Self,
                 "Infinity" => Token.Infinity,
                 "NaN" => Token.NaN,
                 "Nil" => Token.NilTypeCode,

@@ -1,0 +1,66 @@
+#[test(5)]
+fn selfness_in_table() {
+  val t = {
+    f: self::fn(a, b) -> self.result = a + b
+  };
+
+  val result = t::f(2, 3);
+  ret t.result;
+}
+
+#[test(21.37)]
+fn self_fn_ret() {
+  val t = { 
+    func: self::fn(a, b) {
+      self.result = a + b;
+      ret self.result;
+    }
+  };
+  
+  ret t::func(21, 0.37);
+}
+
+#[test]
+fn self_fn_state() {
+  val chair = {
+    __quips: array() {
+      "The chair is perfectly fine. It'd be a shame if someone decided to test it.",
+      "You broke the universe. Congratulations.",
+      "Situation in the middle-east now seems more stable than this chair.",
+      "As if we needed more than 4 legs on a freaking chair."
+    },
+    leg_count: 4,
+    
+    is_broken: self::fn() -> self.leg_count != 4,
+    get_status: self::fn() {
+      if (self.leg_count == 4) -> self.__quips[0];
+      elif (self.leg_count < 0) -> self.__quips[1];
+      elif (self.leg_count < 4) -> self.__quips[2];
+      elif (self.leg_count > 4) -> self.__quips[3];
+    },
+    break_leg: self::fn() -> self.leg_count--,
+    add_leg: self::fn() -> self.leg_count++
+  };
+  
+  rw val result = true;
+  result &= chair.leg_count == 4;
+  result &= chair::get_status() == chair.__quips[0];
+  
+  chair::add_leg();
+  result &= chair.leg_count == 5;
+  result &= chair::get_status() == chair.__quips[3];
+  
+  chair::break_leg();
+  chair::break_leg();
+  result &= chair.leg_count == 3;
+  result &= chair::get_status() == chair.__quips[2];
+  
+  chair::break_leg();
+  chair::break_leg();
+  chair::break_leg();
+  chair::break_leg();
+  result &= chair.leg_count == -1;
+  result &= chair::get_status() == chair.__quips[1];
+  
+  ret result;
+}

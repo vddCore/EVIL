@@ -80,13 +80,28 @@ namespace EVIL.Grammar.Parsing
                             Match(Token.Associate);
                         }
 
-                        value = AssignmentExpression();
+                        if (CurrentToken == Token.Self)
+                        {
+                            value = SelfFnExpression();
+                        }
+                        else
+                        {
+                            value = AssignmentExpression();
+                        }
+
                         initializers.Add(new KeyValuePairExpression(key, value));
                     }
                 }
                 else
                 {
-                    initializers.Add(AssignmentExpression());
+                    if (CurrentToken == Token.Self)
+                    {
+                        initializers.Add(SelfFnExpression());
+                    }
+                    else
+                    {
+                        initializers.Add(AssignmentExpression());
+                    }
                 }
 
                 if (CurrentToken.Type == TokenType.RBrace)

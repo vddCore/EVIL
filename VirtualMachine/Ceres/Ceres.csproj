@@ -145,5 +145,14 @@
     <Compile Update="TranslationEngine\Compiler.Expression.Array.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Self.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.SelfFn.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.SelfInvocation.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

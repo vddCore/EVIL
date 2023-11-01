@@ -12,15 +12,16 @@ namespace EVIL.Grammar.Parsing
             TokenType.LParenthesis,
             TokenType.LBracket,
             TokenType.Dot,
+            TokenType.DoubleColon,
             TokenType.Increment,
-            TokenType.Decrement
+            TokenType.Decrement,
         };
 
         private Expression PostfixExpression()
         {
             var node = PrimaryExpression();
             var token = CurrentToken;
-
+            
             __incdec:
             if (token.Type == TokenType.Increment)
             {
@@ -49,6 +50,10 @@ namespace EVIL.Grammar.Parsing
                 else if (token.Type == TokenType.LBracket || token.Type == TokenType.Dot)
                 {
                     node = Indexing(node);
+                }
+                else if (token.Type == TokenType.DoubleColon)
+                {
+                    node = SelfInvocationExpression(node);
                 }
 
                 token = CurrentToken;
