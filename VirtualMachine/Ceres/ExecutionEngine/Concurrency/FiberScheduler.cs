@@ -1,28 +1,27 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Ceres.ExecutionEngine.Concurrency
 {
-    public delegate void FiberCrashHandler(FiberScheduler scheduler, Fiber fiber, Exception exception);
 
     public class FiberScheduler
     {
         private CeresVM _vm;
+        private Fiber.FiberCrashHandler _defaultCrashHandler;
 
         private List<Fiber> _fibers;
         private List<int> _dueForRemoval;
 
         private bool _running;
-        private FiberCrashHandler? _crashHandler;
 
         public IReadOnlyList<Fiber> Fibers => _fibers;
         public bool IsRunning => _running;
         
-        public FiberScheduler(CeresVM vm)
+        public FiberScheduler(CeresVM vm, Fiber.FiberCrashHandler defaultCrashHandler)
         {
             _vm = vm;
-
+            _defaultCrashHandler = defaultCrashHandler;
+            
             _fibers = new();
             _dueForRemoval = new();
         }
@@ -54,7 +53,7 @@ namespace Ceres.ExecutionEngine.Concurrency
                         }
                         else
                         {
-                            if (fiber.State == FiberState.Finished)
+                            if (fiber.State == FiberState.Finished || fiber.State == FiberState.Crashed)
                             {
                                 if (!fiber.ImmuneToCollection)
                                 {
@@ -71,25 +70,18 @@ namespace Ceres.ExecutionEngine.Concurrency
                                 continue;
                             }
                         }
-
-                        try
-                        {
-                            fiber.Step();
-                        }
-                        catch (Exception e)
-                        {
-                            fiber.EnterCrashState();
-                            
-                            if (_crashHandler != null)
-                            {
-                                _crashHandler(this, fiber, e);
-                            }
-                        }
+                        
+                        fiber.Step();
                     }
 
                     RemoveFinishedFibers();
                 }
             }
+        }
+
+        public void SetDefaultCrashHandler(Fiber.FiberCrashHandler crashHandler)
+        {
+            _defaultCrashHandler = crashHandler;
         }
 
         public void Stop()
@@ -100,9 +92,10 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public Fiber CreateFiber(bool immunized)
+        public Fiber CreateFiber(bool immunized, Fiber.FiberCrashHandler? crashHandler = null)
         {
             var fiber = new Fiber(_vm);
+            fiber.SetCrashHandler(crashHandler ?? _defaultCrashHandler);
 
             if (immunized)
             {
@@ -115,11 +108,6 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
 
             return fiber;
-        }
-
-        public void SetCrashHandler(FiberCrashHandler handler)
-        {
-            _crashHandler = handler;
         }
 
         public void RemoveCrashedFibers()

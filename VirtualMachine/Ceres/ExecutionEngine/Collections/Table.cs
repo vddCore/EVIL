@@ -199,6 +199,9 @@ namespace Ceres.ExecutionEngine.Collections
 
         public bool IsDeeplyEqualTo(Table other)
         {
+            if (Length != other.Length)
+                return false;
+            
             lock (_values)
             {
                 for (var i = 0; i < _values.Keys.Count; i++)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Diagnostics;
@@ -117,7 +118,7 @@ namespace Ceres.LanguageTests
                 }
                 
                 VM.Global.Clear();
-                VM.Global.Set("__native_func", new((context, args) =>
+                VM.Global.Set("__native_func", new((_, args) =>
                 {
                     return args[3];
                 }));
@@ -126,7 +127,8 @@ namespace Ceres.LanguageTests
                 VM.Global.Set("__tricky", new TrickyTable());
                 
                 Runtime.RegisterBuiltInModules();
-
+                Runtime.RegisterModule<AssertModule>();
+                
                 var nonTestChunks = testScript.Chunks.Where(
                     x => !x.HasAttribute("test")
                 ).ToList();
@@ -152,11 +154,6 @@ namespace Ceres.LanguageTests
                     TextOut.Write($"[{i + 1}/{testChunks.Count}] ");
                     
                     var result = await RunTestChunk(chunk, path);
-                    
-                    if (VM.MainFiber.TryPeekValue(out _))
-                    {
-                        TextOut.WriteLine("[!!] Stack imbalance detected.");
-                    }
 
                     if (whenToDisassemble != "never"
                         && (whenToDisassemble == "always"
@@ -194,7 +191,6 @@ namespace Ceres.LanguageTests
 
         private async Task<bool?> RunTestChunk(Chunk chunk, string path)
         {
-
             var (ignore, why) = CheckIgnoreStatus(chunk);
 
             if (ignore)
@@ -210,89 +206,35 @@ namespace Ceres.LanguageTests
                 return null;
             }
 
+            var test = new Test(VM, chunk);
+            
             Stopwatch.Reset();
             Stopwatch.Start();
-            await VM.MainFiber.ScheduleAsync(chunk);
-            Stopwatch.Stop();
-            var stamp = $"{Stopwatch.Elapsed.TotalMicroseconds}μs";
-            
-            var testAttr = chunk.GetAttribute("test");
-            if (testAttr.Values.Count > 0)
             {
-                var expected = testAttr.Values[0];
+                await test.Run();
+            }
+            Stopwatch.Stop();
+            
+            var stamp = $"{Stopwatch.Elapsed.TotalMicroseconds}μs";
 
-                if (!VM.MainFiber.TryPopValue(out var actual))
-                {
-                    var msg = $"expected '{expected}', but the test returned no value. [{stamp}]";
-
-                    AddTestFailure(path, chunk, msg);
-                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
-
-                    return false;
-                }
-                else
-                {
-                    ApproximateIfSpecified(chunk, ref actual);
-
-                    if (DynamicValue.IsTruth(expected.IsEqualTo(actual)))
-                    {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
-                        return true;
-                    }
-                    else
-                    {
-                        var msg = $"{actual} is not equal to expected value '{expected}'. [{stamp}]";
-
-                        AddTestFailure(path, chunk, msg);
-                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
-
-                        return false;
-                    }
-                }
+            if (test.Successful)
+            {
+                TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
             }
             else
             {
-                if (!VM.MainFiber.TryPopValue(out var returnValue))
+                var msg = new StringBuilder();
+                msg.AppendLine($"{test.ErrorMessage} [{stamp}]");
+                foreach (var line in test.StackTrace)
                 {
-                    var msg = $"No value was returned. [{stamp}]";
-
-                    AddTestFailure(path, chunk, msg);
-                    TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
-
-                    return false;
+                    msg.AppendLine($"      {line}");
                 }
-                else
-                {
-                    if (DynamicValue.IsTruth(returnValue))
-                    {
-                        TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
-                        return true;
-                    }
-                    else
-                    {
-                        var msg = $"Test returned a failure state '{returnValue}'. [{stamp}]";
 
-                        AddTestFailure(path, chunk, msg);
-                        TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
-
-                        return false;
-                    }
-                }
+                AddTestFailure(path, chunk, msg.ToString());
+                TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
             }
-        }
 
-        private void ApproximateIfSpecified(Chunk chunk, ref DynamicValue value)
-        {
-            if (chunk.TryGetAttribute("approximate", out var approximateAttr))
-            {
-                var digits = 1;
-                if (approximateAttr.Values.Any())
-                {
-                    digits = (int)approximateAttr.Values[0].Number;
-                }
-
-                value = Math.Round(value.Number, digits);
-            }
+            return test.Successful;
         }
 
         private (bool Ignore, string? Reason) CheckIgnoreStatus(Chunk chunk)
@@ -336,8 +278,6 @@ namespace Ceres.LanguageTests
                 {
                     TextOut.WriteLine($"    {result.TestChunk.Name}: {result.FailureReason}");
                 }
-                
-                TextOut.WriteLine();
             }
         }
     }

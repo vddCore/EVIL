@@ -1,23 +1,48 @@
-﻿#[test(21.37)] fn ternary_true_with_constant() -> true ? 21.37 : "something went terribly wrong";
-#[test("jp2gmd")] fn ternary_false_with_constant() -> false ? "something went terribly wrong" : "jp2gmd";
+﻿#[test] 
+fn ternary_true_with_constant() {
+  val result = true 
+    ? 21.37 
+    : "something went terribly wrong";
+  
+  assert.equal(result, 21.37);
+}
 
-#[test(213.7)]
+#[test]
+fn ternary_false_with_constant() {
+  val result = false 
+    ? "something went terribly wrong"
+    : "jp2gmd";
+    
+  assert.equal(result, "jp2gmd");   
+}
+
+#[test]
 fn ternary_true_with_variable() {
   val x = 25;
-  ret x / 5 == 5 ? 213.7 : "something went terribly wrong";
+  val result = x / 5 == 5 
+    ? 213.7 
+    : "something went terribly wrong";
+    
+  assert.equal(result, 213.7);
 }
 
-#[test(2.137)]
+#[test]
 fn ternary_false_with_variable() {
   val x = 666;
-  ret x > 999 ? "something went terribly wrong" : 2.137;
+  val result = x > 999 
+    ? "something went terribly wrong" 
+    : 2.137;
+    
+  assert.equal(result, 2.137);
 }
 
-#[test("jeszcze jak")]
+#[test]
 fn ternary_true_nested() {
-  ret 21 < 37 
+  val result = 21 < 37 
     ? "jp2gmd" 
       ? "jeszcze jak" 
       : "nie wiem" 
     : "something went terribly wrong";
+    
+  assert.equal(result, "jeszcze jak");
 }

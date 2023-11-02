@@ -1,4 +1,4 @@
-﻿#[test(10)]
+﻿#[test]
 fn while_simple() {
   rw val a = 0;
   
@@ -6,10 +6,10 @@ fn while_simple() {
     a++;
   }
   
-  ret a;
+  assert.equal(a, 10);
 }
 
-#[test(5)]
+#[test]
 fn while_break() {
   rw val a = 0;
   
@@ -20,11 +20,11 @@ fn while_break() {
       break;
     }
   }
-  
-  ret a;
+
+  assert.equal(a, 5);  
 }
 
-#[test(2)]
+#[test]
 fn while_skip() {
   rw val a = 10;
   
@@ -33,11 +33,13 @@ fn while_skip() {
       skip;
     }
 
-    ret a;
+    break;
   }
+  
+  assert.equal(a, 2);
 }
 
-#[test(0)] 
+#[test] 
 fn while_false() {
   rw val a = 0;
   
@@ -45,7 +47,7 @@ fn while_false() {
     a = 10;
   }
   
-  ret a;
+  assert.equal(a, 0);
 }
 
 #[test]
@@ -65,5 +67,7 @@ fn while_nested() {
     }
   }
   
-  ret !a && !b && !c;
+  assert.equal(a, 0);
+  assert.equal(b, 0);
+  assert.equal(c, 0);
 }

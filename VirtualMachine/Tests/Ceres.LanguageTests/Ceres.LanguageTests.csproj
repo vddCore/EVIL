@@ -42,9 +42,6 @@
     <None Update="tests\009_invoke.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\010_runtime.vil">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="tests\011_type.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -81,10 +78,10 @@
     <None Update="tests\lib\test2.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\020_array.vil">
+    <None Update="tests\010_array.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\021_self.vil">
+    <None Update="tests\020_self.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -12,6 +12,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 return new(a.Table!.IsDeeplyEqualTo(b.Table!));
             }
 
+            if (a.Type == DynamicValueType.Array && b.Type == DynamicValueType.Array)
+            {
+                return new(a.Array!.IsDeeplyEqualTo(b.Array!));
+            }
+
             try
             {
                 return IsEqualTo(a, b);
@@ -29,6 +34,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             if (a.Type == DynamicValueType.Table && b.Type == DynamicValueType.Table)
             {
                 return new(!a.Table!.IsDeeplyEqualTo(b.Table!));
+            }
+            
+            if (a.Type == DynamicValueType.Array && b.Type == DynamicValueType.Array)
+            {
+                return new(!a.Array!.IsDeeplyEqualTo(b.Array!));
             }
 
             try

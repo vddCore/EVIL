@@ -1,13 +1,23 @@
 ﻿#[test]
 fn table_empty() {
   val a = {};
-  ret (#a == 0) && (a is Table);
+  
+  assert.is_of_type(a, Table);
+  assert.equal(#a, 0);
 }
 
 #[test]
 fn table_value_init() {
   val a = { 1, 2, 3, 4, 5 };
-  ret (#a == 5) && (a is Table);
+  
+  assert.is_of_type(a, Table);
+  assert.equal(#a, 5);
+  
+  assert.equal(a[0], 1);
+  assert.equal(a[1], 2);
+  assert.equal(a[2], 3);
+  assert.equal(a[3], 4);
+  assert.equal(a[4], 5);
 }
 
 #[test]
@@ -18,13 +28,37 @@ fn table_constkeyed_init() {
     2137 => { "jp", 2, "gmd"}
   };
   
-  ret (#a == 3) && (a is Table);
+  assert.is_of_type(a, Table);
+  assert.equal(#a, 3);
+  assert.is_true("key_a" in a);
+  assert.is_true("key_b" in a);
+  assert.is_true(2137 in a);  
+  assert.equal(a.key_a, 123);
+  assert.equal(a.key_b, 234);
+
+  val inner_table = a[2137];
+  assert.is_of_type(inner_table, Table);
+  assert.equal(#inner_table, 3);
+  assert.is_true(0 in inner_table);
+  assert.is_true(1 in inner_table);
+  assert.is_true(2 in inner_table);
+  assert.equal(inner_table[0], "jp");
+  assert.equal(inner_table[1], 2);
+  assert.equal(inner_table[2], "gmd");
 }
 
-#[test(64.11);approximate(2)]
+#[test]
 fn table_identkeyed() {
   val vec = { x: 21.37, y: 42.74 };
-  ret vec.x + vec.y;
+  
+  assert.is_of_type(vec, Table);
+  assert.equal(#vec, 2);
+  
+  assert.is_true("x" in vec);
+  assert.is_true("y" in vec);
+  
+  assert.equal(vec.x, 21.37);
+  assert.equal(vec.y, 42.74);
 }
 
 #[test]
@@ -36,7 +70,23 @@ fn table_computedkey_init() {
     [21 + 0.37] => "dla ciebie liczba pierwsza dla niego ostatnia"
   };
   
-  ret (#a == 4) && (a is Table);
+  assert.is_of_type(a, Table);
+  assert.equal(#a, 4);
+  
+  val k1 = 2 + 1.37,
+      k2 = 21 + $"37",
+      k3 = @21 + "37",
+      k4 = 21 + 0.37;
+      
+  assert.is_true(k1 in a);
+  assert.is_true(k2 in a);
+  assert.is_true(k3 in a);
+  assert.is_true(k4 in a);
+  
+  assert.equal(a[k1], "jp2gmd");
+  assert.equal(a[k2], "można, jak najbardziej");
+  assert.equal(a[k3], "jeszcze jak");
+  assert.equal(a[k4], "dla ciebie liczba pierwsza dla niego ostatnia");
 }
 
 #[test]
@@ -47,81 +97,58 @@ fn table_mixed_keying() {
     "c" => "yayy"
   };
   
-  ret a.b == "haha funny"
-   && a[213.7] == "blah"
-   && a.c == "yayy";
+  assert.is_of_type(a, Table);
+  assert.equal(#a, 3);
+  
+  assert.is_true("b" in a);
+  assert.is_true(213 + .7 in a);
+  assert.is_true("c" in a);
+  
+  assert.equal(a.b, "haha funny");
+  assert.equal(a[213 + .7], "blah");
+  assert.equal(a.c, "yayy");
 }
 
 #[test]
-fn table_initialized_values_match() {
-  val a = { 1, 2, 2.137, 3 };
-  
-  ret a[0] == 1
-   && a[1] == 2
-   && a[2] == 2.137
-   && a[3] == 3;
-}
-
-#[test]
-fn table_constkeyed_initialized_values_match() {
-  val a = {
-    "test" => "result",
-    "yes" => 1234,
-    true => 2137
-  };
-  
-  ret a["test"] == "result"
-   && a["yes"] == 1234
-   && a[true] == 2137;
-}
-
-#[test("uwu")]
-fn table_identifier_indexing() {
-  val a = { nya: "uwu" };
-  ret a.nya;
-}
-
-#[test(21.37)]
 fn nested_table_indexing() {
   val a = { 1, { 2, 3, { 4, 5, 6, { 7, 8, 9, 10, 21.37 } } } };
-  ret a[1][2][3][4];
+  
+  assert.is_of_type(a, Table); 
+  assert.equal(a[1][2][3][4], 21.37);
 }
 
-#[test(213.7)]
+#[test]
 fn nested_table_identifier_indexing() {
   val a = { b: { c: { d: { j: { p2gmd: 213.7 } } } } };
   
-  ret a.b.c.d.j.p2gmd;
+  assert.is_of_type(a, Table);
+  assert.equal(a.b.c.d.j.p2gmd, 213.7);
 }
 
-#[test("21.37")]
+#[test]
 fn tables_are_references() {
   val t = { { 21.37 } };
   val t2 = { t[0] };
   
   t2[0][0] = "21.37";
-  ret t[0][0];
+  
+  assert.equal(t[0][0], "21.37"); 
 }
 
-#[test] fn table_equality_is_by_reference() -> { 0, 255, 0 } != { 0, 255, 0 };
-#[test] fn table_is_deeply_equal_flat() -> { 0, 255, 0 } <==> { 0, 255, 0 };
-#[test] fn table_is_deeply_not_equal_flat() -> { 0, 1, 2 } <!=> { 3, 4, 5 };
-#[test] fn table_is_deeply_equal_nested() -> { 0, 1, 2, { 3, 4, 5 }, 21.37 } <==> { 0, 1, 2, { 3, 4, 5 }, 21.37 };
-#[test] fn table_is_deeply_not_equal_nested() -> { 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 };
+#[test] fn table_equality_is_by_reference() -> assert.is_true({ 0, 255, 0 } != { 0, 255, 0 });
+#[test] fn table_is_deeply_equal_flat() -> assert.is_true({ 0, 255, 0 } <==> { 0, 255, 0 });
+#[test] fn table_is_deeply_not_equal_flat() -> assert.is_true({ 0, 1, 2 } <!=> { 3, 4, 5 });
+#[test] fn table_is_deeply_equal_nested() -> assert.is_true({ 0, 1, 2, { 3, 4, 5 }, 21.37 } <==> { 0, 1, 2, { 3, 4, 5 }, 21.37 });
+#[test] fn table_is_deeply_not_equal_nested() -> assert.is_true({ 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 });
 
 #[test] 
 fn table_tricky_works() {
-  val first = __tricky.d20;
-  val second = __tricky.d20;
-  val third = __tricky.d20;
-  val fourth = __tricky.d20;
-  
   __tricky.d20 = 1337;
   
-  ret first == nil
-   && second == nil
-   && third == nil
-   && fourth is Number
-   && __tricky.d20 != 1337
-   && !("d20" in __tricky); 
+  assert.equal(__tricky.d20, nil);
+  assert.equal(__tricky.d20, nil);
+  assert.equal(__tricky.d20, nil);
+  assert.is_of_type(__tricky.d20, Number);
+  assert.not_equal(__tricky.d20, 1337);
+  assert.is_false("d20" in __tricky);
 }

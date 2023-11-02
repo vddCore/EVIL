@@ -1,19 +1,19 @@
-﻿#[test(false)] fn nil_is_false() -> nil ? true : false;
-#[test(false)] fn zero_is_false() -> 0 ? true : false;
-#[test(false)] fn false_is_false() -> false ? true : false;
+﻿#[test] fn nil_is_false() -> assert.is_false(nil ? true : false);
+#[test] fn zero_is_false() -> assert.is_false(0 ? true : false);
+#[test] fn false_is_false() -> assert.is_false(false ? true : false);
 
 #[test]
 fn nil_coalesced_to_boolean_is_false() {
   val a = !!nil;
   
-  ret a is Boolean 
-   && a == false;
+  assert.is_of_type(a, Boolean);
+  assert.is_false(a);
 }
 
 #[test]
 fn zero_coalesced_to_boolean_is_false() {
   val a = !!0;
   
-  ret a is Boolean
-   && a == false;
+  assert.is_of_type(a, Boolean);
+  assert.is_false(a);
 }
