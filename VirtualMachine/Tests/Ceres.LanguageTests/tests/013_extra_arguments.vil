@@ -1,13 +1,19 @@
-﻿fn xargs_1(a, b, c) -> ...[0] + ...[1];
-fn xargs_2() -> ...[0] + ...[1];
-
-
-#[test(21.37)]
+﻿#[test]
 fn xargs_formal_params() {
-  ret xargs_1(1, 2, 3, 21, 0.37);
+  val f = fn(a, b, c) -> ...[0] + ...[1];
+
+  assert.equal(
+    f(1, 2, 3, 21, 0.37),
+    21.37
+  );
 }
 
-#[test(2.137)]
+#[test]
 fn xargs_no_formal_params() {
-  ret xargs_2(2, 0.137);
+  val f = fn() -> ...[0] + ...[1];
+  
+  assert.equal(
+    f(2, 0.137),
+    2.137
+  );
 }

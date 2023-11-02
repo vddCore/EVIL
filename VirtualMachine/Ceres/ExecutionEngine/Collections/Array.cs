@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Collections
 {
@@ -52,6 +53,35 @@ namespace Ceres.ExecutionEngine.Collections
 
         public int IndexOf(DynamicValue value)
             => System.Array.IndexOf(_values, value);
+        
+        public bool IsDeeplyEqualTo(Array other)
+        {
+            if (Length != other.Length)
+                return false;
+            
+            lock (_values)
+            {
+                for (var i = 0; i < Length; i++)
+                {
+                    if (this[i].Type == DynamicValueType.Table || this[i].Type == DynamicValueType.Array)
+                    {
+                        if (!DynamicValue.IsTruth(this[i].IsDeeplyEqualTo(other[i])))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (!DynamicValue.IsTruth(this[i].IsEqualTo(other[i])))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
         
         public static Array FromString(string s)
         {

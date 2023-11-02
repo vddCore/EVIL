@@ -20,6 +20,8 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     return a.Boolean.ToString().ToLowerInvariant();
                 case DynamicValueType.Table:
                     return $"Table[{a.Table!.Length}]";
+                case DynamicValueType.Array:
+                    return $"Array[{a.Array!.Length}]";
                 case DynamicValueType.Fiber:
                 {
                     unsafe

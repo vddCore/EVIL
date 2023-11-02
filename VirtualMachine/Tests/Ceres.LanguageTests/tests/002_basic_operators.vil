@@ -1,98 +1,199 @@
-#[test] fn eq() -> 2 == 2;
-#[test] fn ne() -> 10 != 5;
-#[test] fn gt() -> 10 > 2;
-#[test] fn lt() -> 1 < 3;
-#[test] fn gte() -> 2 >= 2;
-#[test] fn lte() -> 4 <= 4;
+#[test] fn eq() -> assert.is_true(2 == 2);
+#[test] fn ne() -> assert.is_true(10 != 5);
+#[test] fn gt() -> assert.is_true(10 > 2);
+#[test] fn lt() -> assert.is_true(1 < 3);
+#[test] fn gte() -> assert.is_true(2 >= 2);
+#[test] fn lte() -> assert.is_true(4 <= 4);
 
-#[test(4)] fn add_int() -> 2 + 2;
-#[test(21.37)] fn add_fp64() -> 21 + 0.37;
+#[test] fn add_int() -> assert.equal(2 + 2, 4);
+#[test] fn add_fp64() -> assert.equal(21 + 0.37, 21.37);
 
-#[test(2)] fn sub_int() -> 3 - 1;
-#[test(2.137)] fn sub_fp64() -> 3 - 0.863;
+#[test] fn sub_int() -> assert.equal(3 - 1, 2);
+#[test] fn sub_fp64() -> assert.equal(3 - 0.863, 2.137);
 
-#[test(4)] fn div_int() -> 20 / 5;
-#[test(213.7)] fn div_fp64() -> 1923.3 / 9;
+#[test] fn div_int() -> assert.equal(20 / 5, 4);
+#[test] fn div_fp64() -> assert.equal(1923.3 / 9, 213.7);
 
-#[test(4)] fn mod_int() -> 9 % 5;
-#[test(2.5); approximate] fn mod_fp64() -> 21 % 3.7;
-#[test(3)] fn mod_fp64_neg() -> (-1) % 4;
+#[test] fn mod_int() -> assert.equal(9 % 5, 4);
+#[test] fn mod_fp64() -> assert.approx_equal(21 % 3.7, 2.5);
+#[test] fn mod_fp64_neg() -> assert.equal((-1) % 4, 3);
 
-#[test(80)] fn mul_int() -> 4 * 20;
-#[test(0.2137)] fn mul_fp64() -> 20 * 0.010685;
+#[test] fn mul_int() -> assert.equal(4 * 20, 80);
+#[test] fn mul_fp64() -> assert.equal(20 * 0.010685, 0.2137);
 
-#[test(0x0F00)] fn band() -> 0xFFFF & 0x0F00;
-#[test(0x000F)] fn bxor() -> 0xFFFF ^ 0xFFF0;
-#[test(0xFFFF)] fn bnot() -> ~0 & 0xFFFF;
-#[test(0xFFF0)] fn bor() -> 0x00F0 | 0xF000 | 0x0F00;
+#[test] fn band() -> assert.equal(0xFFFF & 0x0F00, 0x0F00);
+#[test] fn bxor() -> assert.equal(0xFFFF ^ 0xFFF0, 0x000F);
+#[test] fn bnot() -> assert.equal(~0 & 0xFFFF, 0xFFFF);
+#[test] fn bor() -> assert.equal(0x00F0 | 0xF000 | 0x0F00, 0xFFF0);
+#[test] fn shl_num() -> assert.equal(1 << 4, 16);
+#[test] fn shr_num() -> assert.equal(0x80 >> 2, 32);
+#[test] fn shl_str() -> assert.equal("nyaaaaaa" << 2, "aaaaaa");
+#[test] fn shr_str() -> assert.equal("nyaaaaaa" >> 2, "nyaaaa");
 
-#[test(16)] fn shl_num() -> 1 << 4;
-#[test(32)] fn shr_num() -> 0x80 >> 2;
-#[test("aaaaaa")] fn shl_str() -> "nyaaaaaa" << 2;
-#[test("nyaaaa")] fn shr_str() -> "nyaaaaaa" >> 2;
+#[test] fn exist_str() -> assert.is_true("a" in "blah");
+#[test] fn noexist_str() -> assert.is_false("f" in "blah");
+#[test] fn exist_tbl() -> assert.is_true("a" in { "a" => 2137 });
+#[test] fn noexist_tbl() -> assert.is_false("a" in { });
+#[test] fn exist_arr() -> assert.is_true("a" in array() { "a", "b", "c" });
+#[test] fn noexist_arr() -> assert.is_false("x" in array() { "a", "b", "c" });
 
-#[test] fn exist_str() -> "a" in "blah";
-#[test] fn noexist_str() -> !("f" in "blah");
-#[test] fn exist_tbl() -> "a" in { "a" => 2137 };
-#[test] fn noexist_tbl() -> !("a" in { });
+#[test] fn len_str() -> assert.equal(#"ąćężółń", 7);
+#[test] fn len_tbl() -> assert.equal(#{2,1,3,7}, 4);
 
-#[test(7)] fn len_str() -> #"ąćężółń";
-#[test(4)] fn len_tbl() -> #{2,1,3,7};
+#[test]
+fn tostr_num() {
+  val str = @4;
+  
+  assert.is_of_type(str, String);
+  assert.equal(str, "4");
+}
 
-#[test("4")] fn tostr_num() -> @4;
-#[test("asdfg")] fn tostr_str() -> @"asdfg";
-#[test("true")] fn tostr_bool_true() -> @true;
-#[test("false")] fn tostr_bool_false() -> @false;
+#[test]
+fn tostr_str() {
+  val str = @"asdfg";
+  
+  assert.is_of_type(str, String);
+  assert.equal(str, "asdfg");
+}
 
-#[test(2137)] fn tonum_int() -> $"2137";
-#[test(21.37)] fn tonum_fp64() -> $"21.37";
-#[test(0)] fn tonum_bool_false() -> $(false);
-#[test(1)] fn tonum_bool_true() -> $(true);
+#[test]
+fn tostr_bool_true() {
+  val str = @true;
+  
+  assert.is_of_type(str, String);
+  assert.equal(str, "true");
+}
+
+#[test]
+fn tostr_bool_false() {
+  val str = @false;
+ 
+  assert.is_of_type(str, String);
+  assert.equal(str, "false");
+}
+
+#[test]
+fn tonum_int() {
+  val num = $"2137";
+  
+  assert.is_of_type(num, Number);
+  assert.equal(num, 2137);
+}
+
+#[test]
+fn tonum_fp64() {
+  val num = $"21.37";
+  
+  assert.is_of_type(num, Number);
+  assert.equal(num, 21.37);
+}
+
+#[test]
+fn tonum_bool_false() {
+  val num = $(false);
+  
+  assert.is_of_type(num, Number);
+  assert.equal(num, 0);
+}
+
+#[test]
+fn tonum_bool_true() {
+  val num = $(true);
+  
+  assert.is_of_type(num, Number);
+  assert.equal(num, 1);
+}
 
 #[test]
 fn postinc_var() {
   rw val a = 10;
-  ret (a++ == 10) && (a == 11);
+  
+  assert.equal(a++, 10);
+  assert.equal(a, 11);
 }
 
 #[test]
 fn postinc_tbl_member() {
   val a = { 10 };
-  ret (a[0]++ == 10) && (a[0] == 11);
+  
+  assert.equal(a[0]++, 10);
+  assert.equal(a[0], 11);
+}
+
+#[test]
+fn postinc_arr_element() {
+  val a = array() { 3 };
+  
+  assert.equal(a[0]++, 3);
+  assert.equal(a[0], 4);
 }
 
 #[test]
 fn preinc_var() { 
   rw val a = 10;
-  ret (++a == 11) && (a == 11);
+  
+  assert.equal(++a, 11);
+  assert.equal(a, 11);
 }
 
 #[test]
 fn preinc_tbl_member() {
   val a = { 10 };
-  ret (++a[0] == 11) && (a[0] == 11);
+  
+  assert.equal(++a[0], 11);
+  assert.equal(a[0], 11);
+}
+
+#[test]
+fn preinc_arr_element() {
+  val a = array() { 3 };
+  
+  assert.equal(++a[0], 4);
+  assert.equal(a[0], 4);
 }
 
 #[test]
 fn postdec_var() {
   rw val a = 10;
-  ret (a-- == 10) && (a == 9);
+  
+  assert.equal(a--, 10); 
+  assert.equal(a, 9);
 }
 
 #[test]
 fn postdec_tbl_member() {
   val a = { 10 };
-  ret (a[0]-- == 10) && (a[0] == 9);
+  
+  assert.equal(a[0]--, 10);
+  assert.equal(a[0], 9);
+}
+
+#[test]
+fn postdec_arr_element() {
+  val a = array() { 3 };
+  
+  assert.equal(a[0]--, 3);
+  assert.equal(a[0], 2);
 }
 
 #[test]
 fn predec_var() {
   rw val a = 10;
-  ret (--a == 9) && (a == 9);
+  
+  assert.equal(--a, 9);
+  assert.equal(a, 9);
 }
 
 #[test]
 fn predec_tbl_member() {
   val a = { 10 };
   ret (--a[0] == 9) && (a[0] == 9);
+}
+
+#[test]
+fn predec_arr_element() {
+  val a = array() { 3 };
+  
+  assert.equal(--a[0], 2);
+  assert.equal(a[0], 2);
 }

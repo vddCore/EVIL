@@ -1,52 +1,52 @@
 ﻿fn testchunk() { }
 
-#[test(Nil)] fn type_nil() -> typeof(nil);
-#[test(Number)] fn type_number() -> typeof(2137);
-#[test(Boolean)] fn type_boolean() -> typeof(false);
-#[test(String)] fn type_str() -> typeof("jp2gmd");
-#[test(Table)] fn type_table() -> typeof({});
-#[test(Array)] fn arr_type() -> typeof(array(10));
-#[test(Function)] fn type_chunk() -> typeof(testchunk);
-#[test(Type)] fn type_type() -> typeof(typeof(0));
-#[test(NativeFunction)] fn type_nativefunction() -> typeof(__native_func);
-#[test(NativeObject)] fn type_nativeobject() -> typeof(__native_object);
+#[test] fn type_nil() -> assert.equal(typeof(nil), Nil);
+#[test] fn type_number() -> assert.equal(typeof(2137), Number);
+#[test] fn type_boolean() -> assert.equal(typeof(false), Boolean);
+#[test] fn type_str() -> assert.equal(typeof("jp2gmd"), String);
+#[test] fn type_table() -> assert.equal(typeof({}), Table);
+#[test] fn type_array() -> assert.equal(typeof(array(10)), Array);
+#[test] fn type_chunk() -> assert.equal(typeof(testchunk), Function);
+#[test] fn type_type() -> assert.equal(typeof(typeof(0)), Type);
+#[test] fn type_nativefunction() -> assert.equal(typeof(__native_func), NativeFunction);
+#[test] fn type_nativeobject() -> assert.equal(typeof(__native_object), NativeObject);
 
 #[test]
 fn value_is_nil() {
   val testval = nil;
   
-  ret testval is Nil
-   && testval == nil;
+  assert.is_true(testval is Nil);
+  assert.equal(testval, nil);
 }
 
 #[test]
 fn value_is_number() {
   val testval = 2137;
   
-  ret testval is Number
-   && testval == 2137;
+  assert.is_true(testval is Number);
+  assert.equal(testval, 2137);
 }
 
 #[test]
 fn value_is_boolean() {
   val testval = false;
   
-  ret testval is Boolean
-   && !testval;
+  assert.is_true(testval is Boolean);
+  assert.equal(testval, false);
 }
 
 #[test]
 fn value_is_string() {
   val testval = "2137";
   
-  ret testval is String
-   && testval == "2137";
+  assert.is_true(testval is String);
+  assert.equal(testval, "2137");
 }
 
 #[test]
 fn value_is_table() {
   val testval = { 1, 2, 3 };
-  ret testval is Table;
+  assert.is_true(testval is Table);
 }
 
 #[test]
@@ -56,37 +56,37 @@ fn values_in_table_are_matching_types() {
     10 => "111"
   };
   
-  ret testval is Table
-   && testval.a is Number
-   && testval[10] is String;
+  assert.is_true(testval is Table);
+  assert.is_true(testval.a is Number);
+  assert.is_true(testval[10] is String);
 }
 
 #[test]
 fn value_is_chunk() {
   val testval = fn(a, b) -> a + b;
-  ret testval is Function;
+  assert.is_true(testval is Function);
 }
 
 #[test]
 fn value_is_native_func() {
   val testval = __native_func;
-  ret testval is NativeFunction;
+  assert.is_true(testval is NativeFunction);
 }
 
 #[test]
 fn value_is_native_object() {
   val testval = __native_object;
-  ret testval is NativeObject;
+  assert.is_true(testval is NativeObject);
 }
 
 #[test]
 fn value_is_not_number() {
   val testval = "string lol";
-  ret testval !is Number;
+  assert.is_true(testval !is Number);
 }
 
 #[test]
 fn value_is_not_string() {
   val testval = 21.37;
-  ret testval !is String;
+  assert.is_true(testval !is String);
 }

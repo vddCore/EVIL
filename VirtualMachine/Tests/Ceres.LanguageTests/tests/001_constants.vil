@@ -1,10 +1,44 @@
-﻿#[test(nil)] fn nil_is_nil() -> nil;
-#[test(213.7)] fn number_is_number() -> 213.7;
-#[test("2137 jp2gmd")] fn string_is_string() -> "2137 jp2gmd";
+﻿#[test] 
+fn nil_is_nil() {
+  assert.is_of_type(nil, Nil);
+  assert.equal(nil, nil);
+}
 
-#[test(false)] fn false_is_false() -> false;
-#[test(true)] fn true_is_true() -> true;
+#[test] 
+fn number_is_number() {
+  assert.is_of_type(21.37, Number);
+  assert.equal(21.37, 21.37);
+}
 
-#[test] fn nan_is_in_fact_a_number() -> NaN is Number;
-#[test] fn infinity_is_a_number_too() -> Infinity is Number;
-#[test] fn can_invert_infinity() -> -Infinity != Infinity;
+#[test] 
+fn string_is_string() {
+  assert.is_of_type("jp2gmd", String);
+  assert.equal("jp2gmd", "jp2gmd");
+}
+
+#[test]
+fn false_is_false() {
+  assert.is_of_type(false, Boolean);
+  assert.equal(false, false);
+}
+
+#[test]
+fn true_is_true() {
+  assert.is_of_type(true, Boolean);
+  assert.equal(true, true);
+}
+
+#[test]
+fn nan_is_in_fact_a_number() {
+  assert.is_of_type(NaN, Number);
+}
+
+#[test]
+fn infinity_is_a_number_too() {
+  assert.is_of_type(Infinity, Number);
+}
+
+#[test] 
+fn can_invert_infinity() {
+  assert.not_equal(Infinity, -Infinity);
+}

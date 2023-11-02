@@ -13,7 +13,6 @@ namespace Ceres.ExecutionEngine
         internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
         
         public Table Global { get; }
-        
         public FiberScheduler Scheduler { get; }
         public Fiber MainFiber { get; }
 
@@ -25,9 +24,7 @@ namespace Ceres.ExecutionEngine
         public CeresVM(Table global)
         {
             Global = global;
-            Scheduler = new FiberScheduler(this);
-            Scheduler.SetCrashHandler(DefaultCrashHandler);
-            
+            Scheduler = new FiberScheduler(this, DefaultCrashHandler);
             MainFiber = Scheduler.CreateFiber(true);
         }
 
@@ -78,7 +75,7 @@ namespace Ceres.ExecutionEngine
             _schedulerTask?.Dispose();
         }
 
-        private void DefaultCrashHandler(FiberScheduler scheduler, Fiber fiber, Exception exception)
+        private void DefaultCrashHandler(Fiber fiber, Exception exception)
         {
             throw new VirtualMachineException("A fiber has crashed.", exception);
         }

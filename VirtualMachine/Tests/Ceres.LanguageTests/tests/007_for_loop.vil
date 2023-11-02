@@ -1,11 +1,12 @@
-﻿#[test(10)]
+﻿#[test]
 fn for_simple() {
   rw val i;
   for (i = 0; i < 10; ++i) {}
-  ret i;
+  
+  assert.equal(i, 10);
 }
 
-#[test(10)]
+#[test]
 fn for_simple_skip() {
   rw val i;
   
@@ -13,10 +14,10 @@ fn for_simple_skip() {
     skip;
   }
   
-  ret i;
+  assert.equal(i, 10);
 }
 
-#[test(5)]
+#[test]
 fn for_simple_break() {
   rw val i;
   
@@ -25,7 +26,7 @@ fn for_simple_break() {
       break;
   }
   
-  ret i;
+  assert.equal(i, 5);
 }
 
 #[test]
@@ -38,12 +39,12 @@ fn for_nested() {
     }
   }
   
-  ret i == 10 
-   && j == 10 
-   && k == 10;
+  assert.equal(i, 10);
+  assert.equal(j, 10);
+  assert.equal(k, 10);
 }
 
-#[test(6)]
+#[test]
 fn for_nested_break() {
   rw val broken = false;
   rw val i;
@@ -62,14 +63,16 @@ fn for_nested_break() {
     }
   }
   
-  ret i;
+  assert.equal(i, 6);
 }
 
-#[test(20)]
+#[test]
 fn for_multiple_statements() {
-  rw val j = 0;
+  rw val i;
+  rw val j;
   
-  for (rw val i = 0; i < 10; i++, j += 2) { }
+  for (i = 0, j = 0; i < 10; i++, j += 2) { }
   
-  ret j; 
+  assert.equal(i, 10);
+  assert.equal(j, 20);
 }

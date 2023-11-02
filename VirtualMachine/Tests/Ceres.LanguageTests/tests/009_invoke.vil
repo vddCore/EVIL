@@ -2,7 +2,7 @@
 fn add(a, b) -> a + b;
 fn get_add_fn() -> add; 
 
-#[test(nil)] fn no_ret_is_nil() -> noret();
-#[test(4)] fn invoke() -> add(2, 2);
-#[test(6)] fn invoke_indirect() -> get_add_fn()(3, 3);
-#[test(21.37)] fn invoke_native() -> __native_func(1, 2, 3, 21.37);
+#[test] fn no_ret_is_nil() -> assert.equal(noret(), nil);
+#[test] fn invoke() -> assert.equal(add(2, 2), 4);
+#[test] fn invoke_indirect() -> assert.equal(get_add_fn()(3, 3), 6);
+#[test] fn invoke_native() -> assert.equal(__native_func(1, 2, 3, 21.37), 21.37);

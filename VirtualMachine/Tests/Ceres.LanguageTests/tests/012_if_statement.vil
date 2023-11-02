@@ -1,22 +1,33 @@
-﻿#[test(1)]
+﻿#[test]
 fn if_condition_simple() {
-  if (true) { ret 1; }
+  rw val result = 0;
+  if (true) { result = 1; }
+  
+  assert.equal(result, 1);
 }
 
-#[test(2)]
+#[test]
 fn if_else() {
-  if (false) { ret 1; }
-  else { ret 2; }
+  rw val result = 0;
+  
+  if (false) { result = 1; }
+  else { result = 2; }
+  
+  assert.equal(result, 2);
 }
 
-#[test(3)] 
+#[test] 
 fn if_elif_else() {
-  if (1 == 2) { ret 1; }
-  elif (2 == 3) { ret 2; }
-  else { ret 3; }
+  rw val result = 0;
+  
+  if (1 == 2) { result = 1; }
+  elif (2 == 3) { result = 2; }
+  else { result = 3; }
+  
+  assert.equal(result, 3);
 }
 
-#[test(21.37)]
+#[test]
 fn only_first_true_elif_is_executed() {
   rw val result;
   
@@ -26,12 +37,16 @@ fn only_first_true_elif_is_executed() {
   elif (@true) { result = "something went terribly wrong"; }
   else { result = "better fix that parser, sis..."; }
   
-  ret result;
+  assert.equal(result, 21.37);
 }
 
-#[test(3)]
+#[test]
 fn if_elif_else_implicit_ret() {
-  if (1 == 2) -> 1;
-  elif (2 == 3) -> 2;
-  else -> 3;
+  val test_fn = fn() {
+    if (1 == 2) -> 1;
+    elif (2 == 3) -> 2;
+    else -> 3;
+  };
+
+  assert.equal(test_fn(), 3);
 }

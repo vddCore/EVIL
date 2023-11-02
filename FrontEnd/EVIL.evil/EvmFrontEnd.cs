@@ -133,7 +133,7 @@ namespace EVIL.evil
                 _vm.Global[chunk.Name] = chunk;
             }
 
-            _vm.Scheduler.SetCrashHandler(CrashHandler);
+            _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
             _vm.Start();
             await _vm.MainFiber.ScheduleAsync(mainChunk, scriptArgs);
         }
@@ -162,11 +162,11 @@ namespace EVIL.evil
             return fileNames;
         }
 
-        private void CrashHandler(FiberScheduler scheduler, Fiber fiber, Exception exception)
+        private void CrashHandler(Fiber fiber, Exception exception)
         {
             var callStack = fiber.CallStack;
             var top = callStack.Peek().As<ScriptStackFrame>();
-            var fiberArray = scheduler.Fibers.ToArray();
+            var fiberArray = _vm.Scheduler.Fibers.ToArray();
             var fiberIndex = Array.IndexOf(fiberArray, fiber);
 
             var sb = new StringBuilder();

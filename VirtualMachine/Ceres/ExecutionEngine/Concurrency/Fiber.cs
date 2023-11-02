@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace Ceres.ExecutionEngine.Concurrency
 {
     public sealed class Fiber
     {
+        public delegate void FiberCrashHandler(Fiber fiber, Exception exception);
+
         private Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
         private HashSet<Fiber> _waitingFor;
 
@@ -16,6 +19,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         private CallStack _callStack;
 
         private ExecutionUnit _executionUnit;
+        private FiberCrashHandler? _crashHandler;
 
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
 
@@ -126,30 +130,42 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         public void Step()
         {
-            if (State != FiberState.Running)
-                return;
-
-            lock (_callStack)
+            try
             {
-                if (_callStack.Count == 0)
+                if (State != FiberState.Running)
+                    return;
+
+                lock (_callStack)
                 {
-                    lock (_scheduledChunks)
+                    if (_callStack.Count == 0)
                     {
-                        if (!_scheduledChunks.Any())
+                        lock (_scheduledChunks)
                         {
-                            State = FiberState.Finished;
-                            return;
-                        }
-                        else
-                        {
-                            var info = _scheduledChunks.Dequeue();
-                            Invoke(info.Chunk, info.Arguments);
+                            if (!_scheduledChunks.Any())
+                            {
+                                State = FiberState.Finished;
+                                return;
+                            }
+                            else
+                            {
+                                var info = _scheduledChunks.Dequeue();
+                                Invoke(info.Chunk, info.Arguments);
+                            }
                         }
                     }
                 }
-            }
 
-            _executionUnit.Step();
+                _executionUnit.Step();
+            }
+            catch (Exception e)
+            {
+                EnterCrashState();
+                
+                if (_crashHandler != null)
+                {
+                    _crashHandler(this, e);
+                }
+            }
         }
 
         public void Yield()
@@ -310,9 +326,9 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        internal void EnterCrashState()
+        public void SetCrashHandler(FiberCrashHandler? crashHandler)
         {
-            State = FiberState.Crashed;
+            _crashHandler = crashHandler;
         }
 
         internal void RemoveFinishedAwaitees()
@@ -320,6 +336,11 @@ namespace Ceres.ExecutionEngine.Concurrency
             _waitingFor.RemoveWhere(x => x.State == FiberState.Finished);
         }
 
+        private void EnterCrashState()
+        {
+            State = FiberState.Crashed;
+        }
+        
         private void Invoke(Chunk chunk, DynamicValue[] args)
         {
             lock (_callStack)

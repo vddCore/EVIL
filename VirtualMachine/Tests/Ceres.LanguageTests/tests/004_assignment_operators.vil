@@ -1,67 +1,89 @@
 ﻿#[test]
 fn assignment_var_direct() {
   rw val x = 20;
-  ret ((x = 10) == 10) && (x == 10);
+  
+  assert.equal(x = 10, 10);
+  assert.equal(x, 10);
 }
 
 #[test]
 fn assignment_var_add() {
   rw val x = 10;
-  ret ((x += 1) == 11) && (x == 11);
+  
+  assert.equal(x += 1, 11);
+  assert.equal(x, 11);
 }
 
 #[test]
 fn assignment_var_sub() {
   rw val x = 13;
-  ret ((x -= 1) == 12) && (x == 12);
+  
+  assert.equal(x -= 1, 12);
+  assert.equal(x, 12);
 }
 
 #[test]
 fn assignment_var_div() {
   rw val x = 26;
-  ret ((x /= 2) == 13) && (x == 13);
+  
+  assert.equal(x /= 2, 13);
+  assert.equal(x, 13);
 }
 
 #[test]
 fn assignment_var_mod() {
   rw val x = 30;
-  ret ((x %= 16) == 14) && (x == 14);
+  
+  assert.equal(x %= 16, 14);
+  assert.equal(x, 14);
 }
 
 #[test]
 fn assignment_var_mul() {
   rw val x = 7.5;
-  ret ((x *= 2) == 15) && (x == 15);
+  
+  assert.equal(x *= 2, 15);
+  assert.equal(x, 15);
 }
 
 #[test]
 fn assignment_var_band() {
   rw val x = 0xFFFF;
-  ret ((x &= 0x0FF0) == 0x0FF0) && (x == 0x0FF0);
+  
+  assert.equal(x &= 0x0FF0, 0x0FF0);
+  assert.equal(x, 0x0FF0);
 }
 
 #[test]
 fn assignment_var_bor() {
   rw val x = 0xF000;
-  ret ((x |= 0x0FF0) == 0xFFF0) && (x == 0xFFF0);
+  
+  assert.equal(x |= 0x0FF0, 0xFFF0);
+  assert.equal(x, 0xFFF0);
 }
 
 #[test]
 fn assignment_var_bxor() {
   rw val x = 0xF0F0;
-  ret ((x ^= 0xFFFF) == 0x0F0F) && (x == 0x0F0F);
+  
+  assert.equal(x ^= 0xFFFF, 0x0F0F);
+  assert.equal(x, 0x0F0F);
 }
 
 #[test]
 fn assignment_var_shl() {
   rw val x = 0xF;
-  ret ((x <<= 16) == 0xF0000) && (x == 0xF0000);
+  
+  assert.equal(x <<= 16, 0xF0000);
+  assert.equal(x, 0xF0000);
 }
 
 #[test]
 fn assignment_var_shr() {
   rw val x = 0xFFFF;
-  ret ((x >>= 8) == 0x00FF) && (x == 0x00FF);
+  
+  assert.equal(x >>= 8, 0x00FF);
+  assert.equal(x, 0x00FF);
 }
 
 #[test]
@@ -69,11 +91,11 @@ fn chained_assignment_direct() {
   rw val a, b, c, d;
   val result = (a = b = c = d = 10);
   
-  ret a == 10
-   && b == 10
-   && c == 10
-   && d == 10
-   && result == 10;
+  assert.equal(a, 10);
+  assert.equal(b, 10);
+  assert.equal(c, 10);
+  assert.equal(d, 10);
+  assert.equal(result, 10);
 }
 
 #[test]
@@ -81,11 +103,11 @@ fn chained_assignment_add() {
   rw val a = 5, b = 10, c = 15, d = 20;
   val result = (a += b += c += d += 5);
   
-  ret a == 55
-   && b == 50
-   && c == 40
-   && d == 25
-   && result == 55;
+  assert.equal(a, 55);
+  assert.equal(b, 50);
+  assert.equal(c, 40);
+  assert.equal(d, 25);
+  assert.equal(result, 55);
 }
 
 #[test]
@@ -93,11 +115,11 @@ fn chained_assignment_sub() {
   rw val a = 5, b = 10, c = 15, d = 20;
   val result = (a -= b -= c -= d -= 5);
   
-  ret a == -5
-   && b == 10
-   && c == 0
-   && d == 15
-   && result == -5; 
+  assert.equal(a, -5);
+  assert.equal(b, 10);
+  assert.equal(c, 0);
+  assert.equal(d, 15);
+  assert.equal(result, -5);
 }
 
 #[test]
@@ -105,11 +127,11 @@ fn chained_assignment_div() {
   rw val a = 120, b = 60, c = 30, d = 10;
   val result = (a /= b /= c /= d /= 2); 
   
-  ret a == 12
-   && b == 10
-   && c == 6
-   && d == 5
-   && result == 12;
+  assert.equal(a, 12);
+  assert.equal(b, 10);
+  assert.equal(c, 6);
+  assert.equal(d, 5);
+  assert.equal(result, 12);
 }
 
 #[test]
@@ -117,18 +139,23 @@ fn assignment_tbl_direct() {
   val a = {};
   a[0] = "test";
   
-  ret #a == 1 && a[0] == "test";
+  assert.equal(#a, 1);
+  assert.equal(a[0], "test");
 }
 
 #[test]
 fn assignment_tbl_add() {
   val a = { 10 };
-  ret ((a[0] += 1) == 11) && (a[0] == 11);
+  
+  assert.equal(a[0] += 1, 11);
+  assert.equal(a[0], 11);
 }
 
 
 #[test]
 fn assignment_tbl_sub() {
   val a = { 13 };
-  ret ((a[0] -= 1) == 12) && (a[0] == 12);
+  
+  assert.equal(a[0] -= 1, 12);
+  assert.equal(a[0], 12);
 }

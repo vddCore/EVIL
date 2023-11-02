@@ -25,7 +25,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
             if (a.Type == DynamicValueType.Array)
             {
-                return new(a.Array!.IndexOf(b) > 0);
+                return new(a.Array!.IndexOf(b) >= 0);
             }
 
             throw new UnsupportedDynamicValueOperationException(
