@@ -49,6 +49,15 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             for (var i = 0; i < chunk.ParameterCount; i++)
             {
+                if (chunk.IsSelfAware)
+                {
+                    if (i == 0)
+                    {
+                        output.WriteLine($"{indent}    .PARAM SELF({i})");
+                        continue;
+                    }
+                }
+                
                 if (chunk.ParameterInitializers.TryGetValue(i, out var value))
                 {
                     output.WriteLine($"{indent}    .PARAM DO_INIT({i}): {value.ConvertToString().String}");
@@ -172,8 +181,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             output.Write(opCode);
                             output.Write(" ");
 
-                            var localId = reader.ReadInt32();
-                            output.Write(localId);
+                            var symId = reader.ReadInt32();
+                            output.Write(symId);
 
                             if (chunk.HasDebugInfo)
                             {
@@ -181,7 +190,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                                 {
                                     if (options.WriteLocalNames)
                                     {
-                                        if (chunk.DebugDatabase.TryGetLocalName(localId, out var name))
+                                        if (chunk.DebugDatabase.TryGetLocalName(symId, out var name))
                                         {
                                             output.Write($" ({name})");
                                         }
@@ -191,9 +200,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
                                 {
                                     if (options.WriteParameterNames)
                                     {
-                                        if (chunk.DebugDatabase.TryGetParameterName(localId, out var name))
+                                        if (chunk.DebugDatabase.TryGetParameterName(symId, out var name))
                                         {
                                             output.Write($" ({name})");
+                                        }
+                                        else if (chunk.IsSelfAware)
+                                        {
+                                            if (symId == 0)
+                                            {
+                                                output.Write($" (self)");
+                                            }
                                         }
                                     }
                                 }

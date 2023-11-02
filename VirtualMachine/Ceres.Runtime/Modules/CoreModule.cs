@@ -1,16 +1,32 @@
-﻿using Ceres.ExecutionEngine.Collections;
+﻿using System;
+using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
+using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.Runtime.Modules
 {
     public sealed class CoreModule : RuntimeModule
     {
         public override string FullyQualifiedName => "core";
+
+        [RuntimeModuleFunction("gc.collect", ReturnType = DynamicValueType.Nil)]
+        private static DynamicValue GcCollect(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNone();
+            GC.Collect(
+                GC.MaxGeneration, 
+                GCCollectionMode.Aggressive, 
+                false, 
+                true
+            );
+
+            return Nil;
+        }
 
         [RuntimeModuleFunction("strace", ReturnType = DynamicValueType.Array)]
         private static DynamicValue StackTrace(Fiber fiber, params DynamicValue[] args)
