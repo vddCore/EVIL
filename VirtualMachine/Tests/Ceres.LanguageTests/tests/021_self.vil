@@ -64,3 +64,64 @@ fn self_fn_state() {
   
   ret result;
 }
+
+#[test]
+fn self_referencing_self() {
+  val t = {
+    set: self::fn(v) -> self.__value = v,
+    get_self: self::fn() -> self,
+    create_new: self::fn() -> {
+      set: self::fn(v) {
+        self.__value = v;
+        ret self;
+      }
+    }
+  };
+  
+  val t2 = t::get_self()::create_new();
+  t2::set(21.37);
+  
+  ret t <==> t::get_self()
+   && t2.__value == 21.37;
+}
+
+#[test]
+fn self_builder() {
+  val ThingBuilder = { new: self::fn(name) -> {
+    __name: name,
+    __class: Nil,
+    __desc: Nil,
+    __purpose: Nil,
+
+    with_class: self::fn(obj_class) {
+      self.__class = obj_class;
+      ret self; 
+    },
+    
+    with_description: self::fn(obj_desc) {
+      self.__desc = obj_desc;
+      ret self;
+    },
+    
+    with_purpose: self::fn(obj_purpose) {
+      self.__purpose = obj_purpose;
+      ret self;
+    },
+    
+    get_name: self::fn() -> self.__name,
+    get_class: self::fn() -> self.__class,
+    get_description: self::fn() -> self.__desc,
+    get_purpose: self::fn() -> self.__purpose
+  }};
+  
+  val chair = ThingBuilder::new("chair")
+   :: with_class("furniture")
+   :: with_description("It's a chair.")
+   :: with_purpose("For sitting on.");
+   
+  ret chair is Table // Haha.
+   && chair::get_name() == "chair"
+   && chair::get_class() == "furniture"
+   && chair::get_description() == "It's a chair."
+   && chair::get_purpose() == "For sitting on.";
+}

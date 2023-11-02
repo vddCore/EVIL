@@ -80,7 +80,15 @@ namespace Ceres.ExecutionEngine.Concurrency
         public async Task ScheduleAsync(Chunk chunk, params DynamicValue[] args)
         {
             Schedule(chunk, args);
-            await WaitUntilFinished();
+            await WaitUntilFinishedAsync();
+        }
+        
+        public async Task WaitUntilFinishedAsync()
+        {
+            while (State != FiberState.Finished && State != FiberState.Crashed)
+            {
+                await Task.Delay(1);
+            }
         }
 
         public string StackTrace(bool skipNativeFrames)
@@ -317,14 +325,6 @@ namespace Ceres.ExecutionEngine.Concurrency
             lock (_callStack)
             {
                 _callStack.Push(new ScriptStackFrame(this, chunk, args));
-            }
-        }
-
-        private async Task WaitUntilFinished()
-        {
-            while (State != FiberState.Finished && State != FiberState.Crashed)
-            {
-                await Task.Delay(1);
             }
         }
     }

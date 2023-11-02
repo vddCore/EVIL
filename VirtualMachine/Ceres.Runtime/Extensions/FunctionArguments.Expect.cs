@@ -11,6 +11,14 @@ namespace Ceres.Runtime.Extensions
         public static DynamicValue[] ExpectNilAt(this DynamicValue[] args, int index)
             => args.ExpectTypeAt(index, DynamicValueType.Nil);
         
+        public static DynamicValue[] ExpectAnyAt(this DynamicValue[] args, int index, out DynamicValue value)
+        {
+            args.ExpectAtLeast(index + 1);
+            value = args[index];
+            
+            return args;
+        }
+        
         public static DynamicValue[] ExpectNumberAt(this DynamicValue[] args, int index, out double value)
         {
             args.ExpectTypeAt(index, DynamicValueType.Number);
