@@ -17,17 +17,17 @@ fn fact_tailrec(n, acc = 1) {
   else ret fact_tailrec(n - 1, n * acc); 
 }
 
-fn bubble_sort(a) {
-  rw val i, t, j = #a, s = true;
+fn bubble_sort_table(table) {
+  rw val i, t, j = #table, s = true;
   
   while (s) {
     s = false;
     
     for (i = 1; i < j; i++) {
-      if (a[i] < a[i - 1]) {
-        t = a[i];
-        a[i] = a[i - 1];
-        a[i - 1] = t;
+      if (table[i] < table[i - 1]) {
+        t = table[i];
+        table[i] = table[i - 1];
+        table[i - 1] = t;
         s = true;
       }
     }
@@ -36,16 +36,58 @@ fn bubble_sort(a) {
   }
 }
 
-#[test(102334155)] fn fibonacci_recursive() -> fib_recursive(40);
-#[test(165580141)] fn fibonacci_iterative() -> fib_iterative(41);
-#[test(3628800)] fn tailrec_invoke() -> fact_tailrec(10);
+fn bubble_sort_array(arr) {
+  rw val i, t, j = #arr, s = true;
+  
+  while (s) {
+    s = false;
+    
+    for (i = 1; i < j; i++) {
+      if (arr[i] < arr[i - 1]) {
+        t = arr[i];
+        arr[i] = arr[i - 1];
+        arr[i - 1] = t;
+        s = true;
+      }
+    }
+    
+    j--;
+  }
+}
+
+#[test] 
+fn fibonacci_recursive() {
+  val result = fib_recursive(40);
+  assert.equal(result, 102334155);
+}
+#[test]
+fn fibonacci_iterative() {
+  val result = fib_iterative(41);
+  assert.equal(result, 165580141);
+}
 
 #[test]
-fn bubblesort_invoke() {
+fn tailrec_invoke() {
+  val result = fact_tailrec(10);
+  assert.equal(result, 3628800);
+}
+
+#[test]
+fn bubblesort_table() {
   val a = { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
   
   // Tables are always passed by reference.
-  bubble_sort(a);
+  bubble_sort_table(a);
   
-  ret a <==> { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 };
+  assert.is_true(a <==> { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
+}
+
+#[test]
+fn bubblesort_array() {
+  val a = array() { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
+  
+  // Arrays are always passed by reference.
+  bubble_sort_array(a);
+  
+  assert.is_true(a <==> array() { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
 }

@@ -27,9 +27,10 @@ fn dep_b() {
 
 fn ref_dep_b() -> dep_b;
 
-#[test(21.37)]
+#[test]
 fn yield_simple() {
-  ret yield<jp2gmd>(1, 21, 3);
+  val result = yield<jp2gmd>(1, 21, 3);
+  assert.equal(result, 21.37);
 }
 
 #[test]
@@ -37,8 +38,8 @@ fn yield_delay() {
   val start = time.stamp.ms;
   val retval = yield<delay>(1000);
   
-  ret time.stamp.ms - start >= 1000 
-   && retval == 2.137; 
+  assert.greater_than_or_equal(time.stamp.ms - start, 1000);
+  assert.equal(retval, 2.137);
 }
 
 #[test]
@@ -51,10 +52,24 @@ fn yield_interdependent() {
   glob_b = 3;
   val b = yield<dep_b>();
   
-  ret a == 213.7 
-   && b == 0.2137;
+  assert.equal(a, 213.7); 
+  assert.equal(b, 0.2137);
 }
 
-#[test(21.37)] fn yield_identifier() -> yield<jp2gmd>(1, 21, 3);
-#[test(21.37)] fn yield_expression_identifier() -> yield<[jp2gmd]>(1, 21, 3);
-#[test(0.2137)] fn yield_expression() -> yield<[ref_dep_b()]>();
+#[test]
+fn yield_identifier() -> assert.equal(
+  yield<jp2gmd>(1, 21, 3),
+  21.37
+);
+
+#[test]
+fn yield_expression_identifier() -> assert.equal(
+  yield<[jp2gmd]>(1, 21, 3),
+  21.37
+);
+
+#[test]
+fn yield_expression() -> assert.equal(
+  yield<[ref_dep_b()]>(),
+  0.2137
+);

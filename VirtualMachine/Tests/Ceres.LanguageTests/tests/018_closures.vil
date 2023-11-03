@@ -4,74 +4,87 @@ fn test_invocation(f)
 fn generate_closure_with_parameter_value(x)
     -> (fn(a) -> a + x);
 
-#[test(12)]
+#[test]
 fn basic_closure_parameter_hides_local() {
-    val a = 10;
-    
-    val f = fn(a) {
-        ret a;
-    };
-    
-    ret f(12);
+  val a = 10;
+  
+  val f = fn(a) {
+    ret a;
+  };
+  
+  val result = f(12);
+  assert.equal(result, 12);
 }
 
-#[test(12)]
+#[test]
 fn basic_closure_captures_local() {
-    val b = 10;
-    
-    val f = fn() {
-        ret b + 2;
-    };
-    
-    ret test_invocation(f);
+  val b = 10;
+  
+  val f = fn() {
+    ret b + 2;
+  };
+  
+  val result = test_invocation(f);
+  assert.equal(result, 12);
 }
 
-#[test(12)]
+#[test]
 fn basic_closure_captures_parameter() {
-    val f = generate_closure_with_parameter_value(10);
-    ret f(2);
+  val f = generate_closure_with_parameter_value(10);
+  val result = f(2);
+  
+  assert.equal(result, 12);
 }
 
-#[test(21.37);approximate(2)]
+#[test]
 fn nested_closure_captures_outside_local() {
-    val a = 21;
-    val f = (fn() -> (fn() -> a + .37));
-    
-    ret f()();
+  val a = 21;
+  val f = (fn() -> (fn() -> a + .37));
+  
+  val result = f()();
+  
+  assert.equal(result, 21.37);
 }
 
-#[test(21.37);approximate(2)]
+#[test]
 fn nested_closure_captures_closure_local() {
-    val a = 111;
-    
-    val f = fn() {
-        val a = 21;
-        ret fn() { ret a + .37; };
-    };
-    
-    ret f()();
+  val a = 111;
+  
+  val f = fn() {
+      val a = 21;
+      ret fn() { ret a + .37; };
+  };
+  
+  val result = f()();
+  
+  assert.equal(result, 21.37);
 }
 
-#[test(21.37);approximate(2)]
+#[test]
 fn nested_closure_captures_closure_parameter() {
-    val a = 111;
-    val f = fn(a) {
-        ret fn() { ret a + .37; };
-    };
-    
-    ret f(21)();
+  val a = 111;
+  val f = fn(a) {
+    ret fn() { ret a + .37; };
+  };
+  
+  val result = f(21)();
+  
+  assert.equal(result, 21.37);
 }
 
-#[test(21.37);approximate(2)]
+#[test]
 fn extreme_closure_nesting() {
-    val a = 10;
-    ret test_invocation(fn(b) {
-        val f = fn(c) {
-            ret fn() { ret a + b + c; };
-        };
-        
-        ret f(2);
-    }(9)) + .37;
+  val a = 10;
+  
+  val result = test_invocation(fn(b) {
+    val f = fn(c) {
+      ret fn() { ret a + b + c; };
+    };
+    
+    ret f(2);
+  }(9)) + .37;
+    
+  assert.equal(result, 21.37);
 }
 
 
@@ -95,7 +108,7 @@ fn predicate_anonymous_function() {
         fn(k, v) -> v % 2 == 0
     ); 
     
-    ret #t2 == #t / 2; 
+    assert.equal(#t2, #t / 2); 
 }
 
 fn delay(ms) { 
@@ -122,8 +135,9 @@ fn yield_delay_from_closure() {
   val f = spawn_yielding_closure();
   val r = yield<f>();
   
-  ret r.stamp_result >= 1000 
-   && r.retval == 2.137;
+  
+  assert.greater_than_or_equal(r.stamp_result, 1000);
+  assert.equal(r.retval, 2.137);
 }
 
 fn spawn_closure_for_loop(a) {
@@ -147,10 +161,15 @@ fn spawn_closures_in_loop() {
     results[i] = spawn_closure_for_loop(i)(1);
   }
   
-  ret all(results, fn(k,v) -> v == k + 1);
+  assert.is_true(
+    all(
+      results, 
+      fn(k,v) -> v == k + 1
+    )
+  );
 }
 
-#[test(59)]
+#[test]
 fn many_subchunks_capture_same_local_no_change() {
   val local_a = 10;
   
@@ -159,10 +178,12 @@ fn many_subchunks_capture_same_local_no_change() {
   val f3 = fn(x) -> local_a - x;
   val f4 = fn(x) -> local_a / x;
   
-  ret (f1(2) + f2(4) + f3(5) + f4(5));
+  val result = f1(2) + f2(4) + f3(5) + f4(5);
+  
+  assert.equal(result, 59);
 }
 
-#[test(47)]
+#[test]
 fn many_subchunks_capture_same_local_after_change() {
   rw val local_a = 11;
   val f1 = fn(x) -> local_a + x;
@@ -176,7 +197,9 @@ fn many_subchunks_capture_same_local_after_change() {
   local_a = 8;
   val f4 = fn(x) -> local_a / x;
   
-  ret f1(2) + f2(4) + f3(5) + f4(4);
+  val result = f1(2) + f2(4) + f3(5) + f4(4);
+  
+  assert.equal(result, 47);
 }
 
 fn invoke_func_out_of_scope(f) -> f();
@@ -187,7 +210,7 @@ fn after_invocation_var_return() {
   val res = f();
   val res2 = invoke_func_out_of_scope(f);
   
-  ret res == res2;
+  assert.equal(res, res2);
 }
 
 fn make_counter() {
@@ -199,7 +222,7 @@ fn make_counter() {
   };
 }
 
-#[test(10)]
+#[test]
 fn internal_closure_state_is_preserved() {
   val counter = make_counter();
   rw val result = 0;
@@ -208,7 +231,7 @@ fn internal_closure_state_is_preserved() {
     result = counter();
   }
     
-  ret result;
+  assert.equal(result, 10);
 }
 
 #[test]
@@ -221,7 +244,9 @@ fn parameter_is_preserved() {
   val f2 = start_at(5);
   val f3 = start_at(9);
   
-  ret f1(3) == 4 && f2(3) == 8 && f3(3) == 12;
+  assert.equal(f1(3), 4);
+  assert.equal(f2(3), 8);
+  assert.equal(f3(3), 12);
 }
 
 #[test]
@@ -233,14 +258,10 @@ fn closures_in_each() {
     (fn(k, v) -> result_data[k] = v)(k, v);
   } 
   
-  rw val result = true;
-  
   each (rw val k, v : result_data) {
-    result &= k in test_data;
-    result &= v == result_data[k];
+    assert.is_true(k in test_data, @k + " was not found in test_data");
+    assert.equal(v, test_data[k], @v + " was not equal to test_data[k] (" + @test_data[k] + ")");
   }
-  
-  ret result;
 }
 
 #[test]
@@ -263,9 +284,9 @@ fn modify_external_scope_closure() {
     t[typeof(v)](v);
   }
   
-  ret result_a == 37
-   && result_b == "prepended test string"
-   && result_c == false
-   && result_d == "Type";
+  assert.equal(result_a, 37);
+  assert.equal(result_b, "prepended test string");
+  assert.equal(result_c, false);
+  assert.equal(result_d, "Type");
 }
 

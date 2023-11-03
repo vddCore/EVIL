@@ -1,17 +1,23 @@
-﻿#[test(21.37)]
-fn single_parameter_initializer(a = 21.37) -> a;
+﻿#[test]
+fn single_parameter_initializer(a = 21.37) {
+  assert.equal(a, 21.37);
+}
 
 #[test]
-fn two_parameter_initializers(a = 111, b = "jp2gmd")
-  -> a == 111 && b == "jp2gmd";
+fn two_parameter_initializers(a = 111, b = "jp2gmd") {
+  assert.equal(a, 111);
+  assert.equal(b, "jp2gmd");
+}
 
 #[test]
-fn nil_and_initializer(a, b = true) 
-  -> a == nil 
-  && b == true;
+fn nil_and_initializer(a, b = true)  {
+  assert.equal(a, nil); 
+  assert.equal(b, true);
+}
   
-#[test(21.37)]
+#[test]
 fn rw_optional_param(a, rw b = 22) {
+  assert.equal(b, 22);
   b = 21.37;
-  ret b;
+  assert.equal(b, 21.37);
 }

@@ -13,11 +13,11 @@ fn each_basic_table() {
     }
   }
 
-  ret tvar_1 == 21.37
-   && tvar_2 == "haha funny number";
+  assert.equal(tvar_1, 21.37);
+  assert.equal(tvar_2, "haha funny number");
 }
 
-#[test(44.51);approximate(2)]
+#[test]
 fn each_basic_table_skip() {
   val t = { x: 21.37, y: 11.11, z: 44.51 };
 
@@ -31,10 +31,10 @@ fn each_basic_table_skip() {
     tvar_1 = t[key];
   }
 
-  ret tvar_1;
+  assert.equal(tvar_1, 44.51);
 }
 
-#[test(11.11);approximate(2)]
+#[test]
 fn each_basic_table_break() {
   val t = { x: 21.37, y: 11.11, z: 44.51 };
 
@@ -47,18 +47,23 @@ fn each_basic_table_break() {
     }
   }
 
-  ret tvar_1;
+  assert.equal(tvar_1, 11.11);
 }
 
-#[test(11.11);approximate(2)]
+#[test]
 fn each_basic_table_ret() {
-  val t = { x: 21.37, y: 11.11, z: 44.51 };
-  
-  each (rw val key : t) {
-    if (key == "y") {
-      ret t[key];
+  val f = fn() {
+    val t = { x: 21.37, y: 11.11, z: 44.51 };
+    
+    each (rw val key : t) {
+      if (key == "y") {
+        ret t[key];
+      }
     }
-  }
+  };
+  
+  val result = f();
+  assert.equal(result, 11.11);
 }
 
 #[test]
@@ -80,10 +85,10 @@ fn each_kv_table() {
     }
   }
 
-  ret tvar_k1 == "x"
-   && tvar_v1 == "21.37"
-   && tvar_k2 == "y"
-   && tvar_v2 == "haha funny number";
+  assert.equal(tvar_k1, "x");
+  assert.equal(tvar_v1, "21.37");
+  assert.equal(tvar_k2, "y");
+  assert.equal(tvar_v2, "haha funny number");
 }
 
 #[test]
@@ -102,8 +107,8 @@ fn each_kv_table_skip() {
     tvar_v = value;
   }
 
-  ret tvar_k == "z"
-   && tvar_v == "11111111";
+  assert.equal(tvar_k, "z");
+  assert.equal(tvar_v, "11111111");
 }
 
 #[test]
@@ -121,17 +126,22 @@ fn each_kv_table_break() {
     }
   }
 
-  ret tvar_k == "y"
-   && tvar_v == "haha funny number";
+  assert.equal(tvar_k, "y");
+  assert.equal(tvar_v, "haha funny number");
 }
 
-#[test(11.11);approximate(2)]
+#[test]
 fn each_kv_table_ret() {
-  val t = { x: 21.37, y: 11.11, z: 44.51 };
-  
-  each (rw val key, value : t) {
-    if (key == "y") {
-      ret value;
+  val f = fn() {
+    val t = { x: 21.37, y: 11.11, z: 44.51 };
+    
+    each (rw val key, value : t) {
+      if (key == "y") {
+        ret value;
+      }
     }
-  }
+  };
+  
+  val result = f();
+  assert.equal(result, 11.11);
 }
