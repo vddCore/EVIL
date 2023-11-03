@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Ceres.ExecutionEngine.Diagnostics.Debugging;
 
 namespace Ceres.ExecutionEngine.Concurrency
 {
@@ -7,7 +8,7 @@ namespace Ceres.ExecutionEngine.Concurrency
     public class FiberScheduler
     {
         private CeresVM _vm;
-        private Fiber.FiberCrashHandler _defaultCrashHandler;
+        private FiberCrashHandler _defaultCrashHandler;
 
         private List<Fiber> _fibers;
         private List<int> _dueForRemoval;
@@ -17,7 +18,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         public IReadOnlyList<Fiber> Fibers => _fibers;
         public bool IsRunning => _running;
         
-        public FiberScheduler(CeresVM vm, Fiber.FiberCrashHandler defaultCrashHandler)
+        public FiberScheduler(CeresVM vm, FiberCrashHandler defaultCrashHandler)
         {
             _vm = vm;
             _defaultCrashHandler = defaultCrashHandler;
@@ -79,7 +80,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public void SetDefaultCrashHandler(Fiber.FiberCrashHandler crashHandler)
+        public void SetDefaultCrashHandler(FiberCrashHandler crashHandler)
         {
             _defaultCrashHandler = crashHandler;
         }
@@ -92,7 +93,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public Fiber CreateFiber(bool immunized, Fiber.FiberCrashHandler? crashHandler = null)
+        public Fiber CreateFiber(bool immunized, FiberCrashHandler? crashHandler = null)
         {
             var fiber = new Fiber(_vm);
             fiber.SetCrashHandler(crashHandler ?? _defaultCrashHandler);
