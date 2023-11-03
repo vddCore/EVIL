@@ -69,6 +69,36 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
+        [RuntimeModuleFunction("greater_than_or_equal", ReturnType = DynamicValueType.Nil)]
+        private static DynamicValue GreaterThanOrEqual(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAnyAt(0, out var actual)
+                .ExpectAnyAt(1, out var expected)
+                .OptionalStringAt(2, $"expected expression to be greater than or equal to `{expected}', but was `{actual}' instead", out var msg);
+
+            if (actual.IsLessThan(expected).Boolean)
+            {
+                throw new TestAssertionException(msg);
+            }
+            
+            return Nil;
+        }
+        
+        [RuntimeModuleFunction("less_than_or_equal", ReturnType = DynamicValueType.Nil)]
+        private static DynamicValue LessThanOrEqual(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectAnyAt(0, out var actual)
+                .ExpectAnyAt(1, out var expected)
+                .OptionalStringAt(2, $"expected expression to be less than or equal to `{expected}', but was `{actual}' instead", out var msg);
+
+            if (actual.IsGreaterThan(expected).Boolean)
+            {
+                throw new TestAssertionException(msg);
+            }
+            
+            return Nil;
+        }
+        
         [RuntimeModuleFunction("approx_equal", ReturnType = DynamicValueType.Nil)]
         private static DynamicValue ApproximatelyEqual(Fiber _, params DynamicValue[] args)
         {

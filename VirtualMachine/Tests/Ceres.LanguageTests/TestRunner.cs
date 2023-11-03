@@ -29,7 +29,7 @@ namespace Ceres.LanguageTests
             TestDirectory = Path.GetFullPath(testDirectory);
             VM = vm;
             Runtime = new EvilRuntime(vm);
-            
+
             TextOut = textOut ?? Console.Out;
 
             CompileTests();
@@ -59,7 +59,7 @@ namespace Ceres.LanguageTests
                     throw new TestBuildPhaseException($"Failed to compile the file '{path}':\n{ce.Log}", ce);
                 }
             }
-            
+
             if (compiler.Log.HasAnyMessages)
             {
                 TextOut.Write(compiler.Log.ToString());
@@ -80,7 +80,7 @@ namespace Ceres.LanguageTests
 
             var includeCompiler = new Compiler();
             includeCompiler.RegisterIncludeProcessor(IncludeProcessor);
-            
+
             try
             {
                 var includedScript = includeCompiler.Compile(File.ReadAllText(fullPathToInclude), fullPathToInclude);
@@ -116,19 +116,16 @@ namespace Ceres.LanguageTests
                     TextOut.WriteLine($"Test file '{path}' has no tests. Ignoring...");
                     continue;
                 }
-                
+
                 VM.Global.Clear();
-                VM.Global.Set("__native_func", new((_, args) =>
-                {
-                    return args[3];
-                }));
+                VM.Global.Set("__native_func", new((_, args) => { return args[3]; }));
 
                 VM.Global.Set("__native_object", DynamicValue.FromObject(new object()));
                 VM.Global.Set("__tricky", new TrickyTable());
-                
+
                 Runtime.RegisterBuiltInModules();
                 Runtime.RegisterModule<AssertModule>();
-                
+
                 var nonTestChunks = testScript.Chunks.Where(
                     x => !x.HasAttribute("test")
                 ).ToList();
@@ -138,9 +135,9 @@ namespace Ceres.LanguageTests
                     VM.Global.Set(
                         chunk.Name,
                         new(chunk)
-                    );    
+                    );
                 }
-                
+
                 for (var i = 0; i < testChunks.Count; i++)
                 {
                     var whenToDisassemble = "failure";
@@ -152,7 +149,7 @@ namespace Ceres.LanguageTests
                     }
 
                     TextOut.Write($"[{i + 1}/{testChunks.Count}] ");
-                    
+
                     var result = await RunTestChunk(chunk, path);
 
                     if (whenToDisassemble != "never"
@@ -185,7 +182,7 @@ namespace Ceres.LanguageTests
                 TextOut.WriteLine($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
                 TextOut.WriteLine();
             }
-            
+
             ReportAnyTestFailures();
         }
 
@@ -207,19 +204,29 @@ namespace Ceres.LanguageTests
             }
 
             var test = new Test(VM, chunk);
-            
+
             Stopwatch.Reset();
             Stopwatch.Start();
             {
                 await test.Run();
             }
             Stopwatch.Stop();
-            
+
             var stamp = $"{Stopwatch.Elapsed.TotalMicroseconds}μs";
 
             if (test.Successful)
             {
-                TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
+                if (test.CallsAnyAsserts)
+                {
+                    TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
+                }
+                else
+                {
+                    var msg = $"No assertions were made. [{stamp}]";
+                    
+                    AddTestFailure(path, chunk, msg);
+                    TextOut.WriteLine($"[INCONCLUSIVE] '{chunk.Name}': {msg}");
+                }
             }
             else
             {
@@ -268,7 +275,7 @@ namespace Ceres.LanguageTests
         {
             if (FailureLog.Any())
             {
-                TextOut.WriteLine("There were one or more of test failures:");
+                TextOut.WriteLine("There were one or more of test failures/inconclusive results:");
             }
 
             foreach (var kvp in FailureLog)
@@ -276,7 +283,7 @@ namespace Ceres.LanguageTests
                 TextOut.WriteLine($"  {kvp.Key}: ");
                 foreach (var result in kvp.Value)
                 {
-                    TextOut.WriteLine($"    {result.TestChunk.Name}: {result.FailureReason}");
+                    TextOut.WriteLine($"    {result.TestChunk.Name} (def. at line {result.TestChunk.DebugDatabase.DefinedOnLine}): {result.FailureReason}");
                 }
             }
         }

@@ -14,6 +14,8 @@ namespace Ceres.LanguageTests
         private bool _processingCrash;
         
         public Fiber Fiber { get; }
+        
+        public bool CallsAnyAsserts { get; private set; }
 
         public bool Successful { get; private set; } = true;
         public string ErrorMessage { get; private set; } = string.Empty;
@@ -23,6 +25,7 @@ namespace Ceres.LanguageTests
         {
             _chunk = chunk;
             Fiber = vm.Scheduler.CreateFiber(true, TestCrashHandler);
+            Fiber.SetOnNativeFunctionInvoke(OnNativeFunctionInvoke);
         }
 
         public async Task Run()
@@ -52,6 +55,17 @@ namespace Ceres.LanguageTests
             StackTrace.AddRange(fiber.StackTrace(false).Split('\n').Where(x => !string.IsNullOrEmpty(x)));
             
             _processingCrash = false;
+        }
+        
+        private void OnNativeFunctionInvoke(Fiber fiber, NativeFunction nativeFunction)
+        {
+            var nativeFunctionType = nativeFunction.Method.DeclaringType;
+            if (nativeFunctionType == null) return;
+            
+            if (nativeFunctionType.IsAssignableTo(typeof(AssertModule)))
+            {
+                CallsAnyAsserts = true;
+            }
         }
     }
 }

@@ -187,7 +187,9 @@ fn predec_var() {
 #[test]
 fn predec_tbl_member() {
   val a = { 10 };
-  ret (--a[0] == 9) && (a[0] == 9);
+  
+  assert.equal(--a[0], 9);
+  assert.equal(a[0], 9);
 }
 
 #[test]

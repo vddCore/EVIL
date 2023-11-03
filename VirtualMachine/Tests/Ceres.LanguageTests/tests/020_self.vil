@@ -1,14 +1,16 @@
-#[test(5)]
+#[test]
 fn selfness_in_table() {
   val t = {
     f: self::fn(a, b) -> self.result = a + b
   };
 
   val result = t::f(2, 3);
-  ret t.result;
+  
+  assert.equal(result, 5);
+  assert.equal(result, t.result);
 }
 
-#[test(21.37)]
+#[test]
 fn self_fn_ret() {
   val t = { 
     func: self::fn(a, b) {
@@ -17,7 +19,8 @@ fn self_fn_ret() {
     }
   };
   
-  ret t::func(21, 0.37);
+  val result = t::func(21, 0.37);
+  assert.equal(result, 21.37);
 }
 
 #[test]
@@ -42,25 +45,28 @@ fn self_fn_state() {
     add_leg: self::fn() -> self.leg_count++
   };
   
-  rw val result = true;
-  result &= chair.leg_count == 4;
-  result &= chair::get_status() == chair.__quips[0];
+  assert.equal(chair.leg_count, 4);
+  assert.is_false(chair::is_broken());
+  assert.equal(chair::get_status(), chair.__quips[0]);
   
   chair::add_leg();
-  result &= chair.leg_count == 5;
-  result &= chair::get_status() == chair.__quips[3];
+  assert.is_true(chair::is_broken());
+  assert.equal(chair.leg_count, 5);
+  assert.equal(chair::get_status(), chair.__quips[3]);
   
   chair::break_leg();
   chair::break_leg();
-  result &= chair.leg_count == 3;
-  result &= chair::get_status() == chair.__quips[2];
+  assert.is_true(chair::is_broken());
+  assert.equal(chair.leg_count, 3);
+  assert.equal(chair::get_status(), chair.__quips[2]);
   
   chair::break_leg();
   chair::break_leg();
   chair::break_leg();
   chair::break_leg();
-  result &= chair.leg_count == -1;
-  result &= chair::get_status() == chair.__quips[1];
+  assert.is_true(chair::is_broken());
+  assert.equal(chair.leg_count, -1);
+  assert.equal(chair::get_status(), chair.__quips[1]);
   
   ret result;
 }
@@ -81,8 +87,8 @@ fn self_referencing_self() {
   val t2 = t::get_self()::create_new();
   t2::set(21.37);
   
-  ret t <==> t::get_self()
-   && t2.__value == 21.37;
+  assert.is_true(t <==> t::get_self());
+  assert.equal(t2.__value, 21.37);
 }
 
 #[test]
@@ -119,9 +125,9 @@ fn self_builder() {
    :: with_description("It's a chair.")
    :: with_purpose("For sitting on.");
    
-  ret chair is Table // Haha.
-   && chair::get_name() == "chair"
-   && chair::get_class() == "furniture"
-   && chair::get_description() == "It's a chair."
-   && chair::get_purpose() == "For sitting on.";
+  assert.is_true(chair is Table); // Haha.
+  assert.equal(chair::get_name(), "chair");
+  assert.equal(chair::get_class(), "furniture");
+  assert.equal(chair::get_description(), "It's a chair.");
+  assert.equal(chair::get_purpose(), "For sitting on.");
 }
