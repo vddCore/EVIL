@@ -351,7 +351,7 @@ namespace Ceres.ExecutionEngine
                     {
                         _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
 
-                        _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
+                        _fiber.OnChunkInvoke?.Invoke(
                             _fiber,
                             a.Chunk!,
                             false
@@ -363,8 +363,13 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.NativeFunction)
                     {
                         _callStack.Push(new NativeStackFrame(a.NativeFunction!));
-                        {
+                        {                            
                             PushValue(a.NativeFunction!.Invoke(_fiber, args));
+                            
+                            _fiber.OnNativeFunctionInvoke?.Invoke(
+                                _fiber,
+                                a.NativeFunction!
+                            );
                         }
                         _callStack.Pop();
                         break;
@@ -384,7 +389,7 @@ namespace Ceres.ExecutionEngine
                         args[args.Length - i - 1] = PopValue();
                     }
 
-                    _fiber.VirtualMachine.OnChunkInvoke?.Invoke(
+                    _fiber.OnChunkInvoke?.Invoke(
                         _fiber,
                         _callStack.Peek().As<ScriptStackFrame>().Chunk,
                         true

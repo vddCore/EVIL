@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.ExecutionEngine.Diagnostics.Debugging;
 using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Concurrency
 {
     public sealed class Fiber
     {
-        public delegate void FiberCrashHandler(Fiber fiber, Exception exception);
-
         private Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
         private HashSet<Fiber> _waitingFor;
 
@@ -21,6 +20,9 @@ namespace Ceres.ExecutionEngine.Concurrency
         private ExecutionUnit _executionUnit;
         private FiberCrashHandler? _crashHandler;
 
+        internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
+        internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
+        
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
 
         public CeresVM VirtualMachine { get; }
@@ -69,7 +71,6 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             State = FiberState.Fresh;
         }
-
 
         public void Schedule(Chunk chunk, params DynamicValue[] args)
         {
@@ -329,6 +330,16 @@ namespace Ceres.ExecutionEngine.Concurrency
         public void SetCrashHandler(FiberCrashHandler? crashHandler)
         {
             _crashHandler = crashHandler;
+        }
+        
+        public void SetOnChunkInvoke(ChunkInvokeHandler? handler)
+        {
+            OnChunkInvoke = handler;
+        }
+
+        public void SetOnNativeFunctionInvoke(NativeFunctionInvokeHandler? handler)
+        {
+            OnNativeFunctionInvoke = handler;
         }
 
         internal void RemoveFinishedAwaitees()

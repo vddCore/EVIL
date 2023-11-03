@@ -9,8 +9,6 @@ namespace Ceres.ExecutionEngine
     public class CeresVM : IDisposable
     {
         private Task? _schedulerTask;
-
-        internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
         
         public Table Global { get; }
         public FiberScheduler Scheduler { get; }
@@ -26,11 +24,6 @@ namespace Ceres.ExecutionEngine
             Global = global;
             Scheduler = new FiberScheduler(this, DefaultCrashHandler);
             MainFiber = Scheduler.CreateFiber(true);
-        }
-
-        public void SetOnChunkInvoke(ChunkInvokeHandler? handler)
-        {
-            OnChunkInvoke = handler;
         }
 
         public void Start()
