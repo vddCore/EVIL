@@ -27,7 +27,7 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken.Type == TokenType.RParenthesis)
                     break;
 
-                Match(Token.Comma);
+                Match(Token.Comma, "Expected $expected or ')', got $actual");
             }
             Match(Token.RParenthesis);
 
