@@ -22,7 +22,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
         internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
-        
+
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
 
         public CeresVM VirtualMachine { get; }
@@ -73,24 +73,41 @@ namespace Ceres.ExecutionEngine.Concurrency
         }
 
         public void Schedule(Chunk chunk, params DynamicValue[] args)
+            => Schedule(chunk, true, args);
+
+        public void Schedule(Chunk chunk, bool resumeImmediately, params DynamicValue[] args)
         {
             lock (_scheduledChunks)
             {
                 _scheduledChunks.Enqueue((chunk, args));
             }
 
-            Resume();
+            if (resumeImmediately)
+            {
+                Resume();
+            }
         }
 
         public async Task ScheduleAsync(Chunk chunk, params DynamicValue[] args)
+            => await ScheduleAsync(chunk, true, args);
+
+        public async Task ScheduleAsync(Chunk chunk, bool resumeImmediately, params DynamicValue[] args)
         {
-            Schedule(chunk, args);
+            Schedule(chunk, resumeImmediately, args);
             await WaitUntilFinishedAsync();
         }
-        
+
         public async Task WaitUntilFinishedAsync()
         {
-            while (State != FiberState.Finished && State != FiberState.Crashed)
+            var hasAnyChunks = false;
+            lock (_scheduledChunks)
+            {
+                hasAnyChunks = _scheduledChunks.Any();
+            }
+
+            while (hasAnyChunks &&
+                   State != FiberState.Finished &&
+                   State != FiberState.Crashed)
             {
                 await Task.Delay(1);
             }
@@ -111,18 +128,17 @@ namespace Ceres.ExecutionEngine.Concurrency
                     {
                         sb.Append($" in {ssf.Chunk.DebugDatabase.DefinedInFile}");
                     }
-                    
+
                     if (ssf.Chunk.DebugDatabase.DefinedOnLine > 0)
                     {
                         sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)}");
                     }
-                    
+
                     sb.AppendLine();
                 }
                 else if (callStack[i] is NativeStackFrame nsf)
                 {
-                    sb.AppendLine(
-                        $"at clr!{nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
+                    sb.AppendLine($"at clr!{nsf.NativeFunction.Method.DeclaringType!.FullName}::{nsf.NativeFunction.Method.Name}");
                 }
             }
 
@@ -142,15 +158,14 @@ namespace Ceres.ExecutionEngine.Concurrency
                     {
                         lock (_scheduledChunks)
                         {
-                            if (!_scheduledChunks.Any())
+                            if (_scheduledChunks.TryDequeue(out var info))
                             {
-                                State = FiberState.Finished;
-                                return;
+                                Invoke(info.Chunk, info.Arguments);
                             }
                             else
                             {
-                                var info = _scheduledChunks.Dequeue();
-                                Invoke(info.Chunk, info.Arguments);
+                                State = FiberState.Finished;
+                                return;
                             }
                         }
                     }
@@ -161,7 +176,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             catch (Exception e)
             {
                 EnterCrashState();
-                
+
                 if (_crashHandler != null)
                 {
                     _crashHandler(this, e);
@@ -331,7 +346,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         {
             _crashHandler = crashHandler;
         }
-        
+
         public void SetOnChunkInvoke(ChunkInvokeHandler? handler)
         {
             OnChunkInvoke = handler;
@@ -351,7 +366,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         {
             State = FiberState.Crashed;
         }
-        
+
         private void Invoke(Chunk chunk, DynamicValue[] args)
         {
             lock (_callStack)
