@@ -91,6 +91,7 @@
         Ret,
         Val,
         In,
+        NotIn,
         Is,
         IsNot,
         Nil,

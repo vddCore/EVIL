@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
-using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
@@ -20,36 +19,6 @@ namespace EVIL.Grammar.Parsing
         {
             var node = RelationalExpression();
             var token = CurrentToken;
-            
-            if (token.Type == TokenType.Is || token.Type == TokenType.IsNot)
-            {
-                var (line, col) = (-1, -1);
-
-                var invert = false;
-
-                if (token.Type == TokenType.Is)
-                {
-                    (line, col) = Match(Token.Is);
-                }
-                else
-                {
-                    (line, col) = Match(Token.IsNot);
-                    invert = true;
-                }
-
-                var right = Constant();
-
-                if (right is not TypeCodeConstant typeCodeConstant)
-                {
-                    throw new ParserException(
-                        "Expected a type code constant.",
-                        (right.Line, right.Column)
-                    );
-                }
-
-                return new IsExpression(node, typeCodeConstant, invert)
-                    { Line = line, Column = col };
-            }
 
             while (_equalityOperators.Contains(token.Type))
             {
