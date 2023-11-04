@@ -25,6 +25,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(ParameterList), (n) => Visit((ParameterList)n) },
                 { typeof(BlockStatement), (n) => Visit((BlockStatement)n) },
                 { typeof(ConditionalExpression), (n) => Visit((ConditionalExpression)n) },
+                { typeof(CoalescingExpression), (n) => Visit((CoalescingExpression)n) },
                 { typeof(NumberConstant), (n) => Visit((NumberConstant)n) },
                 { typeof(StringConstant), (n) => Visit((StringConstant)n) },
                 { typeof(NilConstant), (n) => Visit((NilConstant)n) },
@@ -86,6 +87,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(IncludeStatement includeStatement);
         public abstract void Visit(BlockStatement blockStatement);
         public abstract void Visit(ConditionalExpression conditionalExpression);
+        public abstract void Visit(CoalescingExpression coalescingExpression);
         public abstract void Visit(NumberConstant numberConstant);
         public abstract void Visit(StringConstant stringConstant);
         public abstract void Visit(NilConstant nilConstant);

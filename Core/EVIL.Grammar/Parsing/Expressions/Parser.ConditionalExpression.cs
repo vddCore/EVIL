@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
     {
         private Expression ConditionalExpression()
         {
-            var node = LogicalOrExpression();
+            var node = CoalescingExpression();
 
             if (CurrentToken.Type == TokenType.QuestionMark)
             {

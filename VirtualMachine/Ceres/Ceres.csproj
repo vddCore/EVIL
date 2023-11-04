@@ -154,5 +154,8 @@
     <Compile Update="TranslationEngine\Compiler.Expression.SelfInvocation.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.Coalescing.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

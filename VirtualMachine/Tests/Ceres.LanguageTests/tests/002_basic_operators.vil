@@ -199,3 +199,45 @@ fn predec_arr_element() {
   assert.equal(--a[0], 2);
   assert.equal(a[0], 2);
 }
+
+#[test]
+fn nil_coalescing_left_is_nil() {
+  val a = nil;
+  val b = 21.37;
+  
+  val c = a ?? b;
+  
+  assert.equal(c, 21.37);
+}
+
+#[test]
+fn nil_coalescing_right_is_nil() {
+  val a = nil;
+  val b = 21.37;
+  
+  val c = b ?? a;
+  
+  assert.equal(c, 21.37);
+}
+
+#[test]
+fn nil_coalescing_both_nil() {
+  val a = nil;
+  val b = nil;
+  
+  val c = a ?? b;
+  
+  assert.equal(c, nil);
+}
+
+#[test;disasm("always")]
+fn nil_coalescing_multiple_values() {
+  val a = nil;
+  val b = nil;
+  val c = 21.37;
+  val d = "a string";
+  
+  val e = a ?? b ?? c ?? d;
+  
+  assert.equal(c, 21.37);
+}
