@@ -19,7 +19,8 @@ namespace EVIL.Grammar.Parsing
             TokenType.AssignBitwiseOr,
             TokenType.AssignBitwiseXor,
             TokenType.AssignShiftLeft,
-            TokenType.AssignShiftRight
+            TokenType.AssignShiftRight,
+            TokenType.AssignCoalesce
         };
 
         private Expression AssignmentExpression()
@@ -124,6 +125,14 @@ namespace EVIL.Grammar.Parsing
                         var (line, col) = Match(Token.AssignShiftLeft);
                         
                         node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.ShiftLeft)
+                            { Line = line, Column = col };
+                        break;
+                    }
+                    case TokenType.AssignCoalesce:
+                    {
+                        var (line, col) = Match(Token.AssignCoalesce);
+                        
+                        node = new AssignmentExpression(node, AssignmentExpression(), AssignmentOperationType.Coalesce)
                             { Line = line, Column = col };
                         break;
                     }

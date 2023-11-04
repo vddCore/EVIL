@@ -113,6 +113,11 @@ namespace EVIL.Lexical
                 case '/':
                     State.CurrentToken = Token.Divide with { Line = line, Column = col };
                     break;
+                case '?' when Peek() == '?' && Peek(2) == '=':
+                    Advance();
+                    Advance();
+                    State.CurrentToken = Token.AssignCoalesce with { Line = line, Column = col };
+                    break;
                 case '?' when Peek() == '?':
                     Advance();
                     State.CurrentToken = Token.DoubleQuestionMark with { Line = line, Column = col };

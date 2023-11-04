@@ -230,7 +230,7 @@ fn nil_coalescing_both_nil() {
   assert.equal(c, nil);
 }
 
-#[test;disasm("always")]
+#[test]
 fn nil_coalescing_multiple_values() {
   val a = nil;
   val b = nil;

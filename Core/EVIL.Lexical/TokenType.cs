@@ -40,6 +40,7 @@
         AssignBitwiseXor,
         AssignShiftRight,
         AssignShiftLeft,
+        AssignCoalesce,
 
         DeepEqual,
         DeepNotEqual,
