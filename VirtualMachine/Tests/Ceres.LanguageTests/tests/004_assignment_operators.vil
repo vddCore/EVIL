@@ -159,3 +159,60 @@ fn assignment_tbl_sub() {
   assert.equal(a[0] -= 1, 12);
   assert.equal(a[0], 12);
 }
+
+#[test]
+fn coalescing_assignment_global() {
+  test_global = nil;
+  test_global ??= 21.37;
+  test_global ??= "a string";
+  
+  assert.equal(test_global, 21.37);
+}
+
+#[test]
+fn coalescing_assignment_local() {
+  rw val test_local = nil;
+  test_local ??= 21.37;
+  test_local ??= "a string";
+  
+  assert.equal(test_local, 21.37);
+}
+
+#[test]
+fn coalescing_assignment_table_entry() {
+  val t = { };
+  t.x ??= 21;
+  t.y ??= 37;
+  
+  t.x ??= 12;
+  t.y ??= 34;
+  
+  assert.equal(t.x, 21);
+  assert.equal(t.y, 37);
+}
+
+#[test]
+fn chained_coalescing_assignment_table_entry_when_first_is_nil() {
+  val t = { };
+  val a = "";
+  rw val b = nil;
+  
+  t.entry ??= b ??= a;
+  
+  assert.equal(b, a);
+  assert.equal(t.entry, a); 
+}
+
+#[test]
+fn chained_coalescing_assignment_table_entry_when_first_is_not_nil() {
+  val t = { };
+  rw val a = "string";
+  rw val b = nil;
+  rw val c = nil;
+  
+  t.entry ??= a ??= b ??= c;
+  
+  assert.equal(t.entry, a);
+  assert.equal(b, nil);
+  assert.equal(c, nil); 
+}

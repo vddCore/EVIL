@@ -59,6 +59,7 @@ namespace EVIL.Lexical
         public static readonly Token AssignBitwiseXor = new(TokenType.AssignBitwiseXor, TokenClass.Operator, "^=");
         public static readonly Token AssignShiftRight = new(TokenType.AssignShiftRight, TokenClass.Operator, ">>=");
         public static readonly Token AssignShiftLeft = new(TokenType.AssignShiftLeft, TokenClass.Operator, "<<=");
+        public static readonly Token AssignCoalesce = new(TokenType.AssignCoalesce, TokenClass.Operator, "??=");
         public static readonly Token Plus = new(TokenType.Plus, TokenClass.Operator, "+");
         public static readonly Token Minus = new(TokenType.Minus, TokenClass.Operator, "-");
         public static readonly Token Divide = new(TokenType.Divide, TokenClass.Operator, "/");

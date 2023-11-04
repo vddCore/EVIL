@@ -9,13 +9,30 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(AssignmentExpression assignmentExpression)
         {
-            if (assignmentExpression.Left is SymbolReferenceExpression vre)
+            if (assignmentExpression.Left is SymbolReferenceExpression symRef)
             {
-                ThrowIfVarReadOnly(vre.Identifier);
+                ThrowIfVarReadOnly(symRef.Identifier);
 
+                if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
+                {
+                    var valueNotNilLabel = Chunk.CreateLabel();
+
+                    EmitVarGet(symRef.Identifier);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+                    Chunk.CodeGenerator.Emit(OpCode.CNE);
+                    Chunk.CodeGenerator.Emit(OpCode.TJMP, valueNotNilLabel);
+                    Visit(assignmentExpression.Right);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    EmitVarSet(symRef.Identifier);
+                    Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+
+                    return;
+                }
+                
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
-                    EmitVarGet(vre.Identifier);
+                    EmitVarGet(symRef.Identifier);
                     Visit(assignmentExpression.Right);
 
                     Chunk.CodeGenerator.Emit(
@@ -47,10 +64,29 @@ namespace Ceres.TranslationEngine
                 }
 
                 Chunk.CodeGenerator.Emit(OpCode.DUP);
-                EmitVarSet(vre.Identifier);
+                EmitVarSet(symRef.Identifier);
             }
             else if (assignmentExpression.Left is IndexerExpression ie)
             {
+                if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
+                {
+                    var valueNotNilLabel = Chunk.CreateLabel();
+
+                    Visit(ie);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+                    Chunk.CodeGenerator.Emit(OpCode.CNE);
+                    Chunk.CodeGenerator.Emit(OpCode.TJMP, valueNotNilLabel);
+                    Visit(assignmentExpression.Right);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Visit(ie.Indexable);
+                    Visit(ie.KeyExpression);
+                    Chunk.CodeGenerator.Emit(OpCode.ELSET);
+                    Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+
+                    return;
+                }
+                
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
                     Visit(ie);
