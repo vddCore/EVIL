@@ -90,6 +90,7 @@ namespace EVIL.Lexical
         public static readonly Token AsNumber = new(TokenType.AsNumber, TokenClass.Operator, "$");
         public static readonly Token AsString = new(TokenType.AsString, TokenClass.Operator, "@");
         public static readonly Token QuestionMark = new(TokenType.QuestionMark, TokenClass.Operator, "?");
+        public static readonly Token DoubleQuestionMark = new(TokenType.DoubleQuestionMark, TokenClass.Operator, "??");
         public static readonly Token Colon = new(TokenType.Colon, TokenClass.Operator, ":");
         public static readonly Token DoubleColon = new(TokenType.DoubleColon, TokenClass.Operator, "::");
         public static readonly Token Semicolon = new(TokenType.Semicolon, TokenClass.Operator, ";");
