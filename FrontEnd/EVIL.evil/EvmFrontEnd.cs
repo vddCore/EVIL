@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
@@ -14,6 +13,9 @@ using Ceres.TranslationEngine;
 using EVIL.Grammar;
 using EVIL.Lexical;
 using Mono.Options;
+
+using Array = System.Array;
+using EvilArray = Ceres.ExecutionEngine.Collections.Array;
 
 namespace EVIL.evil
 {
@@ -64,8 +66,8 @@ namespace EVIL.evil
                 );
             }
 
-            var path = extra.First();
-            if (!File.Exists(path))
+            var scriptPath = extra.First();
+            if (!File.Exists(scriptPath))
             {
                 Terminate(
                     "Fatal: input file does not exist.",
@@ -78,30 +80,30 @@ namespace EVIL.evil
                 .Select(x => new DynamicValue(x))
                 .ToArray();
             
-            var source = File.ReadAllText(path);
+            var source = File.ReadAllText(scriptPath);
 
             Script script = null!;
             try
             {
-                script = _compiler.Compile(source, path);
+                script = _compiler.Compile(source, scriptPath);
             }
             catch (LexerException le)
             {
                 Terminate(
-                    $"Syntax error in {path} ({le.Line}:{le.Column}): {le.Message}",
+                    $"Syntax error in {scriptPath} ({le.Line}:{le.Column}): {le.Message}",
                     exitCode: ExitCode.LexerError
                 );
             }
             catch (ParserException pe)
             {
                 Terminate(
-                    $"Syntax error in {path} ({pe.Line}:{pe.Column}): {pe.Message}",
+                    $"Syntax error in {scriptPath} ({pe.Line}:{pe.Column}): {pe.Message}",
                     exitCode: ExitCode.ParserError
                 );
             }
             catch (CompilerException ce)
             {
-                var msg = $"Compilation error in {path}:\n" +
+                var msg = $"Compilation error in {scriptPath}:\n" +
                           $"  {ce.Log.Messages.Last()}";
 
                 if (ce.InnerException != null)
@@ -127,13 +129,32 @@ namespace EVIL.evil
             }
 
             _runtime.RegisterBuiltInModules();
-            
+
+            var initChunks = new List<Chunk>();
             foreach (var chunk in script.Chunks)
             {
+                if (IsValidInitChunk(chunk))
+                {
+                    initChunks.Add(chunk);
+                }
+
+                if (SkipChunkRegistration(chunk))
+                {
+                    continue;
+                }
+                
                 _vm.Global[chunk.Name] = chunk;
             }
 
+            SetStandardGlobals(scriptPath);
+            
             _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
+
+            foreach (var initChunk in initChunks)
+            {
+                _vm.MainFiber.Schedule(initChunk, false);
+            }
+            
             _vm.Start();
             await _vm.MainFiber.ScheduleAsync(mainChunk, scriptArgs);
         }
@@ -160,6 +181,30 @@ namespace EVIL.evil
             }
 
             return fileNames;
+        }
+
+        private bool IsValidInitChunk(Chunk chunk)
+            => chunk.HasAttribute(AttributeNames.VmInit);
+
+        private bool SkipChunkRegistration(Chunk chunk)
+            => chunk.HasAttribute(AttributeNames.NoReg);
+
+        private void SetStandardGlobals(string scriptPath)
+        {
+            SetIncludePathsGlobal();
+            
+            _vm.Global["__SCRIPT_HOME"] = Path.GetDirectoryName(scriptPath) ?? string.Empty;
+            _vm.Global["__SCRIPT_FILE"] = Path.GetFileName(scriptPath);            
+        }
+        
+        private void SetIncludePathsGlobal()
+        {
+            var includeArray = new EvilArray(_includeHandler.IncludeSearchPaths.Count);
+            for (var i = 0; i < includeArray.Length; i++)
+            {
+                includeArray[i] = _includeHandler.IncludeSearchPaths[i];
+            }
+            _vm.Global["__INCLUDE_PATHS"] = includeArray;
         }
 
         private void CrashHandler(Fiber fiber, Exception exception)
