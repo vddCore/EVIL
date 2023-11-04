@@ -250,6 +250,11 @@ namespace EVIL.Lexical
                 case ')':
                     State.CurrentToken = Token.RParenthesis with { Line = line, Column = col };
                     break;
+                case '!' when Peek() == 'i' && Peek(2) == 'n':
+                    Advance();
+                    Advance();
+                    State.CurrentToken = Token.NotIn with { Line = line, Column = col };
+                    break;
                 case '!' when Peek() == 'i' && Peek(2) == 's':
                     Advance();
                     Advance();

@@ -106,6 +106,11 @@ namespace EVIL.Lexical
         public static readonly Token AttributeList = new(TokenType.AttributeList, TokenClass.Operator, "#[");
         public static readonly Token Array = new(TokenType.Array, TokenClass.Operator, "array");
         public static readonly Token Self = new(TokenType.Self, TokenClass.Operator, "self");
+        public static readonly Token In = new(TokenType.In, TokenClass.Operator, "in");
+        public static readonly Token NotIn = new(TokenType.NotIn, TokenClass.Operator, "!in");
+        public static readonly Token Is = new(TokenType.Is, TokenClass.Operator, "is");
+        public static readonly Token IsNot = new(TokenType.IsNot, TokenClass.Operator, "!is");
+        public static readonly Token TypeOf = new(TokenType.TypeOf, TokenClass.Operator, "typeof");
 
         public static readonly Token Val = new(TokenType.Val, TokenClass.Keyword, "val");
         public static readonly Token If = new(TokenType.If, TokenClass.Keyword, "if");
@@ -117,14 +122,10 @@ namespace EVIL.Lexical
         public static readonly Token Do = new(TokenType.Do, TokenClass.Keyword, "do");
         public static readonly Token While = new(TokenType.While, TokenClass.Keyword, "while");
         public static readonly Token Break = new(TokenType.Break, TokenClass.Keyword, "break");
+        public static readonly Token Nil = new(TokenType.Nil, TokenClass.Keyword, "nil");
         public static readonly Token Skip = new(TokenType.Skip, TokenClass.Keyword, "skip");
-        public static readonly Token In = new(TokenType.In, TokenClass.Keyword, "in");
-        public static readonly Token Is = new(TokenType.Is, TokenClass.Keyword, "is");
-        public static readonly Token IsNot = new(TokenType.IsNot, TokenClass.Keyword, "!is");
         public static readonly Token False = new(TokenType.False, TokenClass.Keyword, "false");
         public static readonly Token True = new(TokenType.True, TokenClass.Keyword, "true");
-        public static readonly Token Nil = new(TokenType.Nil, TokenClass.Keyword, "nil");
-        public static readonly Token TypeOf = new(TokenType.TypeOf, TokenClass.Keyword, "typeof");
         public static readonly Token Yield = new(TokenType.Yield, TokenClass.Keyword, "yield");
         public static readonly Token Rw = new(TokenType.Rw, TokenClass.Keyword, "rw");
         public static readonly Token Each = new(TokenType.Each, TokenClass.Keyword, "each");

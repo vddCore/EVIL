@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
@@ -13,14 +14,17 @@ namespace EVIL.Grammar.Parsing
             TokenType.GreaterThan,
             TokenType.LessThanOrEqual,
             TokenType.GreaterThanOrEqual,
-            TokenType.In
+            TokenType.In,
+            TokenType.NotIn,
+            TokenType.Is,
+            TokenType.IsNot
         };
 
         private Expression RelationalExpression()
         {
             var node = ShiftExpression();
             var token = CurrentToken;
-            
+
             while (_comparisonOperators.Contains(token.Type))
             {
                 if (token.Type == TokenType.LessThan)
@@ -58,7 +62,42 @@ namespace EVIL.Grammar.Parsing
                     node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.ExistsIn)
                         { Line = line, Column = col };
                 }
+                else if (token.Type == TokenType.NotIn)
+                {
+                    var (line, col) = Match(Token.NotIn);
+                    
+                    node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.DoesNotExistIn)
+                        { Line = line, Column = col } ;
+                }
+                else if (token.Type == TokenType.Is || token.Type == TokenType.IsNot)
+                {
+                    var (line, col) = (-1, -1);
 
+                    var invert = false;
+
+                    if (token.Type == TokenType.Is)
+                    {
+                        (line, col) = Match(Token.Is);
+                    }
+                    else
+                    {
+                        (line, col) = Match(Token.IsNot);
+                        invert = true;
+                    }
+
+                    var right = Constant();
+
+                    if (right is not TypeCodeConstant typeCodeConstant)
+                    {
+                        throw new ParserException(
+                            "Expected a type code constant.",
+                            (right.Line, right.Column)
+                        );
+                    }
+
+                    node = new IsExpression(node, typeCodeConstant, invert)
+                        { Line = line, Column = col };
+                }
                 token = CurrentToken;
             }
 

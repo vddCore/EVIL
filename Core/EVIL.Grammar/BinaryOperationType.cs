@@ -22,6 +22,7 @@
         LogicalAnd,
         ShiftRight,
         ShiftLeft,
-        ExistsIn
+        ExistsIn,
+        DoesNotExistIn
     }
 }
