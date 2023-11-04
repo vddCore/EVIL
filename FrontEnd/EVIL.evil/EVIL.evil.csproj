@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AssemblyName>evil</AssemblyName>
+    <Version>1.1.0</Version>
   </PropertyGroup>
   
   <ItemGroup>
