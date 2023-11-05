@@ -74,15 +74,56 @@ namespace Ceres.ExecutionEngine.Collections
             return _values.Length;
         }
         
-        public int Push(DynamicValue value)
+        public int Push(params DynamicValue[] values)
         {
-            System.Array.Resize(ref _values, _values.Length + 1);
-            _values[_values.Length - 1] = value;
+            if (values.Length == 0)
+                return _values.Length;
             
+            System.Array.Resize(
+                ref _values,
+                _values.Length + values.Length
+            );
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                _values[_values.Length - values.Length + i] = values[i];
+            }
+
             return _values.Length;
         }
 
-        public DynamicValue Pop()
+        public int Insert(int index, params DynamicValue[] values)
+        {
+            if (index < 0)
+                return -1;
+
+            if (index > _values.Length)
+                return -1;
+
+            if (values.Length == 0)
+                return _values.Length;
+            
+            System.Array.Resize(
+                ref _values, 
+                _values.Length + values.Length
+            );
+
+            var start = _values.Length - values.Length - 1;
+            
+            for (var i = start; i >= index; i--)
+            {
+                _values[_values.Length - values.Length + i] = _values[i];
+            }
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                _values[index + i] = values[i];
+            }
+
+            return _values.Length;
+        }
+
+        public DynamicValue RightShift()
         {
             if (_values.Length <= 0)
                 return Nil;
@@ -92,8 +133,8 @@ namespace Ceres.ExecutionEngine.Collections
 
             return ret;
         }
-
-        public DynamicValue Shift()
+        
+        public DynamicValue LeftShift()
         {
             if (_values.Length <= 0)
                 return Nil;
@@ -108,25 +149,6 @@ namespace Ceres.ExecutionEngine.Collections
             System.Array.Resize(ref _values, _values.Length - 1);
             
             return ret;
-        }
-
-        public int Insert(DynamicValue value, int index)
-        {
-            if (index < 0)
-                return -1;
-
-            if (index > _values.Length)
-                return -1;
-            
-            System.Array.Resize(ref _values, _values.Length + 1);
-
-            for (var i = index; i < _values.Length - 1; i++)
-            {
-                _values[i + 1] = _values[i];
-            }
-
-            _values[index] = value;
-            return _values.Length;
         }
         
         public bool IsDeeplyEqualTo(Array other)
