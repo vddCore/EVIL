@@ -85,7 +85,7 @@ namespace Ceres.ExecutionEngine.Collections
             return ret;
         }
 
-        public DynamicValue Take()
+        public DynamicValue Shift()
         {
             if (_values.Length <= 0)
                 return Nil;
