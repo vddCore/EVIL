@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.Diagnostics.Debugging;
@@ -94,10 +95,19 @@ namespace Ceres.ExecutionEngine.Concurrency
         public async Task ScheduleAsync(Chunk chunk, bool resumeImmediately, params DynamicValue[] args)
         {
             Schedule(chunk, resumeImmediately, args);
-            await WaitUntilFinishedAsync();
+            await BlockUntilFinishedAsync();
         }
 
-        public async Task WaitUntilFinishedAsync()
+        public void BlockUntilFinished()
+        {
+            while (State != FiberState.Finished && 
+                   State != FiberState.Crashed)
+            {
+                Thread.Sleep(1);
+            }
+        }
+        
+        public async Task BlockUntilFinishedAsync()
         {
             var hasAnyChunks = false;
             lock (_scheduledChunks)
