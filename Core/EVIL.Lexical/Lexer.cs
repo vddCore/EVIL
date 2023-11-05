@@ -100,11 +100,18 @@ namespace EVIL.Lexical
                     State.CurrentToken = Token.Multiply with { Line = line, Column = col };
                     break;
                 case '/' when Peek() == '/':
-                    SkipComment();
+                    SkipLineComment();
 
                     Advance();
                     NextToken();
 
+                    return;
+                case '/' when Peek() == '*':
+                    SkipBlockComment();
+                    
+                    Advance();
+                    NextToken();
+                    
                     return;
                 case '/' when Peek() == '=':
                     Advance();
@@ -541,10 +548,29 @@ namespace EVIL.Lexical
             return (char)int.Parse(sb.ToString(), NumberStyles.HexNumber);
         }
 
-        private void SkipComment()
+        private void SkipLineComment()
         {
             while (State.Character != '\n' && State.Character != (char)0)
                 Advance();
+        }
+
+        private void SkipBlockComment()
+        {
+            while (true)
+            {
+                if (Peek() == '*' && Peek(2) == '/')
+                {
+                    Advance();
+                    Advance();
+                    
+                    break;
+                }
+
+                if (State.Character == 0)
+                    break;
+                
+                Advance();
+            }
         }
 
         private void SkipWhitespace()
