@@ -63,7 +63,7 @@ namespace Ceres.ExecutionEngine.Collections
             }
         }
 
-        public int Resize(DynamicValue value, int size)
+        public int Resize(int size)
         {
             if (size < 0)
             {
