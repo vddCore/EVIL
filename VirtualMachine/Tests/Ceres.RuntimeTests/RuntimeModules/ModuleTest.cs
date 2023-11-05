@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -58,6 +57,11 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 return _vm.MainFiber.PopValue();
             }
 
+            if (_vm.MainFiber.State == FiberState.Crashed)
+            {
+                throw new Exception("Test has failed inside EVIL world.");
+            }
+            
             throw new Exception("There is something wrong with the awaiter logic or the fiber itself.");
         }
     }
