@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -40,23 +41,24 @@ namespace Ceres.RuntimeTests.RuntimeModules
             _compiler = null;
         }
 
-        protected DynamicValue EvilTestResult(string source)
+        protected DynamicValue EvilTestResult(string source, params DynamicValue[] args)
         {
             var script = _compiler.Compile(source, "!module_test_file!");
 
             foreach (var chunk in script.Chunks)
                 _vm.Global[chunk.Name] = chunk;
 
-            _vm.MainFiber.ScheduleAsync(script["test"]!)
-                .GetAwaiter()
-                .GetResult();
-
+            _vm.MainFiber.Schedule(script["test"]!, false, args);
+            _vm.MainFiber.Resume();
+            
+            _vm.MainFiber.BlockUntilFinished();
+            
             if (_vm.MainFiber.State == FiberState.Finished)
             {
                 return _vm.MainFiber.PopValue();
             }
 
-            throw new Exception("Test failed.");
+            throw new Exception("There is something wrong with the awaiter logic or the fiber itself.");
         }
     }
 }

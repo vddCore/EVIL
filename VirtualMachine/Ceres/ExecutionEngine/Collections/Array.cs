@@ -55,6 +55,14 @@ namespace Ceres.ExecutionEngine.Collections
         public int IndexOf(DynamicValue value)
             => System.Array.IndexOf(_values, value);
 
+        public void Fill(DynamicValue value)
+        {
+            for (var i = 0; i < _values.Length; i++)
+            {
+                _values[i] = value;
+            }
+        }
+
         public int Resize(DynamicValue value, int size)
         {
             if (size < 0)
