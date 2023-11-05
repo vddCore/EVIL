@@ -11,7 +11,7 @@ namespace Ceres.Runtime.Modules
 
 
         [RuntimeModuleFunction("indof", ReturnType = DynamicValueType.Number)]
-        private static DynamicValue IndexOf(Fiber fiber, params DynamicValue[] args)
+        private static DynamicValue IndexOf(Fiber _, params DynamicValue[] args)
         {
             args.ExpectArrayAt(0, out var array)
                 .ExpectAnyAt(1, out var value);
@@ -20,7 +20,7 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("fill", ReturnType = DynamicValueType.Nil)]
-        private static DynamicValue Fill(Fiber fiber, params DynamicValue[] args)
+        private static DynamicValue Fill(Fiber _, params DynamicValue[] args)
         {
             args.ExpectArrayAt(0, out var array)
                 .ExpectAnyAt(1, out var value);
@@ -28,6 +28,15 @@ namespace Ceres.Runtime.Modules
             array.Fill(value);
             
             return DynamicValue.Nil;
+        }
+        
+        [RuntimeModuleFunction("resize", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue Resize(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectArrayAt(0, out var array)
+                .ExpectIntegerAt(1, out var size);
+
+            return array.Resize((int)size);
         }
     }
 }
