@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
+using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.Collections
 {
@@ -48,11 +49,77 @@ namespace Ceres.ExecutionEngine.Collections
             }
             
             _values = new DynamicValue[size];
-            System.Array.Fill(_values, DynamicValue.Nil);
+            System.Array.Fill(_values, Nil);
         }
 
         public int IndexOf(DynamicValue value)
             => System.Array.IndexOf(_values, value);
+
+        public int Resize(DynamicValue value, int size)
+        {
+            if (size < 0)
+            {
+                return -1;
+            }
+
+            System.Array.Resize(ref _values, size);
+            return _values.Length;
+        }
+        
+        public int Push(DynamicValue value)
+        {
+            System.Array.Resize(ref _values, _values.Length + 1);
+            _values[_values.Length - 1] = value;
+            
+            return _values.Length;
+        }
+
+        public DynamicValue Pop()
+        {
+            if (_values.Length <= 0)
+                return Nil;
+
+            var ret = _values[_values.Length - 1];
+            System.Array.Resize(ref _values, _values.Length - 1);
+
+            return ret;
+        }
+
+        public DynamicValue Take()
+        {
+            if (_values.Length <= 0)
+                return Nil;
+
+            var ret = _values[0];
+
+            for (var i = 1; i < _values.Length; i++)
+            {
+                _values[i - 1] = _values[i];
+            }
+
+            System.Array.Resize(ref _values, _values.Length - 1);
+            
+            return ret;
+        }
+
+        public int Insert(DynamicValue value, int index)
+        {
+            if (index < 0)
+                return -1;
+
+            if (index > _values.Length)
+                return -1;
+            
+            System.Array.Resize(ref _values, _values.Length + 1);
+
+            for (var i = index; i < _values.Length - 1; i++)
+            {
+                _values[i + 1] = _values[i];
+            }
+
+            _values[index] = value;
+            return _values.Length;
+        }
         
         public bool IsDeeplyEqualTo(Array other)
         {
@@ -65,14 +132,14 @@ namespace Ceres.ExecutionEngine.Collections
                 {
                     if (this[i].Type == DynamicValueType.Table || this[i].Type == DynamicValueType.Array)
                     {
-                        if (!DynamicValue.IsTruth(this[i].IsDeeplyEqualTo(other[i])))
+                        if (!IsTruth(this[i].IsDeeplyEqualTo(other[i])))
                         {
                             return false;
                         }
                     }
                     else
                     {
-                        if (!DynamicValue.IsTruth(this[i].IsEqualTo(other[i])))
+                        if (!IsTruth(this[i].IsEqualTo(other[i])))
                         {
                             return false;
                         }
