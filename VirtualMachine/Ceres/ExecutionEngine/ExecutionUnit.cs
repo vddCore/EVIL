@@ -132,6 +132,16 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Add, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
                     PushValue(a.Add(b));
 
                     break;
@@ -141,6 +151,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Subtract, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.Subtract(b));
 
@@ -151,6 +170,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Multiply, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.Multiply(b));
 
@@ -161,6 +189,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Divide, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.DivideBy(b));
 
@@ -171,6 +208,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Modulo, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.Modulo(b));
 
@@ -181,6 +227,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.ShiftLeft, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.ShiftLeft(b));
 
@@ -191,6 +246,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.ShiftRight, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.ShiftRight(b));
 
@@ -205,13 +269,35 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.ANEG:
                 {
-                    PushValue(PopValue().ArithmeticallyNegate());
+                    a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.ArithmeticNegate, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
+                    PushValue(a.ArithmeticallyNegate());
                     break;
                 }
 
                 case OpCode.LNOT:
                 {
-                    PushValue(PopValue().LogicallyNegate());
+                    a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.LogicalNot, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
+                    PushValue(a.LogicallyNegate());
                     break;
                 }
 
@@ -219,6 +305,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.LogicalOr, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.LogicalOr(b));
                     break;
@@ -228,6 +323,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.LogicalAnd, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.LogicalAnd(b));
                     break;
@@ -237,6 +341,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.BitwiseOr, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.BitwiseOr(b));
                     break;
@@ -246,6 +359,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.BitwiseXor, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.BitwiseXor(b));
                     break;
@@ -255,6 +377,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.BitwiseAnd, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.BitwiseAnd(b));
                     break;
@@ -263,6 +394,15 @@ namespace Ceres.ExecutionEngine
                 case OpCode.BNOT:
                 {
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.BitwiseNot, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
 
                     PushValue(a.BitwiseNegate());
                     break;
@@ -272,6 +412,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.DeepEqual, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsDeeplyEqualTo(b));
                     break;
@@ -281,6 +430,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.DeepNotEqual, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsDeeplyNotEqualTo(b));
                     break;
@@ -290,6 +448,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Equal, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsEqualTo(b));
                     break;
@@ -299,6 +466,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.NotEqual, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsNotEqualTo(b));
                     break;
@@ -309,6 +485,15 @@ namespace Ceres.ExecutionEngine
                     b = PopValue();
                     a = PopValue();
 
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.GreaterThan, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
                     PushValue(a.IsGreaterThan(b));
                     break;
                 }
@@ -317,6 +502,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.GreaterThanOrEqual, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsGreaterThanOrEqualTo(b));
                     break;
@@ -326,6 +520,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.LessThan, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsLessThan(b));
                     break;
@@ -335,37 +538,56 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.LessThanOrEqual, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsLessThanOrEqualTo(b));
                     break;
                 }
 
                 case OpCode.INVOKE:
-                {                   
+                {
                     a = PopValue();
 
                     var argumentCount = frame.FetchInt32();
                     var args = PopArguments(argumentCount);
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Invoke, out var chunk))
+                        {
+                            var overrideArgs = new DynamicValue[args.Length + 1];
+                            overrideArgs[0] = a;
+                            System.Array.Copy(
+                                args, 0,
+                                overrideArgs, 1,
+                                args.Length
+                            );
+                            
+                            InvokeChunk(chunk, overrideArgs);
+                            break;
+                        }
+                    }
 
                     if (a.Type == DynamicValueType.Chunk)
                     {
-                        _callStack.Push(new ScriptStackFrame(_fiber, a.Chunk!, args));
-
-                        _fiber.OnChunkInvoke?.Invoke(
-                            _fiber,
-                            a.Chunk!,
-                            false
-                        );
-
+                        InvokeChunk(a.Chunk!, args);
                         break;
                     }
 
                     if (a.Type == DynamicValueType.NativeFunction)
                     {
                         _callStack.Push(new NativeStackFrame(a.NativeFunction!));
-                        {                            
+                        {
                             PushValue(a.NativeFunction!.Invoke(_fiber, args));
-                            
+
                             _fiber.OnNativeFunctionInvoke?.Invoke(
                                 _fiber,
                                 a.NativeFunction!
@@ -443,18 +665,18 @@ namespace Ceres.ExecutionEngine
                     var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
 
                     ScriptStackFrame? targetFrame = null;
-                    
+
                     for (var i = 0; i < _callStack.Count; i++)
                     {
                         var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
-                        
+
                         if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                         {
                             targetFrame = tmpScriptFrame;
                             break;
                         }
                     }
-                    
+
                     var value = PopValue();
 
                     if (targetFrame != null)
@@ -479,12 +701,12 @@ namespace Ceres.ExecutionEngine
                 case OpCode.GETCLOSURE:
                 {
                     var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
-                    
+
                     ScriptStackFrame? targetFrame = null;
                     for (var i = 0; i < _callStack.Count; i++)
                     {
                         var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
-                        
+
                         if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                         {
                             targetFrame = tmpScriptFrame;
@@ -513,19 +735,52 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.LENGTH:
                 {
-                    PushValue(PopValue().GetLength());
+                    a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Length, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
+                    PushValue(a.GetLength());
                     break;
                 }
 
                 case OpCode.TOSTRING:
                 {
-                    PushValue(PopValue().ConvertToString());
+                    a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.ToString, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
+                    PushValue(a.ConvertToString());
                     break;
                 }
 
                 case OpCode.TONUMBER:
                 {
-                    PushValue(PopValue().ConvertToNumber());
+                    a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.ToNumber, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
+                    PushValue(a.ConvertToNumber());
                     break;
                 }
 
@@ -545,6 +800,7 @@ namespace Ceres.ExecutionEngine
                             frame.Chunk.Labels[labelId]
                         );
                     }
+
                     break;
                 }
 
@@ -558,6 +814,7 @@ namespace Ceres.ExecutionEngine
                             frame.Chunk.Labels[labelId]
                         );
                     }
+
                     break;
                 }
 
@@ -575,6 +832,15 @@ namespace Ceres.ExecutionEngine
                 {
                     b = PopValue();
                     a = PopValue();
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (b.Table!.TryGetOverride(TableOverride.Exists, out var chunk))
+                        {
+                            InvokeChunk(chunk, b, a);
+                            break;
+                        }
+                    }
 
                     PushValue(b.Contains(a));
                     break;
@@ -593,23 +859,41 @@ namespace Ceres.ExecutionEngine
                     _callStack.Pop();
                     frame.Chunk.Dispose();
                     frame.Dispose();
-                    
+
                     break;
                 }
 
                 case OpCode.INC:
                 {
                     a = PopValue();
-                    PushValue(a.Increment());
 
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Increment, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
+                    PushValue(a.Increment());
                     break;
                 }
 
                 case OpCode.DEC:
                 {
                     a = PopValue();
+                    
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (a.Table!.TryGetOverride(TableOverride.Decrement, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+                    
                     PushValue(a.Decrement());
-
                     break;
                 }
 
@@ -627,7 +911,7 @@ namespace Ceres.ExecutionEngine
                     {
                         throw new UnsupportedDynamicValueOperationException("Array size must be a Number.");
                     }
-                    
+
                     PushValue(new Array((int)a.Number));
                     break;
                 }
@@ -647,6 +931,15 @@ namespace Ceres.ExecutionEngine
                     b = PopValue();
                     c = PopValue();
                     a = PopValue();
+                    
+                    if (c.Type == DynamicValueType.Table)
+                    {
+                        if (c.Table!.TryGetOverride(TableOverride.Set, out var chunk))
+                        {
+                            InvokeChunk(chunk, c, b, a);
+                            break;
+                        }
+                    }
 
                     c.SetEntry(b, a);
                     break;
@@ -656,6 +949,15 @@ namespace Ceres.ExecutionEngine
                 {
                     a = PopValue();
                     c = PopValue();
+                    
+                    if (c.Type == DynamicValueType.Table)
+                    {
+                        if (c.Table!.TryGetOverride(TableOverride.Get, out var chunk))
+                        {
+                            InvokeChunk(chunk, c, a);
+                            break;
+                        }
+                    }
 
                     PushValue(c.Index(a));
                     break;
@@ -714,7 +1016,7 @@ namespace Ceres.ExecutionEngine
                     {
                         a = Array.FromString(a.String!);
                     }
-                    
+
                     if (a.Type == DynamicValueType.Table)
                     {
                         frame.PushEnumerator(a.Table!);
@@ -729,6 +1031,7 @@ namespace Ceres.ExecutionEngine
                             $"Attempt to iterate over a {a.Type} value."
                         );
                     }
+
                     break;
                 }
 
@@ -738,7 +1041,7 @@ namespace Ceres.ExecutionEngine
                     var enumerator = frame.CurrentEnumerator ?? throw new VirtualMachineException(
                         "Attempt to iterate without an active iterator."
                     );
-                    
+
                     var next = enumerator.MoveNext();
 
                     if (next)
@@ -750,7 +1053,7 @@ namespace Ceres.ExecutionEngine
 
                         PushValue(enumerator.Current.Key);
                     }
-                    
+
                     PushValue(next);
                     break;
                 }
@@ -761,11 +1064,38 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.OVERRIDE:
+                {
+                    var tableOverride = (TableOverride)frame.FetchByte();
+                    a = PopValue();
+                    b = PopValue();
+
+                    if (a.Type != DynamicValueType.Table)
+                    {
+                        throw new VirtualMachineException(
+                            $"Attempt to override an operator on a {a.Type} value."
+                        );
+                    }
+
+                    a.Table!.SetOverride(tableOverride, b.Chunk!);
+                    break;
+                }
+
                 default:
                 {
                     throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
                 }
             }
+        }
+
+        private void InvokeChunk(Chunk chunk, params DynamicValue[] args)
+        {
+            _callStack.Push(new ScriptStackFrame(_fiber, chunk, args));
+            _fiber.OnChunkInvoke?.Invoke(
+                _fiber, 
+                chunk, 
+                false
+            );
         }
 
         private DynamicValue PopValue()

@@ -1,0 +1,512 @@
+#[on_init]
+fn _on_init() {
+
+  Box = { new: self::fn(value) {
+    val table = {
+      __value: value,
+      
+      set_value: self::fn(value) -> self.__value = value,
+      get_value: self::fn() -> self.__value
+    };
+    
+    override(table)::__add(a, b) -> Box::new(a::get_value() + b::get_value());
+    override(table)::__sub(a, b) -> Box::new(a::get_value() - b::get_value());
+    override(table)::__mul(a, b) -> Box::new(a::get_value() * b::get_value());
+    override(table)::__div(a, b) -> Box::new(a::get_value() / b::get_value());
+    override(table)::__mod(a, b) -> Box::new(a::get_value() % b::get_value());
+    override(table)::__shl(a, b) -> Box::new(a::get_value() << b::get_value());
+    override(table)::__shr(a, b) -> Box::new(a::get_value() >> b::get_value());
+    override(table)::__aneg(a) -> Box::new(-a::get_value());
+    override(table)::__inc(a) -> Box::new(a::get_value() + 1);
+    override(table)::__dec(a) -> Box::new(a::get_value() - 1);
+    override(table)::__lnot(a) -> Box::new(!!!a::get_value());
+    override(table)::__lor(a, b) -> Box::new(a::get_value() || b::get_value());
+    override(table)::__land(a, b) -> Box::new(a::get_value() && b::get_value());
+    override(table)::__bor(a, b) -> Box::new(a::get_value() | b::get_value());
+    override(table)::__bxor(a, b) -> Box::new(a::get_value() ^ b::get_value());
+    override(table)::__band(a, b) -> Box::new(a::get_value() & b::get_value());
+    override(table)::__bnot(a) -> Box::new(~a::get_value());
+    override(table)::__deq(a, b) -> Box::new(a::get_value() <==> b::get_value());
+    override(table)::__dne(a, b) -> Box::new(a::get_value() <!=> b::get_value());
+    override(table)::__eq(a, b) -> Box::new(a::get_value() == b::get_value());
+    override(table)::__ne(a, b) -> Box::new(a::get_value() != b::get_value());
+    override(table)::__gt(a, b) -> Box::new(a::get_value() > b::get_value());
+    override(table)::__lt(a, b) -> Box::new(a::get_value() < b::get_value());
+    override(table)::__gte(a, b) -> Box::new(a::get_value() >= b::get_value());
+    override(table)::__lte(a, b) -> Box::new(a::get_value() <= b::get_value());
+    override(table)::__len(a) -> "lmao";
+    override(table)::__tonum(a) -> 21.37;
+    override(table)::__tostr(a) -> "tostring result";
+    
+    override(table)::__invoke(a, b, c) {
+      ret @self::get_value() + "-" + @a + "-" + @b + "-" + @c;
+    }
+    
+    override(table)::__set(k, v) {
+      if (k == "jp2") {
+        tbl.rawset(self, "jp2", "gmd");
+        ret 21.37;
+      }
+    
+      ret tbl.rawset(self, k, v);
+    }
+    
+    override(table)::__get(k) {
+      if (k == "jp2gmd") {
+        ret 21.37;
+      }
+      
+      ret tbl.rawget(self, k);
+    }
+    
+    override(table)::__exists(k) {
+      if (k == "jp2gmd") {
+        ret 11.11;
+      }
+      
+      ret tbl.rawget(self, k) !is Nil;
+    }
+    
+    ret table;
+  }};
+  
+}
+
+#[test]
+fn add_override() {
+  val objA = Box::new(10);
+  val objB = Box::new(5);
+  
+  val result = objA + objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 15);
+}
+
+#[test]
+fn sub_override() {
+  val objA = Box::new(10);
+  val objB = Box::new(5);
+  
+  val result = objA - objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 5);
+}
+
+#[test]
+fn mul_override() {
+  val objA = Box::new(10);
+  val objB = Box::new(5);
+  
+  val result = objA * objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 50);
+}
+
+#[test]
+fn div_override() {
+  val objA = Box::new(10);
+  val objB = Box::new(5);
+  
+  val result = objA / objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 2);
+}
+
+#[test]
+fn mod_override() {
+  val objA = Box::new(10);
+  val objB = Box::new(3);
+  
+  val result = objA % objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 1);
+}
+
+#[test]
+fn shl_override() {
+  val objA = Box::new(1);
+  val objB = Box::new(4);
+  
+  val result = objA << objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 16);
+}
+
+#[test]
+fn shr_override() {
+  val objA = Box::new(16);
+  val objB = Box::new(2);
+  
+  val result = objA >> objB;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 4);
+}
+
+#[test]
+fn aneg_override() {
+  val objA = Box::new(21.37);
+  val result = -objA;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), -21.37);
+}
+
+#[test]
+fn inc_override_post() {
+  rw val obj = Box::new(10);
+  val result = obj++;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 10);
+  assert.equal(obj::get_value(), 11);
+}
+
+#[test]
+fn inc_override_pre() {
+  rw val obj = Box::new(10);
+  val result = ++obj;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 11);
+  assert.equal(obj::get_value(), 11);
+}
+
+#[test]
+fn dec_override_post() {
+  rw val obj = Box::new(10);
+  val result = obj--;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 10);
+  assert.equal(obj::get_value(), 9);
+}
+
+#[test]
+fn dec_override_pre() {
+  rw val obj = Box::new(10);
+  val result = --obj;
+  
+  assert.is_of_type(result, Table);
+  assert.equal(result::get_value(), 9);
+  assert.equal(obj::get_value(), 9);
+}
+
+#[test]
+fn lnot_override() {
+  val obj = Box::new(false);
+  val result = !obj;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn lor_override() {
+  val objA = Box::new(false);
+  val objB = Box::new(true);
+  val result = objA || objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn land_override() {
+  val objA = Box::new(false);
+  val objB = Box::new(true);
+  val result = objA && objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_false(result::get_value());
+}
+
+#[test]
+fn bor_override() {
+  val objA = Box::new(0xF000);
+  val objB = Box::new(0x000F);
+  val result = objA | objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Number);
+  assert.equal(result::get_value(), 0xF00F);
+}
+
+#[test]
+fn bxor_override() {
+  val objA = Box::new(0xF0F0);
+  val objB = Box::new(0xFFFF);
+  val result = objA ^ objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Number);
+  assert.equal(result::get_value(), 0x0F0F);
+}
+
+#[test]
+fn band_override() {
+  val objA = Box::new(0xFFFF);
+  val objB = Box::new(0x0FF0);
+  val result = objA & objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Number);
+  assert.equal(result::get_value(), 0x0FF0);
+}
+
+#[test]
+fn bnot_override() {
+  val obj = Box::new(0x0FFF);
+  val result = ~obj;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Number);
+  assert.equal(
+    result::get_value(),
+    cnv.u16(0xF000)
+  );
+}
+
+#[test]
+fn deq_override() {
+  val objA = Box::new({1, 2, 3, { 1, 2, 3 }});
+  val objB = Box::new({1, 2, 3, { 1, 2, 3 }});
+  val result = objA <==> objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn dne_override() {
+  val objA = Box::new({1, 2, 3, { 1, 2, 3 }});
+  val objB = Box::new({1, 2, 3, { 1, 21.37, 3 }});
+  val result = objA <!=> objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn eq_override_byval() {
+  val objA = Box::new(21.37);
+  val objB = Box::new(21.37);
+  val result = objA == objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn eq_override_byref() {
+  val t = { 1, 2, 3 };
+  
+  val objA = Box::new(t);
+  val objB = Box::new(t);
+  val result = objA == objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());  
+}
+
+#[test]
+fn ne_override_byval() {
+  val objA = Box::new(12.34);
+  val objB = Box::new(21.37);
+  val result = objA != objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn ne_override_byref() {
+  val t1 = { 1, 2 };
+  val t2 = { 1, 2 };
+  
+  val objA = Box::new(t1);
+  val objB = Box::new(t2);
+  val result = objA != objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn gt_override_gt() {
+  val objA = Box::new(37);
+  val objB = Box::new(21);
+  val result = objA > objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn gt_override_eq() {
+  val objA = Box::new(21);
+  val objB = Box::new(21);
+  val result = objA > objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_false(result::get_value());
+}
+
+#[test]
+fn lt_override_lt() {
+  val objA = Box::new(21);
+  val objB = Box::new(37);
+  val result = objA < objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn lt_override_eq() {
+  val objA = Box::new(37);
+  val objB = Box::new(37);
+  val result = objA < objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_false(result::get_value());
+}
+
+#[test]
+fn gte_override_gt() {
+  val objA = Box::new(37);
+  val objB = Box::new(21);
+  val result = objA >= objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn gte_override_eq() {
+  val objA = Box::new(37);
+  val objB = Box::new(37);
+  val result = objA >= objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn lte_override_gt() {
+  val objA = Box::new(21);
+  val objB = Box::new(37);
+  val result = objA <= objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn lte_override_eq() {
+  val objA = Box::new(37);
+  val objB = Box::new(37);
+  val result = objA >= objB;
+  
+  assert.is_of_type(result, Table);
+  assert.is_of_type(result::get_value(), Boolean);
+  assert.is_true(result::get_value());
+}
+
+#[test]
+fn len_override() {
+  val obj = Box::new(Nil);
+  val result = #obj;
+  
+  assert.is_of_type(result, String);
+  assert.equal(result, "lmao");
+}
+
+#[test]
+fn tonum_override() {
+  val obj = Box::new(11.11);
+  val result = $obj;
+  
+  assert.is_of_type(result, Number);
+  assert.equal(result, 21.37);
+}
+
+#[test]
+fn tostr_override() {
+  val obj = Box::new(11.11);
+  val result = @obj;
+  
+  assert.is_of_type(result, String);
+  assert.equal(result, "tostring result");
+}
+
+#[test]
+fn invoke_override() {
+  val obj = Box::new(2137);
+  val result = obj(10, 20, 30);
+  
+  assert.is_of_type(result, String);
+  assert.equal(result, "2137-10-20-30");
+}
+
+#[test]
+fn set_override() { 
+  val obj = Box::new(2137);
+  val resultA = obj["jp2"] = 222;
+  val resultB = obj["test"] = 123;
+  
+  assert.equal(obj["jp2"], "gmd");
+  assert.equal(resultA, 21.37);
+  
+  assert.equal(obj["test"], 123);
+  assert.equal(resultB, 123);
+}
+
+#[test]
+fn get_override() {
+  val obj = Box::new(2137);
+  obj.lalala = 10;
+  
+  val resultA = obj["jp2gmd"];
+  val resultB = obj["lalala"];
+  
+  assert.equal(resultA, 21.37);
+  assert.equal(resultB, 10);
+}
+
+#[test]
+fn exists_override() {
+  val obj = Box::new(2137);
+  obj["11"] = 22;
+  
+  val resultA = "jp2gmd" in obj;
+  val resultB = "11" in obj;
+  
+  assert.is_of_type(resultA, Number);
+  assert.equal(resultA, 11.11);
+  
+  assert.is_of_type(resultB, Boolean);
+  assert.equal(resultB, true);
+}

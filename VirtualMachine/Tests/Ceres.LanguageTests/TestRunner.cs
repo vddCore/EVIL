@@ -107,6 +107,10 @@ namespace Ceres.LanguageTests
 
                 var testScript = testdesc.Value;
 
+                var onInitChunks = testScript.Chunks.Where(
+                    x => x.HasAttribute("on_init")
+                );
+                
                 var testChunks = testScript.Chunks.Where(
                     x => x.HasAttribute("test")
                 ).ToList();
@@ -128,15 +132,20 @@ namespace Ceres.LanguageTests
 
                 var nonTestChunks = testScript.Chunks.Where(
                     x => !x.HasAttribute("test")
+                      && !x.HasAttribute("on_init")
                 ).ToList();
 
                 foreach (var chunk in nonTestChunks)
                 {
-                    VM.Global.Set(
-                        chunk.Name,
-                        new(chunk)
-                    );
+                    VM.Global.Set(chunk.Name, chunk);
                 }
+
+                foreach (var onInitChunk in onInitChunks)
+                {
+                    TextOut.WriteLine($"Running test set-up function '{onInitChunk.Name}'...");
+                    VM.MainFiber.Schedule(onInitChunk);
+                }
+                VM.MainFiber.BlockUntilFinished();
 
                 for (var i = 0; i < testChunks.Count; i++)
                 {

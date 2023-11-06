@@ -29,6 +29,9 @@ namespace EVIL.Grammar.Parsing
 
                 case TokenType.LBrace:
                     return BlockStatement();
+                
+                case TokenType.Override:
+                    return OverrideStatement();
 
                 case TokenType.Do:
                     node = DoWhileLoop();

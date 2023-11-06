@@ -129,6 +129,7 @@ namespace EVIL.Lexical
         public static readonly Token Yield = new(TokenType.Yield, TokenClass.Keyword, "yield");
         public static readonly Token Rw = new(TokenType.Rw, TokenClass.Keyword, "rw");
         public static readonly Token Each = new(TokenType.Each, TokenClass.Keyword, "each");
+        public static readonly Token Override = new(TokenType.Override, TokenClass.Keyword, "override");
         
         public static readonly Token NaN = new(TokenType.NaN, TokenClass.Alias, "NaN");
         public static readonly Token Infinity = new(TokenType.Infinity, TokenClass.Alias, "Infinity");
@@ -145,6 +146,39 @@ namespace EVIL.Lexical
         public static readonly Token NativeFunctionTypeCode = new(TokenType.NativeFunctionTypeCode, TokenClass.TypeCode, "NativeFunction");
         public static readonly Token NativeObjectTypeCode = new(TokenType.NativeObjectTypeCode, TokenClass.TypeCode, "NativeObject");
 
+        public static readonly Token AddOverride = new(TokenType.AddOverride, TokenClass.Override, "__add");
+        public static readonly Token SubOverride = new(TokenType.SubOverride, TokenClass.Override, "__sub");
+        public static readonly Token MulOverride = new(TokenType.MulOverride, TokenClass.Override, "__mul");
+        public static readonly Token DivOverride = new(TokenType.DivOverride, TokenClass.Override, "__div");
+        public static readonly Token ModOverride = new(TokenType.ModOverride, TokenClass.Override, "__mod");
+        public static readonly Token ShlOverride = new(TokenType.ShlOverride, TokenClass.Override, "__shl");
+        public static readonly Token ShrOverride = new(TokenType.ShrOverride, TokenClass.Override, "__shr");
+        public static readonly Token AnegOverride = new(TokenType.AnegOverride, TokenClass.Override, "__aneg");
+        public static readonly Token IncOverride = new(TokenType.IncOverride, TokenClass.Override, "__inc");
+        public static readonly Token DecOverride = new(TokenType.DecOverride, TokenClass.Override, "__dec");
+        public static readonly Token LnotOverride = new(TokenType.LnotOverride, TokenClass.Override, "__lnot");
+        public static readonly Token LorOverride = new(TokenType.LorOverride, TokenClass.Override, "__lor");
+        public static readonly Token LandOverride = new(TokenType.LandOverride, TokenClass.Override, "__land");
+        public static readonly Token BorOverride = new(TokenType.BorOverride, TokenClass.Override, "__bor");
+        public static readonly Token BxorOverride = new(TokenType.BxorOverride, TokenClass.Override, "__bxor");
+        public static readonly Token BandOverride = new(TokenType.BandOverride, TokenClass.Override, "__band");
+        public static readonly Token BnotOverride = new(TokenType.BnotOverride, TokenClass.Override, "__bnot");
+        public static readonly Token DeqOverride = new(TokenType.DeqOverride, TokenClass.Override, "__deq");
+        public static readonly Token DneOverride = new(TokenType.DneOverride, TokenClass.Override, "__dne");
+        public static readonly Token EqOverride = new(TokenType.EqOverride, TokenClass.Override, "__eq");
+        public static readonly Token NeOverride = new(TokenType.NeOverride, TokenClass.Override, "__ne");
+        public static readonly Token GtOverride = new(TokenType.GtOverride, TokenClass.Override, "__gt");
+        public static readonly Token LtOverride = new(TokenType.LtOverride, TokenClass.Override, "__lt");
+        public static readonly Token GteOverride = new(TokenType.GteOverride, TokenClass.Override, "__gte");
+        public static readonly Token LteOverride = new(TokenType.LteOverride, TokenClass.Override, "__lte");
+        public static readonly Token LenOverride = new(TokenType.LenOverride, TokenClass.Override, "__len");
+        public static readonly Token ToNumOverride = new(TokenType.ToNumOverride, TokenClass.Override, "__tonum");
+        public static readonly Token ToStrOverride = new(TokenType.ToStrOverride, TokenClass.Override, "__tostr");
+        public static readonly Token InvokeOverride = new(TokenType.InvokeOverride, TokenClass.Override, "__invoke");
+        public static readonly Token GetOverride = new(TokenType.GetOverride, TokenClass.Override, "__get");
+        public static readonly Token SetOverride = new(TokenType.SetOverride, TokenClass.Override, "__set");
+        public static readonly Token ExistsOverride = new(TokenType.ExistsOverride, TokenClass.Override, "__exists");
+        
         public static readonly Token Identifier = new(TokenType.Identifier, TokenClass.Identifier, string.Empty);
         public static readonly Token Number = new(TokenType.Number, TokenClass.Literal, string.Empty);
         public static readonly Token HexInteger = new(TokenType.HexInteger, TokenClass.Literal, string.Empty);

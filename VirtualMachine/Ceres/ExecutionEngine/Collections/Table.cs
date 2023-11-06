@@ -1,15 +1,19 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
+using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.Collections
 {
     public class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
     {
         private ConcurrentDictionary<DynamicValue, DynamicValue> _values = new();
+        private ConcurrentDictionary<TableOverride, Chunk> _overrides = new();
 
         public DynamicValue this[DynamicValue key]
         {
@@ -30,6 +34,39 @@ namespace Ceres.ExecutionEngine.Collections
             }
         }
 
+        public bool TryGetOverride(TableOverride op, [MaybeNullWhen(false)] out Chunk chunk)
+        {
+            Chunk? originalChunk;
+
+            if (!_overrides.TryGetValue(op, out originalChunk))
+            {
+                chunk = null;
+                return false;
+            }
+
+            chunk = originalChunk.Clone();
+            return true;
+        }
+
+        public DynamicValue GetOverride(TableOverride op)
+        {
+            if (_overrides.TryGetValue(op, out var chunk))
+                return chunk.Clone();
+            
+            return Nil;
+        }
+
+        public void SetOverride(TableOverride op, Chunk chunk)
+        {
+            if (!_overrides.TryAdd(op, chunk))
+            {
+                _overrides[op] = chunk;
+            }
+        }
+
+        public bool RemoveOverride(TableOverride op)
+            => _overrides.TryRemove(op, out _);
+
         public void Add(DynamicValue key, DynamicValue value)
             => Set(key, value);
 
@@ -40,12 +77,12 @@ namespace Ceres.ExecutionEngine.Collections
 
             (key, value) = OnSet(key, value);
 
-            if (key == DynamicValue.Nil)
+            if (key == Nil)
                 return;
 
             lock (_values)
             {
-                if (value == DynamicValue.Nil)
+                if (value == Nil)
                 {
                     _values.TryRemove(key, out _);
                 }
@@ -69,7 +106,7 @@ namespace Ceres.ExecutionEngine.Collections
             lock (_values)
             {
                 if (!_values.TryGetValue(key, out var value))
-                    return DynamicValue.Nil;
+                    return Nil;
 
                 return value;
             }
@@ -171,6 +208,9 @@ namespace Ceres.ExecutionEngine.Collections
         public Table ShallowCopy()
         {
             var copy = new Table();
+
+            foreach (var ovr in _overrides)
+                copy._overrides.TryAdd(ovr.Key, ovr.Value);
             
             foreach (var kvp in this) 
                 copy[kvp.Key] = kvp.Value;
@@ -181,6 +221,9 @@ namespace Ceres.ExecutionEngine.Collections
         public Table DeepCopy()
         {
             var copy = new Table();
+            
+            foreach (var ovr in _overrides)
+                copy.SetOverride(ovr.Key, ovr.Value.Clone());
 
             foreach (var kvp in this)
             {
@@ -210,14 +253,14 @@ namespace Ceres.ExecutionEngine.Collections
 
                     if (this[k].Type == DynamicValueType.Table)
                     {
-                        if (!DynamicValue.IsTruth(this[k].IsDeeplyEqualTo(other[k])))
+                        if (!IsTruth(this[k].IsDeeplyEqualTo(other[k])))
                         {
                             return false;
                         }
                     }
                     else
                     {
-                        if (!DynamicValue.IsTruth(this[k].IsEqualTo(other[k])))
+                        if (!IsTruth(this[k].IsEqualTo(other[k])))
                         {
                             return false;
                         }
@@ -232,7 +275,7 @@ namespace Ceres.ExecutionEngine.Collections
         {
             var segments = new Stack<string>(fullyQualifiedName.Split('.'));
             var currentTable = this;
-            var ret = DynamicValue.Nil;
+            var ret = Nil;
 
             lock (_values)
             {
@@ -240,7 +283,7 @@ namespace Ceres.ExecutionEngine.Collections
                 {
                     ret = currentTable[segments.Pop()];
 
-                    if (ret == DynamicValue.Nil)
+                    if (ret == Nil)
                         return ret;
 
                     if (ret.Type != DynamicValueType.Table && segments.Any())

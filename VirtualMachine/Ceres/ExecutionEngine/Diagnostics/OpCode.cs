@@ -69,6 +69,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         XARGS,
         EACH,
         NEXT,
-        EEND
+        EEND,
+        OVERRIDE
     }
 }
