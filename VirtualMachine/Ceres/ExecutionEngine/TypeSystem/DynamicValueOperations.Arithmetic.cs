@@ -1,4 +1,5 @@
 using System;
+using Ceres.ExecutionEngine.Concurrency;
 using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine.TypeSystem
@@ -28,7 +29,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             {
                 return new(a.Number - b.Number);
             }
-
+            
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to subtract a {b.Type} from a {a.Type}."
             );
@@ -57,7 +58,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
                 return new(a.Number / b.Number);
             }
-
+            
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to divide a {a.Type} by a {b.Type}."
             );

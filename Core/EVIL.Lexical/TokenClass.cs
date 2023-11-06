@@ -8,6 +8,7 @@
         Literal,
         Alias,
         Meta,
-        TypeCode
+        TypeCode,
+        Override
     }
 }

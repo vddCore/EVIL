@@ -76,6 +76,12 @@ namespace Ceres.ExecutionEngine
             Emit(operand);
         }
         
+        public void Emit(OpCode value, byte operand)
+        {
+            Emit(value);
+            Emit(operand);
+        }
+        
         public void Emit(double value) 
             => _writer.Write(value);
 
@@ -86,6 +92,9 @@ namespace Ceres.ExecutionEngine
             => _writer.Write(value);
 
         public void Emit(bool value)
+            => _writer.Write(value);
+
+        public void Emit(byte value)
             => _writer.Write(value);
 
         public long Label(int offset = 0)

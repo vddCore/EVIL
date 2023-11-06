@@ -24,6 +24,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
         internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
 
+        public FiberCrashHandler? CrashHandler => _crashHandler;
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
 
         public CeresVM VirtualMachine { get; }

@@ -157,5 +157,8 @@
     <Compile Update="TranslationEngine\Compiler.Expression.Coalescing.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Override.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

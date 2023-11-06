@@ -258,6 +258,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 StringPool.ToArray()
             )
             {
+                Parent = Parent,
                 Name = Name,
                 LocalCount = LocalCount,
                 ParameterCount = ParameterCount,

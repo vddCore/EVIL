@@ -20,6 +20,26 @@ namespace Ceres.Runtime.Modules
             return DynamicValue.Nil;
         }
 
+        [RuntimeModuleFunction("rawset")]
+        private static DynamicValue RawSet(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectTableAt(0, out var table)
+                .ExpectAnyAt(1, out var key)
+                .ExpectAnyAt(2, out var value);
+
+            table[key] = value;
+            return value;
+        }
+        
+        [RuntimeModuleFunction("rawget")]
+        private static DynamicValue RawGet(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectTableAt(0, out var table)
+                .ExpectAnyAt(1, out var key);
+
+            return table[key];
+        }
+
         [RuntimeModuleFunction("freeze", ReturnType = DynamicValueType.Table)]
         private static DynamicValue Freeze(Fiber _, params DynamicValue[] args)
         {
