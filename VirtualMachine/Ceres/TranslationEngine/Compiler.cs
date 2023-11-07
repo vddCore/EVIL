@@ -26,7 +26,6 @@ namespace Ceres.TranslationEngine
 
         private int _blockDescent;
         private readonly Stack<Loop> _loopDescent = new();
-
         private readonly List<Scope> _closedScopes = new();
 
         private Scope CurrentScope
@@ -187,7 +186,7 @@ namespace Ceres.TranslationEngine
             {
                 node = expression.Reduce();
             }
-
+            
             AddCurrentLocationToDebugDatabase();
             base.Visit(node);
             AddCurrentLocationToDebugDatabase();

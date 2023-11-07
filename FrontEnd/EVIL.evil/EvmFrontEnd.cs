@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
@@ -35,7 +36,7 @@ namespace EVIL.evil
 
         private static bool _displayHelpAndQuit;
         private static bool _displayVersionAndQuit;
-
+        
         public async Task Run(string[] args)
         {
             var extra = InitializeOptions(args);
@@ -106,7 +107,7 @@ namespace EVIL.evil
                 var msg = $"Compilation error in {scriptPath}:\n" +
                           $"  {ce.Log.Messages.Last()}";
 
-                if (ce.InnerException != null)
+                if (ce.InnerException != null && ce.InnerException is not ParserException)
                 {
                     msg += "\n\nIn addition, another error occurred:\n";
                     msg += $"  {ce.InnerException.Message}";
@@ -149,17 +150,24 @@ namespace EVIL.evil
             SetStandardGlobals(scriptPath);
             
             _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
-
+            _vm.MainFiber.SetCrashHandler(CrashHandler);
+            
             foreach (var initChunk in initChunks)
             {
                 _vm.MainFiber.Schedule(initChunk, false);
             }
             
-            _vm.MainFiber.Schedule(mainChunk, false, scriptArgs);
-            _vm.MainFiber.Resume();
             _vm.Start();
-            
-            await _vm.MainFiber.BlockUntilFinishedAsync();
+            await _vm.MainFiber.ScheduleAsync(mainChunk, scriptArgs);
+            while (true)
+            {
+                if (_vm.MainFiber.State == FiberState.Finished)
+                {
+                    break;
+                }
+
+                await Task.Delay(1);
+            }
         }
 
         private List<string> InitializeOptions(string[] args)
