@@ -28,7 +28,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Push(StackFrame stackFrame)
         {
-            if (_currentPointer >= MaxFrames)
+            if (_currentPointer + 1 >= MaxFrames)
             {
                 throw new VirtualMachineException("Call stack overflow.");
             }
