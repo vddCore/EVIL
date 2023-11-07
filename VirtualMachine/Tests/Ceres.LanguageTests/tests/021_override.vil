@@ -6,7 +6,7 @@ fn _on_init() {
       __value: value,
       
       set_value: self::fn(value) -> self.__value = value,
-      get_value: self::fn() -> self.__val    ue
+      get_value: self::fn() -> self.__value
     };
     
     override(table)::__add(a, b) -> Box::new(a::get_value() + b::get_value());
@@ -272,7 +272,7 @@ fn bnot_override() {
   assert.is_of_type(result::get_value(), Number);
   assert.equal(
     result::get_value(),
-    cnv.u16(0xF000)
+    cnv.i16(0xF000)
   );
 }
 

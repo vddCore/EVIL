@@ -36,22 +36,19 @@ namespace Ceres.ExecutionEngine.Collections
 
         public bool TryGetOverride(TableOverride op, [MaybeNullWhen(false)] out Chunk chunk)
         {
-            Chunk? originalChunk;
-
-            if (!_overrides.TryGetValue(op, out originalChunk))
+            if (!_overrides.TryGetValue(op, out chunk))
             {
                 chunk = null;
                 return false;
             }
 
-            chunk = originalChunk.Clone();
             return true;
         }
 
         public DynamicValue GetOverride(TableOverride op)
         {
             if (_overrides.TryGetValue(op, out var chunk))
-                return chunk.Clone();
+                return chunk;
             
             return Nil;
         }
@@ -223,7 +220,7 @@ namespace Ceres.ExecutionEngine.Collections
             var copy = new Table();
             
             foreach (var ovr in _overrides)
-                copy.SetOverride(ovr.Key, ovr.Value.Clone());
+                copy.SetOverride(ovr.Key, ovr.Value);
 
             foreach (var kvp in this)
             {
