@@ -1,9 +1,10 @@
 using System;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Text;
+using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using Shouldly;
 
 namespace Ceres.RuntimeTests.RuntimeModules
@@ -364,6 +365,41 @@ namespace Ceres.RuntimeTests.RuntimeModules
             str.ShouldBe("hello world");
 
             File.Delete(tmpPath);
+        }
+
+        [Test]
+        public void FileReadByte()
+        {
+            var tmpPath = Path.Combine(
+                Path.GetTempPath(),
+                Path.GetRandomFileName()
+            ).Replace('\\', '/');
+
+            var stream = File.OpenWrite(tmpPath);
+            stream.Write(new byte[] { 2, 1, 3, 7 });
+            stream.Dispose();
+
+            var result = EvilTestResult(
+                $"fn test() {{" +
+                $"  val stream = fs.file.open('{tmpPath}', 'r');" +
+                $"  val result = array(4);" +
+                $"  for (rw val i = 0; i < #result; i++) {{" +
+                $"    result[i] = fs.file.read_b(stream);" +
+                $"  }}" +
+                $"  fs.file.close(stream);" +
+                $"  ret result;" +
+                $"}}"
+            );
+
+            File.Delete(tmpPath);
+
+            result.Type.ShouldBe(DynamicValueType.Array);
+            var array = result.Array!;
+
+            array[0].ShouldBe(2);
+            array[1].ShouldBe(1);
+            array[2].ShouldBe(3);
+            array[3].ShouldBe(7);
         }
     }
 }

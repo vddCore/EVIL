@@ -155,8 +155,11 @@ namespace EVIL.evil
                 _vm.MainFiber.Schedule(initChunk, false);
             }
             
+            _vm.MainFiber.Schedule(mainChunk, false, scriptArgs);
+            _vm.MainFiber.Resume();
             _vm.Start();
-            await _vm.MainFiber.ScheduleAsync(mainChunk, scriptArgs);
+            
+            await _vm.MainFiber.BlockUntilFinishedAsync();
         }
 
         private List<string> InitializeOptions(string[] args)
@@ -194,7 +197,8 @@ namespace EVIL.evil
             SetIncludePathsGlobal();
             
             _vm.Global["__SCRIPT_HOME"] = Path.GetDirectoryName(scriptPath) ?? string.Empty;
-            _vm.Global["__SCRIPT_FILE"] = Path.GetFileName(scriptPath);            
+            _vm.Global["__SCRIPT_FILE"] = Path.GetFileName(scriptPath);
+            _vm.Global["__GLOBAL"] = _vm.Global;
         }
         
         private void SetIncludePathsGlobal()
