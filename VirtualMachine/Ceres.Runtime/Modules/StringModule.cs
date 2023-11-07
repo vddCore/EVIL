@@ -38,6 +38,23 @@ namespace Ceres.Runtime.Modules
             return ((char)num).ToString();
         }
 
+        [RuntimeModuleFunction("bytes", ReturnType = DynamicValueType.Array)]
+        private static DynamicValue ToBytes(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var str)
+                .OptionalStringAt(1, "utf-8", out var encoding);
+
+            var bytes = Encoding.GetEncoding(encoding).GetBytes(str);
+            var array = new Array(bytes.Length);
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                array[i] = bytes[i];
+            }
+
+            return array;
+        }
+
         [RuntimeModuleFunction("explode", ReturnType = DynamicValueType.Array)]
         private static DynamicValue Explode(Fiber _, params DynamicValue[] args)
         {
