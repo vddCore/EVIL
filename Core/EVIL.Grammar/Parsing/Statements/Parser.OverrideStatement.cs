@@ -42,7 +42,7 @@ namespace EVIL.Grammar.Parsing
             { Token.InvokeOverride, TableOverride.Invoke },
             { Token.GetOverride, TableOverride.Get },
             { Token.SetOverride, TableOverride.Set },
-            { Token.ExistsOverride, TableOverride.Exists },
+            { Token.ExistsOverride, TableOverride.Exists }
         };
         
         private OverrideStatement OverrideStatement()

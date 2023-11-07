@@ -84,7 +84,7 @@
     <None Update="tests\020_self.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\0000_override.vil">
+    <None Update="tests\021_override.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
