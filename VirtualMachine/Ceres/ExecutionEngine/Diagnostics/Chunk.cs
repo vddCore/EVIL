@@ -253,7 +253,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Chunk Clone()
         {
             var clone = new Chunk(
-                Name,
+                Name + "$clone",
                 _code.ToArray(),
                 StringPool.ToArray()
             )
@@ -289,8 +289,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public void Dispose()
         {
             _code.Dispose();
-            _labels.Clear();
-
             CodeGenerator.Dispose();
         }
 

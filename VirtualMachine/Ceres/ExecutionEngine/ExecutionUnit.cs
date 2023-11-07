@@ -857,7 +857,6 @@ namespace Ceres.ExecutionEngine
                 case OpCode.CRET:
                 {
                     _callStack.Pop();
-                    frame.Chunk.Dispose();
                     frame.Dispose();
 
                     break;
