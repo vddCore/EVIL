@@ -277,5 +277,22 @@ namespace Ceres.Runtime.Modules
                 return -1;
             }
         }
+        
+        [RuntimeModuleFunction("file.read_b", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue FileReadByte(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectNativeObjectAt(0, out Stream stream);
+
+            try
+            {
+                ClearError();
+                return stream.ReadByte();
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return -1;
+            }
+        }
     }
 }
