@@ -23,7 +23,7 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectNumberAt(0, out var number);
 
-            var ret = (int)number;
+            var ret = (uint)number;
             return ret;
         }
         
@@ -32,7 +32,7 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectNumberAt(0, out var number);
 
-            var ret = (short)number;
+            var ret = (ushort)number;
             return ret;
         }
         
@@ -68,7 +68,7 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectNumberAt(0, out var number);
 
-            var ret = (short)number;
+            var ret = (int)number;
             return ret;
         }
         
@@ -77,7 +77,7 @@ namespace Ceres.Runtime.Modules
         {
             args.ExpectNumberAt(0, out var number);
 
-            var ret = (short)number;
+            var ret = (long)number;
             return ret;
         }
     }
