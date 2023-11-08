@@ -2,7 +2,6 @@
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -10,15 +9,15 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "time";
 
-        [RuntimeModuleGetter("now", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleGetter("now")]
         private static DynamicValue GetNow(DynamicValue key)
             => CreateDateTimeTable(DateTime.Now);
 
-        [RuntimeModuleGetter("stamp.ms", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleGetter("stamp.ms")]
         private static DynamicValue GetStampMillis(DynamicValue key) 
             => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         
-        [RuntimeModuleGetter("stamp.secs", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleGetter("stamp.secs")]
         private static DynamicValue GetStampSeconds(DynamicValue key) 
             => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 

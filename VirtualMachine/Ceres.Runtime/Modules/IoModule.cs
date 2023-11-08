@@ -3,7 +3,6 @@ using System.Linq;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -11,7 +10,7 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "io";
         
-        [RuntimeModuleFunction("print", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("print")]
         private static DynamicValue Print(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1);
@@ -25,7 +24,7 @@ namespace Ceres.Runtime.Modules
             return str.Length;
         }
         
-        [RuntimeModuleFunction("println", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("println")]
         private static DynamicValue PrintLine(Fiber _, params DynamicValue[] args)
         {
             var str = string.Join(

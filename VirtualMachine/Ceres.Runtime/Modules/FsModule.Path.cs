@@ -3,7 +3,6 @@ using System.IO;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 using Array = Ceres.ExecutionEngine.Collections.Array;
 
@@ -11,15 +10,15 @@ namespace Ceres.Runtime.Modules
 {
     public partial class FsModule
     {
-        [RuntimeModuleGetter("path.sep", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleGetter("path.sep")]
         private static DynamicValue GetPathSeparator(DynamicValue key)
             => Path.PathSeparator;
 
-        [RuntimeModuleGetter("path.alt_sep", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleGetter("path.alt_sep")]
         private static DynamicValue GetAltPathSeparator(DynamicValue key)
             => Path.AltDirectorySeparatorChar;
 
-        [RuntimeModuleGetter("path.bad_path_chars", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleGetter("path.bad_path_chars")]
         private static DynamicValue GetRestrictedPathChars(DynamicValue key)
         {
             var invalidPathChars = Path.GetInvalidPathChars();
@@ -31,7 +30,7 @@ namespace Ceres.Runtime.Modules
             return array;
         }
 
-        [RuntimeModuleGetter("path.bad_fname_chars", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleGetter("path.bad_fname_chars")]
         private static DynamicValue GetRestrictedNameChars(DynamicValue key)
         {
             var invalidNameChars = Path.GetInvalidFileNameChars();
@@ -43,7 +42,7 @@ namespace Ceres.Runtime.Modules
             return array;
         }
         
-        [RuntimeModuleGetter("path.temp_dir", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleGetter("path.temp_dir")]
         private static DynamicValue PathGetTempDirPath(DynamicValue key)
         {
             try
@@ -58,11 +57,11 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleGetter("path.rand_fname", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleGetter("path.rand_fname")]
         private static DynamicValue PathGetRandomFileName(DynamicValue key)
             => Path.GetRandomFileName();
 
-        [RuntimeModuleFunction("path.cmb", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("path.cmb")]
         private static DynamicValue PathCombine(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2);
@@ -85,7 +84,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("path.get_fname", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("path.get_fname")]
         private static DynamicValue PathGetFileName(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path)
@@ -111,7 +110,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("path.get_dname", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("path.get_dname")]
         private static DynamicValue PathGetDirectoryName(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -128,7 +127,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("path.exists", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("path.exists")]
         private static DynamicValue PathExists(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -145,7 +144,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("path.get_ext", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("path.get_ext")]
         private static DynamicValue PathGetExtension(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -162,7 +161,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("path.has_ext", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("path.has_ext")]
         private static DynamicValue PathHasExtension(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -179,7 +178,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("path.chg_ext", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("path.chg_ext")]
         private static DynamicValue PathChangeExtension(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path)
@@ -197,7 +196,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("path.rm_ext", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("path.rm_ext")]
         private static DynamicValue PathRemoveExtension(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -214,7 +213,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("path.get_full", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("path.get_full")]
         private static DynamicValue PathGetFullPath(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);

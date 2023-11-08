@@ -4,7 +4,6 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.TranslationEngine;
-using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -12,7 +11,7 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "evil";
 
-        [RuntimeModuleFunction("compile", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("compile")]
         private static DynamicValue Compile(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -42,7 +41,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("reflect", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("reflect")]
         private static DynamicValue Reflect(Fiber fiber, params DynamicValue[] args)
         {
             args.ExpectExactly(1)

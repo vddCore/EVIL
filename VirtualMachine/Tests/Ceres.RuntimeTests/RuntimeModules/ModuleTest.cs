@@ -26,7 +26,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
             _vm = new CeresVM();
 
             _evilRuntime = new EvilRuntime(_vm);
-            _evilRuntime.RegisterModule<T>();
+            _evilRuntime.RegisterModule<T>(out _);
 
             _vm.Start();
         }

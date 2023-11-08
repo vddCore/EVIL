@@ -2,7 +2,6 @@ using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.LanguageTests
@@ -11,7 +10,7 @@ namespace Ceres.LanguageTests
     {
         public override string FullyQualifiedName => "assert";
 
-        [RuntimeModuleFunction("is_true", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("is_true")]
         private static DynamicValue IsTrue(Fiber _, params DynamicValue[] args)
         {
             args.ExpectBooleanAt(0, out var boolean)
@@ -25,7 +24,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
-        [RuntimeModuleFunction("is_false", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("is_false")]
         private static DynamicValue IsFalse(Fiber _, params DynamicValue[] args)
         {
             args.ExpectBooleanAt(0, out var boolean)
@@ -39,7 +38,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
 
-        [RuntimeModuleFunction("is_of_type", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("is_of_type")]
         private static DynamicValue IsOfType(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAnyAt(0, out var value)
@@ -54,7 +53,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
-        [RuntimeModuleFunction("equal", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("equal")]
         private static DynamicValue Equal(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAnyAt(0, out var actual)
@@ -69,7 +68,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
-        [RuntimeModuleFunction("greater_than_or_equal", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("greater_than_or_equal")]
         private static DynamicValue GreaterThanOrEqual(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAnyAt(0, out var actual)
@@ -84,7 +83,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
-        [RuntimeModuleFunction("less_than_or_equal", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("less_than_or_equal")]
         private static DynamicValue LessThanOrEqual(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAnyAt(0, out var actual)
@@ -99,7 +98,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
-        [RuntimeModuleFunction("approx_equal", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("approx_equal")]
         private static DynamicValue ApproximatelyEqual(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var actual)
@@ -115,7 +114,7 @@ namespace Ceres.LanguageTests
             return Nil;
         }
         
-        [RuntimeModuleFunction("not_equal", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("not_equal")]
         private static DynamicValue NotEqual(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAnyAt(0, out var actual)

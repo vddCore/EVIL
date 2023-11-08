@@ -1,7 +1,6 @@
 using System.IO;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
-using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.Runtime.Modules
@@ -24,7 +23,7 @@ namespace Ceres.Runtime.Modules
             Set("origin", _origin);
         }
 
-        [RuntimeModuleGetter("error", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleGetter("error")]
         private static DynamicValue GetError(DynamicValue _)
             => _error;
 

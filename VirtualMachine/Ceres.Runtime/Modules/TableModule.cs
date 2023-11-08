@@ -1,7 +1,6 @@
 ﻿using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -9,7 +8,7 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "tbl";
 
-        [RuntimeModuleFunction("clear", ReturnType = DynamicValueType.Nil)]
+        [RuntimeModuleFunction("clear")]
         private static DynamicValue Clear(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -40,7 +39,7 @@ namespace Ceres.Runtime.Modules
             return table[key];
         }
 
-        [RuntimeModuleFunction("freeze", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("freeze")]
         private static DynamicValue Freeze(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -51,7 +50,7 @@ namespace Ceres.Runtime.Modules
             return table;
         }
         
-        [RuntimeModuleFunction("unfreeze", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("unfreeze")]
         private static DynamicValue Unfreeze(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -62,7 +61,7 @@ namespace Ceres.Runtime.Modules
             return table;
         }
         
-        [RuntimeModuleFunction("is_frozen", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("is_frozen")]
         private static DynamicValue /*IsFrozen is already a symbol...*/ _IsFrozen(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -71,7 +70,7 @@ namespace Ceres.Runtime.Modules
             return table.IsFrozen;  
         }
 
-        [RuntimeModuleFunction("keys", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("keys")]
         private static DynamicValue Keys(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
