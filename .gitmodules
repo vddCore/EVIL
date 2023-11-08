@@ -1,0 +1,3 @@
+[submodule "Shared/highlighters/vscode"]
+	path = Shared/highlighters/vscode
+	url = git@github.com:vddCore/evil-lang-vscode
