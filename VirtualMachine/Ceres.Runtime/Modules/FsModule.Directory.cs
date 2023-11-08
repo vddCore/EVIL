@@ -4,7 +4,6 @@ using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 using Array = Ceres.ExecutionEngine.Collections.Array;
 
@@ -12,14 +11,14 @@ namespace Ceres.Runtime.Modules
 {
     public partial class FsModule
     {
-        [RuntimeModuleFunction("dir.exists", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("dir.exists")]
         private static DynamicValue DirectoryExists(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
             return Directory.Exists(path);
         }
 
-        [RuntimeModuleFunction("dir.create", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("dir.create")]
         private static DynamicValue DirectoryCreate(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -42,7 +41,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("dir.delete", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("dir.delete")]
         private static DynamicValue DirectoryDelete(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -61,7 +60,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("dir.get_files", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("dir.get_files")]
         private static DynamicValue DirectoryGetFiles(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path)
@@ -85,7 +84,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("dir.get_dirs", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("dir.get_dirs")]
         private static DynamicValue DirectoryGetDirectories(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path)
@@ -109,7 +108,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("dir.copy", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("dir.copy")]
         private static DynamicValue DirectoryCopy(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var sourcePath)
@@ -132,7 +131,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("dir.move", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("dir.move")]
         private static DynamicValue DirectoryMove(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var sourcePath)

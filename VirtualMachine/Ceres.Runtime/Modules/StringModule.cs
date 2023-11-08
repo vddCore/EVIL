@@ -7,7 +7,6 @@ using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 using Array = Ceres.ExecutionEngine.Collections.Array;
 
@@ -22,7 +21,7 @@ namespace Ceres.Runtime.Modules
             AddGetter("empty", (_) => string.Empty);
         }
 
-        [RuntimeModuleFunction("chr", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("chr")]
         private static DynamicValue ToCharacter(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -38,7 +37,7 @@ namespace Ceres.Runtime.Modules
             return ((char)num).ToString();
         }
 
-        [RuntimeModuleFunction("bytes", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("bytes")]
         private static DynamicValue ToBytes(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var str)
@@ -55,7 +54,7 @@ namespace Ceres.Runtime.Modules
             return array;
         }
 
-        [RuntimeModuleFunction("explode", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("explode")]
         private static DynamicValue Explode(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -72,7 +71,7 @@ namespace Ceres.Runtime.Modules
             return array;
         }
         
-        [RuntimeModuleFunction("spl", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("spl")]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -90,7 +89,7 @@ namespace Ceres.Runtime.Modules
             return array;
         }
 
-        [RuntimeModuleFunction("join", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("join")]
         private static DynamicValue Join(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -99,7 +98,7 @@ namespace Ceres.Runtime.Modules
             return string.Join(delim, args.Skip(1).Select(x => x.ConvertToString().String!));
         }
 
-        [RuntimeModuleFunction("rep", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("rep")]
         private static DynamicValue Repeat(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -113,7 +112,7 @@ namespace Ceres.Runtime.Modules
             return sb.ToString();
         }
 
-        [RuntimeModuleFunction("index_of", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("index_of")]
         private static DynamicValue IndexOf(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -123,7 +122,7 @@ namespace Ceres.Runtime.Modules
             return haystack.IndexOf(needle, StringComparison.InvariantCulture);
         }
         
-        [RuntimeModuleFunction("last_index_of", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("last_index_of")]
         private static DynamicValue LastIndexOf(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -133,7 +132,7 @@ namespace Ceres.Runtime.Modules
             return haystack.LastIndexOf(needle, StringComparison.InvariantCulture);
         }
 
-        [RuntimeModuleFunction("is_empty", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("is_empty")]
         private static DynamicValue IsEmpty(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -142,7 +141,7 @@ namespace Ceres.Runtime.Modules
             return string.IsNullOrEmpty(value);
         }
         
-        [RuntimeModuleFunction("is_whitespace", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("is_whitespace")]
         private static DynamicValue IsWhiteSpace(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -151,7 +150,7 @@ namespace Ceres.Runtime.Modules
             return string.IsNullOrWhiteSpace(value);
         }
 
-        [RuntimeModuleFunction("lpad", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("lpad")]
         private static DynamicValue LeftPad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -162,7 +161,7 @@ namespace Ceres.Runtime.Modules
             return source.PadLeft((int)totalWidth, pad);
         }
         
-        [RuntimeModuleFunction("rpad", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("rpad")]
         private static DynamicValue RightPad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -173,7 +172,7 @@ namespace Ceres.Runtime.Modules
             return source.PadRight((int)totalWidth, pad);
         }
         
-        [RuntimeModuleFunction("trim", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("trim")]
         private static DynamicValue Trim(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -191,7 +190,7 @@ namespace Ceres.Runtime.Modules
             return source.Trim(chars.ToArray());
         }
         
-        [RuntimeModuleFunction("ltrim", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("ltrim")]
         private static DynamicValue LeftTrim(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -209,7 +208,7 @@ namespace Ceres.Runtime.Modules
             return source.TrimStart(chars.ToArray());
         }
         
-        [RuntimeModuleFunction("rtrim", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("rtrim")]
         private static DynamicValue RightTrim(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -227,7 +226,7 @@ namespace Ceres.Runtime.Modules
             return source.TrimEnd(chars.ToArray());
         }
         
-        [RuntimeModuleFunction("ucase", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("ucase")]
         private static DynamicValue UpperCase(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -236,7 +235,7 @@ namespace Ceres.Runtime.Modules
             return source.ToUpper(CultureInfo.InvariantCulture);
         }
         
-        [RuntimeModuleFunction("lcase", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("lcase")]
         private static DynamicValue LowerCase(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -245,7 +244,7 @@ namespace Ceres.Runtime.Modules
             return source.ToLower(CultureInfo.InvariantCulture);
         }
 
-        [RuntimeModuleFunction("sub", ReturnType = DynamicValueType.String)]
+        [RuntimeModuleFunction("sub")]
         private static DynamicValue Substring(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
@@ -284,7 +283,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("starts_with", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("starts_with")]
         private static DynamicValue StartsWith(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -294,7 +293,7 @@ namespace Ceres.Runtime.Modules
             return source.StartsWith(start);
         }
 
-        [RuntimeModuleFunction("ends_with", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("ends_with")]
         private static DynamicValue EndsWith(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -304,7 +303,7 @@ namespace Ceres.Runtime.Modules
             return source.EndsWith(end);
         }
         
-        [RuntimeModuleFunction("rmatch", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("rmatch")]
         private static DynamicValue RegexMatch(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)

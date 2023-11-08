@@ -1,4 +1,5 @@
-﻿using Ceres.ExecutionEngine;
+﻿using System.Collections.Generic;
+using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
@@ -17,22 +18,31 @@ namespace Ceres.Runtime
             _vm = vm;
         }
 
-        public void RegisterBuiltInModules()
+        public List<RuntimeModule> RegisterBuiltInModules()
         {
-            RegisterModule<ArrayModule>();
-            RegisterModule<ConvertModule>();
-            RegisterModule<CoreModule>();
-            RegisterModule<EvilModule>();
-            RegisterModule<FsModule>();
-            RegisterModule<IoModule>();
-            RegisterModule<MathModule>();
-            RegisterModule<StringModule>();
-            RegisterModule<TableModule>();
-            RegisterModule<TimeModule>();
+            var modules = new List<RuntimeModule>();
+            
+            modules.Add(RegisterModule<ArrayModule>(out _));
+            modules.Add(RegisterModule<ConvertModule>(out _));
+            modules.Add(RegisterModule<CoreModule>(out _));
+            modules.Add(RegisterModule<EvilModule>(out _));
+            modules.Add(RegisterModule<FsModule>(out _));
+            modules.Add(RegisterModule<IoModule>(out _));
+            modules.Add(RegisterModule<MathModule>(out _));
+            modules.Add(RegisterModule<StringModule>(out _));
+            modules.Add(RegisterModule<TableModule>(out _));
+            modules.Add(RegisterModule<TimeModule>(out _));
+
+            return modules;
         }
 
-        public DynamicValue RegisterModule<T>() where T : RuntimeModule, new()
-            => new T().AttachTo(Global);
+        public T RegisterModule<T>(out DynamicValue table) where T : RuntimeModule, new()
+        {
+            var module = new T();
+            table = module.AttachTo(Global);
+
+            return module;
+        }
 
         public DynamicValue Register(string fullyQualifiedName, DynamicValue value, bool replaceIfExists = true)
             => Global.SetUsingPath<PropertyTable>(fullyQualifiedName, value, replaceIfExists);

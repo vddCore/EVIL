@@ -3,7 +3,6 @@ using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
-using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -26,7 +25,7 @@ namespace Ceres.Runtime.Modules
             });
         }
 
-        [RuntimeModuleFunction("abs", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("abs")]
         private static DynamicValue Abs(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -35,7 +34,7 @@ namespace Ceres.Runtime.Modules
             return Math.Abs(value);
         }
 
-        [RuntimeModuleFunction("acos", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("acos")]
         private static DynamicValue Acos(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -44,7 +43,7 @@ namespace Ceres.Runtime.Modules
             return Math.Acos(value);
         }
 
-        [RuntimeModuleFunction("acosh", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("acosh")]
         private static DynamicValue Acosh(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -53,7 +52,7 @@ namespace Ceres.Runtime.Modules
             return Math.Acosh(value);
         }
 
-        [RuntimeModuleFunction("asin", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("asin")]
         private static DynamicValue Asin(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -62,7 +61,7 @@ namespace Ceres.Runtime.Modules
             return Math.Asin(value);
         }
 
-        [RuntimeModuleFunction("asinh", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("asinh")]
         private static DynamicValue Asinh(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -71,7 +70,7 @@ namespace Ceres.Runtime.Modules
             return Math.Asinh(value);
         }
 
-        [RuntimeModuleFunction("atan", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("atan")]
         private static DynamicValue Atan(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -80,7 +79,7 @@ namespace Ceres.Runtime.Modules
             return Math.Atan(value);
         }
 
-        [RuntimeModuleFunction("atanh", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("atanh")]
         private static DynamicValue Atanh(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -89,7 +88,7 @@ namespace Ceres.Runtime.Modules
             return Math.Atanh(value);
         }
 
-        [RuntimeModuleFunction("atan2", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("atan2")]
         private static DynamicValue Atan2(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -99,7 +98,7 @@ namespace Ceres.Runtime.Modules
             return Math.Atan2(y, x);
         }
 
-        [RuntimeModuleFunction("cbrt", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("cbrt")]
         private static DynamicValue Cbrt(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -108,7 +107,7 @@ namespace Ceres.Runtime.Modules
             return Math.Cbrt(value);
         }
 
-        [RuntimeModuleFunction("ceil", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("ceil")]
         private static DynamicValue Ceiling(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -117,7 +116,7 @@ namespace Ceres.Runtime.Modules
             return Math.Ceiling(value);
         }
 
-        [RuntimeModuleFunction("clamp", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("clamp")]
         private static DynamicValue Clamp(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -128,7 +127,7 @@ namespace Ceres.Runtime.Modules
             return Math.Clamp(value, min, max);
         }
 
-        [RuntimeModuleFunction("cos", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("cos")]
         private static DynamicValue Cos(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -137,7 +136,7 @@ namespace Ceres.Runtime.Modules
             return Math.Cos(value);
         }
 
-        [RuntimeModuleFunction("cosh", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("cosh")]
         private static DynamicValue Cosh(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -146,7 +145,7 @@ namespace Ceres.Runtime.Modules
             return Math.Cosh(value);
         }
 
-        [RuntimeModuleFunction("exp", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("exp")]
         private static DynamicValue Exp(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -155,7 +154,7 @@ namespace Ceres.Runtime.Modules
             return Math.Exp(value);
         }
 
-        [RuntimeModuleFunction("floor", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("floor")]
         private static DynamicValue Floor(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -164,7 +163,7 @@ namespace Ceres.Runtime.Modules
             return Math.Floor(value);
         }
 
-        [RuntimeModuleFunction("lerp", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("lerp")]
         private static DynamicValue Lerp(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -176,7 +175,7 @@ namespace Ceres.Runtime.Modules
             return a * (1 - t) + b * t;
         }
 
-        [RuntimeModuleFunction("log", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("log")]
         private static DynamicValue Log(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -186,7 +185,7 @@ namespace Ceres.Runtime.Modules
             return Math.Log(value, @base);
         }
 
-        [RuntimeModuleFunction("log2", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("log2")]
         private static DynamicValue Log2(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -195,7 +194,7 @@ namespace Ceres.Runtime.Modules
             return Math.Log2(value);
         }
 
-        [RuntimeModuleFunction("log10", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("log10")]
         private static DynamicValue Log10(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -204,7 +203,7 @@ namespace Ceres.Runtime.Modules
             return Math.Log10(value);
         }
 
-        [RuntimeModuleFunction("max", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("max")]
         private static DynamicValue Max(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -214,7 +213,7 @@ namespace Ceres.Runtime.Modules
             return Math.Max(a, b);
         }
 
-        [RuntimeModuleFunction("min", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("min")]
         private static DynamicValue Min(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -224,7 +223,7 @@ namespace Ceres.Runtime.Modules
             return Math.Min(a, b);
         }
 
-        [RuntimeModuleFunction("pow", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("pow")]
         private static DynamicValue Pow(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -234,7 +233,7 @@ namespace Ceres.Runtime.Modules
             return Math.Pow(x, y);
         }
 
-        [RuntimeModuleFunction("round", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("round")]
         private static DynamicValue Round(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -244,7 +243,7 @@ namespace Ceres.Runtime.Modules
             return Math.Round(x, (int)decimals);
         }
 
-        [RuntimeModuleFunction("sign", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("sign")]
         private static DynamicValue Sign(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -253,7 +252,7 @@ namespace Ceres.Runtime.Modules
             return Math.Sign(value);
         }
 
-        [RuntimeModuleFunction("sin", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("sin")]
         private static DynamicValue Sin(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -262,7 +261,7 @@ namespace Ceres.Runtime.Modules
             return Math.Sin(value);
         }
 
-        [RuntimeModuleFunction("sincos", ReturnType = DynamicValueType.Table)]
+        [RuntimeModuleFunction("sincos")]
         private static DynamicValue SinCos(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -277,7 +276,7 @@ namespace Ceres.Runtime.Modules
             };
         }
 
-        [RuntimeModuleFunction("sinh", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("sinh")]
         private static DynamicValue Sinh(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -286,7 +285,7 @@ namespace Ceres.Runtime.Modules
             return Math.Sinh(value);
         }
 
-        [RuntimeModuleFunction("sqrt", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("sqrt")]
         private static DynamicValue Sqrt(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -295,7 +294,7 @@ namespace Ceres.Runtime.Modules
             return Math.Sqrt(value);
         }
 
-        [RuntimeModuleFunction("tan", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("tan")]
         private static DynamicValue Tan(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -304,7 +303,7 @@ namespace Ceres.Runtime.Modules
             return Math.Tan(value);
         }
 
-        [RuntimeModuleFunction("tanh", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("tanh")]
         private static DynamicValue Tanh(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -313,7 +312,7 @@ namespace Ceres.Runtime.Modules
             return Math.Tanh(value);
         }
 
-        [RuntimeModuleFunction("trunc", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("trunc")]
         private static DynamicValue Trunc(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -322,7 +321,7 @@ namespace Ceres.Runtime.Modules
             return Math.Truncate(value);
         }
 
-        [RuntimeModuleFunction("rad2deg", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("rad2deg")]
         private static DynamicValue Rad2Deg(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -331,7 +330,7 @@ namespace Ceres.Runtime.Modules
             return radians * (180.0 / Math.PI);
         }
 
-        [RuntimeModuleFunction("deg2rad", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("deg2rad")]
         private static DynamicValue Deg2Rad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)

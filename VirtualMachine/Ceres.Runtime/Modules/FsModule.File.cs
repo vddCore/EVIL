@@ -13,14 +13,14 @@ namespace Ceres.Runtime.Modules
 {
     public partial class FsModule
     {
-        [RuntimeModuleFunction("file.exists", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.exists")]
         private static DynamicValue FileExists(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
             return File.Exists(path);
         }
 
-        [RuntimeModuleFunction("file.delete", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.delete")]
         private static DynamicValue FileDelete(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -38,7 +38,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.copy", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.copy")]
         private static DynamicValue FileCopy(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var sourcePath)
@@ -57,7 +57,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.move", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.move")]
         private static DynamicValue FileMove(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var sourcePath)
@@ -76,7 +76,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.get_lines", ReturnType = DynamicValueType.Array)]
+        [RuntimeModuleFunction("file.get_lines")]
         private static DynamicValue FileGetLines(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);
@@ -100,7 +100,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.open", ReturnType = DynamicValueType.NativeObject)]
+        [RuntimeModuleFunction("file.open")]
         private static DynamicValue FileOpen(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path)
@@ -122,7 +122,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.close", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.close")]
         private static DynamicValue FileClose(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream);
@@ -142,7 +142,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.seek", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("file.seek")]
         private static DynamicValue FileSeek(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream)
@@ -161,7 +161,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("file.tell", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("file.tell")]
         private static DynamicValue FileTell(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream);
@@ -178,7 +178,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.write", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.write")]
         private static DynamicValue FileWrite(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream)
@@ -220,7 +220,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("file.write_s", ReturnType = DynamicValueType.Boolean)]
+        [RuntimeModuleFunction("file.write_s")]
         private static DynamicValue FileWriteString(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream)
@@ -249,7 +249,7 @@ namespace Ceres.Runtime.Modules
             }
         }
 
-        [RuntimeModuleFunction("file.read", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("file.read")]
         private static DynamicValue FileRead(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream)
@@ -278,7 +278,7 @@ namespace Ceres.Runtime.Modules
             }
         }
         
-        [RuntimeModuleFunction("file.read_b", ReturnType = DynamicValueType.Number)]
+        [RuntimeModuleFunction("file.read_b")]
         private static DynamicValue FileReadByte(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNativeObjectAt(0, out Stream stream);

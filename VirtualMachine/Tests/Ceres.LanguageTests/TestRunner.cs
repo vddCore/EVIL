@@ -147,7 +147,7 @@ namespace Ceres.LanguageTests
                 VM.Global.Set("__tricky", new TrickyTable());
 
                 Runtime.RegisterBuiltInModules();
-                Runtime.RegisterModule<AssertModule>();
+                Runtime.RegisterModule<AssertModule>(out _);
 
                 var nonTestChunks = testScript.Chunks.Where(
                     x => !x.HasAttribute("test")

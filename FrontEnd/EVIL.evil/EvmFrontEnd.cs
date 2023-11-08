@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
@@ -14,8 +13,6 @@ using Ceres.TranslationEngine;
 using EVIL.Grammar;
 using EVIL.Lexical;
 using Mono.Options;
-
-using Array = System.Array;
 using EvilArray = Ceres.ExecutionEngine.Collections.Array;
 
 namespace EVIL.evil
@@ -129,8 +126,15 @@ namespace EVIL.evil
                 Console.WriteLine(_compiler.Log.ToString());
             }
 
-            _runtime.RegisterBuiltInModules();
-
+            var modules = _runtime.RegisterBuiltInModules();
+            foreach (var module in modules)
+            {
+                using (var sw = new StreamWriter($"{module.FullyQualifiedName}.rt.evildoc.md"))
+                {
+                    sw.WriteLine(module.Describe());
+                }
+            }
+            
             var initChunks = new List<Chunk>();
             foreach (var chunk in script.Chunks)
             {
