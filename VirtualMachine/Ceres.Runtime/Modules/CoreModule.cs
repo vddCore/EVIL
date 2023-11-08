@@ -14,6 +14,36 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "core";
 
+        [RuntimeModuleFunction("gc.mem.get_used_total", ReturnType = DynamicValueType.Number)]
+        private static DynamicValue GcMemGetTotal(Fiber _, params DynamicValue[] args)
+        {
+            args.OptionalBooleanAt(0, false, out var forceFullCollection);
+            
+            return GC.GetTotalMemory(forceFullCollection);
+        }
+
+        [RuntimeModuleFunction("gc.mem.get_info", ReturnType = DynamicValueType.Table)]
+        private static DynamicValue GcMemGetInfo(Fiber _, params DynamicValue[] args)
+        {
+            var info = GC.GetGCMemoryInfo();
+
+            return new Table
+            {
+                ["index"] = info.Index,
+                ["generation"] = info.Generation,
+                ["is_compacted"] = info.Compacted,
+                ["is_concurrent"] = info.Concurrent,
+                ["finalization_pending_count"] = info.FinalizationPendingCount,
+                ["fragmented_bytes"] = info.FragmentedBytes,
+                ["promoted_bytes"] = info.PromotedBytes,
+                ["heap_size_bytes"] = info.HeapSizeBytes,
+                ["total_committed_bytes"] = info.TotalCommittedBytes,
+                ["total_avail_mem_bytes"] = info.TotalAvailableMemoryBytes,
+                ["pause_time_percent"] = info.PauseTimePercentage,
+                ["pinned_object_count"] = info.PinnedObjectsCount
+            };
+        }
+        
         [RuntimeModuleFunction("gc.collect", ReturnType = DynamicValueType.Nil)]
         private static DynamicValue GcCollect(Fiber _, params DynamicValue[] args)
         {

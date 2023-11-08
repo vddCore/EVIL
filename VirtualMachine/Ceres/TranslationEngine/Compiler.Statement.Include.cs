@@ -29,7 +29,12 @@ namespace Ceres.TranslationEngine
                 IEnumerable<Chunk> chunks;
                 try
                 {
-                    chunks = processor(this, _script, includeStatement.Path);
+                    chunks = processor(this, _script, includeStatement.Path, out var isRedundantInclude);
+
+                    if (isRedundantInclude)
+                    {
+                        return;
+                    }
                 }
                 catch (Exception e)
                 {

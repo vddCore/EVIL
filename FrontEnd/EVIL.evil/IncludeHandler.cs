@@ -8,9 +8,11 @@ namespace EVIL.evil
 {
     public class IncludeHandler
     {
+        private readonly Dictionary<string, IEnumerable<Chunk>> _includeCache = new();
         private readonly List<string> _includeSearchPaths = new();
 
         public IReadOnlyList<string> IncludeSearchPaths => _includeSearchPaths;
+        public IReadOnlyDictionary<string, IEnumerable<Chunk>> IncludeCache => _includeCache;
 
         public IncludeHandler(Compiler compiler)
         {
@@ -65,16 +67,33 @@ namespace EVIL.evil
         private IEnumerable<Chunk> ProcessIncludeFile(
             Compiler requestingCompiler,
             Script scriptBeingBuilt,
-            string includedFilePath)
+            string includedFilePath,
+            out bool isRedundantInclude)
         {
+            isRedundantInclude = false;
+            
             var localPath = Path.Combine(
                 Path.GetDirectoryName(requestingCompiler.CurrentFileName)!,
                 includedFilePath
             );
 
+            if (localPath == requestingCompiler.CurrentFileName)
+            {
+                throw new InvalidOperationException(
+                    $"Recursive inclusion detected in '{requestingCompiler.CurrentFileName}'."
+                );
+            }
+
+            if (_includeCache.TryGetValue(localPath, out var chunks))
+            {
+                isRedundantInclude = true;
+                return chunks;
+            }
+
             if (File.Exists(localPath))
             {
-                return Process(localPath);
+                _includeCache.Add(localPath, Process(localPath));
+                return _includeCache[localPath];
             }
 
             foreach (var path in _includeSearchPaths)
@@ -83,13 +102,15 @@ namespace EVIL.evil
 
                 if (File.Exists(fullPathToInclude))
                 {
-                    return Process(fullPathToInclude);
+                    _includeCache.Add(fullPathToInclude, Process(fullPathToInclude));
+                    return _includeCache[fullPathToInclude];
                 }
             }
-
+            
             throw new FileNotFoundException(
                 $"Cannot find the included file '{includedFilePath}' in any known include search paths."
             );
+
         }
 
         private IEnumerable<Chunk> Process(string fullPathToInclude)

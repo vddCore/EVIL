@@ -6,6 +6,7 @@ namespace Ceres.TranslationEngine
     public delegate IEnumerable<Chunk> IncludeProcessor(
         Compiler compiler,
         Script script,
-        string includePath
+        string includePath,
+        out bool wasAlreadyIncluded
     );
 }

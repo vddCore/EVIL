@@ -15,6 +15,8 @@ namespace Ceres.LanguageTests
 {
     public class TestRunner
     {
+        private Dictionary<string, IEnumerable<Chunk>> _includeCache = new();
+
         private Stopwatch Stopwatch { get; } = new();
         private string TestDirectory { get; }
         private CeresVM VM { get; }
@@ -66,8 +68,10 @@ namespace Ceres.LanguageTests
             }
         }
 
-        private IEnumerable<Chunk> IncludeProcessor(Compiler compiler, Script script, string path)
+        private IEnumerable<Chunk> IncludeProcessor(Compiler compiler, Script script, string path, out bool isRedundantInclude)
         {
+            isRedundantInclude = false;
+            
             var fullPathToInclude = Path.Combine(
                 Path.GetDirectoryName(compiler.CurrentFileName)!,
                 path
@@ -78,13 +82,28 @@ namespace Ceres.LanguageTests
                 throw new FileNotFoundException("Cannot find the included file.", fullPathToInclude);
             }
 
-            var includeCompiler = new Compiler();
-            includeCompiler.RegisterIncludeProcessor(IncludeProcessor);
-
+            if (fullPathToInclude == compiler.CurrentFileName)
+            {
+                throw new InvalidOperationException($"Recursive include detected in '{compiler.CurrentFileName}.");
+            }
+            
+            if (_includeCache.TryGetValue(fullPathToInclude, out var chunks))
+            {
+                isRedundantInclude = true;
+                return chunks;
+            }
+            
             try
             {
+                var includeCompiler = new Compiler();
+                includeCompiler.RegisterIncludeProcessor(IncludeProcessor);
+
                 var includedScript = includeCompiler.Compile(File.ReadAllText(fullPathToInclude), fullPathToInclude);
-                return includedScript.Chunks;
+                
+                
+                chunks = includedScript.Chunks;
+                _includeCache.Add(fullPathToInclude, chunks);
+                return chunks;
             }
             catch (CompilerException ce)
             {
@@ -189,6 +208,10 @@ namespace Ceres.LanguageTests
                     : "was";
 
                 TextOut.WriteLine($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
+                using (var process = Process.GetCurrentProcess())
+                {
+                    TextOut.WriteLine($"Total process memory so far: {process.WorkingSet64} bytes.");
+                }
                 TextOut.WriteLine();
             }
 
