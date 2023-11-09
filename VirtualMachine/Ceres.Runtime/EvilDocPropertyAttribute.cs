@@ -13,7 +13,7 @@ namespace Ceres.Runtime
         public bool IsAnySet { get; set; } = false;
         
         public DynamicValueType ReturnType { get; set; } = DynamicValueType.Nil;
-        public DynamicValueType InputType { get; set; } = DynamicValueType.Nil;
+        public DynamicValueType[] InputTypes { get; set; } = new DynamicValueType[0];
 
         public EvilDocPropertyAttribute(EvilDocPropertyMode mode, string description)
         {

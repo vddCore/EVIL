@@ -27,7 +27,7 @@ namespace Ceres.Runtime.Modules
         [RuntimeModuleGetter("error")]
         [EvilDocProperty(Get,
             "Retrieves the error message set by the last file system function call, " +
-            "or `nil` if the last call was successful.",
+            "or `nil` if the last operation was successful.",
             ReturnType = String
         )]
         private static DynamicValue GetError(DynamicValue _)

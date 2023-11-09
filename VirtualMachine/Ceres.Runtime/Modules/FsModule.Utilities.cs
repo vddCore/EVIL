@@ -6,7 +6,7 @@ namespace Ceres.Runtime.Modules
 {
     public partial class FsModule
     {
-        private static void CopyDirectoryRecursively(DirectoryInfo source, DirectoryInfo target)
+        private static void CopyDirectoryRecursively(DirectoryInfo source, DirectoryInfo target, bool overwriteExisting)
         {
             Directory.CreateDirectory(target.FullName);
 
@@ -14,14 +14,14 @@ namespace Ceres.Runtime.Modules
             {
                 fileInfo.CopyTo(
                     Path.Combine(target.FullName, fileInfo.Name), 
-                    true
+                    overwriteExisting
                 );
             }
 
             foreach (var sourceSubDir in source.GetDirectories())
             {
                 var nextTargetSubDir = target.CreateSubdirectory(sourceSubDir.Name);
-                CopyDirectoryRecursively(sourceSubDir, nextTargetSubDir);
+                CopyDirectoryRecursively(sourceSubDir, nextTargetSubDir, overwriteExisting);
             }
         }
 

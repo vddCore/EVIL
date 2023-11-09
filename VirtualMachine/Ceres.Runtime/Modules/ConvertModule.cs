@@ -15,7 +15,7 @@ namespace Ceres.Runtime.Modules
             Returns = "A 64-bit unsigned integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue U64(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -30,7 +30,7 @@ namespace Ceres.Runtime.Modules
             Returns = "A 32-bit unsigned integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue U32(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -45,7 +45,7 @@ namespace Ceres.Runtime.Modules
             Returns = "A 16-bit unsigned integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue U16(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -60,7 +60,7 @@ namespace Ceres.Runtime.Modules
             Returns = "An 8-bit unsigned integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue U8(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -75,7 +75,7 @@ namespace Ceres.Runtime.Modules
             Returns = "An 8-bit signed integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue I8(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -90,7 +90,7 @@ namespace Ceres.Runtime.Modules
             Returns = "A 16-bit signed integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue I16(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -105,7 +105,7 @@ namespace Ceres.Runtime.Modules
             Returns = "A 32-bit signed integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue I32(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
@@ -120,7 +120,7 @@ namespace Ceres.Runtime.Modules
             Returns = "A 64-bit signed integer.",
             ReturnType = Number
         )]
-        [EvilDocArgument("number", "Number to be converted", Number)]
+        [EvilDocArgument("number", "A number to be converted.", Number)]
         private static DynamicValue I64(Fiber _, params DynamicValue[] args)
         {
             args.ExpectNumberAt(0, out var number);
