@@ -1,7 +1,8 @@
 using System.IO;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
-using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
+using static Ceres.Runtime.EvilDocPropertyMode;
+using static EVIL.CommonTypes.TypeSystem.DynamicValueType;
 
 namespace Ceres.Runtime.Modules
 {
@@ -9,7 +10,7 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "fs";
 
-        private static DynamicValue _error = Nil;
+        private static DynamicValue _error = DynamicValue.Nil;
 
         private static readonly Table _origin = new Table()
         {
@@ -24,11 +25,16 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleGetter("error")]
+        [EvilDocProperty(Get,
+            "Retrieves the error message set by the last file system function call, " +
+            "or `nil` if the last call was successful.",
+            ReturnType = String
+        )]
         private static DynamicValue GetError(DynamicValue _)
             => _error;
 
         private static void ClearError()
-            => _error = Nil;
+            => _error = DynamicValue.Nil;
         
         private static void SetError(string error)
             => _error = error;

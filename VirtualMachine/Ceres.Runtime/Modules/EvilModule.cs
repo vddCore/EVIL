@@ -4,6 +4,8 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.TranslationEngine;
+using EVIL.CommonTypes.TypeSystem;
+using static EVIL.CommonTypes.TypeSystem.DynamicValueType;
 
 namespace Ceres.Runtime.Modules
 {
@@ -12,6 +14,19 @@ namespace Ceres.Runtime.Modules
         public override string FullyQualifiedName => "evil";
 
         [RuntimeModuleFunction("compile")]
+        [EvilDocFunction(
+            "Attempts to compile the provided EVIL source.",
+            Returns = "A Table containing either the script data (`.success == true`), " +
+                      "or the compiler error message and compilation log (`.success == false`).",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument("source", "Source code that is to be compiled.", String)]
+        [EvilDocArgument(
+            "file_name", 
+             "File name to be embedded into compiled script's metadata.",
+            String,
+            DefaultValue = "<dynamic_source>"
+        )]
         private static DynamicValue Compile(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
@@ -42,23 +57,33 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("reflect")]
-        private static DynamicValue Reflect(Fiber fiber, params DynamicValue[] args)
+        [EvilDocFunction(
+            "Retrieves metadata information of the given Function.",
+            Returns = "A Table containing the reflected Function's metadata.",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument(
+            "function",
+            "The Function whose information is to be retrieved.",
+            DynamicValueType.Chunk
+        )]
+        private static DynamicValue Reflect(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
-                .ExpectChunkAt(0, out var chunk);
+                .ExpectChunkAt(0, out var function);
 
-            var attrs = new Array(chunk.Attributes.Count);
-            for (var i = 0; i < chunk.Attributes.Count; i++)
+            var attrs = new Array(function.Attributes.Count);
+            for (var i = 0; i < function.Attributes.Count; i++)
             {
-                attrs[i] = chunk.Attributes[i].ToDynamicValue();
+                attrs[i] = function.Attributes[i].ToDynamicValue();
             }
 
             return new Table
             {
-                { "name", chunk.Name },
+                { "name", function.Name },
                 { "attributes", attrs },
-                { "local_info", BuildLocalInfo(chunk) },
-                { "param_info", BuildParameterInfo(chunk) }
+                { "local_info", BuildLocalInfo(function) },
+                { "param_info", BuildParameterInfo(function) }
             };
         }
         

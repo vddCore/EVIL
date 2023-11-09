@@ -81,12 +81,12 @@ namespace Ceres.Runtime.Modules
         [RuntimeModuleFunction("strace")]
         [EvilDocFunction(
             "Gets the current stack trace in the form of raw data.",
-            Returns = "Array containing tables with stack frame information available at the time of invocation.",
+            Returns = "Array containing Table values with stack frame information available at the time of invocation.",
             ReturnType = DynamicValueType.Array
         )]
         [EvilDocArgument(
             "skip_native_frames",
-            "`true` to skip native invocation frames, `false` to include them in the output.",
+            "Set to `true` to skip CLR (native) frames, `false` to include them in the output.",
             DynamicValueType.Boolean,
             DefaultValue = "false"
         )]
@@ -133,11 +133,11 @@ namespace Ceres.Runtime.Modules
         [EvilDocFunction(
             "Gets the current stack trace as a formatted string.",
             Returns = "Formatted string containing the stack trace available at the time of the invocation.",
-            ReturnType = DynamicValueType.String
+            ReturnType = DynamicValueType.Boolean
         )]
         [EvilDocArgument(
             "skip_native_frames",
-            "`true` to skip native invocation frames, `false` to include them in the output.",
+            "Set to `true` to CLR (native) frames, `false` to include them in the output.",
             DynamicValueType.Boolean,
             DefaultValue = "false"
         )]

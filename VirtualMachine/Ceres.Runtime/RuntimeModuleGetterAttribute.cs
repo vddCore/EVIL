@@ -7,7 +7,6 @@ namespace Ceres.Runtime
     public class RuntimeModuleGetterAttribute : Attribute
     {
         public string SubNameSpace { get; }
-        public DynamicValueType ReturnType { get; set; }
 
         public RuntimeModuleGetterAttribute(string subNameSpace)
         {
