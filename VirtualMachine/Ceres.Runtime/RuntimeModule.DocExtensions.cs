@@ -44,7 +44,18 @@ namespace Ceres.Runtime
                 }
                 else
                 {
-                    sb.AppendLine($" <- {GetTypeString(evilDocPropertyAttribute.InputType)}`**  ");
+                    if (evilDocPropertyAttribute.InputTypes.Any())
+                    {
+                        if (evilDocPropertyAttribute.InputTypes.Length > 1)
+                        {
+                            sb.AppendLine(
+                                $" <- ({string.Join(',', evilDocPropertyAttribute.InputTypes.Select(GetTypeString))})`**  ");
+                        }
+                        else
+                        {
+                            sb.AppendLine($" <- {GetTypeString(evilDocPropertyAttribute.InputTypes[0])}`**  ");
+                        }
+                    }
                 }
             }
             
