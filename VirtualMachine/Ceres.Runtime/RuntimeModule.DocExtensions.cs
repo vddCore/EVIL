@@ -14,33 +14,37 @@ namespace Ceres.Runtime
 
             var runtimeModuleGetterAttribute = methodInfo.GetCustomAttribute<RuntimeModuleGetterAttribute>();
             var evilDocPropertyAttribute = methodInfo.GetCustomAttribute<EvilDocPropertyAttribute>();
+            
             if (runtimeModuleGetterAttribute == null)
                 return null;
 
             if (evilDocPropertyAttribute == null)
                 return null;
 
+            sb.AppendLine($"## {module.FullyQualifiedName}.{runtimeModuleGetterAttribute.SubNameSpace}");
+
+            sb.AppendLine("**Synopsis**  ");
             sb.AppendLine($"**`{module.FullyQualifiedName}.{runtimeModuleGetterAttribute.SubNameSpace}`**  ");
 
             if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Get))
             {
-                sb.Append($"**`::get");
+                sb.Append($"**` :: get");
                 if (evilDocPropertyAttribute.IsAnyGet)
                 {
-                    sb.AppendLine($" -> Any`**  ");
+                    sb.AppendLine($" -> Any`**\n  ");
                 }
                 else
                 {
-                    sb.AppendLine($" -> {GetTypeString(evilDocPropertyAttribute.ReturnType)}`**  ");
+                    sb.AppendLine($" -> {GetTypeString(evilDocPropertyAttribute.ReturnType)}`**\n  ");
                 }
             }
 
             if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Set))
             {
-                sb.Append($"**`::set");
+                sb.Append($"**` ::set");
                 if (evilDocPropertyAttribute.IsAnySet)
                 {
-                    sb.AppendLine($" <- Any`**  ");
+                    sb.AppendLine($" <- Any`**\n  ");
                 }
                 else
                 {
@@ -49,11 +53,11 @@ namespace Ceres.Runtime
                         if (evilDocPropertyAttribute.InputTypes.Length > 1)
                         {
                             sb.AppendLine(
-                                $" <- ({string.Join(',', evilDocPropertyAttribute.InputTypes.Select(GetTypeString))})`**  ");
+                                $" <- ({string.Join(',', evilDocPropertyAttribute.InputTypes.Select(GetTypeString))})`**\n  ");
                         }
                         else
                         {
-                            sb.AppendLine($" <- {GetTypeString(evilDocPropertyAttribute.InputTypes[0])}`**  ");
+                            sb.AppendLine($" <- {GetTypeString(evilDocPropertyAttribute.InputTypes[0])}`**\n  ");
                         }
                     }
                 }
@@ -97,8 +101,11 @@ namespace Ceres.Runtime
 
             if (evilDocFunctionAttribute == null)
                 return null;
-            
-            sb.Append($"#### `{module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
+
+            sb.AppendLine($"## {module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
+
+            sb.AppendLine("**Synopsis**  ");
+            sb.Append($"`{module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
             sb.Append("(");
             {
                 for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
@@ -131,15 +138,15 @@ namespace Ceres.Runtime
             {
                 sb.Append("...");
             }
-            sb.Append($")");
+            sb.Append($")  ");
 
             if (evilDocFunctionAttribute.IsAnyReturn)
             {
-                sb.AppendLine($" -> Any`");
+                sb.AppendLine($" -> Any`\n  ");
             }
             else
             {
-                sb.AppendLine($" -> {GetTypeString(evilDocFunctionAttribute.ReturnType)}`  ");
+                sb.AppendLine($" -> {GetTypeString(evilDocFunctionAttribute.ReturnType)}`\n  ");
             }
 
             sb.AppendLine("**Description**  ");
@@ -250,18 +257,18 @@ namespace Ceres.Runtime
             var propertyDescriptionString = module.DescribeProperties();
             var functionDescriptionString = module.DescribeFunctions();
             
-            sb.AppendLine($"## EVIL Runtime Module `{module.FullyQualifiedName}`");
+            sb.AppendLine($"# EVIL Runtime Module `{module.FullyQualifiedName}`");
 
             if (!string.IsNullOrEmpty(propertyDescriptionString))
             {
-                sb.AppendLine($"### Properties");
+                sb.AppendLine($"## Properties");
                 sb.AppendLine(propertyDescriptionString);
                 sb.AppendLine();
             }
 
             if (!string.IsNullOrEmpty(functionDescriptionString))
             {
-                sb.AppendLine($"### Functions");
+                sb.AppendLine($"## Functions");
                 sb.AppendLine(functionDescriptionString);
                 sb.AppendLine();
             }
