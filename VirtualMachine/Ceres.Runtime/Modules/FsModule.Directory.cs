@@ -17,7 +17,7 @@ namespace Ceres.Runtime.Modules
             Returns = "`true` if directory exists, `false` otherwise.",
             ReturnType = DynamicValueType.Boolean
         )]
-        [EvilDocArgument("path", "A path at which to check the existence of directory.", DynamicValueType.String)]
+        [EvilDocArgument("path", "A path at which to check the existence of a directory.", DynamicValueType.String)]
         private static DynamicValue DirectoryExists(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var path);

@@ -39,7 +39,7 @@ namespace Ceres.Runtime.Modules
                 "w" when hasPlus => (FileAccess.ReadWrite, FileMode.Create),
                 "w" => (FileAccess.Write, FileMode.Create),
                 
-                "a" when hasPlus => (FileAccess.ReadWrite, FileMode.Append),
+                "a" when hasPlus => (FileAccess.ReadWrite, FileMode.OpenOrCreate),
                 "a" => (FileAccess.Write, FileMode.Append),
                 
                 "t" => (FileAccess.Write, FileMode.Truncate),
