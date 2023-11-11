@@ -10,6 +10,7 @@ namespace Ceres.TranslationEngine.Scoping
 
         public Dictionary<string, Symbol> Symbols { get; } = new();
         public Dictionary<string, Symbol> Closures { get; } = new();
+        public Dictionary<string, Symbol> GlobalFunctions { get; } = new();
 
         private Scope(string functionName)
         {
@@ -32,7 +33,7 @@ namespace Ceres.TranslationEngine.Scoping
         {
             var sym = Find(name);
 
-            if (sym != null && !sym.Value.IsClosure)
+            if (sym != null && !sym.Value.IsClosure && sym.Value.Symbol.Type != Symbol.SymbolType.GlobalFunction)
             {
                 throw new DuplicateSymbolException(
                     name,
@@ -48,6 +49,7 @@ namespace Ceres.TranslationEngine.Scoping
                 nilAccepting,
                 definedOnLine,
                 definedOnColumn,
+                null,
                 null
             );
             
@@ -65,7 +67,7 @@ namespace Ceres.TranslationEngine.Scoping
         {
             var sym = Find(name);
 
-            if (sym != null && !sym.Value.IsClosure)
+            if (sym != null && !sym.Value.IsClosure && sym.Value.Symbol.Type != Symbol.SymbolType.GlobalFunction)
             {
                 throw new DuplicateSymbolException(
                     name,
@@ -81,6 +83,7 @@ namespace Ceres.TranslationEngine.Scoping
                 nilAccepting,
                 definedOnLine,
                 definedOnColumn,
+                null,
                 null
             );
             
@@ -100,7 +103,7 @@ namespace Ceres.TranslationEngine.Scoping
         {
             var sym = Find(name);
 
-            if (sym != null)
+            if (sym != null && sym.Value.Symbol.Type != Symbol.SymbolType.GlobalFunction)
             {
                 throw new DuplicateSymbolException(
                     name,
@@ -116,10 +119,46 @@ namespace Ceres.TranslationEngine.Scoping
                 nilAccepting,
                 definedOnLine,
                 definedOnColumn,
-                closureInfo
+                closureInfo,
+                null
             );
 
             Closures.Add(name, symbol);
+            return symbol;
+        }
+
+        public Symbol DefineGlobalFunction(
+            string name,
+            int id,
+            bool nilReturning,
+            int definedOnLine,
+            int definedOnColumn,
+            FunctionInfo functionInfo
+        )
+        {
+            var sym = Find(name);
+
+            if (sym != null)
+            {
+                throw new DuplicateSymbolException(
+                    name,
+                    $"Global function '{name}' was already defined in the current scope."
+                );
+            }
+
+            var symbol = new Symbol(
+                name,
+                id,
+                Symbol.SymbolType.GlobalFunction,
+                false,
+                true,
+                definedOnLine,
+                definedOnColumn,
+                null,
+                functionInfo
+            );
+
+            GlobalFunctions.Add(name, symbol);
             return symbol;
         }
 
@@ -134,6 +173,9 @@ namespace Ceres.TranslationEngine.Scoping
 
                 if (currentScope.Closures.TryGetValue(name, out var closure))
                     return (true, closure);
+
+                if (currentScope.GlobalFunctions.TryGetValue(name, out var function))
+                    return (false, function);
                 
                 currentScope = currentScope.Parent;
             }
@@ -166,7 +208,7 @@ namespace Ceres.TranslationEngine.Scoping
 
             return sym.Value.Symbol.NilAccepting;
         }
-
+        
         public void Clear()
             => Symbols.Clear();
 

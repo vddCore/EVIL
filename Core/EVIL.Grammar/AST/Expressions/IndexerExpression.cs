@@ -10,6 +10,8 @@ namespace EVIL.Grammar.AST.Expressions
         public Expression Indexable { get; }
         public Expression KeyExpression { get; }
 
+        public override bool CanBeNil => true;
+
         public bool WillBeAssigned { get; }
 
         public IndexerExpression(Expression indexable, Expression keyExpression, bool willBeAssigned)

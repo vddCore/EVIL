@@ -8,6 +8,8 @@ namespace EVIL.Grammar.AST.Expressions
         public Expression Callee { get; }
         public ArgumentList ArgumentList { get; }
 
+        public override bool CanBeNil => true;
+
         public InvocationExpression(Expression callee, ArgumentList argumentList)
         {
             Callee = callee;

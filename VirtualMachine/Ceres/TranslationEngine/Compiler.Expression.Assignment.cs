@@ -12,7 +12,7 @@ namespace Ceres.TranslationEngine
             if (assignmentExpression.Left is SymbolReferenceExpression symRef)
             {
                 ThrowIfValReadOnly(symRef.Identifier);
-                ThrowIfAssigningNilToNonNilAcceptingSymbol(symRef, assignmentExpression.Right);
+                ThrowIfAssigningNilToNilRejectingSymbol(symRef, assignmentExpression.Right);
                 
                 if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
                 {

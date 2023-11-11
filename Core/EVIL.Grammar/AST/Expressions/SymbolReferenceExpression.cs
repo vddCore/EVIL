@@ -6,6 +6,8 @@ namespace EVIL.Grammar.AST.Expressions
     {
         public string Identifier { get; }
 
+        public override bool CanBeNil => true;
+
         public SymbolReferenceExpression(string identifier)
         {
             Identifier = identifier;

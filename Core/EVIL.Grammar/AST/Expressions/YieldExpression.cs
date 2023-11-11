@@ -8,6 +8,8 @@ namespace EVIL.Grammar.AST.Expressions
         public Expression Target { get; }
         public ArgumentList ArgumentList { get; }
 
+        public override bool CanBeNil => true;
+
         public YieldExpression(Expression target, ArgumentList argumentList)
         {
             Target = target;

@@ -235,8 +235,8 @@ fn nil_coalescing_both_nil() {
 
 #[test]
 fn nil_coalescing_multiple_values() {
-  val a = nil;
-  val b = nil;
+  val? a = nil;
+  val? b = nil;
   val c = 21.37;
   val d = "a string";
   

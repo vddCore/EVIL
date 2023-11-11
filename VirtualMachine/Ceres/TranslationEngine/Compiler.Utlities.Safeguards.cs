@@ -24,7 +24,7 @@ namespace Ceres.TranslationEngine
             }
         }
 
-        private void ThrowIfAssigningNilToNonNilAcceptingSymbol(
+        private void ThrowIfAssigningNilToNilRejectingSymbol(
             SymbolReferenceExpression symRef,
             Expression expression)
         {
@@ -32,18 +32,19 @@ namespace Ceres.TranslationEngine
             {
                 var sym = result!.Value.Symbol;
 
-                if (expression is NilConstant)
+                if (expression.CanBeNil)
                 {
                     Log.TerminateWithFatal(
-                        $"Attempt to assign a nil value to a nil-rejecting {sym.Type.ToString().ToLower()} `{sym.Name}' " +
+                        $"Attempt to assign a possible nil value to a nil-rejecting {sym.Type.ToString().ToLower()} `{sym.Name}' " +
                         $"(defined on line {sym.DefinedOnLine})",
                         CurrentFileName,
-                        EvilMessageCode.AttemptToWriteNilToNonNilAcceptingLocal,
+                        EvilMessageCode.AttemptToWriteNilToNilRejectingLocal,
                         Line,
                         Column
                     );
                 }
-                else if (expression is SymbolReferenceExpression assignedSymRef)
+                
+                if (expression is SymbolReferenceExpression assignedSymRef)
                 {
                     var isAssignedSymbolNilAccepting = CurrentScope.IsSymbolNilAccepting(
                         assignedSymRef.Identifier,
@@ -63,7 +64,7 @@ namespace Ceres.TranslationEngine
                             $"to a nil-rejecting {sym.Type.ToString().ToLower()} `{sym.Name}` " +
                             $"(defined on line {sym.DefinedOnLine}",
                             CurrentFileName,
-                            EvilMessageCode.AttemptToCopyNilSymbolValueToNonNilAcceptingLocal,
+                            EvilMessageCode.AttemptToWriteNilToNilRejectingLocal,
                             Line,
                             Column
                         );
@@ -76,7 +77,7 @@ namespace Ceres.TranslationEngine
                         $"{sym.Type.ToString().ToLower()} `{sym.Name}` " +
                         $"(defined on line {sym.DefinedOnLine}",
                         CurrentFileName,
-                        EvilMessageCode.AttemptToCopyNilSymbolValueToNonNilAcceptingLocal,
+                        EvilMessageCode.AttemptToWriteNilToNilRejectingLocal,
                         Line,
                         Column
                     );

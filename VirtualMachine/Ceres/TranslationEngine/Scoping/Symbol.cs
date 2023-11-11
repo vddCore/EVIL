@@ -10,12 +10,14 @@ namespace Ceres.TranslationEngine.Scoping
         bool NilAccepting,
         int DefinedOnLine,
         int DefinedOnColumn,
-        ClosureInfo? ClosureInfo)
+        ClosureInfo? ClosureInfo,
+        FunctionInfo? FunctionInfo)
     {
         public string TypeName => Type.ToString().ToLower();
         
         public enum SymbolType
         {
+            GlobalFunction,
             Local,
             Parameter,
             Closure

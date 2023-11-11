@@ -8,7 +8,9 @@ namespace EVIL.Grammar.AST.Expressions
         public Expression Indexable { get; }
         public IdentifierNode Identifier { get; }
         public ArgumentList ArgumentList { get; }
-        
+
+        public override bool CanBeNil => true;
+
         public SelfInvocationExpression(
             Expression indexable, 
             IdentifierNode identifier, 

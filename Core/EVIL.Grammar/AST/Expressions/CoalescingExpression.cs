@@ -7,6 +7,9 @@ namespace EVIL.Grammar.AST.Expressions
         public Expression Left { get; }
         public Expression Right { get; }
 
+        public override bool CanBeNil =>  (Left.CanBeNil && Right.CanBeNil) 
+                                           || Right.CanBeNil;
+
         public CoalescingExpression(Expression left, Expression right)
         {
             Left = left;

@@ -1,4 +1,5 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿using System;
+using EVIL.Grammar.AST.Base;
 
 namespace EVIL.Grammar.AST.Expressions
 {
@@ -6,7 +7,9 @@ namespace EVIL.Grammar.AST.Expressions
     {
         public Expression Left { get; }
         public Expression Right { get; }
-        
+
+        public override bool CanBeNil => Right.CanBeNil;
+
         public AssignmentOperationType OperationType { get; }
 
         public AssignmentExpression(Expression left, Expression right, AssignmentOperationType operationType)
