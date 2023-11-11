@@ -1,4 +1,5 @@
-﻿using Ceres.ExecutionEngine.Collections;
+﻿using System.Diagnostics.CodeAnalysis;
+using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -8,6 +9,59 @@ namespace Ceres.Runtime.Extensions
 {
     public static partial class FunctionArguments
     {
+        public static DynamicValue[] ExpectTypeAt(this DynamicValue[] args, int index, DynamicValueType type, bool allowNil = false)
+        {
+            args.ExpectAtLeast(index + 1);
+
+            var argType = args[index].Type;
+
+            if (argType != type)
+            {
+                if (argType == DynamicValueType.Nil)
+                {
+                    if (allowNil)
+                    {
+                        return args;
+                    }
+                    else
+                    {
+                        throw new EvilRuntimeException($"Expected a {type} or {DynamicValueType.Nil} at argument index {index}, found {argType}.");
+                    }
+                }
+
+                throw new EvilRuntimeException($"Expected a {type} at argument index {index}, found {argType}.");
+            }
+
+            return args;
+        }
+
+        public static DynamicValue[] ExpectOneOfTypesAt(
+            this DynamicValue[] args, 
+            int index,
+            out DynamicValue value,
+            DynamicValueType firstType,
+            params DynamicValueType[] types)
+        {
+            args.ExpectAtLeast(index + 1);
+
+            var argType = args[index].Type;
+
+            if (firstType != argType)
+            {
+                if (System.Array.IndexOf(types, argType) < 0)
+                {
+                    throw new EvilRuntimeException(
+                        $"Expected one of the following types: [{string.Join(',', types)}] " +
+                        $"at argument index {index}, found {argType}."
+                    );
+                }
+            }
+
+            value = args[index];
+
+            return args;
+        }
+        
         public static DynamicValue[] ExpectNilAt(this DynamicValue[] args, int index)
             => args.ExpectTypeAt(index, DynamicValueType.Nil);
         
@@ -38,9 +92,13 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
 
-        public static DynamicValue[] ExpectStringAt(this DynamicValue[] args, int index, out string value)
+        public static DynamicValue[] ExpectStringAt(
+            this DynamicValue[] args, 
+            int index, 
+            [AllowNull] out string value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.String);
+            args.ExpectTypeAt(index, DynamicValueType.String, allowNil);
             value = args[index].String!;
 
             return args;

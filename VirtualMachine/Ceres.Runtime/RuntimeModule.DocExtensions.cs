@@ -112,19 +112,30 @@ namespace Ceres.Runtime
                 {
                     var argInfo = evilDocArgumentAttributes[i];
 
+                    if (argInfo.Name == "...")
+                    {
+                        continue;
+                    }
+
+                    var argName = argInfo.Name;
+                    if (argInfo.CanBeNil)
+                    {
+                        argName += "?";
+                    }
+                    
                     if (argInfo.DefaultValue != null)
                     {
                         var defaultValue = argInfo.DefaultValue;
-                        if (argInfo.Type == DynamicValueType.String)
+                        if (argInfo.PrimaryType == DynamicValueType.String)
                         {
                             defaultValue = $"\"{defaultValue}\"";
                         }
                         
-                        sb.Append($"[{argInfo.Name}] = {defaultValue}");
+                        sb.Append($"[{argName}] = {defaultValue}");
                     }
                     else
                     {
-                        sb.Append(argInfo.Name);
+                        sb.Append(argName);
                     }
                     
                     if (i < evilDocArgumentAttributes.Length - 1 || evilDocFunctionAttribute.IsVariadic)
@@ -159,18 +170,26 @@ namespace Ceres.Runtime
             {
                 sb.AppendLine();
                 sb.AppendLine("**Arguments**  ");
-                sb.AppendLine("| Name | Description | Type | Optional | Default Value |  ");
-                sb.AppendLine("| ---- | ----------- | ---- | -------- | ------------- |  ");
+                sb.AppendLine("| Name | Description | Can be `nil` | Type(s) | Optional | Default Value |  ");
+                sb.AppendLine("| ---- | ----------- | ------------ | ------- | -------- | ------------- |  ");
                 for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
                 {
                     var argInfo = evilDocArgumentAttributes[i];
-                    var argType = argInfo.IsAnyType ? "Any" : GetTypeString(argInfo.Type);
+                    var argType = argInfo.IsAnyType ? "Any" : GetTypeString(argInfo.PrimaryType);
+
+                    if (!argInfo.IsAnyType && argInfo.OtherTypes != null)
+                    {
+                        foreach (var otherType in argInfo.OtherTypes)
+                        {
+                            argType += $", {GetTypeString(otherType)}";
+                        }
+                    }
 
                     var defaultValue = "None";
 
                     if (argInfo.DefaultValue != null)
                     {
-                        if (argInfo.Type == DynamicValueType.String)
+                        if (argInfo.PrimaryType == DynamicValueType.String)
                         {
                             defaultValue = $"`\"{argInfo.DefaultValue}\"`";
                         }
@@ -181,7 +200,9 @@ namespace Ceres.Runtime
                     }
 
                     var optional = argInfo.DefaultValue == null ? "No" : "Yes";
-                    sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | `{argType}` | {optional} | {defaultValue} |  ");
+                    var canBeNil = argInfo.CanBeNil ? "Yes" : "No";
+                    
+                    sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | {canBeNil} | `{argType}` | {optional} | {defaultValue} |  ");
                 }
             }
 
