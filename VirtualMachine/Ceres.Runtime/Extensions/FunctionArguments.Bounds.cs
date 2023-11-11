@@ -31,17 +31,5 @@ namespace Ceres.Runtime.Extensions
 
         public static DynamicValue[] ExpectNone(this DynamicValue[] args)
             => args.ExpectExactly(0);
-
-        public static DynamicValue[] ExpectTypeAt(this DynamicValue[] args, int index, DynamicValueType type)
-        {
-            args.ExpectAtLeast(index + 1);
-
-            var argType = args[index].Type;
-            
-            if (argType != type)
-                throw new EvilRuntimeException($"Expected a {type} at argument index {index}, found {argType}.");
-
-            return args;
-        }
     }
 }

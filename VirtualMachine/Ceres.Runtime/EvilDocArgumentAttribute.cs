@@ -8,18 +8,28 @@ namespace Ceres.Runtime
     {
         public string Name { get; }
         public string Description { get; }
-        
-        public DynamicValueType Type { get; }
+
+        public DynamicValueType PrimaryType { get; }
+        public DynamicValueType[]? OtherTypes { get; }
         public bool IsAnyType { get; }
         
+        public bool CanBeNil { get; init; }
         public string? DefaultValue { get; init; }
 
+        public EvilDocArgumentAttribute(string name, string description, DynamicValueType primaryType, params DynamicValueType[] types)
+        {
+            Name = name;
+            Description = description;
+            PrimaryType = primaryType;
+            OtherTypes = types;
+        }
+        
         public EvilDocArgumentAttribute(string name, string description, DynamicValueType type)
         {
             Name = name;
             Description = description;
-            
-            Type = type;
+
+            PrimaryType = type;
             IsAnyType = false;
         }
         

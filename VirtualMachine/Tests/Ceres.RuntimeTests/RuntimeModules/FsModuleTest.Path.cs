@@ -213,8 +213,9 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void PathRemoveExtension()
         {
             var result = EvilTestResult(
-                $"fn test() -> fs.path.rm_ext(" +
-                $"  '/root/dobry_jezu.exe'" +
+                $"fn test() -> fs.path.chg_ext(" +
+                $"  '/root/dobry_jezu.exe'," +
+                $"  nil" +
                 $");"
             );
 
