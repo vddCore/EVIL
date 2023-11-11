@@ -162,16 +162,20 @@ namespace Ceres.Runtime
 
             sb.AppendLine("**Description**  ");
             sb.AppendLine(evilDocFunctionAttribute.Description);
-            sb.AppendLine();
-            sb.AppendLine("**Returns**  ");
-            sb.AppendLine(evilDocFunctionAttribute.Returns);
+
+            if (string.IsNullOrEmpty(evilDocFunctionAttribute.Returns))
+            {
+                sb.AppendLine();
+                sb.AppendLine("**Returns**  ");
+                sb.AppendLine(evilDocFunctionAttribute.Returns);
+            }
 
             if (evilDocArgumentAttributes.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("**Arguments**  ");
-                sb.AppendLine("| Name | Description | Can be `nil` | Type(s) | Optional | Default Value |  ");
-                sb.AppendLine("| ---- | ----------- | ------------ | ------- | -------- | ------------- |  ");
+                sb.AppendLine("| Name | Description | Type(s) | Can be `nil` | Optional | Default Value |  ");
+                sb.AppendLine("| ---- | ----------- | ------- | ------------ | -------- | ------------- |  ");
                 for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
                 {
                     var argInfo = evilDocArgumentAttributes[i];
@@ -202,7 +206,7 @@ namespace Ceres.Runtime
                     var optional = argInfo.DefaultValue == null ? "No" : "Yes";
                     var canBeNil = argInfo.CanBeNil ? "Yes" : "No";
                     
-                    sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | {canBeNil} | `{argType}` | {optional} | {defaultValue} |  ");
+                    sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | `{argType}` | {canBeNil} | {optional} | {defaultValue} |  ");
                 }
             }
 

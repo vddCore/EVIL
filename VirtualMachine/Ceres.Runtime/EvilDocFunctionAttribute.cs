@@ -12,7 +12,7 @@ namespace Ceres.Runtime
         public bool IsAnyReturn { get; set; } = false;
         
         public DynamicValueType ReturnType { get; set; } = DynamicValueType.Nil;
-        public string Returns { get; set; } = "Nothing.";
+        public string? Returns { get; set; } = "Nothing.";
 
         public EvilDocFunctionAttribute(string description)
         {
