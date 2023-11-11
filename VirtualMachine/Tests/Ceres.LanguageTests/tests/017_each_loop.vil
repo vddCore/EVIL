@@ -2,8 +2,8 @@
 fn each_basic_table() {
   val t = { x: 21.37, y: "haha funny number" };
 
-  rw val tvar_1 = nil;
-  rw val tvar_2 = nil;
+  rw val? tvar_1 = nil;
+  rw val? tvar_2 = nil;
 
   each (rw val key : t) {
     if (key == "x") {
@@ -21,7 +21,7 @@ fn each_basic_table() {
 fn each_basic_table_skip() {
   val t = { x: 21.37, y: 11.11, z: 44.51 };
 
-  rw val tvar_1 = nil;
+  rw val? tvar_1 = nil;
 
   each (rw val key : t) {
     if (key != "z") {
@@ -38,7 +38,7 @@ fn each_basic_table_skip() {
 fn each_basic_table_break() {
   val t = { x: 21.37, y: 11.11, z: 44.51 };
 
-  rw val tvar_1 = nil;
+  rw val? tvar_1 = nil;
 
   each (rw val key : t) {
     if (key == "y") {

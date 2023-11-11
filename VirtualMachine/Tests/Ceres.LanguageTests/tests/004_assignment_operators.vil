@@ -88,7 +88,7 @@ fn assignment_var_shr() {
 
 #[test]
 fn chained_assignment_direct() {
-  rw val a, b, c, d;
+  rw val? a, b, c, d;
   val result = (a = b = c = d = 10);
   
   assert.equal(a, 10);

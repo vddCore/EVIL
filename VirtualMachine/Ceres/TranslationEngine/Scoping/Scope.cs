@@ -26,6 +26,7 @@ namespace Ceres.TranslationEngine.Scoping
             string name,
             int id,
             bool writeable,
+            bool nilAccepting,
             int definedOnLine,
             int definedOnColumn)
         {
@@ -44,6 +45,7 @@ namespace Ceres.TranslationEngine.Scoping
                 id,
                 Symbol.SymbolType.Local,
                 writeable,
+                nilAccepting,
                 definedOnLine,
                 definedOnColumn,
                 null
@@ -57,6 +59,7 @@ namespace Ceres.TranslationEngine.Scoping
             string name,
             int id,
             bool writeable,
+            bool nilAccepting,
             int definedOnLine,
             int definedOnColumn)
         {
@@ -75,6 +78,7 @@ namespace Ceres.TranslationEngine.Scoping
                 id,
                 Symbol.SymbolType.Parameter,
                 writeable,
+                nilAccepting,
                 definedOnLine,
                 definedOnColumn,
                 null
@@ -88,6 +92,7 @@ namespace Ceres.TranslationEngine.Scoping
             string name,
             int id,
             bool writeable,
+            bool nilAccepting,
             int definedOnLine,
             int definedOnColumn,
             ClosureInfo closureInfo
@@ -108,6 +113,7 @@ namespace Ceres.TranslationEngine.Scoping
                 id,
                 Symbol.SymbolType.Closure,
                 writeable,
+                nilAccepting,
                 definedOnLine,
                 definedOnColumn,
                 closureInfo
@@ -146,6 +152,19 @@ namespace Ceres.TranslationEngine.Scoping
             }
 
             return sym.Value.Symbol.ReadWrite;
+        }
+
+        public bool IsSymbolNilAccepting(string identifier, out (bool IsClosure, Symbol Symbol)? sym)
+        {
+            sym = Find(identifier);
+
+            if (sym == null)
+            {
+                // Globals are always nil-accepting.
+                return true;
+            }
+
+            return sym.Value.Symbol.NilAccepting;
         }
 
         public void Clear()

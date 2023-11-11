@@ -20,6 +20,7 @@ namespace Ceres.TranslationEngine
                         kvp.Key.Name,
                         localId,
                         valStatement.ReadWrite,
+                        valStatement.NilAccepting,
                         valStatement.Line,
                         valStatement.Column
                     );

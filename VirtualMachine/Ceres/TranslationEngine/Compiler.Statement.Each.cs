@@ -17,6 +17,7 @@ namespace Ceres.TranslationEngine
                     eachStatement.KeyIdentifier.Name,
                     keyLocal,
                     false,
+                    true,
                     eachStatement.KeyIdentifier.Line,
                     eachStatement.KeyIdentifier.Column
                 );
@@ -29,6 +30,7 @@ namespace Ceres.TranslationEngine
                         eachStatement.ValueIdentifier.Name,
                         valueLocal,
                         false,
+                        true,
                         eachStatement.ValueIdentifier.Line,
                         eachStatement.ValueIdentifier.Column
                     );

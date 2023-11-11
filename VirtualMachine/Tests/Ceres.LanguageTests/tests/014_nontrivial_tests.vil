@@ -1,7 +1,7 @@
 ﻿fn fib_recursive(rw n, a = 1, b = 1) -> (--n > 0) ? (fib_recursive(n, b, a + b)) : (a); 
 
 fn fib_iterative(rw n) {
-  rw val f0 = 0, f1 = 1, f2;
+  rw val f0 = 0, f1 = 1, f2 = 0;
   
   while (--n > 0) {
     f2 = f0 + f1;
@@ -18,7 +18,8 @@ fn fact_tailrec(n, acc = 1) {
 }
 
 fn bubble_sort_table(table) {
-  rw val i, t, j = #table, s = true;
+  rw val i = 0, j = #table, s = true;
+  rw val? t;
   
   while (s) {
     s = false;
@@ -37,7 +38,8 @@ fn bubble_sort_table(table) {
 }
 
 fn bubble_sort_array(arr) {
-  rw val i, t, j = #arr, s = true;
+  rw val i = 0, j = #arr, s = true;
+  rw val? t;
   
   while (s) {
     s = false;

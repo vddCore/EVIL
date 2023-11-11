@@ -61,6 +61,7 @@ namespace Ceres.TranslationEngine
                         sym.Name,
                         result.Id,
                         sym.ReadWrite,
+                        sym.NilAccepting,
                         sym.DefinedOnLine,
                         sym.DefinedOnColumn,
                         result.Closure
@@ -140,6 +141,7 @@ namespace Ceres.TranslationEngine
                         sym.Name,
                         result.Id,
                         sym.ReadWrite,
+                        sym.NilAccepting,
                         sym.DefinedOnLine,
                         sym.DefinedOnColumn,
                         result.Closure

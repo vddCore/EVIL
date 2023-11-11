@@ -18,6 +18,7 @@ namespace Ceres.TranslationEngine
                         parameter.Identifier.Name,
                         parameterId,
                         parameter.ReadWrite,
+                        parameter.NilAccepting,
                         parameter.Line,
                         parameter.Column
                     );

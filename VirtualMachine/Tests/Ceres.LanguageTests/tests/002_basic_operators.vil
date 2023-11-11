@@ -207,7 +207,7 @@ fn predec_arr_element() {
 
 #[test]
 fn nil_coalescing_left_is_nil() {
-  val a = nil;
+  val? a = nil;
   val b = 21.37;
   
   val c = a ?? b;
@@ -217,7 +217,7 @@ fn nil_coalescing_left_is_nil() {
 
 #[test]
 fn nil_coalescing_right_is_nil() {
-  val a = nil;
+  val? a = nil;
   val b = 21.37;
   
   val c = b ?? a;
@@ -227,9 +227,7 @@ fn nil_coalescing_right_is_nil() {
 
 #[test]
 fn nil_coalescing_both_nil() {
-  val a = nil;
-  val b = nil;
-  
+  val? a = nil, b = nil;
   val c = a ?? b;
   
   assert.equal(c, nil);

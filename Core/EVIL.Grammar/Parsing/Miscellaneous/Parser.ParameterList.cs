@@ -17,6 +17,7 @@ namespace EVIL.Grammar.Parsing
             while (CurrentToken.Type != TokenType.RParenthesis)
             {
                 var rw = false;
+                var nilAccepting = false;
                 if (CurrentToken.Type == TokenType.Rw)
                 {
                     rw = true;
@@ -30,6 +31,12 @@ namespace EVIL.Grammar.Parsing
                         ? "Expected $expected, got $actual."
                         : "Expected $expected or ')', got $actual."
                 );
+
+                if (CurrentToken == Token.QuestionMark)
+                {
+                    Match(Token.QuestionMark);
+                    nilAccepting = true;
+                }
 
                 if (CurrentToken == Token.Assign)
                 {
@@ -49,7 +56,7 @@ namespace EVIL.Grammar.Parsing
                 }
 
                 parameters.Add(
-                    new ParameterNode(parameterIdentifier, rw, initializer)
+                    new ParameterNode(parameterIdentifier, rw, nilAccepting, initializer)
                         { Line = parameterIdentifier.Line, Column = parameterIdentifier.Column }
                 );
 

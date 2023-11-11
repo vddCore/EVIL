@@ -8,13 +8,16 @@ namespace EVIL.Grammar.AST.Statements
     {
         public Dictionary<IdentifierNode, Expression?> Definitions { get; }
         public bool ReadWrite { get; }
+        public bool NilAccepting { get; }
 
         public ValStatement(
             Dictionary<IdentifierNode, Expression?> definitions,
-            bool readWrite)
+            bool readWrite,
+            bool nilAccepting)
         {
             Definitions = definitions;
             ReadWrite = readWrite;
+            NilAccepting = nilAccepting;
 
             Reparent(Definitions.Keys);
             

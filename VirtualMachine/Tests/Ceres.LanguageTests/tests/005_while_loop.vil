@@ -52,7 +52,7 @@ fn while_false() {
 
 #[test]
 fn while_nested() {
-  rw val a = 10, b, c;
+  rw val a = 10, b = 0, c = 0;
   
   while (a) {
     a--;

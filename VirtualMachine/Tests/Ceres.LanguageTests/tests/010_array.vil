@@ -30,8 +30,8 @@ fn arr_init_val() {
 fn arr_each() {
   val arr = array() { 2, 4, 6, 8, 10 };
   
-  rw val prev_i = 0;
-  rw val prev_v = arr[prev_i];
+  rw val? prev_i = 0;
+  rw val? prev_v = arr[prev_i];
   
   each (rw val i, v : arr) {
     if (i == 0) skip;

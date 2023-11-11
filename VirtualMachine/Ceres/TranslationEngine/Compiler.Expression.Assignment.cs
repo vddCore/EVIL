@@ -11,8 +11,9 @@ namespace Ceres.TranslationEngine
         {
             if (assignmentExpression.Left is SymbolReferenceExpression symRef)
             {
-                ThrowIfVarReadOnly(symRef.Identifier);
-
+                ThrowIfValReadOnly(symRef.Identifier);
+                ThrowIfAssigningNilToNonNilAcceptingSymbol(symRef, assignmentExpression.Right);
+                
                 if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
                 {
                     var valueNotNilLabel = Chunk.CreateLabel();

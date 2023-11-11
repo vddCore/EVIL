@@ -1,6 +1,6 @@
 ﻿#[test]
 fn for_simple() {
-  rw val i;
+  rw val? i;
   for (i = 0; i < 10; ++i) {}
   
   assert.equal(i, 10);
@@ -8,7 +8,7 @@ fn for_simple() {
 
 #[test]
 fn for_simple_skip() {
-  rw val i;
+  rw val? i;
   
   for (i = 0; i < 10; i++) {
     skip;
@@ -19,7 +19,7 @@ fn for_simple_skip() {
 
 #[test]
 fn for_simple_break() {
-  rw val i;
+  rw val? i;
   
   for (i = 0; i < 10; i++) {
     if (i == 5)
@@ -31,7 +31,7 @@ fn for_simple_break() {
 
 #[test]
 fn for_nested() {
-  rw val i, j, k;
+  rw val? i, j, k;
   
   for (i = 0; i < 10; i++) {
     for (j = 0; j < 10; j++) {
@@ -47,7 +47,7 @@ fn for_nested() {
 #[test]
 fn for_nested_break() {
   rw val broken = false;
-  rw val i;
+  rw val? i;
   
   for (i = 10; i < 11; i++) {
     // todo implement discard pattern
@@ -68,8 +68,8 @@ fn for_nested_break() {
 
 #[test]
 fn for_multiple_statements() {
-  rw val i;
-  rw val j;
+  rw val? i;
+  rw val? j;
   
   for (i = 0, j = 0; i < 10; i++, j += 2) { }
   

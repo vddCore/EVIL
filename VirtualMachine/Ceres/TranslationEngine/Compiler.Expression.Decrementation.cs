@@ -10,7 +10,7 @@ namespace Ceres.TranslationEngine
         {
             if (decrementationExpression.Target is SymbolReferenceExpression vre)
             {
-                ThrowIfVarReadOnly(vre.Identifier);
+                ThrowIfValReadOnly(vre.Identifier);
 
                 EmitVarGet(vre.Identifier);
                 {

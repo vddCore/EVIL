@@ -7,6 +7,7 @@ namespace Ceres.TranslationEngine.Scoping
         int Id, 
         Symbol.SymbolType Type,
         bool ReadWrite,
+        bool NilAccepting,
         int DefinedOnLine,
         int DefinedOnColumn,
         ClosureInfo? ClosureInfo)
