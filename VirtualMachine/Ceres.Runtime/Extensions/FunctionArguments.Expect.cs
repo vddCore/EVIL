@@ -73,17 +73,26 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
         
-        public static DynamicValue[] ExpectNumberAt(this DynamicValue[] args, int index, out double value)
+        public static DynamicValue[] ExpectNumberAt(
+            this DynamicValue[] args,
+            int index,
+            out double value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Number);
+            args.ExpectTypeAt(index, DynamicValueType.Number, allowNil);
             value = args[index].Number;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectIntegerAt(this DynamicValue[] args, int index, out long value)
+        public static DynamicValue[] ExpectIntegerAt(
+            this DynamicValue[] args,
+            int index,
+            out long value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Number);
+            args.ExpectTypeAt(index, DynamicValueType.Number, allowNil);
+            
             var num = args[index].Number;
             if (num % 1 != 0)
                 throw new EvilRuntimeException($"Expected an integer at argument index {index}.");
@@ -104,9 +113,13 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
 
-        public static DynamicValue[] ExpectCharAt(this DynamicValue[] args, int index, out char value)
+        public static DynamicValue[] ExpectCharAt(
+            this DynamicValue[] args,
+            int index,
+            out char value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.String);
+            args.ExpectTypeAt(index, DynamicValueType.String, allowNil);
 
             var str = args[index].String!;
             if (str.Length != 1)
@@ -116,77 +129,118 @@ namespace Ceres.Runtime.Extensions
             return args;
         }
 
-        public static DynamicValue[] ExpectBooleanAt(this DynamicValue[] args, int index, out bool value)
+        public static DynamicValue[] ExpectBooleanAt(
+            this DynamicValue[] args,
+            int index,
+            out bool value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Boolean);
+            args.ExpectTypeAt(index, DynamicValueType.Boolean, allowNil);
             value = args[index].Boolean;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectTableAt(this DynamicValue[] args, int index, out Table value)
+        public static DynamicValue[] ExpectTableAt(
+            this DynamicValue[] args,
+            int index,
+            out Table value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Table);
+            args.ExpectTypeAt(index, DynamicValueType.Table, allowNil);
             value = args[index].Table!;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectArrayAt(this DynamicValue[] args, int index, out Array value)
+        public static DynamicValue[] ExpectArrayAt(
+            this DynamicValue[] args,
+            int index, 
+            out Array value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Array);
+            args.ExpectTypeAt(index, DynamicValueType.Array, allowNil);
             value = args[index].Array!;
 
             return args;
         }
         
-        public static DynamicValue[] ExpectFiberAt(this DynamicValue[] args, int index, out Fiber value)
+        public static DynamicValue[] ExpectFiberAt(
+            this DynamicValue[] args,
+            int index,
+            out Fiber value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Fiber);
+            args.ExpectTypeAt(index, DynamicValueType.Fiber, allowNil);
             value = args[index].Fiber!;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectChunkAt(this DynamicValue[] args, int index, out Chunk value)
+        public static DynamicValue[] ExpectChunkAt(
+            this DynamicValue[] args,
+            int index,
+            out Chunk value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.Chunk);
+            args.ExpectTypeAt(index, DynamicValueType.Chunk, allowNil);
             value = args[index].Chunk!;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectTypeCodeAt(this DynamicValue[] args, int index, out DynamicValueType value)
+        public static DynamicValue[] ExpectTypeCodeAt(
+            this DynamicValue[] args,
+            int index,
+            out DynamicValueType value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.TypeCode);
+            args.ExpectTypeAt(index, DynamicValueType.TypeCode, allowNil);
             value = args[index].TypeCode;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectNativeFunctionAt(this DynamicValue[] args, int index,
-            out NativeFunction value)
+        public static DynamicValue[] ExpectNativeFunctionAt(
+            this DynamicValue[] args, 
+            int index,
+            out NativeFunction value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.NativeFunction);
+            args.ExpectTypeAt(index, DynamicValueType.NativeFunction, allowNil);
             value = args[index].NativeFunction!;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectNativeObjectAt(this DynamicValue[] args, int index, out object? value)
+        public static DynamicValue[] ExpectNativeObjectAt(
+            this DynamicValue[] args,
+            int index,
+            out object? value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.NativeObject);
+            args.ExpectTypeAt(index, DynamicValueType.NativeObject, allowNil);
             value = args[index].NativeObject;
 
             return args;
         }
 
-        public static DynamicValue[] ExpectNativeObjectAt<T>(this DynamicValue[] args, int index, out T value)
+        public static DynamicValue[] ExpectNativeObjectAt<T>(
+            this DynamicValue[] args,
+            int index,
+            out T value,
+            bool allowNil = false)
         {
-            args.ExpectTypeAt(index, DynamicValueType.NativeObject);
+            args.ExpectTypeAt(index, DynamicValueType.NativeObject, allowNil);
             
             if (args[index].NativeObject is not T tValue)
             {
+                if (args[index].Type == DynamicValueType.Nil && allowNil)
+                {
+                    value = default(T)!;
+                    return args;
+                }
+
                 throw new EvilRuntimeException(
                     $"A NativeObject value is not the expected CLR type '{typeof(T).FullName}'."
                 );
