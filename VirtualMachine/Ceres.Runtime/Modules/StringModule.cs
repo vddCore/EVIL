@@ -16,10 +16,9 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "str";
 
-        public StringModule()
-        {
-            AddGetter("empty", (_) => string.Empty);
-        }
+        [RuntimeModuleGetter("empty")]
+        private static DynamicValue EmptyString(DynamicValue _)
+            => string.Empty;
 
         [RuntimeModuleFunction("chr")]
         private static DynamicValue ToCharacter(Fiber _, params DynamicValue[] args)

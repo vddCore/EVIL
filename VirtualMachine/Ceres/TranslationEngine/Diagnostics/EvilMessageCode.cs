@@ -14,6 +14,6 @@
         public const int IncludeProcessorThrew = 0010;
         public const int FnStatementRedefinedExistingChunk = 0011;
         public const int SelfUsedInSelfUnawareFunction = 0012;
-
+        public const int TooManyInitializersForConstSizeArray = 0013;
     }
 }
