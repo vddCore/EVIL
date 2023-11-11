@@ -126,14 +126,7 @@ namespace EVIL.evil
                 Console.WriteLine(_compiler.Log.ToString());
             }
 
-            var modules = _runtime.RegisterBuiltInModules();
-            foreach (var module in modules)
-            {
-                using (var sw = new StreamWriter($"{module.FullyQualifiedName}.rt.evildoc.md"))
-                {
-                    sw.WriteLine(module.Describe());
-                }
-            }
+            _runtime.RegisterBuiltInModules();
             
             var initChunks = new List<Chunk>();
             foreach (var chunk in script.Chunks)

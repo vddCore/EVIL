@@ -8,8 +8,13 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\VirtualMachine\Ceres.Runtime\Ceres.Runtime.csproj" />
-    <ProjectReference Include="..\..\VirtualMachine\Ceres\Ceres.csproj" />
+    <ProjectReference Include="..\..\VirtualMachine\Ceres.Runtime\Ceres.Runtime.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+    
+    <ProjectReference Include="..\..\VirtualMachine\Ceres\Ceres.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
   </ItemGroup>
   
   <ItemGroup>
