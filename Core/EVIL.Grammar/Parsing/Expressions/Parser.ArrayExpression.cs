@@ -12,20 +12,25 @@ namespace EVIL.Grammar.Parsing
             var (line, col) = Match(Token.Array);
 
             Expression? sizeExpression = null;
-            Match(Token.LParenthesis);
 
-            if (CurrentToken != Token.RParenthesis)
+            if (CurrentToken == Token.LParenthesis)
             {
-                sizeExpression = AssignmentExpression();
-            }
+                Match(Token.LParenthesis);
 
-            var (rparenLine, rparenCol) = Match(Token.RParenthesis);
+                if (CurrentToken != Token.RParenthesis)
+                {
+                    sizeExpression = AssignmentExpression();
+                }
+
+                Match(Token.RParenthesis);
+            }
+            
             var expressions = new List<Expression>();
 
             if (CurrentToken == Token.LBrace)
             {
                 Match(Token.LBrace);
-                while (true)
+                while (CurrentToken != Token.RBrace)
                 {
                     expressions.Add(AssignmentExpression());
 
@@ -36,7 +41,6 @@ namespace EVIL.Grammar.Parsing
 
                     Match(Token.Comma);
                 }
-                
                 Match(Token.RBrace);
             }
             else
@@ -45,11 +49,11 @@ namespace EVIL.Grammar.Parsing
                 {
                     throw new ParserException(
                         "Inferred array size requires an array initializer.",
-                        (rparenLine, rparenCol)
+                        (CurrentState.Line, CurrentState.Column)
                     );
                 }
             }
-
+            
             return new ArrayExpression(sizeExpression, expressions)
                 { Line = line, Column = col };
         }

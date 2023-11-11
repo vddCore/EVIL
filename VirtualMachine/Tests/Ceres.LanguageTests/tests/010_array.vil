@@ -16,7 +16,7 @@ fn arr_set_val() {
 
 #[test]
 fn arr_init_val() {
-  val arr = array() { 21.37, 11.11 };
+  val arr = array { 21.37, 11.11 };
   
   assert.is_of_type(arr, Array);
   assert.equal(#arr, 2);

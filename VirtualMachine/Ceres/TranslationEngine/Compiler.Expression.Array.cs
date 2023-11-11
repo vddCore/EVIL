@@ -1,5 +1,7 @@
 using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.TranslationEngine.Diagnostics;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 
 namespace Ceres.TranslationEngine
@@ -8,6 +10,8 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(ArrayExpression arrayExpression)
         {
+            int? knownSizeConstraint = null;
+            
             if (arrayExpression.SizeExpression == null)
             {
                 Chunk.CodeGenerator.Emit(
@@ -17,7 +21,33 @@ namespace Ceres.TranslationEngine
             }
             else
             {
-                Visit(arrayExpression.SizeExpression);
+                if (arrayExpression.SizeExpression.Reduce() is NumberConstant nc)
+                {
+                    knownSizeConstraint = (int)nc.Value;
+                }
+                else
+                {
+                    Visit(arrayExpression.SizeExpression);
+                }
+            }
+
+            if (knownSizeConstraint != null)
+            {
+                if (arrayExpression.Initializers.Count > knownSizeConstraint.Value)
+                {
+                    Log.TerminateWithFatal(
+                        "Attempt to initialize a constant size array with too many entries.",
+                        CurrentFileName,
+                        EvilMessageCode.TooManyInitializersForConstSizeArray,
+                        arrayExpression.Line,
+                        arrayExpression.Column
+                    );
+                }
+                
+                Chunk.CodeGenerator.Emit(
+                    OpCode.LDNUM,
+                    (double)knownSizeConstraint.Value
+                );
             }
             
             Chunk.CodeGenerator.Emit(OpCode.ARRNEW);
