@@ -97,7 +97,7 @@ namespace EVIL.Lexical
                     State.CurrentToken = Token.AssignMultiply with { Line = line, Column = col };
                     break;
                 case '*':
-                    State.CurrentToken = Token.Multiply with { Line = line, Column = col };
+                    State.CurrentToken = Token.Asterisk with { Line = line, Column = col };
                     break;
                 case '/' when Peek() == '/':
                     SkipLineComment();

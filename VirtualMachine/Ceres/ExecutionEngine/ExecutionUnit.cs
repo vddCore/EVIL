@@ -790,6 +790,29 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.DECONSTRUCT:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.String)
+                    {
+                        a = Array.FromString(a.String!);
+                    }
+
+                    if (a.Type != DynamicValueType.Array)
+                    {
+                        throw new VirtualMachineException($"Attempt to deconstruct a {a.Type} value.");
+                    }
+
+                    var array = a.Array!;
+                    for (var i = array.Length; i >= 0; i--)
+                    {
+                        PushValue(array[i]);
+                    }
+
+                    break;
+                }
+
                 case OpCode.FJMP:
                 {
                     var labelId = frame.FetchInt32();

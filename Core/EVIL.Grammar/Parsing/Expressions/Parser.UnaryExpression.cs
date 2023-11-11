@@ -15,7 +15,8 @@ namespace EVIL.Grammar.Parsing
             TokenType.BitwiseNot,
             TokenType.Length,
             TokenType.AsNumber,
-            TokenType.AsString
+            TokenType.AsString,
+            TokenType.Asterisk
         };
 
         private Expression UnaryExpression()
@@ -69,6 +70,13 @@ namespace EVIL.Grammar.Parsing
                 var (line, col) = Match(Token.Length);
                 
                 return new UnaryExpression(PostfixExpression(), UnaryOperationType.Length) 
+                    { Line = line, Column = col };
+            }
+            else if (token.Type == TokenType.Asterisk)
+            {
+                var (line, col) = Match(Token.Asterisk);
+
+                return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Deconstruct)
                     { Line = line, Column = col };
             }
 

@@ -86,7 +86,7 @@ namespace EVIL.CoreTests
             );
             
             Expect(
-                Plus, Minus, Divide, Multiply, Modulo, BitwiseAnd, BitwiseNot,
+                Plus, Minus, Divide, Asterisk, Modulo, BitwiseAnd, BitwiseNot,
                 BitwiseOr, BitwiseXor, ShiftLeft, ShiftRight
             );
             

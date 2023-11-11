@@ -45,6 +45,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         TONUMBER,
         TOSTRING,
         TYPE,
+        DECONSTRUCT,
         LNOT,
         LAND,
         LOR,

@@ -21,6 +21,7 @@ namespace Ceres.TranslationEngine
                         UnaryOperationType.LogicalNot => OpCode.LNOT,
                         UnaryOperationType.ToString => OpCode.TOSTRING,
                         UnaryOperationType.ToNumber => OpCode.TONUMBER,
+                        UnaryOperationType.Deconstruct => OpCode.DECONSTRUCT,
                         _ => Log.TerminateWithInternalFailure(
                             $"Invalid unary operation type '{unaryExpression.Type}'.",
                             CurrentFileName,

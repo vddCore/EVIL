@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private static readonly TokenType[] _multiplicativeOperators = new[]
         {
-            TokenType.Multiply,
+            TokenType.Asterisk,
             TokenType.Divide,
             TokenType.Modulo
         };
@@ -21,9 +21,9 @@ namespace EVIL.Grammar.Parsing
 
             while (_multiplicativeOperators.Contains(token.Type))
             {
-                if (token.Type == TokenType.Multiply)
+                if (token.Type == TokenType.Asterisk)
                 {
-                    var (line, col) = Match(Token.Multiply);
+                    var (line, col) = Match(Token.Asterisk);
 
                     node = new BinaryExpression(node, PrefixExpression(), BinaryOperationType.Multiply)
                         { Line = line, Column = col };

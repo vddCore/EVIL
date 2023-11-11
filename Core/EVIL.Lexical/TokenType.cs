@@ -6,7 +6,7 @@
         
         Minus,
         Plus,
-        Multiply,
+        Asterisk,
         Divide,
         Modulo,
         BitwiseAnd,

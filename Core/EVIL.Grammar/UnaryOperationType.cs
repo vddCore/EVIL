@@ -8,6 +8,7 @@
         ToString,
         Length,
         LogicalNot,
-        BitwiseNot
+        BitwiseNot,
+        Deconstruct
     }
 }
