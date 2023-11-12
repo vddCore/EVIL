@@ -1,4 +1,4 @@
-name: .NET Core Desktop
+name: Build EVIL front-end with runtime
 
 on:
   push:
