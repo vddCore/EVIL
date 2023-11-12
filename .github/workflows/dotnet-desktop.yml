@@ -1,0 +1,61 @@
+name: .NET Core Desktop
+
+on:
+  push:
+    branches: [ "master", "dev" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        runtime-identifier: [win-x64, linux-x64]
+
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: EVIL.sln
+      Test_Project_Path: VirtualMachine\Tests\Ceres.RuntimeTests\Ceres.RuntimeTests.csproj
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+      
+    - name: Execute unit tests
+      run: dotnet test
+
+    - name: Publish to directory (win-x64)
+      run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $env:Configuration -r $env:RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
+      env:
+        Configuration: ${{ matrix.configuration }}
+        RuntimeIdentifier: ${{ matrix.runtime-identifier }}
+        
+    - name: Fetch front-end version
+      uses: chenryhabana205/dotnetgetversion@v6
+      with:
+        VERSION_FILE_PATH: FrontEnd/EVIL.evil/EVIL.evil.csproj
+
+    - name: Pack artifact (Debug, win-x64)
+      uses: actions/upload-artifact@v3.1.3
+      with:
+        name: evil-${{ env.VERSION }}_${{ matrix.runtime-identifier }}
+        path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net7.0/${{ matrix.runtime-identifier }}/publish
+        if-no-files-found: error
+        retention-days: 90
