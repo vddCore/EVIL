@@ -47,7 +47,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                         sw.AutoFlush = true;
                     Console.SetOut(sw);
                     
-                    EvilTestResult(src).ShouldBe(14);
+                    EvilTestResult(src).ShouldBe("hello, world".Length + Environment.NewLine.Length);
                     ms.Seek(0, SeekOrigin.Begin);
 
                     using (var sr = new StreamReader(ms, leaveOpen: true))
