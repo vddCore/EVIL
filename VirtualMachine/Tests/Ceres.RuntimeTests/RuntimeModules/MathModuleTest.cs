@@ -80,7 +80,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         {
             Math.Round(
                 EvilTestResult(
-                    "fn test() -> math.atan2(21, 37);"
+                    "fn test() -> math.atan2(37, 21);"
                 ).Number, 1
             ).ShouldBe(0.5);
         }
