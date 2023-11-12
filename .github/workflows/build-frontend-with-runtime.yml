@@ -13,11 +13,10 @@ jobs:
         runtime-identifier: [win-x64, linux-x64]
         configuration: [Debug, Release]
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     env:
       Solution_Name: EVIL.sln
-      Test_Project_Path: VirtualMachine\Tests\Ceres.RuntimeTests\Ceres.RuntimeTests.csproj
 
     steps:
     - name: Checkout
@@ -30,26 +29,26 @@ jobs:
       with:
         dotnet-version: 7.x
 
-    - name: Setup MSBuild.exe
+    - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore solution
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      run: msbuild $Solution_Name -t:Restore -p:Configuration=$Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
     - name: Build solution
-      run: dotnet build -c $env:Configuration
+      run: dotnet build -c $Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
     - name: Run tests
-      run: dotnet test --no-build -c $env:Configuration -v q # workaround for test step taking 15 freaking minutes to complete.
+      run: sh -c "dotnet test -c $Configuration & wait" # workaround for test step taking 15 freaking minutes to complete.
       env:
         Configuration: ${{ matrix.configuration }}
 
     - name: Publish to directory
-      run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $env:Configuration -r $env:RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
+      run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
       env:
         Configuration: ${{ matrix.configuration }}
         RuntimeIdentifier: ${{ matrix.runtime-identifier }}
