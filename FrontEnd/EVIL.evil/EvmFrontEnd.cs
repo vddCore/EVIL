@@ -30,10 +30,12 @@ namespace EVIL.evil
             { "h|help", "display this message and quit.", (h) => _displayHelpAndQuit = h != null },
             { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
             { "I|include-dir=", "add include directory to the list of search paths.", (I) => _includeHandler.AddIncludeSearchPath(I) },
+            { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null }
         };
 
         private static bool _displayHelpAndQuit;
         private static bool _displayVersionAndQuit;
+        private static bool _generateModuleDocsAndQuit; 
         
         public async Task Run(string[] args)
         {
@@ -47,6 +49,12 @@ namespace EVIL.evil
             if (_displayVersionAndQuit)
             {
                 Terminate(BuildVersionBanner());
+            }
+
+            if (_generateModuleDocsAndQuit)
+            {
+                GenerateModuleDocs();
+                Terminate();
             }
 
             if (!extra.Any())
@@ -127,24 +135,7 @@ namespace EVIL.evil
                 Console.WriteLine(_compiler.Log.ToString());
             }
 
-            _runtime.RegisterBuiltInModules();
-
-            var moduleStorePath = Path.Combine(AppContext.BaseDirectory, "modules");
-            if (Directory.Exists(moduleStorePath))
-            {
-                try
-                {
-                    _runtimeModuleLoader.RegisterUserRuntimeModules(moduleStorePath);
-                }
-                catch (RuntimeModuleLoadException rmle)
-                {
-                    var sb = new StringBuilder();
-                    sb.AppendLine($"Failed to load user runtime module '{rmle.FilePath}'.");
-                    sb.AppendLine(rmle.ToString());
-                    
-                    Terminate(sb.ToString(), exitCode: ExitCode.ModuleLoaderFailed);
-                }
-            }
+            RegisterAllModules();
             
             var initChunks = new List<Chunk>();
             foreach (var chunk in script.Chunks)
@@ -207,6 +198,54 @@ namespace EVIL.evil
             }
 
             return fileNames;
+        }
+
+        private void GenerateModuleDocs()
+        {
+            var modules = RegisterAllModules();
+            var docsPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "docs"
+            );
+            
+            Directory.CreateDirectory(docsPath);
+            
+            foreach (var module in modules)
+            {
+                var filePath = Path.Combine(docsPath, $"evrt_{module.FullyQualifiedName}.doc.md");
+                Console.WriteLine($"Generating '{filePath}'...");
+                
+                using (var sw = new StreamWriter(filePath))
+                {
+                    sw.WriteLine(module.Describe());
+                }
+            }
+        }
+
+        private List<RuntimeModule> RegisterAllModules()
+        {
+            var ret = new List<RuntimeModule>();
+            
+            ret.AddRange(_runtime.RegisterBuiltInModules());
+
+            var moduleStorePath = Path.Combine(AppContext.BaseDirectory, "modules");
+            if (Directory.Exists(moduleStorePath))
+            {
+                try
+                {
+                    ret.AddRange(_runtimeModuleLoader.RegisterUserRuntimeModules(moduleStorePath));
+                }
+                catch (RuntimeModuleLoadException rmle)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"Failed to load user runtime module '{rmle.FilePath}'.");
+                    sb.AppendLine(rmle.ToString());
+                    
+                    Terminate(sb.ToString(), exitCode: ExitCode.ModuleLoaderFailed);
+                }
+            }
+
+            return ret;
         }
 
         private bool IsValidInitChunk(Chunk chunk)
