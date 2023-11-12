@@ -28,7 +28,7 @@ fn arr_init_val() {
 
 #[test]
 fn arr_each() {
-  val arr = array() { 2, 4, 6, 8, 10 };
+  val arr = array { 2, 4, 6, 8, 10 };
   
   rw val prev_i = 0;
   rw val prev_v = arr[prev_i];
@@ -46,7 +46,7 @@ fn arr_each() {
 
 #[test]
 fn arr_for() {
-  val arr = array() { 4, 8, 12, 16 };
+  val arr = array { 4, 8, 12, 16 };
 
   for (rw val i = 0; i < #arr; i++) {
     assert.equal(arr[i], 4 * (i + 1));
@@ -55,7 +55,7 @@ fn arr_for() {
 
 #[test]
 fn func_in_arr() {
-  val arr = array() { fn() -> 21.37 };
+  val arr = array { fn() -> 21.37 };
   
   assert.is_of_type(arr, Array);
   assert.equal(arr[0](), 21.37);  

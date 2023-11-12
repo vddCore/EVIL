@@ -27,7 +27,7 @@ namespace EVIL.Grammar.Parsing
         {
             var node = ConditionalExpression();
             var token = CurrentToken;
-
+            
             while (_assignmentOperators.Contains(token.Type))
             {
                 if (node.IsConstant)

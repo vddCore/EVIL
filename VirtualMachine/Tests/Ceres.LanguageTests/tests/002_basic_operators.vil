@@ -32,10 +32,10 @@
 
 #[test] fn exist_str() -> assert.is_true("a" in "blah");
 #[test] fn exist_tbl() -> assert.is_true("a" in { "a" => 2137 });
-#[test] fn exist_arr() -> assert.is_true("a" in array() { "a", "b", "c" });
+#[test] fn exist_arr() -> assert.is_true("a" in array { "a", "b", "c" });
 #[test] fn noexist_str() -> assert.is_true("f" !in "blah");
 #[test] fn noexist_tbl() -> assert.is_true("a" !in { });
-#[test] fn noexist_arr() -> assert.is_true("x" !in array() { "a", "b", "c" });
+#[test] fn noexist_arr() -> assert.is_true("x" !in array { "a", "b", "c" });
 
 #[test] fn type_positive() -> assert.is_true("a" is String);
 #[test] fn type_negative() -> assert.is_false("a" is Number);
@@ -127,7 +127,7 @@ fn postinc_tbl_member() {
 
 #[test]
 fn postinc_arr_element() {
-  val a = array() { 3 };
+  val a = array { 3 };
   
   assert.equal(a[0]++, 3);
   assert.equal(a[0], 4);
@@ -151,7 +151,7 @@ fn preinc_tbl_member() {
 
 #[test]
 fn preinc_arr_element() {
-  val a = array() { 3 };
+  val a = array { 3 };
   
   assert.equal(++a[0], 4);
   assert.equal(a[0], 4);
@@ -175,7 +175,7 @@ fn postdec_tbl_member() {
 
 #[test]
 fn postdec_arr_element() {
-  val a = array() { 3 };
+  val a = array { 3 };
   
   assert.equal(a[0]--, 3);
   assert.equal(a[0], 2);
@@ -199,7 +199,7 @@ fn predec_tbl_member() {
 
 #[test]
 fn predec_arr_element() {
-  val a = array() { 3 };
+  val a = array { 3 };
   
   assert.equal(--a[0], 2);
   assert.equal(a[0], 2);
