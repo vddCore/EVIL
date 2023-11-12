@@ -48,14 +48,15 @@ jobs:
         RuntimeIdentifier: ${{ matrix.runtime-identifier }}
         
     - name: Fetch front-end version
-      uses: chenryhabana205/dotnetgetversion@v6
+      id: package_version
+      uses: MWin10/get-csproj-version-fork@latest
       with:
-        VERSION_FILE_PATH: FrontEnd/EVIL.evil/EVIL.evil.csproj
+        file: FrontEnd/EVIL.evil/EVIL.evil.csproj
 
     - name: Pack artifact
       uses: actions/upload-artifact@v3.1.3
       with:
-        name: evil-${{ env.VERSION }}_${{ matrix.runtime-identifier }}
+        name: evil-${{ steps.package_version.outputs.version }}_${{ matrix.runtime-identifier }}
         path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net7.0/${{ matrix.runtime-identifier }}/publish
         if-no-files-found: error
         retention-days: 90
