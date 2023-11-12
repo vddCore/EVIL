@@ -41,7 +41,7 @@ jobs:
     - name: Execute unit tests
       run: dotnet test
 
-    - name: Publish to directory (win-x64)
+    - name: Publish to directory
       run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $env:Configuration -r $env:RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
       env:
         Configuration: ${{ matrix.configuration }}
@@ -52,7 +52,7 @@ jobs:
       with:
         VERSION_FILE_PATH: FrontEnd/EVIL.evil/EVIL.evil.csproj
 
-    - name: Pack artifact (Debug, win-x64)
+    - name: Pack artifact
       uses: actions/upload-artifact@v3.1.3
       with:
         name: evil-${{ env.VERSION }}_${{ matrix.runtime-identifier }}
