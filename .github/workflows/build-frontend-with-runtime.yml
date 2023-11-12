@@ -33,13 +33,20 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Restore the application
+    - name: Restore solution
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
-      
-    - name: Execute unit tests
-      run: dotnet test
+
+    - name: Build solution
+      run: dotnet build -c $env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    - name: Run tests
+      run: dotnet test --no-build -c $env:Configuration -v q # workaround for test step taking 15 freaking minutes to complete.
+      env:
+        Configuration: ${{ matrix.configuration }}
 
     - name: Publish to directory
       run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $env:Configuration -r $env:RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
