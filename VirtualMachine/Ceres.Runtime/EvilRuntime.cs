@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -39,6 +40,14 @@ namespace Ceres.Runtime
         public T RegisterModule<T>(out DynamicValue table) where T : RuntimeModule, new()
         {
             var module = new T();
+            table = module.AttachTo(Global);
+
+            return module;
+        }
+
+        public RuntimeModule RegisterModule(Type type, out DynamicValue table)
+        {
+            var module = (RuntimeModule)Activator.CreateInstance(type)!;
             table = module.AttachTo(Global);
 
             return module;

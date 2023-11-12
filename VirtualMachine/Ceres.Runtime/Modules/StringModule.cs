@@ -289,10 +289,11 @@ namespace Ceres.Runtime.Modules
         private static DynamicValue Substring(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
-                .ExpectAtMost(3)
+                .ExpectAtMost(4)
                 .ExpectStringAt(0, out var source)
                 .ExpectIntegerAt(1, out var startIndex)
-                .OptionalIntegerAt(2, defaultValue: -1, out var endIndex);
+                .OptionalIntegerAt(2, defaultValue: -1, out var endIndex)
+                .OptionalBooleanAt(3, defaultValue: false, out var endInclusive);
 
             if (endIndex >= 0)
             {
@@ -302,6 +303,12 @@ namespace Ceres.Runtime.Modules
                 try
                 {
                     var end = (int)(endIndex - startIndex + 1);
+
+                    if (!endInclusive)
+                    {
+                        end--;
+                    }
+                    
                     if (end >= source.Length)
                     {
                         end = source.Length - (int)startIndex;
