@@ -18,54 +18,59 @@ namespace Ceres.Runtime
             if (runtimeModuleGetterAttribute == null)
                 return null;
 
-            if (evilDocPropertyAttribute == null)
-                return null;
 
             sb.AppendLine($"## {module.FullyQualifiedName}.{runtimeModuleGetterAttribute.SubNameSpace}");
 
-            sb.AppendLine("**Synopsis**  ");
-            sb.AppendLine($"**`{module.FullyQualifiedName}.{runtimeModuleGetterAttribute.SubNameSpace}`**  ");
-
-            if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Get))
+            if (evilDocPropertyAttribute != null)
             {
-                sb.Append($"**` :: get");
-                if (evilDocPropertyAttribute.IsAnyGet)
-                {
-                    sb.AppendLine($" -> Any`**\n  ");
-                }
-                else
-                {
-                    sb.AppendLine($" -> {GetTypeString(evilDocPropertyAttribute.ReturnType)}`**\n  ");
-                }
-            }
+                sb.AppendLine("**Synopsis**  ");
+                sb.AppendLine($"**`{module.FullyQualifiedName}.{runtimeModuleGetterAttribute.SubNameSpace}`**  ");
 
-            if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Set))
-            {
-                sb.Append($"**` ::set");
-                if (evilDocPropertyAttribute.IsAnySet)
+                if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Get))
                 {
-                    sb.AppendLine($" <- Any`**\n  ");
-                }
-                else
-                {
-                    if (evilDocPropertyAttribute.InputTypes.Any())
+                    sb.Append($"**` :: get");
+                    if (evilDocPropertyAttribute.IsAnyGet)
                     {
-                        if (evilDocPropertyAttribute.InputTypes.Length > 1)
+                        sb.AppendLine($" -> Any`**\n  ");
+                    }
+                    else
+                    {
+                        sb.AppendLine($" -> {GetTypeString(evilDocPropertyAttribute.ReturnType)}`**\n  ");
+                    }
+                }
+
+                if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Set))
+                {
+                    sb.Append($"**` ::set");
+                    if (evilDocPropertyAttribute.IsAnySet)
+                    {
+                        sb.AppendLine($" <- Any`**\n  ");
+                    }
+                    else
+                    {
+                        if (evilDocPropertyAttribute.InputTypes.Any())
                         {
-                            sb.AppendLine(
-                                $" <- ({string.Join(',', evilDocPropertyAttribute.InputTypes.Select(GetTypeString))})`**\n  ");
-                        }
-                        else
-                        {
-                            sb.AppendLine($" <- {GetTypeString(evilDocPropertyAttribute.InputTypes[0])}`**\n  ");
+                            if (evilDocPropertyAttribute.InputTypes.Length > 1)
+                            {
+                                sb.AppendLine(
+                                    $" <- ({string.Join(',', evilDocPropertyAttribute.InputTypes.Select(GetTypeString))})`**\n  ");
+                            }
+                            else
+                            {
+                                sb.AppendLine($" <- {GetTypeString(evilDocPropertyAttribute.InputTypes[0])}`**\n  ");
+                            }
                         }
                     }
                 }
+
+                sb.AppendLine("**Description**  ");
+                sb.AppendLine(evilDocPropertyAttribute.Description);
+                sb.AppendLine();
             }
-            
-            sb.AppendLine("**Description**  ");
-            sb.AppendLine(evilDocPropertyAttribute.Description);
-            sb.AppendLine();
+            else
+            {
+                sb.AppendLine("This property has no available documentation.");
+            }
 
             if (!blockQuote)
             {
@@ -99,115 +104,120 @@ namespace Ceres.Runtime
             if (runtimeModuleFunctionAttribute == null)
                 return null;
 
-            if (evilDocFunctionAttribute == null)
-                return null;
-
             sb.AppendLine($"## {module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
 
-            sb.AppendLine("**Synopsis**  ");
-            sb.Append($"`{module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
-            sb.Append("(");
+            if (evilDocFunctionAttribute != null)
             {
-                for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
+                sb.AppendLine("**Synopsis**  ");
+                sb.Append($"`{module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
+                sb.Append("(");
                 {
-                    var argInfo = evilDocArgumentAttributes[i];
+                    for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
+                    {
+                        var argInfo = evilDocArgumentAttributes[i];
 
-                    if (argInfo.Name == "...")
-                    {
-                        continue;
-                    }
-
-                    var argName = argInfo.Name;
-                    if (argInfo.CanBeNil)
-                    {
-                        argName += "?";
-                    }
-                    
-                    if (argInfo.DefaultValue != null)
-                    {
-                        var defaultValue = argInfo.DefaultValue;
-                        if (argInfo.PrimaryType == DynamicValueType.String)
+                        if (argInfo.Name == "...")
                         {
-                            defaultValue = $"\"{defaultValue}\"";
+                            continue;
                         }
-                        
-                        sb.Append($"[{argName}] = {defaultValue}");
-                    }
-                    else
-                    {
-                        sb.Append(argName);
-                    }
-                    
-                    if (i < evilDocArgumentAttributes.Length - 1 || evilDocFunctionAttribute.IsVariadic)
-                    {
-                        sb.Append(", ");
-                    }
-                }
-            }
 
-            if (evilDocFunctionAttribute.IsVariadic)
-            {
-                sb.Append("...");
-            }
-            sb.Append($")  ");
-
-            if (evilDocFunctionAttribute.IsAnyReturn)
-            {
-                sb.AppendLine($" -> Any`\n  ");
-            }
-            else
-            {
-                sb.AppendLine($" -> {GetTypeString(evilDocFunctionAttribute.ReturnType)}`\n  ");
-            }
-
-            sb.AppendLine("**Description**  ");
-            sb.AppendLine(evilDocFunctionAttribute.Description);
-
-            if (string.IsNullOrEmpty(evilDocFunctionAttribute.Returns))
-            {
-                sb.AppendLine();
-                sb.AppendLine("**Returns**  ");
-                sb.AppendLine(evilDocFunctionAttribute.Returns);
-            }
-
-            if (evilDocArgumentAttributes.Any())
-            {
-                sb.AppendLine();
-                sb.AppendLine("**Arguments**  ");
-                sb.AppendLine("| Name | Description | Type(s) | Can be `nil` | Optional | Default Value |  ");
-                sb.AppendLine("| ---- | ----------- | ------- | ------------ | -------- | ------------- |  ");
-                for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
-                {
-                    var argInfo = evilDocArgumentAttributes[i];
-                    var argType = argInfo.IsAnyType ? "Any" : GetTypeString(argInfo.PrimaryType);
-
-                    if (!argInfo.IsAnyType && argInfo.OtherTypes != null)
-                    {
-                        foreach (var otherType in argInfo.OtherTypes)
+                        var argName = argInfo.Name;
+                        if (argInfo.CanBeNil)
                         {
-                            argType += $", {GetTypeString(otherType)}";
+                            argName += "?";
                         }
-                    }
 
-                    var defaultValue = "None";
-
-                    if (argInfo.DefaultValue != null)
-                    {
-                        if (argInfo.PrimaryType == DynamicValueType.String)
+                        if (argInfo.DefaultValue != null)
                         {
-                            defaultValue = $"`\"{argInfo.DefaultValue}\"`";
+                            var defaultValue = argInfo.DefaultValue;
+                            if (argInfo.PrimaryType == DynamicValueType.String)
+                            {
+                                defaultValue = $"\"{defaultValue}\"";
+                            }
+
+                            sb.Append($"[{argName}] = {defaultValue}");
                         }
                         else
                         {
-                            defaultValue = $"`{argInfo.DefaultValue}`";
+                            sb.Append(argName);
+                        }
+
+                        if (i < evilDocArgumentAttributes.Length - 1 || evilDocFunctionAttribute.IsVariadic)
+                        {
+                            sb.Append(", ");
                         }
                     }
-
-                    var optional = argInfo.DefaultValue == null ? "No" : "Yes";
-                    var canBeNil = argInfo.CanBeNil ? "Yes" : "No";
-                    
-                    sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | `{argType}` | {canBeNil} | {optional} | {defaultValue} |  ");
                 }
+
+                if (evilDocFunctionAttribute.IsVariadic)
+                {
+                    sb.Append("...");
+                }
+
+                sb.Append($")  ");
+
+                if (evilDocFunctionAttribute.IsAnyReturn)
+                {
+                    sb.AppendLine($" -> Any`\n  ");
+                }
+                else
+                {
+                    sb.AppendLine($" -> {GetTypeString(evilDocFunctionAttribute.ReturnType)}`\n  ");
+                }
+
+                sb.AppendLine("**Description**  ");
+                sb.AppendLine(evilDocFunctionAttribute.Description);
+
+                if (string.IsNullOrEmpty(evilDocFunctionAttribute.Returns))
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("**Returns**  ");
+                    sb.AppendLine(evilDocFunctionAttribute.Returns);
+                }
+
+                if (evilDocArgumentAttributes.Any())
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("**Arguments**  ");
+                    sb.AppendLine("| Name | Description | Type(s) | Can be `nil` | Optional | Default Value |  ");
+                    sb.AppendLine("| ---- | ----------- | ------- | ------------ | -------- | ------------- |  ");
+                    for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
+                    {
+                        var argInfo = evilDocArgumentAttributes[i];
+                        var argType = argInfo.IsAnyType ? "Any" : GetTypeString(argInfo.PrimaryType);
+
+                        if (!argInfo.IsAnyType && argInfo.OtherTypes != null)
+                        {
+                            foreach (var otherType in argInfo.OtherTypes)
+                            {
+                                argType += $", {GetTypeString(otherType)}";
+                            }
+                        }
+
+                        var defaultValue = "None";
+
+                        if (argInfo.DefaultValue != null)
+                        {
+                            if (argInfo.PrimaryType == DynamicValueType.String)
+                            {
+                                defaultValue = $"`\"{argInfo.DefaultValue}\"`";
+                            }
+                            else
+                            {
+                                defaultValue = $"`{argInfo.DefaultValue}`";
+                            }
+                        }
+
+                        var optional = argInfo.DefaultValue == null ? "No" : "Yes";
+                        var canBeNil = argInfo.CanBeNil ? "Yes" : "No";
+
+                        sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | `{argType}` | {canBeNil} | {optional} | {defaultValue} |  ");
+                    }
+                }
+            }
+            else
+            {
+                sb.AppendLine("This function has no available documentation.");
             }
 
             if (!blockQuote)

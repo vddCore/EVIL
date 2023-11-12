@@ -129,7 +129,7 @@ namespace Ceres.Runtime.Modules
             ReturnType = DynamicValueType.String,
             IsVariadic = true
         )]
-        [EvilDocArgument("separator", "A separator to be inserted between each given value during concatenation.")]
+        [EvilDocArgument("separator", "A separator to be inserted between each given value during concatenation.", DynamicValueType.String)]
         [EvilDocArgument("...", "An arbitrary amount of values to be concatenated into a String.")]
         private static DynamicValue Join(Fiber _, params DynamicValue[] args)
         {
@@ -140,6 +140,13 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("rep")]
+        [EvilDocFunction(
+            "Repeats the provided String `count` times.",
+            Returns = "A String containing `str` repeated `count` times.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to be repeated.", DynamicValueType.String)]
+        [EvilDocArgument("count", "An integer specifying the amount of times to repeat `str`.", DynamicValueType.Number)]
         private static DynamicValue Repeat(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
