@@ -166,7 +166,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void SubstringFromWithNil()
         {
             EvilTestResult(
-                "fn test() -> str.sub('hello, world', 7, nil);"
+                "fn test() -> str.sub('hello, world', 7, nil, true);"
             ).ShouldBe("world");
         }
 
@@ -174,7 +174,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void SubstringFromTo()
         {
             EvilTestResult(
-                "fn test() -> str.sub('hello, world', 3, 7);"
+                "fn test() -> str.sub('hello, world', 3, 7, true);"
             ).ShouldBe("lo, w");
         }
         
@@ -182,7 +182,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void SubstringFromTo2()
         {
             EvilTestResult(
-                "fn test() -> str.sub('hello, world', 0, 0);"
+                "fn test() -> str.sub('hello, world', 0, 0, true);"
             ).ShouldBe("h");
         }
         
@@ -190,7 +190,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void SubstringFromTo3()
         {
             EvilTestResult(
-                "fn test() -> str.sub('hello, world', 0, 1);"
+                "fn test() -> str.sub('hello, world', 0, 1, true);"
             ).ShouldBe("he");
         }
         
@@ -198,7 +198,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void SubstringFromTo4()
         {
             EvilTestResult(
-                "fn test() -> str.sub('hello, world', 4, 15);"
+                "fn test() -> str.sub('hello, world', 4, 15, true);"
             ).ShouldBe("o, world");
         }
 
