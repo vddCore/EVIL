@@ -7,6 +7,7 @@ using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
+using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 using Array = Ceres.ExecutionEngine.Collections.Array;
 
@@ -17,26 +18,43 @@ namespace Ceres.Runtime.Modules
         public override string FullyQualifiedName => "str";
 
         [RuntimeModuleGetter("empty")]
+        [EvilDocProperty(EvilDocPropertyMode.Get, "An empty string.", ReturnType = DynamicValueType.String)]
         private static DynamicValue EmptyString(DynamicValue _)
             => string.Empty;
 
         [RuntimeModuleFunction("chr")]
+        [EvilDocFunction(
+            "Converts a character code into its String representation.",
+            Returns = "The converted character code expressed as a String, or `nil` on error.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("char_code", "A character code to be converted into a String.", DynamicValueType.String)]
         private static DynamicValue ToCharacter(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
-                .ExpectIntegerAt(0, out var num);
+                .ExpectIntegerAt(0, out var charCode);
 
-            if (num < 0 || num >= ushort.MaxValue)
+            if (charCode < 0 || charCode >= ushort.MaxValue)
             {
-                throw new EvilRuntimeException(
-                    "Expected a number in range of 0-65535"
-                );
+                return Nil;
             }
 
-            return ((char)num).ToString();
+            return ((char)charCode).ToString();
         }
 
         [RuntimeModuleFunction("bytes")]
+        [EvilDocFunction(
+            "Converts a String to its byte representation in the specified encoding.",
+            Returns = "An Array of bytes representing the provided String in the specified encoding.",
+            ReturnType = DynamicValueType.Array
+        )]
+        [EvilDocArgument("str", "A String that is to be converted.", DynamicValueType.String)]
+        [EvilDocArgument(
+            "encoding",
+            "Encoding to be used when converting the String to bytes.", 
+            DynamicValueType.String,
+            DefaultValue = "utf-8"
+        )]
         private static DynamicValue ToBytes(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var str)
@@ -54,30 +72,45 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("explode")]
+        [EvilDocFunction(
+            "Puts each character of the provided String into an Array.",
+            Returns = "An Array containing every character of the provided String.",
+            ReturnType = DynamicValueType.Array
+        )]
+        [EvilDocArgument("str", "A String to explode.", DynamicValueType.String)]
         private static DynamicValue Explode(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
                 .ExpectStringAt(0, out var str);
 
-            var chars = str.ToCharArray();
-            var array = new Array(chars.Length);
-            
-            for (var i = 0; i < chars.Length; i++)
+            var array = Array.FromString(str);
+
+            for (var i = 0; i < array.Length; i++)
             {
-                array[i] = chars[i];
+                if (array[i] == "💣")
+                {
+                    array[i] = "💥";
+                }
             }
 
             return array;
         }
         
         [RuntimeModuleFunction("spl")]
+        [EvilDocFunction(
+            "Splits the provided String into segments by the given separator.",
+            Returns = "Segments of the provided String after splitting by the given separator.",
+            ReturnType = DynamicValueType.Array
+        )]
+        [EvilDocArgument("str", "A String to split.", DynamicValueType.String)]
+        [EvilDocArgument("delim", "A String to split `str` by.", DynamicValueType.String)]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
-                .ExpectStringAt(0, out var src)
-                .ExpectStringAt(1, out var delim);
+                .ExpectStringAt(0, out var str)
+                .ExpectStringAt(1, out var separator);
 
-            var segments = src.Split(delim);
+            var segments = str.Split(separator);
             var array = new Array(segments.Length);
 
             for (var i = 0; i < segments.Length; i++)
@@ -89,12 +122,21 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("join")]
+        [EvilDocFunction(
+            "Concatenates the provided values into a String using the provided separator. " +
+            "The values provided will be converted to their String representations.",
+            Returns = "A concatenated String with the given separator inserted between each provided value.",
+            ReturnType = DynamicValueType.String,
+            IsVariadic = true
+        )]
+        [EvilDocArgument("separator", "A separator to be inserted between each given value during concatenation.")]
+        [EvilDocArgument("...", "An arbitrary amount of values to be concatenated into a String.")]
         private static DynamicValue Join(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
-                .ExpectStringAt(0, out var delim);
+                .ExpectStringAt(0, out var separator);
 
-            return string.Join(delim, args.Skip(1).Select(x => x.ConvertToString().String!));
+            return string.Join(separator, args.Skip(1).Select(x => x.ConvertToString().String!));
         }
 
         [RuntimeModuleFunction("rep")]
@@ -252,16 +294,22 @@ namespace Ceres.Runtime.Modules
                 .ExpectIntegerAt(1, out var startIndex)
                 .OptionalIntegerAt(2, defaultValue: -1, out var endIndex);
 
-            if (endIndex > 0)
+            if (endIndex >= 0)
             {
                 if (startIndex > endIndex)
                     return Nil;
 
                 try
                 {
+                    var end = (int)(endIndex - startIndex + 1);
+                    if (end >= source.Length)
+                    {
+                        end = source.Length - (int)startIndex;
+                    }
+                    
                     return source.Substring(
                         (int)startIndex,
-                        (int)(source.Length - endIndex)
+                        end
                     );
                 }
                 catch

@@ -6,11 +6,11 @@ namespace EVIL.Grammar.AST.Base
     {
         public bool IsValidExpressionStatement
             => this is AssignmentExpression
-            || this is InvocationExpression
-            || this is SelfInvocationExpression
-            || this is IncrementationExpression
-            || this is DecrementationExpression
-            || this is YieldExpression;
+               or InvocationExpression
+               or SelfInvocationExpression
+               or IncrementationExpression
+               or DecrementationExpression
+               or YieldExpression;
         
         public virtual Expression Reduce() => this;
     }
