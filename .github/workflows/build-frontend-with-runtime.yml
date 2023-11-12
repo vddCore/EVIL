@@ -30,7 +30,7 @@ jobs:
         dotnet-version: 7.x
 
     - name: Restore solution
-      run: dotnet restore -c $Configuration
+      run: dotnet restore
       env:
         Configuration: ${{ matrix.configuration }}
 
