@@ -49,7 +49,7 @@ jobs:
         
     - name: Fetch front-end version
       id: package_version
-      uses: MWin10/get-csproj-version-fork@latest
+      uses: MWin10/get-csproj-version-fork@v1.5.0
       with:
         file: FrontEnd/EVIL.evil/EVIL.evil.csproj
 
