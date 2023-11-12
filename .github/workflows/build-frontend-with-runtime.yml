@@ -29,11 +29,8 @@ jobs:
       with:
         dotnet-version: 7.x
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.0.2
-
     - name: Restore solution
-      run: msbuild $Solution_Name -t:Restore -p:Configuration=$Configuration
+      run: dotnet restore -c $Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
