@@ -11,7 +11,7 @@ namespace EVIL.Grammar.AST.Base
         public AstNode? Parent { get; set; }
 
         public bool IsConstant => this is ConstantExpression;
-
+        
         internal T CopyMetadata<T>(AstNode from) where T : AstNode
         {
             Line = from.Line;

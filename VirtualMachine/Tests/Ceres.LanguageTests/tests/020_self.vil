@@ -26,7 +26,7 @@ fn self_fn_ret() {
 #[test]
 fn self_fn_state() {
   val chair = {
-    __quips: array() {
+    __quips: array {
       "The chair is perfectly fine. It'd be a shame if someone decided to test it.",
       "You broke the universe. Congratulations.",
       "Situation in the middle-east now seems more stable than this chair.",

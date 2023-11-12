@@ -53,19 +53,25 @@ namespace Ceres.LanguageTests
                 var source = File.ReadAllText(path);
                 try
                 {
+                    TextOut.Write($"Compiling test '{path}'...");
                     var script = compiler.Compile(source, Path.GetFullPath(path));
                     TestScripts.Add(path, script);
+                    TextOut.WriteLine(" [ PASS ]");
+                    
+                    if (compiler.Log.HasAnyMessages)
+                    {
+                        TextOut.WriteLine(compiler.Log.ToString());
+                        compiler.Log.Clear();
+                    }
                 }
-                catch (CompilerException ce)
+                catch (CompilerException)
                 {
-                    throw new TestBuildPhaseException($"Failed to compile the file '{path}':\n{ce.Log}", ce);
+                    TextOut.WriteLine(" [ FAIL ]");
+                    TextOut.WriteLine(compiler.Log.ToString());
+                    compiler.Log.Clear();
                 }
             }
-
-            if (compiler.Log.HasAnyMessages)
-            {
-                TextOut.Write(compiler.Log.ToString());
-            }
+            TextOut.WriteLine();
         }
 
         private IEnumerable<Chunk> IncludeProcessor(Compiler compiler, Script script, string path, out bool isRedundantInclude)
@@ -312,10 +318,10 @@ namespace Ceres.LanguageTests
 
             foreach (var kvp in FailureLog)
             {
-                TextOut.WriteLine($"  {kvp.Key}: ");
+                TextOut.WriteLine($"{kvp.Key}: ");
                 foreach (var result in kvp.Value)
                 {
-                    TextOut.WriteLine($"    {result.TestChunk.Name} (def. at line {result.TestChunk.DebugDatabase.DefinedOnLine}): {result.FailureReason}");
+                    TextOut.WriteLine($"{result.TestChunk.Name} (def. at line {result.TestChunk.DebugDatabase.DefinedOnLine}): {result.FailureReason}");
                 }
             }
         }

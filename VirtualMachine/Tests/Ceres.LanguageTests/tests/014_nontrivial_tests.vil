@@ -84,10 +84,10 @@ fn bubblesort_table() {
 
 #[test]
 fn bubblesort_array() {
-  val a = array() { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
+  val a = array { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
   
   // Arrays are always passed by reference.
   bubble_sort_array(a);
   
-  assert.is_true(a <==> array() { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
+  assert.is_true(a <==> array { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
 }

@@ -63,8 +63,21 @@ namespace EVIL.Grammar.Parsing
                     break;
 
                 default:
-                    node = new ExpressionStatement(AssignmentExpression());
-                    break;
+                {
+                    var expr = AssignmentExpression();
+
+                    if (!expr.IsValidExpressionStatement)
+                    {
+                        throw new ParserException(
+                            "Only assignment, invocation, increment, decrement and yield expressions can be used as statements.",
+                            (expr.Line, expr.Column)
+                        );
+                    }
+                    
+                    node = new ExpressionStatement(expr);
+                    break;    
+                }
+
             }
 
             if (_semicolonExemptions == 0)
