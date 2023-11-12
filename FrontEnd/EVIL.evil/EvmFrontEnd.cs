@@ -23,6 +23,7 @@ namespace EVIL.evil
         private static Compiler _compiler = new();
         private static IncludeHandler _includeHandler = new(_compiler);
         private static EvilRuntime _runtime = new(_vm);
+        private static RuntimeModuleLoader _runtimeModuleLoader = new(_runtime);
 
         private static OptionSet _options = new()
         {
@@ -127,6 +128,23 @@ namespace EVIL.evil
             }
 
             _runtime.RegisterBuiltInModules();
+
+            var moduleStorePath = Path.Combine(AppContext.BaseDirectory, "modules");
+            if (Directory.Exists(moduleStorePath))
+            {
+                try
+                {
+                    _runtimeModuleLoader.RegisterUserRuntimeModules(moduleStorePath);
+                }
+                catch (RuntimeModuleLoadException rmle)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"Failed to load user runtime module '{rmle.FilePath}'.");
+                    sb.AppendLine(rmle.ToString());
+                    
+                    Terminate(sb.ToString(), exitCode: ExitCode.ModuleLoaderFailed);
+                }
+            }
             
             var initChunks = new List<Chunk>();
             foreach (var chunk in script.Chunks)
