@@ -40,7 +40,7 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Run tests
-      run: sh -c "dotnet test -c $Configuration & wait" # workaround for test step taking 15 freaking minutes to complete.
+      run: dotnet test -c $Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
