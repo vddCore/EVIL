@@ -177,6 +177,30 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "fn test() -> str.sub('hello, world', 3, 7);"
             ).ShouldBe("lo, w");
         }
+        
+        [Test]
+        public void SubstringFromTo2()
+        {
+            EvilTestResult(
+                "fn test() -> str.sub('hello, world', 0, 0);"
+            ).ShouldBe("h");
+        }
+        
+        [Test]
+        public void SubstringFromTo3()
+        {
+            EvilTestResult(
+                "fn test() -> str.sub('hello, world', 0, 1);"
+            ).ShouldBe("he");
+        }
+        
+        [Test]
+        public void SubstringFromTo4()
+        {
+            EvilTestResult(
+                "fn test() -> str.sub('hello, world', 4, 15);"
+            ).ShouldBe("o, world");
+        }
 
         [Test]
         public void StartsWith()
