@@ -12,6 +12,7 @@ namespace EVIL.evil
         CompilerError         = 0007,
         MissingEntryPoint     = 0008,
         RuntimeError          = 0009,
-        InputFileDoesNotExist = 0010
+        InputFileDoesNotExist = 0010,
+        ModuleLoaderFailed    = 0011
     }
 }
