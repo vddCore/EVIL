@@ -1,6 +1,7 @@
 ﻿using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.Runtime.Modules
 {
@@ -9,6 +10,9 @@ namespace Ceres.Runtime.Modules
         public override string FullyQualifiedName => "tbl";
 
         [RuntimeModuleFunction("clear")]
+        [EvilDocFunction(
+            "Removes all values from the provided table."
+        )]
         private static DynamicValue Clear(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -20,6 +24,14 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("rawset")]
+        [EvilDocFunction(
+            "Sets the given Table's key to the provided value, ignoring any script-defined `__set` override.",
+            Returns = "The value that has been set.",
+            IsAnyReturn = true
+        )]
+        [EvilDocArgument("table", "A Table whose key is to be set.", DynamicValueType.Table)]
+        [EvilDocArgument("key", "A key to use when setting the value.", CanBeNil = true)]
+        [EvilDocArgument("value", "A value to set the Table's key to.", CanBeNil = true)]
         private static DynamicValue RawSet(Fiber _, params DynamicValue[] args)
         {
             args.ExpectTableAt(0, out var table)
@@ -31,6 +43,13 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("rawget")]
+        [EvilDocFunction(
+            "Gets the given Table's key to the provided value, ignoring any script-defined `__get` override.",
+            Returns = "The value that resides in the provided Table under the given key.",
+            IsAnyReturn = true
+        )]
+        [EvilDocArgument("table", "A Table whose value to retrieve.", DynamicValueType.Table)]
+        [EvilDocArgument("key", "A key to use when retrieving the value.", CanBeNil = true)]
         private static DynamicValue RawGet(Fiber _, params DynamicValue[] args)
         {
             args.ExpectTableAt(0, out var table)
@@ -40,6 +59,12 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("freeze")]
+        [EvilDocFunction(
+            "Freezes the provided Table so that no keys can be set or removed.",
+            Returns = "The frozen Table. This value is returned by reference.",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument("table", "A Table to be frozen.", DynamicValueType.Table)]
         private static DynamicValue Freeze(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -51,6 +76,12 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("unfreeze")]
+        [EvilDocFunction(
+            "Unfreezes the provided Table so that keys can be set or removed.",
+            Returns = "The unfrozen Table. This value is returned by reference.",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument("table", "A Table to be unfrozen.", DynamicValueType.Table)]
         private static DynamicValue Unfreeze(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -62,6 +93,12 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("is_frozen")]
+        [EvilDocFunction(
+            "Checks if the given Table is frozen.",
+            Returns = "`true` if the provided Table is frozen, `false` otherwise.",
+            ReturnType = DynamicValueType.Boolean
+        )]
+        [EvilDocArgument("table", "A Table whose freeze status to check.", DynamicValueType.Table)]
         private static DynamicValue /*IsFrozen is already a symbol...*/ _IsFrozen(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -71,6 +108,12 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("keys")]
+        [EvilDocFunction(
+            "Retrieves all keys present in the given Table.",
+            Returns = "An Array containing all keys in the provided Table, in no particular order.",
+            ReturnType = DynamicValueType.Array
+        )]
+        [EvilDocArgument("table", "A Table whose keys to retrieve.", DynamicValueType.Table)]
         private static DynamicValue Keys(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -80,6 +123,12 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("values")]
+        [EvilDocFunction(
+            "Retrieves all values present in the given Table.",
+            Returns = "An Array containing all values in the provided Table, in no particular order.",
+            ReturnType = DynamicValueType.Array
+        )]
+        [EvilDocArgument("table", "A Table whose keys to retrieve.", DynamicValueType.Table)]
         private static DynamicValue Values(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -89,6 +138,19 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("cpy")]
+        [EvilDocFunction(
+            "Copies the given Table, returning a new instance.",
+            Returns = "A new Table containing the values from the original one.",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument("table", "A Table to be copied.", DynamicValueType.Table)]
+        [EvilDocArgument(
+            "deep", 
+            "Whether the copy should be deep (nested Tables are also completely copied) " +
+            "or shallow (nested Table references are copied).",
+            DynamicValueType.Boolean,
+            DefaultValue = "false"
+        )]
         private static DynamicValue Copy(Fiber _, params DynamicValue[] args)
         {
             args.ExpectTableAt(0, out var table)

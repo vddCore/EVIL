@@ -161,6 +161,13 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("index_of")]
+        [EvilDocFunction(
+            "Finds the zero-based starting index of the first occurrence of `needle` in `haystack`.",
+            Returns = "The starting index of the first occurrence of `needle` in `haystack`, or `-1` if not found.",
+            ReturnType = DynamicValueType.Number
+        )]
+        [EvilDocArgument("haystack", "A String to be searched through.", DynamicValueType.String)]
+        [EvilDocArgument("needle", "A String to seek for.", DynamicValueType.String)]
         private static DynamicValue IndexOf(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -171,6 +178,13 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("last_index_of")]
+        [EvilDocFunction(
+            "Finds the zero-based starting index of the last occurrence of `needle` in `haystack`.",
+            Returns = "The starting index of the last occurrence of `needle` in `haystack`, or `-1` if not found.",
+            ReturnType = DynamicValueType.Number
+        )]
+        [EvilDocArgument("haystack", "A String to be searched through.", DynamicValueType.String)]
+        [EvilDocArgument("needle", "A String to seek for.", DynamicValueType.String)]
         private static DynamicValue LastIndexOf(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
@@ -180,44 +194,56 @@ namespace Ceres.Runtime.Modules
             return haystack.LastIndexOf(needle, StringComparison.InvariantCulture);
         }
 
-        [RuntimeModuleFunction("is_empty")]
-        private static DynamicValue IsEmpty(Fiber _, params DynamicValue[] args)
-        {
-            args.ExpectExactly(1)
-                .ExpectStringAt(0, out var value);
-
-            return string.IsNullOrEmpty(value);
-        }
-        
         [RuntimeModuleFunction("is_whitespace")]
+        [EvilDocFunction(
+            "Checks if the provided String consists only of whitespace charracters.",
+            Returns = "`true` if the provided String consists only of whitespace characterrs, `false` otherwise.",
+            ReturnType = DynamicValueType.Boolean)]
+        [EvilDocArgument("str", "A String to be checked.", DynamicValueType.String)]
         private static DynamicValue IsWhiteSpace(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
-                .ExpectStringAt(0, out var value);
+                .ExpectStringAt(0, out var str);
 
-            return string.IsNullOrWhiteSpace(value);
+            return string.IsNullOrWhiteSpace(str);
         }
 
         [RuntimeModuleFunction("lpad")]
+        [EvilDocFunction(
+            "Pads a shorter `str` so that its length matches `total_width` by appeding `padding_char` to its left side.",
+            Returns = "A String padded in the way described above.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to be padded.", DynamicValueType.String)]
+        [EvilDocArgument("padding_char", "A character to be used for padding.", DynamicValueType.String)]
+        [EvilDocArgument("total_width", "Total length of the string to be matched.", DynamicValueType.Number)]
         private static DynamicValue LeftPad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
-                .ExpectStringAt(0, out var source)
-                .ExpectCharAt(1, out var pad)
+                .ExpectStringAt(0, out var str)
+                .ExpectCharAt(1, out var paddingChar)
                 .ExpectIntegerAt(2, out var totalWidth);
 
-            return source.PadLeft((int)totalWidth, pad);
+            return str.PadLeft((int)totalWidth, paddingChar);
         }
         
         [RuntimeModuleFunction("rpad")]
+        [EvilDocFunction(
+            "Pads a shorter `str` so that its length matches `total_width` by appeding `padding_char` to its right side.",
+            Returns = "A String padded in the way described above.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to be padded.", DynamicValueType.String)]
+        [EvilDocArgument("padding_char", "A character to be used for padding.", DynamicValueType.String)]
+        [EvilDocArgument("total_width", "Total length of the string to be matched.", DynamicValueType.Number)]
         private static DynamicValue RightPad(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
-                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(0, out var str)
                 .ExpectCharAt(1, out var pad)
                 .ExpectIntegerAt(2, out var totalWidth);
 
-            return source.PadRight((int)totalWidth, pad);
+            return str.PadRight((int)totalWidth, pad);
         }
         
         [RuntimeModuleFunction("trim")]
