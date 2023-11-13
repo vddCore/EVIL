@@ -275,13 +275,25 @@ namespace EVIL.evil
 
         private void CrashHandler(Fiber fiber, Exception exception)
         {
-            var callStack = fiber.CallStack;
-            var top = callStack.Peek().As<ScriptStackFrame>();
             var fiberArray = _vm.Scheduler.Fibers.ToArray();
             var fiberIndex = Array.IndexOf(fiberArray, fiber);
+            
+            var callStack = fiber.CallStack;
+            var top = callStack.Peek();
+            ScriptStackFrame? scriptTop = null;
 
             var sb = new StringBuilder();
-            sb.AppendLine($"Runtime error in fiber {fiberIndex}, function {top.Chunk.Name} (def. in {top.Chunk.DebugDatabase.DefinedInFile}:{top.Chunk.DebugDatabase.DefinedOnLine}): {exception.Message}");
+            
+            if (top is NativeStackFrame)
+            {
+                scriptTop = callStack[1].As<ScriptStackFrame>();
+            }
+            else
+            {
+                scriptTop = top.As<ScriptStackFrame>();
+            }
+
+            sb.AppendLine($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name} (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}:{scriptTop.Chunk.DebugDatabase.DefinedOnLine}): {exception.Message}");
             sb.AppendLine();
             sb.AppendLine("Stack trace:");
             sb.Append(fiber.StackTrace(false));

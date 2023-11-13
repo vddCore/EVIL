@@ -17,9 +17,9 @@ namespace Ceres.Runtime.Extensions
 
             if (argType != type)
             {
-                if (argType == DynamicValueType.Nil)
+                if (allowNil)
                 {
-                    if (allowNil)
+                    if (argType == DynamicValueType.Nil)
                     {
                         return args;
                     }
