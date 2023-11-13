@@ -133,7 +133,7 @@ namespace Ceres.Runtime.Modules
         [EvilDocArgument("path", "A path specifying the file to read the lines of text from.", DynamicValueType.String)]
         [EvilDocArgument(
             "encoding",
-            "A name of the encoding read the file as.",
+            "A name of the encoding to read the file as.",
             DynamicValueType.String,
             DefaultValue = "utf-8"
         )]
@@ -161,6 +161,37 @@ namespace Ceres.Runtime.Modules
             }
         }
 
+        [RuntimeModuleFunction("file.get_text")]
+        [EvilDocFunction(
+            "Reads a file and returns its contents as a String using the provided encoding, or `nil` if the operation fails.",
+            Returns = "Contents of the read file.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("path", "A path specifying the file to read the text from.", DynamicValueType.String)]
+        [EvilDocArgument(
+            "encoding",
+            "A name of the encoding to read the file as.",
+            DynamicValueType.String,
+            DefaultValue = "utf-8"
+        )]
+        private static DynamicValue FileGetText(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var path)
+                .OptionalStringAt(1, "utf-8", out var encoding);
+
+            try
+            {
+                ClearError();
+                return File.ReadAllText(path, Encoding.GetEncoding(encoding));
+            }
+            catch (Exception e)
+            {
+                SetError(e.Message);
+                return Nil;
+            }
+        }
+
+        
         [RuntimeModuleFunction("file.open")]
         [EvilDocFunction(
             "Attempts to open a file stream given a file path and an optional file mode string.  \n\n" +
