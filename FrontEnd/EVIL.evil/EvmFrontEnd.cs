@@ -30,12 +30,14 @@ namespace EVIL.evil
             { "h|help", "display this message and quit.", (h) => _displayHelpAndQuit = h != null },
             { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
             { "I|include-dir=", "add include directory to the list of search paths.", (I) => _includeHandler.AddIncludeSearchPath(I) },
-            { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null }
+            { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
+            { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null }
         };
 
         private static bool _displayHelpAndQuit;
         private static bool _displayVersionAndQuit;
-        private static bool _generateModuleDocsAndQuit; 
+        private static bool _generateModuleDocsAndQuit;
+        private static bool _disassembleCompiledScript;
         
         public async Task Run(string[] args)
         {
@@ -120,6 +122,16 @@ namespace EVIL.evil
                 }
                 
                 Terminate(msg, exitCode: ExitCode.CompilerError);
+            }
+
+            if (_disassembleCompiledScript)
+            {
+                Console.WriteLine($"Disassembly of '{scriptPath}'\n-------------------");
+
+                foreach (var chunk in script.Chunks)
+                {
+                    Disassembler.Disassemble(chunk, Console.Out);
+                }
             }
 
             if (!script.TryFindChunkByName("main", out var mainChunk))

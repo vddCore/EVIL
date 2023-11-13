@@ -2,6 +2,7 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
 {
@@ -22,6 +23,7 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.Emit(OpCode.LDNIL);
                     Chunk.CodeGenerator.Emit(OpCode.CNE);
                     Chunk.CodeGenerator.Emit(OpCode.TJMP, valueNotNilLabel);
+                    Chunk.CodeGenerator.Emit(OpCode.POP);
                     Visit(assignmentExpression.Right);
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                     EmitVarSet(symRef.Identifier);
@@ -29,7 +31,7 @@ namespace Ceres.TranslationEngine
 
                     return;
                 }
-                
+
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
                     EmitVarGet(symRef.Identifier);
@@ -77,6 +79,7 @@ namespace Ceres.TranslationEngine
                     Chunk.CodeGenerator.Emit(OpCode.LDNIL);
                     Chunk.CodeGenerator.Emit(OpCode.CNE);
                     Chunk.CodeGenerator.Emit(OpCode.TJMP, valueNotNilLabel);
+                    Chunk.CodeGenerator.Emit(OpCode.POP);
                     Visit(assignmentExpression.Right);
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                     Visit(ie.Indexable);
@@ -86,7 +89,7 @@ namespace Ceres.TranslationEngine
 
                     return;
                 }
-                
+
                 if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
                 {
                     Visit(ie);

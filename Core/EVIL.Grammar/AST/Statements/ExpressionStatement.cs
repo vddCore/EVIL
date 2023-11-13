@@ -9,6 +9,8 @@ namespace EVIL.Grammar.AST.Statements
         public ExpressionStatement(Expression expression)
         {
             Expression = expression;
+            Reparent(Expression);
+            
             Line = expression.Line;
         }
     }
