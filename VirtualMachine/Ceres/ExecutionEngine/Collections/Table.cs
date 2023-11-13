@@ -49,7 +49,7 @@ namespace Ceres.ExecutionEngine.Collections
         {
             if (_overrides.TryGetValue(op, out var chunk))
                 return chunk;
-            
+
             return Nil;
         }
 
@@ -95,7 +95,7 @@ namespace Ceres.ExecutionEngine.Collections
             return (key, value);
         }
 
-        public DynamicValue Index(DynamicValue key) 
+        public DynamicValue Index(DynamicValue key)
             => OnIndex(key);
 
         protected virtual DynamicValue OnIndex(DynamicValue key)
@@ -168,38 +168,36 @@ namespace Ceres.ExecutionEngine.Collections
             return this;
         }
 
-        public Table GetKeys()
+        public Array GetKeys()
         {
-            var keys = new Table();
-
             lock (_values)
             {
+                var keys = new Array(_values.Count);
                 var i = 0;
 
                 foreach (var kvp in _values)
                 {
-                    keys.Set(i++, kvp.Key);
+                    keys[i++] = kvp.Key;
                 }
-            }
 
-            return keys;
+                return keys;
+            }
         }
 
-        public Table GetValues()
+        public Array GetValues()
         {
-            var values = new Table();
-
             lock (_values)
             {
+                var values = new Array(_values.Count);
                 var i = 0;
 
                 foreach (var kvp in _values)
                 {
-                    values.Set(i++, kvp.Value);
+                    values[i++] = kvp.Value;
                 }
+
+                return values;
             }
-            
-            return values;
         }
 
         public Table ShallowCopy()
@@ -208,8 +206,8 @@ namespace Ceres.ExecutionEngine.Collections
 
             foreach (var ovr in _overrides)
                 copy._overrides.TryAdd(ovr.Key, ovr.Value);
-            
-            foreach (var kvp in this) 
+
+            foreach (var kvp in this)
                 copy[kvp.Key] = kvp.Value;
 
             return copy;
@@ -218,7 +216,7 @@ namespace Ceres.ExecutionEngine.Collections
         public Table DeepCopy()
         {
             var copy = new Table();
-            
+
             foreach (var ovr in _overrides)
                 copy.SetOverride(ovr.Key, ovr.Value);
 
@@ -233,7 +231,7 @@ namespace Ceres.ExecutionEngine.Collections
                     copy[kvp.Key] = kvp.Value;
                 }
             }
-            
+
             return copy;
         }
 
@@ -241,7 +239,7 @@ namespace Ceres.ExecutionEngine.Collections
         {
             if (Length != other.Length)
                 return false;
-            
+
             lock (_values)
             {
                 for (var i = 0; i < _values.Keys.Count; i++)

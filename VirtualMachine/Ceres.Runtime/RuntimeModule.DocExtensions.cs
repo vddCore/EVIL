@@ -168,7 +168,7 @@ namespace Ceres.Runtime
                 sb.AppendLine("**Description**  ");
                 sb.AppendLine(evilDocFunctionAttribute.Description);
 
-                if (string.IsNullOrEmpty(evilDocFunctionAttribute.Returns))
+                if (!string.IsNullOrEmpty(evilDocFunctionAttribute.Returns))
                 {
                     sb.AppendLine();
                     sb.AppendLine("**Returns**  ");
