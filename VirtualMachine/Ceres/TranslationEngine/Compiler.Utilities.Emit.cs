@@ -5,6 +5,21 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler
     {
+        private void FinalizeChunk()
+        {
+            if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
+            {
+                if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
+                {
+                    return;
+                }
+            }
+
+            /* Either we have no instructions in chunk, or it's not a RET. */
+            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            Chunk.CodeGenerator.Emit(OpCode.RET);
+        }
+        
         private void EmitVarSet(string identifier)
         {
             var symbolInfo = FindSymbolInClosedScopes(identifier);

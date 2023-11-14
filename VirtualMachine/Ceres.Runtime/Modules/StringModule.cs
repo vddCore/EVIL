@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Ceres.ExecutionEngine.Collections;
@@ -412,7 +413,7 @@ namespace Ceres.Runtime.Modules
                     { "value", match.Value },
                     { "starts_at", match.Index },
                     { "length", match.Length },
-                    { "groups", new Table() }
+                    { "groups", new Array(0) }
                 };
                 
                 foreach (Group group in match.Groups)
@@ -425,16 +426,31 @@ namespace Ceres.Runtime.Modules
                         { "length", group.Length }
                     };
                     
-                    matchTable["groups"].Table!.Add(
-                        matchTable["groups"].Table!.Length,
-                        groupTable
-                    );
+                    matchTable["groups"].Array!.Push(groupTable);
                 }
 
                 array[i] = matchTable;
             }
 
             return array;
+        }
+
+        [RuntimeModuleFunction("md5")]
+        private static DynamicValue Md5(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectStringAt(0, out var text)
+                .OptionalStringAt(1, "utf-8", out var encoding);
+
+            var bytes = Encoding.GetEncoding(encoding).GetBytes(text);
+            var hash = MD5.HashData(bytes);
+
+            var sb = new StringBuilder();
+            for (var i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("x2"));
+            }
+
+            return sb.ToString();
         }
     }
 }
