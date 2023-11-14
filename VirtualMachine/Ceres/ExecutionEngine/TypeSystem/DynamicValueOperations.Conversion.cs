@@ -66,11 +66,19 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     {
                         return double.Parse(a.String!);
                     }
-                    catch (FormatException fe)
+                    catch (FormatException)
+                    {
+                        return DynamicValue.Nil;
+                    }
+                    catch (OverflowException)
+                    {
+                        return DynamicValue.Nil;
+                    }
+                    catch (Exception e)
                     {
                         throw new MalformedNumberException(
-                            $"Attempt to convert '{a.String}' to a number.",
-                            fe
+                            $"Attempt to convert '{a.String}' to a Number.",
+                            e
                         );
                     }
                 }
