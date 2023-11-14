@@ -18,6 +18,8 @@ namespace Ceres.TranslationEngine
                     
                     Visit(selfFnExpression.ParameterList);
                     Visit(selfFnExpression.Statement);
+                    
+                    FinalizeChunk();
                 });
             });
 
