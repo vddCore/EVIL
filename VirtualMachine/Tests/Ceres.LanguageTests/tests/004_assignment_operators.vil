@@ -197,7 +197,7 @@ fn chained_coalescing_assignment_table_entry_when_first_is_nil() {
   val a = "string";
   rw val b = nil;
   
-  t.entry ??= (b ??= a);
+  t.entry ??= b ??= a;
   
   assert.equal(b, a);
   assert.equal(t.entry, a); 

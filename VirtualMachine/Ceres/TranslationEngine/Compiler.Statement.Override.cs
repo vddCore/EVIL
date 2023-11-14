@@ -25,6 +25,8 @@ namespace Ceres.TranslationEngine
 
                     Visit(overrideStatement.ParameterList);
                     Visit(overrideStatement.Statement);
+
+                    FinalizeChunk();
                 });
             });
 

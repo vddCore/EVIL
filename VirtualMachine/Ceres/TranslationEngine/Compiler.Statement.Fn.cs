@@ -1,4 +1,3 @@
-using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements.TopLevel;
 
@@ -20,21 +19,8 @@ namespace Ceres.TranslationEngine
                         Visit(fnStatement.Statement);
                     });
 
-                    if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
-                    {
-                        if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
-                        {
-                            foreach (var attr in fnStatement.Attributes)
-                                Visit(attr);
-
-                            return;
-                        }
-                    }
-
-                    /* Either we have no instructions in chunk, or it's not a RET. */
-                    Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-                    Chunk.CodeGenerator.Emit(OpCode.RET);
-
+                    FinalizeChunk();
+                    
                     foreach (var attr in fnStatement.Attributes)
                         Visit(attr);
                 });

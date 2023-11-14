@@ -15,6 +15,8 @@ namespace Ceres.TranslationEngine
 
                     Visit(fnExpression.ParameterList);
                     Visit(fnExpression.Statement);
+
+                    FinalizeChunk();
                 });
             });
 
