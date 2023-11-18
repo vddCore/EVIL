@@ -31,13 +31,15 @@ namespace EVIL.evil
             { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
             { "I|include-dir=", "add include directory to the list of search paths.", (I) => _includeHandler.AddIncludeSearchPath(I) },
             { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
-            { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null }
+            { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null },
+            { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null }
         };
 
         private static bool _displayHelpAndQuit;
         private static bool _displayVersionAndQuit;
         private static bool _generateModuleDocsAndQuit;
         private static bool _disassembleCompiledScript;
+        private static bool _optimizeCode;
         
         public async Task Run(string[] args)
         {
@@ -57,6 +59,11 @@ namespace EVIL.evil
             {
                 GenerateModuleDocs();
                 Terminate();
+            }
+
+            if (_optimizeCode)
+            {
+                _compiler.OptimizeCodeGeneration = true;
             }
 
             if (!extra.Any())
@@ -305,6 +312,9 @@ namespace EVIL.evil
                 scriptTop = top.As<ScriptStackFrame>();
             }
 
+            var dd = scriptTop.Chunk.DebugDatabase;
+
+            sb.AppendLine($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: {exception.Message}");
             sb.AppendLine($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name} (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}:{scriptTop.Chunk.DebugDatabase.DefinedOnLine}): {exception.Message}");
             sb.AppendLine();
             sb.AppendLine("Stack trace:");

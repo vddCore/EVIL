@@ -142,7 +142,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
                     if (ssf.Chunk.DebugDatabase.DefinedOnLine > 0)
                     {
-                        sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)}");
+                        sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)} (IP: {ssf.PreviousOpCodeIP:X8})");
                     }
 
                     sb.AppendLine();
