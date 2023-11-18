@@ -80,7 +80,7 @@ namespace EVIL.Grammar.Parsing
                             Match(Token.Associate);
                         }
 
-                        if (CurrentToken == Token.Self)
+                        if (CurrentToken == Token.Self && _lexer.PeekToken(1) == Token.DoubleColon)
                         {
                             value = SelfFnExpression();
                         }
