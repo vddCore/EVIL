@@ -6,7 +6,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 {
     public class CallStack
     {
-        public const int MaxFrames = 128;
+        public const int MaxFrames = 16384;
 
         private int _currentPointer = -1;
         private StackFrame?[] _frames = new StackFrame[MaxFrames];

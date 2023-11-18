@@ -33,11 +33,10 @@ namespace Ceres.ExecutionEngine.Diagnostics.Debugging
         {
             foreach (var kvp in _records)
             {
-                var min = kvp.Value.Min();
-                var max = kvp.Value.Max();
-
-                if (ip >= min && ip <= max)
+                if (kvp.Value.Contains(ip))
+                {
                     return kvp.Key;
+                }
             }
 
             return -1;

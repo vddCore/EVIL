@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
@@ -10,18 +11,18 @@ namespace Ceres.ExecutionEngine.Diagnostics
     {
         public class DisassemblyOptions
         {
-            public bool WriteLineNumbersWhenAvailable { get; set; } = false;
+            public bool WriteLineNumbersWhenAvailable { get; set; } = true;
             public bool WriteLocalNames { get; set; } = true;
             public bool WriteParameterNames { get; set; } = true;
             public bool WriteClosureInfo { get; set; } = true;
             public bool WriteSubChunkNames { get; set; } = true;
             public bool WriteLabelAddresses { get; set; } = true;
             public bool WriteNumericConstants { get; set; } = true;
-
             public bool WriteStringConstants { get; set; } = true;
         }
 
-        public static void Disassemble(Chunk chunk, TextWriter output, DisassemblyOptions? options = null, int indentLevel = 0)
+        public static void Disassemble(Chunk chunk, TextWriter output, DisassemblyOptions? options = null,
+            int indentLevel = 0)
         {
             options ??= new DisassemblyOptions();
             var indent = new string(' ', indentLevel);
@@ -57,7 +58,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         continue;
                     }
                 }
-                
+
                 if (chunk.ParameterInitializers.TryGetValue(i, out var value))
                 {
                     output.WriteLine($"{indent}    .PARAM DO_INIT({i}): {value.ConvertToString().String}");
@@ -112,7 +113,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             output.WriteLine();
                             break;
                         }
-                            
+
                         case OpCode.INVOKE:
                         case OpCode.YIELD:
                         case OpCode.NEXT:
@@ -248,7 +249,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                         case OpCode.LDTYPE:
                             var typeCode = reader.ReadInt32();
-                            
+
                             output.Write(opCode);
                             output.Write(" ");
                             output.Write(typeCode);
@@ -277,7 +278,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                                 if (str != null)
                                 {
-                                    output.Write($" (\"{str}\")");
+                                    output.Write($" ({Literalize(str)})");
                                 }
                                 else
                                 {
@@ -343,6 +344,63 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             return value.ConvertToString().String!;
+        }
+
+        private static string Literalize(string input)
+        {
+            var literal = new StringBuilder(input.Length + 2);
+            literal.Append("\"");
+            foreach (var c in input)
+            {
+                switch (c)
+                {
+                    case '\"':
+                        literal.Append("\\\"");
+                        break;
+                    case '\\':
+                        literal.Append(@"\\");
+                        break;
+                    case '\0':
+                        literal.Append(@"\0");
+                        break;
+                    case '\a':
+                        literal.Append(@"\a");
+                        break;
+                    case '\b':
+                        literal.Append(@"\b");
+                        break;
+                    case '\f':
+                        literal.Append(@"\f");
+                        break;
+                    case '\n':
+                        literal.Append(@"\n");
+                        break;
+                    case '\r':
+                        literal.Append(@"\r");
+                        break;
+                    case '\t':
+                        literal.Append(@"\t");
+                        break;
+                    case '\v':
+                        literal.Append(@"\v");
+                        break;
+                    default:
+                        if (c >= 0x20 && c <= 0x7e)
+                        {
+                            literal.Append(c);
+                        }
+                        else
+                        {
+                            literal.Append(@"\u");
+                            literal.Append(((int)c).ToString("x4"));
+                        }
+
+                        break;
+                }
+            }
+
+            literal.Append("\"");
+            return literal.ToString();
         }
     }
 }
