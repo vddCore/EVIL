@@ -57,6 +57,8 @@ namespace Ceres.TranslationEngine
         private int Line { get; set; }
         private int Column { get; set; }
 
+        private Stack<(int Line, int Column)> LocationStack { get; } = new();
+
         public string CurrentFileName { get; private set; } = string.Empty;
 
         public CompilerLog Log { get; } = new();
@@ -113,17 +115,6 @@ namespace Ceres.TranslationEngine
             return _script;
         }
 
-        private void AddCurrentLocationToDebugDatabase()
-        {
-            if (_blockDescent > 0 && _chunks.Any())
-            {
-                Chunk.DebugDatabase.AddDebugRecord(
-                    Line,
-                    Chunk.CodeGenerator.IP
-                );
-            }
-        }
-
         private void InNewLocalScopeDo(Action action)
         {
             CurrentScope = CurrentScope.Descend();
@@ -156,7 +147,8 @@ namespace Ceres.TranslationEngine
             return result.Id;
         }
 
-        private void InTopLevelChunkDo(Action action, string name, out bool wasExistingReplaced, out Chunk replacedChunk)
+        private void InTopLevelChunkDo(Action action, string name, out bool wasExistingReplaced,
+            out Chunk replacedChunk)
         {
             var chunk = _script.CreateChunk(name, out wasExistingReplaced, out replacedChunk);
             chunk.DebugDatabase.DefinedInFile = CurrentFileName;
@@ -181,15 +173,21 @@ namespace Ceres.TranslationEngine
         {
             Line = node.Line;
             Column = node.Column;
+            
+            LocationStack.Push((Line, Column));
 
             if (node is Expression expression && OptimizeCodeGeneration)
             {
                 node = expression.Reduce();
             }
-            
-            AddCurrentLocationToDebugDatabase();
+
             base.Visit(node);
-            AddCurrentLocationToDebugDatabase();
+            
+            if (_chunks.Any())
+            {
+                var location = LocationStack.Pop();
+                Chunk.DebugDatabase.AddDebugRecord(location.Line, Chunk.CodeGenerator.LastOpCodeIP);
+            }            
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)

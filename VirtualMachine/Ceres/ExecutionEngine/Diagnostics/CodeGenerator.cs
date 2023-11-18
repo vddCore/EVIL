@@ -12,6 +12,8 @@ namespace Ceres.ExecutionEngine
         private readonly BinaryWriter _writer;
         private readonly List<int> _labels;
 
+        public int LastOpCodeIP { get; private set; }
+        
         public int IP
         {
             get => (int)_code.Position;
@@ -56,7 +58,10 @@ namespace Ceres.ExecutionEngine
         }
 
         public void Emit(OpCode value)
-            => _writer.Write((byte)value);
+        {
+            LastOpCodeIP = IP;
+            _writer.Write((byte)value);
+        }
 
         public void Emit(OpCode value, double operand)
         {
@@ -82,7 +87,7 @@ namespace Ceres.ExecutionEngine
             Emit(operand);
         }
         
-        public void Emit(double value) 
+        public void Emit(double value)
             => _writer.Write(value);
 
         public void Emit(long value) 
