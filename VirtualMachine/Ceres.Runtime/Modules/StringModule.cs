@@ -42,6 +42,26 @@ namespace Ceres.Runtime.Modules
 
             return ((char)charCode).ToString();
         }
+        
+        [RuntimeModuleFunction("code")]
+        private static DynamicValue ToCharacterCode(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(1)
+                .ExpectCharAt(0, out var character);
+
+            return (ushort)character;
+        }
+
+        [RuntimeModuleFunction("replace")]
+        private static DynamicValue Replace(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectExactly(3)
+                .ExpectStringAt(0, out var str)
+                .ExpectStringAt(1, out var toReplace)
+                .ExpectStringAt(2, out var with);
+
+            return str.Replace(toReplace, with);
+        }
 
         [RuntimeModuleFunction("bytes")]
         [EvilDocFunction(
@@ -140,7 +160,7 @@ namespace Ceres.Runtime.Modules
             return string.Join(separator, args.Skip(1).Select(x => x.ConvertToString().String!));
         }
 
-        [RuntimeModuleFunction("rep")]
+        [RuntimeModuleFunction("repeat")]
         [EvilDocFunction(
             "Repeats the provided String `count` times.",
             Returns = "A String containing `str` repeated `count` times.",
