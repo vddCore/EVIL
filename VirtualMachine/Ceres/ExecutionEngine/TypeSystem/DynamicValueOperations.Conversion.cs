@@ -89,6 +89,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 case DynamicValueType.TypeCode:
                     return (int)a.TypeCode;
                 
+                case DynamicValueType.Number:
+                    return a.Number;
+                
                 default:
                 {
                     throw new UnsupportedDynamicValueOperationException(
