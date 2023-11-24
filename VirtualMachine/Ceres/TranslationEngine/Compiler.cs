@@ -18,7 +18,7 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler : AstVisitor
     {
-        private Script _script = new();
+        private Chunk _rootChunk = null!;
 
         private readonly Stack<Chunk> _chunks = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
@@ -69,10 +69,8 @@ namespace Ceres.TranslationEngine
             OptimizeCodeGeneration = optimizeCodeGeneration;
         }
 
-        public Script Compile(string source, string fileName = "")
+        public Chunk Compile(string source, string fileName = "")
         {
-            CurrentFileName = fileName;
-
             var parser = new Parser();
 
             try
@@ -107,12 +105,26 @@ namespace Ceres.TranslationEngine
             return null!;
         }
 
-        public Script Compile(ProgramNode programNode, string fileName = "")
+        public Chunk Compile(ProgramNode programNode, string fileName = "")
         {
             CurrentFileName = fileName;
+            _closedScopes.Clear();
+            _chunks.Clear();
+            
+            return InRootChunkDo(() => Visit(programNode));
+        }
+        
+        private Chunk InRootChunkDo(Action action)
+        {
+            _rootChunk = new Chunk("!_root_chunk");
+            _rootChunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
-            Visit(programNode);
-            return _script;
+            _chunks.Push(_rootChunk);
+            {
+                InNewClosedScopeDo(action);
+                FinalizeChunk();
+            }
+            return _chunks.Pop();
         }
 
         private void InNewLocalScopeDo(Action action)
@@ -133,9 +145,9 @@ namespace Ceres.TranslationEngine
             _closedScopes.RemoveAt(0);
         }
 
-        private int InSubChunkDo(Action action)
+        private int InAnonymousSubChunkDo(Action action)
         {
-            var result = Chunk.AllocateSubChunk();
+            var result = Chunk.AllocateAnonymousSubChunk();
             result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
             _chunks.Push(result.SubChunk);
@@ -147,17 +159,18 @@ namespace Ceres.TranslationEngine
             return result.Id;
         }
 
-        private void InTopLevelChunkDo(Action action, string name, out bool wasExistingReplaced,
-            out Chunk replacedChunk)
+        private int InNamedSubChunkDo(string name, Action action, out bool wasReplaced, out Chunk replacedChunk)
         {
-            var chunk = _script.CreateChunk(name, out wasExistingReplaced, out replacedChunk);
-            chunk.DebugDatabase.DefinedInFile = CurrentFileName;
+            var result = Chunk.AllocateNamedSubChunk(name, out wasReplaced, out replacedChunk);
+            result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
-            _chunks.Push(chunk);
+            _chunks.Push(result.SubChunk);
             {
                 action();
             }
             _chunks.Pop();
+
+            return result.Id;
         }
 
         private void InNewLoopDo(LoopKind kind, Action action, bool needsExtraLabel)
@@ -173,7 +186,7 @@ namespace Ceres.TranslationEngine
         {
             Line = node.Line;
             Column = node.Column;
-            
+
             LocationStack.Push((Line, Column));
 
             if (node is Expression expression && OptimizeCodeGeneration)
@@ -182,12 +195,12 @@ namespace Ceres.TranslationEngine
             }
 
             base.Visit(node);
-            
+
             if (_chunks.Any())
             {
                 var location = LocationStack.Pop();
                 Chunk.DebugDatabase.AddDebugRecord(location.Line, Chunk.CodeGenerator.LastOpCodeIP);
-            }            
+            }
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)

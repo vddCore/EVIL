@@ -16,6 +16,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private Dictionary<int, DynamicValue> _parameterInitializers;
         private List<ClosureInfo> _closures;
         private List<Chunk> _subChunks;
+        private Dictionary<string, int> _namedSubChunkLookup;
 
         private readonly Serializer _serializer;
 
@@ -33,12 +34,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public int ClosureCount => Closures.Count;
         public int SubChunkCount => SubChunks.Count;
         public bool IsSelfAware { get; private set; }
+        public bool IsSpecialName { get; private set; }
 
         public IReadOnlyList<int> Labels => _labels;
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
         public IReadOnlyDictionary<int, DynamicValue> ParameterInitializers => _parameterInitializers;
         public IReadOnlyList<ClosureInfo> Closures => _closures;
         public IReadOnlyList<Chunk> SubChunks => _subChunks;
+        public IReadOnlyDictionary<string, int> NamedSubChunkLookup => _namedSubChunkLookup;
 
         public byte[] Code => _code.GetBuffer();
 
@@ -49,6 +52,19 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public bool HasClosures => Flags.HasFlag(ChunkFlags.HasClosures);
         public bool HasSubChunks => Flags.HasFlag(ChunkFlags.HasSubChunks);
         public bool IsSubChunk => Flags.HasFlag(ChunkFlags.IsSubChunk);
+
+        public Chunk? this[string name]
+        {
+            get
+            {
+                if (_namedSubChunkLookup.TryGetValue(name, out var id))
+                {
+                    return _subChunks[id];
+                }
+
+                return null;
+            }
+        }
 
         public ChunkFlags Flags
         {
@@ -85,6 +101,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                 if (IsSelfAware)
                     ret |= ChunkFlags.IsSelfAware;
+
+                if (IsSpecialName)
+                    ret |= ChunkFlags.IsSpecialName;
                 
                 return ret;
             }
@@ -98,6 +117,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _parameterInitializers = new Dictionary<int, DynamicValue>();
             _closures = new List<ClosureInfo>();
             _subChunks = new List<Chunk>();
+            _namedSubChunkLookup = new Dictionary<string, int>();
             _serializer = new Serializer(this);
 
             Name = name;
@@ -114,6 +134,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _parameterInitializers = new Dictionary<int, DynamicValue>();
             _closures = new List<ClosureInfo>();
             _subChunks = new List<Chunk>();
+            _namedSubChunkLookup = new Dictionary<string, int>();
             _serializer = new Serializer(this);
 
             Name = name;
@@ -130,6 +151,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _parameterInitializers = new Dictionary<int, DynamicValue>();
             _closures = new List<ClosureInfo>();
             _subChunks = new List<Chunk>();
+            _namedSubChunkLookup = new Dictionary<string, int>();
             _serializer = new Serializer(this);
 
             Name = name;
@@ -172,7 +194,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return (id, ret);
         }
 
-        public (int Id, Chunk SubChunk) AllocateSubChunk()
+        public (int Id, Chunk SubChunk) AllocateAnonymousSubChunk()
         {
             var id = SubChunkCount;
 
@@ -196,9 +218,37 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 return string.Join("$", list);
             }
 
-            var chunk = new Chunk(BuildName()) { Parent = this };
+            var chunk = new Chunk(BuildName())
+            {
+                IsSpecialName = true,
+                Parent = this
+            };
 
             _subChunks.Add(chunk);
+            return (id, chunk);
+        }
+        
+        public (int Id, Chunk SubChunk) AllocateNamedSubChunk(string name, out bool wasReplaced, out Chunk replacedChunk)
+        {
+            var id = SubChunkCount;
+            wasReplaced = false;
+            replacedChunk = null!;
+            
+            var chunk = new Chunk(name) { Parent = this };
+
+            if (_namedSubChunkLookup.TryGetValue(name, out var existingId))
+            {
+                replacedChunk = _subChunks[existingId];
+                
+                _subChunks[existingId] = chunk;
+                wasReplaced = true;
+            }
+            else
+            {
+                _namedSubChunkLookup.Add(name, id);
+                _subChunks.Add(chunk);
+            }
+
             return (id, chunk);
         }
 
@@ -306,6 +356,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                    && _closures.SequenceEqual(other._closures)
                    && _labels.SequenceEqual(other._labels)
                    && _attributes.SequenceEqual(other._attributes)
+                   && _subChunks.SequenceEqual(other._subChunks)
+                   && _namedSubChunkLookup.SequenceEqual(other._namedSubChunkLookup)
                    && StringPool.Equals(other.StringPool)
                    && Code.SequenceEqual(other.Code)
                    && DebugDatabase.Equals(other.DebugDatabase);
@@ -329,6 +381,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
             hashCode.Add(_closures);
             hashCode.Add(_labels);
             hashCode.Add(_attributes);
+            hashCode.Add(_subChunks);
+            hashCode.Add(_namedSubChunkLookup);
             hashCode.Add(StringPool);
             hashCode.Add(Code);
             hashCode.Add(DebugDatabase);

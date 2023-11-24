@@ -43,16 +43,6 @@ namespace EVIL.Lexical
             State.PreviousToken = State.CurrentToken;
             var (line, col) = (State.Line, State.Column);
 
-            if (col == 1)
-            {
-                if (State.Character == '#' && PeekString(7) == "include")
-                {
-                    Advance(8);
-                    State.CurrentToken = Token.Include with { Line = line, Column = col };
-                    return;
-                }
-            }
-
             switch (State.Character)
             {
                 case '.' when Peek() == '.' && Peek(2) == '.':

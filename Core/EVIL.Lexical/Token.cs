@@ -184,7 +184,6 @@ namespace EVIL.Lexical
         public static readonly Token HexInteger = new(TokenType.HexInteger, TokenClass.Literal, string.Empty);
         public static readonly Token String = new(TokenType.String, TokenClass.Literal, string.Empty);
 
-        public static readonly Token Include = new(TokenType.Include, TokenClass.Meta, "#include");
         public static readonly Token EOF = new(TokenType.EOF, TokenClass.Meta, "<EOF>");
         public static readonly Token Empty = new(TokenType.Empty, TokenClass.Meta, string.Empty);
     }

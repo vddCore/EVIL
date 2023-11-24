@@ -213,15 +213,5 @@ namespace EVIL.CoreTests
             Expect(NativeFunctionTypeCode, NativeObjectTypeCode);
             Expect(EOF);
         }
-
-        [Test]
-        public void Meta()
-        {
-            _lexer.LoadSource("#include \"test.vil\"");
-
-            Expect(Include);
-            ExpectExact((TokenType.String, "test.vil"));
-            Expect(EOF);
-        }
     }
 }

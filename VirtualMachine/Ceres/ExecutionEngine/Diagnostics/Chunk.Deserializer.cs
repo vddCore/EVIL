@@ -100,6 +100,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         chunk.MarkSelfAware();
                     }
 
+                    chunk.IsSpecialName = flags.HasFlag(ChunkFlags.IsSpecialName);
+
                     if (flags.HasFlag(ChunkFlags.HasParameters))
                     {
                         chunk.ParameterCount = br.ReadInt32();
@@ -137,15 +139,23 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     }
 
                     if (flags.HasFlag(ChunkFlags.HasSubChunks))
-                    {
+                    {                       
                         var subChunkCount = br.ReadInt32();
-
                         for (var i = 0; i < subChunkCount; i++)
                         {
                             var subChunk = Deserialize(stream, out _, out _);
                             
                             chunk._subChunks.Add(subChunk);
                             subChunk.Parent = chunk;
+                        }
+                        
+                        var lookupCount = br.ReadInt32();
+                        for (var i = 0; i < lookupCount; i++)
+                        {
+                            chunk._namedSubChunkLookup.Add(
+                                br.ReadString(),
+                                br.ReadInt32()
+                            );
                         }
                     }
 

@@ -7,7 +7,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(FnExpression fnExpression)
         {
-            var id = InSubChunkDo(() =>
+            var id = InAnonymousSubChunkDo(() =>
             {
                 InNewClosedScopeDo(() =>
                 {

@@ -21,7 +21,6 @@ namespace EVIL.evil
     {
         private static CeresVM _vm = new();
         private static Compiler _compiler = new();
-        private static IncludeHandler _includeHandler = new(_compiler);
         private static EvilRuntime _runtime = new(_vm);
         private static RuntimeModuleLoader _runtimeModuleLoader = new(_runtime);
 
@@ -29,7 +28,6 @@ namespace EVIL.evil
         {
             { "h|help", "display this message and quit.", (h) => _displayHelpAndQuit = h != null },
             { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
-            { "I|include-dir=", "add include directory to the list of search paths.", (I) => _includeHandler.AddIncludeSearchPath(I) },
             { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
             { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null },
             { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null }
@@ -98,10 +96,10 @@ namespace EVIL.evil
             
             var source = File.ReadAllText(scriptPath);
 
-            Script script = null!;
+            Chunk rootChunk = null!;
             try
             {
-                script = _compiler.Compile(source, scriptPath);
+                rootChunk = _compiler.Compile(source, scriptPath);
             }
             catch (LexerException le)
             {
@@ -124,8 +122,7 @@ namespace EVIL.evil
 
                 if (ce.InnerException != null && ce.InnerException is not ParserException)
                 {
-                    msg += "\n\nIn addition, another error occurred:\n";
-                    msg += $"  {ce.InnerException.Message}";
+                    msg += $"\n\n {ce.InnerException.Message}";
                 }
                 
                 Terminate(msg, exitCode: ExitCode.CompilerError);
@@ -134,19 +131,7 @@ namespace EVIL.evil
             if (_disassembleCompiledScript)
             {
                 Console.WriteLine($"Disassembly of '{scriptPath}'\n-------------------");
-
-                foreach (var chunk in script.Chunks)
-                {
-                    Disassembler.Disassemble(chunk, Console.Out);
-                }
-            }
-
-            if (!script.TryFindChunkByName("main", out var mainChunk))
-            {
-                Terminate(
-                    "Fatal: No entry point found. The script being run must define a function named 'main'.",
-                    exitCode: ExitCode.MissingEntryPoint
-                );
+                Disassembler.Disassemble(rootChunk, Console.Out);
             }
 
             if (_compiler.Log.HasAnyMessages)
@@ -155,35 +140,13 @@ namespace EVIL.evil
             }
 
             RegisterAllModules();
-            
-            var initChunks = new List<Chunk>();
-            foreach (var chunk in script.Chunks)
-            {
-                if (IsValidInitChunk(chunk))
-                {
-                    initChunks.Add(chunk);
-                }
-
-                if (SkipChunkRegistration(chunk))
-                {
-                    continue;
-                }
-                
-                _vm.Global[chunk.Name] = chunk;
-            }
-
             SetStandardGlobals(scriptPath);
             
             _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
             _vm.MainFiber.SetCrashHandler(CrashHandler);
-            
-            foreach (var initChunk in initChunks)
-            {
-                _vm.MainFiber.Schedule(initChunk, false);
-            }
-            
             _vm.Start();
-            await _vm.MainFiber.ScheduleAsync(mainChunk, scriptArgs);
+            
+            await _vm.MainFiber.ScheduleAsync(rootChunk, scriptArgs);
             while (true)
             {
                 if (_vm.MainFiber.State == FiberState.Finished)
@@ -267,31 +230,13 @@ namespace EVIL.evil
             return ret;
         }
 
-        private bool IsValidInitChunk(Chunk chunk)
-            => chunk.HasAttribute(AttributeNames.VmInit);
-
-        private bool SkipChunkRegistration(Chunk chunk)
-            => chunk.HasAttribute(AttributeNames.NoReg);
-
         private void SetStandardGlobals(string scriptPath)
         {
-            SetIncludePathsGlobal();
-            
+            _vm.Global["_G"] = _vm.Global;
             _vm.Global["__SCRIPT_HOME"] = Path.GetDirectoryName(scriptPath) ?? string.Empty;
             _vm.Global["__SCRIPT_FILE"] = Path.GetFileName(scriptPath);
-            _vm.Global["__GLOBAL"] = _vm.Global;
         }
         
-        private void SetIncludePathsGlobal()
-        {
-            var includeArray = new EvilArray(_includeHandler.IncludeSearchPaths.Count);
-            for (var i = 0; i < includeArray.Length; i++)
-            {
-                includeArray[i] = _includeHandler.IncludeSearchPaths[i];
-            }
-            _vm.Global["__INCLUDE_PATHS"] = includeArray;
-        }
-
         private void CrashHandler(Fiber fiber, Exception exception)
         {
             var fiberArray = _vm.Scheduler.Fibers.ToArray();
