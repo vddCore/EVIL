@@ -45,11 +45,11 @@ namespace EVIL.Grammar.Parsing
 
                 if (token.Type == TokenType.LParenthesis)
                 {
-                    node = FunctionCall(node);
+                    node = InvocationExpression(node);
                 }
                 else if (token.Type == TokenType.LBracket || token.Type == TokenType.Dot)
                 {
-                    node = Indexing(node);
+                    node = IndexerExpression(node);
                 }
                 else if (token.Type == TokenType.DoubleColon)
                 {

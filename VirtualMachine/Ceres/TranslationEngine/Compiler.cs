@@ -9,6 +9,8 @@ using EVIL.Grammar;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
+using EVIL.Grammar.AST.Statements;
+using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Grammar.Parsing;
 using EVIL.Grammar.Traversal;
 using EVIL.Lexical;
@@ -110,10 +112,10 @@ namespace Ceres.TranslationEngine
             CurrentFileName = fileName;
             _closedScopes.Clear();
             _chunks.Clear();
-            
+
             return InRootChunkDo(() => Visit(programNode));
         }
-        
+
         private Chunk InRootChunkDo(Action action)
         {
             _rootChunk = new Chunk("!_root_chunk");
@@ -194,13 +196,14 @@ namespace Ceres.TranslationEngine
                 node = expression.Reduce();
             }
 
-            base.Visit(node);
-
-            if (_chunks.Any())
+            if (_blockDescent > 0 || _chunks.Count == 1)
             {
-                var location = LocationStack.Pop();
-                Chunk.DebugDatabase.AddDebugRecord(location.Line, Chunk.CodeGenerator.LastOpCodeIP);
+                Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
             }
+
+            base.Visit(node);
+            
+            Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)

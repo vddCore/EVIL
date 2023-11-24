@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private IndexerExpression Indexing(Expression indexable)
+        private IndexerExpression IndexerExpression(Expression indexable)
         {
             int line, col;
             Expression indexer;

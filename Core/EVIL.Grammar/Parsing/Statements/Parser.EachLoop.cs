@@ -14,7 +14,7 @@ namespace EVIL.Grammar.Parsing
             if (CurrentToken == Token.Val)
             {
                 throw new ParserException(
-                    "Each-loop variables must be `rw'.",
+                    "Each-loop variables must be 'rw'.",
                     (_lexer.State.Line, _lexer.State.Column)
                 );
             }

@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private InvocationExpression FunctionCall(Expression callee)
+        private InvocationExpression InvocationExpression(Expression callee)
         {
             var (line, col) = (_lexer.State.Line, _lexer.State.Column);
 

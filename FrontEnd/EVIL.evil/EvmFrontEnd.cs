@@ -142,6 +142,8 @@ namespace EVIL.evil
             RegisterAllModules();
             SetStandardGlobals(scriptPath);
             
+            _runtime.RegisterBuiltInFunctions();
+            
             _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
             _vm.MainFiber.SetCrashHandler(CrashHandler);
             _vm.Start();

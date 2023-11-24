@@ -1,28 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.Runtime.Modules;
+using Ceres.TranslationEngine;
 
 namespace Ceres.Runtime
 {
     public sealed class EvilRuntime
     {
         private readonly CeresVM _vm;
+        private readonly Compiler _compiler;
 
         private Table Global => _vm.Global;
 
         public EvilRuntime(CeresVM vm)
         {
             _vm = vm;
+            _compiler = new Compiler();
+        }
+
+        public List<Chunk> RegisterBuiltInFunctions()
+        {
+            var scriptNames = Assembly
+                .GetExecutingAssembly()
+                .GetManifestResourceNames()
+                .Where(x => x.StartsWith("Ceres.Runtime.ScriptBuiltins"));
+
+            var list = new List<Chunk>();
+
+            foreach (var scriptName in scriptNames)
+            {
+                using var stream = Assembly
+                    .GetExecutingAssembly()
+                    .GetManifestResourceStream(scriptName)!;
+
+                using var streamReader = new StreamReader(stream);
+
+                var text = streamReader.ReadToEnd();
+                var root = _compiler.Compile(text, $"builtin::{scriptName}");
+
+                foreach (var (name, id) in root.NamedSubChunkLookup)
+                {
+                    list.Add(root.SubChunks[id]);
+                    _vm.Global.Set(name, root.SubChunks[id]);
+                }
+            }
+
+            return list;
         }
 
         public List<RuntimeModule> RegisterBuiltInModules()
         {
             var modules = new List<RuntimeModule>();
-            
+
             modules.Add(RegisterModule<ArrayModule>(out _));
             modules.Add(RegisterModule<ConvertModule>(out _));
             modules.Add(RegisterModule<CoreModule>(out _));

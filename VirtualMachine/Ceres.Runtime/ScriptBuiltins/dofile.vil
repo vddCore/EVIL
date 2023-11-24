@@ -1,0 +1,14 @@
+fn dofile(path) {
+  if (!fs.file.exists(path)) -> core.error(
+    "Couldn't find a file at '" + @path + "'."
+  );
+  
+  val source = fs.file.get_text(path);
+  val result = evil.compile(source, path);
+  
+  if (!result || !result.success) -> core.error(
+    "Failed to compile the file '" + @path + "': " + @result.message
+  );
+  
+  ret result.chunk();
+}
