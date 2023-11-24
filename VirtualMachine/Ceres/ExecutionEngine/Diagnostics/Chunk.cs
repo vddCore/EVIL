@@ -348,7 +348,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
             if (ReferenceEquals(this, other)) return true;
 
             return Name == other.Name
-                   && Parent == other.Parent
                    && IsSelfAware == other.IsSelfAware
                    && ParameterCount == other.ParameterCount
                    && _parameterInitializers.SequenceEqual(other._parameterInitializers)

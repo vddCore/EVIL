@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Statements.TopLevel;
 
 namespace EVIL.Grammar.AST.Miscellaneous
 {
     public sealed class ProgramNode : AstNode
     {
-        public List<TopLevelStatement> Statements { get; } 
+        public IEnumerable<Statement> FnStatements => Statements.Where(x => x is FnStatement);
+        public IEnumerable<Statement> AnythingButFnStatements => Statements.Where(x => x is not FnStatement);
+        
+        public List<Statement> Statements { get; } 
 
-        public ProgramNode(List<TopLevelStatement> statements)
+        public ProgramNode(List<Statement> statements)
         {
             Statements = statements;
             Reparent(Statements);
