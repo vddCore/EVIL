@@ -22,7 +22,6 @@ namespace Ceres.TranslationEngine
 
         private readonly Stack<Chunk> _chunks = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
-        private List<IncludeProcessor> _includeProcessors = new();
 
         private int _blockDescent;
         private readonly Stack<Loop> _loopDescent = new();
@@ -71,6 +70,7 @@ namespace Ceres.TranslationEngine
 
         public Chunk Compile(string source, string fileName = "")
         {
+            CurrentFileName = fileName;
             var parser = new Parser();
 
             try
@@ -212,14 +212,6 @@ namespace Ceres.TranslationEngine
             }
 
             list.Add(processor);
-        }
-
-        public void RegisterIncludeProcessor(IncludeProcessor processor)
-        {
-            if (!_includeProcessors.Contains(processor))
-            {
-                _includeProcessors.Add(processor);
-            }
         }
 
         private DynamicValue ExtractConstantValueFrom(AstNode valueNode)

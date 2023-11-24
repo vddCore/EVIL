@@ -30,7 +30,8 @@ namespace Ceres.TranslationEngine
             if (wasExistingReplaced)
             {
                 Log.EmitWarning(
-                    $"Redefining chunk '{replacedChunk.Name}' previously defined in {replacedChunk.DebugDatabase.DefinedInFile} on line {replacedChunk.DebugDatabase.DefinedOnLine}.",
+                    $"Named function '{replacedChunk.Name}' defined on line {fnStatement.Line} is " +
+                    $"re-defining a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {fnStatement.Line}.",
                     CurrentFileName,
                     EvilMessageCode.FnStatementRedefinedExistingChunk,
                     fnStatement.Line,

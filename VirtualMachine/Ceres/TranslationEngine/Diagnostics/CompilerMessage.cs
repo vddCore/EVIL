@@ -20,25 +20,23 @@ namespace Ceres.TranslationEngine.Diagnostics
                 sb.Append($"EV{MessageCode:D4}");
             }
 
-            sb.Append($" :: {Severity} :: {Message}");
-
-            if (FileName != null)
-            {
-                sb.Append($" :: {FileName}");
-            }
-            
+            sb.Append($" :: {Severity}");
             if (Line > 0)
             {
-                sb.Append($" (line {Line}");
+                sb.Append($" :: line {Line}");
 
                 if (Column > 0)
                 {
                     sb.Append($", column {Column}");
                 }
-
-                sb.Append(")");
             }
             
+            if (!string.IsNullOrEmpty(FileName))
+            {
+                sb.Append($" :: {FileName}");
+            }
+            
+            sb.Append($" :: {Message}");
             return sb.ToString();
         }
     }
