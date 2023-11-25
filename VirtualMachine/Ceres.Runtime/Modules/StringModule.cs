@@ -44,15 +44,29 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("code")]
+        [EvilDocFunction(
+            "Converts a character to its 16-bit Unicode character code representation.",
+            Returns = "A 16-bit Unicode character code.",
+            ReturnType = DynamicValueType.Number
+        )]
+        [EvilDocArgument("chr", "A single-character string whose character code to retrieve.", DynamicValueType.String)]
         private static DynamicValue ToCharacterCode(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
-                .ExpectCharAt(0, out var character);
+                .ExpectCharAt(0, out var chr);
 
-            return (ushort)character;
+            return (ushort)chr;
         }
 
         [RuntimeModuleFunction("replace")]
+        [EvilDocFunction(
+            "Replaces a provided String within the provided String with another String.",
+            Returns = "The modified string.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to be modified.", DynamicValueType.String)]
+        [EvilDocArgument("to_replace", "A String to look for in order to replace.", DynamicValueType.String)]
+        [EvilDocArgument("with", "A String to serve as a replacement.", DynamicValueType.String)]
         private static DynamicValue Replace(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(3)
@@ -268,10 +282,18 @@ namespace Ceres.Runtime.Modules
         }
         
         [RuntimeModuleFunction("trim")]
+        [EvilDocFunction(
+            "Removes the provided characters from both ends of the given String.",
+            Returns = "A String with the provided characters removed from both ends of the given String.",
+            ReturnType = DynamicValueType.String,
+            IsVariadic = true
+        )]
+        [EvilDocArgument("str", "A String to be trimmed.", DynamicValueType.String)]
+        [EvilDocArgument("...", "__At least one__ single-character String.", DynamicValueType.String)]
         private static DynamicValue Trim(Fiber _, params DynamicValue[] args)
         {
-            args.ExpectAtLeast(1)
-                .ExpectStringAt(0, out var source);
+            args.ExpectAtLeast(2)
+                .ExpectStringAt(0, out var str);
 
             var chars = new char[args.Length - 1];
             if (args.Length > 1)
@@ -282,14 +304,22 @@ namespace Ceres.Runtime.Modules
                 }
             }
 
-            return source.Trim(chars.ToArray());
+            return str.Trim(chars.ToArray());
         }
         
         [RuntimeModuleFunction("ltrim")]
+        [EvilDocFunction(
+            "Removes the provided characters from the start of the given String.",
+            Returns = "A String with the provided characters removed from the start of the given String.",
+            ReturnType = DynamicValueType.String,
+            IsVariadic = true
+        )]
+        [EvilDocArgument("str", "A String to be trimmed.", DynamicValueType.String)]
+        [EvilDocArgument("...", "__At least one__ single-character String.", DynamicValueType.String)]
         private static DynamicValue LeftTrim(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
-                .ExpectStringAt(0, out var source);
+                .ExpectStringAt(0, out var str);
 
             var chars = new char[args.Length - 1];
             if (args.Length > 1)
@@ -300,14 +330,22 @@ namespace Ceres.Runtime.Modules
                 }
             }
 
-            return source.TrimStart(chars.ToArray());
+            return str.TrimStart(chars.ToArray());
         }
         
         [RuntimeModuleFunction("rtrim")]
+        [EvilDocFunction(
+            "Removes the provided characters from the end of the given String.",
+            Returns = "A String with the provided characters removed from the end of the given String.",
+            ReturnType = DynamicValueType.String,
+            IsVariadic = true
+        )]
+        [EvilDocArgument("str", "A String to be trimmed.", DynamicValueType.String)]
+        [EvilDocArgument("...", "__At least one__ single-character String.", DynamicValueType.String)]
         private static DynamicValue RightTrim(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
-                .ExpectStringAt(0, out var source);
+                .ExpectStringAt(0, out var str);
 
             var chars = new char[args.Length - 1];
             if (args.Length > 1)
@@ -318,19 +356,31 @@ namespace Ceres.Runtime.Modules
                 }
             }
 
-            return source.TrimEnd(chars.ToArray());
+            return str.TrimEnd(chars.ToArray());
         }
         
         [RuntimeModuleFunction("ucase")]
+        [EvilDocFunction(
+            "Converts all characters in the provided String to upper case and returns the result.",
+            Returns = "The upper-case version of the provided String.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to be converted.", DynamicValueType.String)]
         private static DynamicValue UpperCase(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
-                .ExpectStringAt(0, out var source);
+                .ExpectStringAt(0, out var str);
 
-            return source.ToUpper(CultureInfo.InvariantCulture);
+            return str.ToUpper(CultureInfo.InvariantCulture);
         }
         
         [RuntimeModuleFunction("lcase")]
+        [EvilDocFunction(
+            "Converts all characters in the provided String to lower case and returns the result.",
+            Returns = "The lower-case version of the provided String.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to be converted.", DynamicValueType.String)]
         private static DynamicValue LowerCase(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(1)
@@ -340,11 +390,30 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("sub")]
+        [EvilDocFunction(
+            "Finds a portion of the provided String using a provided start index and optionally an end index.",
+            Returns = "A portion of the provided String using the provided indices, or `nil` on failure.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("str", "A String to search for the substring in.", DynamicValueType.String)]
+        [EvilDocArgument("start_index", "Starting index of the substring within the provided String.", DynamicValueType.Number)]
+        [EvilDocArgument(
+            "end_index",
+            "Ending index of the substring within the provided String.", 
+            DynamicValueType.Number,
+            DefaultValue = "-1"
+        )]
+        [EvilDocArgument(
+            "end_inclusive",
+            "Specifies whether the ending index is inclusive (i.e. the character at it should be included in the returned substring) or not.", 
+            DynamicValueType.Boolean, 
+            DefaultValue = "false"
+        )]
         private static DynamicValue Substring(Fiber _, params DynamicValue[] args)
         {
             args.ExpectAtLeast(2)
                 .ExpectAtMost(4)
-                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(0, out var str)
                 .ExpectIntegerAt(1, out var startIndex)
                 .OptionalIntegerAt(2, defaultValue: -1, out var endIndex)
                 .OptionalBooleanAt(3, defaultValue: false, out var endInclusive);
@@ -363,12 +432,12 @@ namespace Ceres.Runtime.Modules
                         end--;
                     }
                     
-                    if (end >= source.Length)
+                    if (end >= str.Length)
                     {
-                        end = source.Length - (int)startIndex;
+                        end = str.Length - (int)startIndex;
                     }
                     
-                    return source.Substring(
+                    return str.Substring(
                         (int)startIndex,
                         end
                     );
@@ -382,7 +451,7 @@ namespace Ceres.Runtime.Modules
             {
                 try
                 {
-                    return source.Substring((int)startIndex);
+                    return str.Substring((int)startIndex);
                 }
                 catch
                 {
@@ -392,43 +461,88 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("starts_with")]
+        [EvilDocFunction(
+            "Checks if the provided String starts with the other provided String.",
+            Returns = "A Boolean value indicating whether the provided String starts with the other provided String.",
+            ReturnType = DynamicValueType.Boolean
+        )]
+        [EvilDocArgument("str", "A String to check.", DynamicValueType.String)]
+        [EvilDocArgument("start", "A String to be matched with the start of `str`.", DynamicValueType.String)]
         private static DynamicValue StartsWith(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
-                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(0, out var str)
                 .ExpectStringAt(1, out var start);
 
-            return source.StartsWith(start);
+            return str.StartsWith(start);
         }
 
         [RuntimeModuleFunction("ends_with")]
+        [EvilDocFunction(
+            "Checks if the provided String ends with the other provided String.",
+            Returns = "A Boolean value indicating whether the provided String ends with the other provided String.",
+            ReturnType = DynamicValueType.Boolean
+        )]
+        [EvilDocArgument("str", "A String to check.", DynamicValueType.String)]
+        [EvilDocArgument("start", "A String to be matched with the end of `str`.", DynamicValueType.String)]
         private static DynamicValue EndsWith(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
-                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(0, out var str)
                 .ExpectStringAt(1, out var end);
 
-            return source.EndsWith(end);
+            return str.EndsWith(end);
         }
         
         [RuntimeModuleFunction("rmatch")]
+        [EvilDocFunction(
+            "Matches the provided String against a regular expression.",
+            Returns = "An Array containing matches for the provided regex, assuming any have been found, or `nil` on failure.  \n" +
+                      "" +
+                      "If the returned Array is not empty, it will contain one or more tables structured as follows:  \n" +
+                      "```\n" +
+                      "{\n" +
+                      "  success: Boolean\n" +
+                      "  name: String\n" +
+                      "  value: String\n" +
+                      "  starts_at: Number\n" +
+                      "  length: Number\n" +
+                      "  groups: Array\n" +
+                      "}\n" +
+                      "```\n" +
+                      "" +
+                      "If the match contains any groups, the `groups` Array will contain one or more tables structured as follows:  \n" +
+                      "```\n" +
+                      "{\n" +
+                      "  success: Boolean\n" +
+                      "  name: String\n" +
+                      "  value: String\n" +
+                      "  starts_at: Number\n" +
+                      "  length: Number\n" +
+                      "}\n" +
+                      "```\n",
+            ReturnType = DynamicValueType.Array
+        )]
+        [EvilDocArgument("str", "A String to be matched.", DynamicValueType.String)]
+        [EvilDocArgument("regex", "A String containing the regular expression to match `str` against.", DynamicValueType.String)]
         private static DynamicValue RegexMatch(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
-                .ExpectStringAt(0, out var source)
+                .ExpectStringAt(0, out var str)
                 .ExpectStringAt(1, out var regex);
 
-            if (!Regex.IsMatch(source, regex))
+            if (!Regex.IsMatch(str, regex))
                 return Nil;
 
-            var matches = Regex.Matches(source, regex);
+            var matches = Regex.Matches(str, regex);
             var array = new Array(matches.Count);
             for (var i = 0; i < matches.Count; i++)
             {
                 var match = matches[i];
                 
-                var matchTable = new Table
+                var matchTable = new Table()
                 {
+                    { "success", match.Success },
                     { "name", match.Name },
                     { "value", match.Value },
                     { "starts_at", match.Index },
@@ -446,9 +560,11 @@ namespace Ceres.Runtime.Modules
                         { "length", group.Length }
                     };
                     
+                    groupTable.Freeze(true);
                     matchTable["groups"].Array!.Push(groupTable);
                 }
 
+                matchTable.Freeze(true);
                 array[i] = matchTable;
             }
 
@@ -456,6 +572,18 @@ namespace Ceres.Runtime.Modules
         }
 
         [RuntimeModuleFunction("md5")]
+        [EvilDocFunction(
+            "Calculates a checksum of the provided String, applying the provided encoding.",
+            Returns = "A String containing the computed checksum of the provided String.",
+            ReturnType = DynamicValueType.String
+        )]
+        [EvilDocArgument("text", "A String whose checksum to compute.", DynamicValueType.String)]
+        [EvilDocArgument(
+            "encoding",
+            "Name of the encoding to be used during computation.",
+            DynamicValueType.String,
+            DefaultValue = "utf-8"
+        )]
         private static DynamicValue Md5(Fiber _, params DynamicValue[] args)
         {
             args.ExpectStringAt(0, out var text)

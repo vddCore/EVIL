@@ -10,7 +10,7 @@ namespace Ceres.Runtime.Modules
     {
         public override string FullyQualifiedName => "arr";
 
-        [RuntimeModuleFunction("indof")]
+        [RuntimeModuleFunction("index_of")]
         [EvilDocFunction(
             "Searches the given array for an index of the given value.",
             Returns = "A 0-based index of the first matching element in the given array or -1 if not found.",
