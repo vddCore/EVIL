@@ -6,7 +6,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private EachStatement EachLoop()
+        private EachStatement EachStatement()
         {
             var (line, col) = Match(Token.Each);
             Match(Token.LParenthesis);

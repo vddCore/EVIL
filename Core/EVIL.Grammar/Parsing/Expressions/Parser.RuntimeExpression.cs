@@ -49,7 +49,7 @@ namespace EVIL.Grammar.Parsing
             }
             else
             {
-                target = SymbolReference();
+                target = SymbolReferenceExpression();
             }
             Match(Token.GreaterThan);
             

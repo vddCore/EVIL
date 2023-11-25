@@ -18,8 +18,9 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler : AstVisitor
     {
-        private Script _script = new();
-
+        private Script _script = null!;
+        private readonly Parser _parser = new();
+        
         private readonly Stack<Chunk> _chunks = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
         private List<IncludeProcessor> _includeProcessors = new();
@@ -57,8 +58,6 @@ namespace Ceres.TranslationEngine
         private int Line { get; set; }
         private int Column { get; set; }
 
-        private Stack<(int Line, int Column)> LocationStack { get; } = new();
-
         public string CurrentFileName { get; private set; } = string.Empty;
 
         public CompilerLog Log { get; } = new();
@@ -72,12 +71,10 @@ namespace Ceres.TranslationEngine
         public Script Compile(string source, string fileName = "")
         {
             CurrentFileName = fileName;
-
-            var parser = new Parser();
-
+            
             try
             {
-                var program = parser.Parse(source);
+                var program = _parser.Parse(source);
                 return Compile(program, fileName);
             }
             catch (LexerException le)
@@ -109,6 +106,9 @@ namespace Ceres.TranslationEngine
 
         public Script Compile(ProgramNode programNode, string fileName = "")
         {
+            _closedScopes.Clear();
+            _chunks.Clear();
+            _script = new Script();
             CurrentFileName = fileName;
 
             Visit(programNode);
@@ -174,20 +174,22 @@ namespace Ceres.TranslationEngine
             Line = node.Line;
             Column = node.Column;
             
-            LocationStack.Push((Line, Column));
-
             if (node is Expression expression && OptimizeCodeGeneration)
             {
                 node = expression.Reduce();
             }
 
-            base.Visit(node);
-            
-            if (_chunks.Any())
+            if (_blockDescent > 0)
             {
-                var location = LocationStack.Pop();
-                Chunk.DebugDatabase.AddDebugRecord(location.Line, Chunk.CodeGenerator.LastOpCodeIP);
-            }            
+                Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
+            }
+            
+            base.Visit(node);
+
+            if (_blockDescent > 0 || _chunks.Any())
+            {
+                Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
+            }
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)

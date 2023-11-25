@@ -21,9 +21,7 @@ namespace EVIL.Grammar.Parsing
 
             while (CurrentToken.Type != TokenType.EOF)
             {
-                statementList.Add(
-                    TopLevelStatement()
-                );
+                statementList.Add(TopLevelStatement());
             }
 
             return new ProgramNode(statementList);

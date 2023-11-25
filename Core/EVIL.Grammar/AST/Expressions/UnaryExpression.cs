@@ -28,6 +28,14 @@ namespace EVIL.Grammar.AST.Expressions
                     case UnaryOperationType.Minus:
                         return new NumberConstant(-numberConstant.Value)
                             .CopyMetadata<NumberConstant>(this);
+                    
+                    case UnaryOperationType.Plus:
+                        return new NumberConstant(numberConstant.Value)
+                            .CopyMetadata<NumberConstant>(this);
+                    
+                    case UnaryOperationType.LogicalNot:
+                        return new BooleanConstant(numberConstant.Value != 0)
+                            .CopyMetadata<NumberConstant>(this);
 
                     case UnaryOperationType.BitwiseNot:
                         return new NumberConstant(~(long)numberConstant.Value)

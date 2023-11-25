@@ -10,8 +10,9 @@ namespace EVIL.Grammar.AST.Statements
         {
             Expression = expression;
             Reparent(Expression);
-            
-            Line = expression.Line;
+
+            Line = Expression.Line;
+            Column = Expression.Column;
         }
     }
 }

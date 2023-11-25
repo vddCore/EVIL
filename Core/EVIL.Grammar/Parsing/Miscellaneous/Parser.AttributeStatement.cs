@@ -24,7 +24,7 @@ namespace EVIL.Grammar.Parsing
                         var attributePropertyIdentifier = Identifier();
                         
                         Match(Token.Assign);
-                        properties.Add(attributePropertyIdentifier, Constant());
+                        properties.Add(attributePropertyIdentifier, ConstantExpression());
                     }
                     else
                     {
@@ -36,7 +36,7 @@ namespace EVIL.Grammar.Parsing
                             );
                         }
 
-                        attributeValues.Add(Constant());
+                        attributeValues.Add(ConstantExpression());
                     }
 
                     if (CurrentToken != Token.RParenthesis)

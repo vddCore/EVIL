@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private WhileStatement WhileLoop()
+        private WhileStatement WhileStatement()
         {
             var (line, col) = Match(Token.While);
             Match(Token.LParenthesis);

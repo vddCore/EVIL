@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private ForStatement ForLoop()
+        private ForStatement ForStatement()
         {
             var (line, col) = Match(Token.For);
 

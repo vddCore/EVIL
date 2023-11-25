@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
             }
             
             var (line, col) = Match(Token.Break);
-            
+
             return new BreakStatement 
                 { Line = line, Column = col };
         }
