@@ -20,7 +20,7 @@ namespace EVIL.Grammar.Parsing
             }
             else if (CurrentToken == Token.RightArrow)
             {
-                statement = FunctionDescent(ExpressionBody);
+                statement = FunctionDescent(ExpressionBodyStatement);
             }
             else
             {

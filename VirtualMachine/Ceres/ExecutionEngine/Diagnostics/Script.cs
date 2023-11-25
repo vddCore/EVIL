@@ -9,6 +9,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 {
     public sealed class Script : IDynamicValueProvider
     {
+        private Dictionary<string, Chunk> _chunkLookup = new();
         private List<Chunk> _chunks = new();
 
         public IReadOnlyList<Chunk> Chunks => _chunks;
@@ -17,14 +18,12 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             get
             {
-                try
+                if (_chunkLookup.TryGetValue(name, out var chunk))
                 {
-                    return FindChunkByName(name);
+                    return chunk;
                 }
-                catch (InvalidOperationException)
-                {
-                    return null;
-                }
+                
+                return null;
             }
         }
 
@@ -57,10 +56,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
             if (TryFindChunkByName(chunk.Name, out replacedChunk))
             {
                 _chunks.Remove(replacedChunk);
+                _chunkLookup.Remove(chunk.Name);
+                
                 replacedExisting = true;
             }
 
             _chunks.Add(chunk);
+            _chunkLookup.Add(chunk.Name, chunk);
         }
 
         public bool RemoveChunk(string name)
@@ -76,8 +78,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public Chunk FindChunkByName(string name)
         {
-            return Chunks.FirstOrDefault(x => x.Name == name)
-                   ?? throw new InvalidOperationException($"Chunk {name} not found.");
+            Chunk? chunk = null;
+
+            _chunkLookup.TryGetValue(name, out chunk);
+            
+            return chunk ?? throw new InvalidOperationException($"Chunk {name} not found.");
         }
 
         public bool ChunkExists(string name)
@@ -86,16 +91,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public bool TryFindChunkByName(string name, out Chunk chunk)
         {
             chunk = null!;
-
-            try
-            {
-                chunk = FindChunkByName(name);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
+            return _chunkLookup.TryGetValue(name, out chunk!);
         }
 
         public DynamicValue ToDynamicValue()

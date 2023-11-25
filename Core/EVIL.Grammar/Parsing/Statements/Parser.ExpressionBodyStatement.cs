@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private ExpressionBodyStatement ExpressionBody()
+        private ExpressionBodyStatement ExpressionBodyStatement()
         {
             var (line, col) = Match(Token.RightArrow);
             

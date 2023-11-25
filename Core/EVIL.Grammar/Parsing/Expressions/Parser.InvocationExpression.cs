@@ -1,12 +1,13 @@
 ﻿using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private InvocationExpression FunctionCall(Expression callee)
+        private InvocationExpression InvocationExpression(Expression callee)
         {
             var (line, col) = (_lexer.State.Line, _lexer.State.Column);
 
@@ -17,9 +18,12 @@ namespace EVIL.Grammar.Parsing
                     (callee.Line, callee.Column)
                 );
             }
-            
-            return new InvocationExpression(callee, ArgumentList()) 
+
+            var argumentList = ArgumentList();            
+            var expr = new InvocationExpression(callee, argumentList) 
                 { Line = line, Column = col };
+
+            return expr;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private SymbolReferenceExpression SymbolReference()
+        private SymbolReferenceExpression SymbolReferenceExpression()
         {
             var identifier = Identifier();
             

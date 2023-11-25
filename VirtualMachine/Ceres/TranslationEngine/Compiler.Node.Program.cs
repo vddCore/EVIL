@@ -7,12 +7,9 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(ProgramNode programNode)
         {
-            _script = new Script();
-            _closedScopes.Clear();
-            
-            foreach (var node in programNode.Statements)
+            for (var i = 0; i < programNode.Statements.Count; i++)
             {
-                Visit(node);
+                Visit(programNode.Statements[i]);
             }
         }
     }

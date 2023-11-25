@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private IfStatement IfCondition()
+        private IfStatement IfStatement()
         {
             var (line, col) = Match(Token.If);
             Match(Token.LParenthesis);
@@ -21,7 +21,7 @@ namespace EVIL.Grammar.Parsing
 
             if (CurrentToken == Token.RightArrow)
             {
-                node.AddStatement(ExpressionBody());
+                node.AddStatement(ExpressionBodyStatement());
                 Match(Token.Semicolon);
             }
             else
@@ -42,7 +42,7 @@ namespace EVIL.Grammar.Parsing
                     node.AddCondition(expression);
                     if (CurrentToken == Token.RightArrow)
                     {
-                        node.AddStatement(ExpressionBody());
+                        node.AddStatement(ExpressionBodyStatement());
                         Match(Token.Semicolon);
                     }
                     else
@@ -55,7 +55,7 @@ namespace EVIL.Grammar.Parsing
                     Match(Token.Else);
                     if (CurrentToken == Token.RightArrow)
                     {
-                        node.SetElseBranch(ExpressionBody());
+                        node.SetElseBranch(ExpressionBodyStatement());
                         Match(Token.Semicolon);
                     }
                     else
