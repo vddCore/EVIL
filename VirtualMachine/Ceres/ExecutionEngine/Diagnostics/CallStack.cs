@@ -62,6 +62,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             }
 
             Array.Clear(_frames);
+            _currentPointer = -1;
         }
 
         public StackFrame[] ToArray(bool skipNativeFrames = false)

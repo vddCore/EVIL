@@ -69,7 +69,7 @@
     <None Update="tests\018_closures.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\019_require.vil.disabled">
+    <None Update="tests\019_import.dofile.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\lib\test.vil">
@@ -85,6 +85,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\021_override.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="tests\019_import.require.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="tests\test_module\submod\add.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="tests\test_module\submod\sub.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="tests\test_module\init.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,2 +1,2 @@
-fn included_mul(a, b) -> a * b;
-fn included_div(a, b) -> a / b;
+fn imported_mul(a, b) -> a * b;
+fn imported_div(a, b) -> a / b;
