@@ -6,6 +6,7 @@ using System.Text;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Marshaling;
 using Ceres.ExecutionEngine.TypeSystem;
+using EvilArray = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.TranslationEngine.Diagnostics
 {
@@ -139,7 +140,7 @@ namespace Ceres.TranslationEngine.Diagnostics
 
         public DynamicValue ToDynamicValue()
         {
-            var ret = new Table();
+            var ret = new EvilArray(Messages.Count);
 
             for (var i = 0; i < Messages.Count; i++)
             {

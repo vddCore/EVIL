@@ -1,3 +1,4 @@
+val fail = core.fail;
 val get_text = fs.file.get_text;
 val file_exists = fs.file.exists;
 val dname = fs.path.get_dname;
@@ -21,10 +22,49 @@ val get_import_base_data = fn() {
 val try_compile_source = fn(full_path) {
   val source = get_text(full_path);
   val result = evil_compile(source, full_path);
+
+  if (result is Nil) {
+    // noret
+    fail("Failed to compile the file '" + full_path + ": evil.compile return Nil.");
+  }
   
-  if (!result || !result.success) -> core.fail(
-    "Failed to compile the file '" + @full_path + "': " + @result.message
-  );
+  if (!result.success) {
+    val sev = tbl.invert(evil.compiler.severity);
+    val log = result.log;
+    rw val msg = "Failed to compile the file '" + full_path + "':\n";
+    
+    if (log is Array) {
+      each (rw val i, v : log) {
+        
+        msg += "  ";
+
+        if (v.file_name is String) {
+          if (#v.file_name) {
+            msg += v.file_name;
+          }
+        }
+
+        if (v.line > 0) {
+          msg += " :: line " + @v.line;
+
+          if (v.column > 0) {
+            msg += ", column " + @v.column;
+          }
+        }
+
+        msg += " :: " + sev[v.severity];
+        msg += " :: " + v.message;
+        msg += " :: " + v.file_name;
+        
+        if (i < #log - 1) {
+          msg += "\n";
+        }
+      }
+    }    
+    
+    // noret
+    fail(msg);
+  }
   
   ret result.chunk;
 };
@@ -51,4 +91,11 @@ fn dofile(requested_path) {
       }
     }
   }
+  
+  rw val msg = "Unable to find the requested file '" + requested_path + "' in any of the known lookup paths:\n";
+  each (rw val _, v : attempted_imports) {
+    msg += "  " + v;
+  }
+  
+  fail(msg);
 }

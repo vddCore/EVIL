@@ -39,10 +39,18 @@ namespace Ceres.Runtime
                     .GetManifestResourceStream(scriptName)!;
 
                 using var streamReader = new StreamReader(stream);
-
-                var text = streamReader.ReadToEnd();
-                var root = _compiler.Compile(text, $"builtin::{scriptName}");
-                _vm.MainFiber.Schedule(root);
+                var fileName = $"builtin::{scriptName}";
+                
+                try
+                {
+                    var text = streamReader.ReadToEnd();
+                    var root = _compiler.Compile(text, fileName);
+                    _vm.MainFiber.Schedule(root);
+                }
+                catch (CompilerException e)
+                {
+                    throw new EvilRuntimeException($"Failed to compile the built-in script '{fileName}'.", e);  
+                }
             }
         }
 

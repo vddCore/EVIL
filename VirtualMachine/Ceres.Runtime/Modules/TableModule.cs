@@ -1,4 +1,5 @@
-﻿using Ceres.ExecutionEngine.Concurrency;
+﻿using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using EVIL.CommonTypes.TypeSystem;
@@ -156,7 +157,30 @@ namespace Ceres.Runtime.Modules
             args.ExpectTableAt(0, out var table)
                 .OptionalBooleanAt(1, false, out var deep);
 
-            return deep ? table.DeepCopy() : table.ShallowCopy();
+            return deep 
+                ? table.DeepCopy() 
+                : table.ShallowCopy();
+        }
+        
+        [RuntimeModuleFunction("invert")]
+        [EvilDocFunction(
+            "Copies a Table in a way that its values become its keys and vice-versa.",
+            Returns = "A shallow copy of the provided Table with its values and keys swapped.",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument("tbl", "A Table to be inverted.", DynamicValueType.Table)]
+        private static DynamicValue Invert(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectTableAt(0, out var tbl);
+
+            var newTable = new Table();
+
+            foreach (var (key, value) in tbl)
+            {
+                newTable[value] = key;
+            }
+            
+            return newTable;
         }
     }
 }
