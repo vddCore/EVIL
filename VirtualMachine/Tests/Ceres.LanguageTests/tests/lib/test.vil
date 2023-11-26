@@ -1,4 +1,4 @@
-#include "test2.vil"
+dofile("test2.vil");
 
-fn included_add(a, b) -> a + b;
-fn included_sub(a, b) -> a - b;
+fn imported_add(a, b) -> a + b;
+fn imported_sub(a, b) -> a - b;

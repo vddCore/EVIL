@@ -276,7 +276,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             Await();
         }
-
+        
         public void Resume()
         {
             if (State == FiberState.Awaiting)
@@ -301,6 +301,23 @@ namespace Ceres.ExecutionEngine.Concurrency
             {
                 _callStack.DisposeAllAndClear();
             }
+        }
+        
+        public void Reset()
+        {
+            Stop();
+            
+            lock (_evaluationStack)
+            {
+                _evaluationStack.Clear();
+            }
+
+            lock (_waitingFor)
+            {
+                _waitingFor.Clear();
+            }
+            
+            State = FiberState.Fresh;
         }
 
         public void Immunize()

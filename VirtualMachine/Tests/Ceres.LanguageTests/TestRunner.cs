@@ -6,10 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
+using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.TranslationEngine;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.LanguageTests
 {
@@ -84,16 +86,39 @@ namespace Ceres.LanguageTests
                 var path = testRoot.Key;
                 TextOut.WriteLine($"--- [TEST '{path}'] ---");
 
-                var testRootChunk = testRoot.Value;
-                var testChunks = new List<Chunk>();
-                foreach (var (name, id) in testRootChunk.NamedSubChunkLookup)
-                {
-                    var chunk = testRootChunk.SubChunks[id];
-                    if (chunk.HasAttribute("test"))
-                    {
-                        testChunks.Add(chunk);
-                    }
+                VM.Global.Clear();
+                VM.Global.Set("__native_func", new((_, args) => { return args[3]; }));
 
+                VM.Global.Set("__native_object", DynamicValue.FromObject(new object()));
+                VM.Global.Set("__tricky", new TrickyTable());
+
+                Runtime.RegisterBuiltInModules();
+                Runtime.RegisterBuiltInFunctions();
+                Runtime.RegisterModule<AssertModule>(out _);
+
+                VM.MainFiber.SetCrashHandler((fiber, exception) =>
+                {
+                    TextOut.WriteLine($"Test crashed in root chunk: {exception.Message}");
+                    TextOut.WriteLine(fiber.StackTrace(false));
+                    TextOut.WriteLine(exception);
+                    TextOut.WriteLine();
+                });
+                
+                var testRootChunk = testRoot.Value;
+                VM.MainFiber.Schedule(testRootChunk);
+                VM.MainFiber.BlockUntilFinished();
+                
+                var testChunks = new List<Chunk>();
+                foreach (var (name, _) in testRootChunk.NamedSubChunkLookup)
+                {
+                    var v = VM.Global[name];
+                    if (v.Type == DynamicValueType.Chunk)
+                    {
+                        if (v.Chunk!.HasAttribute("test"))
+                        {
+                            testChunks.Add(v.Chunk);
+                        }
+                    }
                 }
 
                 if (testChunks.Count == 0)
@@ -102,18 +127,12 @@ namespace Ceres.LanguageTests
                     continue;
                 }
 
-                VM.Global.Clear();
-                VM.Global.Set("__native_func", new((_, args) => { return args[3]; }));
-
-                VM.Global.Set("__native_object", DynamicValue.FromObject(new object()));
-                VM.Global.Set("__tricky", new TrickyTable());
-
-                Runtime.RegisterBuiltInModules();
-                Runtime.RegisterModule<AssertModule>(out _);
-
-                VM.MainFiber.Schedule(testRootChunk);
-                VM.MainFiber.BlockUntilFinished();
-
+                if (VM.MainFiber.State == FiberState.Crashed)
+                {
+                    VM.MainFiber.Reset();
+                    continue;
+                }
+                
                 for (var i = 0; i < testChunks.Count; i++)
                 {
                     var whenToDisassemble = "failure";
