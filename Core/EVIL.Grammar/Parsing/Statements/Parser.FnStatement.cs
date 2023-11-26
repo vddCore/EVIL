@@ -31,10 +31,10 @@ namespace EVIL.Grammar.Parsing
                 (line, col) = Match(Token.Fn);
             }
 
-            if (_functionDescent > 0)
+            if (_functionDescent > 0 && !isLocalDefinition)
             {
                 throw new ParserException(
-                    "Named function definitions may only appear outside of other functions.",
+                    "Global function definitions may only appear outside of any other functions.",
                     (line, col)
                 );
             }
