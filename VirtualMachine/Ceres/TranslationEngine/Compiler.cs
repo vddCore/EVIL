@@ -118,7 +118,18 @@ namespace Ceres.TranslationEngine
 
         private Chunk InRootChunkDo(Action action)
         {
-            _rootChunk = new Chunk("!_root_chunk");
+            var fileNameBytes = Encoding.UTF8
+                .GetBytes(CurrentFileName);
+            var hash = SHA1.HashData(fileNameBytes);
+            var chunkName = "!_root_chunk";
+            var sb = new StringBuilder();
+            for (var i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("X2"));
+            }
+            chunkName += "!" + sb;
+
+            _rootChunk = new Chunk(chunkName);
             _rootChunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
             _chunks.Push(_rootChunk);
@@ -127,20 +138,6 @@ namespace Ceres.TranslationEngine
                 FinalizeChunk();
             }
 
-            _rootChunk.Name += "!";
-            var source = Encoding.UTF8
-                .GetBytes(CurrentFileName)
-                .Concat(_rootChunk.Code)
-                .ToArray();
-            
-            var hash = SHA1.HashData(source);
-            var sb = new StringBuilder();
-            for (var i = 0; i < hash.Length; i++)
-            {
-                sb.Append(hash[i].ToString("X2"));
-            }
-            _rootChunk.Name += sb.ToString();
-            
             return _chunks.Pop();
         }
 

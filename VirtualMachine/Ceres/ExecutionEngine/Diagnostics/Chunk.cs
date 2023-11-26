@@ -303,7 +303,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Chunk Clone()
         {
             var clone = new Chunk(
-                Name + "$clone",
+                Name,
                 _code.ToArray(),
                 StringPool.ToArray()
             )
@@ -317,20 +317,25 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 _labels = new(_labels),
                 _attributes = new(_attributes),
                 _parameterInitializers = new(_parameterInitializers),
-                _subChunks = new(_subChunks)
             };
+
+            foreach (var subChunk in _subChunks)
+            {
+                clone._subChunks.Add(subChunk.Clone());
+            }
 
             foreach (var closure in _closures)
             {
-                clone._closures.Add(
-                    new(
-                        closure.NestingLevel,
-                        closure.EnclosedId,
-                        closure.EnclosedFunctionName,
-                        closure.IsParameter,
-                        closure.IsClosure
-                    )
+                var clonedClosure = new ClosureInfo(
+                    closure.NestingLevel,
+                    closure.EnclosedId,
+                    closure.EnclosedFunctionName,
+                    closure.IsParameter,
+                    closure.IsClosure
                 );
+
+                clonedClosure.Value = closure.Value;
+                clone._closures.Add(clonedClosure);
             }
 
             return clone;
