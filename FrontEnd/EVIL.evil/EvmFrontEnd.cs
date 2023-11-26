@@ -261,6 +261,14 @@ namespace EVIL.evil
                 "config", 
                 "default.imports"
             );
+
+            var evilHomeDir = AppContext.BaseDirectory
+                .Replace('\\', '/')
+                .TrimEnd('/');
+
+            var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                .Replace('\\', '/')
+                .TrimEnd('/');
             
             if (File.Exists(importConfigPath))
             {
@@ -269,7 +277,9 @@ namespace EVIL.evil
 
                 for (var i = 0; i < lines.Length; i++)
                 {
-                    array[i] = lines[i];
+                    array[i] = lines[i]
+                        .Replace("$EVILHOME", evilHomeDir)
+                        .Replace("$APPDATA", appDataDir);
                 }
 
                 _vm.Global["__IMPORT_PATHS"] = array;
