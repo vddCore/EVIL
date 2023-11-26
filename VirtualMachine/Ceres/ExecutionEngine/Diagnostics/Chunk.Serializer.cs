@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -122,14 +123,20 @@ namespace Ceres.ExecutionEngine.Diagnostics
             private void WriteSubChunks(BinaryWriter bw)
             {
                 if (_chunk.Flags.HasFlag(ChunkFlags.HasSubChunks))
-                {
+                {   
                     bw.Write(_chunk.SubChunkCount);
-
                     for (var i = 0; i < _chunk.SubChunkCount; i++)
                     {
                         var subChunk = _chunk.SubChunks[i];
                         subChunk.Serialize(bw.BaseStream);
                     }
+                    
+                    bw.Write(_chunk.NamedSubChunkLookup.Count);
+                    foreach (var (name, id) in _chunk.NamedSubChunkLookup)
+                    {
+                        bw.Write(name);
+                        bw.Write(id);
+                    }         
                 }
             }
 

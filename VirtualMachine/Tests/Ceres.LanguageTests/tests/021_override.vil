@@ -1,76 +1,71 @@
-#[on_init]
-fn _on_init() {
-
-  Box = { new: self::fn(value) {
-    val table = {
-      __value: value,
-      
-      set_value: self::fn(value) -> self.__value = value,
-      get_value: self::fn() -> self.__value
-    };
+Box = { new: self::fn(value) {
+  val table = {
+    __value: value,
     
-    override(table)::__add(a, b) -> Box::new(a::get_value() + b::get_value());
-    override(table)::__sub(a, b) -> Box::new(a::get_value() - b::get_value());
-    override(table)::__mul(a, b) -> Box::new(a::get_value() * b::get_value());
-    override(table)::__div(a, b) -> Box::new(a::get_value() / b::get_value());
-    override(table)::__mod(a, b) -> Box::new(a::get_value() % b::get_value());
-    override(table)::__shl(a, b) -> Box::new(a::get_value() << b::get_value());
-    override(table)::__shr(a, b) -> Box::new(a::get_value() >> b::get_value());
-    override(table)::__aneg(a) -> Box::new(-a::get_value());
-    override(table)::__inc(a) -> Box::new(a::get_value() + 1);
-    override(table)::__dec(a) -> Box::new(a::get_value() - 1);
-    override(table)::__lnot(a) -> Box::new(!!!a::get_value());
-    override(table)::__lor(a, b) -> Box::new(a::get_value() || b::get_value());
-    override(table)::__land(a, b) -> Box::new(a::get_value() && b::get_value());
-    override(table)::__bor(a, b) -> Box::new(a::get_value() | b::get_value());
-    override(table)::__bxor(a, b) -> Box::new(a::get_value() ^ b::get_value());
-    override(table)::__band(a, b) -> Box::new(a::get_value() & b::get_value());
-    override(table)::__bnot(a) -> Box::new(~a::get_value());
-    override(table)::__deq(a, b) -> Box::new(a::get_value() <==> b::get_value());
-    override(table)::__dne(a, b) -> Box::new(a::get_value() <!=> b::get_value());
-    override(table)::__eq(a, b) -> Box::new(a::get_value() == b::get_value());
-    override(table)::__ne(a, b) -> Box::new(a::get_value() != b::get_value());
-    override(table)::__gt(a, b) -> Box::new(a::get_value() > b::get_value());
-    override(table)::__lt(a, b) -> Box::new(a::get_value() < b::get_value());
-    override(table)::__gte(a, b) -> Box::new(a::get_value() >= b::get_value());
-    override(table)::__lte(a, b) -> Box::new(a::get_value() <= b::get_value());
-    override(table)::__len(a) -> "lmao";
-    override(table)::__tonum(a) -> 21.37;
-    override(table)::__tostr(a) -> "tostring result";
-    
-    override(table)::__invoke(a, b, c) {
-      ret @self::get_value() + "-" + @a + "-" + @b + "-" + @c;
-    }
-    
-    override(table)::__set(k, v) {
-      if (k == "jp2") {
-        tbl.rawset(self, "jp2", "gmd");
-        ret 21.37;
-      }
-    
-      ret tbl.rawset(self, k, v);
-    }
-    
-    override(table)::__get(k) {
-      if (k == "jp2gmd") {
-        ret 21.37;
-      }
-      
-      ret tbl.rawget(self, k);
-    }
-    
-    override(table)::__exists(k) {
-      if (k == "jp2gmd") {
-        ret 11.11;
-      }
-      
-      ret tbl.rawget(self, k) !is Nil;
-    }
-    
-    ret table;
-  }};
+    set_value: self::fn(value) -> self.__value = value,
+    get_value: self::fn() -> self.__value
+  };
   
-}
+  override(table)::__add(a, b) -> Box::new(a::get_value() + b::get_value());
+  override(table)::__sub(a, b) -> Box::new(a::get_value() - b::get_value());
+  override(table)::__mul(a, b) -> Box::new(a::get_value() * b::get_value());
+  override(table)::__div(a, b) -> Box::new(a::get_value() / b::get_value());
+  override(table)::__mod(a, b) -> Box::new(a::get_value() % b::get_value());
+  override(table)::__shl(a, b) -> Box::new(a::get_value() << b::get_value());
+  override(table)::__shr(a, b) -> Box::new(a::get_value() >> b::get_value());
+  override(table)::__aneg(a) -> Box::new(-a::get_value());
+  override(table)::__inc(a) -> Box::new(a::get_value() + 1);
+  override(table)::__dec(a) -> Box::new(a::get_value() - 1);
+  override(table)::__lnot(a) -> Box::new(!!!a::get_value());
+  override(table)::__lor(a, b) -> Box::new(a::get_value() || b::get_value());
+  override(table)::__land(a, b) -> Box::new(a::get_value() && b::get_value());
+  override(table)::__bor(a, b) -> Box::new(a::get_value() | b::get_value());
+  override(table)::__bxor(a, b) -> Box::new(a::get_value() ^ b::get_value());
+  override(table)::__band(a, b) -> Box::new(a::get_value() & b::get_value());
+  override(table)::__bnot(a) -> Box::new(~a::get_value());
+  override(table)::__deq(a, b) -> Box::new(a::get_value() <==> b::get_value());
+  override(table)::__dne(a, b) -> Box::new(a::get_value() <!=> b::get_value());
+  override(table)::__eq(a, b) -> Box::new(a::get_value() == b::get_value());
+  override(table)::__ne(a, b) -> Box::new(a::get_value() != b::get_value());
+  override(table)::__gt(a, b) -> Box::new(a::get_value() > b::get_value());
+  override(table)::__lt(a, b) -> Box::new(a::get_value() < b::get_value());
+  override(table)::__gte(a, b) -> Box::new(a::get_value() >= b::get_value());
+  override(table)::__lte(a, b) -> Box::new(a::get_value() <= b::get_value());
+  override(table)::__len(a) -> "lmao";
+  override(table)::__tonum(a) -> 21.37;
+  override(table)::__tostr(a) -> "tostring result";
+  
+  override(table)::__invoke(a, b, c) {
+    ret @self::get_value() + "-" + @a + "-" + @b + "-" + @c;
+  }
+  
+  override(table)::__set(k, v) {
+    if (k == "jp2") {
+      tbl.rawset(self, "jp2", "gmd");
+      ret 21.37;
+    }
+  
+    ret tbl.rawset(self, k, v);
+  }
+  
+  override(table)::__get(k) {
+    if (k == "jp2gmd") {
+      ret 21.37;
+    }
+    
+    ret tbl.rawget(self, k);
+  }
+  
+  override(table)::__exists(k) {
+    if (k == "jp2gmd") {
+      ret 11.11;
+    }
+    
+    ret tbl.rawget(self, k) !is Nil;
+  }
+  
+  ret table;
+}};
 
 #[test]
 fn add_override() {

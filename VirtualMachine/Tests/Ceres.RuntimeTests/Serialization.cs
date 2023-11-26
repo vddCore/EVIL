@@ -42,8 +42,8 @@ namespace Ceres.RuntimeTests
                          "}";   
 
             var program = _parser.Parse(source);
-            var script = _compiler.Compile(program);
-            var originalChunk = script.Chunks[0];
+            var rootChunk = _compiler.Compile(program);
+            var originalChunk = rootChunk;
 
             using (var ms = new MemoryStream())
             {

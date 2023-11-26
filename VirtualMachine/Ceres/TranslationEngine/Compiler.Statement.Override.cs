@@ -8,7 +8,7 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(OverrideStatement overrideStatement)
         {
-            var id = InSubChunkDo(() =>
+            var id = InAnonymousSubChunkDo(() =>
             {
                 if (overrideStatement.Override == TableOverride.Invoke
                     || overrideStatement.Override == TableOverride.Get

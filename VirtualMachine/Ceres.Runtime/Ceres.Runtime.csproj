@@ -13,4 +13,11 @@
     <ItemGroup>
       <ProjectReference Include="..\Ceres\Ceres.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="ScriptBuiltins\dofile.vil" />
+      <EmbeddedResource Include="ScriptBuiltins\dofile.vil">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
 </Project>

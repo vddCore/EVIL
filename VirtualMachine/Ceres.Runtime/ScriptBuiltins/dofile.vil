@@ -1,0 +1,54 @@
+val get_text = fs.file.get_text;
+val file_exists = fs.file.exists;
+val dname = fs.path.get_dname;
+val fname = fs.path.get_fname;
+val strace = core.strace;
+val path_cmb = fs.path.cmb;
+val evil_compile = evil.compile;
+
+val get_import_base_data = fn() {
+  val stack_trace = strace(true);
+  val caller_frame = stack_trace[2];
+  
+  val caller_file_name = caller_frame.def_in_file;
+  
+  ret {
+    base_dir: dname(caller_file_name),
+    file_name: fname(caller_file_name)
+  };
+};
+
+val try_compile_source = fn(full_path) {
+  val source = get_text(full_path);
+  val result = evil_compile(source, full_path);
+  
+  if (!result || !result.success) -> core.fail(
+    "Failed to compile the file '" + @full_path + "': " + @result.message
+  );
+  
+  ret result.chunk;
+};
+
+val attempted_imports = array { };
+
+fn dofile(requested_path) {
+  val import_data = get_import_base_data();
+  val local_path = path_cmb(import_data.base_dir, requested_path);
+
+  arr.push(attempted_imports, local_path);
+  
+  if (file_exists(local_path)) {
+    ret try_compile_source(local_path)();
+  }
+  
+  if (__IMPORT_PATHS is Array) {
+    each (rw val _, v : __IMPORT_PATHS) {
+      if (v !is String) skip;
+      
+      val external_path = path_cmb(v, requested_path);
+      if (file_exists(external_path)) {
+        ret try_compile_source(external_path);
+      }
+    }
+  }
+}

@@ -63,7 +63,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void Keys()
         {
-            var t = EvilTestResult(
+            var array = EvilTestResult(
                 "fn test() {" +
                 "   val t = {" +
                 "       this: 'is'," +
@@ -72,10 +72,10 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "   };" +
                 "   ret tbl.keys(t);" +
                 "}"
-            ).Table!;
+            ).Array!;
 
-            t.Length.ShouldBe(3);
-            foreach (var kvp in t)
+            array.Length.ShouldBe(3);
+            foreach (var kvp in array)
             {
                 kvp.Value.ShouldBeOneOf("this", "a", "of");
             }
@@ -84,7 +84,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         [Test]
         public void Values()
         {
-            var t = EvilTestResult(
+            var array = EvilTestResult(
                 "fn test() {" +
                 "   val t = {" +
                 "       this: 'is'," +
@@ -93,10 +93,10 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "   };" +
                 "   ret tbl.values(t);" +
                 "}"
-            ).Table!;
+            ).Array!;
 
-            t.Length.ShouldBe(3);
-            foreach (var kvp in t)
+            array.Length.ShouldBe(3);
+            foreach (var kvp in array)
             {
                 kvp.Value.ShouldBeOneOf("is", "test", "evil runtime");
             }

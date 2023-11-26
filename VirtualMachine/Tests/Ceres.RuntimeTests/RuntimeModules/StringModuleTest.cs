@@ -62,7 +62,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public void Repeat()
         {
             EvilTestResult(
-                "fn test() -> str.rep('test', 4);"
+                "fn test() -> str.repeat('test', 4);"
             ).ShouldBe("testtesttesttest");
         }
 
@@ -80,14 +80,6 @@ namespace Ceres.RuntimeTests.RuntimeModules
             EvilTestResult(
                 "fn test() -> str.last_index_of('hello hello hello hello', 'hello');"
             ).ShouldBe(18);
-        }
-
-        [Test]
-        public void IsEmpty()
-        {
-            EvilTestResult(
-                "fn test() -> str.is_empty('');"
-            ).ShouldBe(true);
         }
 
         [Test]

@@ -1,4 +1,3 @@
-using Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Miscellaneous;
 
 namespace Ceres.TranslationEngine
@@ -7,9 +6,9 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(ProgramNode programNode)
         {
-            for (var i = 0; i < programNode.Statements.Count; i++)
+            foreach (var statement in programNode.Statements)
             {
-                Visit(programNode.Statements[i]);
+                Visit(statement);
             }
         }
     }

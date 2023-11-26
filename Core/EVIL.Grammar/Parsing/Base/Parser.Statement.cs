@@ -13,6 +13,10 @@ namespace EVIL.Grammar.Parsing
 
             switch (token.Type)
             {
+                case TokenType.AttributeList:
+                case TokenType.Fn:
+                    return FnStatement();
+                
                 case TokenType.If:
                     node = IfStatement();
                     break;

@@ -15,6 +15,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         HasClosures = 1 << 6,
         HasSubChunks = 1 << 7,
         IsSubChunk = 1 << 8,
-        IsSelfAware = 1 << 9
+        IsSelfAware = 1 << 9,
+        IsSpecialName = 1<< 10
     }
 }

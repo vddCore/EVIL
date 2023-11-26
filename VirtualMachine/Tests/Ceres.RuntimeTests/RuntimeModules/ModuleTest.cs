@@ -42,12 +42,10 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
         protected DynamicValue EvilTestResult(string source, params DynamicValue[] args)
         {
-            var script = _compiler.Compile(source, "!module_test_file!");
+            var chunk = _compiler.Compile(source, "!module_test_file!");
 
-            foreach (var chunk in script.Chunks)
-                _vm.Global[chunk.Name] = chunk;
-
-            _vm.MainFiber.Schedule(script["test"]!, false, args);
+            _vm.MainFiber.Schedule(chunk);
+            _vm.MainFiber.Schedule(chunk["test"]!, false, args);
             _vm.MainFiber.Resume();
             
             _vm.MainFiber.BlockUntilFinished();
