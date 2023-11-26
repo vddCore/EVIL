@@ -79,6 +79,7 @@
         False,
 
         Fn,
+        Loc,
         For,
         Do,
         While,

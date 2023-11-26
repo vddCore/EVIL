@@ -16,8 +16,21 @@ namespace EVIL.Grammar.Parsing
             {
                 attributes.AddRange(AttributeList().Attributes);
             }
-            
-            var (line, col) = Match(Token.Fn);
+
+            var (line, col) = (-1, -1);
+            var isLocalDefinition = false;
+            if (CurrentToken == Token.Loc)
+            {
+                (line, col) = Match(Token.Loc);
+                isLocalDefinition = true;
+                
+                Match(Token.Fn);
+            }
+            else
+            {
+                (line, col) = Match(Token.Fn);
+            }
+
             if (_functionDescent > 0)
             {
                 throw new ParserException(
@@ -51,7 +64,8 @@ namespace EVIL.Grammar.Parsing
                 functionIdentifier,
                 parameterList,
                 statement,
-                attributes
+                attributes,
+                isLocalDefinition
             ) { Line = line, Column = col };
         }
     }
