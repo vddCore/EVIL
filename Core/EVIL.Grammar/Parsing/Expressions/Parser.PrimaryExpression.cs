@@ -33,9 +33,7 @@ namespace EVIL.Grammar.Parsing
             else if (token.Type == TokenType.Ellipsis)
             {
                 var (line, col) = Match(Token.Ellipsis);
-                
-                return new ExtraArgumentsExpression()
-                    { Line = line, Column = col };
+                return new ExtraArgumentsExpression { Line = line, Column = col };
             }
             else if (token.Type == TokenType.Fn)
             {
@@ -43,16 +41,15 @@ namespace EVIL.Grammar.Parsing
             }
             else if (token.Type == TokenType.Identifier)
             {
-                return SymbolReference();
+                return SymbolReferenceExpression();
             }
             else if (token.Type == TokenType.Self)
             {
                 var (line, col) = Match(Token.Self);
-                return new SelfExpression()
-                    { Line = line, Column = col };
+                return new SelfExpression { Line = line, Column = col };
             }
 
-            return Constant();
+            return ConstantExpression();
         }
     }
 }

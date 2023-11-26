@@ -6,8 +6,6 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private int _semicolonExemptions = 0;
-        
         private Statement Statement()
         {
             var token = CurrentToken;
@@ -20,77 +18,72 @@ namespace EVIL.Grammar.Parsing
                     return FnStatement();
                 
                 case TokenType.If:
-                    return IfCondition();
+                    node = IfStatement();
+                    break;
 
                 case TokenType.For:
-                    return ForLoop();
+                    node = ForStatement();
+                    break;
 
                 case TokenType.While:
-                    return WhileLoop();
-                
+                    node = WhileStatement();
+                    break;
+
                 case TokenType.Each:
-                    return EachLoop();
+                    node = EachStatement();
+                    break;
 
                 case TokenType.LBrace:
-                    return BlockStatement();
-                
+                    node = BlockStatement();
+                    break;
+
                 case TokenType.Override:
-                    return OverrideStatement();
+                    node = OverrideStatement();
+                    break;
 
                 case TokenType.Do:
-                    node = DoWhileLoop();
+                    node = DoWhileStatement();
+                    Match(Token.Semicolon);
                     break;
-                
+
                 case TokenType.Rw:
                     node = ReadWriteValStatement();
+                    Match(Token.Semicolon);
                     break;
 
                 case TokenType.Val:
                     node = ValStatement(false);
+                    Match(Token.Semicolon);
                     break;
 
                 case TokenType.Increment:
                 case TokenType.Decrement:
-                    node = new ExpressionStatement(PrefixExpression());
+                    node = ExpressionStatement(PrefixExpression());
+                    Match(Token.Semicolon);
                     break;
 
                 case TokenType.Ret:
                     node = Return();
+                    Match(Token.Semicolon);
                     break;
 
                 case TokenType.Skip:
                     node = Skip();
+                    Match(Token.Semicolon);
                     break;
 
                 case TokenType.Break:
                     node = Break();
+                    Match(Token.Semicolon);
                     break;
 
                 default:
                 {
-                    var expr = AssignmentExpression();
-
-                    if (!expr.IsValidExpressionStatement)
-                    {
-                        throw new ParserException(
-                            "Only assignment, invocation, increment, decrement and yield expressions can be used as statements.",
-                            (expr.Line, expr.Column)
-                        );
-                    }
+                    node = new ExpressionStatement(AssignmentExpression());
+                    Match(Token.Semicolon);
                     
-                    node = new ExpressionStatement(expr);
-                    break;    
+                    break;
                 }
-
-            }
-
-            if (_semicolonExemptions == 0)
-            {
-                Match(Token.Semicolon);
-            }
-            else
-            {
-                _semicolonExemptions--;
             }
 
             return node;

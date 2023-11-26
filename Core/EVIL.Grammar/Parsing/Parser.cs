@@ -17,6 +17,9 @@ namespace EVIL.Grammar.Parsing
 
         public ProgramNode Parse(string source)
         {
+            _includeTokensAllowed = true;
+            _functionDescent = 0;
+            _loopDescent = 0;
             _lexer.LoadSource(source);
 
             var programNode = Program();

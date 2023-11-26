@@ -5,7 +5,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private DoWhileStatement DoWhileLoop()
+        private DoWhileStatement DoWhileStatement()
         {
             var (line, col) = Match(Token.Do);
 

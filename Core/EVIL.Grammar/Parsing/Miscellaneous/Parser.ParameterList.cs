@@ -34,7 +34,7 @@ namespace EVIL.Grammar.Parsing
                 if (CurrentToken == Token.Assign)
                 {
                     Match(Token.Assign);
-                    initializer = Constant();
+                    initializer = ConstantExpression();
                     hasInitializers = true;
                 }
                 else

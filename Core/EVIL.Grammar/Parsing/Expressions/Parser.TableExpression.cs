@@ -76,7 +76,7 @@ namespace EVIL.Grammar.Parsing
                         }
                         else
                         {
-                            key = Constant();
+                            key = ConstantExpression();
                             Match(Token.Associate);
                         }
 

@@ -85,7 +85,7 @@ namespace EVIL.Grammar.Parsing
                         invert = true;
                     }
 
-                    var right = Constant();
+                    var right = ConstantExpression();
 
                     if (right is not TypeCodeConstant typeCodeConstant)
                     {
