@@ -390,6 +390,7 @@ namespace EVIL.Lexical
             return str switch
             {
                 "fn" => Token.Fn,
+                "loc" => Token.Loc,
                 "for" => Token.For,
                 "while" => Token.While,
                 "do" => Token.Do,

@@ -7,7 +7,9 @@ val strace = core.strace;
 val path_cmb = fs.path.cmb;
 val evil_compile = evil.compile;
 
-val get_import_base_data = fn() {
+val attempted_imports = array { };
+
+loc fn get_import_base_data() {
   val stack_trace = strace(true);
   val caller_frame = stack_trace[2];
   
@@ -17,9 +19,45 @@ val get_import_base_data = fn() {
     base_dir: dname(caller_file_name),
     file_name: fname(caller_file_name)
   };
-};
+}
 
-val try_compile_source = fn(full_path) {
+loc fn build_error_message(full_path, log) {
+  rw val msg = "Failed to compile the file '" + full_path + "':\n";
+
+  if (log is Array) {
+    val sev = tbl.invert(evil.compiler.severity);
+    
+    each (rw val i, v : log) {
+      msg += "  ";
+
+      if (v.file_name is String) {
+        if (#v.file_name) {
+          msg += v.file_name;
+        }
+      }
+
+      if (v.line > 0) {
+        msg += " :: line " + @v.line;
+
+        if (v.column > 0) {
+          msg += ", column " + @v.column;
+        }
+      }
+
+      msg += " :: " + sev[v.severity];
+      msg += " :: " + v.message;
+      msg += " :: " + v.file_name;
+      
+      if (i < #log - 1) {
+        msg += "\n";
+      }
+    }
+  }
+  
+  ret msg;
+}
+
+loc fn try_compile_source(full_path) {
   val source = get_text(full_path);
   val result = evil_compile(source, full_path);
 
@@ -29,47 +67,12 @@ val try_compile_source = fn(full_path) {
   }
   
   if (!result.success) {
-    val sev = tbl.invert(evil.compiler.severity);
-    val log = result.log;
-    rw val msg = "Failed to compile the file '" + full_path + "':\n";
-    
-    if (log is Array) {
-      each (rw val i, v : log) {
-        
-        msg += "  ";
-
-        if (v.file_name is String) {
-          if (#v.file_name) {
-            msg += v.file_name;
-          }
-        }
-
-        if (v.line > 0) {
-          msg += " :: line " + @v.line;
-
-          if (v.column > 0) {
-            msg += ", column " + @v.column;
-          }
-        }
-
-        msg += " :: " + sev[v.severity];
-        msg += " :: " + v.message;
-        msg += " :: " + v.file_name;
-        
-        if (i < #log - 1) {
-          msg += "\n";
-        }
-      }
-    }    
-    
     // noret
-    fail(msg);
+    fail(build_error_message(full_path, result.log));
   }
   
   ret result.chunk;
-};
-
-val attempted_imports = array { };
+}
 
 fn dofile(requested_path) {
   val import_data = get_import_base_data();

@@ -1,5 +1,6 @@
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
+using Ceres.TranslationEngine.Scoping;
 using EVIL.Grammar.AST.Statements.TopLevel;
 
 namespace Ceres.TranslationEngine
@@ -8,6 +9,19 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(FnStatement fnStatement)
         {
+            var localId = -1;
+            if (fnStatement.IsLocalDefintion)
+            {
+                localId = Chunk.AllocateLocal();
+                CurrentScope.DefineLocal(
+                    fnStatement.Identifier.Name,
+                    localId,
+                    false,
+                    fnStatement.Line,
+                    fnStatement.Column
+                );
+            }
+
             var id = InNamedSubChunkDo(fnStatement.Identifier.Name, () =>
             {
                 InNewClosedScopeDo(() =>
@@ -40,11 +54,19 @@ namespace Ceres.TranslationEngine
             }
 
             Chunk.CodeGenerator.Emit(OpCode.LDCNK, id);
-            Chunk.CodeGenerator.Emit(
-                OpCode.LDSTR, 
-                (int)Chunk.StringPool.FetchOrAdd(fnStatement.Identifier.Name)
-            );
-            Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
+            
+            if (fnStatement.IsLocalDefintion)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, localId);
+            }
+            else
+            {
+                Chunk.CodeGenerator.Emit(
+                    OpCode.LDSTR,
+                    (int)Chunk.StringPool.FetchOrAdd(fnStatement.Identifier.Name)
+                );
+                Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
+            }
         }
     }
 }

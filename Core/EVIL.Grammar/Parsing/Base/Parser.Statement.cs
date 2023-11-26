@@ -15,6 +15,7 @@ namespace EVIL.Grammar.Parsing
             {
                 case TokenType.AttributeList:
                 case TokenType.Fn:
+                case TokenType.Loc:
                     return FnStatement();
                 
                 case TokenType.If:
