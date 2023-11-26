@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.TranslationEngine.Diagnostics;
@@ -9,8 +11,6 @@ using EVIL.Grammar;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.AST.Statements;
-using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Grammar.Parsing;
 using EVIL.Grammar.Traversal;
 using EVIL.Lexical;
@@ -126,6 +126,21 @@ namespace Ceres.TranslationEngine
                 InNewClosedScopeDo(action);
                 FinalizeChunk();
             }
+
+            _rootChunk.Name += "!";
+            var source = Encoding.UTF8
+                .GetBytes(CurrentFileName)
+                .Concat(_rootChunk.Code)
+                .ToArray();
+            
+            var hash = SHA1.HashData(source);
+            var sb = new StringBuilder();
+            for (var i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("X2"));
+            }
+            _rootChunk.Name += sb.ToString();
+            
             return _chunks.Pop();
         }
 

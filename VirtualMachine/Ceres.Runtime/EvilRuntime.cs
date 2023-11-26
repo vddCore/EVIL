@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
-using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.Runtime.Modules;
@@ -26,14 +25,12 @@ namespace Ceres.Runtime
             _compiler = new Compiler();
         }
 
-        public List<Chunk> RegisterBuiltInFunctions()
+        public void RegisterBuiltInFunctions()
         {
             var scriptNames = Assembly
                 .GetExecutingAssembly()
                 .GetManifestResourceNames()
                 .Where(x => x.StartsWith("Ceres.Runtime.ScriptBuiltins"));
-
-            var list = new List<Chunk>();
 
             foreach (var scriptName in scriptNames)
             {
@@ -45,15 +42,8 @@ namespace Ceres.Runtime
 
                 var text = streamReader.ReadToEnd();
                 var root = _compiler.Compile(text, $"builtin::{scriptName}");
-
-                foreach (var (name, id) in root.NamedSubChunkLookup)
-                {
-                    list.Add(root.SubChunks[id]);
-                    _vm.Global.Set(name, root.SubChunks[id]);
-                }
+                _vm.MainFiber.Schedule(root);
             }
-
-            return list;
         }
 
         public List<RuntimeModule> RegisterBuiltInModules()
