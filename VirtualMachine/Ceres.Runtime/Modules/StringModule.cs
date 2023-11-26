@@ -289,10 +289,10 @@ namespace Ceres.Runtime.Modules
             IsVariadic = true
         )]
         [EvilDocArgument("str", "A String to be trimmed.", DynamicValueType.String)]
-        [EvilDocArgument("...", "__At least one__ single-character String.", DynamicValueType.String)]
+        [EvilDocArgument("...", "Zero or more single-character Strings. If none are provided, whitespace are assumed.", DynamicValueType.String)]
         private static DynamicValue Trim(Fiber _, params DynamicValue[] args)
         {
-            args.ExpectAtLeast(2)
+            args.ExpectAtLeast(1)
                 .ExpectStringAt(0, out var str);
 
             var chars = new char[args.Length - 1];
