@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.TranslationEngine.Diagnostics;
@@ -18,12 +20,10 @@ namespace Ceres.TranslationEngine
 {
     public partial class Compiler : AstVisitor
     {
-        private Script _script = null!;
-        private readonly Parser _parser = new();
-        
+        private Chunk _rootChunk = null!;
+
         private readonly Stack<Chunk> _chunks = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
-        private List<IncludeProcessor> _includeProcessors = new();
 
         private int _blockDescent;
         private readonly Stack<Loop> _loopDescent = new();
@@ -58,6 +58,8 @@ namespace Ceres.TranslationEngine
         private int Line { get; set; }
         private int Column { get; set; }
 
+        private Stack<(int Line, int Column)> LocationStack { get; } = new();
+
         public string CurrentFileName { get; private set; } = string.Empty;
 
         public CompilerLog Log { get; } = new();
@@ -68,13 +70,14 @@ namespace Ceres.TranslationEngine
             OptimizeCodeGeneration = optimizeCodeGeneration;
         }
 
-        public Script Compile(string source, string fileName = "")
+        public Chunk Compile(string source, string fileName = "")
         {
             CurrentFileName = fileName;
-            
+            var parser = new Parser();
+
             try
             {
-                var program = _parser.Parse(source);
+                var program = parser.Parse(source);
                 return Compile(program, fileName);
             }
             catch (LexerException le)
@@ -104,15 +107,41 @@ namespace Ceres.TranslationEngine
             return null!;
         }
 
-        public Script Compile(ProgramNode programNode, string fileName = "")
+        public Chunk Compile(ProgramNode programNode, string fileName = "")
         {
+            CurrentFileName = fileName;
             _closedScopes.Clear();
             _chunks.Clear();
-            _script = new Script();
-            CurrentFileName = fileName;
 
-            Visit(programNode);
-            return _script;
+            return InRootChunkDo(() => Visit(programNode));
+        }
+
+        private Chunk InRootChunkDo(Action action)
+        {
+            _rootChunk = new Chunk("!_root_chunk");
+            _rootChunk.DebugDatabase.DefinedInFile = CurrentFileName;
+
+            _chunks.Push(_rootChunk);
+            {
+                InNewClosedScopeDo(action);
+                FinalizeChunk();
+            }
+
+            _rootChunk.Name += "!";
+            var source = Encoding.UTF8
+                .GetBytes(CurrentFileName)
+                .Concat(_rootChunk.Code)
+                .ToArray();
+            
+            var hash = SHA1.HashData(source);
+            var sb = new StringBuilder();
+            for (var i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("X2"));
+            }
+            _rootChunk.Name += sb.ToString();
+            
+            return _chunks.Pop();
         }
 
         private void InNewLocalScopeDo(Action action)
@@ -133,9 +162,9 @@ namespace Ceres.TranslationEngine
             _closedScopes.RemoveAt(0);
         }
 
-        private int InSubChunkDo(Action action)
+        private int InAnonymousSubChunkDo(Action action)
         {
-            var result = Chunk.AllocateSubChunk();
+            var result = Chunk.AllocateAnonymousSubChunk();
             result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
             _chunks.Push(result.SubChunk);
@@ -147,17 +176,18 @@ namespace Ceres.TranslationEngine
             return result.Id;
         }
 
-        private void InTopLevelChunkDo(Action action, string name, out bool wasExistingReplaced,
-            out Chunk replacedChunk)
+        private int InNamedSubChunkDo(string name, Action action, out bool wasReplaced, out Chunk replacedChunk)
         {
-            var chunk = _script.CreateChunk(name, out wasExistingReplaced, out replacedChunk);
-            chunk.DebugDatabase.DefinedInFile = CurrentFileName;
+            var result = Chunk.AllocateNamedSubChunk(name, out wasReplaced, out replacedChunk);
+            result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
 
-            _chunks.Push(chunk);
+            _chunks.Push(result.SubChunk);
             {
                 action();
             }
             _chunks.Pop();
+
+            return result.Id;
         }
 
         private void InNewLoopDo(LoopKind kind, Action action, bool needsExtraLabel)
@@ -173,23 +203,22 @@ namespace Ceres.TranslationEngine
         {
             Line = node.Line;
             Column = node.Column;
-            
+
+            LocationStack.Push((Line, Column));
+
             if (node is Expression expression && OptimizeCodeGeneration)
             {
                 node = expression.Reduce();
             }
 
-            if (_blockDescent > 0)
+            if (_blockDescent > 0 || _chunks.Count == 1)
             {
                 Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
             }
-            
-            base.Visit(node);
 
-            if (_blockDescent > 0 || _chunks.Any())
-            {
-                Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
-            }
+            base.Visit(node);
+            
+            Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
@@ -201,14 +230,6 @@ namespace Ceres.TranslationEngine
             }
 
             list.Add(processor);
-        }
-
-        public void RegisterIncludeProcessor(IncludeProcessor processor)
-        {
-            if (!_includeProcessors.Contains(processor))
-            {
-                _includeProcessors.Add(processor);
-            }
         }
 
         private DynamicValue ExtractConstantValueFrom(AstNode valueNode)

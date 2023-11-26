@@ -37,12 +37,12 @@ namespace Ceres.Runtime.Modules
             try
             {
                 var compiler = new Compiler();
-                var script = compiler.Compile(source, fileName);
+                var rootChunk = compiler.Compile(source, fileName);
 
                 return new Table
                 {
                     { "success", true },
-                    { "script", script.ToDynamicValue() }
+                    { "chunk", rootChunk }
                 };
             }
             catch (CompilerException e)

@@ -23,7 +23,7 @@ namespace Ceres.LanguageTests
         private TextWriter TextOut { get; }
         private EvilRuntime Runtime { get; }
 
-        private Dictionary<string, Script> TestScripts { get; } = new();
+        private Dictionary<string, Chunk> TestRoots { get; } = new();
         private Dictionary<string, List<(Chunk TestChunk, string FailureReason)>> FailureLog { get; } = new();
 
         public TestRunner(string testDirectory, CeresVM vm, TextWriter? textOut = null)
@@ -44,7 +44,6 @@ namespace Ceres.LanguageTests
                 .ToList();
 
             var compiler = new Compiler();
-            compiler.RegisterIncludeProcessor(IncludeProcessor);
             compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
             compiler.RegisterAttributeProcessor("disasm", AttributeProcessors.DisasmAttribute);
 
@@ -54,8 +53,8 @@ namespace Ceres.LanguageTests
                 try
                 {
                     TextOut.Write($"Compiling test '{path}'...");
-                    var script = compiler.Compile(source, Path.GetFullPath(path));
-                    TestScripts.Add(path, script);
+                    var rootChunk = compiler.Compile(source, Path.GetFullPath(path));
+                    TestRoots.Add(path, rootChunk);
                     TextOut.WriteLine(" [ PASS ]");
                     
                     if (compiler.Log.HasAnyMessages)
@@ -74,71 +73,28 @@ namespace Ceres.LanguageTests
             TextOut.WriteLine();
         }
 
-        private IEnumerable<Chunk> IncludeProcessor(Compiler compiler, Script script, string path, out bool isRedundantInclude)
-        {
-            isRedundantInclude = false;
-            
-            var fullPathToInclude = Path.Combine(
-                Path.GetDirectoryName(compiler.CurrentFileName)!,
-                path
-            );
-
-            if (!File.Exists(fullPathToInclude))
-            {
-                throw new FileNotFoundException("Cannot find the included file.", fullPathToInclude);
-            }
-
-            if (fullPathToInclude == compiler.CurrentFileName)
-            {
-                throw new InvalidOperationException($"Recursive include detected in '{compiler.CurrentFileName}.");
-            }
-            
-            if (_includeCache.TryGetValue(fullPathToInclude, out var chunks))
-            {
-                isRedundantInclude = true;
-                return chunks;
-            }
-            
-            try
-            {
-                var includeCompiler = new Compiler();
-                includeCompiler.RegisterIncludeProcessor(IncludeProcessor);
-
-                var includedScript = includeCompiler.Compile(File.ReadAllText(fullPathToInclude), fullPathToInclude);
-                
-                
-                chunks = includedScript.Chunks;
-                _includeCache.Add(fullPathToInclude, chunks);
-                return chunks;
-            }
-            catch (CompilerException ce)
-            {
-                throw new TestBuildPhaseException(
-                    $"Failed to compile the included file '{path}':\n{ce.Log}", ce
-                );
-            }
-        }
-
         public async Task RunTests()
         {
-            foreach (var testdesc in TestScripts)
+            foreach (var testRoot in TestRoots)
             {
                 var passed = 0;
                 var failed = 0;
                 var ignored = 0;
 
-                var path = testdesc.Key;
+                var path = testRoot.Key;
                 TextOut.WriteLine($"--- [TEST '{path}'] ---");
 
-                var testScript = testdesc.Value;
+                var testRootChunk = testRoot.Value;
+                var testChunks = new List<Chunk>();
+                foreach (var (name, id) in testRootChunk.NamedSubChunkLookup)
+                {
+                    var chunk = testRootChunk.SubChunks[id];
+                    if (chunk.HasAttribute("test"))
+                    {
+                        testChunks.Add(chunk);
+                    }
 
-                var onInitChunks = testScript.Chunks.Where(
-                    x => x.HasAttribute("on_init")
-                );
-                
-                var testChunks = testScript.Chunks.Where(
-                    x => x.HasAttribute("test")
-                ).ToList();
+                }
 
                 if (testChunks.Count == 0)
                 {
@@ -155,21 +111,7 @@ namespace Ceres.LanguageTests
                 Runtime.RegisterBuiltInModules();
                 Runtime.RegisterModule<AssertModule>(out _);
 
-                var nonTestChunks = testScript.Chunks.Where(
-                    x => !x.HasAttribute("test")
-                      && !x.HasAttribute("on_init")
-                ).ToList();
-
-                foreach (var chunk in nonTestChunks)
-                {
-                    VM.Global.Set(chunk.Name, chunk);
-                }
-
-                foreach (var onInitChunk in onInitChunks)
-                {
-                    TextOut.WriteLine($"Running test set-up function '{onInitChunk.Name}'...");
-                    VM.MainFiber.Schedule(onInitChunk);
-                }
+                VM.MainFiber.Schedule(testRootChunk);
                 VM.MainFiber.BlockUntilFinished();
 
                 for (var i = 0; i < testChunks.Count; i++)

@@ -18,6 +18,14 @@ namespace EVIL.Grammar.Parsing
             }
             
             var (line, col) = Match(Token.Fn);
+            if (_functionDescent > 0)
+            {
+                throw new ParserException(
+                    "Named function definitions may only appear outside of other functions.",
+                    (line, col)
+                );
+            }
+            
             var functionIdentifier = Identifier();
             var parameterList = ParameterList();
 

@@ -56,51 +56,49 @@ namespace Ceres.ExecutionEngine.TypeSystem
         }
 
         public static DynamicValue Index(this DynamicValue a, DynamicValue key)
-        {           
-            if (a.Type == DynamicValueType.Table)
+        {
+            switch (a.Type)
             {
-                return a.Table![key];
-            }
-            
-            if (a.Type == DynamicValueType.Array)
-            {
-                if (key.Type != DynamicValueType.Number)
-                {
+                case DynamicValueType.Table:
+                    return a.Table![key];
+
+                case DynamicValueType.Array when key.Type != DynamicValueType.Number:
                     throw new UnsupportedDynamicValueOperationException(
                         $"Attempt to index an {a.Type} using a {key.Type}."
                     );
-                }
 
-                return a.Array![(int)key.Number];
-            }
+                case DynamicValueType.Array:
+                    return a.Array![(int)key.Number];
 
-            if (a.Type == DynamicValueType.String)
-            {
-                if (key.Type != DynamicValueType.Number)
-                {
+                case DynamicValueType.String when key.Type != DynamicValueType.Number:
                     throw new UnsupportedDynamicValueOperationException(
                         $"Attempt to index a {a.Type} using a {key.Type}."
                     );
-                }
 
-                if (key.Number % 1 != 0)
-                {
+                case DynamicValueType.String when key.Number % 1 != 0:
                     throw new UnsupportedDynamicValueOperationException(
                         $"Attempt to index a {a.Type} using a fractional number."
                     );
-                }
 
-                if (key.Number < 0 || key.Number >= a.String!.Length)
-                {
+                case DynamicValueType.String when key.Number < 0 || key.Number >= a.String!.Length:
                     return DynamicValue.Nil;
-                }
 
-                return new(a.String![(int)key.Number]);
+                case DynamicValueType.String:
+                    return new(a.String![(int)key.Number]);
+
+                case DynamicValueType.Chunk when key.Type != DynamicValueType.String:
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Chunks may only be indexed using a String."
+                    );
+
+                case DynamicValueType.Chunk:
+                    return a.Chunk![key.String!] ?? DynamicValue.Nil;
+
+                default:
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to index a {a.Type} value."
+                    );
             }
-            
-            throw new UnsupportedDynamicValueOperationException(
-                $"Attempt to index a {a.Type} value."
-            );
         }
 
         public static DynamicValue ShiftLeft(this DynamicValue a, DynamicValue b)

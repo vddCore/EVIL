@@ -9,7 +9,7 @@ namespace EVIL.Grammar.Parsing
     {
         private ProgramNode Program()
         {
-            var statementList = new List<TopLevelStatement>();
+            var statementList = new List<Statement>();
 
             if (CurrentToken == Token.Empty)
             {
@@ -21,7 +21,9 @@ namespace EVIL.Grammar.Parsing
 
             while (CurrentToken.Type != TokenType.EOF)
             {
-                statementList.Add(TopLevelStatement());
+                statementList.Add(
+                    Statement()
+                );
             }
 
             return new ProgramNode(statementList);

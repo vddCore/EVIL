@@ -1,28 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.Runtime.Modules;
+using Ceres.TranslationEngine;
 
 namespace Ceres.Runtime
 {
     public sealed class EvilRuntime
     {
         private readonly CeresVM _vm;
+        private readonly Compiler _compiler;
 
         private Table Global => _vm.Global;
 
         public EvilRuntime(CeresVM vm)
         {
             _vm = vm;
+            _compiler = new Compiler();
+        }
+
+        public void RegisterBuiltInFunctions()
+        {
+            var scriptNames = Assembly
+                .GetExecutingAssembly()
+                .GetManifestResourceNames()
+                .Where(x => x.StartsWith("Ceres.Runtime.ScriptBuiltins"));
+
+            foreach (var scriptName in scriptNames)
+            {
+                using var stream = Assembly
+                    .GetExecutingAssembly()
+                    .GetManifestResourceStream(scriptName)!;
+
+                using var streamReader = new StreamReader(stream);
+
+                var text = streamReader.ReadToEnd();
+                var root = _compiler.Compile(text, $"builtin::{scriptName}");
+                _vm.MainFiber.Schedule(root);
+            }
         }
 
         public List<RuntimeModule> RegisterBuiltInModules()
         {
             var modules = new List<RuntimeModule>();
-            
+
             modules.Add(RegisterModule<ArrayModule>(out _));
             modules.Add(RegisterModule<ConvertModule>(out _));
             modules.Add(RegisterModule<CoreModule>(out _));

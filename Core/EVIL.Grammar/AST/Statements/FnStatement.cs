@@ -4,7 +4,7 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 namespace EVIL.Grammar.AST.Statements.TopLevel
 {
-    public sealed class FnStatement : TopLevelStatement
+    public sealed class FnStatement : Statement
     {
         public IdentifierNode Identifier { get; }
         public ParameterList ParameterList { get; }

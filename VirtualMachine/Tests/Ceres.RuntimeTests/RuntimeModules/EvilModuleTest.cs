@@ -20,7 +20,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "" +
                 "   ret {" +
                 "     script_table: result," +
-                "     test_result: result.script.chunks[\"test\"]()" +
+                "     test_result: result.chunk['test']()" +
                 "   };" +
                 "}"
             ).Table!;
