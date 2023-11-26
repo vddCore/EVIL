@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
@@ -99,22 +101,50 @@ namespace Ceres.ExecutionEngine
                         frame.FetchInt32()
                     ].Clone();
 
-                    for (var i = 0; i < chunk.ClosureCount; i++)
+                    var subChunkStack = new Queue<Chunk>();
+                    subChunkStack.Enqueue(chunk);
+                    
+                    while (subChunkStack.Any())
                     {
-                        var closure = chunk.Closures[i];
-                        var sourceFrame = _callStack[closure.NestingLevel - 1].As<ScriptStackFrame>();
+                        var currentChunk = subChunkStack.Dequeue();
+                        
+                        for (var i = 0; i < currentChunk.ClosureCount; i++)
+                        {
+                            var closure = currentChunk.Closures[i];
 
-                        if (closure.IsParameter)
-                        {
-                            closure.Value = sourceFrame.Arguments[closure.EnclosedId];
+                            ScriptStackFrame? sourceFrame = null;
+                            for (var j = _callStack.Count - 1; j >= 0; j--)
+                            {
+                                var tmpFrame = _callStack[j].As<ScriptStackFrame>();
+                                if (tmpFrame.Chunk.Name == closure.EnclosedFunctionName)
+                                {
+                                    sourceFrame = tmpFrame;
+                                    break;
+                                }
+                            }
+
+                            if (sourceFrame == null)
+                            {
+                                continue;
+                            }
+                        
+                            if (closure.IsParameter)
+                            {
+                                closure.Value = sourceFrame.Arguments[closure.EnclosedId];
+                            }
+                            else if (closure.IsClosure)
+                            {
+                                closure.Value = sourceFrame.Chunk.Closures[closure.EnclosedId].Value;
+                            }
+                            else
+                            {
+                                closure.Value = sourceFrame.Locals![closure.EnclosedId];
+                            }
                         }
-                        else if (closure.IsClosure)
+
+                        foreach (var child in currentChunk.SubChunks)
                         {
-                            closure.Value = sourceFrame.Chunk.Closures[closure.EnclosedId].Value;
-                        }
-                        else
-                        {
-                            closure.Value = sourceFrame.Locals![closure.EnclosedId];
+                            subChunkStack.Enqueue(child);
                         }
                     }
 
