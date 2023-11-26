@@ -4,6 +4,7 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime.Extensions;
 using Ceres.TranslationEngine;
+using Ceres.TranslationEngine.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 using static EVIL.CommonTypes.TypeSystem.DynamicValueType;
 
@@ -12,6 +13,30 @@ namespace Ceres.Runtime.Modules
     public sealed class EvilModule : RuntimeModule
     {
         public override string FullyQualifiedName => "evil";
+
+        private static Table _severities = new Table()
+        {
+            { "VERBOSE", (int)CompilerMessageSeverity.Verbose },
+            { "WARNING", (int)CompilerMessageSeverity.Warning },
+            { "FATAL", (int)CompilerMessageSeverity.Fatal },
+            { "INTERNAL_FAILURE", (int)CompilerMessageSeverity.InternalFailure },
+        }.Freeze();
+
+        [RuntimeModuleGetter("compiler.severity")]
+        [EvilDocProperty(
+            EvilDocPropertyMode.Get,
+            "Retrieves a table mapping error severity names to numeric representation fo compiler error severity.  \n" +
+            "```\n" +
+            "{\n" +
+            "  VERBOSE: 0,\n" +
+            "  WARNING: 1,\n" +
+            "  FATAL: 2,\n" +
+            "  INTERNAL_FAILURE: 3\n" +
+            "}\n" +
+            "```\n"
+        )]
+        private static DynamicValue CompilerErrorSeverity(DynamicValue key)
+            => _severities;
 
         [RuntimeModuleFunction("compile")]
         [EvilDocFunction(
@@ -22,8 +47,8 @@ namespace Ceres.Runtime.Modules
         )]
         [EvilDocArgument("source", "Source code that is to be compiled.", String)]
         [EvilDocArgument(
-            "file_name", 
-             "File name to be embedded into compiled script's metadata.",
+            "file_name",
+            "File name to be embedded into compiled script's metadata.",
             String,
             DefaultValue = "<dynamic_source>"
         )]
@@ -86,7 +111,7 @@ namespace Ceres.Runtime.Modules
                 { "param_info", BuildParameterInfo(function) }
             };
         }
-        
+
         private static Array BuildLocalInfo(Chunk chunk)
         {
             var array = new Array(chunk.LocalCount);
@@ -94,7 +119,7 @@ namespace Ceres.Runtime.Modules
             for (var i = 0; i < chunk.LocalCount; i++)
             {
                 var local = new Table { { "id", i } };
-                
+
                 if (chunk.DebugDatabase.TryGetLocalName(i, out var localName))
                 {
                     local["name"] = localName;

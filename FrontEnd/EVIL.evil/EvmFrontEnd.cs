@@ -141,9 +141,23 @@ namespace EVIL.evil
 
             RegisterAllModules();
             SetStandardGlobals(scriptPath);
-            
-            _runtime.RegisterBuiltInFunctions();
-            
+
+            try
+            {
+                _runtime.RegisterBuiltInFunctions();
+            }
+            catch (EvilRuntimeException e)
+            {
+                var msg = $"Internal error: {e.Message}";
+                if (e.InnerException is CompilerException ce)
+                {
+                    msg += "See below for details:\n\n";
+                    msg += $"{ce.Message}\n{ce.Log}";
+                }
+
+                Terminate(msg);
+            }
+
             _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
             _vm.MainFiber.SetCrashHandler(CrashHandler);
             _vm.Start();
@@ -235,8 +249,31 @@ namespace EVIL.evil
         private void SetStandardGlobals(string scriptPath)
         {
             _vm.Global["_G"] = _vm.Global;
-            _vm.Global["__SCRIPT_HOME"] = Path.GetDirectoryName(scriptPath) ?? string.Empty;
+            
+            _vm.Global["__SCRIPT_HOME"] = (
+                Path.GetDirectoryName(scriptPath) ?? string.Empty
+            ).Replace('\\', '/');
+            
             _vm.Global["__SCRIPT_FILE"] = Path.GetFileName(scriptPath);
+
+            var importConfigPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "config", 
+                "default.imports"
+            );
+            
+            if (File.Exists(importConfigPath))
+            {
+                var lines = File.ReadAllLines(importConfigPath);
+                var array = new EvilArray(lines.Length);
+
+                for (var i = 0; i < lines.Length; i++)
+                {
+                    array[i] = lines[i];
+                }
+
+                _vm.Global["__IMPORT_PATHS"] = array;
+            }
         }
         
         private void CrashHandler(Fiber fiber, Exception exception)
@@ -261,8 +298,8 @@ namespace EVIL.evil
 
             var dd = scriptTop.Chunk.DebugDatabase;
 
+            sb.AppendLine($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name} (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}:{scriptTop.Chunk.DebugDatabase.DefinedOnLine}):");
             sb.AppendLine($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: {exception.Message}");
-            sb.AppendLine($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name} (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}:{scriptTop.Chunk.DebugDatabase.DefinedOnLine}): {exception.Message}");
             sb.AppendLine();
             sb.AppendLine("Stack trace:");
             sb.Append(fiber.StackTrace(false));
