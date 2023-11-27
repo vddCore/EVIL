@@ -114,7 +114,7 @@ namespace EVIL.Grammar.AST.Expressions
                 {
                     if (Type == BinaryOperationType.Add)
                     {
-                        return new StringConstant(lsc.Value + rsc.Value)
+                        return new StringConstant(lsc.Value + rsc.Value, lsc.IsInterpolated)
                             .CopyMetadata<StringConstant>(this);
                     }
                 }
@@ -127,11 +127,11 @@ namespace EVIL.Grammar.AST.Expressions
 
                         if (amount >= str.Length)
                         {
-                            return new StringConstant(string.Empty)
+                            return new StringConstant(string.Empty, false)
                                 .CopyMetadata<StringConstant>(this);
                         }
 
-                        return new StringConstant(str.Substring(amount))
+                        return new StringConstant(str.Substring(amount), false)
                             .CopyMetadata<StringConstant>(this);
                     }
                     else if (Type == BinaryOperationType.ShiftRight)
@@ -141,11 +141,11 @@ namespace EVIL.Grammar.AST.Expressions
 
                         if (amount <= 0)
                         {
-                            return new StringConstant(string.Empty)
+                            return new StringConstant(string.Empty, false)
                                 .CopyMetadata<StringConstant>(this);
                         }
 
-                        return new StringConstant(str.Substring(0, amount))
+                        return new StringConstant(str.Substring(0, amount), false)
                             .CopyMetadata<StringConstant>(this);
                     }
                 }

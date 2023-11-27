@@ -42,3 +42,57 @@ fn infinity_is_a_number_too() {
 fn can_invert_infinity() {
   assert.not_equal(Infinity, -Infinity);
 }
+
+#[test]
+fn interpolated_string_locals_only_before_and_after_present() {
+  val a = 21.37;
+  val b = "12345";
+  
+  assert.equal(
+    "nyaa  ($a), $b, uwu", 
+    'nyaa  (21.37), 12345, uwu'
+  ); 
+}
+
+#[test]
+fn interpolated_string_locals_only_after_present() {
+  val a = 21.37;
+  val b = "12345";
+  
+  assert.equal(
+    "$a, $b, uwu", 
+    '21.37, 12345, uwu'
+  ); 
+}
+
+#[test]
+fn interpolated_string_locals_only() {
+  val a = 21.37;
+  val b = "12345";
+  
+  assert.equal(
+    "$a, $b", 
+    '21.37, 12345'
+  ); 
+}
+
+#[test]
+fn interpolated_string_locals_and_globals() {
+  val a = 21.37;
+  val b = "12345";
+  jp2 = "gmd";
+  
+  assert.equal(
+    "$a, $b, $jp2", 
+    '21.37, 12345, gmd'
+  ); 
+}
+#[test]
+fn interpolated_string_symbol_prompt_only() {
+  val b = "12345";
+  
+  assert.equal(
+    "$, $b", 
+    '$, 12345'
+  ); 
+}

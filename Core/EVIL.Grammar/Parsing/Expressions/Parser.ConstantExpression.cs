@@ -69,11 +69,18 @@ namespace EVIL.Grammar.Parsing
                     return new BooleanConstant(false)
                         { Line = line, Column = col };
                 }
-                case TokenType.String:
+                case TokenType.PlainString:
                 {
-                    var (line, col) = Match(Token.String);
+                    var (line, col) = Match(Token.PlainString);
 
-                    return new StringConstant(token.Value)
+                    return new StringConstant(token.Value, false)
+                        { Line = line, Column = col };
+                }
+                case TokenType.InterpolatedString:
+                {
+                    var (line, col) = Match(Token.InterpolatedString);
+
+                    return new StringConstant(token.Value, true)
                         { Line = line, Column = col };
                 }
                 case TokenType.Nil:
