@@ -482,7 +482,7 @@ namespace EVIL.Lexical
             if (delimiter != '"' && delimiter != '\'')
             {
                 throw new LexerException(
-                    "Strings can only be delimiated in '' or \"\".",
+                    "Strings can only be delimited by '' or \"\".",
                     line, col
                 );
             }
