@@ -21,8 +21,11 @@ namespace EVIL.Lexical
         public static Token CreateHexInteger(string value)
             => new(TokenType.HexInteger, TokenClass.Literal, value);
 
-        public static Token CreateString(string value)
-            => new(TokenType.String, TokenClass.Literal, value);
+        public static Token CreatePlainString(string value)
+            => new(TokenType.PlainString, TokenClass.Literal, value);
+
+        public static Token CreateInterpolatedString(string value)
+            => new(TokenType.InterpolatedString, TokenClass.Literal, value);
 
         public static Token CreateNumber(string value)
             => new(TokenType.Number, TokenClass.Literal, value);
@@ -183,8 +186,9 @@ namespace EVIL.Lexical
         public static readonly Token Identifier = new(TokenType.Identifier, TokenClass.Identifier, string.Empty);
         public static readonly Token Number = new(TokenType.Number, TokenClass.Literal, string.Empty);
         public static readonly Token HexInteger = new(TokenType.HexInteger, TokenClass.Literal, string.Empty);
-        public static readonly Token String = new(TokenType.String, TokenClass.Literal, string.Empty);
-
+        public static readonly Token PlainString = new(TokenType.PlainString, TokenClass.Literal, string.Empty);
+        public static readonly Token InterpolatedString = new(TokenType.InterpolatedString, TokenClass.Literal, string.Empty);
+        
         public static readonly Token EOF = new(TokenType.EOF, TokenClass.Meta, "<EOF>");
         public static readonly Token Empty = new(TokenType.Empty, TokenClass.Meta, string.Empty);
     }

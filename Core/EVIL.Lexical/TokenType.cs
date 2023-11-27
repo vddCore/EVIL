@@ -73,7 +73,8 @@
 
         Number,
         HexInteger,
-        String,
+        PlainString,
+        InterpolatedString,
 
         True,
         False,

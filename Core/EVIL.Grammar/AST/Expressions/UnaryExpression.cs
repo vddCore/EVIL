@@ -46,7 +46,7 @@ namespace EVIL.Grammar.AST.Expressions
                             .CopyMetadata<NumberConstant>(this);
 
                     case UnaryOperationType.ToString:
-                        return new StringConstant(numberConstant.Value.ToString(CultureInfo.InvariantCulture))
+                        return new StringConstant(numberConstant.Value.ToString(CultureInfo.InvariantCulture), false)
                             .CopyMetadata<StringConstant>(this);
                 }
             }
@@ -71,7 +71,7 @@ namespace EVIL.Grammar.AST.Expressions
                     }
 
                     case UnaryOperationType.ToString:
-                        return new StringConstant(stringConstant.Value)
+                        return new StringConstant(stringConstant.Value, stringConstant.IsInterpolated)
                             .CopyMetadata<StringConstant>(this);
                 }
             }

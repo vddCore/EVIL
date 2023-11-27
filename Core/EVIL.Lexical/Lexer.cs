@@ -477,19 +477,19 @@ namespace EVIL.Lexical
             var (line, col) = (State.Line, State.Column);
 
             var str = string.Empty;
-            var encapsulator = State.Character;
+            var delimiter = State.Character;
 
-            if (encapsulator != '"' && encapsulator != '\'')
+            if (delimiter != '"' && delimiter != '\'')
             {
                 throw new LexerException(
-                    "Strings can only be encapsulated in '' or \"\".",
+                    "Strings can only be delimited by '' or \"\".",
                     line, col
                 );
             }
 
             Advance();
 
-            while (State.Character != encapsulator)
+            while (State.Character != delimiter)
             {
                 if (State.Character == (char)0)
                     throw new LexerException("Unterminated string.", line, col);
@@ -535,6 +535,9 @@ namespace EVIL.Lexical
                         case '\\':
                             str += '\\';
                             break;
+                        case '$':
+                            str += '$';
+                            break;
                         default:
                             throw new LexerException("Unrecognized escape sequence.", State.Line, State.Column);
                     }
@@ -547,7 +550,14 @@ namespace EVIL.Lexical
                 Advance();
             }
 
-            return Token.CreateString(str);
+            if (delimiter == '\'')
+            {
+                return Token.CreatePlainString(str);
+            }
+            else // '"'
+            {
+                return Token.CreateInterpolatedString(str);
+            }
         }
 
         private char GetUnicodeSequence()
