@@ -114,7 +114,7 @@ namespace EVIL.Grammar.AST.Expressions
                 {
                     if (Type == BinaryOperationType.Add)
                     {
-                        return new StringConstant(lsc.Value + rsc.Value, lsc.IsInterpolated)
+                        return new StringConstant(lsc.Value + rsc.Value, lsc.IsInterpolated || rsc.IsInterpolated)
                             .CopyMetadata<StringConstant>(this);
                     }
                 }
