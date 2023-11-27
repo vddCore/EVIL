@@ -191,8 +191,8 @@ namespace EVIL.CoreTests
             ExpectExact(
                 (TokenType.PlainString, "single-quoted string"),
                 (TokenType.PlainString, "single-quoted string with ' escape"),
-                (TokenType.PlainString, "double quoted string"),
-                (TokenType.PlainString, "double quoted string with \" escape"),
+                (TokenType.InterpolatedString, "double quoted string"),
+                (TokenType.InterpolatedString, "double quoted string with \" escape"),
                 (TokenType.PlainString, "this is a \uABCD \x1234")
             );
 
