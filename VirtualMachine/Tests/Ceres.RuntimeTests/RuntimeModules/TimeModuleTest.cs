@@ -16,7 +16,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
             var t = EvilTestResult(
                 "fn test() {" +
                 "   val t = time.now;" +
-                "   ret { now: t, stamp: t.as_stamp() }; " +
+                "   ret { now: t, stamp: t.as_stamp_ms() }; " +
                 "}"
             ).Table!;
 
@@ -32,7 +32,8 @@ namespace Ceres.RuntimeTests.RuntimeModules
             ((double)evilNow["nanosecond"]).ShouldBeInRange(0, 1000);
             ((double)evilNow["ticks"]).ShouldBeInRange(now.Ticks, now.Ticks + 20000000);
             evilNow["day_of_year"].ShouldBe(now.DayOfYear);
-            evilNow["day_of_week"].ShouldBe(now.DayOfWeek.ToString());
+            evilNow["day_of_week"].ShouldBe((int)now.DayOfWeek);
+            evilNow["day_of_week_name"].ShouldBe(now.DayOfWeek.ToString());
 
             var evilStamp = t["stamp"].Number!;
             evilStamp.ShouldBeInRange(stamp, stamp + 100);
