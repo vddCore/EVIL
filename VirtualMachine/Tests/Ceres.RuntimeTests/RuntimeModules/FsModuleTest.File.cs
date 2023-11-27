@@ -1,10 +1,8 @@
 using System;
 using System.IO;
 using System.Text;
-using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using Shouldly;
 
 namespace Ceres.RuntimeTests.RuntimeModules

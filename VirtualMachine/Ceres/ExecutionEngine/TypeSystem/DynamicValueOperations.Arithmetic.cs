@@ -1,5 +1,4 @@
 using System;
-using Ceres.ExecutionEngine.Concurrency;
 using EVIL.CommonTypes.TypeSystem;
 
 namespace Ceres.ExecutionEngine.TypeSystem

@@ -2,7 +2,6 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
-using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
 {

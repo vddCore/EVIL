@@ -80,7 +80,6 @@ fn extreme_closure_nesting() {
     val f = fn(c) {
       ret fn() { ret a + b + c; };
     };
-    
     ret f(2);
   }(9)) + .37;
     
