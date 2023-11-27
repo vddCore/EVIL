@@ -25,7 +25,7 @@ namespace Ceres.Runtime.Modules
             "  second: Number\n" +
             "  millisecond: Number\n" +
             "  microsecond: Number\n" +
-            "  nanoosecond: Number\n" +
+            "  nanosecond: Number\n" +
             "  ticks: Number\n" +
             "  day_of_year: Number\n" +
             "  day_of_week: Number\n" +

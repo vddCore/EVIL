@@ -15,9 +15,9 @@ namespace Ceres.RuntimeTests.RuntimeModules
                 "fn test() {" +
                 "  val values = array() { 1, 2, 3, 'a string', false };" +
                 "  ret array() {" +
-                "    arr.indof(values, 'a string')," +
-                "    arr.indof(values, 3)," +
-                "    arr.indof(values, false)" +
+                "    arr.index_of(values, 'a string')," +
+                "    arr.index_of(values, 3)," +
+                "    arr.index_of(values, false)" +
                 "  };" +
                 "}"
             );
