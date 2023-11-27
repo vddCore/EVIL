@@ -1,7 +1,6 @@
 ﻿using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
-using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
 {
