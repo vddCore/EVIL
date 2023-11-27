@@ -17,7 +17,7 @@ namespace EVIL.Grammar.Parsing
                 (line, col) = Match(Token.Dot);
 
                 var identifier = Identifier();
-                indexer = new StringConstant(identifier.Name)
+                indexer = new StringConstant(identifier.Name, false)
                 {
                     Line = identifier.Line,
                     Column = identifier.Column

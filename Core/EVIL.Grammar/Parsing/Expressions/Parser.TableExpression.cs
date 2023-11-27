@@ -63,7 +63,7 @@ namespace EVIL.Grammar.Parsing
                             if (CurrentToken == Token.Colon)
                             {
                                 Match(Token.Colon);
-                                key = new StringConstant(keyIdentifier.Name)
+                                key = new StringConstant(keyIdentifier.Name, false)
                                     { Line = keyIdentifier.Line, Column = keyIdentifier.Column };
                             }
                             else
