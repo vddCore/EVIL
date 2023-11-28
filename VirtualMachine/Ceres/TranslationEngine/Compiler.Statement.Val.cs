@@ -11,35 +11,35 @@ namespace Ceres.TranslationEngine
         {
             foreach (var kvp in valStatement.Definitions)
             {
-                Symbol sym;
+                var localId = Chunk.AllocateLocal();
+
                 try
                 {
-                    var localId = Chunk.AllocateLocal();
-
-                    sym = CurrentScope.DefineLocal(
+                    CurrentScope.DefineLocal(
                         kvp.Key.Name,
                         localId,
                         valStatement.ReadWrite,
                         valStatement.Line,
                         valStatement.Column
                     );
-
-                    Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name, valStatement.ReadWrite);
                 }
                 catch (DuplicateSymbolException dse)
                 {
                     Log.TerminateWithFatal(
-                        dse.Message,
+                        $"The symbol '{kvp.Key.Name}' already exists in this scope " +
+                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
                         CurrentFileName,
                         EvilMessageCode.DuplicateSymbolInScope,
-                        Line,
-                        Column,
+                        kvp.Key.Line,
+                        kvp.Key.Column,
                         dse
                     );
 
-                    // Dummy return to keep compiler happy.
+                    // Return just in case - TerminateWithFatal should never return, ever.
                     return;
                 }
+
+                Chunk.DebugDatabase.SetLocalName(localId, kvp.Key.Name, valStatement.ReadWrite);
 
                 if (kvp.Value != null)
                 {
@@ -47,7 +47,7 @@ namespace Ceres.TranslationEngine
 
                     Chunk.CodeGenerator.Emit(
                         OpCode.SETLOCAL,
-                        sym.Id
+                        localId
                     );
                 }
             }

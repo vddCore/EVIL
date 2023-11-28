@@ -1,15 +1,20 @@
 using System;
+using Ceres.TranslationEngine.Scoping;
 
 namespace Ceres.TranslationEngine
 {
     public class DuplicateSymbolException : Exception
     {
-        public string SymbolName { get; }
+        internal Symbol ExistingSymbol { get; }
 
-        public DuplicateSymbolException(string symbolName, string message) 
+        public string SymbolName => ExistingSymbol.Name;
+        public int Line => ExistingSymbol.DefinedOnLine;
+        public int Column => ExistingSymbol.DefinedOnColumn;
+
+        internal DuplicateSymbolException(Symbol existingSymbol, string message) 
             : base(message)
         {
-            SymbolName = symbolName;
+            ExistingSymbol = existingSymbol;
         }
     }
 }

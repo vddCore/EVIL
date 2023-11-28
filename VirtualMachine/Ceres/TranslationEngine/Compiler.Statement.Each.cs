@@ -1,4 +1,5 @@
 using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
@@ -12,26 +13,62 @@ namespace Ceres.TranslationEngine
                 int keyLocal = Chunk.AllocateLocal();
                 int valueLocal = -1;
                 var isKeyValue = false;
-                
-                CurrentScope.DefineLocal(
-                    eachStatement.KeyIdentifier.Name,
-                    keyLocal,
-                    false,
-                    eachStatement.KeyIdentifier.Line,
-                    eachStatement.KeyIdentifier.Column
-                );
+
+                try
+                {
+                    CurrentScope.DefineLocal(
+                        eachStatement.KeyIdentifier.Name,
+                        keyLocal,
+                        false,
+                        eachStatement.KeyIdentifier.Line,
+                        eachStatement.KeyIdentifier.Column
+                    );
+                }
+                catch (DuplicateSymbolException dse)
+                {
+                    Log.TerminateWithFatal(
+                        $"The symbol '{eachStatement.KeyIdentifier.Name}' already exists in this scope " +
+                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
+                        CurrentFileName,
+                        EvilMessageCode.DuplicateSymbolInScope,
+                        eachStatement.KeyIdentifier.Line,
+                        eachStatement.KeyIdentifier.Column,
+                        dse
+                    );
+
+                    // Return just in case - TerminateWithFatal should never return, ever.
+                    return;
+                }
 
                 if (eachStatement.ValueIdentifier != null)
                 {
                     valueLocal = Chunk.AllocateLocal();
 
-                    CurrentScope.DefineLocal(
-                        eachStatement.ValueIdentifier.Name,
-                        valueLocal,
-                        false,
-                        eachStatement.ValueIdentifier.Line,
-                        eachStatement.ValueIdentifier.Column
-                    );
+                    try
+                    {
+                        CurrentScope.DefineLocal(
+                            eachStatement.ValueIdentifier.Name,
+                            valueLocal,
+                            false,
+                            eachStatement.ValueIdentifier.Line,
+                            eachStatement.ValueIdentifier.Column
+                        );
+                    }
+                    catch (DuplicateSymbolException dse)
+                    {
+                        Log.TerminateWithFatal(
+                            $"The symbol '{eachStatement.KeyIdentifier.Name}' already exists in this scope " +
+                            $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
+                            CurrentFileName,
+                            EvilMessageCode.DuplicateSymbolInScope,
+                            eachStatement.ValueIdentifier.Line,
+                            eachStatement.ValueIdentifier.Column,
+                            dse
+                        );
+
+                        // Return just in case - TerminateWithFatal should never return, ever.
+                        return;
+                    }
 
                     isKeyValue = true;
                 }

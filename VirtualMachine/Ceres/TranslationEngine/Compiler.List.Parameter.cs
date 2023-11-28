@@ -12,6 +12,7 @@ namespace Ceres.TranslationEngine
                 var parameter = parameterList.Parameters[i];
                 var parameterId = Chunk.AllocateParameter();
 
+
                 try
                 {
                     CurrentScope.DefineParameter(
@@ -21,24 +22,28 @@ namespace Ceres.TranslationEngine
                         parameter.Line,
                         parameter.Column
                     );
-
-                    Chunk.DebugDatabase.SetParameterName(
-                        parameterId,
-                        parameter.Identifier.Name,
-                        parameter.ReadWrite
-                    );
                 }
                 catch (DuplicateSymbolException dse)
                 {
                     Log.TerminateWithFatal(
-                        dse.Message,
+                        $"The symbol '{parameter.Identifier.Name}' already exists in this scope " +
+                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
                         CurrentFileName,
                         EvilMessageCode.DuplicateSymbolInScope,
-                        Line,
-                        Column,
+                        parameter.Identifier.Line,
+                        parameter.Identifier.Column,
                         dse
                     );
+
+                    // Return just in case - TerminateWithFatal should never return, ever.
+                    return;
                 }
+
+                Chunk.DebugDatabase.SetParameterName(
+                    parameterId,
+                    parameter.Identifier.Name,
+                    parameter.ReadWrite
+                );
 
                 if (parameter.Initializer != null)
                 {

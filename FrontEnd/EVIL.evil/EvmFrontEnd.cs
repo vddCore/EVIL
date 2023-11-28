@@ -120,7 +120,9 @@ namespace EVIL.evil
                 var msg = $"Compilation error in {scriptPath}:\n" +
                           $"  {ce.Log.Messages.Last()}";
 
-                if (ce.InnerException != null && ce.InnerException is not ParserException)
+                if (ce.InnerException != null 
+                    && ce.InnerException is not ParserException 
+                                         and not DuplicateSymbolException)
                 {
                     msg += $"\n\n {ce.InnerException.Message}";
                 }

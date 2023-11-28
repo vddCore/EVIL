@@ -1,4 +1,5 @@
 ﻿using Ceres.ExecutionEngine.Diagnostics;
+using Ceres.TranslationEngine.Diagnostics;
 using Ceres.TranslationEngine.Scoping;
 
 namespace Ceres.TranslationEngine
@@ -72,14 +73,29 @@ namespace Ceres.TranslationEngine
                         sym.Type == Symbol.SymbolType.Closure
                     );
 
-                    CurrentScope.DefineClosure(
-                        sym.Name,
-                        result.Id,
-                        sym.ReadWrite,
-                        sym.DefinedOnLine,
-                        sym.DefinedOnColumn,
-                        result.Closure
-                    );
+                    try
+                    {
+                        CurrentScope.DefineClosure(
+                            sym.Name,
+                            result.Id,
+                            sym.ReadWrite,
+                            sym.DefinedOnLine,
+                            sym.DefinedOnColumn,
+                            result.Closure
+                        );
+                    }
+                    catch (DuplicateSymbolException dse)
+                    {
+                        Log.TerminateWithFatal(
+                            $"The symbol '{sym.Name}' already exists in this scope " +
+                            $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
+                            CurrentFileName,
+                            EvilMessageCode.DuplicateSymbolInScope,
+                            sym.DefinedOnLine,
+                            sym.DefinedOnColumn,
+                            dse
+                        );
+                    }
 
                     Chunk.CodeGenerator.Emit(
                         OpCode.SETCLOSURE,
@@ -151,14 +167,29 @@ namespace Ceres.TranslationEngine
                         sym.Type == Symbol.SymbolType.Closure
                     );
 
-                    CurrentScope.DefineClosure(
-                        sym.Name,
-                        result.Id,
-                        sym.ReadWrite,
-                        sym.DefinedOnLine,
-                        sym.DefinedOnColumn,
-                        result.Closure
-                    );
+                    try
+                    {
+                        CurrentScope.DefineClosure(
+                            sym.Name,
+                            result.Id,
+                            sym.ReadWrite,
+                            sym.DefinedOnLine,
+                            sym.DefinedOnColumn,
+                            result.Closure
+                        );
+                    }
+                    catch (DuplicateSymbolException dse)
+                    {
+                        Log.TerminateWithFatal(
+                            $"The symbol '{sym.Name}' already exists in this scope " +
+                            $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
+                            CurrentFileName,
+                            EvilMessageCode.DuplicateSymbolInScope,
+                            sym.DefinedOnLine,
+                            sym.DefinedOnColumn,
+                            dse
+                        );
+                    }
 
                     Chunk.CodeGenerator.Emit(
                         OpCode.GETCLOSURE,
