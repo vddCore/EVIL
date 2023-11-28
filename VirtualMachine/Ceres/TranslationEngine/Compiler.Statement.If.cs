@@ -46,11 +46,6 @@ namespace Ceres.TranslationEngine
                             );
                         }
                     }
-
-                    Chunk.CodeGenerator.Emit(
-                        OpCode.JUMP,
-                        statementEnd
-                    );
                 }
                 else
                 {
@@ -62,6 +57,7 @@ namespace Ceres.TranslationEngine
                 }
 
                 Chunk.UpdateLabel(statementStart, Chunk.CodeGenerator.IP);
+
                 Visit(ifStatement.Statements[i]);
                 Chunk.CodeGenerator.Emit(
                     OpCode.JUMP,

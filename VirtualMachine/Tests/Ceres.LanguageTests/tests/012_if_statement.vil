@@ -94,3 +94,19 @@ fn or_shortcircuit_complex_right_is_true() {
   
   assert.equal(x, 0);
 }
+
+#[test] 
+fn or_shortcircuit_complex_else_branch() {
+  rw val x = -1;
+  
+  if (x is Nil || (x is String || x > 0)) {
+    x = 0;
+  } elif(false) {
+    x = 3;
+  } else {
+    x = 5
+  }
+  
+  assert.equal(x, 5);
+}
+
