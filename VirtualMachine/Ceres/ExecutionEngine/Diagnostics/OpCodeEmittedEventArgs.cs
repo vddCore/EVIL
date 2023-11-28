@@ -7,7 +7,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public int IP { get; }
         public OpCode OpCode { get; }
 
-        public OpCodeEmittedEventArgs(int ip, OpCode opCode)
+        internal OpCodeEmittedEventArgs(int ip, OpCode opCode)
         {
             IP = ip;
             OpCode = opCode;
