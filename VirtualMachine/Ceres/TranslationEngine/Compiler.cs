@@ -58,8 +58,6 @@ namespace Ceres.TranslationEngine
         private int Line { get; set; }
         private int Column { get; set; }
 
-        private Stack<(int Line, int Column)> LocationStack { get; } = new();
-
         public string CurrentFileName { get; private set; } = string.Empty;
 
         public CompilerLog Log { get; } = new();
