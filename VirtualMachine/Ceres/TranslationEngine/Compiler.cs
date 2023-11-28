@@ -131,6 +131,7 @@ namespace Ceres.TranslationEngine
 
             _rootChunk = new Chunk(chunkName);
             _rootChunk.DebugDatabase.DefinedInFile = CurrentFileName;
+            _rootChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
 
             _chunks.Push(_rootChunk);
             {
@@ -163,6 +164,7 @@ namespace Ceres.TranslationEngine
         {
             var result = Chunk.AllocateAnonymousSubChunk();
             result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
+            result.SubChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
 
             _chunks.Push(result.SubChunk);
             {
@@ -177,6 +179,7 @@ namespace Ceres.TranslationEngine
         {
             var result = Chunk.AllocateNamedSubChunk(name, out wasReplaced, out replacedChunk);
             result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
+            result.SubChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
 
             _chunks.Push(result.SubChunk);
             {
@@ -196,26 +199,22 @@ namespace Ceres.TranslationEngine
             _loopDescent.Pop();
         }
 
+        private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
+        {
+            Chunk.DebugDatabase.AddDebugRecord(Line, ip);
+        }
+
         public override void Visit(AstNode node)
         {
             Line = node.Line;
             Column = node.Column;
-
-            LocationStack.Push((Line, Column));
 
             if (node is Expression expression && OptimizeCodeGeneration)
             {
                 node = expression.Reduce();
             }
 
-            if (_blockDescent > 0 || _chunks.Count == 1)
-            {
-                Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
-            }
-
-            base.Visit(node);
-            
-            Chunk.DebugDatabase.AddDebugRecord(Line, Chunk.CodeGenerator.LastOpCodeIP);
+            base.Visit(node);            
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
