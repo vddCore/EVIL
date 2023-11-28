@@ -113,6 +113,11 @@ namespace Ceres.TranslationEngine
 
             return InRootChunkDo(() => Visit(programNode));
         }
+        
+        private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
+        {
+            Chunk.DebugDatabase.AddDebugRecord(Line, ip);
+        }
 
         private Chunk InRootChunkDo(Action action)
         {
@@ -197,11 +202,6 @@ namespace Ceres.TranslationEngine
             _loopDescent.Pop();
         }
 
-        private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
-        {
-            Chunk.DebugDatabase.AddDebugRecord(Line, ip);
-        }
-
         public override void Visit(AstNode node)
         {
             Line = node.Line;
@@ -212,7 +212,7 @@ namespace Ceres.TranslationEngine
                 node = expression.Reduce();
             }
 
-            base.Visit(node);            
+            base.Visit(node);
         }
 
         public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)
