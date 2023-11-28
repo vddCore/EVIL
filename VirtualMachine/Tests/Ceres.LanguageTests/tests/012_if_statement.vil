@@ -88,7 +88,7 @@ fn or_shortcircuit_right_is_true() {
 fn or_shortcircuit_complex_right_is_true() {
   rw val x = -1;
   
-  if (x is Nil || x < 0) {
+  if (x is Nil || (x is String || x < 0)) {
     x = 0;
   }
   
