@@ -1,4 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Grammar;
+using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
@@ -13,12 +18,50 @@ namespace Ceres.TranslationEngine
             {
                 var caseEnd = Chunk.CreateLabel();
 
-                Visit(ifStatement.Conditions[i]);
-                Chunk.CodeGenerator.Emit(
-                    OpCode.FJMP,
-                    caseEnd
-                );
+                var currentConditionExpression = ifStatement.Conditions[i];
+                var statementStart = Chunk.CreateLabel();
 
+                if (currentConditionExpression is BinaryExpression orBex
+                    && orBex.Type == BinaryOperationType.LogicalOr)
+                {
+                    var stack = new Stack<Expression>();
+                    stack.Push(orBex.Right);
+                    stack.Push(orBex.Left);
+
+                    while (stack.Any())
+                    {
+                        var node = stack.Pop();
+
+                        if (node is BinaryExpression innerBex && innerBex.Type == BinaryOperationType.LogicalOr)
+                        {
+                            stack.Push(innerBex.Right);
+                            stack.Push(innerBex.Left);
+                        }
+                        else
+                        {
+                            Visit(node);
+                            Chunk.CodeGenerator.Emit(
+                                OpCode.TJMP,
+                                statementStart
+                            );
+                        }
+                    }
+
+                    Chunk.CodeGenerator.Emit(
+                        OpCode.JUMP,
+                        statementEnd
+                    );
+                }
+                else
+                {
+                    Visit(currentConditionExpression);
+                    Chunk.CodeGenerator.Emit(
+                        OpCode.FJMP,
+                        caseEnd
+                    );
+                }
+
+                Chunk.UpdateLabel(statementStart, Chunk.CodeGenerator.IP);
                 Visit(ifStatement.Statements[i]);
                 Chunk.CodeGenerator.Emit(
                     OpCode.JUMP,
