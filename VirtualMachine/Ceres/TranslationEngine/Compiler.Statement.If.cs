@@ -13,14 +13,13 @@ namespace Ceres.TranslationEngine
         public override void Visit(IfStatement ifStatement)
         {
             var statementEnd = Chunk.CreateLabel();
-
+            
             for (var i = 0; i < ifStatement.Conditions.Count; i++)
             {
-                var caseEnd = Chunk.CreateLabel();
-
-                var currentConditionExpression = ifStatement.Conditions[i];
                 var statementStart = Chunk.CreateLabel();
-
+                var caseEnd = Chunk.CreateLabel();
+                var currentConditionExpression = ifStatement.Conditions[i];
+                
                 if (currentConditionExpression is BinaryExpression orBex
                     && orBex.Type == BinaryOperationType.LogicalOr)
                 {
@@ -46,6 +45,11 @@ namespace Ceres.TranslationEngine
                             );
                         }
                     }
+                    
+                    Chunk.CodeGenerator.Emit(
+                        OpCode.JUMP,
+                        caseEnd
+                    );
                 }
                 else
                 {
