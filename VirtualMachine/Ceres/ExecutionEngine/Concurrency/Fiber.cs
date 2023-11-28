@@ -139,12 +139,8 @@ namespace Ceres.ExecutionEngine.Concurrency
                     {
                         sb.Append($" in {ssf.Chunk.DebugDatabase.DefinedInFile}");
                     }
-
-                    if (ssf.Chunk.DebugDatabase.DefinedOnLine > 0)
-                    {
-                        sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)} (IP: {ssf.PreviousOpCodeIP:X8})");
-                    }
-
+                    
+                    sb.Append($": line {ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP)} (IP: {ssf.PreviousOpCodeIP:X8})");
                     sb.AppendLine();
                 }
                 else if (callStack[i] is NativeStackFrame nsf)

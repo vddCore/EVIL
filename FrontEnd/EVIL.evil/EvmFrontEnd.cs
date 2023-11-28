@@ -310,7 +310,21 @@ namespace EVIL.evil
 
             var dd = scriptTop.Chunk.DebugDatabase;
 
-            sb.AppendLine($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name} (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}:{scriptTop.Chunk.DebugDatabase.DefinedOnLine}):");
+            sb.Append($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name}");
+            
+            if (!string.IsNullOrEmpty(scriptTop.Chunk.DebugDatabase.DefinedInFile))
+            {
+                sb.Append($" (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}");
+                
+                if (scriptTop.Chunk.DebugDatabase.DefinedOnLine > 0)
+                {
+                    sb.Append($", on line {scriptTop.Chunk.DebugDatabase.DefinedOnLine}");
+                }
+
+                sb.Append(")");
+            }
+            sb.AppendLine(": ");
+            
             sb.AppendLine($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: {exception.Message}");
             sb.AppendLine();
             sb.AppendLine("Stack trace:");
