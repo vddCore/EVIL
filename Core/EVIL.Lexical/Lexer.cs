@@ -247,12 +247,12 @@ namespace EVIL.Lexical
                 case ')':
                     State.CurrentToken = Token.RParenthesis with { Line = line, Column = col };
                     break;
-                case '!' when Peek() == 'i' && Peek(2) == 'n':
+                case '!' when Peek() == 'i' && Peek(2) == 'n' && char.IsWhiteSpace(Peek(3)):
                     Advance();
                     Advance();
                     State.CurrentToken = Token.NotIn with { Line = line, Column = col };
                     break;
-                case '!' when Peek() == 'i' && Peek(2) == 's':
+                case '!' when Peek() == 'i' && Peek(2) == 's' && char.IsWhiteSpace(Peek(3)):
                     Advance();
                     Advance();
                     State.CurrentToken = Token.IsNot with { Line = line, Column = col };

@@ -12,13 +12,32 @@ namespace Ceres.TranslationEngine
             if (fnStatement.IsLocalDefintion)
             {
                 localId = Chunk.AllocateLocal();
-                CurrentScope.DefineLocal(
-                    fnStatement.Identifier.Name,
-                    localId,
-                    false,
-                    fnStatement.Line,
-                    fnStatement.Column
-                );
+
+                try
+                {
+                    CurrentScope.DefineLocal(
+                        fnStatement.Identifier.Name,
+                        localId,
+                        false,
+                        fnStatement.Line,
+                        fnStatement.Column
+                    );
+                }
+                catch (DuplicateSymbolException dse)
+                {
+                    Log.TerminateWithFatal(
+                        $"The symbol '{fnStatement.Identifier.Name}' already exists in this scope " +
+                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
+                        CurrentFileName,
+                        EvilMessageCode.DuplicateSymbolInScope,
+                        fnStatement.Identifier.Line,
+                        fnStatement.Identifier.Column,
+                        dse
+                    );
+
+                    // Return just in case - TerminateWithFatal should never return, ever.
+                    return;
+                }
             }
 
             var id = InNamedSubChunkDo(fnStatement.Identifier.Name, () =>

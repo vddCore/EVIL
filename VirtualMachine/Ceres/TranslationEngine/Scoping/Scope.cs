@@ -34,7 +34,7 @@ namespace Ceres.TranslationEngine.Scoping
             if (sym != null && !sym.Value.IsClosure)
             {
                 throw new DuplicateSymbolException(
-                    name,
+                    sym.Value.Symbol,
                     $"Symbol '{name}' was already defined in the current scope."
                 );
             }
@@ -65,7 +65,7 @@ namespace Ceres.TranslationEngine.Scoping
             if (sym != null && !sym.Value.IsClosure)
             {
                 throw new DuplicateSymbolException(
-                    name,
+                    sym.Value.Symbol,
                     $"Symbol '{name}' was already defined in the current scope."
                 );
             }
@@ -98,7 +98,7 @@ namespace Ceres.TranslationEngine.Scoping
             if (sym != null)
             {
                 throw new DuplicateSymbolException(
-                    name,
+                    sym.Value.Symbol,
                     $"Closure '{name}' was already defined in the current scope."
                 );
             }
