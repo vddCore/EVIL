@@ -17,6 +17,7 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         private Stack<DynamicValue> _evaluationStack;
         private CallStack _callStack;
+        private Dictionary<string, ClosureContext> _closureContexts;
 
         private ExecutionUnit _executionUnit;
         private FiberCrashHandler? _crashHandler;
@@ -26,6 +27,8 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         public FiberCrashHandler? CrashHandler => _crashHandler;
         public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
+        
+        public IReadOnlyDictionary<string, ClosureContext> ClosureContexts => _closureContexts;
 
         public CeresVM VirtualMachine { get; }
 
@@ -54,7 +57,7 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        internal Fiber(CeresVM virtualMachine)
+        internal Fiber(CeresVM virtualMachine, Dictionary<string, ClosureContext>? closureContexts = null)
         {
             VirtualMachine = virtualMachine;
 
@@ -63,7 +66,8 @@ namespace Ceres.ExecutionEngine.Concurrency
 
             _evaluationStack = new Stack<DynamicValue>();
             _callStack = new CallStack();
-
+            _closureContexts = closureContexts ?? new Dictionary<string, ClosureContext>();
+            
             _executionUnit = new ExecutionUnit(
                 virtualMachine.Global,
                 this,
@@ -364,6 +368,16 @@ namespace Ceres.ExecutionEngine.Concurrency
             {
                 return _evaluationStack.TryPop(out value!);
             }
+        }
+        
+        public ClosureContext SetClosureContext(string chunkName)
+        {
+            if (!_closureContexts.TryGetValue(chunkName, out var value))
+            {
+                value = _closureContexts[chunkName] = new ClosureContext(chunkName);
+            }
+
+            return value;
         }
 
         public void SetCrashHandler(FiberCrashHandler? crashHandler)

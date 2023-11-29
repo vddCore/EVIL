@@ -5,18 +5,18 @@ namespace Ceres.TranslationEngine.Scoping
 {
     internal class Scope
     {
-        public string FunctionName { get; }
+        public Chunk Chunk { get; }
         public Scope? Parent { get; }
 
         public Dictionary<string, Symbol> Symbols { get; } = new();
         public Dictionary<string, Symbol> Closures { get; } = new();
 
-        private Scope(string functionName)
+        private Scope(Chunk functionName)
         {
-            FunctionName = functionName;
+            Chunk = functionName;
         }
 
-        private Scope(string functionName, Scope parent)
+        private Scope(Chunk functionName, Scope parent)
             : this(functionName)
         {
             Parent = parent;
@@ -152,9 +152,9 @@ namespace Ceres.TranslationEngine.Scoping
             => Symbols.Clear();
 
         public Scope Descend()
-            => new(FunctionName, this);
+            => new(Chunk, this);
 
-        public static Scope CreateRoot(string functionName)
-            => new(functionName);
+        public static Scope CreateRoot(Chunk chunk)
+            => new(chunk);
     }
 }

@@ -156,7 +156,7 @@ namespace Ceres.TranslationEngine
 
         private void InNewClosedScopeDo(Action action)
         {
-            _closedScopes.Insert(0, Scope.CreateRoot(Chunk.Name));
+            _closedScopes.Insert(0, Scope.CreateRoot(Chunk));
             {
                 action();
             }

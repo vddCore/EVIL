@@ -1,6 +1,7 @@
 ﻿using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
 using Ceres.TranslationEngine.Scoping;
+using Scope = Ceres.TranslationEngine.Scoping.Scope;
 
 namespace Ceres.TranslationEngine
 {
@@ -68,9 +69,10 @@ namespace Ceres.TranslationEngine
                     var result = Chunk.AllocateClosure(
                         level,
                         sym.Id,
-                        ownerScope.FunctionName,
+                        ownerScope.Chunk.Name,
                         sym.Type == Symbol.SymbolType.Parameter,
-                        sym.Type == Symbol.SymbolType.Closure
+                        sym.Type == Symbol.SymbolType.Closure,
+                        ReferenceEquals(ownerScope.Chunk, _rootChunk)
                     );
 
                     try
@@ -162,9 +164,10 @@ namespace Ceres.TranslationEngine
                     var result = Chunk.AllocateClosure(
                         level,
                         sym.Id,
-                        ownerScope.FunctionName,
+                        ownerScope.Chunk.Name,
                         sym.Type == Symbol.SymbolType.Parameter,
-                        sym.Type == Symbol.SymbolType.Closure
+                        sym.Type == Symbol.SymbolType.Closure,
+                        ReferenceEquals(ownerScope.Chunk, _rootChunk)
                     );
 
                     try
@@ -208,7 +211,7 @@ namespace Ceres.TranslationEngine
             }
         }
 
-        private (int ClosedScopeLevel, Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
+        private (int ClosedScopeLevel, Scoping.Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
         {
             for (var i = 0; i < _closedScopes.Count; i++)
             {

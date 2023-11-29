@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
-using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
@@ -165,6 +164,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         }
 
         public override string ToString()
-            => $"{Chunk.Name}:{Chunk.DebugDatabase.GetLineForIP((int)IP)}) @ {IP:X8}";
+            => $"{Chunk.Name}:({Chunk.DebugDatabase.GetLineForIP((int)PreviousOpCodeIP)}) @ {PreviousOpCodeIP:X8}";
     }
 }

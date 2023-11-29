@@ -115,6 +115,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         bw.Write(closure.EnclosedFunctionName);
                         bw.Write(closure.IsParameter);
                         bw.Write(closure.IsClosure);
+                        bw.Write(closure.IsSharedScope);
                     }
                 }
             }

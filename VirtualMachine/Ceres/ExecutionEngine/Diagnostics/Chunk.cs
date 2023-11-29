@@ -15,6 +15,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private List<ChunkAttribute> _attributes;
         private Dictionary<int, DynamicValue> _parameterInitializers;
         private List<ClosureInfo> _closures;
+        private Dictionary<string, ClosureContext> _closureContexts;
         private List<Chunk> _subChunks;
         private Dictionary<string, int> _namedSubChunkLookup;
 
@@ -40,6 +41,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
         public IReadOnlyDictionary<int, DynamicValue> ParameterInitializers => _parameterInitializers;
         public IReadOnlyList<ClosureInfo> Closures => _closures;
+        public IReadOnlyDictionary<string, ClosureContext> ClosureContexts => _closureContexts;
         public IReadOnlyList<Chunk> SubChunks => _subChunks;
         public IReadOnlyDictionary<string, int> NamedSubChunkLookup => _namedSubChunkLookup;
 
@@ -116,6 +118,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
             _closures = new List<ClosureInfo>();
+            _closureContexts = new Dictionary<string, ClosureContext>();
             _subChunks = new List<Chunk>();
             _namedSubChunkLookup = new Dictionary<string, int>();
             _serializer = new Serializer(this);
@@ -133,6 +136,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
             _closures = new List<ClosureInfo>();
+            _closureContexts = new Dictionary<string, ClosureContext>();
             _subChunks = new List<Chunk>();
             _namedSubChunkLookup = new Dictionary<string, int>();
             _serializer = new Serializer(this);
@@ -150,6 +154,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _attributes = new List<ChunkAttribute>();
             _parameterInitializers = new Dictionary<int, DynamicValue>();
             _closures = new List<ClosureInfo>();
+            _closureContexts = new Dictionary<string, ClosureContext>();
             _subChunks = new List<Chunk>();
             _namedSubChunkLookup = new Dictionary<string, int>();
             _serializer = new Serializer(this);
@@ -177,8 +182,18 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public int AllocateLocal()
             => LocalCount++;
+        
+        public ClosureContext SetClosureContext(string chunkName)
+        {
+            if (!_closureContexts.TryGetValue(chunkName, out var value))
+            {
+                value = _closureContexts[chunkName] = new ClosureContext(chunkName);
+            }
 
-        public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, string enclosedFunctionName, bool isParameter, bool isClosure)
+            return value;
+        }
+        
+        public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, string enclosedFunctionName, bool isParameter, bool isClosure, bool isSharedScope)
         {
             var id = ClosureCount;
             var ret = new ClosureInfo(
@@ -186,7 +201,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 enclosedId,
                 enclosedFunctionName,
                 isParameter,
-                isClosure
+                isClosure,
+                isSharedScope
             );
 
             _closures.Add(ret);
@@ -314,29 +330,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 ParameterCount = ParameterCount,
                 DebugDatabase = DebugDatabase,
                 IsSelfAware = IsSelfAware,
+                _subChunks = new(_subChunks),
+                _closures = new(_closures),
+                _closureContexts = new(_closureContexts),
                 _labels = new(_labels),
                 _attributes = new(_attributes),
                 _parameterInitializers = new(_parameterInitializers),
             };
-
-            foreach (var subChunk in _subChunks)
-            {
-                clone._subChunks.Add(subChunk.Clone());
-            }
-
-            foreach (var closure in _closures)
-            {
-                var clonedClosure = new ClosureInfo(
-                    closure.NestingLevel,
-                    closure.EnclosedId,
-                    closure.EnclosedFunctionName,
-                    closure.IsParameter,
-                    closure.IsClosure
-                );
-
-                clonedClosure.Value = closure.Value;
-                clone._closures.Add(clonedClosure);
-            }
 
             return clone;
         }
@@ -383,6 +383,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             hashCode.Add(_parameterInitializers);
             hashCode.Add(LocalCount);
             hashCode.Add(_closures);
+            hashCode.Add(_closureContexts);
             hashCode.Add(_labels);
             hashCode.Add(_attributes);
             hashCode.Add(_subChunks);

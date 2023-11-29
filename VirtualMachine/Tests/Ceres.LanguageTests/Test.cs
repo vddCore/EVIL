@@ -24,7 +24,12 @@ namespace Ceres.LanguageTests
         public Test(CeresVM vm, Chunk chunk)
         {
             _chunk = chunk;
-            Fiber = vm.Scheduler.CreateFiber(true, TestCrashHandler);
+            Fiber = vm.Scheduler.CreateFiber(
+                true,
+                TestCrashHandler, 
+                (Dictionary<string, ClosureContext>)vm.MainFiber.ClosureContexts
+            );
+            
             Fiber.SetOnNativeFunctionInvoke(OnNativeFunctionInvoke);
         }
 
