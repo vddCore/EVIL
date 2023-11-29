@@ -104,7 +104,7 @@ fn or_shortcircuit_complex_else_branch() {
   } elif(false) {
     x = 3;
   } else {
-    x = 5
+    x = 5;
   }
   
   assert.equal(x, 5);
