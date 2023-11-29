@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>11.0</LangVersion>
     
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <AssemblyName>Ceres</AssemblyName>
     <AssemblyTitle>Ceres</AssemblyTitle>
   </PropertyGroup>

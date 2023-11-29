@@ -96,20 +96,31 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.LDCNK:
                 {
-                    var chunk = frame.Chunk.SubChunks[
+                    var clone = frame.Chunk.SubChunks[
                         frame.FetchInt32()
                     ].Clone();
-
-                    var subChunkStack = new Queue<Chunk>();
-                    subChunkStack.Enqueue(chunk);
                     
+                    var subChunkStack = new Queue<Chunk>();
+                    subChunkStack.Enqueue(clone);
+
                     while (subChunkStack.Any())
                     {
                         var currentChunk = subChunkStack.Dequeue();
-                        
+
                         for (var i = 0; i < currentChunk.ClosureCount; i++)
                         {
                             var closure = currentChunk.Closures[i];
+
+                            ClosureContext closureContext;
+
+                            if (closure.IsSharedScope)
+                            {
+                                closureContext = frame.Fiber.SetClosureContext(closure.EnclosedFunctionName);
+                            }
+                            else
+                            {
+                                closureContext = currentChunk.SetClosureContext(closure.EnclosedFunctionName);
+                            }
 
                             ScriptStackFrame? sourceFrame = null;
                             for (var j = _callStack.Count - 1; j >= 0; j--)
@@ -126,28 +137,46 @@ namespace Ceres.ExecutionEngine
                             {
                                 continue;
                             }
-                        
+
                             if (closure.IsParameter)
                             {
-                                closure.Value = sourceFrame.Arguments[closure.EnclosedId];
+                                closureContext.Values[closure.EnclosedId] = sourceFrame.Arguments[closure.EnclosedId];
                             }
                             else if (closure.IsClosure)
                             {
-                                closure.Value = sourceFrame.Chunk.Closures[closure.EnclosedId].Value;
+                                // This is probably going to fuck up at some point :skull:
+                                // I just don't know when.
+                                //
+                                // This is pain. First-class functions are pain.
+                                // Curing testicular cancer was easier than implementing  this shit.
+                                //
+                                var innerClosure = sourceFrame.Chunk.Closures[closure.EnclosedId];
+                                
+                                if (innerClosure.IsSharedScope)
+                                {
+                                    closureContext.Values[innerClosure.EnclosedId] = sourceFrame.Fiber
+                                        .ClosureContexts[innerClosure.EnclosedFunctionName].Values[innerClosure.EnclosedId];
+                                }
+                                else
+                                {
+                                    
+                                    closureContext.Values[innerClosure.EnclosedId] = sourceFrame.Chunk
+                                        .ClosureContexts[innerClosure.EnclosedFunctionName].Values[innerClosure.EnclosedId];
+                                }
                             }
                             else
                             {
-                                closure.Value = sourceFrame.Locals![closure.EnclosedId];
+                                closureContext.Values[closure.EnclosedId] = sourceFrame.Locals![closure.EnclosedId];
                             }
                         }
-
+                        
                         foreach (var child in currentChunk.SubChunks)
                         {
-                            subChunkStack.Enqueue(child);
+                            subChunkStack.Enqueue(child.Clone());
                         }
                     }
 
-                    PushValue(chunk);
+                    PushValue(clone);
                     break;
                 }
 
@@ -691,7 +720,8 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.SETCLOSURE:
                 {
-                    var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
+                    var closureId = frame.FetchInt32();
+                    var closureInfo = frame.Chunk.Closures[closureId];
 
                     ScriptStackFrame? targetFrame = null;
 
@@ -721,7 +751,18 @@ namespace Ceres.ExecutionEngine
                     }
                     else
                     {
-                        closureInfo.Value = value;
+                        ClosureContext closureContext;
+                        
+                        if (closureInfo.IsSharedScope)
+                        {
+                            closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
+                        }
+                        else
+                        {
+                            closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
+                        }
+                        
+                        closureContext.Values[closureInfo.EnclosedId] = value;
                     }
 
                     break;
@@ -756,7 +797,18 @@ namespace Ceres.ExecutionEngine
                     }
                     else
                     {
-                        PushValue(closureInfo.Value);
+                        ClosureContext closureContext;
+
+                        if (closureInfo.IsSharedScope)
+                        {
+                            closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
+                        }
+                        else
+                        {
+                            closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
+                        }
+
+                        PushValue(closureContext.Values[closureInfo.EnclosedId]);
                     }
 
                     break;
@@ -1005,7 +1057,10 @@ namespace Ceres.ExecutionEngine
                         );
                     }
 
-                    var fiber = _fiber.VirtualMachine.Scheduler.CreateFiber(false);
+                    var fiber = _fiber.VirtualMachine.Scheduler.CreateFiber(
+                        false, 
+                        closureContexts: (Dictionary<string, ClosureContext>)frame.Fiber.ClosureContexts
+                    );
                     fiber.Schedule(a.Chunk!, args);
                     fiber.Resume();
 

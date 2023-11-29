@@ -132,6 +132,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                                     br.ReadInt32(),
                                     br.ReadString(),
                                     br.ReadBoolean(),
+                                    br.ReadBoolean(),
                                     br.ReadBoolean()
                                 )
                             );

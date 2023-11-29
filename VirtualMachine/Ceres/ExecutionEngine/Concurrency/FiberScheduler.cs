@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.Diagnostics.Debugging;
 
 namespace Ceres.ExecutionEngine.Concurrency
@@ -93,9 +94,12 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public Fiber CreateFiber(bool immunized, FiberCrashHandler? crashHandler = null)
+        public Fiber CreateFiber(
+            bool immunized,
+            FiberCrashHandler? crashHandler = null,
+            Dictionary<string, ClosureContext>? closureContexts = null)
         {
-            var fiber = new Fiber(_vm);
+            var fiber = new Fiber(_vm, closureContexts);
             fiber.SetCrashHandler(crashHandler ?? _defaultCrashHandler);
 
             if (immunized)

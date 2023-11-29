@@ -1,26 +1,32 @@
 using System;
-using Ceres.ExecutionEngine.TypeSystem;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
     public record ClosureInfo
     {
-        internal DynamicValue Value { get; set; }
-        
         public int NestingLevel { get; }
         public int EnclosedId { get; }
         public string EnclosedFunctionName { get; }
         
         public bool IsParameter { get; }
         public bool IsClosure { get; }
+        
+        public bool IsSharedScope { get; }
 
-        internal ClosureInfo(int nestingLevel, int enclosedId, string enclosedFunctionName, bool isParameter, bool isClosure)
+        internal ClosureInfo(
+            int nestingLevel,
+            int enclosedId,
+            string enclosedFunctionName,
+            bool isParameter,
+            bool isClosure,
+            bool isSharedScope)
         {
             NestingLevel = nestingLevel;
             EnclosedId = enclosedId;
             EnclosedFunctionName = enclosedFunctionName;
             IsParameter = isParameter;
             IsClosure = isClosure;
+            IsSharedScope = isSharedScope;
         }
 
         public virtual bool Equals(ClosureInfo? other)
@@ -29,7 +35,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 && EnclosedId == other.EnclosedId
                 && EnclosedFunctionName == other.EnclosedFunctionName
                 && IsParameter == other.IsParameter
-                && IsClosure == other.IsClosure;
+                && IsClosure == other.IsClosure
+                && IsSharedScope == other.IsSharedScope;
         }
 
         public override int GetHashCode()
@@ -38,7 +45,8 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 EnclosedId,
                 EnclosedFunctionName,
                 IsParameter,
-                IsClosure
+                IsClosure,
+                IsSharedScope
             );
     }
 }
