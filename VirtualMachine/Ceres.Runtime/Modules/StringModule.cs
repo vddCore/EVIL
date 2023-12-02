@@ -539,29 +539,34 @@ namespace Ceres.Runtime.Modules
             for (var i = 0; i < matches.Count; i++)
             {
                 var match = matches[i];
+                var groups = new Table();
                 
-                var matchTable = new Table()
+                var matchTable = new Table
                 {
                     { "success", match.Success },
                     { "name", match.Name },
                     { "value", match.Value },
                     { "starts_at", match.Index },
                     { "length", match.Length },
-                    { "groups", new Array(0) }
+                    { "groups", groups },
+                    { "group_count", match.Groups.Count }
                 };
                 
-                foreach (Group group in match.Groups)
+                for (var j = 0; j < match.Groups.Count; j++)
                 {
-                    var groupTable = new Table
+                    var group = match.Groups[j];
+                    
+                    var groupTable = new Table()
                     {
+                        { "id", j },
                         { "name", group.Name },
                         { "value", group.Value },
                         { "starts_at", group.Index },
                         { "length", group.Length }
-                    };
-                    
-                    groupTable.Freeze(true);
-                    matchTable["groups"].Array!.Push(groupTable);
+                    }.Freeze(true);
+
+                    groups[j] = groupTable;
+                    groups[group.Name] = groupTable;
                 }
 
                 matchTable.Freeze(true);
