@@ -1132,9 +1132,12 @@ namespace Ceres.ExecutionEngine
                         if (isKeyValue)
                         {
                             PushValue(enumerator.Current.Value);
+                            PushValue(enumerator.Current.Key);
                         }
-
-                        PushValue(enumerator.Current.Key);
+                        else
+                        {
+                            PushValue(enumerator.Current.Value);
+                        }
                     }
 
                     PushValue(next);

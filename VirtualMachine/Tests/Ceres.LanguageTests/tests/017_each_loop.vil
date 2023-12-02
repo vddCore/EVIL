@@ -5,7 +5,7 @@ fn each_basic_table() {
   rw val tvar_1 = nil;
   rw val tvar_2 = nil;
 
-  each (rw val key : t) {
+  each (rw val key, value : t) {
     if (key == "x") {
       tvar_1 = t[key];
     } elif (key == "y") {
@@ -23,7 +23,7 @@ fn each_basic_table_skip() {
 
   rw val tvar_1 = nil;
 
-  each (rw val key : t) {
+  each (rw val key, value : t) {
     if (key != "z") {
       skip;
     }
@@ -40,7 +40,7 @@ fn each_basic_table_break() {
 
   rw val tvar_1 = nil;
 
-  each (rw val key : t) {
+  each (rw val key, value : t) {
     if (key == "y") {
       tvar_1 = t[key];
       break;
@@ -55,7 +55,7 @@ fn each_basic_table_ret() {
   val f = fn() {
     val t = { x: 21.37, y: 11.11, z: 44.51 };
     
-    each (rw val key : t) {
+    each (rw val key, value : t) {
       if (key == "y") {
         ret t[key];
       }
@@ -144,4 +144,15 @@ fn each_kv_table_ret() {
   
   val result = f();
   assert.equal(result, 11.11);
+}
+
+#[test]
+fn each_val_only() {
+  val t = { 10, 20, 30, 40 };
+  val prev = 0;
+  
+  each (rw val value : t) {
+    assert.equal(math.abs(prev - value), 10);
+    prev = value;
+  }
 }
