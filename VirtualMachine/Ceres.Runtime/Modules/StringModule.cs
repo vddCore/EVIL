@@ -139,17 +139,27 @@ namespace Ceres.Runtime.Modules
         )]
         [EvilDocArgument("str", "A String to split.", DynamicValueType.String)]
         [EvilDocArgument("delim", "A String to split `str` by.", DynamicValueType.String)]
+        [EvilDocArgument(
+            "skip_empty", 
+            "Whether to skip empty strings resulting from the split operation.", 
+            DynamicValueType.Boolean, 
+            DefaultValue = "false"
+        )]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
             args.ExpectExactly(2)
                 .ExpectStringAt(0, out var str)
-                .ExpectStringAt(1, out var separator);
+                .ExpectStringAt(1, out var separator)
+                .OptionalBooleanAt(2, false, out var skipEmpty);
 
             var segments = str.Split(separator);
             var array = new Array(segments.Length);
 
             for (var i = 0; i < segments.Length; i++)
             {
+                if (string.IsNullOrEmpty(segments[i]) && skipEmpty)
+                    continue;
+                
                 array[i] = segments[i];
             }
 
@@ -507,7 +517,7 @@ namespace Ceres.Runtime.Modules
                       "  value: String\n" +
                       "  starts_at: Number\n" +
                       "  length: Number\n" +
-                      "  groups: Array\n" +
+                      "  groups: Table\n" +
                       "}\n" +
                       "```\n" +
                       "" +
