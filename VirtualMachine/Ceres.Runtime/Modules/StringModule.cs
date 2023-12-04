@@ -147,7 +147,7 @@ namespace Ceres.Runtime.Modules
         )]
         private static DynamicValue Split(Fiber _, params DynamicValue[] args)
         {
-            args.ExpectExactly(2)
+            args.ExpectAtLeast(2)
                 .ExpectStringAt(0, out var str)
                 .ExpectStringAt(1, out var separator)
                 .OptionalBooleanAt(2, false, out var skipEmpty);
