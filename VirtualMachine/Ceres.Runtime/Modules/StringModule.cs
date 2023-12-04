@@ -153,14 +153,14 @@ namespace Ceres.Runtime.Modules
                 .OptionalBooleanAt(2, false, out var skipEmpty);
 
             var segments = str.Split(separator);
-            var array = new Array(segments.Length);
+            var array = new Array(0);
 
             for (var i = 0; i < segments.Length; i++)
             {
                 if (string.IsNullOrEmpty(segments[i]) && skipEmpty)
                     continue;
-                
-                array[i] = segments[i];
+
+                array.Push(segments[i]);
             }
 
             return array;
