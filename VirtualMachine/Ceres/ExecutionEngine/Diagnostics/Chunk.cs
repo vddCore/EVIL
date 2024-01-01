@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Ceres.ExecutionEngine.Diagnostics.Debugging;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -309,6 +310,31 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
         public bool HasAttribute(string name)
             => TryGetAttribute(name, out _);
+
+        public byte[] ComputeChecksum()
+        {
+            var bytes = new List<byte>();
+            bytes.AddRange(_code.ToArray());
+            foreach (var subChunk in _subChunks)
+            {
+                bytes.AddRange(subChunk.ComputeChecksum());
+            }
+
+            return SHA256.HashData(bytes.ToArray());
+        }
+
+        public string ComputeChecksumString()
+        {
+            var bytes = ComputeChecksum();
+            var sb = new StringBuilder();
+
+            foreach (var b in bytes)
+            {
+                sb.Append($"{b:X2}");
+            }
+
+            return sb.ToString();
+        }
 
         public void Serialize(Stream stream)
             => _serializer.Write(stream);
