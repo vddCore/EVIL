@@ -122,7 +122,8 @@ namespace Ceres.TranslationEngine
         private Chunk InRootChunkDo(Action action)
         {
             var fileNameBytes = Encoding.UTF8
-                .GetBytes(CurrentFileName);
+                .GetBytes(CurrentFileName + Random.Shared.Next());
+            
             var hash = SHA1.HashData(fileNameBytes);
             var chunkName = "!_root_chunk";
             var sb = new StringBuilder();
