@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using Ceres.ExecutionEngine.Collections.Serialization;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
@@ -21,9 +23,11 @@ namespace Ceres.ExecutionEngine.Collections
             set => Set(key, value);
         }
 
+        public IReadOnlyDictionary<TableOverride, Chunk> Overrides => _overrides;
+
         public bool IsFrozen { get; private set; }
 
-        public double Length
+        public int Length
         {
             get
             {
@@ -33,6 +37,12 @@ namespace Ceres.ExecutionEngine.Collections
                 }
             }
         }
+
+        public void Serialize(Stream stream)
+            => TableSerializer.Serialize(this, stream);
+
+        public static Table Deserialize(Stream stream)
+            => TableSerializer.Deserialize(stream);
 
         public bool TryGetOverride(TableOverride op, [MaybeNullWhen(false)] out Chunk chunk)
         {
