@@ -164,16 +164,8 @@ namespace EVIL.evil
             _vm.MainFiber.SetCrashHandler(CrashHandler);
             _vm.Start();
             
-            await _vm.MainFiber.ScheduleAsync(rootChunk, scriptArgs);
-            while (true)
-            {
-                if (_vm.MainFiber.State == FiberState.Finished)
-                {
-                    break;
-                }
-
-                await Task.Delay(1);
-            }
+            _vm.MainFiber.Schedule(rootChunk, scriptArgs);
+            await _vm.MainFiber.BlockUntilFinishedAsync();
         }
 
         private List<string> InitializeOptions(string[] args)
