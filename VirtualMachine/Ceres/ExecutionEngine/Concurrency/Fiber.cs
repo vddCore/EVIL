@@ -94,15 +94,6 @@ namespace Ceres.ExecutionEngine.Concurrency
             }
         }
 
-        public async Task ScheduleAsync(Chunk chunk, params DynamicValue[] args)
-            => await ScheduleAsync(chunk, true, args);
-
-        public async Task ScheduleAsync(Chunk chunk, bool resumeImmediately, params DynamicValue[] args)
-        {
-            Schedule(chunk, resumeImmediately, args);
-            await BlockUntilFinishedAsync();
-        }
-
         public void BlockUntilFinished()
         {
             while (State != FiberState.Finished && 
@@ -114,14 +105,7 @@ namespace Ceres.ExecutionEngine.Concurrency
         
         public async Task BlockUntilFinishedAsync()
         {
-            var hasAnyChunks = false;
-            lock (_scheduledChunks)
-            {
-                hasAnyChunks = _scheduledChunks.Any();
-            }
-
-            while (hasAnyChunks &&
-                   State != FiberState.Finished &&
+            while (State != FiberState.Finished &&
                    State != FiberState.Crashed)
             {
                 await Task.Delay(1);

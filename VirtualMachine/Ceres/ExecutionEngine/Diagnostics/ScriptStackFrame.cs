@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
+using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
@@ -40,6 +42,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
         {
             Fiber = fiber;
             Chunk = chunk;
+
+            if (chunk == null)
+            {
+                throw new InvalidOperationException("aaa");
+            }
 
             if (chunk.ParameterCount > args.Length)
             {
