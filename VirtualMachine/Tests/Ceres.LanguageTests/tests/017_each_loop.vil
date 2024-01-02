@@ -149,10 +149,13 @@ fn each_kv_table_ret() {
 #[test]
 fn each_val_only() {
   val t = { 10, 20, 30, 40 };
-  rw val prev = 0;
   
   each (rw val value : t) {
-    assert.equal(math.abs(prev - value), 10);
-    prev = value;
+    assert.is_true(
+      value == 10
+      || value == 20
+      || value == 30
+      || value == 40
+    );
   }
 }

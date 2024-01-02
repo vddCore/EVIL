@@ -25,7 +25,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     (byte)'E',
                     (byte)'V',
                     (byte)'C',
-                    Chunk.FormatVersion
+                    FormatVersion
                 });
 
                 bw.Write(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());

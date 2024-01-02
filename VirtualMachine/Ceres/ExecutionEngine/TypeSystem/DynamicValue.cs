@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Text;
 using Ceres.ExecutionEngine.Collections;
+using Ceres.ExecutionEngine.Collections.Serialization;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
@@ -101,6 +103,12 @@ namespace Ceres.ExecutionEngine.TypeSystem
             NativeObject = value;
             Type = DynamicValueType.NativeObject;
         }
+
+        public void Serialize(Stream stream)
+            => DynamicValueSerializer.Serialize(this, stream);
+
+        public static DynamicValue Deserialize(Stream stream)
+            => DynamicValueSerializer.Deserialize(stream);
         
         public static bool IsTruth(DynamicValue value) 
             => value != Nil

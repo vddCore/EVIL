@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.evil", "FrontEnd\EVIL.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.evc", "FrontEnd\EVIL.evc\EVIL.evc.csproj", "{60CD39FE-8851-45EF-BA22-4ADE009868EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.SerializationTests", "VirtualMachine\Tests\Ceres.SerializationTests\Ceres.SerializationTests.csproj", "{F49A623B-4ACF-4BB6-A98F-72D7359465A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{60CD39FE-8851-45EF-BA22-4ADE009868EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60CD39FE-8851-45EF-BA22-4ADE009868EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60CD39FE-8851-45EF-BA22-4ADE009868EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F49A623B-4ACF-4BB6-A98F-72D7359465A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F49A623B-4ACF-4BB6-A98F-72D7359465A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F49A623B-4ACF-4BB6-A98F-72D7359465A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F49A623B-4ACF-4BB6-A98F-72D7359465A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,5 +118,6 @@ Global
 		{8E8AD351-85A0-4251-993C-BAF20FC70EA1} = {24C79A7F-AD81-452E-84F1-F47CBBBC1D3B}
 		{014FE88B-32E4-4369-ADE0-96F109121ED5} = {BB2970C2-E521-472D-9F0F-E056695F1AEE}
 		{60CD39FE-8851-45EF-BA22-4ADE009868EF} = {BB2970C2-E521-472D-9F0F-E056695F1AEE}
+		{F49A623B-4ACF-4BB6-A98F-72D7359465A1} = {B72D0BB0-95CE-4C61-9DB2-B036BAA51B02}
 	EndGlobalSection
 EndGlobal
