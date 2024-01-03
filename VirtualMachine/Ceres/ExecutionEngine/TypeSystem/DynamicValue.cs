@@ -104,8 +104,8 @@ namespace Ceres.ExecutionEngine.TypeSystem
             Type = DynamicValueType.NativeObject;
         }
 
-        public void Serialize(Stream stream)
-            => DynamicValueSerializer.Serialize(this, stream);
+        public void Serialize(Stream stream, bool throwOnUnsupported = false)
+            => DynamicValueSerializer.Serialize(this, stream, throwOnUnsupported);
 
         public static DynamicValue Deserialize(Stream stream)
             => DynamicValueSerializer.Deserialize(stream);
