@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
@@ -30,6 +31,13 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                     key.Serialize(stream);
                     value.Serialize(stream);
                 }
+                
+                bw.Write(table.Overrides.Count);
+                foreach (var (tableOverride, chunk) in table.Overrides)
+                {
+                    bw.Write((byte)tableOverride);
+                    chunk.Serialize(stream);
+                }
             }
         }
 
@@ -50,15 +58,25 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
 
                 try
                 {
-                    var length = br.ReadInt32();
+                    var valueCount = br.ReadInt32();
                     var table = new Table();
 
-                    for (var i = 0; i < length; i++)
+                    for (var i = 0; i < valueCount; i++)
                     {
                         var key = DynamicValue.Deserialize(stream);
                         var value = DynamicValue.Deserialize(stream);
 
                         table[key] = value;
+                    }
+
+                    var overrideCount = br.ReadInt32();
+
+                    for (var i = 0; i < overrideCount; i++)
+                    {
+                        var tableOverride = (TableOverride)br.ReadByte();
+                        var chunk = Chunk.Deserialize(stream, out _, out _);
+                        
+                        table.SetOverride(tableOverride, chunk);
                     }
 
                     return table;

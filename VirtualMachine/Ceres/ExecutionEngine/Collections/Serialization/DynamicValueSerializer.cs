@@ -10,7 +10,7 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
 {
     internal static class DynamicValueSerializer
     {
-        public static void Serialize(DynamicValue dynamicValue, Stream stream)
+        public static void Serialize(DynamicValue dynamicValue, Stream stream, bool throwOnUnsupported = false)
         {
             using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
             {
@@ -40,6 +40,10 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                     case DynamicValueType.Array:
                         ArraySerializer.Serialize(dynamicValue.Array!, stream);
                         break;
+                    
+                    case DynamicValueType.TypeCode:
+                        bw.Write((byte)dynamicValue.TypeCode);
+                        break;
 
                     case DynamicValueType.Chunk:
                     {
@@ -52,10 +56,6 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                         
                         break;
                     }
-
-                    case DynamicValueType.TypeCode:
-                        bw.Write((byte)dynamicValue.TypeCode);
-                        break;
 
                     case DynamicValueType.NativeObject:
                     {
@@ -81,11 +81,17 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                         }
                     }
 
-                    case DynamicValueType.NativeFunction:
-                        throw new SerializationException("Serialization of native functions is not supported.");
+                    default:
+                    {
+                        if (throwOnUnsupported)
+                        {
+                            throw new SerializationException(
+                                $"Serialization of values of type '{dynamicValue.Type}' is not supported."
+                            );
+                        }
 
-                    case DynamicValueType.Fiber:
-                        throw new SerializationException("Serialization of fibers is not supported.");
+                        break;
+                    }
                 }
             }
         }
@@ -116,6 +122,9 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                     case DynamicValueType.Array:
                         return ArraySerializer.Deserialize(stream);
 
+                    case DynamicValueType.TypeCode:
+                        return new DynamicValue((DynamicValueType)br.ReadByte());
+
                     case DynamicValueType.Chunk:
                     {
                         var length = br.ReadInt32();
@@ -129,12 +138,7 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                                 Chunk.Deserialize(ms, out _, out _)
                             );
                         }
-
-                        break;
                     }
-
-                    case DynamicValueType.TypeCode:
-                        return new DynamicValue((DynamicValueType)br.ReadByte());
 
                     case DynamicValueType.NativeObject:
                     {

@@ -1,3 +1,4 @@
+using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Collections.Serialization;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -52,7 +53,7 @@ namespace Ceres.SerializationTests
                 ms.Seek(0, SeekOrigin.Begin);
 
                 DynamicValue.Deserialize(ms)
-                    .ShouldBeEquivalentTo(stringValue);;
+                    .ShouldBeEquivalentTo(stringValue);
             }
         }
 
@@ -125,7 +126,7 @@ namespace Ceres.SerializationTests
         public void ChunkSerializeDeserialize()
         {
             var compiler = new Compiler();
-            var chunk = compiler.Compile("fn test() -> 1234;", "unit.test/TestFileName.vil");
+            var chunk = compiler.Compile("ret 1234;", "unit.test/TestFileName.vil");
             var chunkValue = new DynamicValue(chunk);
 
             using (var ms = new MemoryStream())
@@ -133,7 +134,17 @@ namespace Ceres.SerializationTests
                 chunkValue.Serialize(ms);
                 ms.Seek(0, SeekOrigin.Begin);
 
-                DynamicValue.Deserialize(ms).ShouldBeEquivalentTo(chunkValue);
+                var deserialized = DynamicValue.Deserialize(ms);
+
+                using (var vm = new CeresVM())
+                {
+                    vm.Start();
+                    vm.MainFiber.Schedule(deserialized.Chunk!);
+                    vm.MainFiber.BlockUntilFinished();
+                    var ret = vm.MainFiber.PopValue();
+                    vm.Stop();
+                    ret.ShouldBe(1234);
+                }
             }
         }
 
@@ -153,18 +164,18 @@ namespace Ceres.SerializationTests
         }
         
         [Test]
-        public void NativeFunctionSerializeShouldThrow()
+        public void NativeFunctionSerializeShouldThrowWhenRequested()
         {
             Should.Throw<SerializationException>(() =>
             {
-                var nativeFunctionValue = new DynamicValue((f, args) =>
+                var nativeFunctionValue = new DynamicValue((_, _) =>
                 {
                     return DynamicValue.Nil;
                 });
 
                 using (var ms = new MemoryStream())
                 {
-                    nativeFunctionValue.Serialize(ms);
+                    nativeFunctionValue.Serialize(ms, true);
                 }
             });
         }
