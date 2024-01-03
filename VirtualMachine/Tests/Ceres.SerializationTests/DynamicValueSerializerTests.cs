@@ -1,6 +1,7 @@
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Collections.Serialization;
+using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.TranslationEngine;
 using EVIL.CommonTypes.TypeSystem;
@@ -164,18 +165,43 @@ namespace Ceres.SerializationTests
         }
         
         [Test]
-        public void NativeFunctionSerializeShouldThrowWhenRequested()
+        public void NativeFunctionSerializeDeserialize()
         {
+            var nativeFunctionValue = new DynamicValue(TestNativeFunction);
+            
+            using (var ms = new MemoryStream())
+            {
+                nativeFunctionValue.Serialize(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+
+                var deserialized = DynamicValue.Deserialize(ms);
+                deserialized.ShouldBeEquivalentTo(new DynamicValue(TestNativeFunction));
+
+                using (var vm = new CeresVM())
+                {
+                    var compiler = new Compiler();
+                    var chunk = compiler.Compile("ret testfunc();", "unit.test/TestFileName.vil");
+                    
+                    vm.Start();
+                    vm.Global["testfunc"] = deserialized;
+                    vm.MainFiber.Schedule(chunk);
+                    vm.MainFiber.BlockUntilFinished();
+                    var ret = vm.MainFiber.PopValue();
+                    ret.ShouldBe(2137);
+                }
+            }
+        }
+
+        [Test]
+        public void NativeFunctionSerializeShouldThrowOnInstanceMethod()
+        {
+            var nativeFunctionValue = new DynamicValue((_, _) => 2137);
+
             Should.Throw<SerializationException>(() =>
             {
-                var nativeFunctionValue = new DynamicValue((_, _) =>
-                {
-                    return DynamicValue.Nil;
-                });
-
                 using (var ms = new MemoryStream())
                 {
-                    nativeFunctionValue.Serialize(ms, true);
+                    nativeFunctionValue.Serialize(ms);
                 }
             });
         }
@@ -193,6 +219,11 @@ namespace Ceres.SerializationTests
                 DynamicValue.Deserialize(ms)
                     .ShouldBeEquivalentTo(nativeObjectValue);
             }
+        }
+        
+        public static DynamicValue TestNativeFunction(Fiber fiber, params DynamicValue[] args)
+        {
+            return 2137;
         }
     }
 }
