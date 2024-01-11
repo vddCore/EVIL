@@ -9,6 +9,21 @@ namespace Ceres.Runtime.Extensions
 {
     public static partial class FunctionArguments
     {
+        public static DynamicValue[] OptionalNumberAt(this DynamicValue[] args, int index, double defaultValue, out double value)
+        {
+            value = defaultValue;
+            
+            if (index < args.Length)
+            {
+                if (args[index] == Nil)
+                    return args;
+                
+                args.ExpectNumberAt(index, out value);
+            }
+
+            return args;
+        }
+        
         public static DynamicValue[] OptionalIntegerAt(this DynamicValue[] args, int index, long defaultValue, out long value)
         {
             value = defaultValue;
