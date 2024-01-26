@@ -12,7 +12,7 @@ using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.Collections
 {
-    public class Table : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
+    public class Table : IDynamicValueCollection
     {
         private ConcurrentDictionary<DynamicValue, DynamicValue> _values = new();
         private ConcurrentDictionary<TableOverride, Chunk> _overrides = new();
@@ -35,6 +35,18 @@ namespace Ceres.ExecutionEngine.Collections
                 {
                     return _values.Count;
                 }
+            }
+        }
+
+        public Table()
+        {
+        }
+
+        public Table(IDynamicValueCollection collection)
+        {
+            foreach (var (key, value) in collection)
+            {
+                this[key] = value;
             }
         }
 

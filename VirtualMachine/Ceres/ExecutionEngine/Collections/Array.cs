@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.ExecutionEngine.Collections
 {
-    public class Array : IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>
+    public class Array : IDynamicValueCollection
     {
         private DynamicValue[] _values;
         
@@ -39,6 +40,15 @@ namespace Ceres.ExecutionEngine.Collections
         {
             get => this[(int)index.Number];
             set => this[(int)index.Number] = value;
+        }
+        public Array(Array array)
+        {
+            _values = new DynamicValue[array.Length];
+            
+            for (var i = 0; i < array.Length; i++)
+            {
+                _values[i] = array[i];
+            }
         }
 
         public Array(int size)

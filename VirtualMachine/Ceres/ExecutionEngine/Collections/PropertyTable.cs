@@ -12,12 +12,30 @@ namespace Ceres.ExecutionEngine.Collections
         private readonly Dictionary<DynamicValue, TableGetter> _getters = new();
         private readonly Dictionary<DynamicValue, TableSetter> _setters = new();
 
+        public PropertyTable()
+        {
+        }
+
+        public PropertyTable(PropertyTable collection)
+            : base(collection)
+        {
+            foreach (var (key, value) in collection._getters)
+            {
+                _getters[key] = value;
+            }
+            
+            foreach (var (key, value) in collection._setters)
+            {
+                _setters[key] = value;
+            }
+        }
+        
         public void Add(DynamicValue key, TableSetter setter) 
             => AddSetter(key, setter);
 
         public void Add(DynamicValue key, TableGetter getter)
             => AddGetter(key, getter);
-
+        
         public virtual void AddGetter(DynamicValue key, TableGetter getter)
         {
             if (!_getters.TryAdd(key, getter))
