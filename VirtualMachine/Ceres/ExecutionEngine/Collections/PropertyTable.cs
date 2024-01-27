@@ -49,9 +49,9 @@ namespace Ceres.ExecutionEngine.Collections
         public virtual bool RemoveGetter(DynamicValue key)
             => _getters.Remove(key);
 
-        public virtual void AddSetter(DynamicValue key, TableSetter getter)
+        public virtual void AddSetter(DynamicValue key, TableSetter setter)
         {
-            if (!_setters.TryAdd(key, getter))
+            if (!_setters.TryAdd(key, setter))
             {
                 throw new InvalidOperationException(
                     $"Attempt to register a duplicate setter for '{key.ToString()}'"
@@ -72,14 +72,14 @@ namespace Ceres.ExecutionEngine.Collections
             return base.OnIndex(key);
         }
 
-        protected override (DynamicValue Key, DynamicValue Value) OnSet(DynamicValue key, DynamicValue value)
+        protected override (DynamicValue Key, DynamicValue Value) OnBeforeSet(DynamicValue key, DynamicValue value)
         {
             if (_setters.TryGetValue(key, out var setter))
             {
                 return setter(key, value);
             }
 
-            return base.OnSet(key, value);
+            return base.OnBeforeSet(key, value);
         }
 
         protected override bool OnContains(DynamicValue key)

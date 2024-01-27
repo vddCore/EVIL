@@ -24,12 +24,12 @@ namespace Ceres.LanguageTests
             return base.OnIndex(key);
         }
 
-        protected override (DynamicValue Key, DynamicValue Value) OnSet(DynamicValue key, DynamicValue value)
+        protected override (DynamicValue Key, DynamicValue Value) OnBeforeSet(DynamicValue key, DynamicValue value)
         {
             if (key.Type == DynamicValueType.String && key.String == "d20")
                 return (DynamicValue.Nil, DynamicValue.Nil);
 
-            return base.OnSet(key, value);
+            return base.OnBeforeSet(key, value);
         }
 
         protected override bool OnContains(DynamicValue key)
