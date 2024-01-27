@@ -94,7 +94,7 @@ namespace Ceres.ExecutionEngine.Collections
             if (IsFrozen)
                 return;
 
-            (key, value) = OnSet(key, value);
+            (key, value) = OnBeforeSet(key, value);
 
             if (key == Nil)
                 return;
@@ -110,11 +110,17 @@ namespace Ceres.ExecutionEngine.Collections
                     _values.AddOrUpdate(key, (_) => value, (_, _) => value);
                 }
             }
+
+            OnAfterSet(key, value);
         }
 
-        protected virtual (DynamicValue Key, DynamicValue Value) OnSet(DynamicValue key, DynamicValue value)
+        protected virtual (DynamicValue Key, DynamicValue Value) OnBeforeSet(DynamicValue key, DynamicValue value)
         {
             return (key, value);
+        }
+
+        protected virtual void OnAfterSet(DynamicValue key, DynamicValue value)
+        {
         }
 
         public DynamicValue Index(DynamicValue key)
