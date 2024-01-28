@@ -790,6 +790,37 @@ namespace Ceres.ExecutionEngine
                         {
                             PushValue(targetFrame.Arguments[closureInfo.EnclosedId]);
                         }
+                        else if (closureInfo.IsClosure)
+                        {
+                            while (closureInfo.IsClosure)
+                            {
+                                closureInfo = targetFrame.Chunk.Closures[closureInfo.EnclosedId];
+                                
+                                for (var i = 0; i < _callStack.Count; i++)
+                                {
+                                    var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
+
+                                    if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
+                                    {
+                                        targetFrame = tmpScriptFrame;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            ClosureContext closureContext;
+
+                            if (closureInfo.IsSharedScope)
+                            {
+                                closureContext = targetFrame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            }
+                            else
+                            {
+                                closureContext = targetFrame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            }
+
+                            PushValue(closureContext.Values[closureInfo.EnclosedId]);
+                        }
                         else
                         {
                             PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
