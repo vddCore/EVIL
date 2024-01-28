@@ -790,7 +790,21 @@ namespace Ceres.ExecutionEngine
                         }
                         else
                         {
-                            closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            if (closureInfo.IsClosure)
+                            {
+                                var currentChunk = frame.Chunk;
+                                while (currentChunk.Name != closureInfo.EnclosedFunctionName)
+                                {
+                                    currentChunk = currentChunk.Parent!;
+                                }
+
+                                closureInfo = currentChunk.Closures[closureInfo.EnclosedId];
+                                closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            }
+                            else
+                            {
+                                closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            }
                         }
                         
                         closureContext.Values[closureInfo.EnclosedId] = value;
@@ -860,15 +874,29 @@ namespace Ceres.ExecutionEngine
                     else
                     {
                         ClosureContext closureContext;
-
+                        
                         if (closureInfo.IsSharedScope)
                         {
                             closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
                         }
-                        else
+                        else /* Probably called from somewhere *outside* EVIL. */
                         {
-                            closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
+                            if (closureInfo.IsClosure)
+                            {
+                                var currentChunk = frame.Chunk;
+                                while (currentChunk.Name != closureInfo.EnclosedFunctionName)
+                                {
+                                    currentChunk = currentChunk.Parent!;
+                                }
+
+                                closureInfo = currentChunk.Closures[closureInfo.EnclosedId];
+                                closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            }
+                            else
+                            {
+                                closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
+                            }
+                        }   
 
                         PushValue(closureContext.Values[closureInfo.EnclosedId]);
                     }
