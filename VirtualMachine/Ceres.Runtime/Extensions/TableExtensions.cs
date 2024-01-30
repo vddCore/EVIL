@@ -78,5 +78,80 @@ namespace Ceres.Runtime.Extensions
 
             return currentTable.Contains(memberName);
         }
+        
+        public static bool ContainsValuePath(this PropertyTable table, string fullyQualifiedName)
+        {
+            var segments = fullyQualifiedName.Split(".");
+            var tablePath = segments
+                .SkipLast(1)
+                .ToArray();
+
+            var memberName = segments.Last();
+            var currentTable = (Table)table;
+            foreach (var tableName in tablePath)
+            {
+                if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+                {
+                    return false;
+                }
+
+                currentTable = currentTable[tableName].Table!;
+            }
+
+            if (currentTable is not PropertyTable pt)
+                return false;
+            
+            return pt.ContainsValue(memberName);
+        }
+        
+        public static bool ContainsGetterPath(this PropertyTable table, string fullyQualifiedName)
+        {
+            var segments = fullyQualifiedName.Split(".");
+            var tablePath = segments
+                .SkipLast(1)
+                .ToArray();
+
+            var memberName = segments.Last();
+            var currentTable = (Table)table;
+            foreach (var tableName in tablePath)
+            {
+                if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+                {
+                    return false;
+                }
+
+                currentTable = currentTable[tableName].Table!;
+            }
+
+            if (currentTable is not PropertyTable pt)
+                return false;
+            
+            return pt.ContainsGetter(memberName);
+        }
+        
+        public static bool ContainsSetterPath(this PropertyTable table, string fullyQualifiedName)
+        {
+            var segments = fullyQualifiedName.Split(".");
+            var tablePath = segments
+                .SkipLast(1)
+                .ToArray();
+
+            var memberName = segments.Last();
+            var currentTable = (Table)table;
+            foreach (var tableName in tablePath)
+            {
+                if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+                {
+                    return false;
+                }
+
+                currentTable = currentTable[tableName].Table!;
+            }
+
+            if (currentTable is not PropertyTable pt)
+                return false;
+            
+            return pt.ContainsSetter(memberName);
+        }
     }
 }

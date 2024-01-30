@@ -52,7 +52,7 @@ namespace Ceres.Runtime
                 if (this.ContainsPath(tuple.Attribute.SubNameSpace))
                 {
                     throw new InvalidOperationException(
-                        $"Attempt to register a duplicate member with name '{tuple.Attribute.SubNameSpace}' " +
+                        $"Attempt to register a duplicate member (native function) with name '{tuple.Attribute.SubNameSpace}' " +
                         $"in '{FullyQualifiedName}'."
                     );
                 }
@@ -95,14 +95,15 @@ namespace Ceres.Runtime
 
             foreach (var tuple in validGetters)
             {
-                if (this.ContainsPath(tuple.Attribute.SubNameSpace))
+                if (this.ContainsValuePath(tuple.Attribute.SubNameSpace) || 
+                    this.ContainsGetterPath(tuple.Attribute.SubNameSpace))
                 {
                     throw new InvalidOperationException(
-                        $"Attempt to register a duplicate member with name '{tuple.Attribute.SubNameSpace}' " +
+                        $"Attempt to register a duplicate member (getter) with name '{tuple.Attribute.SubNameSpace}' " +
                         $"in '{FullyQualifiedName}'."
                     );
                 }
-
+                
                 if (string.IsNullOrEmpty(tuple.Attribute.SubNameSpace))
                     continue;
 
@@ -146,6 +147,79 @@ namespace Ceres.Runtime
             return parameters.Length == 1
                    && parameters[0].ParameterType.IsAssignableTo(typeof(DynamicValue))
                    && method.ReturnType.IsAssignableTo(typeof(DynamicValue));
+        }
+
+        private void RegisterNativeSetters()
+        {
+            var validSetters = GetType().GetMethods(
+                    BindingFlags.Public
+                    | BindingFlags.NonPublic
+                    | BindingFlags.Static
+                ).Where(HasSupportedSetterSignature)
+                .Where(HasRequiredSetterAttribute)
+                .Select(x =>
+                {
+                    var setter = x.CreateDelegate<TableSetter>(null);
+                    var attribute = x.GetCustomAttribute<RuntimeModuleGetterAttribute>()!;
+
+                    return (Setter: setter, Attribute: attribute);
+                });
+            
+            foreach (var tuple in validSetters)
+            {
+                if (this.ContainsValuePath(tuple.Attribute.SubNameSpace) || 
+                    this.ContainsSetterPath(tuple.Attribute.SubNameSpace))
+                {
+                    throw new InvalidOperationException(
+                        $"Attempt to register a duplicate member (setter) with name '{tuple.Attribute.SubNameSpace}' " +
+                        $"in '{FullyQualifiedName}'."
+                    );
+                }
+                
+                if (string.IsNullOrEmpty(tuple.Attribute.SubNameSpace))
+                    continue;
+
+                var subNameSpaceParts = tuple.Attribute.SubNameSpace.Split('.');
+                var targetName = subNameSpaceParts[subNameSpaceParts.Length - 1];
+
+                if (subNameSpaceParts.Length >= 2)
+                {
+                    var subNameSpace = string.Join('.', subNameSpaceParts[0..^1]);
+
+                    var dynval = IndexUsingFullyQualifiedName(subNameSpace);
+
+                    PropertyTable propTable;
+
+                    if (dynval == DynamicValue.Nil)
+                    {
+                        propTable = new PropertyTable();
+                    }
+                    else
+                    {
+                        propTable = (PropertyTable)dynval.Table!;
+                    }
+
+                    propTable.AddSetter(targetName, tuple.Setter);
+                    this.SetUsingPath<PropertyTable>(subNameSpace, propTable);
+                }
+                else
+                {
+                    AddSetter(targetName, tuple.Setter);
+                }
+            }
+        }
+        
+        private bool HasRequiredSetterAttribute(MethodInfo method)
+            => method.GetCustomAttribute<RuntimeModuleSetterAttribute>() != null;
+
+        private bool HasSupportedSetterSignature(MethodInfo method)
+        {
+            var parameters = method.GetParameters();
+
+            return parameters.Length == 2
+                   && parameters[0].ParameterType.IsAssignableTo(typeof(DynamicValue))
+                   && parameters[1].ParameterType.IsAssignableTo(typeof(DynamicValue))
+                   && method.ReturnType.IsAssignableTo(typeof((DynamicValue, DynamicValue)));
         }
     }
 }
