@@ -7,6 +7,7 @@ namespace Ceres.ExecutionEngine.Collections
     public class PropertyTable : Table
     {
         public delegate DynamicValue TableGetter(DynamicValue key);
+
         public delegate (DynamicValue Key, DynamicValue Value) TableSetter(DynamicValue key, DynamicValue value);
 
         private readonly Dictionary<DynamicValue, TableGetter> _getters = new();
@@ -23,19 +24,19 @@ namespace Ceres.ExecutionEngine.Collections
             {
                 _getters[key] = value;
             }
-            
+
             foreach (var (key, value) in collection._setters)
             {
                 _setters[key] = value;
             }
         }
-        
-        public void Add(DynamicValue key, TableSetter setter) 
+
+        public void Add(DynamicValue key, TableSetter setter)
             => AddSetter(key, setter);
 
         public void Add(DynamicValue key, TableGetter getter)
             => AddGetter(key, getter);
-        
+
         public virtual void AddGetter(DynamicValue key, TableGetter getter)
         {
             if (!_getters.TryAdd(key, getter))
@@ -82,19 +83,20 @@ namespace Ceres.ExecutionEngine.Collections
             return base.OnBeforeSet(key, value);
         }
 
+        public virtual bool ContainsGetter(DynamicValue key)
+            => _getters.ContainsKey(key);
+        
+        public virtual bool ContainsSetter(DynamicValue key)
+            => _setters.ContainsKey(key);
+
+        public virtual bool ContainsValue(DynamicValue key)
+            => base.OnContains(key);
+
         protected override bool OnContains(DynamicValue key)
         {
-            if (_getters.TryGetValue(key, out _))
-            {
-                return true;
-            }
-
-            if (_setters.TryGetValue(key, out _))
-            {
-                return true;
-            }
-
-            return base.OnContains(key);
+            return ContainsGetter(key)
+                   || ContainsSetter(key)
+                   || ContainsValue(key);
         }
     }
 }
