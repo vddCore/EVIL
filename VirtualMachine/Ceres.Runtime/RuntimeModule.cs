@@ -16,6 +16,7 @@ namespace Ceres.Runtime
         public RuntimeModule()
         {
             RegisterNativeFunctions();
+            RegisterNativeSetters();
             RegisterNativeGetters();
         }
 
@@ -160,7 +161,7 @@ namespace Ceres.Runtime
                 .Select(x =>
                 {
                     var setter = x.CreateDelegate<TableSetter>(null);
-                    var attribute = x.GetCustomAttribute<RuntimeModuleGetterAttribute>()!;
+                    var attribute = x.GetCustomAttribute<RuntimeModuleSetterAttribute>()!;
 
                     return (Setter: setter, Attribute: attribute);
                 });
