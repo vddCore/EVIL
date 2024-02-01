@@ -296,20 +296,20 @@ namespace Ceres.ExecutionEngine.Collections
 
         public DynamicValue IndexUsingFullyQualifiedName(string fullyQualifiedName)
         {
-            var segments = new Stack<string>(fullyQualifiedName.Split('.'));
+            var segments = fullyQualifiedName.Split('.');
             var currentTable = this;
             var ret = Nil;
 
             lock (_values)
             {
-                while (segments.Any())
+                for (var i = 0; i < segments.Length; i++)
                 {
-                    ret = currentTable[segments.Pop()];
+                    ret = currentTable[segments[i]];
 
                     if (ret == Nil)
                         return ret;
 
-                    if (ret.Type != DynamicValueType.Table && segments.Any())
+                    if (ret.Type != DynamicValueType.Table && i + 1 < segments.Length)
                         return ret;
 
                     currentTable = ret.Table!;
