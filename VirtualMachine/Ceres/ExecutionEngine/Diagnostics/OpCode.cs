@@ -39,7 +39,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
         GETARG,
         GETCLOSURE,
         SETCLOSURE,
-        CRET,
         LENGTH,
         EXISTS,
         TONUMBER,

@@ -43,6 +43,7 @@ namespace Ceres.LanguageTests
         {
             var paths = Directory
                 .GetFiles(TestDirectory, "*.vil")
+                .OrderBy(x => x)
                 .ToList();
 
             var compiler = new Compiler();

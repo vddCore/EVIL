@@ -119,6 +119,7 @@ namespace EVIL.Lexical
         public static readonly Token If = new(TokenType.If, TokenClass.Keyword, "if");
         public static readonly Token Elif = new(TokenType.Elif, TokenClass.Keyword, "elif");
         public static readonly Token Else = new(TokenType.Else, TokenClass.Keyword, "else");
+        public static readonly Token By = new(TokenType.By, TokenClass.Keyword, "by");
         public static readonly Token Fn = new(TokenType.Fn, TokenClass.Keyword, "fn");
         public static readonly Token Loc = new(TokenType.Loc, TokenClass.Keyword, "loc");
         public static readonly Token Ret = new(TokenType.Ret, TokenClass.Keyword, "ret");

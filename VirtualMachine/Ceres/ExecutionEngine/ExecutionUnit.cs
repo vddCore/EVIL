@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
@@ -1025,14 +1026,6 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
-                case OpCode.CRET:
-                {
-                    _callStack.Pop();
-                    frame.Dispose();
-
-                    break;
-                }
-
                 case OpCode.INC:
                 {
                     a = PopValue();
@@ -1298,6 +1291,7 @@ namespace Ceres.ExecutionEngine
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private DynamicValue[] PopArguments(int count)
         {
             var args = new DynamicValue[count];

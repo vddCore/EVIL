@@ -403,6 +403,7 @@ namespace EVIL.Lexical
                 "else" => Token.Else,
                 "break" => Token.Break,
                 "skip" => Token.Skip,
+                "by" => Token.By,
                 "ret" => Token.Ret,
                 "true" => Token.True,
                 "false" => Token.False,

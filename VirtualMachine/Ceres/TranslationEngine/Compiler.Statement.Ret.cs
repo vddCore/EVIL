@@ -22,14 +22,7 @@ namespace Ceres.TranslationEngine
                 Chunk.CodeGenerator.Emit(OpCode.LDNIL);
             }
 
-            if (_closedScopes.Count > 1)
-            {
-                Chunk.CodeGenerator.Emit(OpCode.CRET);
-            }
-            else
-            {
-                Chunk.CodeGenerator.Emit(OpCode.RET);
-            }
+            Chunk.CodeGenerator.Emit(OpCode.RET);
         }
     }
 }

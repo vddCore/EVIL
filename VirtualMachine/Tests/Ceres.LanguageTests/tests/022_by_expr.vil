@@ -1,0 +1,67 @@
+#[test]
+fn valref_qualifier_basic_with_else_branch() {
+  val value = 123;
+  
+  val result = by value {
+    222 => 1234,
+    123 => "hhhhh",
+    456 => (2 + 1 + 3 + 7),
+    else => "meow"
+  };
+
+  assert.equal(result, "hhhhh");
+}
+
+#[test]
+fn valref_qualifier_basic_without_else_branch() {
+  val value = 666;
+  
+  val result = by value {
+    222 => 1234,
+    123 => "hhhhh",
+    456 => (2 + 1 + 3 + 7)
+  };
+
+  assert.equal(result, nil);
+}
+
+#[test]
+fn valref_qualifier_as_part_of_expression() {
+  val value = 456;
+  
+  val result = by value {
+    222 => 1234,
+    123 => "hhhhh",
+    456 => (2 + 1 + 3 + 7),
+    else => 0
+  } + 200;
+
+  assert.equal(result, 213);
+}
+
+#[test]
+fn simple_expr_qualifier_basic_with_else_branch() {
+  val result = by (400 + 56) {
+    222 => 1234,
+    123 => "hhhhh",
+    456 => (2 + 1 + 3 + 7),
+    else => 0
+  };
+
+  assert.equal(result, 13);
+}
+
+#[test]
+fn complex_expr_qualifier_as_part_of_expression() {
+  loc fn test(a, b = 15) -> a + b;
+  val table = { 10, 20, 30 };
+  
+  val result = by test(10) + table[1] {
+    222 => 1234,
+    45 => "hhhhh",
+    456 => (2 + 1 + 3 + 7),
+    else => 0
+  } + @213;
+
+  assert.equal(result, "hhhhh213");
+}
