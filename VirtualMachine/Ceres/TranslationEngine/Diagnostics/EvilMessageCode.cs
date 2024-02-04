@@ -15,5 +15,6 @@
         public const int FnStatementRedefinedExistingChunk = 0011;
         public const int SelfUsedInSelfUnawareFunction = 0012;
         public const int TooManyInitializersForConstSizeArray = 0013;
+        public const int NoDefaultByArm = 0014;
     }
 }

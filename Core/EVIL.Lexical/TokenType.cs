@@ -90,6 +90,7 @@
         Else,
         Skip,
         Break,
+        By,
         Override,
         Ret,
         Val,

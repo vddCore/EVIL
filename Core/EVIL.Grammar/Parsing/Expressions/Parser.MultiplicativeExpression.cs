@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
 
         private Expression MultiplicativeExpression()
         {
-            var node = PrefixExpression();
+            var node = ByExpression();
             var token = CurrentToken;
 
             while (_multiplicativeOperators.Contains(token.Type))
