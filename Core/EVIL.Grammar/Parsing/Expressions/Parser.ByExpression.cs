@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
@@ -17,7 +18,7 @@ namespace EVIL.Grammar.Parsing
                 var qualifier = AssignmentExpression();
                 Match(Token.LBrace);
 
-                var arms = new List<ByArm>();
+                var arms = new List<ByArmNode>();
                 Expression? elseArm = null;
                 
                 while (true)
@@ -54,7 +55,8 @@ namespace EVIL.Grammar.Parsing
                         }
                         
                         Match(Token.Else);
-                        Match(Token.Associate);
+                        Match(Token.Colon);
+                        
                         elseArm = AssignmentExpression();
 
                         if (CurrentToken.Type != TokenType.RBrace)
@@ -70,10 +72,29 @@ namespace EVIL.Grammar.Parsing
                     else
                     {
                         var selector = AssignmentExpression();
-                        Match(Token.Associate);
+                        var deepEquality = false;
+                        
+                        if (CurrentToken.Type == TokenType.RightArrow)
+                        {
+                            Match(Token.RightArrow);
+                            deepEquality = false;
+                        }
+                        else if (CurrentToken.Type == TokenType.Associate)
+                        {
+                            Match(Token.Associate);
+                            deepEquality = true;
+                        }
+                        else
+                        {
+                            throw new ParserException(
+                                $"Expected '->' or '=>', found '{CurrentToken.Value}'.",
+                                (CurrentToken.Line, CurrentToken.Column)
+                            );
+                        }
+                        
                         var value = AssignmentExpression();
 
-                        arms.Add(new ByArm(selector, value) { Line = armLine, Column = armCol });
+                        arms.Add(new ByArmNode(selector, value, deepEquality) { Line = armLine, Column = armCol });
                     }
                     
                     if (CurrentToken.Type == TokenType.RBrace)
