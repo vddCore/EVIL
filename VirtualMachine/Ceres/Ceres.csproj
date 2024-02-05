@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>11.0</LangVersion>
     
-    <Version>3.2.0</Version>
+    <Version>3.3.0</Version>
     <AssemblyName>Ceres</AssemblyName>
     <AssemblyTitle>Ceres</AssemblyTitle>
     

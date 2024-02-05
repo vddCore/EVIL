@@ -29,7 +29,8 @@ namespace Ceres.TranslationEngine
                 }
                 
                 Visit(arms[i].Selector);
-                Chunk.CodeGenerator.Emit(OpCode.CEQ);
+
+                Chunk.CodeGenerator.Emit(arms[i].DeepEquality ? OpCode.DEQ : OpCode.CEQ);
                 Chunk.CodeGenerator.Emit(OpCode.FJMP, labels[i]);
                 
                 Visit(arms[i].Value);

@@ -8,10 +8,10 @@ namespace EVIL.Grammar.AST.Expressions
     {
         public Expression Qualifier { get; }
         
-        public List<ByArm> Arms { get; }
+        public List<ByArmNode> Arms { get; }
         public Expression? ElseArm { get; }
 
-        public ByExpression(Expression qualifier, List<ByArm> arms, Expression? elseArm)
+        public ByExpression(Expression qualifier, List<ByArmNode> arms, Expression? elseArm)
         {
             Qualifier = qualifier;
             Arms = arms;

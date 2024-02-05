@@ -2,15 +2,17 @@ using EVIL.Grammar.AST.Base;
 
 namespace EVIL.Grammar.AST.Miscellaneous
 {
-    public class ByArm : AstNode
+    public class ByArmNode : AstNode
     {
         public Expression Selector { get; }
         public Expression Value { get; }
+        public bool DeepEquality { get; }
 
-        public ByArm(Expression selector, Expression value)
+        public ByArmNode(Expression selector, Expression value, bool deepEquality)
         {
             Selector = selector;
             Value = value;
+            DeepEquality = deepEquality;
 
             Reparent(Selector, Value);
         }
