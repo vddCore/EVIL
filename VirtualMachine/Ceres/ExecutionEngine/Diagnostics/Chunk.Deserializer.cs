@@ -80,6 +80,15 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 return attribute;
             }
 
+            private static BlockProtectionInfo ReadProtectedBlock(BinaryReader br)
+            {
+                return new BlockProtectionInfo(
+                    br.ReadInt32(),
+                    br.ReadInt32(),
+                    br.ReadInt32()
+                );  
+            }
+
             private static string ReadName(BinaryReader br)
             {
                 return br.ReadString();
@@ -181,6 +190,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         for (var i = 0; i < attrCount; i++)
                         {
                             chunk._attributes.Add(ReadAttribute(br));
+                        }
+                    }
+
+                    if (flags.HasFlag(ChunkFlags.HasProtectedBlocks))
+                    {
+                        var blockCount = br.ReadInt32();
+
+                        for (var i = 0; i < blockCount; i++)
+                        {
+                            chunk._protectedBlocks.Add(ReadProtectedBlock(br));
                         }
                     }
 
