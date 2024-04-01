@@ -296,13 +296,11 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return _labels.Count - 1;
         }
 
-        public void ProtectBlock(int startAddress, int length, int handlerAddress)
+        public BlockProtectionInfo AllocateBlockProtector()
         {
-            _protectedBlocks.Add(new BlockProtectionInfo(
-                startAddress,
-                length,
-                handlerAddress
-            ));
+            var info = new BlockProtectionInfo();
+            _protectedBlocks.Add(info);
+            return info;
         }
 
         public void AddAttribute(ChunkAttribute attribute)

@@ -378,19 +378,6 @@ namespace Ceres.ExecutionEngine.Concurrency
         {
             OnNativeFunctionInvoke = handler;
         }
-        
-        internal void FailUnhandledException(DynamicValue thrownValue)
-        {
-            EnterCrashState();
-
-            if (_crashHandler != null)
-            {
-                _crashHandler(this, new UserExceptionUnhandledException(
-                    "User exception was unhandled.",
-                    thrownValue
-                ));
-            }
-        }
 
         internal void RemoveFinishedAwaitees()
         {
