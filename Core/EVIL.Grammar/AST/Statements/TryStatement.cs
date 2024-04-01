@@ -16,9 +16,7 @@ namespace EVIL.Grammar.AST.Statements
             HandlerExceptionLocal = handlerExceptionLocal;
             HandlerStatement = handlerStatement;
             
-            Reparent(InnerStatement);
-            Reparent(HandlerExceptionLocal);
-            Reparent(HandlerStatement);
+            Reparent(InnerStatement, HandlerExceptionLocal, HandlerStatement);
         }
     }
 }
