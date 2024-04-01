@@ -43,7 +43,7 @@ fn nested_try_blocks_innermost() {
   assert.equal(result, "this should happen!");
 }
 
-#[test]
+#[test;disasm("always")]
 fn nested_try_blocks_rethrow() {
   rw val result;
   
