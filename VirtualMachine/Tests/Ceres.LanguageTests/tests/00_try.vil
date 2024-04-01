@@ -1,0 +1,74 @@
+#[test]
+fn try_catch_ok() {
+  rw val result;
+  
+  try {
+    throw "hiii";
+  } catch(e) {
+    result = e; 
+  }
+  
+  assert.equal(result, "hiii");
+}
+
+loc fn throwing_inner(value) {
+  rw val some_thing = 2 + 3 * 12;
+  throw value;
+}
+
+#[test]
+fn try_invoked_throws() {
+  rw val result;
+  
+  try {
+    throwing_inner({ msg: "yaaaay" });
+  } catch (e) {
+    result = e;
+  }
+  
+  assert.is_true(result is Table);
+  assert.equal(result.msg, "yaaaay");
+}
+
+#[test]
+fn nested_try_blocks_innermost() {
+  rw val result;
+  
+  try {
+    try {
+      try { throw "this should happen!"; } catch (e) { result = e; }
+    } catch (e) { result = "should never ever happen!"; }
+  } catch (e) { result = "should never happen too."; }
+  
+  assert.equal(result, "this should happen!");
+}
+
+#[test]
+fn nested_try_blocks_rethrow() {
+  rw val result;
+  
+  try {
+    try {
+      try { throw "jp2gmd"; } catch (e) { throw e; }
+    } catch (e) { throw e; }
+  } catch (e) { result = e; }
+  
+  assert.equal(result, "jp2gmd");
+}
+
+loc fn validate_type(value) {
+  if (value !is String) {
+    throw "Invalid type.";
+  }
+}
+
+loc fn is_valid_type(value) {
+  try { validate_type(value); ret true; }
+  catch (e) { ret false; }
+}
+
+#[test]
+fn try_invoked_ret_differs() {
+  assert.equal(is_valid_type(123), false);
+  assert.equal(is_valid_type("meow"), true);
+}

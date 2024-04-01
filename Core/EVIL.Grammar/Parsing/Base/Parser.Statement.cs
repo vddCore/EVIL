@@ -56,6 +56,15 @@ namespace EVIL.Grammar.Parsing
                     node = ValStatement(false);
                     Match(Token.Semicolon);
                     break;
+                
+                case TokenType.Try:
+                    node = TryStatement();
+                    break;
+                
+                case TokenType.Throw:
+                    node = ThrowStatement();
+                    Match(Token.Semicolon);
+                    break;
 
                 case TokenType.Increment:
                 case TokenType.Decrement:

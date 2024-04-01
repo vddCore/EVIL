@@ -1,6 +1,6 @@
 ﻿namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class NativeStackFrame : StackFrame
+    public sealed record NativeStackFrame : StackFrame
     {
         public NativeFunction NativeFunction { get; }
 

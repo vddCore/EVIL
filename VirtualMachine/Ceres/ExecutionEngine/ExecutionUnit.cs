@@ -7,6 +7,7 @@ using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
+using StackFrame = Ceres.ExecutionEngine.Diagnostics.StackFrame;
 
 namespace Ceres.ExecutionEngine
 {
@@ -1260,6 +1261,14 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.THROW:
                 {
+                    var callStackCopy = _callStack.ToArray();
+                    
+                    while (_callStack.Count > 1 && !frame.IsProtectedState)
+                    {
+                        _callStack.Pop();
+                        frame = _callStack.Peek().As<ScriptStackFrame>();
+                    }
+                    
                     if (frame.IsProtectedState)
                     {
                         var info = frame.BlockProtectorStack.Peek();
@@ -1267,7 +1276,13 @@ namespace Ceres.ExecutionEngine
                     }
                     else
                     {
-                        _fiber.FailUnhandledException(PopValue());
+                        var exceptionObject = PopValue();
+
+                        throw new UserExceptionUnhandledException(
+                            "User exception was unhandled.",
+                            exceptionObject,
+                            callStackCopy
+                        );
                     }
                     
                     break;
