@@ -19,6 +19,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         private Dictionary<string, ClosureContext> _closureContexts;
         private List<Chunk> _subChunks;
         private Dictionary<string, int> _namedSubChunkLookup;
+        private List<BlockProtectionInfo> _protectedBlocks;
 
         private readonly Serializer _serializer;
 
@@ -45,6 +46,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public IReadOnlyDictionary<string, ClosureContext> ClosureContexts => _closureContexts;
         public IReadOnlyList<Chunk> SubChunks => _subChunks;
         public IReadOnlyDictionary<string, int> NamedSubChunkLookup => _namedSubChunkLookup;
+        public IReadOnlyList<BlockProtectionInfo> ProtectedBlocks => _protectedBlocks;
 
         public byte[] Code => _code.GetBuffer();
 
@@ -107,6 +109,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
                 if (IsSpecialName)
                     ret |= ChunkFlags.IsSpecialName;
+
+                if (ProtectedBlocks.Count > 0)
+                    ret |= ChunkFlags.HasProtectedBlocks;
                 
                 return ret;
             }
@@ -122,6 +127,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _closureContexts = new Dictionary<string, ClosureContext>();
             _subChunks = new List<Chunk>();
             _namedSubChunkLookup = new Dictionary<string, int>();
+            _protectedBlocks = new List<BlockProtectionInfo>();
             _serializer = new Serializer(this);
 
             Name = name;
@@ -140,6 +146,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _closureContexts = new Dictionary<string, ClosureContext>();
             _subChunks = new List<Chunk>();
             _namedSubChunkLookup = new Dictionary<string, int>();
+            _protectedBlocks = new List<BlockProtectionInfo>();
             _serializer = new Serializer(this);
 
             Name = name;
@@ -158,6 +165,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _closureContexts = new Dictionary<string, ClosureContext>();
             _subChunks = new List<Chunk>();
             _namedSubChunkLookup = new Dictionary<string, int>();
+            _protectedBlocks = new List<BlockProtectionInfo>();
             _serializer = new Serializer(this);
 
             Name = name;
@@ -288,6 +296,15 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return _labels.Count - 1;
         }
 
+        public void ProtectBlock(int startAddress, int length, int handlerAddress)
+        {
+            _protectedBlocks.Add(new BlockProtectionInfo(
+                startAddress,
+                length,
+                handlerAddress
+            ));
+        }
+
         public void AddAttribute(ChunkAttribute attribute)
             => _attributes.Add(attribute);
 
@@ -362,6 +379,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 _labels = new(_labels),
                 _attributes = new(_attributes),
                 _parameterInitializers = new(_parameterInitializers),
+                _protectedBlocks = new(_protectedBlocks)
             };
 
             return clone;
@@ -388,6 +406,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                    && _attributes.SequenceEqual(other._attributes)
                    && _subChunks.SequenceEqual(other._subChunks)
                    && _namedSubChunkLookup.SequenceEqual(other._namedSubChunkLookup)
+                   && _protectedBlocks.SequenceEqual(other._protectedBlocks)
                    && StringPool.Equals(other.StringPool)
                    && Code.SequenceEqual(other.Code)
                    && DebugDatabase.Equals(other.DebugDatabase);
@@ -414,6 +433,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
             hashCode.Add(_attributes);
             hashCode.Add(_subChunks);
             hashCode.Add(_namedSubChunkLookup);
+            hashCode.Add(_protectedBlocks);
             hashCode.Add(StringPool);
             hashCode.Add(Code);
             hashCode.Add(DebugDatabase);
