@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
@@ -1247,6 +1248,34 @@ namespace Ceres.ExecutionEngine
                     }
 
                     a.Table!.SetOverride(tableOverride, b.Chunk!);
+                    break;
+                }
+
+                case OpCode.ENTER:
+                {
+                    var blockId = frame.FetchInt32();
+                    frame.EnterProtectedBlock(blockId);
+                    break;
+                }
+
+                case OpCode.THROW:
+                {
+                    if (frame.IsProtectedState)
+                    {
+                        var info = frame.BlockProtectorStack.Peek();
+                        frame.JumpAbsolute(info.HandlerAddress);
+                    }
+                    else
+                    {
+                        _fiber.FailUnhandledException(PopValue());
+                    }
+                    
+                    break;
+                }
+
+                case OpCode.LEAVE:
+                {
+                    frame.ExitProtectedBlock();
                     break;
                 }
 

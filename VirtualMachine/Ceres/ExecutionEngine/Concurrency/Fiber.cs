@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.Diagnostics.Debugging;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -378,6 +377,19 @@ namespace Ceres.ExecutionEngine.Concurrency
         public void SetOnNativeFunctionInvoke(NativeFunctionInvokeHandler? handler)
         {
             OnNativeFunctionInvoke = handler;
+        }
+        
+        internal void FailUnhandledException(DynamicValue thrownValue)
+        {
+            EnterCrashState();
+
+            if (_crashHandler != null)
+            {
+                _crashHandler(this, new UserExceptionUnhandledException(
+                    "User exception was unhandled.",
+                    thrownValue
+                ));
+            }
         }
 
         internal void RemoveFinishedAwaitees()
