@@ -421,8 +421,8 @@ namespace Ceres.ExecutionEngine.Concurrency
                 {
                     var exceptionObject = PopValue();
 
-                    throw new UserExceptionUnhandledException(
-                        "User exception was unhandled.",
+                    throw new UserUnhandledExceptionException(
+                        "A user-unhandled exception has been thrown.",
                         exceptionObject,
                         callStackCopy
                     );
