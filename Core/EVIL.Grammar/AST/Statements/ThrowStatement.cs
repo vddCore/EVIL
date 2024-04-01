@@ -9,6 +9,7 @@ namespace EVIL.Grammar.AST.Statements
         public ThrowStatement(Expression thrownExpression)
         {
             ThrownExpression = thrownExpression;
+            Reparent(ThrownExpression);
         }
     }
 }
