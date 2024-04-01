@@ -114,6 +114,9 @@ namespace EVIL.Lexical
         public static readonly Token Is = new(TokenType.Is, TokenClass.Operator, "is");
         public static readonly Token IsNot = new(TokenType.IsNot, TokenClass.Operator, "!is");
         public static readonly Token TypeOf = new(TokenType.TypeOf, TokenClass.Operator, "typeof");
+        public static readonly Token Try = new(TokenType.Try, TokenClass.Keyword, "try");
+        public static readonly Token Catch = new(TokenType.Catch, TokenClass.Keyword, "catch");
+        public static readonly Token Throw = new(TokenType.Catch, TokenClass.Keyword, "throw");
 
         public static readonly Token Val = new(TokenType.Val, TokenClass.Keyword, "val");
         public static readonly Token If = new(TokenType.If, TokenClass.Keyword, "if");
