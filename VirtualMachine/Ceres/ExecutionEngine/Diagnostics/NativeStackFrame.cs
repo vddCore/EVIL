@@ -3,6 +3,7 @@
     public sealed record NativeStackFrame : StackFrame
     {
         public NativeFunction NativeFunction { get; }
+        public bool HasThrown { get; internal set; }
 
         public NativeStackFrame(NativeFunction nativeFunction)
         {

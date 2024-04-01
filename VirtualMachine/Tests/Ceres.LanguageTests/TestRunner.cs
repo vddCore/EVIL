@@ -92,6 +92,11 @@ namespace Ceres.LanguageTests
 
                 VM.Global.Set("__native_object", DynamicValue.FromObject(new object()));
                 VM.Global.Set("__tricky", new TrickyTable());
+                
+                VM.Global.Set("__throw_test", new((fiber, args) =>
+                {
+                    return fiber.ThrowFromNative(args[0]);
+                }));
 
                 Runtime.RegisterBuiltInModules();
                 Runtime.RegisterBuiltInFunctions();
