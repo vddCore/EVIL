@@ -114,9 +114,15 @@ namespace Ceres.ExecutionEngine.Concurrency
 
         public string StackTrace(bool skipNativeFrames)
         {
+            return StackTrace(
+                CallStack.ToArray(skipNativeFrames)
+            );
+        }
+        
+        public static string StackTrace(StackFrame[] callStack)
+        {
             var sb = new StringBuilder();
 
-            var callStack = CallStack.ToArray(skipNativeFrames);
             for (var i = 0; i < callStack.Length; i++)
             {
                 if (callStack[i] is ScriptStackFrame ssf)

@@ -1,4 +1,3 @@
-val fail = core.fail;
 val get_text = fs.file.get_text;
 val file_exists = fs.file.exists;
 val dir_exists = fs.dir.exists;
@@ -63,13 +62,11 @@ loc fn try_compile_source(full_path) {
   val result = evil_compile(source, full_path);
 
   if (result is Nil) {
-    // noret
-    fail("Failed to compile the file '" + full_path + ": evil.compile return Nil.");
+    throw { msg: "Failed to compile the file '" + full_path + ": evil.compile return Nil." };
   }
   
   if (!result.success) {
-    // noret
-    fail(build_error_message(full_path, result.log));
+    throw { msg: build_error_message(full_path, result.log) };
   }
   
   ret result.chunk;
@@ -125,5 +122,5 @@ fn require(path) {
     msg += "  " + v + "\n";
   }
   
-  fail(msg);
+  throw { msg: msg };
 }

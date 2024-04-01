@@ -62,13 +62,11 @@ loc fn try_compile_source(full_path) {
   val result = evil_compile(source, full_path);
 
   if (result is Nil) {
-    // noret
-    fail("dofile: Failed to compile the file '" + full_path + ": evil.compile returned Nil.");
+    throw { msg: "dofile: Failed to compile the file '" + full_path + ": evil.compile returned Nil." };
   }
   
   if (!result.success) {
-    // noret
-    fail(build_error_message(full_path, result.log));
+    throw { msg: build_error_message(full_path, result.log) };
   }
   
   ret result.chunk;
@@ -102,5 +100,5 @@ fn dofile(requested_path) {
     msg += "  " + v + "\n";
   }
   
-  fail(msg);
+  throw { msg: msg };
 }

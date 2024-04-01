@@ -10,6 +10,7 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.TranslationEngine;
+using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar;
 using EVIL.Lexical;
 using Mono.Options;
@@ -284,9 +285,24 @@ namespace EVIL.evil
         {
             var fiberArray = _vm.Scheduler.Fibers.ToArray();
             var fiberIndex = Array.IndexOf(fiberArray, fiber);
-            
-            var callStack = fiber.CallStack;
-            var top = callStack.Peek();
+
+            StackFrame[] callStack;
+
+            if (exception is UserUnhandledExceptionException uuee)
+            {
+                callStack = uuee.EvilStackTrace;
+            }
+            else
+            {
+                callStack = fiber.CallStack.ToArray();
+            }
+
+            TerminateWithError(fiberIndex, callStack, exception);
+        }
+
+        private void TerminateWithError(int fiberIndex, StackFrame[] callStack, Exception exception)
+        {
+            var top = callStack[0];
             ScriptStackFrame? scriptTop = null;
 
             var sb = new StringBuilder();
@@ -317,12 +333,32 @@ namespace EVIL.evil
             }
             sb.AppendLine(": ");
             
-            sb.AppendLine($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: {exception.Message}");
+            sb.Append($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: ");
+            
+            if (exception is UserUnhandledExceptionException uuee)
+            {
+                if (uuee.EvilExceptionObject.Type == DynamicValueType.Table)
+                {
+                    var msg = uuee.EvilExceptionObject.Table!["msg"];
+                    if (msg.Type == DynamicValueType.String)
+                    {
+                        sb.Append(msg.String);
+                    }
+                }
+            }
+            else
+            {
+                sb.Append(exception.Message);
+            }
+            
             sb.AppendLine();
             sb.AppendLine("Stack trace:");
-            sb.Append(fiber.StackTrace(false));
+            sb.Append(Fiber.StackTrace(callStack));
             
             Terminate(sb.ToString(), exitCode: ExitCode.RuntimeError);
+
         }
+        
+
     }
 }
