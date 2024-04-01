@@ -173,6 +173,21 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 }
             }
 
+            private void WriteProtectionInformation(BinaryWriter bw)
+            {
+                if (_chunk.Flags.HasFlag(ChunkFlags.HasProtectedBlocks))
+                {
+                    bw.Write(_chunk.ProtectedBlocks.Count);
+
+                    foreach (var block in _chunk.ProtectedBlocks)
+                    {
+                        bw.Write(block.StartAddress);
+                        bw.Write(block.Length);
+                        bw.Write(block.HandlerAddress);
+                    }
+                }
+            }
+
             private void WriteDebugDatabase(BinaryWriter bw)
             {
                 if (_chunk.Flags.HasFlag(ChunkFlags.HasDebugInfo))
@@ -214,6 +229,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     WriteLocalInfo(bw);
                     WriteLabelInfo(bw);
                     WriteChunkAttributes(bw);
+                    WriteProtectionInformation(bw);
                     WriteDebugDatabase(bw);
                     WriteStringPool(bw);
                     WriteCodeArea(bw);
