@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
@@ -7,7 +6,7 @@ using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
-using StackFrame = Ceres.ExecutionEngine.Diagnostics.StackFrame;
+using Array = System.Array;
 
 namespace Ceres.ExecutionEngine
 {
@@ -626,7 +625,7 @@ namespace Ceres.ExecutionEngine
                         {
                             var overrideArgs = new DynamicValue[args.Length + 1];
                             overrideArgs[0] = a;
-                            System.Array.Copy(
+                            Array.Copy(
                                 args, 0,
                                 overrideArgs, 1,
                                 args.Length
@@ -646,15 +645,23 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.NativeFunction)
                     {
                         _callStack.Push(new NativeStackFrame(a.NativeFunction!));
-                        {
-                            PushValue(a.NativeFunction!.Invoke(_fiber, args));
+                        
+                        _fiber.OnNativeFunctionInvoke?.Invoke(
+                            _fiber,
+                            a.NativeFunction!
+                        );
+                        
+                        var value = a.NativeFunction!.Invoke(_fiber, args);
 
-                            _fiber.OnNativeFunctionInvoke?.Invoke(
-                                _fiber,
-                                a.NativeFunction!
-                            );
+                        if (_callStack.Peek() is NativeStackFrame)
+                        {
+                            PushValue(value);
+                            _callStack.Pop();
+                        } 
+                        else
+                        {
+                            /* We probably threw from native, nothing else to be done. */
                         }
-                        _callStack.Pop();
                         break;
                     }
 
@@ -1077,7 +1084,7 @@ namespace Ceres.ExecutionEngine
                         throw new UnsupportedDynamicValueOperationException("Array size must be a Number.");
                     }
 
-                    PushValue(new Array((int)a.Number));
+                    PushValue(new Collections.Array((int)a.Number));
                     break;
                 }
 
@@ -1182,7 +1189,7 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValueType.String)
                     {
-                        a = Array.FromString(a.String!);
+                        a = Collections.Array.FromString(a.String!);
                     }
 
                     if (a.Type == DynamicValueType.Table)
@@ -1261,30 +1268,9 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.THROW:
                 {
-                    var callStackCopy = _callStack.ToArray();
-                    
-                    while (_callStack.Count > 1 && !frame.IsProtectedState)
-                    {
-                        _callStack.Pop();
-                        frame = _callStack.Peek().As<ScriptStackFrame>();
-                    }
-                    
-                    if (frame.IsProtectedState)
-                    {
-                        var info = frame.BlockProtectorStack.Peek();
-                        frame.JumpAbsolute(info.HandlerAddress);
-                    }
-                    else
-                    {
-                        var exceptionObject = PopValue();
-
-                        throw new UserExceptionUnhandledException(
-                            "User exception was unhandled.",
-                            exceptionObject,
-                            callStackCopy
-                        );
-                    }
-                    
+                    _fiber.UnwindTryHandle(
+                        _callStack.ToArray()
+                    );
                     break;
                 }
 

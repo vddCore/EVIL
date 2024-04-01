@@ -379,6 +379,57 @@ namespace Ceres.ExecutionEngine.Concurrency
             OnNativeFunctionInvoke = handler;
         }
 
+        public DynamicValue ThrowFromNative(DynamicValue value)
+        {
+            lock (_callStack)
+            lock (_evaluationStack)
+            {
+                var callStackCopy = _callStack.ToArray();
+                
+                var frame = _callStack.Peek();
+                if (frame is NativeStackFrame nsf)
+                {
+                    nsf.HasThrown = true;
+                    _callStack.Pop();
+                }
+                
+                _evaluationStack.Push(value);
+                UnwindTryHandle(callStackCopy);
+            }
+            
+            return DynamicValue.Nil;
+        }
+        
+        internal void UnwindTryHandle(StackFrame[] callStackCopy)
+        {
+            lock (_callStack)
+            {
+                var scriptFrame = _callStack.Peek().As<ScriptStackFrame>();
+                
+                while (_callStack.Count > 1 && !scriptFrame.IsProtectedState)
+                {
+                    _callStack.Pop();
+                    scriptFrame = _callStack.Peek().As<ScriptStackFrame>();
+                }
+
+                if (scriptFrame.IsProtectedState)
+                {
+                    var info = scriptFrame.BlockProtectorStack.Peek();
+                    scriptFrame.JumpAbsolute(info.HandlerAddress);
+                }
+                else
+                {
+                    var exceptionObject = PopValue();
+
+                    throw new UserExceptionUnhandledException(
+                        "User exception was unhandled.",
+                        exceptionObject,
+                        callStackCopy
+                    );
+                }
+            }
+        }
+
         internal void RemoveFinishedAwaitees()
         {
             _waitingFor.RemoveWhere(x => x.State == FiberState.Finished);
