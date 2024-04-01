@@ -263,6 +263,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
                             output.Write(reader.ReadDouble());
                             output.WriteLine();
                             break;
+                        
+                        case OpCode.ENTER:
+                            output.Write(opCode);
+                            output.Write(" ");
+                            output.Write(reader.ReadInt32());
+                            output.WriteLine();
+                            break;
 
                         case OpCode.LDSTR:
                         {

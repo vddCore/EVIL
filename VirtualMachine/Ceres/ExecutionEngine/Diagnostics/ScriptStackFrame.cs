@@ -23,9 +23,13 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Table ExtraArguments => _extraArguments ??= GetExtraArgumentsTable();
 
         public DynamicValue[]? Locals { get; }
-        
+        public Stack<BlockProtectionInfo> BlockProtectorStack { get; } = new();
+
         public long PreviousOpCodeIP { get; private set; }
         public long IP => _chunkReader.BaseStream.Position;
+
+        public bool IsProtectedState => Chunk.Flags.HasFlag(ChunkFlags.HasProtectedBlocks) 
+                                     && BlockProtectorStack.Count > 0;
 
         public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>? CurrentEnumerator
         {
@@ -45,7 +49,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             if (chunk == null)
             {
-                throw new InvalidOperationException("aaa");
+                throw new InvalidOperationException("Attempt to invoke a null chunk.");
             }
 
             if (chunk.ParameterCount > args.Length)
@@ -79,6 +83,12 @@ namespace Ceres.ExecutionEngine.Diagnostics
             _chunkReader = Chunk.SpawnCodeReader();
         }
 
+        internal void EnterProtectedBlock(int blockId)
+            => BlockProtectorStack.Push(Chunk.ProtectedBlocks[blockId]);
+
+        internal BlockProtectionInfo ExitProtectedBlock()
+            => BlockProtectorStack.Pop();
+        
         internal DynamicValue[] GetExtraArguments()
         {
             var size = Arguments.Length - Chunk.ParameterCount;

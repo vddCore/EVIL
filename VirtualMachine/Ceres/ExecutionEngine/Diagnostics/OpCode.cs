@@ -69,6 +69,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
         EACH,
         NEXT,
         EEND,
-        OVERRIDE
+        OVERRIDE,
+        ENTER,
+        THROW,
+        LEAVE
     }
 }
