@@ -6,13 +6,13 @@ namespace Ceres.ExecutionEngine
     public class UserExceptionUnhandledException : VirtualMachineException
     {
         public DynamicValue UserExceptionObject { get; }
-        public StackFrame[] StackTrace { get; }
+        public StackFrame[] EvilStackTrace { get; }
 
-        internal UserExceptionUnhandledException(string message, DynamicValue userExceptionObject, StackFrame[] stackTrace)
+        internal UserExceptionUnhandledException(string message, DynamicValue userExceptionObject, StackFrame[] evilStackTrace)
             : base(message)
         {
             UserExceptionObject = userExceptionObject;
-            StackTrace = stackTrace;
+            EvilStackTrace = evilStackTrace;
         }
     }
 }
