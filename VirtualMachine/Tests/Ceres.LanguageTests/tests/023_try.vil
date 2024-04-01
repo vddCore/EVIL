@@ -85,3 +85,14 @@ fn try_native_throws() {
   
   assert.equal(result, "hello world");
 }
+
+#[test]
+fn try_require() { 
+  rw val result = "hiii";
+  
+  try { result = require("doesnt_exist"); }
+  catch (e) { result = e.msg; }
+  
+  assert.is_true(#result > 70);
+}
+
