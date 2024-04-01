@@ -43,7 +43,7 @@ fn nested_try_blocks_innermost() {
   assert.equal(result, "this should happen!");
 }
 
-#[test;disasm("always")]
+#[test]
 fn nested_try_blocks_rethrow() {
   rw val result;
   
@@ -71,4 +71,17 @@ loc fn is_valid_type(value) {
 fn try_invoked_ret_differs() {
   assert.equal(is_valid_type(123), false);
   assert.equal(is_valid_type("meow"), true);
+}
+
+#[test]
+fn try_native_throws() {
+  rw val result;
+  
+  try {
+    __throw_test("hello world");
+  } catch (e) {
+    result = e;
+  }
+  
+  assert.equal(result, "hello world");
 }
