@@ -82,11 +82,12 @@ namespace Ceres.ExecutionEngine.Diagnostics
 
             private static BlockProtectionInfo ReadProtectedBlock(BinaryReader br)
             {
-                return new BlockProtectionInfo(
-                    br.ReadInt32(),
-                    br.ReadInt32(),
-                    br.ReadInt32()
-                );  
+                return new BlockProtectionInfo
+                {
+                    StartAddress = br.ReadInt32(),
+                    Length = br.ReadInt32(),
+                    HandlerAddress = br.ReadInt32()
+                };
             }
 
             private static string ReadName(BinaryReader br)

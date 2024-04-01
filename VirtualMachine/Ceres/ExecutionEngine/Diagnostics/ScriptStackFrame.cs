@@ -9,7 +9,7 @@ using Array = Ceres.ExecutionEngine.Collections.Array;
 
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public sealed class ScriptStackFrame : StackFrame
+    public sealed record ScriptStackFrame : StackFrame
     {
         private readonly BinaryReader _chunkReader;
         private Table? _extraArguments;

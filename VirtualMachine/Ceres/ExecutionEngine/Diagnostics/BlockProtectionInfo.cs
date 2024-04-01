@@ -1,8 +1,9 @@
 namespace Ceres.ExecutionEngine.Diagnostics
 {
-    public record BlockProtectionInfo(
-        int StartAddress,
-        int Length,
-        int HandlerAddress
-    );
+    public class BlockProtectionInfo
+    {
+        public int StartAddress { get; internal set; }
+        public int Length { get; internal set; }
+        public int HandlerAddress { get; internal set; }
+    }
 }
