@@ -1,13 +1,13 @@
 #[test]
 fn try_catch_ok() {
   rw val result;
-  
+
   try {
     throw "hiii";
   } catch(e) {
     result = e; 
   }
-  
+
   assert.equal(result, "hiii");
 }
 
@@ -19,13 +19,13 @@ loc fn throwing_inner(value) {
 #[test]
 fn try_invoked_throws() {
   rw val result;
-  
+
   try {
     throwing_inner({ msg: "yaaaay" });
   } catch (e) {
     result = e;
   }
-  
+
   assert.is_true(result is Table);
   assert.equal(result.msg, "yaaaay");
 }
@@ -33,26 +33,30 @@ fn try_invoked_throws() {
 #[test]
 fn nested_try_blocks_innermost() {
   rw val result;
-  
+
   try {
     try {
-      try { throw "this should happen!"; } catch (e) { result = e; }
-    } catch (e) { result = "should never ever happen!"; }
-  } catch (e) { result = "should never happen too."; }
-  
+      try { 
+        throw "this should happen!"; 
+      } catch (e) { result = e; }
+    } catch (e) { result = "should never ever happen! $e"; }
+  } catch (e) { result = "should never happen too. $e"; }
+
   assert.equal(result, "this should happen!");
 }
 
 #[test]
 fn nested_try_blocks_rethrow() {
   rw val result;
-  
-  try {
-    try {
-      try { throw "jp2gmd"; } catch (e) { throw e; }
+
+  try { 
+    try { 
+      try { 
+        throw "jp2gmd"; 
+      } catch (e) { throw e; }
     } catch (e) { throw e; }
   } catch (e) { result = e; }
-  
+
   assert.equal(result, "jp2gmd");
 }
 
@@ -76,23 +80,50 @@ fn try_invoked_ret_differs() {
 #[test]
 fn try_native_throws() {
   rw val result;
-  
+
   try {
     __throw_test("hello world");
   } catch (e) {
     result = e;
   }
-  
+
   assert.equal(result, "hello world");
 }
 
 #[test]
 fn try_require() { 
   rw val result = "hiii";
-  
+
   try { result = require("doesnt_exist"); }
   catch (e) { result = e.msg; }
-  
+
   assert.is_true(#result > 70);
 }
 
+loc fn throwing_by(value) -> by typeof(value) {
+  Nil -> "It's a Nil!",
+  Number -> "It's a Number!",
+  Boolean -> "It's a Boolean!",
+  String -> "It's a String!",
+  Table -> "It's a Table!",
+  Array -> "It's an Array!",
+  Function -> "It's a Function!",
+  NativeFunction -> "It's a NativeFunction!",
+  NativeObject -> "It's a NativeObject!",
+  Type -> throw "It's a Type and it's not supported!",
+  else: throw "I don't know what the fuck that is!"
+};
+
+#[test]
+fn try_by() {
+  rw val result;
+  
+  try {
+    throwing_by(NativeObject);
+    result = throwing_by(nil);
+  } catch (e) {
+    result = e;
+  }
+  
+  assert.equal(result, "It's a Type and it's not supported!");
+}

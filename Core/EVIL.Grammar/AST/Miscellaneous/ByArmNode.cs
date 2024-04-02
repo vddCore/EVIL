@@ -5,16 +5,16 @@ namespace EVIL.Grammar.AST.Miscellaneous
     public class ByArmNode : AstNode
     {
         public Expression Selector { get; }
-        public Expression Value { get; }
+        public AstNode ValueArm { get; }
         public bool DeepEquality { get; }
 
-        public ByArmNode(Expression selector, Expression value, bool deepEquality)
+        public ByArmNode(Expression selector, AstNode valueArm, bool deepEquality)
         {
             Selector = selector;
-            Value = value;
+            ValueArm = valueArm;
             DeepEquality = deepEquality;
 
-            Reparent(Selector, Value);
+            Reparent(Selector, valueArm);
         }
     }
 }
