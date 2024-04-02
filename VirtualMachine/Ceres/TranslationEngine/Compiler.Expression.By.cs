@@ -1,6 +1,8 @@
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
 {
@@ -32,10 +34,14 @@ namespace Ceres.TranslationEngine
 
                 Chunk.CodeGenerator.Emit(arms[i].DeepEquality ? OpCode.DEQ : OpCode.CEQ);
                 Chunk.CodeGenerator.Emit(OpCode.FJMP, labels[i]);
+
+                Visit(arms[i].ValueArm);
                 
-                Visit(arms[i].Value);
-                Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
-                Chunk.UpdateLabel(labels[i], Chunk.CodeGenerator.IP);
+                if (arms[i].ValueArm is Expression)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
+                    Chunk.UpdateLabel(labels[i], Chunk.CodeGenerator.IP);
+                }
             }
 
             if (elseArm != null)

@@ -19,7 +19,7 @@ namespace EVIL.Grammar.Parsing
                 Match(Token.LBrace);
 
                 var arms = new List<ByArmNode>();
-                Expression? elseArm = null;
+                AstNode? elseArm = null;
                 
                 while (true)
                 {
@@ -56,8 +56,16 @@ namespace EVIL.Grammar.Parsing
                         
                         Match(Token.Else);
                         Match(Token.Colon);
-                        
-                        elseArm = AssignmentExpression();
+
+                        if (CurrentToken.Type == TokenType.Throw)
+                        {
+                            elseArm = ThrowStatement();
+                        }
+                        else
+                        {
+                            elseArm = AssignmentExpression();
+                        }
+
 
                         if (CurrentToken.Type != TokenType.RBrace)
                         {
@@ -91,10 +99,18 @@ namespace EVIL.Grammar.Parsing
                                 (CurrentToken.Line, CurrentToken.Column)
                             );
                         }
-                        
-                        var value = AssignmentExpression();
 
-                        arms.Add(new ByArmNode(selector, value, deepEquality) { Line = armLine, Column = armCol });
+                        AstNode valueArm;
+                        if (CurrentToken.Type == TokenType.Throw)
+                        {
+                            valueArm = ThrowStatement();
+                        }
+                        else
+                        {
+                            valueArm = AssignmentExpression();
+                        }
+
+                        arms.Add(new ByArmNode(selector, valueArm, deepEquality) { Line = armLine, Column = armCol });
                     }
                     
                     if (CurrentToken.Type == TokenType.RBrace)
