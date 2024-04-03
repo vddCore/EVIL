@@ -109,6 +109,7 @@ namespace EVIL.Lexical
         public static readonly Token AttributeList = new(TokenType.AttributeList, TokenClass.Operator, "#[");
         public static readonly Token Array = new(TokenType.Array, TokenClass.Operator, "array");
         public static readonly Token Self = new(TokenType.Self, TokenClass.Operator, "self");
+        public static readonly Token Error = new(TokenType.Error, TokenClass.Operator, "error");
         public static readonly Token In = new(TokenType.In, TokenClass.Operator, "in");
         public static readonly Token NotIn = new(TokenType.NotIn, TokenClass.Operator, "!in");
         public static readonly Token Is = new(TokenType.Is, TokenClass.Operator, "is");
@@ -150,6 +151,7 @@ namespace EVIL.Lexical
         public static readonly Token ArrayTypeCode = new(TokenType.ArrayTypeCode, TokenClass.TypeCode, "Array");
         public static readonly Token FiberTypeCode = new(TokenType.FiberTypeCode, TokenClass.TypeCode, "Fiber");
         public static readonly Token ChunkTypeCode = new(TokenType.ChunkTypeCode, TokenClass.TypeCode, "Function");
+        public static readonly Token ErrorTypeCode = new(TokenType.ErrorTypeCode, TokenClass.TypeCode, "Error");
         public static readonly Token TypeCodeTypeCode = new(TokenType.TypeCodeTypeCode, TokenClass.TypeCode, "Type");
         public static readonly Token NativeFunctionTypeCode = new(TokenType.NativeFunctionTypeCode, TokenClass.TypeCode, "NativeFunction");
         public static readonly Token NativeObjectTypeCode = new(TokenType.NativeObjectTypeCode, TokenClass.TypeCode, "NativeObject");

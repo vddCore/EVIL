@@ -127,3 +127,19 @@ fn try_by() {
   
   assert.equal(result, "It's a Type and it's not supported!");
 }
+
+#[test]
+fn try_error() {
+  rw val result;
+  
+  try {
+    throw error {
+      msg: "yeah that's an error!"
+    };
+  } catch (err) {
+    assert.is_true(err is Error);
+    result = err.msg;
+  }
+  
+  assert.equal(result, "yeah that's an error!");
+}

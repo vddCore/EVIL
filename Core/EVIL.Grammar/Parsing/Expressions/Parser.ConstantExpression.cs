@@ -146,6 +146,13 @@ namespace EVIL.Grammar.Parsing
                     return new TypeCodeConstant(DynamicValueType.Chunk)
                         { Line = line, Column = col };
                 }
+                case TokenType.ErrorTypeCode:
+                {
+                    var (line, col) = Match(Token.ErrorTypeCode);
+
+                    return new TypeCodeConstant(DynamicValueType.Error)
+                        { Line = line, Column = col };
+                }
                 case TokenType.TypeCodeTypeCode:
                 {
                     var (line, col) = Match(Token.TypeCodeTypeCode);

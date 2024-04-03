@@ -17,6 +17,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 return new(a.Array!.IsDeeplyEqualTo(b.Array!));
             }
 
+            if (a.Type == DynamicValueType.Error && b.Type == DynamicValueType.Error)
+            {
+                return new(a.Error!.IsDeeplyEqualTo(b.Error!));
+            }
+
             try
             {
                 return IsEqualTo(a, b);
@@ -39,6 +44,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             if (a.Type == DynamicValueType.Array && b.Type == DynamicValueType.Array)
             {
                 return new(!a.Array!.IsDeeplyEqualTo(b.Array!));
+            }
+            
+            if (a.Type == DynamicValueType.Error && b.Type == DynamicValueType.Error)
+            {
+                return new(!a.Error!.IsDeeplyEqualTo(b.Error!));
             }
 
             try
@@ -80,6 +90,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
                 case DynamicValueType.Chunk:
                     return a.Chunk == b.Chunk;
+                
+                case DynamicValueType.Error:
+                    return a.Error == b.Error;
                 
                 case DynamicValueType.TypeCode:
                     return a.TypeCode == b.TypeCode;
@@ -123,6 +136,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
 
                 case DynamicValueType.Chunk:
                     return a.Chunk != b.Chunk;
+                
+                case DynamicValueType.Error:
+                    return a.Error != b.Error;
                 
                 case DynamicValueType.TypeCode:
                     return a.TypeCode != b.TypeCode;
