@@ -29,6 +29,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public Array? Array { get; }
         public Fiber? Fiber { get; }
         public Chunk? Chunk { get; }
+        public Error? Error { get; }
         public DynamicValueType TypeCode { get; }
         public NativeFunction? NativeFunction { get; }
         public object? NativeObject { get; }
@@ -86,6 +87,12 @@ namespace Ceres.ExecutionEngine.TypeSystem
             Type = DynamicValueType.Chunk;
         }
 
+        public DynamicValue(Error value)
+        {
+            Error = value;
+            Type = DynamicValueType.Error;
+        }
+
         public DynamicValue(DynamicValueType value)
         {
             TypeCode = value;
@@ -137,6 +144,22 @@ namespace Ceres.ExecutionEngine.TypeSystem
                     sb.Append(" ");
                     sb.Append(Boolean);
                     break;
+
+                case DynamicValueType.Error:
+                {
+                    var msg = Error!["msg"];
+
+                    if (msg == DynamicValueType.String)
+                    {
+                        sb.Append($"'{msg.String}'");
+                    }
+                    else
+                    {
+                        sb.Append($"[{msg.Error!.Length} userdata record(s)]");
+                    }
+
+                    break;
+                }
                 
                 case DynamicValueType.Nil:
                     break;
@@ -158,7 +181,8 @@ namespace Ceres.ExecutionEngine.TypeSystem
             && Equals(Table, other.Table) 
             && Equals(Array, other.Array)
             && Equals(Fiber, other.Fiber)
-            && Equals(Chunk, other.Chunk) 
+            && Equals(Chunk, other.Chunk)
+            && Equals(Error, other.Error)
             && TypeCode == other.TypeCode
             && Equals(NativeFunction, other.NativeFunction);
 
@@ -178,6 +202,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
             hashCode.Add(Array);
             hashCode.Add(Fiber);
             hashCode.Add(Chunk);
+            hashCode.Add(Error);
             hashCode.Add(TypeCode);
             hashCode.Add(NativeFunction);
             hashCode.Add(NativeObject);
@@ -199,6 +224,7 @@ namespace Ceres.ExecutionEngine.TypeSystem
         public static implicit operator DynamicValue(Array value) => new(value);
         public static implicit operator DynamicValue(Fiber value) => new(value);
         public static implicit operator DynamicValue(Chunk value) => new(value);
+        public static implicit operator DynamicValue(Error value) => new(value);
         public static implicit operator DynamicValue(DynamicValueType value) => new(value);
         public static implicit operator DynamicValue(NativeFunction value) => new(value);
         public static DynamicValue FromObject(object value) => new(value);
@@ -296,6 +322,14 @@ namespace Ceres.ExecutionEngine.TypeSystem
             return value.Chunk!;
         }
 
+        public static explicit operator Error(DynamicValue value)
+        {
+            if (value.Type != DynamicValueType.Error)
+                throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to an Error.");
+
+            return value.Error!;
+        }
+        
         public static explicit operator DynamicValueType(DynamicValue value)
         {
             if (value.Type != DynamicValueType.TypeCode)

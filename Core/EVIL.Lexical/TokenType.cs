@@ -67,6 +67,7 @@
         RBracket,
         Array,
         Self,
+        Error,
 
         AttributeList,
         Identifier,
@@ -116,6 +117,7 @@
         ArrayTypeCode,
         FiberTypeCode,
         ChunkTypeCode,
+        ErrorTypeCode,
         TypeCodeTypeCode,
         NativeFunctionTypeCode,
         NativeObjectTypeCode,

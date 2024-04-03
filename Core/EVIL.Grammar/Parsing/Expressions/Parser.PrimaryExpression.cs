@@ -30,6 +30,10 @@ namespace EVIL.Grammar.Parsing
             {
                 return ArrayExpression();
             }
+            else if (token.Type == TokenType.Error)
+            {
+                return ErrorExpression();
+            }
             else if (token.Type == TokenType.Ellipsis)
             {
                 var (line, col) = Match(Token.Ellipsis);
