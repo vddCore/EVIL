@@ -36,6 +36,17 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 }
                 case DynamicValueType.Chunk:
                     return $"Function[{a.Chunk!.Name}]({a.Chunk.ParameterCount})";
+                case DynamicValueType.Error:
+                {
+                    if (a.Error!["msg"].Type == DynamicValueType.String)
+                    {
+                        return $"Error[{a.Error["msg"].String}]";
+                    }
+                    else
+                    {
+                        return $"Error[{a.Error.Length}]";
+                    }
+                }
                 case DynamicValueType.TypeCode:
                     return a.TypeCode switch
                     {

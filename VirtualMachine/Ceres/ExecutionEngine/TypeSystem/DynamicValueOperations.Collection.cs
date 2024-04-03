@@ -14,6 +14,10 @@ namespace Ceres.ExecutionEngine.TypeSystem
             {
                 a.Array![key] = value;
             }
+            else if (a.Type == DynamicValueType.Error)
+            {
+                a.Error![key] = value;
+            }
             else
             {
                 throw new UnsupportedDynamicValueOperationException(

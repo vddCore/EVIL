@@ -28,6 +28,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 return new(a.Array!.IndexOf(b) >= 0);
             }
 
+            if (a.Type == DynamicValueType.Error)
+            {
+                return new(a.Error!.Contains(b));
+            }
+
             throw new UnsupportedDynamicValueOperationException(
                 $"Attempt to check if a {a.Type} contains a {b.Type}."
             );
@@ -48,6 +53,11 @@ namespace Ceres.ExecutionEngine.TypeSystem
             if (a.Type == DynamicValueType.Table)
             {
                 return new(a.Table!.Length);
+            }
+
+            if (a.Type == DynamicValueType.Error)
+            {
+                return new(a.Error!.Length);
             }
 
             throw new UnsupportedDynamicValueOperationException(
@@ -94,6 +104,9 @@ namespace Ceres.ExecutionEngine.TypeSystem
                 case DynamicValueType.Chunk:
                     return a.Chunk![key.String!] ?? DynamicValue.Nil;
 
+                case DynamicValueType.Error:
+                    return a.Error![key];
+                
                 default:
                     throw new UnsupportedDynamicValueOperationException(
                         $"Attempt to index a {a.Type} value."

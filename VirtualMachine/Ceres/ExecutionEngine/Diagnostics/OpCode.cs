@@ -72,6 +72,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         OVERRIDE,
         ENTER,
         THROW,
-        LEAVE
+        LEAVE,
+        ERRNEW
     }
 }

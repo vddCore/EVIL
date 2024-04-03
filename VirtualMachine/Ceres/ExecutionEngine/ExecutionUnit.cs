@@ -1280,6 +1280,21 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.ERRNEW:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to create an Error out of a value type '{a.Type}'."
+                        );
+                    }
+
+                    PushValue(new Error(a.Table!));
+                    break;
+                }
+
                 default:
                 {
                     throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
