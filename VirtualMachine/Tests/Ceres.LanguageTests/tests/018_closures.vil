@@ -160,7 +160,7 @@ fn spawn_closures_in_loop() {
     results[i] = spawn_closure_for_loop(i)(1);
   }
   
-  assert.is_true(
+  assert(
     all(
       results, 
       fn(k,v) -> v == k + 1
@@ -258,7 +258,7 @@ fn closures_in_each() {
   } 
   
   each (rw val k, v : result_data) {
-    assert.is_true(k in test_data, @k + " was not found in test_data");
+    assert(k in test_data, @k + " was not found in test_data");
     assert.equal(v, test_data[k], @v + " was not equal to test_data[k] (" + @test_data[k] + ")");
   }
 }

@@ -200,7 +200,7 @@ fn lnot_override() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -211,7 +211,7 @@ fn lor_override() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -279,7 +279,7 @@ fn deq_override() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -290,7 +290,7 @@ fn dne_override() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -301,7 +301,7 @@ fn eq_override_byval() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -314,7 +314,7 @@ fn eq_override_byref() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());  
+  assert(result::get_value());  
 }
 
 #[test]
@@ -325,7 +325,7 @@ fn ne_override_byval() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -339,7 +339,7 @@ fn ne_override_byref() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -350,7 +350,7 @@ fn gt_override_gt() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -372,7 +372,7 @@ fn lt_override_lt() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -394,7 +394,7 @@ fn gte_override_gt() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -405,7 +405,7 @@ fn gte_override_eq() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -416,7 +416,7 @@ fn lte_override_gt() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]
@@ -427,7 +427,7 @@ fn lte_override_eq() {
   
   assert.is_of_type(result, Table);
   assert.is_of_type(result::get_value(), Boolean);
-  assert.is_true(result::get_value());
+  assert(result::get_value());
 }
 
 #[test]

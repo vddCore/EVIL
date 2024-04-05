@@ -30,18 +30,18 @@ fn table_constkeyed_init() {
   
   assert.is_of_type(a, Table);
   assert.equal(#a, 3);
-  assert.is_true("key_a" in a);
-  assert.is_true("key_b" in a);
-  assert.is_true(2137 in a);  
+  assert("key_a" in a);
+  assert("key_b" in a);
+  assert(2137 in a);  
   assert.equal(a.key_a, 123);
   assert.equal(a.key_b, 234);
 
   val inner_table = a[2137];
   assert.is_of_type(inner_table, Table);
   assert.equal(#inner_table, 3);
-  assert.is_true(0 in inner_table);
-  assert.is_true(1 in inner_table);
-  assert.is_true(2 in inner_table);
+  assert(0 in inner_table);
+  assert(1 in inner_table);
+  assert(2 in inner_table);
   assert.equal(inner_table[0], "jp");
   assert.equal(inner_table[1], 2);
   assert.equal(inner_table[2], "gmd");
@@ -54,8 +54,8 @@ fn table_identkeyed() {
   assert.is_of_type(vec, Table);
   assert.equal(#vec, 2);
   
-  assert.is_true("x" in vec);
-  assert.is_true("y" in vec);
+  assert("x" in vec);
+  assert("y" in vec);
   
   assert.equal(vec.x, 21.37);
   assert.equal(vec.y, 42.74);
@@ -78,10 +78,10 @@ fn table_computedkey_init() {
       k3 = @21 + "37",
       k4 = 21 + 0.37;
       
-  assert.is_true(k1 in a);
-  assert.is_true(k2 in a);
-  assert.is_true(k3 in a);
-  assert.is_true(k4 in a);
+  assert(k1 in a);
+  assert(k2 in a);
+  assert(k3 in a);
+  assert(k4 in a);
   
   assert.equal(a[k1], "jp2gmd");
   assert.equal(a[k2], "można, jak najbardziej");
@@ -100,9 +100,9 @@ fn table_mixed_keying() {
   assert.is_of_type(a, Table);
   assert.equal(#a, 3);
   
-  assert.is_true("b" in a);
-  assert.is_true(213 + .7 in a);
-  assert.is_true("c" in a);
+  assert("b" in a);
+  assert(213 + .7 in a);
+  assert("c" in a);
   
   assert.equal(a.b, "haha funny");
   assert.equal(a[213 + .7], "blah");
@@ -135,11 +135,11 @@ fn tables_are_references() {
   assert.equal(t[0][0], "21.37"); 
 }
 
-#[test] fn table_equality_is_by_reference() -> assert.is_true({ 0, 255, 0 } != { 0, 255, 0 });
-#[test] fn table_is_deeply_equal_flat() -> assert.is_true({ 0, 255, 0 } <==> { 0, 255, 0 });
-#[test] fn table_is_deeply_not_equal_flat() -> assert.is_true({ 0, 1, 2 } <!=> { 3, 4, 5 });
-#[test] fn table_is_deeply_equal_nested() -> assert.is_true({ 0, 1, 2, { 3, 4, 5 }, 21.37 } <==> { 0, 1, 2, { 3, 4, 5 }, 21.37 });
-#[test] fn table_is_deeply_not_equal_nested() -> assert.is_true({ 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 });
+#[test] fn table_equality_is_by_reference() -> assert({ 0, 255, 0 } != { 0, 255, 0 });
+#[test] fn table_is_deeply_equal_flat() -> assert({ 0, 255, 0 } <==> { 0, 255, 0 });
+#[test] fn table_is_deeply_not_equal_flat() -> assert({ 0, 1, 2 } <!=> { 3, 4, 5 });
+#[test] fn table_is_deeply_equal_nested() -> assert({ 0, 1, 2, { 3, 4, 5 }, 21.37 } <==> { 0, 1, 2, { 3, 4, 5 }, 21.37 });
+#[test] fn table_is_deeply_not_equal_nested() -> assert({ 0, 1, 2, { 3, 4, 5 }, 21.37 } <!=> { 0, 1, 2, { 3, 4, 5 }, 213.7 });
 
 #[test] 
 fn table_tricky_works() {

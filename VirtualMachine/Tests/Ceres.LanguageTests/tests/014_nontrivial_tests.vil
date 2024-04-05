@@ -79,7 +79,7 @@ fn bubblesort_table() {
   // Tables are always passed by reference.
   bubble_sort_table(a);
   
-  assert.is_true(a <==> { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
+  assert(a <==> { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
 }
 
 #[test]
@@ -89,5 +89,5 @@ fn bubblesort_array() {
   // Arrays are always passed by reference.
   bubble_sort_array(a);
   
-  assert.is_true(a <==> array { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
+  assert(a <==> array { -31, 0, 1, 2, 2, 4, 65, 83, 99, 782 });
 }

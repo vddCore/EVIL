@@ -2,6 +2,8 @@ using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.Runtime.Extensions;
+using Ceres.TranslationEngine;
+using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.LanguageTests
@@ -10,6 +12,17 @@ namespace Ceres.LanguageTests
     {
         public override string FullyQualifiedName => "assert";
 
+        public AssertModule()
+        {
+            var c = new Compiler();
+            var rootChunk = c.Compile("fn __invk(t, expr) -> t.is_true(expr);");
+            
+            SetOverride(
+                TableOverride.Invoke, 
+                rootChunk.SubChunks[0]
+            );
+        }
+        
         [RuntimeModuleFunction("is_true")]
         private static DynamicValue IsTrue(Fiber _, params DynamicValue[] args)
         {
