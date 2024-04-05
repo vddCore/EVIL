@@ -7,7 +7,7 @@
 #[test] fn type_table() -> assert.equal(typeof({}), Table);
 #[test] fn type_array() -> assert.equal(typeof(array(10)), Array);
 #[test] fn type_chunk() -> assert.equal(typeof(testchunk), Function);
-#[test] fn type_error() -> assert.equal(typeof(testchunk), Error);
+#[test] fn type_error() -> assert.equal(typeof(error("uwu")), Error);
 #[test] fn type_type() -> assert.equal(typeof(typeof(0)), Type);
 #[test] fn type_nativefunction() -> assert.equal(typeof(__native_func), NativeFunction);
 #[test] fn type_nativeobject() -> assert.equal(typeof(__native_object), NativeObject);
@@ -71,7 +71,7 @@ fn value_is_chunk() {
 #[test]
 fn value_is_error() {
   val testval = error("hello!");
-  assert(testval is Function);
+  assert(testval is Error);
 }
 
 #[test]
