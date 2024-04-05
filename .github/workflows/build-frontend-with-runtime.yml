@@ -40,8 +40,8 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Run language tests
-      working-directory: VirtualMachine/Tests/Ceres.LanguageTests/bin/net7.0/${{ matrix.configuration }}
-      run: VirtualMachine/Tests/Ceres.LanguageTests/bin/net7.0/${{ matrix.configuration }}/Ceres.LanguageTests
+      working-directory: VirtualMachine/Tests/Ceres.LanguageTests/bin/${{ matrix.configuration }}/net7.0
+      run: VirtualMachine/Tests/Ceres.LanguageTests/bin/${{ matrix.configuration }}/net7.0/Ceres.LanguageTests
 
     - name: Publish to directory
       run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
