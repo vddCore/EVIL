@@ -76,8 +76,10 @@ namespace Ceres.LanguageTests
             TextOut.WriteLine();
         }
 
-        public async Task RunTests()
+        public async Task<int> RunTests()
         {
+            var failuresOccurred = false;
+            
             foreach (var testRoot in TestRoots)
             {
                 var passed = 0;
@@ -180,6 +182,8 @@ namespace Ceres.LanguageTests
                     ? "were"
                     : "was";
 
+                failuresOccurred |= failed > 0;  
+                    
                 TextOut.WriteLine($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
                 using (var process = Process.GetCurrentProcess())
                 {
@@ -189,6 +193,13 @@ namespace Ceres.LanguageTests
             }
 
             ReportAnyTestFailures();
+
+            if (failuresOccurred)
+            {
+                return 1;
+            }
+
+            return 0;
         }
 
         private async Task<bool?> RunTestChunk(Chunk chunk, string path)
