@@ -151,7 +151,7 @@ fn each_val_only() {
   val t = { 10, 20, 30, 40 };
   
   each (rw val value : t) {
-    assert.is_true(
+    assert(
       value == 10
       || value == 20
       || value == 30

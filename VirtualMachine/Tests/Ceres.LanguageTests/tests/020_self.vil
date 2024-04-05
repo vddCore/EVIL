@@ -50,13 +50,13 @@ fn self_fn_state() {
   assert.equal(chair::get_status(), chair.__quips[0]);
   
   chair::add_leg();
-  assert.is_true(chair::is_broken());
+  assert(chair::is_broken());
   assert.equal(chair.leg_count, 5);
   assert.equal(chair::get_status(), chair.__quips[3]);
   
   chair::break_leg();
   chair::break_leg();
-  assert.is_true(chair::is_broken());
+  assert(chair::is_broken());
   assert.equal(chair.leg_count, 3);
   assert.equal(chair::get_status(), chair.__quips[2]);
   
@@ -64,7 +64,7 @@ fn self_fn_state() {
   chair::break_leg();
   chair::break_leg();
   chair::break_leg();
-  assert.is_true(chair::is_broken());
+  assert(chair::is_broken());
   assert.equal(chair.leg_count, -1);
   assert.equal(chair::get_status(), chair.__quips[1]);
   
@@ -87,7 +87,7 @@ fn self_referencing_self() {
   val t2 = t::get_self()::create_new();
   t2::set(21.37);
   
-  assert.is_true(t <==> t::get_self());
+  assert(t <==> t::get_self());
   assert.equal(t2.__value, 21.37);
 }
 
@@ -125,7 +125,7 @@ fn self_builder() {
    :: with_description("It's a chair.")
    :: with_purpose("For sitting on.");
    
-  assert.is_true(chair is Table); // Haha.
+  assert(chair is Table); // Haha.
   assert.equal(chair::get_name(), "chair");
   assert.equal(chair::get_class(), "furniture");
   assert.equal(chair::get_description(), "It's a chair.");
