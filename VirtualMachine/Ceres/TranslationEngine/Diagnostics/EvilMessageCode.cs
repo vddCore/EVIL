@@ -17,5 +17,6 @@
         public const int TooManyInitializersForConstSizeArray = 0013;
         public const int NoDefaultByArm = 0014;
         public const int MissingErrorInformation = 0015;
+        public const int FnTargetedStatementRedefinedExistingChunk = 0016;
     }
 }

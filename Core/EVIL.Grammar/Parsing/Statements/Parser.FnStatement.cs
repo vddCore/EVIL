@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Grammar.AST.Statements.TopLevel;
 using EVIL.Lexical;
 
@@ -8,7 +9,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private FnStatement FnStatement()
+        private Statement FnStatement()
         {
             var attributes = new List<AttributeNode>();
 
@@ -38,8 +39,26 @@ namespace EVIL.Grammar.Parsing
                     (line, col)
                 );
             }
+
+            IdentifierNode? primaryIdentifier = null;
+            IdentifierNode? secondaryIdentifier = null;
             
-            var functionIdentifier = Identifier();
+            primaryIdentifier = Identifier();
+
+            if (CurrentToken.Type == TokenType.DoubleColon)
+            {
+                if (!isLocalDefinition)
+                {
+                    throw new ParserException(
+                        "`loc' specifier is required for targeted definitions.",
+                        (line, col)
+                    );
+                }
+                
+                Match(Token.DoubleColon);
+                secondaryIdentifier = Identifier();
+            }
+            
             var parameterList = ParameterList();
 
             Statement statement;
@@ -60,13 +79,26 @@ namespace EVIL.Grammar.Parsing
                 );
             }
 
-            return new FnStatement(
-                functionIdentifier,
-                parameterList,
-                statement,
-                attributes,
-                isLocalDefinition
-            ) { Line = line, Column = col };
+            if (secondaryIdentifier == null)
+            {
+                return new FnStatement(
+                    primaryIdentifier,
+                    parameterList,
+                    statement,
+                    attributes,
+                    isLocalDefinition
+                ) { Line = line, Column = col };
+            }
+            else
+            {
+                return new FnTargetedStatement(
+                    primaryIdentifier,
+                    secondaryIdentifier,
+                    parameterList,
+                    statement,
+                    attributes
+                ) { Line = line, Column = col };
+            }
         }
     }
 }
