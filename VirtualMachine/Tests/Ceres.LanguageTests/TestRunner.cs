@@ -28,18 +28,33 @@ namespace Ceres.LanguageTests
         private Dictionary<string, Chunk> TestRoots { get; } = new();
         private Dictionary<string, List<(Chunk TestChunk, string FailureReason)>> FailureLog { get; } = new();
 
-        public TestRunner(string testDirectory, CeresVM vm, TextWriter? textOut = null)
+        private TestRunnerOptions Options { get; }
+
+        public TestRunner(CeresVM vm, TestRunnerOptions options)
         {
-            TestDirectory = Path.GetFullPath(testDirectory);
             VM = vm;
+            Options = options;
+            
+            TestDirectory = Path.GetFullPath(Options.TestDirectoryRoot);
+            TextOut = Options.TestOutput ?? Console.Out;
+            
             Runtime = new EvilRuntime(vm);
-
-            TextOut = textOut ?? Console.Out;
-
-            CompileTests();
         }
 
-        private void CompileTests()
+        public async Task<int> RunTests()
+        {
+            var result = 0;
+            
+            if ((result = Compile()) > 0)
+                return result;
+
+            if ((result = await Execute()) > 0)
+                return result;
+
+            return result;
+        }
+
+        private int Compile()
         {
             var paths = Directory
                 .GetFiles(TestDirectory, "*.vil")
@@ -70,13 +85,22 @@ namespace Ceres.LanguageTests
                 {
                     TextOut.WriteLine(" [ FAIL ]");
                     TextOut.WriteLine(compiler.Log.ToString());
+                    
+                    if (Options.FailOnCompilationErrors)
+                    {
+                        TextOut.WriteLine("Test run aborted early due to a compilation error.");
+                        return 1;
+                    }
+                        
                     compiler.Log.Clear();
                 }
             }
+            
             TextOut.WriteLine();
+            return 0;
         }
 
-        public async Task<int> RunTests()
+        private async Task<int> Execute()
         {
             var failuresOccurred = false;
             
@@ -190,13 +214,23 @@ namespace Ceres.LanguageTests
                     TextOut.WriteLine($"Total process memory so far: {process.WorkingSet64} bytes.");
                 }
                 TextOut.WriteLine();
+
+                if (failuresOccurred && Options.FailOnTestErrors)
+                {
+                    break;
+                }
             }
 
             ReportAnyTestFailures();
 
             if (failuresOccurred)
             {
-                return 1;
+                if (Options.FailOnTestErrors)
+                {
+                    TextOut.WriteLine("Test run aborted early due to one or more test failures.");
+                }
+                
+                return 2;
             }
 
             return 0;
