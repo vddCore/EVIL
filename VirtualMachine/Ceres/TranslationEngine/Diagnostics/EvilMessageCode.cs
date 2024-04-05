@@ -16,5 +16,6 @@
         public const int SelfUsedInSelfUnawareFunction = 0012;
         public const int TooManyInitializersForConstSizeArray = 0013;
         public const int NoDefaultByArm = 0014;
+        public const int MissingErrorInformation = 0015;
     }
 }

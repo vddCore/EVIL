@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Ceres.ExecutionEngine.Diagnostics;
-using Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Grammar.AST.Constants;
 
 namespace Ceres.TranslationEngine
@@ -10,12 +9,6 @@ namespace Ceres.TranslationEngine
     {
         private static Regex _stringSubstitutionRegex = new(@"(?<substitution>\$(?<symbol_name>[\p{L}_]([\p{L}\p{Nd}_]+)?))");
 
-        /*
-         *        
-
-
-         * 
-         */
         public override void Visit(StringConstant stringConstant)
         {
             if (stringConstant.IsInterpolated)
