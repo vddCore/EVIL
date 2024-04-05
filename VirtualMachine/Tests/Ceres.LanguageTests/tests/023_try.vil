@@ -129,13 +129,11 @@ fn try_by() {
 }
 
 #[test]
-fn try_error() {
+fn try_error_userdata_only() {
   rw val result;
   
   try {
-    throw error {
-      msg: "yeah that's an error!"
-    };
+    throw error { msg: "yeah that's an error!" };
   } catch (err) {
     assert.is_true(err is Error);
     result = err.msg;
@@ -143,3 +141,38 @@ fn try_error() {
   
   assert.equal(result, "yeah that's an error!");
 }
+
+#[test]
+fn try_error_implicit_message_only() {
+  rw val result;
+  
+  try {
+    throw error("implicit message!");
+  } catch (err) {
+    assert.is_true(err is Error);
+    result = err.msg;
+  }
+  
+  assert.equal(result, "implicit message!");
+}
+
+#[test]
+fn try_error_implicit_message_and_userdata() {
+  rw val result;
+  rw val result2;
+  
+  try {
+    throw error("implicit message!") {
+      some_data: "meow"
+    };
+  } catch (err) {
+    assert.is_true(err is Error);
+    
+    result = err.msg;
+    result2 = err.some_data;
+  }
+  
+  assert.equal(result, "implicit message!");
+  assert.equal(result2, "meow");
+}
+
