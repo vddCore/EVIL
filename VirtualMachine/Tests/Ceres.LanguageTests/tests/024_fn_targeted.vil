@@ -1,0 +1,110 @@
+override(TestClass = {})::__invoke(instance_name) {
+  val Object = { };
+  
+  Object.__name = instance_name;
+  
+  loc fn Object::set_vars(a, b) {
+    self.a = a;
+    self.b = b;
+  }
+  
+  loc fn Object::add(a, b) {
+    self::set_vars(a, b);
+    ret self.result = self.a + self.b;
+  }
+  
+  loc fn Object::sub(a, b) {
+    self::set_vars(a, b);
+    ret self.result = self.a - self.b;
+  }
+  
+  loc fn Object::mul(a, b) {
+    self::set_vars(a, b);
+    ret self.result = self.a * self.b;
+  }
+  
+  loc fn Object::div(a, b) {
+    self::set_vars(a, b);
+    
+    if (self.b == 0) {
+      throw error("i could return a NaN here but fuck your input.");
+    } else -> self.result = self.a / self.b;
+  }
+  
+  ret Object;
+}
+
+#[test]
+fn targeted_fn_self_invocations() {
+  val instance = TestClass("instance_name_uwu");
+  
+  assert.equal(instance.__name, "instance_name_uwu");
+  
+  val add_result = instance::add(21, 37);
+  assert.equal(instance.a, 21);
+  assert.equal(instance.b, 37);
+  assert.equal(instance.result, 58);
+  assert.equal(instance.result, add_result);
+  
+  val sub_result = instance::sub(37, 21);
+  assert.equal(instance.a, 37);
+  assert.equal(instance.b, 21);
+  assert.equal(instance.result, 16);
+  assert.equal(instance.result, sub_result);
+  
+  val mul_result = instance::mul(21, 37);
+  assert.equal(instance.a, 21);
+  assert.equal(instance.b, 37);
+  assert.equal(instance.result, 777);
+  assert.equal(instance.result, mul_result);
+  
+  val div_result = instance::div(600, 50);
+  assert.equal(instance.a, 600);
+  assert.equal(instance.b, 50);
+  assert.equal(instance.result, 12);
+  assert.equal(instance.result, div_result);
+  
+  try {
+    instance::div(20, 0);
+  } catch (err) {
+    assert.equal(
+      err.msg,
+      "i could return a NaN here but fuck your input."
+    ); 
+  }
+}
+
+#[test]
+fn targeted_fn_in_local() {
+  val Object = {};
+  
+  loc fn Object::meow(x) {
+    self.result = "meow! $x";
+    ret x;
+  }
+
+  val result = Object::meow(2137);
+  
+  assert.equal(Object.result, "meow! 2137");
+  assert.equal(result, 2137);
+}
+
+#[test]
+fn targeted_fn_nested() {
+  val Object = {};
+  
+  loc fn Object::thing(x) {
+    val Object = {};
+    
+    loc fn Object::jp2gmd() {
+      self.uwu = x;
+      ret self;
+    }
+    
+    ret Object;
+  }
+  
+  val inner_ref = Object::thing(222)::jp2gmd();
+  assert.equal(inner_ref.uwu, 222);
+}
+

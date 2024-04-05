@@ -173,5 +173,8 @@
     <Compile Update="TranslationEngine\Compiler.Expression.Error.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.FnTargeted.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
