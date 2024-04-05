@@ -39,6 +39,12 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
+    - name: Run language tests
+      working-directory: VirtualMachine/Tests/Ceres.LanguageTests/bin/net7.0/$Configuration
+      run: VirtualMachine/Tests/Ceres.LanguageTests/bin/net7.0/$Configuration/Ceres.LanguageTests
+      env:
+        Configuration: ${{ matrix.configuration }}
+
     - name: Publish to directory
       run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
       env:
