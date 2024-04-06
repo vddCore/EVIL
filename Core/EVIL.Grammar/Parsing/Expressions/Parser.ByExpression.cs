@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
