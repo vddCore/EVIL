@@ -41,7 +41,7 @@ namespace Ceres.ExecutionEngine.Collections
             {
                 if (index.Type != DynamicValueType.Number)
                 {
-                    throw new ArrayException($"Attempt to index an Array using a    {index.Type}.");
+                    throw new ArrayException($"Attempt to index an Array using a {index.Type}.");
                 }
                 
                 return this[(int)index.Number];

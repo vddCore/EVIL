@@ -167,6 +167,11 @@ namespace EVIL.evil
             
             _vm.MainFiber.Schedule(rootChunk, scriptArgs);
             await _vm.MainFiber.BlockUntilFinishedAsync();
+
+            while (_vm.MainFiber.State == FiberState.Crashed)
+            {
+                await Task.Delay(1);
+            }
         }
 
         private List<string> InitializeOptions(string[] args)
@@ -334,21 +339,18 @@ namespace EVIL.evil
             sb.AppendLine(": ");
             
             sb.Append($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: ");
-            
+            sb.Append(exception.Message);
+
             if (exception is UserUnhandledExceptionException uuee)
             {
-                if (uuee.EvilExceptionObject.Type == DynamicValueType.Table)
+                if (uuee.EvilExceptionObject.Type == DynamicValueType.Error)
                 {
-                    var msg = uuee.EvilExceptionObject.Table!["msg"];
+                    var msg = uuee.EvilExceptionObject.Error!["msg"];
                     if (msg.Type == DynamicValueType.String)
                     {
-                        sb.Append(msg.String);
+                        sb.Append($" ({msg.String})");
                     }
                 }
-            }
-            else
-            {
-                sb.Append(exception.Message);
             }
             
             sb.AppendLine();
@@ -356,9 +358,6 @@ namespace EVIL.evil
             sb.Append(Fiber.StackTrace(callStack));
             
             Terminate(sb.ToString(), exitCode: ExitCode.RuntimeError);
-
         }
-        
-
     }
 }

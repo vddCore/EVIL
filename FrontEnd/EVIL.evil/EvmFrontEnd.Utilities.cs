@@ -54,6 +54,7 @@ namespace EVIL.evil
                 );
             }
 
+            Console.Out.Flush();
             Environment.Exit((int)exitCode);
         }
     }
