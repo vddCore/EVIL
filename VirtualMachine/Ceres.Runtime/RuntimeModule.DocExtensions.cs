@@ -100,6 +100,7 @@ namespace Ceres.Runtime
             var runtimeModuleFunctionAttribute = methodInfo.GetCustomAttribute<RuntimeModuleFunctionAttribute>();
             var evilDocFunctionAttribute = methodInfo.GetCustomAttribute<EvilDocFunctionAttribute>();
             var evilDocArgumentAttributes = methodInfo.GetCustomAttributes<EvilDocArgumentAttribute>().ToArray();
+            var evilDocThrowsAttributes = methodInfo.GetCustomAttributes<EvilDocThrowsAttribute>().ToArray();
             
             if (runtimeModuleFunctionAttribute == null)
                 return null;
@@ -212,6 +213,18 @@ namespace Ceres.Runtime
                         var canBeNil = argInfo.CanBeNil ? "Yes" : "No";
 
                         sb.AppendLine($"| `{argInfo.Name}` | {argInfo.Description} | `{argType}` | {canBeNil} | {optional} | {defaultValue} |  ");
+                    }
+                }
+
+                if (evilDocThrowsAttributes.Any())
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("**Thrown objects**  ");
+                    foreach (var attr in evilDocThrowsAttributes)
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine($"> **{attr.ThrownType.ToString()}**  ");
+                        sb.AppendLine($"> {attr.Description}");
                     }
                 }
             }
