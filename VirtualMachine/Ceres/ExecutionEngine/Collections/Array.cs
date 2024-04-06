@@ -37,9 +37,26 @@ namespace Ceres.ExecutionEngine.Collections
 
         public DynamicValue this[DynamicValue index]
         {
-            get => this[(int)index.Number];
-            set => this[(int)index.Number] = value;
+            get
+            {
+                if (index.Type != DynamicValueType.Number)
+                {
+                    throw new ArrayException($"Attempt to index an Array using a    {index.Type}.");
+                }
+                
+                return this[(int)index.Number];
+            }
+            set
+            {
+                if (index.Type != DynamicValueType.Number)
+                {
+                    throw new ArrayException($"Attempt to index an Array using a {index.Type}.");
+                }
+                
+                this[(int)index.Number] = value;
+            }
         }
+        
         public Array(Array array)
         {
             _values = new DynamicValue[array.Length];
