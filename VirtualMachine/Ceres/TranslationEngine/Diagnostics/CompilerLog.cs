@@ -128,15 +128,27 @@ namespace Ceres.TranslationEngine.Diagnostics
             #pragma warning restore CS0162
         }
 
-        public override string ToString()
+        public string ToString(Func<string, string>? lineProcessor)
         {
             var sb = new StringBuilder();
 
             foreach (var message in _messages)
-                sb.AppendLine(message.ToString());
-            
+            {
+                if (lineProcessor != null)
+                {
+                    sb.AppendLine(lineProcessor(message.ToString()));                    
+                }
+                else
+                {
+                    sb.AppendLine($"{message.ToString()}");
+                }
+            }
+
             return sb.ToString();
         }
+
+        public override string ToString()
+            => ToString(null);
 
         public DynamicValue ToDynamicValue()
         {

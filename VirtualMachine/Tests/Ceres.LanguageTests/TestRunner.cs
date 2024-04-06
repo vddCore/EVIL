@@ -20,12 +20,11 @@ namespace Ceres.LanguageTests
         private Dictionary<string, IEnumerable<Chunk>> _includeCache = new();
 
         private Stopwatch Stopwatch { get; } = new();
-        private string TestDirectory { get; }
+        private string[] TestDirectories { get; }
         private CeresVM VM { get; }
         private TextWriter TextOut { get; }
         private EvilRuntime Runtime { get; }
 
-        private Dictionary<string, Chunk> TestRoots { get; } = new();
         private Dictionary<string, List<(Chunk TestChunk, string FailureReason)>> FailureLog { get; } = new();
 
         private TestRunnerOptions Options { get; }
@@ -35,7 +34,10 @@ namespace Ceres.LanguageTests
             VM = vm;
             Options = options;
             
-            TestDirectory = Path.GetFullPath(Options.TestDirectoryRoot);
+            TestDirectories = Options.TestDirectories.Select(
+                x => Path.GetFullPath(x)
+            ).ToArray();
+            
             TextOut = Options.TestOutput ?? Console.Out;
             
             Runtime = new EvilRuntime(vm);
@@ -45,66 +47,80 @@ namespace Ceres.LanguageTests
         {
             var result = 0;
             
-            if ((result = Compile()) > 0)
+            if ((result = Compile(out var testSets)) > 0)
                 return result;
 
-            if ((result = await Execute()) > 0)
-                return result;
+            foreach (var testSet in testSets)
+            {
+                if ((result = await Execute(testSet)) > 0)
+                    return result;
+            }
 
             return result;
         }
 
-        private int Compile()
+        private int Compile(out List<TestSet> testSets)
         {
-            var paths = Directory
-                .GetFiles(TestDirectory, "*.vil")
-                .OrderBy(x => x)
-                .ToList();
-
             var compiler = new Compiler();
             compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
             compiler.RegisterAttributeProcessor("disasm", AttributeProcessors.DisasmAttribute);
 
-            foreach (var path in paths)
+            testSets = new List<TestSet>();
+            
+            foreach (var testDirectory in TestDirectories)
             {
-                var source = File.ReadAllText(path);
-                try
+                TextOut.WriteLine($"<[ TEST SET '{testDirectory}' ]>");
+                var testSet = new TestSet(testDirectory);
+                
+                var paths = Directory
+                    .GetFiles(testDirectory, "*.vil")
+                    .OrderBy(x => x)
+                    .ToList();
+
+                foreach (var path in paths)
                 {
-                    TextOut.Write($"Compiling test '{path}'...");
-                    var rootChunk = compiler.Compile(source, Path.GetFullPath(path));
-                    TestRoots.Add(path, rootChunk);
-                    TextOut.WriteLine(" [ PASS ]");
-                    
-                    if (compiler.Log.HasAnyMessages)
+                    var source = File.ReadAllText(path);
+                    try
                     {
-                        TextOut.WriteLine(compiler.Log.ToString());
+                        TextOut.Write($"  Compiling test '{path}'...");
+                        var rootChunk = compiler.Compile(source, Path.GetFullPath(path));
+                        testSet.AddTestRootChunk(path, rootChunk);
+                        TextOut.WriteLine(" [ PASS ]");
+
+                        if (compiler.Log.HasAnyMessages)
+                        {
+                            TextOut.Write(compiler.Log.ToString((s) => $"  | {s}"));
+                            compiler.Log.Clear();
+                        }
+                    }
+                    catch (CompilerException)
+                    {
+                        TextOut.WriteLine(" [ FAIL ]");
+                        TextOut.WriteLine(compiler.Log.ToString((s) => $"  | {s}"));
+
+                        if (Options.FailOnCompilerErrors)
+                        {
+                            TextOut.WriteLine("Test run aborted early due to a compilation error.");
+                            return 1;
+                        }
+
                         compiler.Log.Clear();
                     }
                 }
-                catch (CompilerException)
-                {
-                    TextOut.WriteLine(" [ FAIL ]");
-                    TextOut.WriteLine(compiler.Log.ToString());
-                    
-                    if (Options.FailOnCompilationErrors)
-                    {
-                        TextOut.WriteLine("Test run aborted early due to a compilation error.");
-                        return 1;
-                    }
-                        
-                    compiler.Log.Clear();
-                }
+
+                testSets.Add(testSet);
             }
+            
             
             TextOut.WriteLine();
             return 0;
         }
 
-        private async Task<int> Execute()
+        private async Task<int> Execute(TestSet testSet)
         {
             var failuresOccurred = false;
             
-            foreach (var testRoot in TestRoots)
+            foreach (var testRoot in testSet.TestRootChunks)
             {
                 var passed = 0;
                 var failed = 0;
