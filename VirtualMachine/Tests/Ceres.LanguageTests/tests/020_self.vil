@@ -95,9 +95,9 @@ fn self_referencing_self() {
 fn self_builder() {
   val ThingBuilder = { new: self::fn(name) -> {
     __name: name,
-    __class: Nil,
-    __desc: Nil,
-    __purpose: Nil,
+    __class: nil,
+    __desc: nil,
+    __purpose: nil,
 
     with_class: self::fn(obj_class) {
       self.__class = obj_class;

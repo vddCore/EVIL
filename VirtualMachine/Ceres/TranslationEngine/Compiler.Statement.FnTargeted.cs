@@ -1,3 +1,4 @@
+using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
@@ -8,8 +9,16 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(FnTargetedStatement fnTargetedStatement)
         {
+            var targetedChunkName = $"{fnTargetedStatement.PrimaryIdentifier.Name}::{fnTargetedStatement.SecondaryIdentifier.Name}";
+            
+            if (Chunk.SubChunks.FirstOrDefault(x => x.Name.StartsWith(targetedChunkName)) != null)
+            {
+                var postfix = Chunk.SubChunks.Count(x => x.Name.StartsWith(targetedChunkName));
+                targetedChunkName = $"{targetedChunkName}_{postfix}";
+            }
+            
             var id = InNamedSubChunkDo(
-                $"{fnTargetedStatement.PrimaryIdentifier.Name}::{fnTargetedStatement.SecondaryIdentifier.Name}",
+                $"{targetedChunkName}",
                 () =>
                 {
                     InNewClosedScopeDo(() =>
@@ -28,14 +37,16 @@ namespace Ceres.TranslationEngine
             
             if (wasExistingReplaced)
             {
-                Log.EmitWarning(
-                    $"Targeted function '{replacedChunk.Name}' defined on line {fnTargetedStatement.Line} is " +
-                    $"re-defining a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {fnTargetedStatement.Line}.",
+                Log.TerminateWithInternalFailure<object>(
+                    $"Targeted function '{replacedChunk.Name}' defined on line {fnTargetedStatement.Line} has " +
+                    $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {fnTargetedStatement.Line}.",
                     CurrentFileName,
                     EvilMessageCode.FnTargetedStatementRedefinedExistingChunk,
                     fnTargetedStatement.Line,
                     fnTargetedStatement.Column
                 );
+
+                return;
             }
             
             Chunk.CodeGenerator.Emit(

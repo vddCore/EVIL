@@ -3,9 +3,9 @@ using System.IO;
 namespace Ceres.LanguageTests
 {
     public record TestRunnerOptions(
-        bool FailOnCompilationErrors,
+        bool FailOnCompilerErrors,
         bool FailOnTestErrors,
-        string TestDirectoryRoot,
+        string[] TestDirectories,
         TextWriter? TestOutput = null
     );
 }

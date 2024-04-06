@@ -1,5 +1,5 @@
 override(TestClass = {})::__invoke(instance_name) {
-  val Object = { };
+  val Object = {};
   
   Object.__name = instance_name;
   
@@ -108,3 +108,46 @@ fn targeted_fn_nested() {
   assert.equal(inner_ref.uwu, 222);
 }
 
+#[test]
+fn targeted_fn_conditional() {
+  val Object = {};
+  
+  if (false) {
+    loc fn Object::say_hi(a1) -> "I should've never been executed, $a1!";
+  } else {
+    loc fn Object::say_hi(a1) -> "Hiiii $a1!";
+  }
+  
+  val result = Object::say_hi("Aura");
+  
+  assert.equal(result, "Hiiii Aura!");
+}
+
+#[test;disasm("always")]
+fn targeted_fn_multiscope() {
+  {
+    val Object = {};
+  
+    if (false) {
+      loc fn Object::say_hi(a1) -> "I should've never been executed, $a1!";
+    } else {
+      loc fn Object::say_hi(a1) -> "Hiiii $a1!";
+    }
+  
+    val result = Object::say_hi("Aura");
+    assert.equal(result, "Hiiii Aura!");
+  }
+  
+  {
+    val Object = {};
+    
+    if (true) {
+      loc fn Object::say_hi(a1) -> "Hiiii $a1!";
+    } else {
+      loc fn Object::say_hi(a1) -> "I should've never been executed, $a1!";
+    }
+  
+    val result = Object::say_hi("Aura");
+    assert.equal(result, "Hiiii Aura!");
+  }
+}
