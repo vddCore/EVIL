@@ -151,3 +151,19 @@ fn targeted_fn_multiscope() {
     assert.equal(result, "Hiiii Aura!");
   }
 }
+
+#[test]
+fn targeted_fn_self() {
+  val Object = {};
+  
+  override(Object)::__invoke(a1) {
+    self.a1 = a1;
+    
+    loc fn self::say_hi() -> "Hiii " + @self.a1 + "!";
+    
+    ret self;
+  }
+  
+  val result = Object("Aura")::say_hi();
+  assert.equal(result, "Hiii Aura!");
+}

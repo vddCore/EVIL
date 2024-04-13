@@ -1,6 +1,8 @@
 using System.Linq;
 using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
+using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
@@ -9,7 +11,30 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(FnTargetedStatement fnTargetedStatement)
         {
-            var targetedChunkName = $"{fnTargetedStatement.PrimaryIdentifier.Name}::{fnTargetedStatement.SecondaryIdentifier.Name}";
+            string primaryName;
+            
+            if (fnTargetedStatement.PrimaryTarget is SelfExpression)
+            {
+                primaryName = "self";
+            }
+            else if (fnTargetedStatement.PrimaryTarget is IdentifierNode identifierNode)
+            {
+                primaryName = identifierNode.Name;
+            }
+            else
+            {
+                Log.TerminateWithInternalFailure<object>(
+                    $"Expected a self-expression or an identifier found an unsupported node type {fnTargetedStatement.PrimaryTarget.GetType().FullName}.",
+                    CurrentFileName,
+                    EvilMessageCode.UnexpectedSyntaxNodeFound,
+                    fnTargetedStatement.Line,
+                    fnTargetedStatement.Column
+                );
+
+                return;
+            }
+            
+            var targetedChunkName = $"{primaryName}::{fnTargetedStatement.SecondaryIdentifier.Name}";
             
             if (Chunk.SubChunks.FirstOrDefault(x => x.Name.StartsWith(targetedChunkName)) != null)
             {
@@ -53,8 +78,15 @@ namespace Ceres.TranslationEngine
                 OpCode.LDCNK,
                 id
             );
-            
-            EmitVarGet(fnTargetedStatement.PrimaryIdentifier.Name);
+
+            if (fnTargetedStatement.IsSelfTargeting)
+            {
+                Visit(fnTargetedStatement.PrimaryTarget);
+            }
+            else
+            {
+                EmitVarGet(primaryName);
+            }
             
             Chunk.CodeGenerator.Emit(
                 OpCode.LDSTR,
