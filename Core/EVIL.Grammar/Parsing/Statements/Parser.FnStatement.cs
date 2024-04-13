@@ -104,7 +104,7 @@ namespace EVIL.Grammar.Parsing
             else
             {
                 return new FnTargetedStatement(
-                    primaryTarget,
+                    primaryTarget!,
                     secondaryIdentifier,
                     parameterList,
                     statement,
