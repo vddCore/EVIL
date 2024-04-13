@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Grammar.AST.Statements.TopLevel;
@@ -40,13 +41,25 @@ namespace EVIL.Grammar.Parsing
                 );
             }
 
-            IdentifierNode? primaryIdentifier = null;
+            var isSelfTargeting = false;
+            AstNode? primaryTarget = null;            
             IdentifierNode? secondaryIdentifier = null;
-            
-            primaryIdentifier = Identifier();
 
-            if (CurrentToken.Type == TokenType.DoubleColon)
+            if (CurrentToken.Type == TokenType.Identifier)
             {
+                primaryTarget = Identifier();
+            }
+            else if (CurrentToken.Type == TokenType.Self)
+            {
+                var (l, c) = Match(Token.Self);
+                primaryTarget = new SelfExpression { Line = l, Column = c };
+                isSelfTargeting = true;
+            }
+
+            if (isSelfTargeting || CurrentToken.Type == TokenType.DoubleColon)
+            {
+                Match(Token.DoubleColon);
+                
                 if (!isLocalDefinition)
                 {
                     throw new ParserException(
@@ -55,7 +68,6 @@ namespace EVIL.Grammar.Parsing
                     );
                 }
                 
-                Match(Token.DoubleColon);
                 secondaryIdentifier = Identifier();
             }
             
@@ -82,7 +94,7 @@ namespace EVIL.Grammar.Parsing
             if (secondaryIdentifier == null)
             {
                 return new FnStatement(
-                    primaryIdentifier,
+                    (IdentifierNode)primaryTarget!,
                     parameterList,
                     statement,
                     attributes,
@@ -92,7 +104,7 @@ namespace EVIL.Grammar.Parsing
             else
             {
                 return new FnTargetedStatement(
-                    primaryIdentifier,
+                    primaryTarget,
                     secondaryIdentifier,
                     parameterList,
                     statement,
