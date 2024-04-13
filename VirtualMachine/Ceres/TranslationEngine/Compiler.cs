@@ -142,7 +142,7 @@ namespace Ceres.TranslationEngine
                 InNewClosedScopeDo(action);
                 FinalizeChunk();
             }
-
+    
             return _chunks.Pop();
         }
 

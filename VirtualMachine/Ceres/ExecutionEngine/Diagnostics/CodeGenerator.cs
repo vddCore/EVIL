@@ -11,6 +11,7 @@ namespace Ceres.ExecutionEngine
         private readonly MemoryStream _code;
         private readonly BinaryWriter _writer;
         private readonly List<int> _labels;
+        private readonly Stack<int> _opCodeAddresses;
 
         public Action<int, OpCode>? OpCodeEmitted { get; set; }
 
@@ -19,26 +20,30 @@ namespace Ceres.ExecutionEngine
             get => (int)_code.Position;
             set => _code.Seek(value, SeekOrigin.Begin);
         }
-        
+
         public IReadOnlyList<int> Labels => _labels;
+        public IReadOnlyCollection<int> OpCodeAddresses => _opCodeAddresses;
         
         internal CodeGenerator(MemoryStream code, List<int> labels)
         {
             _code = code;
             _labels = labels;
+            _opCodeAddresses = new();
             
             _writer = new BinaryWriter(_code, Encoding.UTF8, true);
         }
 
         public OpCode PeekOpCode()
         {
-            if (_code.Length == 0)
+            if (_code.Length == 0 || _opCodeAddresses.Count == 0)
             {
                 throw new InvalidOperationException("Chunk contains no instructions.");
             }
-            
-            _code.Seek(-1, SeekOrigin.Current);
+
+            var position = _code.Position;
+            _code.Seek(_opCodeAddresses.Peek(), SeekOrigin.Begin);
             var opCode = (OpCode)_code.ReadByte();
+            _code.Seek(position, SeekOrigin.Begin);
             return opCode;
         }
 
@@ -59,10 +64,10 @@ namespace Ceres.ExecutionEngine
 
         public void Emit(OpCode value)
         {
-            var ip = IP;
+            _opCodeAddresses.Push(IP);
             _writer.Write((byte)value);
 
-            OpCodeEmitted?.Invoke(ip, value);
+            OpCodeEmitted?.Invoke(_opCodeAddresses.Peek(), value);
         }
 
         public void Emit(OpCode value, double operand)
@@ -113,6 +118,8 @@ namespace Ceres.ExecutionEngine
         public void Dispose()
         {
             OpCodeEmitted = null;
+            _opCodeAddresses.Clear();
+            
             _writer.Dispose();
         }
     }
