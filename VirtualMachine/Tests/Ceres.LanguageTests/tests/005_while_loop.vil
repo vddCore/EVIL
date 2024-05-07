@@ -1,5 +1,5 @@
 ﻿#[test]
-fn while_simple() {
+fn while_simple {
   rw val a = 0;
   
   while (a != 10) {
@@ -10,7 +10,7 @@ fn while_simple() {
 }
 
 #[test]
-fn while_break() {
+fn while_break {
   rw val a = 0;
   
   while (a != 10) {
@@ -25,7 +25,7 @@ fn while_break() {
 }
 
 #[test]
-fn while_skip() {
+fn while_skip {
   rw val a = 10;
   
   while (a--) {
@@ -40,7 +40,7 @@ fn while_skip() {
 }
 
 #[test] 
-fn while_false() {
+fn while_false {
   rw val a = 0;
   
   while (false) {
@@ -51,7 +51,7 @@ fn while_false() {
 }
 
 #[test]
-fn while_nested() {
+fn while_nested {
   rw val a = 10, b, c;
   
   while (a) {

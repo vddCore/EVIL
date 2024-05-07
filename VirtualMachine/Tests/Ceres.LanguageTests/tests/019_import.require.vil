@@ -1,7 +1,7 @@
 val test_module = require("test_module");
 
 #[test]
-fn module_function_invocation() {
+fn module_function_invocation {
   val result = test_module.add(2, 3)
              + test_module.sub(5, 1);
              

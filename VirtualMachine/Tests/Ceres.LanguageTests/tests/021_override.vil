@@ -3,7 +3,7 @@ Box = { new: self::fn(value) {
     __value: value,
     
     set_value: self::fn(value) -> self.__value = value,
-    get_value: self::fn() -> self.__value
+    get_value: self::fn -> self.__value
   };
   
   override(table)::__add(a, b) -> Box::new(a::get_value() + b::get_value());
@@ -68,7 +68,7 @@ Box = { new: self::fn(value) {
 }};
 
 #[test]
-fn add_override() {
+fn add_override {
   val objA = Box::new(10);
   val objB = Box::new(5);
   
@@ -79,7 +79,7 @@ fn add_override() {
 }
 
 #[test]
-fn sub_override() {
+fn sub_override {
   val objA = Box::new(10);
   val objB = Box::new(5);
   
@@ -90,7 +90,7 @@ fn sub_override() {
 }
 
 #[test]
-fn mul_override() {
+fn mul_override {
   val objA = Box::new(10);
   val objB = Box::new(5);
   
@@ -101,7 +101,7 @@ fn mul_override() {
 }
 
 #[test]
-fn div_override() {
+fn div_override {
   val objA = Box::new(10);
   val objB = Box::new(5);
   
@@ -112,7 +112,7 @@ fn div_override() {
 }
 
 #[test]
-fn mod_override() {
+fn mod_override {
   val objA = Box::new(10);
   val objB = Box::new(3);
   
@@ -123,7 +123,7 @@ fn mod_override() {
 }
 
 #[test]
-fn shl_override() {
+fn shl_override {
   val objA = Box::new(1);
   val objB = Box::new(4);
   
@@ -134,7 +134,7 @@ fn shl_override() {
 }
 
 #[test]
-fn shr_override() {
+fn shr_override {
   val objA = Box::new(16);
   val objB = Box::new(2);
   
@@ -145,7 +145,7 @@ fn shr_override() {
 }
 
 #[test]
-fn aneg_override() {
+fn aneg_override {
   val objA = Box::new(21.37);
   val result = -objA;
   
@@ -154,7 +154,7 @@ fn aneg_override() {
 }
 
 #[test]
-fn inc_override_post() {
+fn inc_override_post {
   rw val obj = Box::new(10);
   val result = obj++;
   
@@ -164,7 +164,7 @@ fn inc_override_post() {
 }
 
 #[test]
-fn inc_override_pre() {
+fn inc_override_pre {
   rw val obj = Box::new(10);
   val result = ++obj;
   
@@ -174,7 +174,7 @@ fn inc_override_pre() {
 }
 
 #[test]
-fn dec_override_post() {
+fn dec_override_post {
   rw val obj = Box::new(10);
   val result = obj--;
   
@@ -184,7 +184,7 @@ fn dec_override_post() {
 }
 
 #[test]
-fn dec_override_pre() {
+fn dec_override_pre {
   rw val obj = Box::new(10);
   val result = --obj;
   
@@ -194,7 +194,7 @@ fn dec_override_pre() {
 }
 
 #[test]
-fn lnot_override() {
+fn lnot_override {
   val obj = Box::new(false);
   val result = !obj;
   
@@ -204,7 +204,7 @@ fn lnot_override() {
 }
 
 #[test]
-fn lor_override() {
+fn lor_override {
   val objA = Box::new(false);
   val objB = Box::new(true);
   val result = objA || objB;
@@ -215,7 +215,7 @@ fn lor_override() {
 }
 
 #[test]
-fn land_override() {
+fn land_override {
   val objA = Box::new(false);
   val objB = Box::new(true);
   val result = objA && objB;
@@ -226,7 +226,7 @@ fn land_override() {
 }
 
 #[test]
-fn bor_override() {
+fn bor_override {
   val objA = Box::new(0xF000);
   val objB = Box::new(0x000F);
   val result = objA | objB;
@@ -237,7 +237,7 @@ fn bor_override() {
 }
 
 #[test]
-fn bxor_override() {
+fn bxor_override {
   val objA = Box::new(0xF0F0);
   val objB = Box::new(0xFFFF);
   val result = objA ^ objB;
@@ -248,7 +248,7 @@ fn bxor_override() {
 }
 
 #[test]
-fn band_override() {
+fn band_override {
   val objA = Box::new(0xFFFF);
   val objB = Box::new(0x0FF0);
   val result = objA & objB;
@@ -259,7 +259,7 @@ fn band_override() {
 }
 
 #[test]
-fn bnot_override() {
+fn bnot_override {
   val obj = Box::new(0x0FFF);
   val result = ~obj;
   
@@ -272,7 +272,7 @@ fn bnot_override() {
 }
 
 #[test]
-fn deq_override() {
+fn deq_override {
   val objA = Box::new({1, 2, 3, { 1, 2, 3 }});
   val objB = Box::new({1, 2, 3, { 1, 2, 3 }});
   val result = objA <==> objB;
@@ -283,7 +283,7 @@ fn deq_override() {
 }
 
 #[test]
-fn dne_override() {
+fn dne_override {
   val objA = Box::new({1, 2, 3, { 1, 2, 3 }});
   val objB = Box::new({1, 2, 3, { 1, 21.37, 3 }});
   val result = objA <!=> objB;
@@ -294,7 +294,7 @@ fn dne_override() {
 }
 
 #[test]
-fn eq_override_byval() {
+fn eq_override_byval {
   val objA = Box::new(21.37);
   val objB = Box::new(21.37);
   val result = objA == objB;
@@ -305,7 +305,7 @@ fn eq_override_byval() {
 }
 
 #[test]
-fn eq_override_byref() {
+fn eq_override_byref {
   val t = { 1, 2, 3 };
   
   val objA = Box::new(t);
@@ -318,7 +318,7 @@ fn eq_override_byref() {
 }
 
 #[test]
-fn ne_override_byval() {
+fn ne_override_byval {
   val objA = Box::new(12.34);
   val objB = Box::new(21.37);
   val result = objA != objB;
@@ -329,7 +329,7 @@ fn ne_override_byval() {
 }
 
 #[test]
-fn ne_override_byref() {
+fn ne_override_byref {
   val t1 = { 1, 2 };
   val t2 = { 1, 2 };
   
@@ -343,7 +343,7 @@ fn ne_override_byref() {
 }
 
 #[test]
-fn gt_override_gt() {
+fn gt_override_gt {
   val objA = Box::new(37);
   val objB = Box::new(21);
   val result = objA > objB;
@@ -354,7 +354,7 @@ fn gt_override_gt() {
 }
 
 #[test]
-fn gt_override_eq() {
+fn gt_override_eq {
   val objA = Box::new(21);
   val objB = Box::new(21);
   val result = objA > objB;
@@ -365,7 +365,7 @@ fn gt_override_eq() {
 }
 
 #[test]
-fn lt_override_lt() {
+fn lt_override_lt {
   val objA = Box::new(21);
   val objB = Box::new(37);
   val result = objA < objB;
@@ -376,7 +376,7 @@ fn lt_override_lt() {
 }
 
 #[test]
-fn lt_override_eq() {
+fn lt_override_eq {
   val objA = Box::new(37);
   val objB = Box::new(37);
   val result = objA < objB;
@@ -387,7 +387,7 @@ fn lt_override_eq() {
 }
 
 #[test]
-fn gte_override_gt() {
+fn gte_override_gt {
   val objA = Box::new(37);
   val objB = Box::new(21);
   val result = objA >= objB;
@@ -398,7 +398,7 @@ fn gte_override_gt() {
 }
 
 #[test]
-fn gte_override_eq() {
+fn gte_override_eq {
   val objA = Box::new(37);
   val objB = Box::new(37);
   val result = objA >= objB;
@@ -409,7 +409,7 @@ fn gte_override_eq() {
 }
 
 #[test]
-fn lte_override_gt() {
+fn lte_override_gt {
   val objA = Box::new(21);
   val objB = Box::new(37);
   val result = objA <= objB;
@@ -420,7 +420,7 @@ fn lte_override_gt() {
 }
 
 #[test]
-fn lte_override_eq() {
+fn lte_override_eq {
   val objA = Box::new(37);
   val objB = Box::new(37);
   val result = objA >= objB;
@@ -431,7 +431,7 @@ fn lte_override_eq() {
 }
 
 #[test]
-fn len_override() {
+fn len_override {
   val obj = Box::new(Nil);
   val result = #obj;
   
@@ -440,7 +440,7 @@ fn len_override() {
 }
 
 #[test]
-fn tonum_override() {
+fn tonum_override {
   val obj = Box::new(11.11);
   val result = $obj;
   
@@ -449,7 +449,7 @@ fn tonum_override() {
 }
 
 #[test]
-fn tostr_override() {
+fn tostr_override {
   val obj = Box::new(11.11);
   val result = @obj;
   
@@ -458,7 +458,7 @@ fn tostr_override() {
 }
 
 #[test]
-fn invoke_override() {
+fn invoke_override {
   val obj = Box::new(2137);
   val result = obj(10, 20, 30);
   
@@ -467,7 +467,7 @@ fn invoke_override() {
 }
 
 #[test]
-fn set_override() { 
+fn set_override { 
   val obj = Box::new(2137);
   val resultA = obj["jp2"] = 222;
   val resultB = obj["test"] = 123;
@@ -480,7 +480,7 @@ fn set_override() {
 }
 
 #[test]
-fn get_override() {
+fn get_override {
   val obj = Box::new(2137);
   obj.lalala = 10;
   
@@ -492,7 +492,7 @@ fn get_override() {
 }
 
 #[test]
-fn exists_override() {
+fn exists_override {
   val obj = Box::new(2137);
   obj["11"] = 22;
   

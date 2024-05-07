@@ -1,5 +1,6 @@
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -9,7 +10,12 @@ namespace EVIL.Grammar.Parsing
         private FnExpression FnExpression()
         {
             var (line, col) = Match(Token.Fn);
-            var parameterList = ParameterList();
+            
+            ParameterList? parameterList = null;
+            if (CurrentToken == Token.LParenthesis)
+            {
+                parameterList = ParameterList();
+            }
 
             Statement statement;
             if (CurrentToken == Token.LBrace)

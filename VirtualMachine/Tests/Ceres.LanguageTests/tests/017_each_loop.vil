@@ -1,5 +1,5 @@
 ﻿#[test]
-fn each_basic_table() {
+fn each_basic_table {
   val t = { x: 21.37, y: "haha funny number" };
 
   rw val tvar_1 = nil;
@@ -18,7 +18,7 @@ fn each_basic_table() {
 }
 
 #[test]
-fn each_basic_table_skip() {
+fn each_basic_table_skip {
   val t = { x: 21.37, y: 11.11, z: 44.51 };
 
   rw val tvar_1 = nil;
@@ -35,7 +35,7 @@ fn each_basic_table_skip() {
 }
 
 #[test]
-fn each_basic_table_break() {
+fn each_basic_table_break {
   val t = { x: 21.37, y: 11.11, z: 44.51 };
 
   rw val tvar_1 = nil;
@@ -51,8 +51,8 @@ fn each_basic_table_break() {
 }
 
 #[test]
-fn each_basic_table_ret() {
-  val f = fn() {
+fn each_basic_table_ret {
+  val f = fn {
     val t = { x: 21.37, y: 11.11, z: 44.51 };
     
     each (rw val key, value : t) {
@@ -67,7 +67,7 @@ fn each_basic_table_ret() {
 }
 
 #[test]
-fn each_kv_table() {
+fn each_kv_table {
   val t = { x: "21.37", y: "haha funny number" };
 
   rw val tvar_k1 = nil;
@@ -92,7 +92,7 @@ fn each_kv_table() {
 }
 
 #[test]
-fn each_kv_table_skip() {
+fn each_kv_table_skip {
   val t = { x: "21.37", y: "haha funny number", z: "11111111" };
 
   rw val tvar_k = nil;
@@ -112,7 +112,7 @@ fn each_kv_table_skip() {
 }
 
 #[test]
-fn each_kv_table_break() {
+fn each_kv_table_break {
   val t = { x: "21.37", y: "haha funny number", z: "11111111" };
 
   rw val tvar_k = nil;
@@ -131,8 +131,8 @@ fn each_kv_table_break() {
 }
 
 #[test]
-fn each_kv_table_ret() {
-  val f = fn() {
+fn each_kv_table_ret {
+  val f = fn {
     val t = { x: 21.37, y: 11.11, z: 44.51 };
     
     each (rw val key, value : t) {
@@ -147,7 +147,7 @@ fn each_kv_table_ret() {
 }
 
 #[test]
-fn each_val_only() {
+fn each_val_only {
   val t = { 10, 20, 30, 40 };
   
   each (rw val value : t) {

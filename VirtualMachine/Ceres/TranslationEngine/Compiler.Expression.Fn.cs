@@ -13,7 +13,11 @@ namespace Ceres.TranslationEngine
                 {
                     Chunk.DebugDatabase.DefinedOnLine = fnExpression.Line;
 
-                    Visit(fnExpression.ParameterList);
+                    if (fnExpression.ParameterList != null)
+                    {
+                        Visit(fnExpression.ParameterList);
+                    }
+
                     Visit(fnExpression.Statement);
 
                     FinalizeChunk();

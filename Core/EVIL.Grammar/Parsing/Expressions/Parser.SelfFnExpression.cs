@@ -1,5 +1,6 @@
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Lexical;
 
 namespace EVIL.Grammar.Parsing
@@ -11,7 +12,12 @@ namespace EVIL.Grammar.Parsing
             var (line, col) = Match(Token.Self);
             Match(Token.DoubleColon);
             Match(Token.Fn);
-            var parameterList = ParameterList();
+
+            ParameterList? parameterList = null;
+            if (CurrentToken == Token.LParenthesis)
+            {
+                parameterList = ParameterList();
+            }
 
             Statement statement;
             if (CurrentToken == Token.LBrace)

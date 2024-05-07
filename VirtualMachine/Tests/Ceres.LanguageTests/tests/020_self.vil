@@ -1,5 +1,5 @@
 #[test]
-fn selfness_in_table() {
+fn selfness_in_table {
   val t = {
     f: self::fn(a, b) -> self.result = a + b
   };
@@ -11,7 +11,7 @@ fn selfness_in_table() {
 }
 
 #[test]
-fn self_fn_ret() {
+fn self_fn_ret {
   val t = { 
     func: self::fn(a, b) {
       self.result = a + b;
@@ -24,7 +24,7 @@ fn self_fn_ret() {
 }
 
 #[test]
-fn self_fn_state() {
+fn self_fn_state {
   val chair = {
     __quips: array {
       "The chair is perfectly fine. It'd be a shame if someone decided to test it.",
@@ -34,15 +34,15 @@ fn self_fn_state() {
     },
     leg_count: 4,
     
-    is_broken: self::fn() -> self.leg_count != 4,
-    get_status: self::fn() {
+    is_broken: self::fn -> self.leg_count != 4,
+    get_status: self::fn {
       if (self.leg_count == 4) -> self.__quips[0];
       elif (self.leg_count < 0) -> self.__quips[1];
       elif (self.leg_count < 4) -> self.__quips[2];
       elif (self.leg_count > 4) -> self.__quips[3];
     },
-    break_leg: self::fn() -> self.leg_count--,
-    add_leg: self::fn() -> self.leg_count++
+    break_leg: self::fn -> self.leg_count--,
+    add_leg: self::fn -> self.leg_count++
   };
   
   assert.equal(chair.leg_count, 4);
@@ -72,11 +72,11 @@ fn self_fn_state() {
 }
 
 #[test]
-fn self_referencing_self() {
+fn self_referencing_self {
   val t = {
     set: self::fn(v) -> self.__value = v,
-    get_self: self::fn() -> self,
-    create_new: self::fn() -> {
+    get_self: self::fn -> self,
+    create_new: self::fn -> {
       set: self::fn(v) {
         self.__value = v;
         ret self;
@@ -92,7 +92,7 @@ fn self_referencing_self() {
 }
 
 #[test]
-fn self_builder() {
+fn self_builder {
   val ThingBuilder = { new: self::fn(name) -> {
     __name: name,
     __class: nil,
@@ -114,10 +114,10 @@ fn self_builder() {
       ret self;
     },
     
-    get_name: self::fn() -> self.__name,
-    get_class: self::fn() -> self.__class,
-    get_description: self::fn() -> self.__desc,
-    get_purpose: self::fn() -> self.__purpose
+    get_name: self::fn -> self.__name,
+    get_class: self::fn -> self.__class,
+    get_description: self::fn -> self.__desc,
+    get_purpose: self::fn -> self.__purpose
   }};
   
   val chair = ThingBuilder::new("chair")

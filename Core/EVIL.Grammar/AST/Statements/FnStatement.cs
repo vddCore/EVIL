@@ -7,14 +7,14 @@ namespace EVIL.Grammar.AST.Statements.TopLevel
     public sealed class FnStatement : Statement
     {
         public IdentifierNode Identifier { get; }
-        public ParameterList ParameterList { get; }
+        public ParameterList? ParameterList { get; }
         public Statement Statement { get; }
         public List<AttributeNode> Attributes { get; }
         public bool IsLocalDefintion { get; }
 
         public FnStatement(
             IdentifierNode identifier,
-            ParameterList parameterList,
+            ParameterList? parameterList,
             Statement statement,
             List<AttributeNode> attributes,
             bool isLocalDefintion)
@@ -26,7 +26,12 @@ namespace EVIL.Grammar.AST.Statements.TopLevel
             IsLocalDefintion = isLocalDefintion;
 
             Reparent(Identifier);
-            Reparent(ParameterList);
+
+            if (ParameterList != null)
+            {
+                Reparent(ParameterList);
+            }
+
             Reparent(Statement);
             Reparent(Attributes);
         }
