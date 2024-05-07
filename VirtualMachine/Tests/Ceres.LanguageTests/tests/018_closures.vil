@@ -5,31 +5,25 @@ fn generate_closure_with_parameter_value(x)
     -> (fn(a) -> a + x);
 
 #[test]
-fn basic_closure_parameter_hides_local() {
+fn basic_closure_parameter_hides_local {
   val a = 10;
-  
-  val f = fn(a) {
-    ret a;
-  };
+  val f = fn(a) -> a;
   
   val result = f(12);
   assert.equal(result, 12);
 }
 
 #[test]
-fn basic_closure_captures_local() {
+fn basic_closure_captures_local {
   val b = 10;
-  
-  val f = fn() {
-    ret b + 2;
-  };
+  val f = fn -> b + 2;
   
   val result = test_invocation(f);
   assert.equal(result, 12);
 }
 
 #[test]
-fn basic_closure_captures_parameter() {
+fn basic_closure_captures_parameter {
   val f = generate_closure_with_parameter_value(10);
   val result = f(2);
   
@@ -37,9 +31,9 @@ fn basic_closure_captures_parameter() {
 }
 
 #[test]
-fn nested_closure_captures_outside_local() {
+fn nested_closure_captures_outside_local {
   val a = 21;
-  val f = (fn() -> (fn() -> a + .37));
+  val f = (fn -> (fn -> a + .37));
   
   val result = f()();
   
@@ -47,12 +41,12 @@ fn nested_closure_captures_outside_local() {
 }
 
 #[test]
-fn nested_closure_captures_closure_local() {
+fn nested_closure_captures_closure_local {
   val a = 111;
   
-  val f = fn() {
+  val f = fn {
       val a = 21;
-      ret fn() { ret a + .37; };
+      ret fn -> a + .37;
   };
   
   val result = f()();
@@ -61,10 +55,10 @@ fn nested_closure_captures_closure_local() {
 }
 
 #[test]
-fn nested_closure_captures_closure_parameter() {
+fn nested_closure_captures_closure_parameter {
   val a = 111;
   val f = fn(a) {
-    ret fn() { ret a + .37; };
+    ret fn -> a + .37;
   };
   
   val result = f(21)();
@@ -73,12 +67,12 @@ fn nested_closure_captures_closure_parameter() {
 }
 
 #[test]
-fn extreme_closure_nesting() {
+fn extreme_closure_nesting {
   val a = 10;
   
   val result = test_invocation(fn(b) {
     val f = fn(c) {
-      ret fn() { ret a + b + c; };
+      ret fn -> a + b + c;
     };
     ret f(2);
   }(9)) + .37;
@@ -100,7 +94,7 @@ fn filter_table(t, predicate) {
 }
 
 #[test]
-fn predicate_anonymous_function() {
+fn predicate_anonymous_function {
     val t = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
     val t2 = filter_table(
         t, 
@@ -117,7 +111,7 @@ fn delay(ms) {
   ret 2.137;
 }
 
-fn spawn_yielding_closure() {
+fn spawn_yielding_closure {
   ret fn() {
     val start = time.stamp.ms;
     val retval = yield<delay>(500);
@@ -130,7 +124,7 @@ fn spawn_yielding_closure() {
 }
 
 #[test]
-fn yield_delay_from_closure() {
+fn yield_delay_from_closure {
   val f = spawn_yielding_closure();
   val r = yield<f>();
   
@@ -154,7 +148,7 @@ fn all(t, predicate) {
 }
 
 #[test]
-fn spawn_closures_in_loop() {
+fn spawn_closures_in_loop {
   val results = { };
   for (rw val i = 0; i < 11; i++) {
     results[i] = spawn_closure_for_loop(i)(1);
@@ -169,7 +163,7 @@ fn spawn_closures_in_loop() {
 }
 
 #[test]
-fn many_subchunks_capture_same_local_no_change() {
+fn many_subchunks_capture_same_local_no_change {
   val local_a = 10;
   
   val f1 = fn(x) -> local_a + x;
@@ -183,7 +177,7 @@ fn many_subchunks_capture_same_local_no_change() {
 }
 
 #[test]
-fn many_subchunks_capture_same_local_after_change() {
+fn many_subchunks_capture_same_local_after_change {
   rw val local_a = 11;
   val f1 = fn(x) -> local_a + x;
   
@@ -204,7 +198,7 @@ fn many_subchunks_capture_same_local_after_change() {
 fn invoke_func_out_of_scope(f) -> f();
 
 #[test]
-fn after_invocation_var_return() {
+fn after_invocation_var_return {
   val f = fn() -> 21.37;
   val res = f();
   val res2 = invoke_func_out_of_scope(f);
@@ -212,7 +206,7 @@ fn after_invocation_var_return() {
   assert.equal(res, res2);
 }
 
-fn make_counter() {
+fn make_counter {
   rw val counter = 0;
   
   ret fn() {
@@ -222,7 +216,7 @@ fn make_counter() {
 }
 
 #[test]
-fn internal_closure_state_is_preserved() {
+fn internal_closure_state_is_preserved {
   val counter = make_counter();
   rw val result = 0;
   
@@ -234,7 +228,7 @@ fn internal_closure_state_is_preserved() {
 }
 
 #[test]
-fn parameter_is_preserved() {
+fn parameter_is_preserved {
   val start_at = fn (x) {
     ret fn(y) -> x + y;
   };
@@ -249,7 +243,7 @@ fn parameter_is_preserved() {
 }
 
 #[test]
-fn closures_in_each() {
+fn closures_in_each {
   val result_data = { };
   val test_data = { 1, 2, 3, 4, 5 };
   
@@ -264,7 +258,7 @@ fn closures_in_each() {
 }
 
 #[test]
-fn modify_external_scope_closure() {
+fn modify_external_scope_closure {
   rw val result_a,
          result_b,
          result_c,

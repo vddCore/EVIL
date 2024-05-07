@@ -1,5 +1,5 @@
 ﻿#[test]
-fn do_while_simple() {
+fn do_while_simple {
   rw val a = 0;
   
   do {
@@ -10,7 +10,7 @@ fn do_while_simple() {
 }
 
 #[test]
-fn do_while_executes_at_least_once() {
+fn do_while_executes_at_least_once {
   rw val a = 0;
   
   do {
@@ -21,7 +21,7 @@ fn do_while_executes_at_least_once() {
 }
 
 #[test]
-fn do_while_break() {
+fn do_while_break {
   rw val a = 10;
   
   do {
@@ -36,7 +36,7 @@ fn do_while_break() {
 }
 
 #[test]
-fn do_while_skip() {
+fn do_while_skip {
   rw val a = 10;
   
   do {
@@ -51,7 +51,7 @@ fn do_while_skip() {
 }
 
 #[test]
-fn do_while_nested() {
+fn do_while_nested {
   rw val a = 10, b, c;
   
   do {

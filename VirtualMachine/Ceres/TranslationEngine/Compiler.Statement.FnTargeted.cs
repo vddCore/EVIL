@@ -52,7 +52,11 @@ namespace Ceres.TranslationEngine
                         Chunk.MarkSelfAware();
                         /* implicit `self' */ Chunk.AllocateParameter();
 
-                        Visit(fnTargetedStatement.ParameterList);
+                        if (fnTargetedStatement.ParameterList != null)
+                        {
+                            Visit(fnTargetedStatement.ParameterList);
+                        }
+
                         Visit(fnTargetedStatement.Statement);
                         
                         FinalizeChunk();

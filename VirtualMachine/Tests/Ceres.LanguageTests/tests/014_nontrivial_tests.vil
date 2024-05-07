@@ -56,24 +56,24 @@ fn bubble_sort_array(arr) {
 }
 
 #[test] 
-fn fibonacci_recursive() {
+fn fibonacci_recursive {
   val result = fib_recursive(40);
   assert.equal(result, 102334155);
 }
 #[test]
-fn fibonacci_iterative() {
+fn fibonacci_iterative {
   val result = fib_iterative(41);
   assert.equal(result, 165580141);
 }
 
 #[test]
-fn tailrec_invoke() {
+fn tailrec_invoke {
   val result = fact_tailrec(10);
   assert.equal(result, 3628800);
 }
 
 #[test]
-fn bubblesort_table() {
+fn bubblesort_table {
   val a = { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
   
   // Tables are always passed by reference.
@@ -83,7 +83,7 @@ fn bubblesort_table() {
 }
 
 #[test]
-fn bubblesort_array() {
+fn bubblesort_array {
   val a = array { 4, 65, 2, -31, 0, 99, 2, 83, 782, 1 };
   
   // Arrays are always passed by reference.

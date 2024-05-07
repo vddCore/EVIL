@@ -1,5 +1,5 @@
 ﻿#[test]
-fn for_simple() {
+fn for_simple {
   rw val i;
   for (i = 0; i < 10; ++i) {}
   
@@ -7,7 +7,7 @@ fn for_simple() {
 }
 
 #[test]
-fn for_simple_skip() {
+fn for_simple_skip {
   rw val i;
   
   for (i = 0; i < 10; i++) {
@@ -18,7 +18,7 @@ fn for_simple_skip() {
 }
 
 #[test]
-fn for_simple_break() {
+fn for_simple_break {
   rw val i;
   
   for (i = 0; i < 10; i++) {
@@ -30,7 +30,7 @@ fn for_simple_break() {
 }
 
 #[test]
-fn for_nested() {
+fn for_nested {
   rw val i, j, k;
   
   for (i = 0; i < 10; i++) {
@@ -45,7 +45,7 @@ fn for_nested() {
 }
 
 #[test]
-fn for_nested_break() {
+fn for_nested_break {
   rw val broken = false;
   rw val i;
   
@@ -67,7 +67,7 @@ fn for_nested_break() {
 }
 
 #[test]
-fn for_multiple_statements() {
+fn for_multiple_statements {
   rw val i;
   rw val j;
   

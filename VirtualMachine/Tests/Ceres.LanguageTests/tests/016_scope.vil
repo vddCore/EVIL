@@ -1,5 +1,5 @@
 ﻿#[test]
-fn out_of_scope_evaluates_to_global() {
+fn out_of_scope_evaluates_to_global {
   val a = 10;
   b = 33;
   
@@ -11,7 +11,7 @@ fn out_of_scope_evaluates_to_global() {
 }
 
 #[test]
-fn local_scope_hides_global_scope() {
+fn local_scope_hides_global_scope {
   a = "jp2gmd";
   
   val a = 21.37;
@@ -19,7 +19,7 @@ fn local_scope_hides_global_scope() {
 }
 
 #[test]
-fn mixed_local_and_global_scopes() {
+fn mixed_local_and_global_scopes {
   a = "jp2gmd"; rw val b = 2;
   
   {
@@ -38,7 +38,7 @@ fn mixed_local_and_global_scopes() {
 }
 
 #[test]
-fn variables_go_out_of_scope() {
+fn variables_go_out_of_scope {
   {
     val x = 10; 
     {

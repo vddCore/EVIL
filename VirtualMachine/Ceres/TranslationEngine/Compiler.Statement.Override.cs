@@ -23,7 +23,11 @@ namespace Ceres.TranslationEngine
                 {
                     Chunk.DebugDatabase.DefinedOnLine = overrideStatement.Line;
 
-                    Visit(overrideStatement.ParameterList);
+                    if (overrideStatement.ParameterList != null)
+                    {
+                        Visit(overrideStatement.ParameterList);
+                    }
+
                     Visit(overrideStatement.Statement);
 
                     FinalizeChunk();
