@@ -70,8 +70,12 @@ namespace EVIL.Grammar.Parsing
                 
                 secondaryIdentifier = Identifier();
             }
-            
-            var parameterList = ParameterList();
+
+            ParameterList? parameterList = null;
+            if (CurrentToken == Token.LParenthesis)
+            {
+                parameterList = ParameterList();
+            }
 
             Statement statement;
             if (CurrentToken == Token.LBrace)

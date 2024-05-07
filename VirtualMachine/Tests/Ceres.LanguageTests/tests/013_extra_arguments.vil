@@ -1,5 +1,5 @@
 ﻿#[test]
-fn xargs_formal_params() {
+fn xargs_formal_params {
   val f = fn(a, b, c) -> ...[0] + ...[1];
 
   assert.equal(
@@ -9,8 +9,8 @@ fn xargs_formal_params() {
 }
 
 #[test]
-fn xargs_no_formal_params() {
-  val f = fn() -> ...[0] + ...[1];
+fn xargs_no_formal_params {
+  val f = fn -> ...[0] + ...[1];
   
   assert.equal(
     f(2, 0.137),

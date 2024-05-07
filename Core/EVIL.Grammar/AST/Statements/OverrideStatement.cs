@@ -8,13 +8,13 @@ namespace EVIL.Grammar.AST.Statements
     {
         public Expression Target { get; }
         public TableOverride Override { get; }
-        public ParameterList ParameterList { get; }
+        public ParameterList? ParameterList { get; }
         public Statement Statement { get; }
 
         public OverrideStatement(
             Expression target,
             TableOverride @override,
-            ParameterList parameterList,
+            ParameterList? parameterList,
             Statement statement
         )
         {
@@ -23,7 +23,14 @@ namespace EVIL.Grammar.AST.Statements
             ParameterList = parameterList;
             Statement = statement;
             
-            Reparent(Target, ParameterList, Statement);
+            Reparent(Target);
+
+            if (ParameterList != null)
+            {
+                Reparent(ParameterList);
+            }
+
+            Reparent(Statement);
         }
     }
 }

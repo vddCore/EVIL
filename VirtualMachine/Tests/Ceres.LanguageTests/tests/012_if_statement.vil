@@ -1,5 +1,5 @@
 ﻿#[test]
-fn if_condition_simple() {
+fn if_condition_simple {
   rw val result = 0;
   if (true) { result = 1; }
   
@@ -7,7 +7,7 @@ fn if_condition_simple() {
 }
 
 #[test]
-fn if_else() {
+fn if_else {
   rw val result = 0;
   
   if (false) { result = 1; }
@@ -17,7 +17,7 @@ fn if_else() {
 }
 
 #[test] 
-fn if_elif_else() {
+fn if_elif_else {
   rw val result = 0;
   
   if (1 == 2) { result = 1; }
@@ -28,7 +28,7 @@ fn if_elif_else() {
 }
 
 #[test]
-fn only_first_true_elif_is_executed() {
+fn only_first_true_elif_is_executed {
   rw val result;
   
   if (1 == 2) { result = 1; }
@@ -41,8 +41,8 @@ fn only_first_true_elif_is_executed() {
 }
 
 #[test]
-fn if_elif_else_implicit_ret() {
-  val test_fn = fn() {
+fn if_elif_else_implicit_ret {
+  val test_fn = fn {
     if (1 == 2) -> 1;
     elif (2 == 3) -> 2;
     else -> 3;
@@ -52,7 +52,7 @@ fn if_elif_else_implicit_ret() {
 }
 
 #[test] 
-fn or_shortcircuit_complex_left_is_true() {
+fn or_shortcircuit_complex_left_is_true {
   rw val x = nil;
   
   if (x is Nil || x is String || x > 0 || x < 1 ) {
@@ -63,7 +63,7 @@ fn or_shortcircuit_complex_left_is_true() {
 }
 
 #[test] 
-fn or_shortcircuit_left_is_true() {
+fn or_shortcircuit_left_is_true {
   rw val x = nil;
   
   if (x is Nil || x > 0) {
@@ -74,7 +74,7 @@ fn or_shortcircuit_left_is_true() {
 }
 
 #[test] 
-fn or_shortcircuit_right_is_true() {
+fn or_shortcircuit_right_is_true {
   rw val x = -1;
   
   if (x is Nil || x < 0) {
@@ -85,7 +85,7 @@ fn or_shortcircuit_right_is_true() {
 }
 
 #[test] 
-fn or_shortcircuit_complex_right_is_true() {
+fn or_shortcircuit_complex_right_is_true {
   rw val x = -1;
   
   if (x is Nil || (x is String || x < 0)) {
@@ -96,7 +96,7 @@ fn or_shortcircuit_complex_right_is_true() {
 }
 
 #[test] 
-fn or_shortcircuit_complex_else_branch() {
+fn or_shortcircuit_complex_else_branch {
   rw val x = -1;
   
   if (x is Nil || (x is String || x > 0)) {

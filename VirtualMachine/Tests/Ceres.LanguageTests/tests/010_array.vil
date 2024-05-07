@@ -1,7 +1,7 @@
-#[test] fn arr_size() -> assert.equal(#array(10), 10);
+#[test] fn arr_size -> assert.equal(#array(10), 10);
 
 #[test]
-fn arr_set_val() {
+fn arr_set_val {
   val arr = array(2);
   arr[0] = 10;
   arr[1] = 21.37;
@@ -15,7 +15,7 @@ fn arr_set_val() {
 }
 
 #[test]
-fn arr_init_val() {
+fn arr_init_val {
   val arr = array { 21.37, 11.11 };
   
   assert.is_of_type(arr, Array);
@@ -27,7 +27,7 @@ fn arr_init_val() {
 }
 
 #[test]
-fn arr_each() {
+fn arr_each {
   val arr = array { 2, 4, 6, 8, 10 };
   
   rw val prev_i = 0;
@@ -45,7 +45,7 @@ fn arr_each() {
 }
 
 #[test]
-fn arr_for() {
+fn arr_for {
   val arr = array { 4, 8, 12, 16 };
 
   for (rw val i = 0; i < #arr; i++) {
@@ -54,8 +54,8 @@ fn arr_for() {
 }
 
 #[test]
-fn func_in_arr() {
-  val arr = array { fn() -> 21.37 };
+fn func_in_arr {
+  val arr = array { fn -> 21.37 };
   
   assert.is_of_type(arr, Array);
   assert.equal(arr[0](), 21.37);  

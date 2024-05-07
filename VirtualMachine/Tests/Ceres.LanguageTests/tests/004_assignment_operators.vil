@@ -1,5 +1,5 @@
 ﻿#[test]
-fn assignment_var_direct() {
+fn assignment_var_direct {
   rw val x = 20;
   
   assert.equal(x = 10, 10);
@@ -7,7 +7,7 @@ fn assignment_var_direct() {
 }
 
 #[test]
-fn assignment_var_add() {
+fn assignment_var_add {
   rw val x = 10;
   
   assert.equal(x += 1, 11);
@@ -15,7 +15,7 @@ fn assignment_var_add() {
 }
 
 #[test]
-fn assignment_var_sub() {
+fn assignment_var_sub {
   rw val x = 13;
   
   assert.equal(x -= 1, 12);
@@ -23,7 +23,7 @@ fn assignment_var_sub() {
 }
 
 #[test]
-fn assignment_var_div() {
+fn assignment_var_div {
   rw val x = 26;
   
   assert.equal(x /= 2, 13);
@@ -31,7 +31,7 @@ fn assignment_var_div() {
 }
 
 #[test]
-fn assignment_var_mod() {
+fn assignment_var_mod {
   rw val x = 30;
   
   assert.equal(x %= 16, 14);
@@ -39,7 +39,7 @@ fn assignment_var_mod() {
 }
 
 #[test]
-fn assignment_var_mul() {
+fn assignment_var_mul {
   rw val x = 7.5;
   
   assert.equal(x *= 2, 15);
@@ -47,7 +47,7 @@ fn assignment_var_mul() {
 }
 
 #[test]
-fn assignment_var_band() {
+fn assignment_var_band {
   rw val x = 0xFFFF;
   
   assert.equal(x &= 0x0FF0, 0x0FF0);
@@ -55,7 +55,7 @@ fn assignment_var_band() {
 }
 
 #[test]
-fn assignment_var_bor() {
+fn assignment_var_bor {
   rw val x = 0xF000;
   
   assert.equal(x |= 0x0FF0, 0xFFF0);
@@ -63,7 +63,7 @@ fn assignment_var_bor() {
 }
 
 #[test]
-fn assignment_var_bxor() {
+fn assignment_var_bxor {
   rw val x = 0xF0F0;
   
   assert.equal(x ^= 0xFFFF, 0x0F0F);
@@ -71,7 +71,7 @@ fn assignment_var_bxor() {
 }
 
 #[test]
-fn assignment_var_shl() {
+fn assignment_var_shl {
   rw val x = 0xF;
   
   assert.equal(x <<= 16, 0xF0000);
@@ -79,7 +79,7 @@ fn assignment_var_shl() {
 }
 
 #[test]
-fn assignment_var_shr() {
+fn assignment_var_shr {
   rw val x = 0xFFFF;
   
   assert.equal(x >>= 8, 0x00FF);
@@ -87,7 +87,7 @@ fn assignment_var_shr() {
 }
 
 #[test]
-fn chained_assignment_direct() {
+fn chained_assignment_direct {
   rw val a, b, c, d;
   val result = (a = b = c = d = 10);
   
@@ -99,7 +99,7 @@ fn chained_assignment_direct() {
 }
 
 #[test]
-fn chained_assignment_add() {
+fn chained_assignment_add {
   rw val a = 5, b = 10, c = 15, d = 20;
   val result = (a += b += c += d += 5);
   
@@ -111,7 +111,7 @@ fn chained_assignment_add() {
 }
 
 #[test]
-fn chained_assignment_sub() {
+fn chained_assignment_sub {
   rw val a = 5, b = 10, c = 15, d = 20;
   val result = (a -= b -= c -= d -= 5);
   
@@ -123,7 +123,7 @@ fn chained_assignment_sub() {
 }
 
 #[test]
-fn chained_assignment_div() {
+fn chained_assignment_div {
   rw val a = 120, b = 60, c = 30, d = 10;
   val result = (a /= b /= c /= d /= 2); 
   
@@ -135,7 +135,7 @@ fn chained_assignment_div() {
 }
 
 #[test]
-fn assignment_tbl_direct() {
+fn assignment_tbl_direct {
   val a = {};
   a[0] = "test";
   
@@ -144,7 +144,7 @@ fn assignment_tbl_direct() {
 }
 
 #[test]
-fn assignment_tbl_add() {
+fn assignment_tbl_add {
   val a = { 10 };
   
   assert.equal(a[0] += 1, 11);
@@ -153,7 +153,7 @@ fn assignment_tbl_add() {
 
 
 #[test]
-fn assignment_tbl_sub() {
+fn assignment_tbl_sub {
   val a = { 13 };
   
   assert.equal(a[0] -= 1, 12);
@@ -161,7 +161,7 @@ fn assignment_tbl_sub() {
 }
 
 #[test]
-fn coalescing_assignment_global() {
+fn coalescing_assignment_global {
   test_global = nil;
   test_global ??= 21.37;
   test_global ??= "a string";
@@ -170,7 +170,7 @@ fn coalescing_assignment_global() {
 }
 
 #[test]
-fn coalescing_assignment_local() {
+fn coalescing_assignment_local {
   rw val test_local = nil;
   test_local ??= 21.37;
   test_local ??= "a string";
@@ -179,7 +179,7 @@ fn coalescing_assignment_local() {
 }
 
 #[test]
-fn coalescing_assignment_table_entry() {
+fn coalescing_assignment_table_entry {
   val t = { };
   t.x ??= 21;
   t.y ??= 37;
@@ -192,7 +192,7 @@ fn coalescing_assignment_table_entry() {
 }
 
 #[test]
-fn chained_coalescing_assignment_table_entry_when_first_is_nil() {
+fn chained_coalescing_assignment_table_entry_when_first_is_nil {
   val t = { };
   val a = "string";
   rw val b = nil;
@@ -204,7 +204,7 @@ fn chained_coalescing_assignment_table_entry_when_first_is_nil() {
 }
 
 #[test]
-fn chained_coalescing_assignment_table_entry_when_first_is_not_nil() {
+fn chained_coalescing_assignment_table_entry_when_first_is_not_nil {
   val t = { };
   rw val a = "string";
   rw val b = nil;

@@ -1,5 +1,5 @@
 ﻿#[test] 
-fn ternary_true_with_constant() {
+fn ternary_true_with_constant {
   val result = true 
     ? 21.37 
     : "something went terribly wrong";
@@ -8,7 +8,7 @@ fn ternary_true_with_constant() {
 }
 
 #[test]
-fn ternary_false_with_constant() {
+fn ternary_false_with_constant {
   val result = false 
     ? "something went terribly wrong"
     : "jp2gmd";
@@ -17,7 +17,7 @@ fn ternary_false_with_constant() {
 }
 
 #[test]
-fn ternary_true_with_variable() {
+fn ternary_true_with_variable {
   val x = 25;
   val result = x / 5 == 5 
     ? 213.7 
@@ -27,7 +27,7 @@ fn ternary_true_with_variable() {
 }
 
 #[test]
-fn ternary_false_with_variable() {
+fn ternary_false_with_variable {
   val x = 666;
   val result = x > 999 
     ? "something went terribly wrong" 
@@ -37,7 +37,7 @@ fn ternary_false_with_variable() {
 }
 
 #[test]
-fn ternary_true_nested() {
+fn ternary_true_nested {
   val result = 21 < 37 
     ? "jp2gmd" 
       ? "jeszcze jak" 

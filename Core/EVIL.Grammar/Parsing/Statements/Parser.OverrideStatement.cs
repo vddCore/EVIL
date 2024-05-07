@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -64,7 +65,12 @@ namespace EVIL.Grammar.Parsing
             }
 
             Match(CurrentToken);
-            var parameterList = ParameterList();
+            
+            ParameterList? parameterList = null;
+            if (CurrentToken == Token.LParenthesis)
+            {
+                parameterList = ParameterList();
+            }
             
             Statement statement;
             if (CurrentToken == Token.LBrace)

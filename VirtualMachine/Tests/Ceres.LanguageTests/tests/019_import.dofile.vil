@@ -1,7 +1,7 @@
 dofile("lib/test.vil");
 
 #[test]
-fn dofile_imported_funcs() {
+fn dofile_imported_funcs {
   val result = imported_add(10, 10) 
              + imported_sub(5, 0)
              + imported_mul(3, 3)

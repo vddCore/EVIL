@@ -15,8 +15,12 @@ namespace Ceres.TranslationEngine
 
                     Chunk.MarkSelfAware();
                     /* implicit `self' */ Chunk.AllocateParameter();
-                    
-                    Visit(selfFnExpression.ParameterList);
+
+                    if (selfFnExpression.ParameterList != null)
+                    {
+                        Visit(selfFnExpression.ParameterList);
+                    }
+
                     Visit(selfFnExpression.Statement);
                     
                     FinalizeChunk();

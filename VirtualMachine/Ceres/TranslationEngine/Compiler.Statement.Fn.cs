@@ -48,7 +48,11 @@ namespace Ceres.TranslationEngine
 
                     InNewLocalScopeDo(() =>
                     {
-                        Visit(fnStatement.ParameterList);
+                        if (fnStatement.ParameterList != null)
+                        {
+                            Visit(fnStatement.ParameterList);
+                        }
+
                         Visit(fnStatement.Statement);
                     });
 

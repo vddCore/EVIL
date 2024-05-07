@@ -5,17 +5,21 @@ namespace EVIL.Grammar.AST.Expressions
 {
     public sealed class FnExpression : Expression
     {
-        public ParameterList ParameterList { get; }
+        public ParameterList? ParameterList { get; }
         public Statement Statement { get; }
 
         public FnExpression(
-            ParameterList parameterList,
+            ParameterList? parameterList,
             Statement statement)
         {
             ParameterList = parameterList;
             Statement = statement;
 
-            Reparent(ParameterList);
+            if (ParameterList != null)
+            {
+                Reparent(ParameterList);
+            }
+
             Reparent(Statement);
         }
     }
