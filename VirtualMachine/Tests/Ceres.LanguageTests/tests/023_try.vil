@@ -1,5 +1,5 @@
 #[test]
-fn try_catch_ok() {
+fn try_catch_ok {
   rw val result;
 
   try {
@@ -17,7 +17,7 @@ loc fn throwing_inner(value) {
 }
 
 #[test]
-fn try_invoked_throws() {
+fn try_invoked_throws {
   rw val result;
 
   try {
@@ -31,7 +31,7 @@ fn try_invoked_throws() {
 }
 
 #[test]
-fn nested_try_blocks_innermost() {
+fn nested_try_blocks_innermost {
   rw val result;
 
   try {
@@ -46,7 +46,7 @@ fn nested_try_blocks_innermost() {
 }
 
 #[test]
-fn nested_try_blocks_rethrow() {
+fn nested_try_blocks_rethrow {
   rw val result;
 
   try { 
@@ -72,13 +72,13 @@ loc fn is_valid_type(value) {
 }
 
 #[test]
-fn try_invoked_ret_differs() {
+fn try_invoked_ret_differs {
   assert.equal(is_valid_type(123), false);
   assert.equal(is_valid_type("meow"), true);
 }
 
 #[test]
-fn try_native_throws() {
+fn try_native_throws {
   rw val result;
 
   try {
@@ -91,7 +91,7 @@ fn try_native_throws() {
 }
 
 #[test]
-fn try_require() { 
+fn try_require { 
   rw val result = "hiii";
 
   try { result = require("doesnt_exist"); }
@@ -115,7 +115,7 @@ loc fn throwing_by(value) -> by typeof(value) {
 };
 
 #[test]
-fn try_by() {
+fn try_by {
   rw val result;
   
   try {
@@ -129,7 +129,7 @@ fn try_by() {
 }
 
 #[test]
-fn try_error_userdata_only() {
+fn try_error_userdata_only {
   rw val result;
   
   try {
@@ -143,7 +143,7 @@ fn try_error_userdata_only() {
 }
 
 #[test]
-fn try_error_implicit_message_only() {
+fn try_error_implicit_message_only {
   rw val result;
   
   try {
@@ -157,7 +157,7 @@ fn try_error_implicit_message_only() {
 }
 
 #[test]
-fn try_error_implicit_message_and_userdata() {
+fn try_error_implicit_message_and_userdata {
   rw val result;
   rw val result2;
    
