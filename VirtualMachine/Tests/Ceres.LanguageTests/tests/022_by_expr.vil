@@ -1,5 +1,5 @@
 #[test]
-fn valref_qualifier_basic_with_else_branch() {
+fn valref_qualifier_basic_with_else_branch {
   val value = 123;
   
   val result = by value {
@@ -13,7 +13,7 @@ fn valref_qualifier_basic_with_else_branch() {
 }
 
 #[test]
-fn valref_qualifier_basic_without_else_branch() {
+fn valref_qualifier_basic_without_else_branch {
   val value = 666;
   
   val result = by value {
@@ -26,7 +26,7 @@ fn valref_qualifier_basic_without_else_branch() {
 }
 
 #[test]
-fn valref_qualifier_as_part_of_expression() {
+fn valref_qualifier_as_part_of_expression {
   val value = 456;
   
   val result = by value {
@@ -40,7 +40,7 @@ fn valref_qualifier_as_part_of_expression() {
 }
 
 #[test]
-fn simple_expr_qualifier_basic_with_else_branch() {
+fn simple_expr_qualifier_basic_with_else_branch {
   val result = by (400 + 56) {
     222 -> 1234,
     123 -> "hhhhh",
@@ -52,7 +52,7 @@ fn simple_expr_qualifier_basic_with_else_branch() {
 }
 
 #[test]
-fn complex_expr_qualifier_as_part_of_expression() {
+fn complex_expr_qualifier_as_part_of_expression {
   loc fn test(a, b = 15) -> a + b;
   val table = { 10, 20, 30 };
   
@@ -67,7 +67,7 @@ fn complex_expr_qualifier_as_part_of_expression() {
 }
 
 #[test]
-fn qualifier_is_table() {
+fn qualifier_is_table {
   val position = { x: 21, y: 37 };
   
   val result = by position {
@@ -82,7 +82,7 @@ fn qualifier_is_table() {
 }
 
 #[test]
-fn qualifier_is_type() {
+fn qualifier_is_type {
   loc fn get_type_msg(v) -> by typeof(v) {
     Nil -> "It's a Nil!",
     Number -> "It's a Number!",

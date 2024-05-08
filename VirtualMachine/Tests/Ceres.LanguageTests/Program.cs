@@ -36,8 +36,8 @@ argList.RemoveAll(x => !Directory.Exists(x));
 return await new TestRunner(
     vm, 
     new TestRunnerOptions(
-        FailOnCompilerErrors: args.Contains("--fail-on-compiler-errors"),
-        FailOnTestErrors: args.Contains("--fail-on-test-errors"),
+        FailOnCompilerErrors: failOnCompilerErrors,
+        FailOnTestErrors: failOnTestErrors,
         TestDirectories: argList.ToArray()
     )
 ).RunTests();
