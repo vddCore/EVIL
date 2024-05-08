@@ -35,7 +35,7 @@ override(TestClass = {})::__invoke(instance_name) {
 }
 
 #[test]
-fn targeted_fn_self_invocations() {
+fn targeted_fn_self_invocations {
   val instance = TestClass("instance_name_uwu");
   
   assert.equal(instance.__name, "instance_name_uwu");
@@ -75,7 +75,7 @@ fn targeted_fn_self_invocations() {
 }
 
 #[test]
-fn targeted_fn_in_local() {
+fn targeted_fn_in_local {
   val Object = {};
   
   loc fn Object::meow(x) {
@@ -90,7 +90,7 @@ fn targeted_fn_in_local() {
 }
 
 #[test]
-fn targeted_fn_nested() {
+fn targeted_fn_nested {
   val Object = {};
   
   loc fn Object::thing(x) {
@@ -109,7 +109,7 @@ fn targeted_fn_nested() {
 }
 
 #[test]
-fn targeted_fn_conditional() {
+fn targeted_fn_conditional {
   val Object = {};
   
   if (false) {
@@ -124,7 +124,7 @@ fn targeted_fn_conditional() {
 }
 
 #[test]
-fn targeted_fn_multiscope() {
+fn targeted_fn_multiscope {
   {
     val Object = {};
   
@@ -153,7 +153,7 @@ fn targeted_fn_multiscope() {
 }
 
 #[test]
-fn targeted_fn_self() {
+fn targeted_fn_self {
   val Object = {};
   
   override(Object)::__invoke(a1) {
