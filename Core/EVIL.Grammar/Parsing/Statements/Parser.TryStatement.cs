@@ -1,3 +1,4 @@
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -10,9 +11,15 @@ namespace EVIL.Grammar.Parsing
             var (line, col) = Match(Token.Try);
             var protectedStatement = BlockStatement();
             Match(Token.Catch);
-            Match(Token.LParenthesis);
-            var exceptionObjectIdentifier = Identifier();
-            Match(Token.RParenthesis);
+
+            IdentifierNode? exceptionObjectIdentifier = null;
+            if (CurrentToken == Token.LParenthesis)
+            {
+                Match(Token.LParenthesis);
+                exceptionObjectIdentifier = Identifier();
+                Match(Token.RParenthesis);
+            }
+
             var handlerStatement = BlockStatement();
 
             return new TryStatement(

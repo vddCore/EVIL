@@ -22,17 +22,24 @@ namespace Ceres.TranslationEngine
             InNewLocalScopeDo(() =>
             {
                 Chunk.CodeGenerator.Emit(OpCode.LEAVE);
-                
-                CurrentScope.DefineLocal(
-                    tryStatement.HandlerExceptionLocal.Name,
-                    Chunk.AllocateLocal(),
-                    false,
-                    tryStatement.HandlerExceptionLocal.Line,
-                    tryStatement.HandlerExceptionLocal.Column
-                );
 
-                
-                EmitVarSet(tryStatement.HandlerExceptionLocal.Name);
+                if (tryStatement.HandlerExceptionLocal != null)
+                {
+                    CurrentScope.DefineLocal(
+                        tryStatement.HandlerExceptionLocal.Name,
+                        Chunk.AllocateLocal(),
+                        false,
+                        tryStatement.HandlerExceptionLocal.Line,
+                        tryStatement.HandlerExceptionLocal.Column
+                    );
+                    
+                    EmitVarSet(tryStatement.HandlerExceptionLocal.Name);
+                }
+                else
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.POP);
+                }
+
                 Visit(tryStatement.HandlerStatement);
             });
 
