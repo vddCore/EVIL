@@ -11,7 +11,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     
-    <NoWarn>SYSLIB0011</NoWarn>
+    <NoWarn>SYSLIB0011;CA2255</NoWarn>
   </PropertyGroup>
   
   <ItemGroup>
