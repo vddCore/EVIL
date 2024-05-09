@@ -13,8 +13,7 @@ namespace EVIL.Grammar.AST.Expressions
             Initializers = initializers;
             Keyed = keyed;
 
-            for (var i = 0; i < Initializers.Count; i++)
-                Reparent(Initializers[i]);
+            Reparent(Initializers);
         }
     }
 }

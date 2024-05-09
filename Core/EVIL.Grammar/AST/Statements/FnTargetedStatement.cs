@@ -12,6 +12,7 @@ namespace EVIL.Grammar.AST.Statements
         public ParameterList? ParameterList { get; }
         public Statement Statement { get; }
         public List<AttributeNode> Attributes { get; }
+
         public bool IsSelfTargeting => PrimaryTarget is SelfExpression;
         
         public FnTargetedStatement(
@@ -29,12 +30,7 @@ namespace EVIL.Grammar.AST.Statements
 
             Reparent(PrimaryTarget);
             Reparent(SecondaryIdentifier);
-
-            if (ParameterList != null)
-            {
-                Reparent(ParameterList);
-            }
-
+            Reparent(ParameterList);
             Reparent(Statement);
             Reparent(Attributes);
         }

@@ -24,12 +24,7 @@ namespace EVIL.Grammar.AST.Statements
             Statement = statement;
             
             Reparent(Target);
-
-            if (ParameterList != null)
-            {
-                Reparent(ParameterList);
-            }
-
+            Reparent(ParameterList);
             Reparent(Statement);
         }
     }

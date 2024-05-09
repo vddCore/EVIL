@@ -9,11 +9,7 @@ namespace EVIL.Grammar.AST.Statements
         public RetStatement(Expression? expression)
         {
             Expression = expression;
-
-            if (Expression != null)
-            {
-                Reparent(Expression);
-            }
+            Reparent(Expression);
         }
     }
 }

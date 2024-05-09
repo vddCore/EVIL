@@ -20,7 +20,7 @@ namespace EVIL.Grammar.AST.Miscellaneous
             Properties = properties;
 
             Reparent(Identifier);
-            Reparent(values);
+            Reparent(Values);
             Reparent(Properties.Keys);
             Reparent(Properties.Values);
         }

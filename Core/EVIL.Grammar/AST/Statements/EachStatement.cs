@@ -23,10 +23,7 @@ namespace EVIL.Grammar.AST.Statements
             Statement = statement;
 
             Reparent(KeyIdentifier);
-
-            if (ValueIdentifier != null)
-                Reparent(ValueIdentifier);
-            
+            Reparent(ValueIdentifier);
             Reparent(Iterable, Statement);
         }
     }

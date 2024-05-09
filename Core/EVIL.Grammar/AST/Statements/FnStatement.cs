@@ -26,12 +26,7 @@ namespace EVIL.Grammar.AST.Statements.TopLevel
             IsLocalDefintion = isLocalDefintion;
 
             Reparent(Identifier);
-
-            if (ParameterList != null)
-            {
-                Reparent(ParameterList);
-            }
-
+            Reparent(ParameterList);
             Reparent(Statement);
             Reparent(Attributes);
         }

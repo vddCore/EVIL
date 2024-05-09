@@ -7,7 +7,6 @@ namespace EVIL.Grammar.AST.Expressions
     public class ByExpression : Expression
     {
         public Expression Qualifier { get; }
-        
         public List<ByArmNode> Arms { get; }
         public AstNode? ElseArm { get; }
 
@@ -19,11 +18,7 @@ namespace EVIL.Grammar.AST.Expressions
 
             Reparent(Qualifier);
             Reparent(Arms);
-
-            if (ElseArm != null)
-            {
-                Reparent(ElseArm);
-            }
+            Reparent(ElseArm);
         }
     }
 }
