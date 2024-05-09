@@ -176,7 +176,7 @@ fn try_error_implicit_message_and_userdata {
   assert.equal(result2, "meow");
 }
 
-#[test;disasm("always")]
+#[test]
 fn try_no_local() {
   rw val caught = false;
   

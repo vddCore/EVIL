@@ -13,15 +13,8 @@ namespace EVIL.Grammar.AST.Expressions
             ImplicitMessageConstant = implicitMessageConstant;
             UserDataTable = userDataTable;
 
-            if (ImplicitMessageConstant != null)
-            {
-                Reparent(ImplicitMessageConstant);
-            }
-
-            if (UserDataTable != null)
-            {
-                Reparent(UserDataTable);
-            }
+            Reparent(ImplicitMessageConstant);
+            Reparent(UserDataTable);
         }
     }
 }

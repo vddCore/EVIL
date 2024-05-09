@@ -13,7 +13,8 @@ namespace EVIL.Grammar.AST.Expressions
             SizeExpression = sizeExpression;
             Initializers = initializers;
             
-            Reparent(initializers);
+            Reparent(SizeExpression);
+            Reparent(Initializers);
         }
     }
 }

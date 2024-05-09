@@ -15,12 +15,8 @@ namespace EVIL.Grammar.AST.Expressions
         {
             ParameterList = parameterList;
             Statement = statement;
-
-            if (ParameterList != null)
-            {
-                Reparent(ParameterList);
-            }
-
+            
+            Reparent(ParameterList);
             Reparent(Statement);
         }
     }

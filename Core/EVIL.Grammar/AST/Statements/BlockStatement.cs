@@ -10,11 +10,7 @@ namespace EVIL.Grammar.AST.Statements
         public BlockStatement(List<Statement> statements)
         {
             Statements = statements;
-
-            for (var i = 0; i < statements.Count; i++)
-            {
-                Reparent(statements[i]);
-            }
+            Reparent(Statements);
         }
     }
 }

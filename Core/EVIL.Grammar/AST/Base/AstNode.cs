@@ -32,7 +32,7 @@ namespace EVIL.Grammar.AST.Base
             }
         }
 
-        protected void Reparent(IEnumerable<AstNode> nodes) 
+        protected void Reparent(IEnumerable<AstNode?> nodes)
             => Reparent(nodes.ToArray());
     }
 }

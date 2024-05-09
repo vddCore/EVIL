@@ -17,12 +17,7 @@ namespace EVIL.Grammar.AST.Statements
             ReadWrite = readWrite;
 
             Reparent(Definitions.Keys);
-            
-            foreach (var kvp in Definitions)
-            {
-                if (kvp.Value != null)
-                    Reparent(kvp.Value);
-            }
+            Reparent(Definitions.Values);
         }
     }
 }
