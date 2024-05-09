@@ -6,7 +6,6 @@ namespace EVIL.Grammar.AST.Statements
     public class TryStatement : Statement
     {
         public Statement InnerStatement { get; }
-
         public IdentifierNode? HandlerExceptionLocal { get; }
         public Statement HandlerStatement { get; }
 

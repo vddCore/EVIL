@@ -16,9 +16,7 @@ namespace EVIL.Grammar.AST.Miscellaneous
             Initializer = initializer;
 
             Reparent(Identifier);
-            
-            if (Initializer != null)
-                Reparent(Initializer);
+            Reparent(Initializer);
         }
     }
 }
