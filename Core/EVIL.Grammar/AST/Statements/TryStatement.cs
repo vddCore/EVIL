@@ -7,10 +7,13 @@ namespace EVIL.Grammar.AST.Statements
     {
         public Statement InnerStatement { get; }
 
-        public IdentifierNode HandlerExceptionLocal { get; }
+        public IdentifierNode? HandlerExceptionLocal { get; }
         public Statement HandlerStatement { get; }
 
-        public TryStatement(Statement innerStatement, IdentifierNode handlerExceptionLocal, Statement handlerStatement)
+        public TryStatement(
+            Statement innerStatement,
+            IdentifierNode? handlerExceptionLocal, 
+            Statement handlerStatement)
         {
             InnerStatement = innerStatement;
             HandlerExceptionLocal = handlerExceptionLocal;

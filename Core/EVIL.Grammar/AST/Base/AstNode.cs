@@ -21,10 +21,15 @@ namespace EVIL.Grammar.AST.Base
             return (this as T)!;
         }
         
-        protected void Reparent(params AstNode[] nodes)
+        protected void Reparent(params AstNode?[] nodes)
         {
             for (var i = 0; i < nodes.Length; i++)
-                nodes[i].Parent = this;
+            {
+                if (nodes[i] != null)
+                {
+                    nodes[i]!.Parent = this;
+                }
+            }
         }
 
         protected void Reparent(IEnumerable<AstNode> nodes) 
