@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Ceres.ExecutionEngine;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
@@ -35,20 +37,33 @@ namespace Ceres.RuntimeTests.RuntimeModules
         public virtual void Teardown()
         {
             _vm.Dispose();
-            _evilRuntime = null;
-            _parser = null;
-            _compiler = null;
+            _evilRuntime = null!;
+            _parser = null!;
+            _compiler = null!;
         }
 
         protected DynamicValue EvilTestResult(string source, params DynamicValue[] args)
         {
             var chunk = _compiler.Compile(source, "!module_test_file!");
-
+            var waitForCrashHandler = true;
+            
             _vm.MainFiber.Schedule(chunk);
             _vm.MainFiber.Schedule(chunk["test"]!, false, args);
             _vm.MainFiber.Resume();
+
+            Exception? fiberException = null;
+            _vm.MainFiber.SetCrashHandler((f, e) =>
+            {
+                fiberException = e;
+                waitForCrashHandler = false;
+            });
             
             _vm.MainFiber.BlockUntilFinished();
+
+            while (waitForCrashHandler)
+            {
+                Thread.Sleep(1);
+            }
             
             if (_vm.MainFiber.State == FiberState.Finished)
             {
@@ -57,7 +72,7 @@ namespace Ceres.RuntimeTests.RuntimeModules
 
             if (_vm.MainFiber.State == FiberState.Crashed)
             {
-                throw new Exception("Test has failed inside EVIL world.");
+                throw new Exception("Test has failed inside EVIL world.", fiberException);
             }
             
             throw new Exception("There is something wrong with the awaiter logic or the fiber itself.");
