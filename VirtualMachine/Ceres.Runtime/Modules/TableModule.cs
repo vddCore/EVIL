@@ -187,11 +187,19 @@ namespace Ceres.Runtime.Modules
         [EvilDocFunction("Sets a meta-table for the provided Table.", ReturnType = DynamicValueType.Nil)]
         [EvilDocArgument("table", "A Table whose meta-table to modify.", DynamicValueType.Table, CanBeNil = false)]
         [EvilDocArgument("mt", "A Table whose meta-table to modify.", DynamicValueType.Table, CanBeNil = false)]
-        private static DynamicValue SetMetaTable(Fiber _, params DynamicValue[] args)
+        private static DynamicValue SetMetaTable(Fiber fiber, params DynamicValue[] args)
         {
             args.ExpectTableAt(0, out var table)
                 .ExpectTableAt(1, out var mt);
 
+            if (table.MetaTable != null)
+            {
+                if (table.MetaTable["__metatable"] != DynamicValue.Nil)
+                {
+                    return fiber.ThrowFromNative("Unable to set a protected metatable.");
+                }
+            }
+            
             table.MetaTable = mt;
             return DynamicValue.Nil;
         }
@@ -211,7 +219,20 @@ namespace Ceres.Runtime.Modules
         private static DynamicValue GetMetaTable(Fiber _, params DynamicValue[] args)
         {
             args.ExpectTableAt(0, out var table);
-            return table.MetaTable ?? DynamicValue.Nil;
+
+            if (table.MetaTable != null)
+            {
+                var metaField = table.MetaTable["__metatable"];
+
+                if (metaField != DynamicValue.Nil)
+                {
+                    return metaField;
+                }
+
+                return table.MetaTable;
+            }
+            
+            return DynamicValue.Nil;
         }
     }
 }
