@@ -203,6 +203,15 @@ namespace Ceres.ExecutionEngine
                         }
                     }
                     
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.AddMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
                     PushValue(a.Add(b));
                     break;
                 }
@@ -215,6 +224,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.SubtractMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.SubtractMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -238,6 +256,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.MultiplyMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.Multiply(b));
                     break;
@@ -251,6 +278,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.DivideMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.DivideMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -274,6 +310,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ModuloMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.Modulo(b));
                     break;
@@ -292,6 +337,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ShiftLeftMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.ShiftLeft(b));
                     break;
@@ -305,6 +359,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.ShiftRightMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ShiftRightMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -368,6 +431,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LogicalOrMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.LogicalOr(b));
                     break;
@@ -381,6 +453,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.LogicalAndMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LogicalAndMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -404,6 +485,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.BitwiseOrMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.BitwiseOr(b));
                     break;
@@ -422,6 +512,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.BitwiseXorMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.BitwiseXor(b));
                     break;
@@ -435,6 +534,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.BitwiseAndMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.BitwiseAndMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -475,6 +583,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.DeepEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsDeeplyEqualTo(b));
                     break;
@@ -488,6 +605,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.DeepNotEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.DeepNotEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -511,6 +637,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.EqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsEqualTo(b));
                     break;
@@ -524,6 +659,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.NotEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.NotEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -548,6 +692,15 @@ namespace Ceres.ExecutionEngine
                         }
                     }
                     
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.GreaterThanMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
                     PushValue(a.IsGreaterThan(b));
                     break;
                 }
@@ -560,6 +713,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.GreaterEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.GreaterEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -583,6 +745,15 @@ namespace Ceres.ExecutionEngine
                             break;
                         }
                     }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LessThanMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
 
                     PushValue(a.IsLessThan(b));
                     break;
@@ -596,6 +767,15 @@ namespace Ceres.ExecutionEngine
                     if (a.Type == DynamicValueType.Table)
                     {
                         if (FindMetaFunction(a.Table!, Table.LessEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+                    
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LessEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
