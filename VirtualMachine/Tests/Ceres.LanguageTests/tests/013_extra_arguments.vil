@@ -17,3 +17,35 @@ fn xargs_no_formal_params {
     2.137
   );
 }
+
+#[test]
+fn xargs_unwrapped_via_stack {
+  val f = fn(a, b, c) -> a * b + c;
+  val f2 = fn -> f(*);
+  
+  val result = f(2, 10, 1.37);
+  val result2 = f2(2, 10, 1.37);
+  
+  assert.equal(result, 21.37);
+  assert.equal(result2, 21.37);
+}
+
+#[test]
+fn xargs_formal_and_unwrapped_via_stack {
+  val f = fn(a, b, c, d) -> a * b + c - d;
+  val f2 = fn -> f(2, *);
+  
+  val result = f2(10, 1.40, .03);
+  
+  assert.equal(math.round(result, 2), 21.37); 
+}
+
+#[test]
+fn xargs_formal_and_unwrapped_via_stack_with_extra {
+  val f = fn(a, b, c, d) -> a * b + c - d;
+  val f2 = fn -> f(2, *);
+  
+  val result = f2(10, 1.40, .03, 333);
+  
+  assert.equal(math.round(result, 2), 21.37); 
+}

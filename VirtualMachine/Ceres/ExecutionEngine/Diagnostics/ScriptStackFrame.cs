@@ -12,7 +12,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
     public sealed record ScriptStackFrame : StackFrame
     {
         private readonly BinaryReader _chunkReader;
-        private Table? _extraArguments;
+        private Array? _extraArguments;
         
         private readonly Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _collectionEnumerators = new();
 
@@ -20,7 +20,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
         public Chunk Chunk { get; }
 
         public DynamicValue[] Arguments { get; }
-        public Table ExtraArguments => _extraArguments ??= GetExtraArgumentsTable();
+        public Array ExtraArguments => _extraArguments ??= GetExtraArgumentsArray();
 
         public DynamicValue[]? Locals { get; }
         public Stack<BlockProtectionInfo> BlockProtectorStack { get; } = new();
@@ -103,16 +103,15 @@ namespace Ceres.ExecutionEngine.Diagnostics
             return ret;
         }
 
-        internal Table GetExtraArgumentsTable()
+        internal Array GetExtraArgumentsArray()
         {
-            var ret = new Table();
+            var ret = new Array(Arguments.Length - Chunk.ParameterCount);
 
             for (var i = Chunk.ParameterCount; i < Arguments.Length; i++)
             {
                 ret[i - Chunk.ParameterCount] = Arguments[i];
             }
 
-            ret.Freeze();
             return ret;
         }
 

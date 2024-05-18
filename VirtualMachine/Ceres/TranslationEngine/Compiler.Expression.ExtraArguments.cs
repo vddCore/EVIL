@@ -7,7 +7,8 @@ namespace Ceres.TranslationEngine
     {
         public override void Visit(ExtraArgumentsExpression extraArgumentsExpression)
         {
-            Chunk.CodeGenerator.Emit(OpCode.XARGS);
+            var mode = extraArgumentsExpression.UnwrapOnStack ? (byte)1 : (byte)0;
+            Chunk.CodeGenerator.Emit(OpCode.XARGS, mode);
         }
     }
 }

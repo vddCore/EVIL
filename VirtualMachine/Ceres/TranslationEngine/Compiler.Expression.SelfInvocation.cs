@@ -23,6 +23,12 @@ namespace Ceres.TranslationEngine
                 OpCode.INVOKE,
                 selfInvocationExpression.ArgumentList.Arguments.Count + 1 /* Implicit `self' */
             );
+            
+            Chunk.CodeGenerator.Emit(
+                selfInvocationExpression.ArgumentList.IsVariadic
+                    ? (byte)1
+                    : (byte)0
+            );
         }
     }
 }

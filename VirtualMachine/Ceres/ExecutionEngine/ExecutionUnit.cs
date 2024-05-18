@@ -791,6 +791,14 @@ namespace Ceres.ExecutionEngine
                     a = PopValue();
 
                     var argumentCount = frame.FetchInt32();
+                    var isVariadic = frame.FetchByte() == 1;
+
+                    if (isVariadic)
+                    {
+                        argumentCount += frame.ExtraArguments.Length - 1;
+                        // -1 because variadic specifier is treated as an argument
+                    }
+                    
                     var args = PopArguments(argumentCount);
                     
                     if (a.Type == DynamicValueType.Table)
@@ -1353,7 +1361,19 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.XARGS:
                 {
-                    PushValue(frame.ExtraArguments);
+                    var mode = frame.FetchByte();
+
+                    if (mode == 0)
+                    {
+                        PushValue(frame.ExtraArguments);
+                    }
+                    else if (mode == 1)
+                    {
+                        for (var i = 0; i < frame.ExtraArguments.Length; i++)
+                        {
+                            PushValue(frame.ExtraArguments[i]);
+                        }
+                    }
                     break;
                 }
 
