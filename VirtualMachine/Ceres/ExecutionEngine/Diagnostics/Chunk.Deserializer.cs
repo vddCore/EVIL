@@ -16,15 +16,16 @@ namespace Ceres.ExecutionEngine.Diagnostics
             {
                 if (signature[0] != 'E'
                     || signature[1] != 'V'
-                    || signature[2] != 'C')
+                    || signature[2] != 'C'
+                    || signature[3] != 0x06)
                 {
                     throw new ChunkDeserializationException(
-                        "Expected signature 'E' 'V' 'C', found " +
-                        $"'{(char)signature[0]}' '{(char)signature[1]}' '{(char)signature[2]}' instead."
+                        "Expected signature 'E' 'V' 'C' '\\x06', found " +
+                        $"'{(char)signature[0]}' '{(char)signature[1]}' '{(char)signature[2]}' '\\x{signature[3]:X2}' instead."
                     );
                 }
 
-                version = signature[3];
+                version = signature[4];
             }
 
             private static void ReadHeader(
@@ -34,7 +35,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                 out ChunkFlags flags)
             {
                 ValidateSignature(
-                    br.ReadBytes(4),
+                    br.ReadBytes(5),
                     out version
                 );
 
