@@ -37,7 +37,9 @@ namespace EVIL.Grammar.Parsing
             else if (token.Type == TokenType.Ellipsis)
             {
                 var (line, col) = Match(Token.Ellipsis);
-                return new ExtraArgumentsExpression { Line = line, Column = col };
+                
+                return new ExtraArgumentsExpression(false) 
+                    { Line = line, Column = col };
             }
             else if (token.Type == TokenType.Fn)
             {

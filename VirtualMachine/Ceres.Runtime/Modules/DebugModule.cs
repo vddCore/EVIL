@@ -44,7 +44,7 @@ namespace Ceres.Runtime.Modules
                         { "line", ssf.Chunk.HasDebugInfo ? ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP) : DynamicValue.Nil },
                         { "locals", ssf.Locals?.ToTable() ?? DynamicValue.Nil },
                         { "args", ssf.Arguments.ToTable() },
-                        { "xargs", ssf.ExtraArguments.DeepCopy() },
+                        { "xargs", new Array(ssf.ExtraArguments) },
                         { "has_self", ssf.Chunk.IsSelfAware },
                         { "def_on_line", ssf.Chunk.DebugDatabase.DefinedOnLine > 0 ? ssf.Chunk.DebugDatabase.DefinedOnLine : DynamicValue.Nil },
                         { "def_in_file", !string.IsNullOrEmpty(ssf.Chunk.DebugDatabase.DefinedInFile) ? ssf.Chunk.DebugDatabase.DefinedInFile : DynamicValue.Nil }

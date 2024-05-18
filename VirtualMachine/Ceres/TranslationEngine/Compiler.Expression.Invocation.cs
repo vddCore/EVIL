@@ -12,7 +12,8 @@ namespace Ceres.TranslationEngine
 
             if (invocationExpression.Parent is RetStatement
                 && invocationExpression.Callee is SymbolReferenceExpression varRef
-                && varRef.Identifier == Chunk.Name)
+                && varRef.Identifier == Chunk.Name
+                && !invocationExpression.ArgumentList.IsVariadic)
             {
                 Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);
             }
@@ -22,6 +23,12 @@ namespace Ceres.TranslationEngine
                 Chunk.CodeGenerator.Emit(
                     OpCode.INVOKE,
                     invocationExpression.ArgumentList.Arguments.Count
+                );
+                
+                Chunk.CodeGenerator.Emit(
+                    invocationExpression.ArgumentList.IsVariadic
+                    ? (byte)1
+                    : (byte)0
                 );
             }
         }
