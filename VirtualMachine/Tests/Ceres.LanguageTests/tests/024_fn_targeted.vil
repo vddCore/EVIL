@@ -1,38 +1,42 @@
-override(TestClass = {})::__invoke(instance_name) {
-  val Object = {};
-  
-  Object.__name = instance_name;
-  
-  loc fn Object::set_vars(a, b) {
-    self.a = a;
-    self.b = b;
-  }
-  
-  loc fn Object::add(a, b) {
-    self::set_vars(a, b);
-    ret self.result = self.a + self.b;
-  }
-  
-  loc fn Object::sub(a, b) {
-    self::set_vars(a, b);
-    ret self.result = self.a - self.b;
-  }
-  
-  loc fn Object::mul(a, b) {
-    self::set_vars(a, b);
-    ret self.result = self.a * self.b;
-  }
-  
-  loc fn Object::div(a, b) {
-    self::set_vars(a, b);
+val TestClass = {};
+val mt = {
+  __invoke: fn(t, instance_name) {
+    val Object = {};
     
-    if (self.b == 0) {
-      throw error("i could return a NaN here but fuck your input.");
-    } else -> self.result = self.a / self.b;
+    Object.__name = instance_name;
+    
+    loc fn Object::set_vars(a, b) {
+      self.a = a;
+      self.b = b;
+    }
+    
+    loc fn Object::add(a, b) {
+      self::set_vars(a, b);
+      ret self.result = self.a + self.b;
+    }
+    
+    loc fn Object::sub(a, b) {
+      self::set_vars(a, b);
+      ret self.result = self.a - self.b;
+    }
+    
+    loc fn Object::mul(a, b) {
+      self::set_vars(a, b);
+      ret self.result = self.a * self.b;
+    }
+    
+    loc fn Object::div(a, b) {
+      self::set_vars(a, b);
+      
+      if (self.b == 0) {
+        throw error("i could return a NaN here but fuck your input.");
+      } else -> self.result = self.a / self.b;
+    }
+    
+    ret Object;
   }
-  
-  ret Object;
-}
+};
+tbl.set_mt(TestClass, mt);
 
 #[test]
 fn targeted_fn_self_invocations {
@@ -155,15 +159,16 @@ fn targeted_fn_multiscope {
 #[test]
 fn targeted_fn_self {
   val Object = {};
-  
-  override(Object)::__invoke(a1) {
-    self.a1 = a1;
-    
-    loc fn self::say_hi() -> "Hiii " + @self.a1 + "!";
-    
-    ret self;
-  }
-  
+  val mt = {
+    __invoke: fn(t, a1) {
+        t.a1 = a1;
+        loc fn t::say_hi() -> "Hiii " + @t.a1 + "!";
+        ret t;
+    }
+  };
+ 
+  tbl.set_mt(Object, mt);
+
   val result = Object("Aura")::say_hi();
   assert.equal(result, "Hiii Aura!");
 }
