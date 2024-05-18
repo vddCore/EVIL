@@ -2,6 +2,7 @@ using Ceres.ExecutionEngine.Diagnostics;
 using Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Statements;
 
 namespace Ceres.TranslationEngine
 {
@@ -64,7 +65,11 @@ namespace Ceres.TranslationEngine
                     Visit(assignmentExpression.Right);
                 }
 
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
+                if (assignmentExpression.Parent is not ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
+
                 EmitVarSet(symRef.Identifier);
             }
             else if (assignmentExpression.Left is IndexerExpression ie)
@@ -122,7 +127,10 @@ namespace Ceres.TranslationEngine
                     Visit(assignmentExpression.Right);
                 }
 
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
+                if (assignmentExpression.Parent is not ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
 
                 Visit(ie.Indexable);
                 Visit(ie.KeyExpression);
