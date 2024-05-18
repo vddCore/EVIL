@@ -26,7 +26,7 @@ namespace Ceres.Runtime.Modules
 
         [RuntimeModuleFunction("rawset")]
         [EvilDocFunction(
-            "Sets the given Table's key to the provided value, ignoring any script-defined `__set` override.",
+            "Sets the given Table's key to the provided value, ignoring any script-defined `__set` meta-table entries.",
             Returns = "The value that has been set.",
             IsAnyReturn = true
         )]
@@ -45,7 +45,7 @@ namespace Ceres.Runtime.Modules
         
         [RuntimeModuleFunction("rawget")]
         [EvilDocFunction(
-            "Gets the given Table's key to the provided value, ignoring any script-defined `__get` override.",
+            "Gets the given Table's key to the provided value, ignoring any script-defined `__get` meta-table entries.",
             Returns = "The value that resides in the provided Table under the given key.",
             IsAnyReturn = true
         )]
@@ -181,6 +181,37 @@ namespace Ceres.Runtime.Modules
             }
             
             return newTable;
+        }
+
+        [RuntimeModuleFunction("set_mt")]
+        [EvilDocFunction("Sets a meta-table for the provided Table.", ReturnType = DynamicValueType.Nil)]
+        [EvilDocArgument("table", "A Table whose meta-table to modify.", DynamicValueType.Table, CanBeNil = false)]
+        [EvilDocArgument("mt", "A Table whose meta-table to modify.", DynamicValueType.Table, CanBeNil = false)]
+        private static DynamicValue SetMetaTable(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectTableAt(0, out var table)
+                .ExpectTableAt(1, out var mt);
+
+            table.MetaTable = mt;
+            return DynamicValue.Nil;
+        }
+
+        [RuntimeModuleFunction("get_mt")]
+        [EvilDocFunction(
+            "Gets a meta-table for the provided Table.",
+            Returns = "A Table acting as the current meta-table for the provided Table, or Nil if it wasn't set.",
+            ReturnType = DynamicValueType.Table
+        )]
+        [EvilDocArgument(
+            "table",
+            "A table whose meta-table to retrieve.",
+            DynamicValueType.Table,
+            CanBeNil = false
+        )]
+        private static DynamicValue GetMetaTable(Fiber _, params DynamicValue[] args)
+        {
+            args.ExpectTableAt(0, out var table);
+            return table.MetaTable ?? DynamicValue.Nil;
         }
     }
 }

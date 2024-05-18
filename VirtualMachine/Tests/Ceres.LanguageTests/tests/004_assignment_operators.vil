@@ -178,7 +178,7 @@ fn coalescing_assignment_local {
   assert.equal(test_local, 21.37);
 }
 
-#[test;disasm("always")]
+#[test]
 fn coalescing_assignment_table_entry {
   val t = { };
   t.x ??= 21;

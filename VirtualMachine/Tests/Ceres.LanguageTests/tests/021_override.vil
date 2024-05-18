@@ -6,64 +6,64 @@ Box = { new: self::fn(value) {
     get_value: self::fn -> self.__value
   };
   
-  override(table)::__add(a, b) -> Box::new(a::get_value() + b::get_value());
-  override(table)::__sub(a, b) -> Box::new(a::get_value() - b::get_value());
-  override(table)::__mul(a, b) -> Box::new(a::get_value() * b::get_value());
-  override(table)::__div(a, b) -> Box::new(a::get_value() / b::get_value());
-  override(table)::__mod(a, b) -> Box::new(a::get_value() % b::get_value());
-  override(table)::__shl(a, b) -> Box::new(a::get_value() << b::get_value());
-  override(table)::__shr(a, b) -> Box::new(a::get_value() >> b::get_value());
-  override(table)::__aneg(a) -> Box::new(-a::get_value());
-  override(table)::__inc(a) -> Box::new(a::get_value() + 1);
-  override(table)::__dec(a) -> Box::new(a::get_value() - 1);
-  override(table)::__lnot(a) -> Box::new(!!!a::get_value());
-  override(table)::__lor(a, b) -> Box::new(a::get_value() || b::get_value());
-  override(table)::__land(a, b) -> Box::new(a::get_value() && b::get_value());
-  override(table)::__bor(a, b) -> Box::new(a::get_value() | b::get_value());
-  override(table)::__bxor(a, b) -> Box::new(a::get_value() ^ b::get_value());
-  override(table)::__band(a, b) -> Box::new(a::get_value() & b::get_value());
-  override(table)::__bnot(a) -> Box::new(~a::get_value());
-  override(table)::__deq(a, b) -> Box::new(a::get_value() <==> b::get_value());
-  override(table)::__dne(a, b) -> Box::new(a::get_value() <!=> b::get_value());
-  override(table)::__eq(a, b) -> Box::new(a::get_value() == b::get_value());
-  override(table)::__ne(a, b) -> Box::new(a::get_value() != b::get_value());
-  override(table)::__gt(a, b) -> Box::new(a::get_value() > b::get_value());
-  override(table)::__lt(a, b) -> Box::new(a::get_value() < b::get_value());
-  override(table)::__gte(a, b) -> Box::new(a::get_value() >= b::get_value());
-  override(table)::__lte(a, b) -> Box::new(a::get_value() <= b::get_value());
-  override(table)::__len(a) -> "lmao";
-  override(table)::__tonum(a) -> 21.37;
-  override(table)::__tostr(a) -> "tostring result";
-  
-  override(table)::__invoke(a, b, c) {
-    ret @self::get_value() + "-" + @a + "-" + @b + "-" + @c;
-  }
-  
-  override(table)::__set(k, v) {
-    if (k == "jp2") {
-      tbl.rawset(self, "jp2", "gmd");
-      ret 21.37;
-    }
-  
-    ret tbl.rawset(self, k, v);
-  }
-  
-  override(table)::__get(k) {
-    if (k == "jp2gmd") {
-      ret 21.37;
-    }
+  val mt = {
+    __add: fn(a, b) -> Box::new(a::get_value() + b::get_value()),
+    __sub: fn(a, b) -> Box::new(a::get_value() - b::get_value()),
+    __mul: fn(a, b) -> Box::new(a::get_value() * b::get_value()),
+    __div: fn(a, b) -> Box::new(a::get_value() / b::get_value()),
+    __mod: fn(a, b) -> Box::new(a::get_value() % b::get_value()),
+    __shl: fn(a, b) -> Box::new(a::get_value() << b::get_value()),
+    __shr: fn(a, b) -> Box::new(a::get_value() >> b::get_value()),
+    __aneg: fn(a) -> Box::new(-a::get_value()),
+    __inc: fn(a) -> Box::new(a::get_value() + 1),
+    __dec: fn(a) -> Box::new(a::get_value() - 1),
+    __lnot: fn(a) -> Box::new(!!!a::get_value()),
+    __lor: fn(a, b) -> Box::new(a::get_value() || b::get_value()),
+    __land: fn(a, b) -> Box::new(a::get_value() && b::get_value()),
+    __bor: fn(a, b) -> Box::new(a::get_value() | b::get_value()),
+    __bxor: fn(a, b) -> Box::new(a::get_value() ^ b::get_value()),
+    __band: fn(a, b) -> Box::new(a::get_value() & b::get_value()),
+    __bnot: fn(a) -> Box::new(~a::get_value()),
+    __deq: fn(a, b) -> Box::new(a::get_value() <==> b::get_value()),
+    __dne: fn(a, b) -> Box::new(a::get_value() <!=> b::get_value()),
+    __eq: fn(a, b) -> Box::new(a::get_value() == b::get_value()),
+    __ne: fn(a, b) -> Box::new(a::get_value() != b::get_value()),
+    __gt: fn(a, b) -> Box::new(a::get_value() > b::get_value()),
+    __lt: fn(a, b) -> Box::new(a::get_value() < b::get_value()),
+    __gte: fn(a, b) -> Box::new(a::get_value() >= b::get_value()),
+    __lte: fn(a, b) -> Box::new(a::get_value() <= b::get_value()),
+    __len: fn(a) -> "lmao",
+    __tonum: fn(a) -> 21.37,
+    __tostr: fn(a) -> "tostring result",
+    __invoke: fn(t, a, b, c) -> @t::get_value() + "-" + @a + "-" + @b + "-" + @c,
     
-    ret tbl.rawget(self, k);
-  }
-  
-  override(table)::__exists(k) {
-    if (k == "jp2gmd") {
-      ret 11.11;
-    }
+    __set: fn(t, k, v) {
+      if (k == "jp2") {
+        tbl.rawset(t, "jp2", "gmd");
+        ret 21.37;
+      }
     
-    ret tbl.rawget(self, k) !is Nil;
-  }
+      ret tbl.rawset(t, k, v);
+    },
+    
+    __get: fn(t, k) {
+      if (k == "jp2gmd") {
+        ret 21.37;
+      }
+        
+      ret tbl.rawget(t, k);
+    },
+    
+    __exists: fn(t, k) {
+      if (k == "jp2gmd") {
+        ret 11.11;
+      }
+      
+      ret tbl.rawget(t, k) !is Nil;
+    }
+  };
   
+  tbl.set_mt(table, mt);
   ret table;
 }};
 

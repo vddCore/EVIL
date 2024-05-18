@@ -1,9 +1,9 @@
+using Ceres.ExecutionEngine.Collections;
 using Ceres.ExecutionEngine.Concurrency;
 using Ceres.ExecutionEngine.TypeSystem;
 using Ceres.Runtime;
 using Ceres.Runtime.Extensions;
 using Ceres.TranslationEngine;
-using EVIL.CommonTypes.TypeSystem;
 using static Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace Ceres.LanguageTests
@@ -16,11 +16,11 @@ namespace Ceres.LanguageTests
         {
             var c = new Compiler();
             var rootChunk = c.Compile("fn __invk(t, expr) -> t.is_true(expr);");
-            
-            SetOverride(
-                TableOverride.Invoke, 
-                rootChunk.SubChunks[0]
-            );
+
+            MetaTable ??= new Table
+            {
+                { InvokeMetaKey, rootChunk.SubChunks[0] }
+            };
         }
         
         [RuntimeModuleFunction("is_true")]

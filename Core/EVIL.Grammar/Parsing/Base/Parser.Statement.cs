@@ -38,10 +38,6 @@ namespace EVIL.Grammar.Parsing
                     node = BlockStatement();
                     break;
 
-                case TokenType.Override:
-                    node = OverrideStatement();
-                    break;
-
                 case TokenType.Do:
                     node = DoWhileStatement();
                     Match(Token.Semicolon);

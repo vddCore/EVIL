@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Ceres.ExecutionEngine.Collections;
@@ -195,7 +196,7 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Add, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.AddMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -203,7 +204,6 @@ namespace Ceres.ExecutionEngine
                     }
                     
                     PushValue(a.Add(b));
-
                     break;
                 }
 
@@ -214,7 +214,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Subtract, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.SubtractMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -222,7 +222,6 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.Subtract(b));
-
                     break;
                 }
 
@@ -233,7 +232,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Multiply, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.MultiplyMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -241,7 +240,6 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.Multiply(b));
-
                     break;
                 }
 
@@ -252,7 +250,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Divide, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.DivideMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -260,7 +258,6 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.DivideBy(b));
-
                     break;
                 }
 
@@ -271,7 +268,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Modulo, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.ModuloMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -279,7 +276,6 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.Modulo(b));
-
                     break;
                 }
 
@@ -290,7 +286,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.ShiftLeft, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.ShiftLeftMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -298,7 +294,6 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.ShiftLeft(b));
-
                     break;
                 }
 
@@ -309,7 +304,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.ShiftRight, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.ShiftRightMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -317,7 +312,6 @@ namespace Ceres.ExecutionEngine
                     }
 
                     PushValue(a.ShiftRight(b));
-
                     break;
                 }
 
@@ -333,7 +327,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.ArithmeticNegate, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.ArithmeticNegateMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -350,7 +344,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.LogicalNot, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.LogicalNotMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -368,7 +362,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.LogicalOr, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.LogicalOrMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -386,7 +380,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.LogicalAnd, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.LogicalAndMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -404,7 +398,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.BitwiseOr, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.BitwiseOrMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -422,7 +416,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.BitwiseXor, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.BitwiseXorMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -440,7 +434,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.BitwiseAnd, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.BitwiseAndMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -457,7 +451,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.BitwiseNot, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.BitwiseNotMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -475,7 +469,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.DeepEqual, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.DeepEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -493,7 +487,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.DeepNotEqual, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.DeepNotEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -511,7 +505,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Equal, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.EqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -529,7 +523,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.NotEqual, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.NotEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -547,7 +541,7 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.GreaterThan, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.GreaterThanMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -565,7 +559,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.GreaterThanOrEqual, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.GreaterEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -583,7 +577,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.LessThan, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.LessThanMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -601,7 +595,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.LessThanOrEqual, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.LessEqualMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -621,7 +615,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Invoke, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.InvokeMetaKey, out var chunk))
                         {
                             var overrideArgs = new DynamicValue[args.Length + 1];
                             overrideArgs[0] = a;
@@ -920,7 +914,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Length, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.LengthMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -937,7 +931,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.ToString, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.ToStringMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -954,7 +948,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.ToNumber, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.ToNumberMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1016,7 +1010,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (b.Table!.TryGetOverride(TableOverride.Exists, out var chunk))
+                        if (FindMetaFunction(b.Table!, Table.ExistsMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, b, a);
                             break;
@@ -1041,7 +1035,7 @@ namespace Ceres.ExecutionEngine
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Increment, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.IncrementMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1058,7 +1052,7 @@ namespace Ceres.ExecutionEngine
                     
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (a.Table!.TryGetOverride(TableOverride.Decrement, out var chunk))
+                        if (FindMetaFunction(a.Table!, Table.DecrementMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1100,13 +1094,13 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.ELSET:
                 {
-                    b = PopValue();
-                    c = PopValue();
-                    a = PopValue();
+                    b = PopValue(); // Key
+                    c = PopValue(); // Table
+                    a = PopValue(); // Value
                     
                     if (c.Type == DynamicValueType.Table)
                     {
-                        if (c.Table!.TryGetOverride(TableOverride.Set, out var chunk))
+                        if (FindMetaFunction(c.Table!, Table.SetMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, c, b, a);
                             break;
@@ -1119,12 +1113,12 @@ namespace Ceres.ExecutionEngine
 
                 case OpCode.INDEX:
                 {
-                    a = PopValue();
-                    c = PopValue();
+                    a = PopValue(); // Key
+                    c = PopValue(); // Table
                     
                     if (c.Type == DynamicValueType.Table)
                     {
-                        if (c.Table!.TryGetOverride(TableOverride.Get, out var chunk))
+                        if (FindMetaFunction(c.Table!, Table.IndexMetaKey, out var chunk))
                         {
                             InvokeChunk(chunk, c, a);
                             break;
@@ -1242,23 +1236,6 @@ namespace Ceres.ExecutionEngine
                     break;
                 }
 
-                case OpCode.OVERRIDE:
-                {
-                    var tableOverride = (TableOverride)frame.FetchByte();
-                    a = PopValue();
-                    b = PopValue();
-
-                    if (a.Type != DynamicValueType.Table)
-                    {
-                        throw new VirtualMachineException(
-                            $"Attempt to override an operator on a {a.Type} value."
-                        );
-                    }
-
-                    a.Table!.SetOverride(tableOverride, b.Chunk!);
-                    break;
-                }
-
                 case OpCode.ENTER:
                 {
                     var blockId = frame.FetchInt32();
@@ -1300,6 +1277,25 @@ namespace Ceres.ExecutionEngine
                     throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
                 }
             }
+        }
+
+        private bool FindMetaFunction(Table table, string op, [MaybeNullWhen(false)] out Chunk chunk)
+        {
+            if (!table.HasMetaTable)
+            {
+                chunk = null;
+                return false;
+            }
+
+            var value = table.MetaTable![op];
+            if (value.Type != DynamicValueType.Chunk)
+            {
+                chunk = null;
+                return false;
+            }
+
+            chunk = value.Chunk!;
+            return true;
         }
 
         private void InvokeChunk(Chunk chunk, params DynamicValue[] args)
