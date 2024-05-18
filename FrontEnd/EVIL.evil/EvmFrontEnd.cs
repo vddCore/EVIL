@@ -31,7 +31,12 @@ namespace EVIL.evil
             { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
             { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
             { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null },
-            { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null }
+            { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null },
+            { "c|compile-only=", "don't run, compile only requires a file name", (o) =>
+            {
+                _compileOnly = !string.IsNullOrEmpty(o);
+                _outputFileName = o;
+            }}
         };
 
         private static bool _displayHelpAndQuit;
@@ -39,6 +44,8 @@ namespace EVIL.evil
         private static bool _generateModuleDocsAndQuit;
         private static bool _disassembleCompiledScript;
         private static bool _optimizeCode;
+        private static bool _compileOnly;
+        private static string _outputFileName = "a.evx";
         
         public async Task Run(string[] args)
         {
@@ -142,6 +149,28 @@ namespace EVIL.evil
                 Console.WriteLine(_compiler.Log.ToString());
             }
 
+            if (_compileOnly)
+            {
+                try
+                {
+                    using var fs = new FileStream(
+                        Path.Combine(
+                            Environment.CurrentDirectory,
+                            _outputFileName
+                        ),
+                        FileMode.Create
+                    );
+
+                    rootChunk.Serialize(fs);
+                }
+                catch (Exception e)
+                {
+                    Terminate($"Fatal: unable to write executable to disk - {e.Message}");
+                }
+
+                return;
+            }
+            
             RegisterAllModules();
             SetStandardGlobals(scriptPath);
 
