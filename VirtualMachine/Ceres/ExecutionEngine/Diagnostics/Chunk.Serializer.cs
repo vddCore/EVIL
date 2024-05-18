@@ -25,6 +25,7 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     (byte)'E',
                     (byte)'V',
                     (byte)'C',
+                    (byte)0x06,
                     FormatVersion
                 });
 
