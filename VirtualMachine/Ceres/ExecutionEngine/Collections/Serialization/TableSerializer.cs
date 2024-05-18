@@ -31,12 +31,11 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                     key.Serialize(stream);
                     value.Serialize(stream);
                 }
-                
-                bw.Write(table.Overrides.Count);
-                foreach (var (tableOverride, chunk) in table.Overrides)
+
+                bw.Write(table.HasMetaTable);
+                if (table.HasMetaTable)
                 {
-                    bw.Write((byte)tableOverride);
-                    chunk.Serialize(stream);
+                    table.MetaTable!.Serialize(stream);
                 }
             }
         }
@@ -69,14 +68,11 @@ namespace Ceres.ExecutionEngine.Collections.Serialization
                         table[key] = value;
                     }
 
-                    var overrideCount = br.ReadInt32();
-
-                    for (var i = 0; i < overrideCount; i++)
+                    var hasMetaTable = br.ReadBoolean();
+                    if (hasMetaTable)
                     {
-                        var tableOverride = (TableOverride)br.ReadByte();
-                        var chunk = Chunk.Deserialize(stream, out _, out _);
-                        
-                        table.SetOverride(tableOverride, chunk);
+                        var metaTable = Table.Deserialize(stream);
+                        table.MetaTable = metaTable;
                     }
 
                     return table;

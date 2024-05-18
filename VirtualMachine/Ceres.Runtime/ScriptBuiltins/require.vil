@@ -3,7 +3,7 @@ val file_exists = fs.file.exists;
 val dir_exists = fs.dir.exists;
 val dname = fs.path.get_dname;
 val fname = fs.path.get_fname;
-val strace = core.strace;
+val strace = debug.strace;
 val path_cmb = fs.path.cmb;
 val evil_compile = evil.compile;
 

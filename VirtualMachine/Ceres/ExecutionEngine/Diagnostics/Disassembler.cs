@@ -103,17 +103,6 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     output.Write($"{indent}    {ip:X8}: ");
                     switch (opCode)
                     {
-                        case OpCode.OVERRIDE:
-                        {
-                            var tableOverride = reader.ReadByte();
-                            output.Write(opCode);
-                            output.Write(" ");
-                            output.Write(tableOverride);
-                            output.Write($"; {(TableOverride)tableOverride}");
-                            output.WriteLine();
-                            break;
-                        }
-
                         case OpCode.INVOKE:
                         case OpCode.YIELD:
                         case OpCode.NEXT:

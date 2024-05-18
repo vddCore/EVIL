@@ -61,6 +61,7 @@ namespace Ceres.Runtime
             modules.Add(RegisterModule<ArrayModule>(out _));
             modules.Add(RegisterModule<ConvertModule>(out _));
             modules.Add(RegisterModule<CoreModule>(out _));
+            modules.Add(RegisterModule<DebugModule>(out _));
             modules.Add(RegisterModule<EvilModule>(out _));
             modules.Add(RegisterModule<FsModule>(out _));
             modules.Add(RegisterModule<IoModule>(out _));
