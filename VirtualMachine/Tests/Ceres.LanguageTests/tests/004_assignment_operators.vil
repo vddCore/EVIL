@@ -178,7 +178,7 @@ fn coalescing_assignment_local {
   assert.equal(test_local, 21.37);
 }
 
-#[test]
+#[test;disasm("always")]
 fn coalescing_assignment_table_entry {
   val t = { };
   t.x ??= 21;
@@ -215,4 +215,13 @@ fn chained_coalescing_assignment_table_entry_when_first_is_not_nil {
   assert.equal(t.entry, a);
   assert.equal(b, nil);
   assert.equal(c, nil); 
+}
+
+#[test]
+fn assignment_expression_statement {
+  rw val a = nil;
+  a = 0;
+  
+  assert(a is Number);
+  assert.equal(a, 0);
 }
