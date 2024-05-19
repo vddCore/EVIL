@@ -62,11 +62,11 @@ loc fn try_compile_source(full_path) {
   val result = evil_compile(source, full_path);
 
   if (result is Nil) {
-    throw { msg: "Failed to compile the file '" + full_path + ": evil.compile return Nil." };
+    throw error { msg: "Failed to compile the file '" + full_path + ": evil.compile returned Nil." };
   }
   
   if (!result.success) {
-    throw { msg: build_error_message(full_path, result.log) };
+    throw error { msg: build_error_message(full_path, result.log) };
   }
   
   ret result.chunk;
@@ -122,5 +122,5 @@ fn require(path) {
     msg += "  " + v + "\n";
   }
   
-  throw { msg: msg };
+  throw error { msg: msg };
 }

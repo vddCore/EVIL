@@ -108,7 +108,9 @@ namespace Ceres.ExecutionEngine.Diagnostics
                         case OpCode.NEXT:
                             output.Write(opCode);
                             output.Write(" ");
-                            output.WriteLine(reader.ReadInt32());
+                            output.Write(reader.ReadInt32());
+                            output.Write(" ");
+                            output.WriteLine(reader.ReadByte() == 1 ? "VARARGS" : "");
                             break;
 
                         case OpCode.GETCLOSURE:
