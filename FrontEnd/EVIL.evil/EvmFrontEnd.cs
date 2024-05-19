@@ -380,6 +380,10 @@ namespace EVIL.evil
                         sb.Append($" ({msg.String})");
                     }
                 }
+                else if (uuee.EvilExceptionObject.Type != DynamicValueType.Nil)
+                {
+                    sb.Append($" ({uuee.EvilExceptionObject.ConvertToString().String!})");
+                }
             }
             
             sb.AppendLine();
