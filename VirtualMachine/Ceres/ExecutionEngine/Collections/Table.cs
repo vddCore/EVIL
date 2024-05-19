@@ -44,7 +44,7 @@ namespace Ceres.ExecutionEngine.Collections
         public const string IncrementMetaKey = "__inc";
         public const string DecrementMetaKey = "__dec";
         public const string SetMetaKey = "__set";
-        public const string IndexMetaKey = "__get";
+        public const string GetMetaKey = "__get";
         
         private ConcurrentDictionary<DynamicValue, DynamicValue> _values = new();
 
