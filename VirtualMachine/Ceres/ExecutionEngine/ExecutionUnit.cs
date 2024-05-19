@@ -1306,10 +1306,26 @@ namespace Ceres.ExecutionEngine
                     
                     if (c.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(c.Table!, Table.IndexMetaKey, out var chunk))
+                        if (!c.Table!.Contains(a))
                         {
-                            InvokeChunk(chunk, c, a);
-                            break;
+                            var mt = c.Table!.MetaTable;
+                            
+                            if (mt != null)
+                            {
+                                var value = mt[Table.GetMetaKey];
+
+                                if (value.Type == DynamicValueType.Chunk)
+                                {
+                                    InvokeChunk(value.Chunk!, c, a);
+                                    break;
+                                }
+
+                                if (value.Type == DynamicValueType.Table)
+                                {
+                                    PushValue(value.Table!.Index(a));
+                                    break;
+                                }
+                            }
                         }
                     }
 
