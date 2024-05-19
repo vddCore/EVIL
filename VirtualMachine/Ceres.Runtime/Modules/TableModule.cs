@@ -201,7 +201,7 @@ namespace Ceres.Runtime.Modules
             }
             
             table.MetaTable = mt;
-            return DynamicValue.Nil;
+            return table;
         }
 
         [RuntimeModuleFunction("get_mt")]
