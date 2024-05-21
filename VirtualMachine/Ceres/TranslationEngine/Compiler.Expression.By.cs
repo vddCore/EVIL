@@ -33,7 +33,8 @@ namespace Ceres.TranslationEngine
 
                 Chunk.CodeGenerator.Emit(arms[i].DeepEquality ? OpCode.DEQ : OpCode.CEQ);
                 Chunk.CodeGenerator.Emit(OpCode.FJMP, labels[i]);
-
+                Chunk.CodeGenerator.Emit(OpCode.POP);
+                
                 Visit(arms[i].ValueArm);
                 
                 if (arms[i].ValueArm is Expression)
