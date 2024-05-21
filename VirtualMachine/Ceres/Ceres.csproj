@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>11.0</LangVersion>
     
-    <Version>7.3.0</Version>
+    <Version>7.4.0</Version>
     <AssemblyName>Ceres</AssemblyName>
     <AssemblyTitle>Ceres</AssemblyTitle>
     
@@ -171,6 +171,9 @@
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Statement.FnTargeted.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.FnIndexed.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
   </ItemGroup>

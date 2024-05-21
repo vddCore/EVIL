@@ -35,6 +35,7 @@ namespace EVIL.Grammar.Traversal
                 { typeof(UnaryExpression), (n) => Visit((UnaryExpression)n) },
                 { typeof(SymbolReferenceExpression), (n) => Visit((SymbolReferenceExpression)n) },
                 { typeof(ValStatement), (n) => Visit((ValStatement)n) },
+                { typeof(FnIndexedStatement), (n) => Visit((FnIndexedStatement)n) },
                 { typeof(FnStatement), (n) => Visit((FnStatement)n) },
                 { typeof(FnTargetedStatement), (n) => Visit((FnTargetedStatement)n) },
                 { typeof(InvocationExpression), (n) => Visit((InvocationExpression)n) },
@@ -101,6 +102,7 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(UnaryExpression unaryExpression);
         public abstract void Visit(SymbolReferenceExpression symbolReferenceExpression);
         public abstract void Visit(ValStatement valStatement);
+        public abstract void Visit(FnIndexedStatement fnIndexedStatement);
         public abstract void Visit(FnStatement fnStatement);
         public abstract void Visit(FnTargetedStatement fnTargetedStatement);
         public abstract void Visit(InvocationExpression invocationExpression);
