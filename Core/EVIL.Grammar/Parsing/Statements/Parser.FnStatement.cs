@@ -47,7 +47,29 @@ namespace EVIL.Grammar.Parsing
 
             if (CurrentToken.Type == TokenType.Identifier)
             {
-                primaryTarget = Identifier();
+                if (_lexer.PeekToken(1).Type == TokenType.Dot)
+                {
+                    if (!isLocalDefinition)
+                    {
+                        throw new ParserException(
+                            "`loc' specifier is required for indexed function definitions.",
+                            (line, col)
+                        );
+                    }
+                    
+                    Expression expression = SymbolReferenceExpression();
+                    
+                    while (CurrentToken.Type == TokenType.Dot)
+                    {
+                        expression = IndexerExpression(expression);
+                    }
+
+                    primaryTarget = expression;
+                }
+                else
+                {
+                    primaryTarget = Identifier();
+                }
             }
             else if (CurrentToken.Type == TokenType.Self)
             {
@@ -62,7 +84,7 @@ namespace EVIL.Grammar.Parsing
                 if (!isLocalDefinition)
                 {
                     throw new ParserException(
-                        "`loc' specifier is required for targeted definitions.",
+                        "`loc' specifier is required for targeted function definitions.",
                         (line, col)
                     );
                 }
@@ -96,13 +118,32 @@ namespace EVIL.Grammar.Parsing
 
             if (secondaryIdentifier == null)
             {
-                return new FnStatement(
-                    (IdentifierNode)primaryTarget!,
-                    parameterList,
-                    statement,
-                    attributes,
-                    isLocalDefinition
-                ) { Line = line, Column = col };
+                if (primaryTarget is IdentifierNode identifierNode)
+                {
+                    return new FnStatement(
+                        identifierNode,
+                        parameterList,
+                        statement,
+                        attributes,
+                        isLocalDefinition
+                    ) { Line = line, Column = col };
+                }
+                else if (primaryTarget is IndexerExpression indexerExpression)
+                {
+                    return new FnIndexedStatement(
+                        indexerExpression,
+                        parameterList,
+                        statement,
+                        attributes
+                    ) { Line = line, Column = col };
+                }
+                else
+                {
+                    throw new ParserException(
+                        $"Found an unsupported primary target node {primaryTarget!.GetType().FullName}",
+                        (line, col)
+                    );
+                }
             }
             else
             {

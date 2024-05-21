@@ -1,0 +1,19 @@
+﻿#[test]
+fn fn_indexed_simple() {
+  val t = { };
+  
+  loc fn t.function(a, b) -> a + b;
+  
+  assert.is_of_type(t.function, Function);
+  assert.equal(t.function(2, 3), 5);
+}
+
+#[test]
+fn fn_indexed_nested() {
+  val t = { q: { } };
+  
+  loc fn t.q.function(a, b) -> a - b;
+  
+  assert.is_of_type(t.q.function, Function);
+  assert.equal(t.q.function(5, 3), 2);
+}
