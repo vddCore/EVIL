@@ -51,8 +51,7 @@ namespace EVIL.Grammar.Parsing
             }
             else if (token.Type == TokenType.Self)
             {
-                var (line, col) = Match(Token.Self);
-                return new SelfExpression { Line = line, Column = col };
+                return SelfExpression();
             }
 
             return ConstantExpression();

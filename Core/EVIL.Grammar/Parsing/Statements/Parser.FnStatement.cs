@@ -51,8 +51,7 @@ namespace EVIL.Grammar.Parsing
             }
             else if (CurrentToken.Type == TokenType.Self)
             {
-                var (l, c) = Match(Token.Self);
-                primaryTarget = new SelfExpression { Line = l, Column = c };
+                primaryTarget = SelfExpression();
                 isSelfTargeting = true;
             }
 
