@@ -103,9 +103,14 @@ namespace Ceres.ExecutionEngine.Diagnostics
                     output.Write($"{indent}    {ip:X8}: ");
                     switch (opCode)
                     {
-                        case OpCode.INVOKE:
                         case OpCode.YIELD:
                         case OpCode.NEXT:
+                            output.Write(opCode);
+                            output.Write(" ");
+                            output.WriteLine(reader.ReadInt32());
+                            break;
+                        
+                        case OpCode.INVOKE:
                             output.Write(opCode);
                             output.Write(" ");
                             output.Write(reader.ReadInt32());
