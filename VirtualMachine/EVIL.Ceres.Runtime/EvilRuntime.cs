@@ -30,7 +30,7 @@ namespace EVIL.Ceres.Runtime
             var scriptNames = Assembly
                 .GetExecutingAssembly()
                 .GetManifestResourceNames()
-                .Where(x => x.StartsWith("EVIL.EVIL.Ceres.Runtime.ScriptBuiltins"));
+                .Where(x => x.StartsWith("EVIL.Ceres.Runtime.ScriptBuiltins"));
 
             foreach (var scriptName in scriptNames)
             {
