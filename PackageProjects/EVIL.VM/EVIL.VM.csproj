@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Pack">
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-
-    <GenerateDependencyFile>false</GenerateDependencyFile>
-    <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
-    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
   
