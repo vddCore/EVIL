@@ -2,10 +2,9 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <LangVersion>11.0</LangVersion>
         
         <Version>4.0.0</Version>
-        <AssemblyName>EVIL.Lexical</AssemblyName>
-        <AssemblyTitle>EVIL.Lexical</AssemblyTitle>
+        
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 </Project>

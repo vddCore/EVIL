@@ -1,16 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <LangVersion>11.0</LangVersion>
-        
-        <Version>4.3.0</Version>
-        <AssemblyName>EVIL.Grammar</AssemblyName>
-        <AssemblyTitle>EVIL.Grammar</AssemblyTitle>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
 
-    <ItemGroup>
-        <ProjectReference Include="..\EVIL.CommonTypes\EVIL.CommonTypes.csproj" />
-        <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj" />
-    </ItemGroup>
+    <Version>4.3.0</Version>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.CommonTypes\EVIL.CommonTypes.csproj"/>
+    <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj"/>
+  </ItemGroup>
 </Project>

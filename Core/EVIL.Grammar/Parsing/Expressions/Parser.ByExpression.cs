@@ -8,7 +8,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        public Expression ByExpression()
+        private Expression ByExpression()
         {
             if (CurrentToken.Type == TokenType.By)
             {

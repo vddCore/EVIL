@@ -2,17 +2,15 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <LangVersion>11.0</LangVersion>
-
-    <Version>7.4.1</Version>
-    <AssemblyTitle>Ceres</AssemblyTitle>
+    
+    <NoWarn>SYSLIB0011;CA2255</NoWarn>
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-
-    <NoWarn>SYSLIB0011;CA2255</NoWarn>
-
-    <PackageId>EVIL.Ceres</PackageId>
+    
+    <Version>7.4.1</Version>
+    
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

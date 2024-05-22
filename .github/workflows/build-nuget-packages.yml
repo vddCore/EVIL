@@ -10,7 +10,6 @@ jobs:
   build:
     strategy:
       matrix:
-        runtime-identifier: [win-x64, linux-x64]
         configuration: [Debug, Release]
 
     runs-on: ubuntu-latest
@@ -39,23 +38,14 @@ jobs:
     - name: Run language tests
       working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net7.0
       run: ./Ceres.LanguageTests tests --fail-on-compiler-errors --fail-on-test-errors
+      
+    - name: Create NuGet packages
+      run: dotnet pack -o evil-nuget-latest
 
-    - name: Publish to directory
-      run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
-      env:
-        Configuration: ${{ matrix.configuration }}
-        RuntimeIdentifier: ${{ matrix.runtime-identifier }}
-        
-    - name: Fetch front-end version
-      id: package_version
-      uses: MWin10/get-csproj-version-fork@v1.5.0
-      with:
-        file: FrontEnd/EVIL.evil/EVIL.evil.csproj
-
-    - name: Pack artifact
+    - name: Upload built artifact
       uses: actions/upload-artifact@v3.1.3
       with:
-        name: evil-${{ steps.package_version.outputs.version }}_${{ matrix.runtime-identifier }}-${{ matrix.configuration }}
-        path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net7.0/${{ matrix.runtime-identifier }}/publish
+        name: evil-nuget_${{ matrix.configuration }}-latest
+        path: evil-nuget-latest
         if-no-files-found: error
         retention-days: 90

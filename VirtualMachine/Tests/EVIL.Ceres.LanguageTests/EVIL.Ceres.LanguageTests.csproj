@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Nullable>enable</Nullable>
     <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

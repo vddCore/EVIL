@@ -17,6 +17,7 @@
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)artwork\evil_logo.png" />
     <Content Include="$(MSBuildThisFileDirectory)artwork\evil_logo.svg" />
+    <Content Include="$(MSBuildThisFileDirectory)docs\nuget.readme.md" />
     <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_katepart.xml" />
     <Content Include="$(MSBuildThisFileDirectory)highlighters\evil_npp.xml" />
   </ItemGroup>

@@ -2,14 +2,12 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <LangVersion>11.0</LangVersion>
+    
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <Version>0.17.2</Version>
-    <AssemblyTitle>Ceres.Runtime</AssemblyTitle>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PackageId>EVIL.Ceres.Runtime</PackageId>
     
-    
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,11 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ScriptBuiltins\dofile.vil"/>
-    <EmbeddedResource Include="ScriptBuiltins\dofile.vil">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <None Remove="ScriptBuiltins\require.vil"/>
-    <EmbeddedResource Include="ScriptBuiltins\require.vil"/>
+    <EmbeddedResource Include="ScriptBuiltins\dofile.vil" />
+    <EmbeddedResource Include="ScriptBuiltins\require.vil" />
   </ItemGroup>
 </Project>
