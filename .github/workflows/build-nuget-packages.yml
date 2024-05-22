@@ -1,4 +1,4 @@
-name: Build EVIL front-end with runtime
+name: Build NuGet packages
 
 on:
   push:
