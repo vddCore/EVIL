@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>11.0</LangVersion>
+
+    <Version>0.17.2</Version>
+    <AssemblyTitle>Ceres.Runtime</AssemblyTitle>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageId>EVIL.Ceres.Runtime</PackageId>
+    
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.Ceres\EVIL.Ceres.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ScriptBuiltins\dofile.vil"/>
+    <EmbeddedResource Include="ScriptBuiltins\dofile.vil">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <None Remove="ScriptBuiltins\require.vil"/>
+    <EmbeddedResource Include="ScriptBuiltins\require.vil"/>
+  </ItemGroup>
+</Project>
