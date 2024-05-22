@@ -40,7 +40,11 @@ jobs:
       run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
       
     - name: Create NuGet packages
-      run: dotnet pack -o evil-nuget-latest
+      run: |
+        dotnet pack
+        mkdir evil-nuget-latest
+        mv PackageProjects/EVIL.Parser/bin/${{ matrix.configuration }}/*.nupkg evil-nuget-latest/
+        mv PackageProjects/EVIL.VM/bin/${{ matrix.configuration }}/*.nupkg evil-nuget-latest/
 
     - name: Upload built artifact
       uses: actions/upload-artifact@v3.1.3
