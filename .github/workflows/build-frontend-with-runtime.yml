@@ -38,7 +38,7 @@ jobs:
 
     - name: Run language tests
       working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net7.0
-      run: ./Ceres.LanguageTests tests --fail-on-compiler-errors --fail-on-test-errors
+      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
 
     - name: Publish to directory
       run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true

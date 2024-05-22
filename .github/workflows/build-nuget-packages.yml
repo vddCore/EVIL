@@ -37,7 +37,7 @@ jobs:
 
     - name: Run language tests
       working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net7.0
-      run: ./Ceres.LanguageTests tests --fail-on-compiler-errors --fail-on-test-errors
+      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
       
     - name: Create NuGet packages
       run: dotnet pack -o evil-nuget-latest
