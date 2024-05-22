@@ -12,13 +12,13 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VirtualMachine", "VirtualMachine", "{F5F839A9-37E0-4339-BF6B-F21ACCAEB87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres", "VirtualMachine\Ceres\Ceres.csproj", "{6E67171C-B750-4029-9D33-58A324841DE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres", "VirtualMachine\EVIL.Ceres\EVIL.Ceres.csproj", "{6E67171C-B750-4029-9D33-58A324841DE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.Runtime", "VirtualMachine\Ceres.Runtime\Ceres.Runtime.csproj", "{8A7DA38F-2552-4E3E-ABBB-D68E0517D5F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres.Runtime", "VirtualMachine\EVIL.Ceres.Runtime\EVIL.Ceres.Runtime.csproj", "{8A7DA38F-2552-4E3E-ABBB-D68E0517D5F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.LanguageTests", "VirtualMachine\Tests\Ceres.LanguageTests\Ceres.LanguageTests.csproj", "{411B5E5D-E243-4C80-8E27-24E0D2554248}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres.LanguageTests", "VirtualMachine\Tests\EVIL.Ceres.LanguageTests\EVIL.Ceres.LanguageTests.csproj", "{411B5E5D-E243-4C80-8E27-24E0D2554248}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.RuntimeTests", "VirtualMachine\Tests\Ceres.RuntimeTests\Ceres.RuntimeTests.csproj", "{38985664-66DE-4DF7-83E6-708F68AF3D4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres.RuntimeTests", "VirtualMachine\Tests\EVIL.Ceres.RuntimeTests\EVIL.Ceres.RuntimeTests.csproj", "{38985664-66DE-4DF7-83E6-708F68AF3D4F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{F12F3290-6350-44AC-9A28-FAFCB371BAC0}"
 EndProject
@@ -45,7 +45,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.evil", "FrontEnd\EVIL.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.evc", "FrontEnd\EVIL.evc\EVIL.evc.csproj", "{60CD39FE-8851-45EF-BA22-4ADE009868EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ceres.SerializationTests", "VirtualMachine\Tests\Ceres.SerializationTests\Ceres.SerializationTests.csproj", "{F49A623B-4ACF-4BB6-A98F-72D7359465A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres.SerializationTests", "VirtualMachine\Tests\EVIL.Ceres.SerializationTests\EVIL.Ceres.SerializationTests.csproj", "{F49A623B-4ACF-4BB6-A98F-72D7359465A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

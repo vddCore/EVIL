@@ -1,7 +1,7 @@
 using System;
 using System.Text;
-using Ceres.ExecutionEngine;
-using Ceres.Runtime;
+using EVIL.Ceres.ExecutionEngine;
+using EVIL.Ceres.Runtime;
 using EVIL.Grammar.Parsing;
 using EVIL.Lexical;
 
@@ -15,12 +15,12 @@ namespace EVIL.evil
             sb.AppendLine("Integrated EVIL front-end environment.");
             sb.AppendLine("This project is distributed under GPLv3 license.");
             sb.AppendLine();
-            sb.AppendLine("--[Component versions]--------");
-            sb.AppendLine($"  EVM front-end: v{GetAssemblyVersionFromType<EvmFrontEnd>()}");
-            sb.AppendLine($"     EVIL lexer: v{GetAssemblyVersionFromType<Lexer>()}");
-            sb.AppendLine($"    EVIL parser: v{GetAssemblyVersionFromType<Parser>()}");
-            sb.AppendLine($"       Ceres VM: v{GetAssemblyVersionFromType<CeresVM>()}");
-            sb.AppendLine($"  Ceres.Runtime: v{GetAssemblyVersionFromType<RuntimeModule>()}");
+            sb.AppendLine("--[component versions]--------");
+            sb.AppendLine($"     EVM front-end: v{GetAssemblyVersionFromType<EvmFrontEnd>()}");
+            sb.AppendLine($"        EVIL lexer: v{GetAssemblyVersionFromType<Lexer>()}");
+            sb.AppendLine($"       EVIL parser: v{GetAssemblyVersionFromType<Parser>()}");
+            sb.AppendLine($"     EVIL.Ceres VM: v{GetAssemblyVersionFromType<CeresVM>()}");
+            sb.AppendLine($"EVIL.Ceres.Runtime: v{GetAssemblyVersionFromType<RuntimeModule>()}");
 
             return sb.ToString();
         }

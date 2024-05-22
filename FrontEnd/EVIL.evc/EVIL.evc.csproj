@@ -8,6 +8,6 @@
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\VirtualMachine\Ceres\Ceres.csproj" />
+    <ProjectReference Include="..\..\VirtualMachine\EVIL.Ceres\EVIL.Ceres.csproj" />
   </ItemGroup>
 </Project>

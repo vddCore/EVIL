@@ -4,17 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Ceres.ExecutionEngine;
-using Ceres.ExecutionEngine.Concurrency;
-using Ceres.ExecutionEngine.Diagnostics;
-using Ceres.ExecutionEngine.TypeSystem;
-using Ceres.Runtime;
-using Ceres.TranslationEngine;
+using EVIL.Ceres.ExecutionEngine;
+using EVIL.Ceres.ExecutionEngine.Concurrency;
+using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.TypeSystem;
+using EVIL.Ceres.Runtime;
+using EVIL.Ceres.TranslationEngine;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar;
 using EVIL.Lexical;
 using Mono.Options;
-using EvilArray = Ceres.ExecutionEngine.Collections.Array;
+using EvilArray = EVIL.Ceres.ExecutionEngine.Collections.Array;
 
 namespace EVIL.evil
 {
