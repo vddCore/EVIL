@@ -45,11 +45,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.evil", "FrontEnd\EVIL.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres.SerializationTests", "VirtualMachine\Tests\EVIL.Ceres.SerializationTests\EVIL.Ceres.SerializationTests.csproj", "{F49A623B-4ACF-4BB6-A98F-72D7359465A1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{2A6F0687-56F1-4451-8745-1F4EB1470C89}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PackageProjects", "PackageProjects", "{2A6F0687-56F1-4451-8745-1F4EB1470C89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Parser", "Packages\EVIL.Parser\EVIL.Parser.csproj", "{3932F10C-210E-402A-99CC-C5F4132E46C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Parser", "PackageProjects\EVIL.Parser\EVIL.Parser.csproj", "{3932F10C-210E-402A-99CC-C5F4132E46C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.VM", "Packages\EVIL.VM\EVIL.VM.csproj", "{021189CD-8631-4452-BC45-57566A76BC3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.VM", "PackageProjects\EVIL.VM\EVIL.VM.csproj", "{021189CD-8631-4452-BC45-57566A76BC3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

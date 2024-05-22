@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Pack">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+    <IncludeBuildOutput>false</IncludeBuildOutput>    
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>4.0.0</Version>
+    
+    <Authors>Natalia Cichoń</Authors>
+    <Description>
+      A package containing EVIL parser only. Useful for constructing analyzers, transpilers, etc.
+      If you need a complete embeddable scripting solution in your project, you should use EVIL.VM instead.
+    </Description>
+    
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageIcon>evil_logo.png</PackageIcon>
+    
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/vddCore/EVIL</RepositoryUrl>
+    
+    <PackageReadmeFile>nuget.readme.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\EVIL.CommonTypes\EVIL.CommonTypes.csproj" 
+                      PrivateAssets="all" />    
+    
+    <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj"
+                      PrivateAssets="all" />
+    
+    <ProjectReference Include="..\..\Core\EVIL.Lexical\EVIL.Lexical.csproj"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\Shared\artwork\evil_logo.png" PackagePath="\" />
+    <Content Include="..\..\Shared\docs\nuget.readme.md" PackagePath="\" />
+
+    <Content Include="$(OutDir)EVIL.CommonTypes.dll" PackagePath="lib\$(TargetFramework)\EVIL.CommonTypes.dll" />
+    <Content Include="$(OutDir)EVIL.Grammar.dll" PackagePath="lib\$(TargetFramework)\EVIL.Grammar.dll" />
+    <Content Include="$(OutDir)EVIL.Lexical.dll" PackagePath="lib\$(TargetFramework)\EVIL.Lexical.dll" />
+  </ItemGroup>
+</Project>

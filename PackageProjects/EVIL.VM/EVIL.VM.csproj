@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Pack">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>7.0.0</Version>
+    
+    <Authors>Natalia Cichoń</Authors>
+    <Description>
+      Complete embeddable EVIL scripting suite including parser, compiler, virtual machine and the runtime library system.
+    </Description>
+
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageIcon>evil_logo.png</PackageIcon>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/vddCore/EVIL</RepositoryUrl>
+    
+    <PackageReadmeFile>nuget.readme.md</PackageReadmeFile>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.Parser\EVIL.Parser.csproj"/>
+
+    <ProjectReference Include="..\..\VirtualMachine\EVIL.Ceres.Runtime\EVIL.Ceres.Runtime.csproj"
+                      PrivateAssets="all" />
+    
+    <ProjectReference Include="..\..\VirtualMachine\EVIL.Ceres\EVIL.Ceres.csproj"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\Shared\artwork\evil_logo.png" PackagePath="\" />
+    <Content Include="..\..\Shared\docs\nuget.readme.md" PackagePath="\" />
+    
+    <Content Include="$(OutDir)EVIL.Ceres.dll" PackagePath="lib\$(TargetFramework)\EVIL.Ceres.dll"/>
+    <Content Include="$(OutDir)EVIL.Ceres.Runtime.dll" PackagePath="lib\$(TargetFramework)\EVIL.Ceres.Runtime.dll"/>
+  </ItemGroup>
+</Project>
