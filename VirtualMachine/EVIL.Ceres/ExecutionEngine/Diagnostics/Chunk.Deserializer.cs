@@ -111,6 +111,11 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
                         chunk.MarkSelfAware();
                     }
 
+                    if (flags.HasFlag(ChunkFlags.MayThrow))
+                    {
+                        chunk.MarkThrowing();
+                    }
+
                     chunk.IsSpecialName = flags.HasFlag(ChunkFlags.IsSpecialName);
 
                     if (flags.HasFlag(ChunkFlags.HasParameters))

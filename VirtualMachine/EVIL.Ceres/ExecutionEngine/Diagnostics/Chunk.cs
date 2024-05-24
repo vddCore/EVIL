@@ -38,6 +38,7 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
         public int SubChunkCount => SubChunks.Count;
         public bool IsSelfAware { get; private set; }
         public bool IsSpecialName { get; private set; }
+        public bool MayThrow { get; private set; }
 
         public IReadOnlyList<int> Labels => _labels;
         public IReadOnlyList<ChunkAttribute> Attributes => _attributes;
@@ -112,6 +113,9 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
 
                 if (ProtectedBlocks.Count > 0)
                     ret |= ChunkFlags.HasProtectedBlocks;
+
+                if (MayThrow)
+                    ret |= ChunkFlags.MayThrow;
                 
                 return ret;
             }
@@ -182,6 +186,9 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
                 false
             );
         }
+
+        public void MarkThrowing()
+            => MayThrow = true;
 
         public void MarkSelfAware()
             => IsSelfAware = true;

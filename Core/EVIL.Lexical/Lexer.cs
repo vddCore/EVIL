@@ -361,10 +361,71 @@ namespace EVIL.Lexical
         {
             var number = string.Empty;
 
-            while (char.IsDigit(State.Character) || State.Character == '.')
+            if (char.IsDigit(State.Character) || State.Character == '.')
             {
-                number += State.Character;
-                Advance();
+                var foundDecimalSeparator = false;
+                var foundExponent = false;
+                var foundExponentSign = false;
+                
+                while (char.IsDigit(State.Character) || State.Character == '.' 
+                                                     || State.Character == 'e' 
+                                                     || State.Character == 'E' 
+                                                     || State.Character == '-' 
+                                                     || State.Character == '+')
+                {
+                    if (State.Character == '.')
+                    {
+                        if (foundDecimalSeparator)
+                        {
+                            throw new LexerException(
+                                $"Character `{State.Character}' was unexpected at this time.",
+                                State.Line,
+                                State.Column
+                            );
+                        }
+                        
+                        foundDecimalSeparator = true;
+                    }
+
+                    if (State.Character == 'e' || State.Character == 'E')
+                    {
+                        if (foundExponent)
+                        {
+                            throw new LexerException(
+                                $"Character `{State.Character}' was unexpected at this time.",
+                                State.Line,
+                                State.Column
+                            );
+                        }
+
+                        foundExponent = true;
+                    }
+                    
+                    if (State.Character == '+' || State.Character == '-')
+                    {
+                        if (!foundExponent || foundExponentSign)
+                        {
+                            throw new LexerException(
+                                $"Character `{State.Character}' was unexpected at this time.",
+                                State.Line,
+                                State.Column
+                            );
+                        }
+
+                        foundExponent = true;
+                    }
+                    
+                    number += State.Character;
+                    Advance();
+                }
+            }
+            else
+            {
+                throw new LexerException(
+                    $"Character `{State.Character}' was unexpected at this time.",
+                    State.Line,
+                    State.Column
+                );
             }
 
             try
@@ -373,7 +434,7 @@ namespace EVIL.Lexical
             }
             catch (FormatException)
             {
-                throw new LexerException("Invalid number format.", State.Line, State.Column);
+                throw new LexerException($"Malformed numeric constant `{number}'.", State.Line, State.Column);
             }
         }
 

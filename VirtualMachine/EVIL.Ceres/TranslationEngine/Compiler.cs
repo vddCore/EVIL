@@ -84,8 +84,8 @@ namespace EVIL.Ceres.TranslationEngine
                     le.Message,
                     CurrentFileName,
                     EvilMessageCode.LexerError,
-                    line: Line,
-                    column: Column,
+                    line: le.Line,
+                    column: le.Column,
                     innerException: le
                 );
             }

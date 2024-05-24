@@ -43,6 +43,12 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
             }
 
             output.WriteLine("{");
+            
+            if (chunk.MayThrow)
+            {
+                output.WriteLine($"{indent} .MAY_THROW");
+                output.WriteLine();
+            }
 
             output.WriteLine($"{indent}  .LOCALS {chunk.LocalCount}");
             output.WriteLine($"{indent}  .CLOSRS {chunk.ClosureCount}");

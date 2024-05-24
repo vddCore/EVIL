@@ -1,14 +1,30 @@
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace EVIL.Ceres.ExecutionEngine.Diagnostics
 {
-    public class Error
+    public sealed class Error
     {
         private Table UserData { get; } = new();
         
         public int Length => UserData.Length;
-        
+
+        public string? Message
+        {
+            get
+            {
+                if (UserData["msg"].Type == DynamicValueType.String)
+                {
+                    return UserData["msg"].String!;
+                }
+
+                return null;
+            }
+
+            set => UserData["msg"] = value ?? DynamicValue.Nil;
+        }
+
         public DynamicValue this[DynamicValue key]
         {
             get => UserData[key];
@@ -26,13 +42,13 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
         
         public Error(string message)
         {
-            UserData["msg"] = message;
+            Message = message;
         }
         
         public Error(Table userData, string message)
         {
             UserData = userData;
-            UserData["msg"] = message;
+            Message = message;
         }
 
         public bool Contains(DynamicValue key)
