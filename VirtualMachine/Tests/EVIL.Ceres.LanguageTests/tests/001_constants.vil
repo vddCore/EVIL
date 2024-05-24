@@ -87,6 +87,7 @@ fn interpolated_string_locals_and_globals {
     '21.37, 12345, gmd'
   ); 
 }
+
 #[test]
 fn interpolated_string_symbol_prompt_only {
   val b = "12345";
@@ -95,4 +96,15 @@ fn interpolated_string_symbol_prompt_only {
     "$, $b", 
     '$, 12345'
   ); 
+}
+
+#[test]
+fn number_with_exponent {
+  val a = 1e+3;
+  val b = 2E2;
+  val c = 3E-2;
+  
+  assert.equal(a, 1000);
+  assert.equal(b, 200);
+  assert.equal(c, 0.03);
 }
