@@ -7,6 +7,8 @@ namespace EVIL.Ceres.TranslationEngine
     {
         public override void Visit(ThrowStatement throwStatement)
         {
+            Chunk.MarkThrowing();
+            
             Visit(throwStatement.ThrownExpression);
             Chunk.CodeGenerator.Emit(OpCode.THROW);
         }

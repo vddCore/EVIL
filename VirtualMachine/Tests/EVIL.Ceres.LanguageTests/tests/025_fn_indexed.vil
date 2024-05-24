@@ -1,5 +1,5 @@
 ﻿#[test]
-fn fn_indexed_simple() {
+fn fn_indexed_simple {
   val t = { };
   
   loc fn t.function(a, b) -> a + b;
@@ -9,11 +9,22 @@ fn fn_indexed_simple() {
 }
 
 #[test]
-fn fn_indexed_nested() {
+fn fn_indexed_nested {
   val t = { q: { } };
   
   loc fn t.q.function(a, b) -> a - b;
   
   assert.is_of_type(t.q.function, Function);
   assert.equal(t.q.function(5, 3), 2);
+}
+
+#[test]
+fn fn_indexed_byref {
+  val f = fn(table) { loc fn table.func(a, b) -> a * b; };
+  
+  val t = { };
+  f(t);
+  
+  assert.is_of_type(t.func, Function);
+  assert.equal(t.func(10, 2), 20);    
 }
