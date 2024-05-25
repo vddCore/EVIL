@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 namespace EVIL.Ceres.LanguageTests
 {
@@ -43,6 +45,11 @@ namespace EVIL.Ceres.LanguageTests
                 await Task.Delay(1);
             }
 
+            if (Fiber.State == FiberState.Crashed)
+            {
+                _processingCrash = true;
+            }
+            
             while (_processingCrash)
             {
                 await Task.Delay(1);
@@ -51,14 +58,58 @@ namespace EVIL.Ceres.LanguageTests
             Fiber.DeImmunize();
         }
 
-        private void TestCrashHandler(Fiber fiber, Exception exception)
+        private async void TestCrashHandler(Fiber fiber, Exception exception)
         {
-            _processingCrash = true;
-
-            Successful = false;
-            ErrorMessage = exception.Message;
-            StackTrace.AddRange(fiber.StackTrace(false).Split('\n').Where(x => !string.IsNullOrEmpty(x)));
+            while (!_processingCrash)
+            {
+                await Task.Delay(1);
+            }
             
+            Successful = false;
+            
+            if (exception is UserUnhandledExceptionException uuee)
+            {
+                if (uuee.EvilExceptionObject.Type == DynamicValueType.Error)
+                {
+                    var e = uuee.EvilExceptionObject.Error!;
+                    if (e["__should_have_thrown"] == true)
+                    {
+                        CallsAnyAsserts = true;
+
+                        if (e["__threw"] == true)
+                        {
+                            Successful = true;
+                        }
+                        else
+                        {
+                            ErrorMessage = "Expected function to throw, but it was successful.";
+                        }
+                    }
+                    else if (e["__should_not_have_thrown"] != DynamicValue.Nil)
+                    {
+                        CallsAnyAsserts = true;
+                        
+                        if (e["__threw"] == false)
+                        {
+                            Successful = true;
+                        }
+                        else
+                        {
+                            ErrorMessage = "Expected function to be successful, but it threw.";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ErrorMessage = exception.Message;
+            }
+
+            if (!Successful)
+            {
+                StackTrace.AddRange(fiber.StackTrace(false).Split('\n').Where(x => !string.IsNullOrEmpty(x)));
+            }
+
             _processingCrash = false;
         }
         
