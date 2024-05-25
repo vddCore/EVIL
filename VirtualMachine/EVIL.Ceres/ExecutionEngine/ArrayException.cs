@@ -2,7 +2,7 @@ using System;
 
 namespace EVIL.Ceres.ExecutionEngine
 {
-    public class ArrayException : VirtualMachineException
+    public class ArrayException : RecoverableVirtualMachineException
     {
         internal ArrayException(string message, Exception innerException) 
             : base(message, innerException)

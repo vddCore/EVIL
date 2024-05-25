@@ -76,8 +76,10 @@ namespace EVIL.Ceres.Runtime
         public T RegisterModule<T>(out DynamicValue table) where T : RuntimeModule, new()
         {
             var module = new T();
+            
             table = module.AttachTo(Global);
-
+            module.Registered(this);
+            
             return module;
         }
 

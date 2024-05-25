@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
@@ -12,7 +13,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
 {
     public sealed class Fiber
     {
-        private Queue<(Diagnostics.Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
+        private Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
         private HashSet<Fiber> _waitingFor;
 
         private Stack<DynamicValue> _evaluationStack;
@@ -21,6 +22,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
 
         private ExecutionUnit _executionUnit;
         private FiberCrashHandler? _crashHandler;
+        private FiberState _state;
 
         internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
         internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
@@ -32,7 +34,8 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
 
         public CeresVM VirtualMachine { get; }
 
-        public FiberState State { get; private set; }
+        public FiberState State => _state;
+
         public bool ImmuneToCollection { get; private set; }
 
         public IReadOnlyCollection<DynamicValue> EvaluationStack
@@ -75,7 +78,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                 _callStack
             );
 
-            State = FiberState.Fresh;
+            _state = FiberState.Fresh;
         }
 
         public void Schedule(Chunk chunk, params DynamicValue[] args)
@@ -96,8 +99,8 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
 
         public void BlockUntilFinished()
         {
-            while (State != FiberState.Finished && 
-                   State != FiberState.Crashed)
+            while (_state != FiberState.Finished && 
+                   _state != FiberState.Crashed)
             {
                 Thread.Sleep(1);
             }
@@ -105,8 +108,8 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
         
         public async Task BlockUntilFinishedAsync()
         {
-            while (State != FiberState.Finished &&
-                   State != FiberState.Crashed)
+            while (_state != FiberState.Finished &&
+                   _state != FiberState.Crashed)
             {
                 await Task.Delay(1);
             }
@@ -150,7 +153,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
         {
             try
             {
-                if (State != FiberState.Running)
+                if (_state != FiberState.Running)
                     return;
 
                 lock (_callStack)
@@ -165,7 +168,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                             }
                             else
                             {
-                                State = FiberState.Finished;
+                                _state = FiberState.Finished;
                                 return;
                             }
                         }
@@ -176,33 +179,57 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
             }
             catch (Exception e)
             {
-                EnterCrashState();
-
-                if (_crashHandler != null)
+                if (e is RecoverableVirtualMachineException rvme)
                 {
-                    _crashHandler(this, e);
+                    try
+                    {
+                        ThrowFromNative(
+                            new Error(
+                                new Table { { "native_exception", DynamicValue.FromObject(rvme) } },
+                                rvme.Message
+                            )
+                        );
+                    }
+                    catch
+                    {
+                        EnterCrashState();
+
+                        if (_crashHandler != null)
+                        {
+                            _crashHandler(this, e);
+                        }
+                    }
+                }
+                else
+                {
+                    EnterCrashState();
+
+                    if (_crashHandler != null)
+                    {
+                        _crashHandler(this, e);
+                    }
                 }
             }
         }
 
         public void Yield()
         {
-            if (State != FiberState.Running)
+            if (_state != FiberState.Running)
             {
                 return;
             }
 
-            State = FiberState.Paused;
+            _state = FiberState.Paused;
         }
 
         public void Yield(Fiber to)
         {
-            if (State != FiberState.Running)
+            if (_state != FiberState.Running)
             {
                 return;
             }
 
-            State = FiberState.Paused;
+            _state = FiberState.Paused;
             to.Resume();
         }
 
@@ -213,7 +240,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                 return;
             }
 
-            State = FiberState.Awaiting;
+            _state = FiberState.Awaiting;
         }
 
         public void WaitFor(Fiber fiber)
@@ -223,7 +250,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                 throw new FiberException("A fiber cannot wait for self.");
             }
 
-            if (fiber.State == FiberState.Finished)
+            if (fiber._state == FiberState.Finished)
             {
                 return;
             }
@@ -236,11 +263,11 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
         {
             _waitingFor.Remove(fiber);
 
-            if (State == FiberState.Awaiting)
+            if (_state == FiberState.Awaiting)
             {
                 if (!_waitingFor.Any())
                 {
-                    State = FiberState.Running;
+                    _state = FiberState.Running;
                 }
             }
         }
@@ -256,7 +283,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                     throw new FiberException("A fiber cannot wait for self.");
                 }
 
-                if (fiber.State == FiberState.Finished)
+                if (fiber._state == FiberState.Finished)
                 {
                     continue;
                 }
@@ -269,7 +296,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
         
         public void Resume()
         {
-            if (State == FiberState.Awaiting)
+            if (_state == FiberState.Awaiting)
             {
                 if (_waitingFor.Any())
                 {
@@ -277,7 +304,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                 }
             }
 
-            State = FiberState.Running;
+            _state = FiberState.Running;
         }
 
         public void Stop()
@@ -307,7 +334,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                 _waitingFor.Clear();
             }
             
-            State = FiberState.Fresh;
+            _state = FiberState.Fresh;
         }
 
         public void Immunize()
@@ -389,9 +416,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
         {
             lock (_callStack)
             lock (_evaluationStack)
-            {
-                var callStackCopy = _callStack.ToArray();
-                
+            {              
                 var frame = _callStack.Peek();
                 if (frame is NativeStackFrame nsf)
                 {
@@ -400,7 +425,8 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                 }
                 
                 _evaluationStack.Push(value);
-                UnwindTryHandle(callStackCopy);
+                
+                UnwindTryHandle(_callStack.ToArray());
             }
             
             return DynamicValue.Nil;
@@ -438,12 +464,12 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
 
         internal void RemoveFinishedAwaitees()
         {
-            _waitingFor.RemoveWhere(x => x.State == FiberState.Finished);
+            _waitingFor.RemoveWhere(x => x._state == FiberState.Finished);
         }
 
         private void EnterCrashState()
         {
-            State = FiberState.Crashed;
+            _state = FiberState.Crashed;
         }
 
         private void Invoke(Chunk chunk, DynamicValue[] args)

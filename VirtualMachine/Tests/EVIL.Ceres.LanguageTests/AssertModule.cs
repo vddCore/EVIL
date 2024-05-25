@@ -14,15 +14,33 @@ namespace EVIL.Ceres.LanguageTests
 
         public AssertModule()
         {
-            var c = new Compiler();
-            var rootChunk = c.Compile("fn __invk(t, expr) -> t.is_true(expr);");
+            var compiler = new Compiler();
+            var rootChunk = compiler.Compile("fn __invk(t, expr) -> t.is_true(expr);");
 
+            this["throws"] = compiler.Compile(
+                "fn throws(func) {\n" +
+                "  if (func !is Function) throw error('This function can only test Functions.');\n" +
+                "\n" +
+                "  rw val threw = nil;" +
+                "\n" +
+                "  try {\n" +
+                "    func();\n" +
+                "    threw = false;\n" +
+                "  } catch { threw = true; }\n" +
+                "\n" +
+                "  throw error { " +
+                "    __should_have_thrown: true," +
+                "    __threw: threw" +
+                "  };\n" +
+                "}"
+            )["throws"]!;
+            
             MetaTable ??= new Table
             {
                 { InvokeMetaKey, rootChunk.SubChunks[0] }
             };
         }
-        
+
         [RuntimeModuleFunction("is_true")]
         private static DynamicValue IsTrue(Fiber _, params DynamicValue[] args)
         {

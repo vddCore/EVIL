@@ -11,6 +11,8 @@ namespace EVIL.Ceres.Runtime
 {
     public abstract class RuntimeModule : PropertyTable
     {
+        public const string GlobalMergeKey = "<global>";
+        
         public abstract string FullyQualifiedName { get; }
 
         public RuntimeModule()
@@ -24,12 +26,26 @@ namespace EVIL.Ceres.Runtime
         {
             var ret = this;
 
-            table.SetUsingPath<Table>(
-                FullyQualifiedName,
-                ret
-            );
+            if (FullyQualifiedName == GlobalMergeKey)
+            {
+                foreach (var (k, v) in this) table[k] = v;
+            }
+            else
+            {
+                table.SetUsingPath<Table>(
+                    FullyQualifiedName,
+                    ret
+                );
+            }
 
             return ret;
+        }
+
+        internal void Registered(EvilRuntime runtime)
+            => OnRegistered(runtime);
+        
+        protected virtual void OnRegistered(EvilRuntime runtime)
+        {
         }
 
         private void RegisterNativeFunctions()
