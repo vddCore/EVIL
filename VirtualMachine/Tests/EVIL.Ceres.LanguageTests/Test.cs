@@ -14,9 +14,9 @@ namespace EVIL.Ceres.LanguageTests
     {
         private readonly Chunk _chunk;
         private bool _processingCrash;
-        
+
         public Fiber Fiber { get; }
-        
+
         public bool CallsAnyAsserts { get; private set; }
 
         public bool Successful { get; private set; } = true;
@@ -28,45 +28,43 @@ namespace EVIL.Ceres.LanguageTests
             _chunk = chunk;
             Fiber = vm.Scheduler.CreateFiber(
                 true,
-                TestCrashHandler, 
+                TestCrashHandler,
                 (Dictionary<string, ClosureContext>)vm.MainFiber.ClosureContexts
             );
-            
+
             Fiber.SetOnNativeFunctionInvoke(OnNativeFunctionInvoke);
         }
 
         public async Task Run()
         {
             Fiber.Schedule(_chunk);
-            
-            while (Fiber.State != FiberState.Crashed 
+
+            while (Fiber.State != FiberState.Crashed
                    && Fiber.State != FiberState.Finished)
             {
-                await Task.Delay(1);
+                await Task.Delay(TimeSpan.FromMicroseconds(1));
             }
 
             if (Fiber.State == FiberState.Crashed)
             {
                 _processingCrash = true;
             }
-            
+        }
+
+        public async Task WaitForCleanup()
+        {
             while (_processingCrash)
             {
-                await Task.Delay(1);
+                await Task.Delay(TimeSpan.FromMicroseconds(1));
             }
-            
+
             Fiber.DeImmunize();
         }
 
-        private async void TestCrashHandler(Fiber fiber, Exception exception)
+        private void TestCrashHandler(Fiber fiber, Exception exception)
         {
-            while (!_processingCrash)
-            {
-                await Task.Delay(1);
-            }
-            
             Successful = false;
-            
+
             if (exception is UserUnhandledExceptionException uuee)
             {
                 if (uuee.EvilExceptionObject.Type == DynamicValueType.Error)
@@ -88,7 +86,7 @@ namespace EVIL.Ceres.LanguageTests
                     else if (e["__should_not_have_thrown"] != DynamicValue.Nil)
                     {
                         CallsAnyAsserts = true;
-                        
+
                         if (e["__threw"] == false)
                         {
                             Successful = true;
@@ -112,12 +110,12 @@ namespace EVIL.Ceres.LanguageTests
 
             _processingCrash = false;
         }
-        
+
         private void OnNativeFunctionInvoke(Fiber fiber, NativeFunction nativeFunction)
         {
             var nativeFunctionType = nativeFunction.Method.DeclaringType;
             if (nativeFunctionType == null) return;
-            
+
             if (nativeFunctionType.IsAssignableTo(typeof(AssertModule)))
             {
                 CallsAnyAsserts = true;

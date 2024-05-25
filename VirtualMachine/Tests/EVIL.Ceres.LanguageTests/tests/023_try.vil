@@ -177,7 +177,7 @@ fn try_error_implicit_message_and_userdata {
 }
 
 #[test]
-fn try_no_local() {
+fn try_no_local {
   rw val caught = false;
   
   try {

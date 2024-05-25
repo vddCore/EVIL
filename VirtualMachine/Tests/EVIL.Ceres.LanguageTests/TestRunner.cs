@@ -277,7 +277,8 @@ namespace EVIL.Ceres.LanguageTests
                 await test.Run();
             }
             Stopwatch.Stop();
-
+            await test.WaitForCleanup();
+            
             var stamp = $"{Stopwatch.Elapsed.TotalMicroseconds}μs";
 
             if (test.Successful)
