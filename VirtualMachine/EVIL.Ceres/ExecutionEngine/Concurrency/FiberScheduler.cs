@@ -40,22 +40,22 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                     {
                         var fiber = _fibers[i];
                         
-                        if (fiber.State == FiberState.Awaiting)
+                        if (fiber._state == FiberState.Awaiting)
                         {
                             fiber.RemoveFinishedAwaitees();
                             fiber.Resume();
                         }
-                        else if (fiber.State == FiberState.Fresh)
+                        else if (fiber._state == FiberState.Fresh)
                         {
                             fiber.Resume();
                         }
-                        else if (fiber.State == FiberState.Paused)
+                        else if (fiber._state == FiberState.Paused)
                         {
                             continue;
                         }
                         else
                         {
-                            if (fiber.State == FiberState.Finished || fiber.State == FiberState.Crashed)
+                            if (fiber._state == FiberState.Finished || fiber._state == FiberState.Crashed)
                             {
                                 if (!fiber.ImmuneToCollection)
                                 {
@@ -67,7 +67,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
                                 fiber.Resume();
                             }
 
-                            if (fiber.State != FiberState.Running)
+                            if (fiber._state != FiberState.Running)
                             {
                                 continue;
                             }
@@ -99,8 +99,11 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
             FiberCrashHandler? crashHandler = null,
             Dictionary<string, ClosureContext>? closureContexts = null)
         {
-            var fiber = new Fiber(_vm, closureContexts);
-            fiber.SetCrashHandler(crashHandler ?? _defaultCrashHandler);
+            var fiber = new Fiber(
+                _vm, 
+                crashHandler ?? _defaultCrashHandler, 
+                closureContexts
+            );
 
             if (immunized)
             {
@@ -119,7 +122,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
         {
             for (var i = 0; i < _fibers.Count; i++)
             {
-                if (_fibers[i].State == FiberState.Crashed)
+                if (_fibers[i]._state == FiberState.Crashed)
                 {
                     _dueForRemoval.Add(i);
                 }

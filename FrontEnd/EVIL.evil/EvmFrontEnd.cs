@@ -20,7 +20,7 @@ namespace EVIL.evil
 {
     public partial class EvmFrontEnd
     {
-        private static CeresVM _vm = new();
+        private static CeresVM _vm = new(CrashHandler);
         private static Compiler _compiler = new();
         private static EvilRuntime _runtime = new(_vm);
         private static RuntimeModuleLoader _runtimeModuleLoader = new(_runtime);
@@ -190,8 +190,6 @@ namespace EVIL.evil
                 Terminate(msg);
             }
 
-            _vm.Scheduler.SetDefaultCrashHandler(CrashHandler);
-            _vm.MainFiber.SetCrashHandler(CrashHandler);
             _vm.Start();
             
             _vm.MainFiber.Schedule(rootChunk, scriptArgs);
@@ -315,7 +313,7 @@ namespace EVIL.evil
             }
         }
         
-        private void CrashHandler(Fiber fiber, Exception exception)
+        private static void CrashHandler(Fiber fiber, Exception exception)
         {
             var fiberArray = _vm.Scheduler.Fibers.ToArray();
             var fiberIndex = Array.IndexOf(fiberArray, fiber);
@@ -334,7 +332,7 @@ namespace EVIL.evil
             TerminateWithError(fiberIndex, callStack, exception);
         }
 
-        private void TerminateWithError(int fiberIndex, StackFrame[] callStack, Exception exception)
+        private static void TerminateWithError(int fiberIndex, StackFrame[] callStack, Exception exception)
         {
             var top = callStack[0];
             ScriptStackFrame? scriptTop = null;

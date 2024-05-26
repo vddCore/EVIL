@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
 namespace EVIL.Ceres.ExecutionEngine
 {
@@ -13,15 +14,15 @@ namespace EVIL.Ceres.ExecutionEngine
         public FiberScheduler Scheduler { get; }
         public Fiber MainFiber { get; }
 
-        public CeresVM()
-            : this(new Table())
+        public CeresVM(FiberCrashHandler? crashHandler = null)
+            : this(new Table(), crashHandler)
         {
         }
         
-        public CeresVM(Table global)
+        public CeresVM(Table global, FiberCrashHandler? crashHandler = null)
         {
             Global = global;
-            Scheduler = new FiberScheduler(this, DefaultCrashHandler);
+            Scheduler = new FiberScheduler(this, crashHandler ?? DefaultCrashHandler);
             MainFiber = Scheduler.CreateFiber(true);
         }
 
