@@ -22,7 +22,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
 
         private ExecutionUnit _executionUnit;
         private FiberCrashHandler? _crashHandler;
-        private FiberState _state;
+        internal FiberState _state;
 
         internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
         internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
@@ -79,6 +79,14 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency
             );
 
             _state = FiberState.Fresh;
+        }
+
+        internal Fiber(
+            CeresVM virtualMachine, 
+            FiberCrashHandler fiberCrashHandler,
+            Dictionary<string, ClosureContext>? closureContexts = null) : this(virtualMachine, closureContexts)
+        {
+            SetCrashHandler(fiberCrashHandler);
         }
 
         public void Schedule(Chunk chunk, params DynamicValue[] args)
