@@ -7,10 +7,8 @@ namespace EVIL.Ceres.TranslationEngine
     {
         public override void Visit(ExpressionBodyStatement expressionBodyStatement)
         {
-            _blockDescent++;
             Visit(expressionBodyStatement.Expression);
             Chunk.CodeGenerator.Emit(OpCode.RET);
-            _blockDescent--;
         }
     }
 }

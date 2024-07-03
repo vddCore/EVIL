@@ -8,14 +8,10 @@ namespace EVIL.Ceres.TranslationEngine
         {
             InNewLocalScopeDo(() =>
             {
-                _blockDescent++;
+                foreach (var node in blockStatement.Statements)
                 {
-                    foreach (var node in blockStatement.Statements)
-                    {
-                        Visit(node);
-                    }
+                    Visit(node);
                 }
-                _blockDescent--;
             });
         }
     }

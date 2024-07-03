@@ -103,6 +103,7 @@
         Try,
         Catch,
         Throw,
+        Retry,
         Yield,
         Rw,
         NaN,

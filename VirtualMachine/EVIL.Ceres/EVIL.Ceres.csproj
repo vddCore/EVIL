@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     
-    <Version>7.6.0</Version>
+    <Version>7.7.0</Version>
     
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -173,6 +173,9 @@
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
     <Compile Update="TranslationEngine\Compiler.Statement.FnIndexed.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
+    <Compile Update="TranslationEngine\Compiler.Statement.Retry.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
   </ItemGroup>

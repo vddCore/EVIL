@@ -190,3 +190,37 @@ fn try_no_local {
   
   assert(caught);
 }
+
+#[test]
+fn try_retry_single_level {
+  rw val retry_count = 0;
+  
+  try {
+    throw error { retry_count: ++retry_count };
+  } catch (e) {
+    if (e.retry_count < 3) retry;
+  }
+  
+  assert.equal(retry_count, 3);
+}
+
+#[test]
+fn try_retry_nested {
+  rw val outer_retry_count = 0;
+  rw val inner_retry_count = 0;
+  
+  try {
+    try {
+      throw error { retry_count: ++inner_retry_count };
+    } catch (e) {
+      if (e.retry_count < 5) retry;
+    }
+    
+    throw error { retry_count: ++outer_retry_count };
+  } catch (e) {
+    if (e.retry_count < 3) retry;
+  }
+  
+  assert.equal(outer_retry_count, 3);
+  assert.equal(inner_retry_count, 7);
+}

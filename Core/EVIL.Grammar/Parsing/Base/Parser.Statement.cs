@@ -57,6 +57,10 @@ namespace EVIL.Grammar.Parsing
                     node = TryStatement();
                     break;
                 
+                case TokenType.Retry:
+                    node = RetryStatement();
+                    break;
+                
                 case TokenType.Throw:
                     node = ThrowStatement();
                     Match(Token.Semicolon);
