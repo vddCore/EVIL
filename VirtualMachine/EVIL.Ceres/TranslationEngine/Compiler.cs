@@ -14,7 +14,6 @@ using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.Parsing;
 using EVIL.Grammar.Traversal;
 using EVIL.Lexical;
-using static EVIL.Ceres.TranslationEngine.Loop;
 
 namespace EVIL.Ceres.TranslationEngine
 {
@@ -25,7 +24,7 @@ namespace EVIL.Ceres.TranslationEngine
         private readonly Stack<Chunk> _chunks = new();
         private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
 
-        private int _blockDescent;
+        private readonly Stack<BlockProtectionInfo> _blockProtectors = new();
         private readonly Stack<Loop> _loopDescent = new();
         private readonly List<Scope> _closedScopes = new();
 
@@ -54,7 +53,8 @@ namespace EVIL.Ceres.TranslationEngine
 
         private Chunk Chunk => _chunks.Peek();
         private Loop Loop => _loopDescent.Peek();
-
+        private BlockProtectionInfo BlockProtector => _blockProtectors.Peek();        
+        
         private int Line { get; set; }
         private int Column { get; set; }
 

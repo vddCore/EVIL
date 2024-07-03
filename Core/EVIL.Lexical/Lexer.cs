@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EVIL.Lexical
 {
@@ -479,6 +478,7 @@ namespace EVIL.Lexical
                 "array" => Token.Array,
                 "self" => Token.Self,
                 "error" => Token.Error,
+                "retry" => Token.Retry,
                 "Infinity" => Token.Infinity,
                 "NaN" => Token.NaN,
                 "Nil" => Token.NilTypeCode,
