@@ -7,7 +7,7 @@ namespace EVIL.Grammar.Parsing
 {
     public partial class Parser
     {
-        private AttributeListNode AttributeList()
+        private AttributeList AttributeList()
         {
             if (_functionDescent > 0)
             {
@@ -32,7 +32,7 @@ namespace EVIL.Grammar.Parsing
             
             Match(Token.RBracket);
 
-            return new AttributeListNode(attributes)
+            return new AttributeList(attributes)
                 { Line = line, Column = col };
         }
     }

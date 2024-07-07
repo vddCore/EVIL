@@ -57,9 +57,13 @@ namespace EVIL.Ceres.TranslationEngine
                             Visit(fnTargetedStatement.ParameterList);
                         }
 
-                        Visit(fnTargetedStatement.Statement);
-                        
+                        Visit(fnTargetedStatement.InnerStatement);
                         FinalizeChunk();
+
+                        if (fnTargetedStatement.AttributeList != null)
+                        {
+                            Visit(fnTargetedStatement.AttributeList);
+                        }
                     });
                 }, out var wasExistingReplaced, out var replacedChunk
             );

@@ -9,7 +9,7 @@ namespace EVIL.Ceres.TranslationEngine
         public override void Visit(FnStatement fnStatement)
         {
             var localId = -1;
-            if (fnStatement.IsLocalDefintion)
+            if (fnStatement.IsLocalDefinition)
             {
                 localId = Chunk.AllocateLocal();
 
@@ -58,8 +58,10 @@ namespace EVIL.Ceres.TranslationEngine
 
                     FinalizeChunk();
                     
-                    foreach (var attr in fnStatement.Attributes)
-                        Visit(attr);
+                    if (fnStatement.AttributeList != null)
+                    {
+                        Visit(fnStatement.AttributeList);
+                    }
                 });
             }, out var wasExistingReplaced, out var replacedChunk);
 
@@ -77,7 +79,7 @@ namespace EVIL.Ceres.TranslationEngine
 
             Chunk.CodeGenerator.Emit(OpCode.LDCNK, id);
             
-            if (fnStatement.IsLocalDefintion)
+            if (fnStatement.IsLocalDefinition)
             {
                 Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, localId);
             }

@@ -12,11 +12,11 @@ namespace EVIL.Grammar.Parsing
     {
         private Statement FnStatement()
         {
-            var attributes = new List<AttributeNode>();
+            AttributeList? attributeList = null;
 
             while (CurrentToken == Token.AttributeList)
             {
-                attributes.AddRange(AttributeList().Attributes);
+                attributeList = AttributeList();
             }
 
             var (line, col) = (-1, -1);
@@ -122,9 +122,9 @@ namespace EVIL.Grammar.Parsing
                 {
                     return new FnStatement(
                         identifierNode,
+                        attributeList,
                         parameterList,
                         statement,
-                        attributes,
                         isLocalDefinition
                     ) { Line = line, Column = col };
                 }
@@ -132,9 +132,9 @@ namespace EVIL.Grammar.Parsing
                 {
                     return new FnIndexedStatement(
                         indexerExpression,
+                        attributeList,
                         parameterList,
-                        statement,
-                        attributes
+                        statement
                     ) { Line = line, Column = col };
                 }
                 else
@@ -150,9 +150,9 @@ namespace EVIL.Grammar.Parsing
                 return new FnTargetedStatement(
                     primaryTarget!,
                     secondaryIdentifier,
+                    attributeList,
                     parameterList,
-                    statement,
-                    attributes
+                    statement
                 ) { Line = line, Column = col };
             }
         }

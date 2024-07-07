@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using EVIL.Grammar.AST.Base;
+﻿using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 
 namespace EVIL.Grammar.AST.Statements.TopLevel
@@ -7,28 +6,28 @@ namespace EVIL.Grammar.AST.Statements.TopLevel
     public sealed class FnStatement : Statement
     {
         public IdentifierNode Identifier { get; }
+        public AttributeList? AttributeList { get; }
         public ParameterList? ParameterList { get; }
         public Statement Statement { get; }
-        public List<AttributeNode> Attributes { get; }
-        public bool IsLocalDefintion { get; }
+        public bool IsLocalDefinition { get; }
 
         public FnStatement(
             IdentifierNode identifier,
+            AttributeList? attributeList,
             ParameterList? parameterList,
             Statement statement,
-            List<AttributeNode> attributes,
-            bool isLocalDefintion)
+            bool isLocalDefinition)
         {
             Identifier = identifier;
+            AttributeList = attributeList;
             ParameterList = parameterList;
             Statement = statement;
-            Attributes = attributes;
-            IsLocalDefintion = isLocalDefintion;
+            IsLocalDefinition = isLocalDefinition;
 
             Reparent(Identifier);
+            Reparent(AttributeList);
             Reparent(ParameterList);
             Reparent(Statement);
-            Reparent(Attributes);
         }
     }
 }
