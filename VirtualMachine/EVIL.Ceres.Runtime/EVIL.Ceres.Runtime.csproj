@@ -18,4 +18,22 @@
     <EmbeddedResource Include="ScriptBuiltins\dofile.vil" />
     <EmbeddedResource Include="ScriptBuiltins\require.vil" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Modules\DebugModule.GC.cs">
+      <DependentUpon>DebugModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.Directory.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.File.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.Path.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.Utilities.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

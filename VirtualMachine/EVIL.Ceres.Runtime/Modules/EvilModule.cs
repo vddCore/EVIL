@@ -35,7 +35,7 @@ namespace EVIL.Ceres.Runtime.Modules
             "}\n" +
             "```\n"
         )]
-        private static DynamicValue CompilerErrorSeverity(DynamicValue key)
+        private static DynamicValue CompilerErrorSeverity(DynamicValue _)
             => _severities;
 
         [RuntimeModuleFunction("compile")]
@@ -52,7 +52,7 @@ namespace EVIL.Ceres.Runtime.Modules
             String,
             DefaultValue = "<dynamic_source>"
         )]
-        private static DynamicValue Compile(Fiber _, params DynamicValue[] args)
+        private static DynamicValue Compile(Fiber fiber, params DynamicValue[] args)
         {
             args.ExpectAtLeast(1)
                 .ExpectAtMost(2)
@@ -72,6 +72,7 @@ namespace EVIL.Ceres.Runtime.Modules
             }
             catch (CompilerException e)
             {
+                
                 return new Table
                 {
                     { "success", false },
