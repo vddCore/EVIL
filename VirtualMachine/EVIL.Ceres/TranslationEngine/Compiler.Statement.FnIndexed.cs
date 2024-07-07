@@ -30,9 +30,13 @@ namespace EVIL.Ceres.TranslationEngine
                             Visit(fnIndexedStatement.ParameterList);
                         }
 
-                        Visit(fnIndexedStatement.Statement);
-                        
+                        Visit(fnIndexedStatement.InnerStatement);
                         FinalizeChunk();
+                        
+                        if (fnIndexedStatement.AttributeList != null)
+                        {
+                            Visit(fnIndexedStatement.AttributeList);
+                        }
                     });
                 }, out var wasExistingReplaced, out var replacedChunk
             );

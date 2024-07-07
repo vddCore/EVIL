@@ -1,32 +1,32 @@
-﻿using System.Collections.Generic;
-using EVIL.Grammar.AST.Base;
+﻿using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
+using EVIL.Grammar.AST.Statements.TopLevel;
 
 namespace EVIL.Grammar.AST.Statements
 {
     public class FnIndexedStatement : Statement
     {
         public IndexerExpression Indexer { get; }
+        public AttributeList? AttributeList { get; }
         public ParameterList? ParameterList { get; }
-        public Statement Statement { get; }
-        public List<AttributeNode> Attributes { get; }
+        public Statement InnerStatement { get; }
         
         public FnIndexedStatement(
             IndexerExpression indexer,
+            AttributeList? attributeList,
             ParameterList? parameterList,
-            Statement statement,
-            List<AttributeNode> attributes)
+            Statement innerStatement)
         {
             Indexer = indexer;
+            AttributeList = attributeList;
             ParameterList = parameterList;
-            Statement = statement;
-            Attributes = attributes;
+            InnerStatement = innerStatement;
 
             Reparent(Indexer);
+            Reparent(AttributeList);
             Reparent(ParameterList);
-            Reparent(Statement);
-            Reparent(Attributes);
+            Reparent(InnerStatement);
         }
     }
 }

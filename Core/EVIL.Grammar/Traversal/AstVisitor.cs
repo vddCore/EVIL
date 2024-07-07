@@ -21,6 +21,7 @@ namespace EVIL.Grammar.Traversal
             Handlers = new()
             {
                 { typeof(ArgumentList), (n) => Visit((ArgumentList)n) },
+                { typeof(AttributeList), (n) => Visit((AttributeList)n) },
                 { typeof(ParameterList), (n) => Visit((ParameterList)n) },
                 { typeof(BlockStatement), (n) => Visit((BlockStatement)n) },
                 { typeof(ConditionalExpression), (n) => Visit((ConditionalExpression)n) },
@@ -88,6 +89,7 @@ namespace EVIL.Grammar.Traversal
         }
 
         public abstract void Visit(ProgramNode programNode);
+        public abstract void Visit(AttributeList attributeList);
         public abstract void Visit(ParameterList parameterList);
         public abstract void Visit(ArgumentList argumentList);
         public abstract void Visit(BlockStatement blockStatement);

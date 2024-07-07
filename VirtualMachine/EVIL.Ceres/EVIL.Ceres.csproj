@@ -178,5 +178,8 @@
     <Compile Update="TranslationEngine\Compiler.Statement.Retry.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.List.Attribute.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

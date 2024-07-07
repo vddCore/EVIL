@@ -1,7 +1,6 @@
 ﻿using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
-using Scope = EVIL.Ceres.TranslationEngine.Scoping.Scope;
 
 namespace EVIL.Ceres.TranslationEngine
 {
