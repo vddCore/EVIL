@@ -22,7 +22,7 @@ loc fn get_import_base_data() {
 }
 
 loc fn build_error_message(full_path, log) {
-  rw val msg = "Failed to compile the file '" + full_path + "':\n";
+  rw val msg = "require: Failed to compile the file '" + full_path + "':\n";
 
   if (log is Array) {
     val sev = tbl.invert(evil.compiler.severity);
@@ -62,7 +62,7 @@ loc fn try_compile_source(full_path) {
   val result = evil_compile(source, full_path);
 
   if (result is Nil) {
-    throw error { msg: "Failed to compile the file '" + full_path + ": evil.compile returned Nil." };
+    throw error { msg: "require: Failed to compile the file '" + full_path + ": evil.compile returned Nil." };
   }
   
   if (!result.success) {

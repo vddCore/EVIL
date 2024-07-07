@@ -38,6 +38,5 @@ namespace EVIL.Ceres.Runtime.Modules
         
         private static void SetError(string error)
             => _error = error;
-        
     }
 }
