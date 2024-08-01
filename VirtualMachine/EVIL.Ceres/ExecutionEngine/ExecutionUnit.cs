@@ -1304,6 +1304,18 @@ namespace EVIL.Ceres.ExecutionEngine
                     a = PopValue(); // Key
                     c = PopValue(); // Table
                     
+                    if (c.Type == DynamicValueType.String && a.Type == DynamicValueType.String)
+                    {
+                        c = _global.Index("str");
+
+                        if (c.Type != DynamicValueType.Table)
+                        {
+                            throw new UnsupportedDynamicValueOperationException(
+                                "Attempt to index a string value using a string, but no `str' support table found."
+                            );
+                        }
+                    }
+                    
                     if (c.Type == DynamicValueType.Table)
                     {
                         if (!c.Table!.Contains(a))
