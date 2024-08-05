@@ -76,7 +76,7 @@ namespace EVIL.CoreTests
                 "... => -> -- ++ && || ! " +
                 "<==> <!=> == != > < >= <= " +
                 "# $ @ ? : ; , . { } [ ] ( ) #[ " +
-                "array self"
+                "array self with"
             );
             
             Expect(
@@ -106,7 +106,7 @@ namespace EVIL.CoreTests
                 RParenthesis, AttributeList
             );
 
-            Expect(Token.Array, Self);
+            Expect(Token.Array, Self, With);
 
             Expect(EOF);
         }

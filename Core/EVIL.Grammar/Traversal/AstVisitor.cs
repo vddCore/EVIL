@@ -67,8 +67,9 @@ namespace EVIL.Grammar.Traversal
                 { typeof(ExpressionBodyStatement), (n) => Visit((ExpressionBodyStatement)n) },
                 { typeof(ExtraArgumentsExpression), (n) => Visit((ExtraArgumentsExpression)n) },
                 { typeof(FnExpression), (n) => Visit((FnExpression)n) },
-                { typeof(IsExpression), (n) => Visit((IsExpression)n)},
-                { typeof(ByExpression), (n) => Visit((ByExpression)n) }
+                { typeof(IsExpression), (n) => Visit((IsExpression)n) },
+                { typeof(ByExpression), (n) => Visit((ByExpression)n) },
+                { typeof(WithExpression), (n) => Visit((WithExpression)n) }
             };
 #nullable enable
         }
@@ -138,5 +139,6 @@ namespace EVIL.Grammar.Traversal
         public abstract void Visit(FnExpression fnExpression);
         public abstract void Visit(IsExpression isExpression);
         public abstract void Visit(ByExpression byExpression);
+        public abstract void Visit(WithExpression withExpression);
     }
 }

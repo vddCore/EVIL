@@ -93,6 +93,12 @@ namespace EVIL.Ceres.ExecutionEngine
             Emit(value);
             Emit(operand);
         }
+
+        public void Emit(OpCode value, bool operand)
+        {
+            Emit(value);
+            Emit(operand);
+        }
         
         public void Emit(double value)
             => _writer.Write(value);

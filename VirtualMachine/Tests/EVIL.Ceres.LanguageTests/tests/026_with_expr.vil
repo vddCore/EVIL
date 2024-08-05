@@ -1,0 +1,50 @@
+﻿#[test]
+fn simple_table_expansion_by_varref {
+  val t = { hello: "world" };
+  val t2 = t with { new: "value!" };
+  
+  assert(t is Table);
+  assert.equal(t.hello, "world");
+  assert.equal(t.new, nil);
+  
+  assert(t2 is Table);
+  assert.equal(t2.hello, "world");
+  assert.equal(t2.new, "value!");
+}
+
+#[test]
+fn dual_table_expansion {
+  val t = { a: 21.37 } with { b: "haha" };
+  
+  assert(t is Table);
+  assert.approx_equal(t.a, 21.37);
+  assert.equal(t.b, "haha");
+}
+
+#[test]
+fn multiple_table_expansion {
+  val t = { a: 11.11 } 
+     with { b: "lmao" } 
+     with { c: "i see absolutely no way in which this can be abused." }
+     with { d: "nuh-uh" };
+     
+  assert(t is Table);
+  assert.approx_equal(t.a, 11.11);
+  assert.equal(t.b, "lmao");
+  assert.equal(t.c, "i see absolutely no way in which this can be abused.");
+  assert.equal(t.d, "nuh-uh");
+}
+
+#[test]
+fn table_value_replacement {
+  val t = { i_am: Table, some: "value, too" };
+  val t2 = t with { i_am: "a string" };
+  
+  assert(t is Table);
+  assert.equal(t.i_am, Table);
+  assert.equal(t.some, "value, too");
+  
+  assert(t2 is Table);
+  assert.equal(t2.i_am, "a string");
+  assert.equal(t2.some, "value, too");
+}
