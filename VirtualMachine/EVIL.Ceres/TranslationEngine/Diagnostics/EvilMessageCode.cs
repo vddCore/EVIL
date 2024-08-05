@@ -20,5 +20,6 @@
         public const int FnTargetedStatementRedefinedExistingChunk = 0016;
         public const int UnexpectedSyntaxNodeFound = 0017;
         public const int FnIndexedStatementRedefinedExistingChunk = 0018;
+        public const int KeyedExpansionTableExpected = 0019;
     }
 }

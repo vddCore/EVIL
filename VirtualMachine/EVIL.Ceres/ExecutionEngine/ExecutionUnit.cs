@@ -1345,6 +1345,27 @@ namespace EVIL.Ceres.ExecutionEngine
                     break;
                 }
 
+                case OpCode.TABCLN:
+                {
+                    var isDeepClone = frame.FetchByte() > 0;
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to clone a {a.Type} value."
+                        );
+                    }
+                    
+                    PushValue(
+                        isDeepClone
+                        ? a.Table!.DeepCopy()
+                        : a.Table!.ShallowCopy()
+                    );
+                    
+                    break;
+                }
+
                 case OpCode.YIELD:
                 {
                     var argumentCount = frame.FetchInt32();
