@@ -63,6 +63,7 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
         ELINIT,
         ELSET,
         INDEX,
+        TABCLN,
         YIELD,
         YRET,
         XARGS,

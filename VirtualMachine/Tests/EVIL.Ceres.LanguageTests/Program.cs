@@ -16,6 +16,7 @@ for (var i = argList.Count - 1; i >= 0; i--)
     switch (argList[i])
     {
         case "--fail-on-compiler-errors":
+        case "-fc":
         {
             failOnCompilerErrors = true;
             argList.RemoveAt(i);
@@ -23,6 +24,7 @@ for (var i = argList.Count - 1; i >= 0; i--)
         }
 
         case "--fail-on-test-errors":
+        case "-ft":
         {
             failOnTestErrors = true;
             argList.RemoveAt(i);
