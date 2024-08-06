@@ -16,7 +16,7 @@ namespace EVIL.Grammar.Parsing
 
         private Expression MultiplicativeExpression()
         {
-            var node = ByExpression();
+            var node = PatternExpression();
             var token = CurrentToken;
 
             while (_multiplicativeOperators.Contains(token.Type))
@@ -25,21 +25,21 @@ namespace EVIL.Grammar.Parsing
                 {
                     var (line, col) = Match(Token.Multiply);
 
-                    node = new BinaryExpression(node, PrefixExpression(), BinaryOperationType.Multiply)
+                    node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Multiply)
                         { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.Divide)
                 {
                     var (line, col) = Match(Token.Divide);
 
-                    node = new BinaryExpression(node, PrefixExpression(), BinaryOperationType.Divide)
+                    node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Divide)
                         { Line = line, Column = col };
                 }
                 else if (token.Type == TokenType.Modulo)
                 {
                     var (line, col) = Match(Token.Modulo);
 
-                    node = new BinaryExpression(node, PrefixExpression(), BinaryOperationType.Modulo)
+                    node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Modulo)
                         { Line = line, Column = col };
                 }
 

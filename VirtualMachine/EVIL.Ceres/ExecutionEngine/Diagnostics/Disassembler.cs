@@ -187,6 +187,16 @@ namespace EVIL.Ceres.ExecutionEngine.Diagnostics
                             output.WriteLine();
                             break;
                         }
+                        
+                        case OpCode.TABCLN:
+                            output.Write(opCode);
+                            output.Write(" ");
+
+                            var isDeepClone = reader.ReadByte();
+                            output.Write(isDeepClone);
+                            
+                            output.WriteLine();
+                            break;
 
                         case OpCode.SETLOCAL:
                         case OpCode.GETLOCAL:

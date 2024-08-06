@@ -105,6 +105,7 @@
         Throw,
         Retry,
         Yield,
+        With,
         Rw,
         NaN,
         Infinity,

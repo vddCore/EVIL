@@ -479,6 +479,7 @@ namespace EVIL.Lexical
                 "self" => Token.Self,
                 "error" => Token.Error,
                 "retry" => Token.Retry,
+                "with" => Token.With,
                 "Infinity" => Token.Infinity,
                 "NaN" => Token.NaN,
                 "Nil" => Token.NilTypeCode,
