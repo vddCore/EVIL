@@ -1,8 +1,7 @@
+namespace EVIL.Grammar.AST.Expressions;
+
 using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST.Expressions
+public sealed class SelfExpression : Expression
 {
-    public class SelfExpression : Expression
-    {
-    }
 }

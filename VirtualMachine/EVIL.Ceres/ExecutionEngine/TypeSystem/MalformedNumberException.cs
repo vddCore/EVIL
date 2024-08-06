@@ -1,12 +1,11 @@
-﻿using System;
+﻿namespace EVIL.Ceres.ExecutionEngine.TypeSystem;
 
-namespace EVIL.Ceres.ExecutionEngine.TypeSystem
+using System;
+
+public class MalformedNumberException : RecoverableVirtualMachineException
 {
-    public class MalformedNumberException : RecoverableVirtualMachineException
+    internal MalformedNumberException(string message, Exception innerException) 
+        : base(message, innerException)
     {
-        internal MalformedNumberException(string message, Exception innerException) 
-            : base(message, innerException)
-        {
-        }
     }
 }

@@ -1,10 +1,9 @@
-﻿namespace EVIL.Ceres.TranslationEngine.Diagnostics
+﻿namespace EVIL.Ceres.TranslationEngine.Diagnostics;
+
+public enum CompilerMessageSeverity
 {
-    public enum CompilerMessageSeverity
-    {
-        Verbose,
-        Warning,
-        Fatal,
-        InternalFailure
-    }
+    Verbose,
+    Warning,
+    Fatal,
+    InternalFailure
 }

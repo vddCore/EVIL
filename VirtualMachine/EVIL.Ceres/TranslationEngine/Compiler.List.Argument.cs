@@ -1,15 +1,14 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(ArgumentList argumentList)
     {
-        public override void Visit(ArgumentList argumentList)
+        for (var i = 0; i < argumentList.Arguments.Count; i++)
         {
-            for (var i = 0; i < argumentList.Arguments.Count; i++)
-            {
-                Visit(argumentList.Arguments[i]);
-            }
+            Visit(argumentList.Arguments[i]);
         }
     }
 }

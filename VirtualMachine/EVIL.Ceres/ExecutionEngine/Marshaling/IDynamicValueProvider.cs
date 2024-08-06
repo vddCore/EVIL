@@ -1,9 +1,8 @@
-﻿using EVIL.Ceres.ExecutionEngine.TypeSystem;
+﻿namespace EVIL.Ceres.ExecutionEngine.Marshaling;
 
-namespace EVIL.Ceres.ExecutionEngine.Marshaling
+using EVIL.Ceres.ExecutionEngine.TypeSystem;
+
+public interface IDynamicValueProvider
 {
-    public interface IDynamicValueProvider
-    {
-        DynamicValue ToDynamicValue();
-    }
+    DynamicValue ToDynamicValue();
 }

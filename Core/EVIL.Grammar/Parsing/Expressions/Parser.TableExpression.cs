@@ -1,127 +1,126 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.Parsing;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private TableExpression TableExpression()
     {
-        private TableExpression TableExpression()
+        var (line, col) = Match(Token.LBrace);
+        var initializers = new List<Expression>();
+
+        var keyed = false;
+
+        while (CurrentToken.Type != TokenType.RBrace)
         {
-            var (line, col) = Match(Token.LBrace);
-            var initializers = new List<Expression>();
-
-            var keyed = false;
-
-            while (CurrentToken.Type != TokenType.RBrace)
+            if (initializers.Count == 0)
             {
-                if (initializers.Count == 0)
+                if (CurrentToken.Type == TokenType.LBracket)
                 {
-                    if (CurrentToken.Type == TokenType.LBracket)
-                    {
-                        keyed = true;
-                    }
-                    else if (_lexer.PeekToken(1) == Token.Associate)
-                    {
-                        keyed = true;
-                    }
-                    else if (CurrentToken.Type == TokenType.Identifier && _lexer.PeekToken(1) == Token.Colon)
-                    {
-                        keyed = true;
-                    }
+                    keyed = true;
                 }
-
-                if (keyed)
+                else if (_lexer.PeekToken(1) == Token.Associate)
                 {
-                    Expression key, value;
+                    keyed = true;
+                }
+                else if (CurrentToken.Type == TokenType.Identifier && _lexer.PeekToken(1) == Token.Colon)
+                {
+                    keyed = true;
+                }
+            }
 
-                    if (CurrentToken.Type == TokenType.LBracket)
+            if (keyed)
+            {
+                Expression key, value;
+
+                if (CurrentToken.Type == TokenType.LBracket)
+                {
+                    key = ComputedKeyExpression();
+
+                    if (key is NilConstant)
                     {
-                        key = ComputedKeyExpression();
-
-                        if (key is NilConstant)
-                        {
-                            throw new ParserException(
-                                "'nil' is not a valid key expression.",
-                                (key.Line, key.Column)
-                            );
-                        }
-
-                        Match(Token.Associate);
-                        value = AssignmentExpression();
-
-                        initializers.Add(new KeyValuePairExpression(key, value));
+                        throw new ParserException(
+                            "'nil' is not a valid key expression.",
+                            (key.Line, key.Column)
+                        );
                     }
-                    else
-                    {
-                        if (CurrentToken.Type == TokenType.Identifier)
-                        {
-                            var keyIdentifier = Identifier();
 
-                            if (CurrentToken == Token.Colon)
-                            {
-                                Match(Token.Colon);
-                                key = new StringConstant(keyIdentifier.Name, false)
-                                    { Line = keyIdentifier.Line, Column = keyIdentifier.Column };
-                            }
-                            else
-                            {
-                                throw new ParserException(
-                                    "Identifier-style keys must be followed by a colon.",
-                                    (CurrentToken.Line, CurrentToken.Column)
-                                );
-                            }
-                        }
-                        else
-                        {
-                            key = ConstantExpression();
-                            Match(Token.Associate);
-                        }
+                    Match(Token.Associate);
+                    value = AssignmentExpression();
 
-                        if (CurrentToken == Token.Self && _lexer.PeekToken(1) == Token.DoubleColon)
-                        {
-                            value = SelfFnExpression();
-                        }
-                        else
-                        {
-                            value = AssignmentExpression();
-                        }
-
-                        initializers.Add(new KeyValuePairExpression(key, value));
-                    }
+                    initializers.Add(new KeyValuePairExpression(key, value));
                 }
                 else
                 {
-                    if (CurrentToken == Token.Self)
+                    if (CurrentToken.Type == TokenType.Identifier)
                     {
-                        initializers.Add(SelfFnExpression());
+                        var keyIdentifier = Identifier();
+
+                        if (CurrentToken == Token.Colon)
+                        {
+                            Match(Token.Colon);
+                            key = new StringConstant(keyIdentifier.Name, false)
+                                { Line = keyIdentifier.Line, Column = keyIdentifier.Column };
+                        }
+                        else
+                        {
+                            throw new ParserException(
+                                "Identifier-style keys must be followed by a colon.",
+                                (CurrentToken.Line, CurrentToken.Column)
+                            );
+                        }
                     }
                     else
                     {
-                        initializers.Add(AssignmentExpression());
+                        key = ConstantExpression();
+                        Match(Token.Associate);
                     }
+
+                    if (CurrentToken == Token.Self && _lexer.PeekToken(1) == Token.DoubleColon)
+                    {
+                        value = SelfFnExpression();
+                    }
+                    else
+                    {
+                        value = AssignmentExpression();
+                    }
+
+                    initializers.Add(new KeyValuePairExpression(key, value));
                 }
-
-                if (CurrentToken.Type == TokenType.RBrace)
-                    break;
-
-                Match(Token.Comma);
+            }
+            else
+            {
+                if (CurrentToken == Token.Self)
+                {
+                    initializers.Add(SelfFnExpression());
+                }
+                else
+                {
+                    initializers.Add(AssignmentExpression());
+                }
             }
 
-            Match(Token.RBrace);
-            return new TableExpression(initializers, keyed)
-                { Line = line, Column = col };
+            if (CurrentToken.Type == TokenType.RBrace)
+                break;
+
+            Match(Token.Comma);
         }
 
-        private Expression ComputedKeyExpression()
-        {
-            Match(Token.LBracket);
-            var computedKey = AssignmentExpression();
-            Match(Token.RBracket);
+        Match(Token.RBrace);
+        return new TableExpression(initializers, keyed)
+            { Line = line, Column = col };
+    }
 
-            return computedKey;
-        }
+    private Expression ComputedKeyExpression()
+    {
+        Match(Token.LBracket);
+        var computedKey = AssignmentExpression();
+        Match(Token.RBracket);
+
+        return computedKey;
     }
 }

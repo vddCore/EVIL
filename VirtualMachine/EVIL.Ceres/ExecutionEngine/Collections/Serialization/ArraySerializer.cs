@@ -1,68 +1,69 @@
+namespace EVIL.Ceres.ExecutionEngine.Collections.Serialization;
+
+using Array = EVIL.Ceres.ExecutionEngine.Collections.Array;
+
 using System;
 using System.IO;
 using System.Text;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
-namespace EVIL.Ceres.ExecutionEngine.Collections.Serialization
+internal static class ArraySerializer
 {
-    internal static class ArraySerializer
+    public static void Serialize(Array array, Stream stream)
     {
-        public static void Serialize(Array array, Stream stream)
+        using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
         {
-            using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
+            bw.Write(new[] { (byte)'E', (byte)'V', (byte)'A' });
+            bw.Write(array.Length);
+
+            for (var i = 0; i < array.Length; i++)
             {
-                bw.Write(new[] { (byte)'E', (byte)'V', (byte)'A' });
-                bw.Write(array.Length);
+                var value = array[i];
 
-                for (var i = 0; i < array.Length; i++)
+                if (value.Type == DynamicValueType.Array && ReferenceEquals(value.Array!, array))
                 {
-                    var value = array[i];
-
-                    if (value.Type == DynamicValueType.Array && ReferenceEquals(value.Array!, array))
-                    {
-                        throw new SerializationException("Circular reference in serialized array.");
-                    }
-
-                    array[i].Serialize(stream);
+                    throw new SerializationException("Circular reference in serialized array.");
                 }
+
+                array[i].Serialize(stream);
             }
         }
+    }
 
-        public static Array Deserialize(Stream stream)
+    public static Array Deserialize(Stream stream)
+    {
+        var offset = stream.Position;
+
+        using (var br = new BinaryReader(stream, Encoding.UTF8, true))
         {
-            var offset = stream.Position;
+            var header = br.ReadBytes(3);
 
-            using (var br = new BinaryReader(stream, Encoding.UTF8, true))
+            if (header[0] != 'E'
+                || header[1] != 'V'
+                || header[2] != 'A')
             {
-                var header = br.ReadBytes(3);
+                throw new SerializationException("Invalid array header.");
+            }
 
-                if (header[0] != 'E'
-                    || header[1] != 'V'
-                    || header[2] != 'A')
+            try
+            {
+                var length = br.ReadInt32();
+                var array = new Array(length);
+
+                for (var i = 0; i < length; i++)
                 {
-                    throw new SerializationException("Invalid array header.");
+                    array[i] = DynamicValue.Deserialize(stream);
                 }
 
-                try
-                {
-                    var length = br.ReadInt32();
-                    var array = new Array(length);
-
-                    for (var i = 0; i < length; i++)
-                    {
-                        array[i] = DynamicValue.Deserialize(stream);
-                    }
-
-                    return array;
-                }
-                catch (Exception e)
-                {
-                    throw new SerializationException(
-                        $"Failed to deserialize the array at stream offset '{offset}'. Data may be corrupt.",
-                        e
-                    );
-                }
+                return array;
+            }
+            catch (Exception e)
+            {
+                throw new SerializationException(
+                    $"Failed to deserialize the array at stream offset '{offset}'. Data may be corrupt.",
+                    e
+                );
             }
         }
     }

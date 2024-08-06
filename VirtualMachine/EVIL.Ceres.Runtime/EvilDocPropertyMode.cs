@@ -1,11 +1,10 @@
+namespace EVIL.Ceres.Runtime;
+
 using System;
 
-namespace EVIL.Ceres.Runtime
+[Flags]
+public enum EvilDocPropertyMode : byte
 {
-    [Flags]
-    public enum EvilDocPropertyMode : byte
-    {
-        Get = 1 << 0,
-        Set = 1 << 1
-    }
+    Get = 1 << 0,
+    Set = 1 << 1
 }

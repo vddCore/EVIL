@@ -1,24 +1,23 @@
-﻿using EVIL.Ceres.TranslationEngine.Diagnostics;
+﻿namespace EVIL.Ceres.TranslationEngine;
 
-namespace EVIL.Ceres.TranslationEngine
+using EVIL.Ceres.TranslationEngine.Diagnostics;
+
+public partial class Compiler
 {
-    public partial class Compiler
+    private void ThrowIfVarReadOnly(string identifier)
     {
-        private void ThrowIfVarReadOnly(string identifier)
+        if (!CurrentScope.IsSymbolWriteable(identifier, out var result))
         {
-            if (!CurrentScope.IsSymbolWriteable(identifier, out var result))
-            {
-                var sym = result!.Value.Symbol;
+            var sym = result!.Value.Symbol;
                 
-                Log.TerminateWithFatal(
-                    $"Attempt to set a value of a read-only {sym.Type.ToString().ToLower()} `{sym.Name}' " +
-                    $"(defined on line {sym.DefinedOnLine})",
-                    CurrentFileName,
-                    EvilMessageCode.AttemptToWriteReadOnlyLocal,
-                    Line,
-                    Column
-                );
-            }
+            Log.TerminateWithFatal(
+                $"Attempt to set a value of a read-only {sym.Type.ToString().ToLower()} `{sym.Name}' " +
+                $"(defined on line {sym.DefinedOnLine})",
+                CurrentFileName,
+                EvilMessageCode.AttemptToWriteReadOnlyLocal,
+                Line,
+                Column
+            );
         }
     }
 }

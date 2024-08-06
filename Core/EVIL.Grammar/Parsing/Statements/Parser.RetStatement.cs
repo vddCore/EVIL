@@ -1,27 +1,26 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.Parsing;
+
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private RetStatement ReturnStatement()
     {
-        private RetStatement Return()
+        var (line, col) = Match(Token.Ret);
+        Expression? expression;
+
+        if (CurrentToken.Type == TokenType.Semicolon)
         {
-            var (line, col) = Match(Token.Ret);
-            Expression? expression;
-
-            if (CurrentToken.Type == TokenType.Semicolon)
-            {
-                expression = null;
-            }
-            else
-            {
-                expression = AssignmentExpression();
-            }
-
-            return new RetStatement(expression)
-                { Line = line, Column = col };
+            expression = null;
         }
+        else
+        {
+            expression = AssignmentExpression();
+        }
+
+        return new RetStatement(expression)
+            { Line = line, Column = col };
     }
 }

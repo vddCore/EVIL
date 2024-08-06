@@ -1,13 +1,12 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(SkipStatement skipStatement)
     {
-        public override void Visit(SkipStatement skipStatement)
-        {
-            Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
-        }
+        Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
     }
 }

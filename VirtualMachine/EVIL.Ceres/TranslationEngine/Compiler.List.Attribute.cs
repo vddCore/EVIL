@@ -1,13 +1,12 @@
-﻿using EVIL.Grammar.AST.Statements.TopLevel;
+﻿namespace EVIL.Ceres.TranslationEngine;
 
-namespace EVIL.Ceres.TranslationEngine
+using EVIL.Grammar.AST.Statements.TopLevel;
+
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(AttributeList attributeList)
     {
-        public override void Visit(AttributeList attributeList)
-        {
-            foreach (var attr in attributeList.Attributes)
-                Visit(attr);
-        }
+        foreach (var attr in attributeList.Attributes)
+            Visit(attr);
     }
 }

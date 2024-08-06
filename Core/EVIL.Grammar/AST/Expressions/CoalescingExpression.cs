@@ -1,18 +1,17 @@
+namespace EVIL.Grammar.AST.Expressions;
+
 using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST.Expressions
+public sealed class CoalescingExpression : Expression
 {
-    public class CoalescingExpression : Expression
+    public Expression Left { get; }
+    public Expression Right { get; }
+
+    public CoalescingExpression(Expression left, Expression right)
     {
-        public Expression Left { get; }
-        public Expression Right { get; }
+        Left = left;
+        Right = right;
 
-        public CoalescingExpression(Expression left, Expression right)
-        {
-            Left = left;
-            Right = right;
-
-            Reparent(left, right);
-        }
+        Reparent(left, right);
     }
 }

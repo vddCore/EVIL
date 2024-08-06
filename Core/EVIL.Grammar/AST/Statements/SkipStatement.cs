@@ -1,8 +1,7 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Grammar.AST.Statements
+using EVIL.Grammar.AST.Base;
+
+public sealed class SkipStatement : Statement
 {
-    public sealed class SkipStatement : Statement
-    {
-    }
 }

@@ -1,3 +1,5 @@
+namespace EVIL.evil;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,45 +7,42 @@ using System.Linq;
 using System.Reflection;
 using EVIL.Ceres.Runtime;
 
-namespace EVIL.evil
+public class RuntimeModuleLoader
 {
-    public class RuntimeModuleLoader
+    private const string RuntimeModuleExtensionPattern = "*.evrm.dll";
+
+    private readonly EvilRuntime _runtime;
+
+    public RuntimeModuleLoader(EvilRuntime runtime)
     {
-        private const string RuntimeModuleExtensionPattern = "*.evrm.dll";
+        _runtime = runtime;
+    }
 
-        private readonly EvilRuntime _runtime;
+    public List<RuntimeModule> RegisterUserRuntimeModules(string directoryPath)
+    {
+        var filePaths = Directory.GetFiles(directoryPath, $"{RuntimeModuleExtensionPattern}");
+        var modules = new List<RuntimeModule>();
 
-        public RuntimeModuleLoader(EvilRuntime runtime)
+
+        foreach (var filePath in filePaths)
         {
-            _runtime = runtime;
-        }
-
-        public List<RuntimeModule> RegisterUserRuntimeModules(string directoryPath)
-        {
-            var filePaths = Directory.GetFiles(directoryPath, $"{RuntimeModuleExtensionPattern}");
-            var modules = new List<RuntimeModule>();
-
-
-            foreach (var filePath in filePaths)
+            try
             {
-                try
-                {
-                    var assembly = Assembly.LoadFrom(filePath);
-                    var types = assembly.GetExportedTypes().Where(t => t.IsAssignableTo(typeof(RuntimeModule)));
+                var assembly = Assembly.LoadFrom(filePath);
+                var types = assembly.GetExportedTypes().Where(t => t.IsAssignableTo(typeof(RuntimeModule)));
 
-                    foreach (var type in types)
-                    {
-                        modules.Add(_runtime.RegisterModule(type, out _));
-                    }
-                }
-                catch (Exception e)
+                foreach (var type in types)
                 {
-                    throw new RuntimeModuleLoadException("Failed to load a user runtime module.", e, filePath);
+                    modules.Add(_runtime.RegisterModule(type, out _));
                 }
             }
-
-
-            return modules;
+            catch (Exception e)
+            {
+                throw new RuntimeModuleLoadException("Failed to load a user runtime module.", e, filePath);
+            }
         }
+
+
+        return modules;
     }
 }

@@ -1,50 +1,49 @@
+namespace EVIL.Grammar.Parsing;
+
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private ErrorExpression ErrorExpression()
     {
-        private ErrorExpression ErrorExpression()
+        var (line, col) = Match(Token.Error);
+
+        StringConstant? implicitMessage = null;
+
+        if (CurrentToken.Type == TokenType.LParenthesis)
         {
-            var (line, col) = Match(Token.Error);
+            Match(Token.LParenthesis);
+            var constant = ConstantExpression();
 
-            StringConstant? implicitMessage = null;
-
-            if (CurrentToken.Type == TokenType.LParenthesis)
+            if (constant is not StringConstant stringConstant)
             {
-                Match(Token.LParenthesis);
-                var constant = ConstantExpression();
-
-                if (constant is not StringConstant stringConstant)
-                {
-                    throw new ParserException(
-                        "Expected a string for the implicit error message.",
-                        (constant.Line, constant.Column)
-                    );
-                }
-
-                implicitMessage = stringConstant;
-                Match(Token.RParenthesis);
+                throw new ParserException(
+                    "Expected a string for the implicit error message.",
+                    (constant.Line, constant.Column)
+                );
             }
 
-            TableExpression? userData = null;
+            implicitMessage = stringConstant;
+            Match(Token.RParenthesis);
+        }
 
-            if (implicitMessage != null)
-            {
-                if (CurrentToken.Type == TokenType.LBrace)
-                {
-                    userData = TableExpression();
-                }
-            }
-            else
+        TableExpression? userData = null;
+
+        if (implicitMessage != null)
+        {
+            if (CurrentToken.Type == TokenType.LBrace)
             {
                 userData = TableExpression();
             }
-            
-            return new ErrorExpression(implicitMessage, userData)
-                { Line = line, Column = col };
         }
+        else
+        {
+            userData = TableExpression();
+        }
+            
+        return new ErrorExpression(implicitMessage, userData)
+            { Line = line, Column = col };
     }
 }

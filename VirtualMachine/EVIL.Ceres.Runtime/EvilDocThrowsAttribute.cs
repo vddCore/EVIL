@@ -1,18 +1,17 @@
+namespace EVIL.Ceres.Runtime;
+
 using System;
 using EVIL.CommonTypes.TypeSystem;
 
-namespace EVIL.Ceres.Runtime
+[AttributeUsage(AttributeTargets.Method)]
+public class EvilDocThrowsAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class EvilDocThrowsAttribute : Attribute
-    {
-        public DynamicValueType ThrownType { get; }
-        public string Description { get; }
+    public DynamicValueType ThrownType { get; }
+    public string Description { get; }
 
-        public EvilDocThrowsAttribute(DynamicValueType thrownType, string description)
-        {
-            ThrownType = thrownType;
-            Description = description;
-        }
+    public EvilDocThrowsAttribute(DynamicValueType thrownType, string description)
+    {
+        ThrownType = thrownType;
+        Description = description;
     }
 }

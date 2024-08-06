@@ -1,28 +1,27 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(RetStatement retStatement)
     {
-        public override void Visit(RetStatement retStatement)
+        if (retStatement.Expression != null)
         {
-            if (retStatement.Expression != null)
-            {
-                Visit(retStatement.Expression);
+            Visit(retStatement.Expression);
 
-                if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
-                {
-                    if (opCode == OpCode.TAILINVOKE)
-                        return;
-                }
-            }
-            else
+            if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
             {
-                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+                if (opCode == OpCode.TAILINVOKE)
+                    return;
             }
-
-            Chunk.CodeGenerator.Emit(OpCode.RET);
         }
+        else
+        {
+            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+        }
+
+        Chunk.CodeGenerator.Emit(OpCode.RET);
     }
 }

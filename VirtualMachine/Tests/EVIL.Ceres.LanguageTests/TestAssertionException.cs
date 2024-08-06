@@ -1,12 +1,11 @@
+namespace EVIL.Ceres.LanguageTests;
+
 using System;
 
-namespace EVIL.Ceres.LanguageTests
+public class TestAssertionException : Exception
 {
-    public class TestAssertionException : Exception
+    public TestAssertionException(string message)
+        : base(message)
     {
-        public TestAssertionException(string message)
-            : base(message)
-        {
-        }
     }
 }

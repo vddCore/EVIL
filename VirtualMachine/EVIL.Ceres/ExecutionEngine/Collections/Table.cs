@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Collections.Serialization;
-using EVIL.Ceres.ExecutionEngine.Marshaling;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
-using static EVIL.Ceres.ExecutionEngine.TypeSystem.DynamicValue;
+using static TypeSystem.DynamicValue;
 
 public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
 {

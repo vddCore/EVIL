@@ -1,14 +1,13 @@
-﻿using System;
+﻿namespace EVIL.Ceres.TranslationEngine.Diagnostics;
 
-namespace EVIL.Ceres.TranslationEngine.Diagnostics
+using System;
+
+public sealed class CompilerMessageEmitEventArgs : EventArgs
 {
-    public sealed class CompilerMessageEmitEventArgs : EventArgs
-    {
-        public CompilerMessage Message { get; }
+    public CompilerMessage Message { get; }
 
-        public CompilerMessageEmitEventArgs(CompilerMessage message)
-        {
-            Message = message;
-        }
+    public CompilerMessageEmitEventArgs(CompilerMessage message)
+    {
+        Message = message;
     }
 }

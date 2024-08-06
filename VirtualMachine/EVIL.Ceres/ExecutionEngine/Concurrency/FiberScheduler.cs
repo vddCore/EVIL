@@ -1,148 +1,146 @@
+namespace EVIL.Ceres.ExecutionEngine.Concurrency;
+
 using System.Collections.Generic;
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
-namespace EVIL.Ceres.ExecutionEngine.Concurrency
+public class FiberScheduler
 {
+    private CeresVM _vm;
+    private FiberCrashHandler _defaultCrashHandler;
 
-    public class FiberScheduler
-    {
-        private CeresVM _vm;
-        private FiberCrashHandler _defaultCrashHandler;
+    private List<Fiber> _fibers;
+    private List<int> _dueForRemoval;
 
-        private List<Fiber> _fibers;
-        private List<int> _dueForRemoval;
+    private bool _running;
 
-        private bool _running;
-
-        public IReadOnlyList<Fiber> Fibers => _fibers;
-        public bool IsRunning => _running;
+    public IReadOnlyList<Fiber> Fibers => _fibers;
+    public bool IsRunning => _running;
         
-        public FiberScheduler(CeresVM vm, FiberCrashHandler defaultCrashHandler)
-        {
-            _vm = vm;
-            _defaultCrashHandler = defaultCrashHandler;
+    public FiberScheduler(CeresVM vm, FiberCrashHandler defaultCrashHandler)
+    {
+        _vm = vm;
+        _defaultCrashHandler = defaultCrashHandler;
             
-            _fibers = new();
-            _dueForRemoval = new();
-        }
+        _fibers = new();
+        _dueForRemoval = new();
+    }
 
-        public void Run()
+    public void Run()
+    {
+        _running = true;
+
+        while (_running)
         {
-            _running = true;
-
-            while (_running)
+            lock (_fibers)
             {
-                lock (_fibers)
+                for (var i = 0; i < _fibers.Count; i++)
                 {
-                    for (var i = 0; i < _fibers.Count; i++)
-                    {
-                        var fiber = _fibers[i];
+                    var fiber = _fibers[i];
                         
-                        if (fiber._state == FiberState.Awaiting)
+                    if (fiber._state == FiberState.Awaiting)
+                    {
+                        fiber.RemoveFinishedAwaitees();
+                        fiber.Resume();
+                    }
+                    else if (fiber._state == FiberState.Fresh)
+                    {
+                        fiber.Resume();
+                    }
+                    else if (fiber._state == FiberState.Paused)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (fiber._state == FiberState.Finished || fiber._state == FiberState.Crashed)
                         {
-                            fiber.RemoveFinishedAwaitees();
-                            fiber.Resume();
-                        }
-                        else if (fiber._state == FiberState.Fresh)
-                        {
-                            fiber.Resume();
-                        }
-                        else if (fiber._state == FiberState.Paused)
-                        {
-                            continue;
+                            if (!fiber.ImmuneToCollection)
+                            {
+                                _dueForRemoval.Add(i);
+                            }
                         }
                         else
                         {
-                            if (fiber._state == FiberState.Finished || fiber._state == FiberState.Crashed)
-                            {
-                                if (!fiber.ImmuneToCollection)
-                                {
-                                    _dueForRemoval.Add(i);
-                                }
-                            }
-                            else
-                            {
-                                fiber.Resume();
-                            }
-
-                            if (fiber._state != FiberState.Running)
-                            {
-                                continue;
-                            }
+                            fiber.Resume();
                         }
-                        
-                        fiber.Step();
+
+                        if (fiber._state != FiberState.Running)
+                        {
+                            continue;
+                        }
                     }
-
-                    RemoveFinishedFibers();
+                        
+                    fiber.Step();
                 }
+
+                RemoveFinishedFibers();
             }
         }
+    }
 
-        public void SetDefaultCrashHandler(FiberCrashHandler crashHandler)
+    public void SetDefaultCrashHandler(FiberCrashHandler crashHandler)
+    {
+        _defaultCrashHandler = crashHandler;
+    }
+
+    public void Stop()
+    {
+        lock (_fibers)
         {
-            _defaultCrashHandler = crashHandler;
+            _running = false;
         }
+    }
 
-        public void Stop()
+    public Fiber CreateFiber(
+        bool immunized,
+        FiberCrashHandler? crashHandler = null,
+        Dictionary<string, ClosureContext>? closureContexts = null)
+    {
+        var fiber = new Fiber(
+            _vm, 
+            crashHandler ?? _defaultCrashHandler, 
+            closureContexts
+        );
+
+        if (immunized)
         {
-            lock (_fibers)
-            {
-                _running = false;
-            }
+            fiber.Immunize();
         }
 
-        public Fiber CreateFiber(
-            bool immunized,
-            FiberCrashHandler? crashHandler = null,
-            Dictionary<string, ClosureContext>? closureContexts = null)
+        lock (_fibers)
         {
-            var fiber = new Fiber(
-                _vm, 
-                crashHandler ?? _defaultCrashHandler, 
-                closureContexts
-            );
-
-            if (immunized)
-            {
-                fiber.Immunize();
-            }
-
-            lock (_fibers)
-            {
-                _fibers.Add(fiber);
-            }
-
-            return fiber;
+            _fibers.Add(fiber);
         }
 
-        public void RemoveCrashedFibers()
+        return fiber;
+    }
+
+    public void RemoveCrashedFibers()
+    {
+        for (var i = 0; i < _fibers.Count; i++)
         {
-            for (var i = 0; i < _fibers.Count; i++)
+            if (_fibers[i]._state == FiberState.Crashed)
             {
-                if (_fibers[i]._state == FiberState.Crashed)
-                {
-                    _dueForRemoval.Add(i);
-                }
+                _dueForRemoval.Add(i);
             }
         }
+    }
 
-        private void RemoveFinishedFibers()
+    private void RemoveFinishedFibers()
+    {
+        if (!_dueForRemoval.Any())
+            return;
+
+        _dueForRemoval.Sort();
+        _dueForRemoval.Reverse();
+
+        for (var i = 0; i < _dueForRemoval.Count; i++)
         {
-            if (!_dueForRemoval.Any())
-                return;
-
-            _dueForRemoval.Sort();
-            _dueForRemoval.Reverse();
-
-            for (var i = 0; i < _dueForRemoval.Count; i++)
-            {
-                _fibers.RemoveAt(_dueForRemoval[i]);
-            }
-
-            _dueForRemoval.Clear();
+            _fibers.RemoveAt(_dueForRemoval[i]);
         }
+
+        _dueForRemoval.Clear();
     }
 }

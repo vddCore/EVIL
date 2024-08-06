@@ -1,10 +1,9 @@
-﻿namespace EVIL.Ceres.ExecutionEngine
+﻿namespace EVIL.Ceres.ExecutionEngine;
+
+public class ChunkDeserializationException : VirtualMachineException
 {
-    public class ChunkDeserializationException : VirtualMachineException
+    internal ChunkDeserializationException(string message) 
+        : base(message)
     {
-        internal ChunkDeserializationException(string message) 
-            : base(message)
-        {
-        }
     }
 }

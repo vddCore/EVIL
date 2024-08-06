@@ -1,17 +1,16 @@
-﻿using System;
+﻿namespace EVIL.Ceres.ExecutionEngine;
 
-namespace EVIL.Ceres.ExecutionEngine
+using System;
+
+public class RecoverableVirtualMachineException : VirtualMachineException
 {
-    public class RecoverableVirtualMachineException : VirtualMachineException
+    internal RecoverableVirtualMachineException(string message, Exception innerException) 
+        : base(message, innerException)
     {
-        internal RecoverableVirtualMachineException(string message, Exception innerException) 
-            : base(message, innerException)
-        {
-        }
+    }
 
-        internal RecoverableVirtualMachineException(string message)
-            : base(message)
-        {
-        }
+    internal RecoverableVirtualMachineException(string message)
+        : base(message)
+    {
     }
 }

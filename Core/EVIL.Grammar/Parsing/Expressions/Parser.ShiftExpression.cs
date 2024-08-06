@@ -1,43 +1,42 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.Parsing;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private List<TokenType> _shiftOperators = new()
     {
-        private List<TokenType> _shiftOperators = new()
-        {
-            TokenType.ShiftLeft,
-            TokenType.ShiftRight
-        };
+        TokenType.ShiftLeft,
+        TokenType.ShiftRight
+    };
 
-        private Expression ShiftExpression()
-        {
-            var node = AdditiveExpression();
-            var token = CurrentToken;
+    private Expression ShiftExpression()
+    {
+        var node = AdditiveExpression();
+        var token = CurrentToken;
 
-            while (_shiftOperators.Contains(token.Type))
+        while (_shiftOperators.Contains(token.Type))
+        {
+            if (token.Type == TokenType.ShiftLeft)
             {
-                if (token.Type == TokenType.ShiftLeft)
-                {
-                    var (line, col) = Match(Token.ShiftLeft);
+                var (line, col) = Match(Token.ShiftLeft);
 
-                    node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftLeft)
-                        { Line = line, Column = col };
-                }
-                else if (token.Type == TokenType.ShiftRight)
-                {
-                    var (line, col) = Match(Token.ShiftRight);
-                    node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
-                        { Line = line, Column = col };
-                }
-
-                token = CurrentToken;
+                node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftLeft)
+                    { Line = line, Column = col };
+            }
+            else if (token.Type == TokenType.ShiftRight)
+            {
+                var (line, col) = Match(Token.ShiftRight);
+                node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
+                    { Line = line, Column = col };
             }
 
-            return node;
+            token = CurrentToken;
         }
+
+        return node;
     }
 }

@@ -1,14 +1,13 @@
-﻿using EVIL.Grammar.AST.Statements;
+﻿namespace EVIL.Grammar.Parsing;
+
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private ValStatement ReadWriteValStatement()
     {
-        private ValStatement ReadWriteValStatement()
-        {
-            Match(Token.Rw);
-            return ValStatement(true);
-        }    
-    }
+        Match(Token.Rw);
+        return ValStatement(true);
+    }    
 }

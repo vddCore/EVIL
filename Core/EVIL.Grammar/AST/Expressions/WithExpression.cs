@@ -1,18 +1,17 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Expressions;
 
-namespace EVIL.Grammar.AST.Expressions
+using EVIL.Grammar.AST.Base;
+
+public sealed class WithExpression : Expression
 {
-    public class WithExpression : Expression
+    public Expression BaseExpression { get; }
+    public TableExpression TableExpansionExpression { get; }
+
+    public WithExpression(Expression baseExpression, TableExpression tableExpansionExpression)
     {
-        public Expression BaseExpression { get; }
-        public TableExpression TableExpansionExpression { get; }
+        BaseExpression = baseExpression;
+        TableExpansionExpression = tableExpansionExpression;
 
-        public WithExpression(Expression baseExpression, TableExpression tableExpansionExpression)
-        {
-            BaseExpression = baseExpression;
-            TableExpansionExpression = tableExpansionExpression;
-
-            Reparent(BaseExpression, TableExpansionExpression);
-        }
+        Reparent(BaseExpression, TableExpansionExpression);
     }
 }

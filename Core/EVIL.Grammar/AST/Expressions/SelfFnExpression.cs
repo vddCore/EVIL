@@ -1,23 +1,21 @@
+namespace EVIL.Grammar.AST.Expressions;
 
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Grammar.AST.Expressions
+public sealed class SelfFnExpression : Expression
 {
-    public class SelfFnExpression : Expression
-    {
-        public ParameterList? ParameterList { get; }
-        public Statement Statement { get; }
+    public ParameterList? ParameterList { get; }
+    public Statement Statement { get; }
 
-        public SelfFnExpression(
-            ParameterList? parameterList,
-            Statement statement)
-        {
-            ParameterList = parameterList;
-            Statement = statement;
+    public SelfFnExpression(
+        ParameterList? parameterList,
+        Statement statement)
+    {
+        ParameterList = parameterList;
+        Statement = statement;
             
-            Reparent(ParameterList);
-            Reparent(Statement);
-        }
+        Reparent(ParameterList);
+        Reparent(Statement);
     }
 }

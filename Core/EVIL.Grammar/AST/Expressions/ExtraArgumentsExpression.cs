@@ -1,14 +1,13 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Expressions;
 
-namespace EVIL.Grammar.AST.Expressions
+using EVIL.Grammar.AST.Base;
+
+public sealed class ExtraArgumentsExpression : Expression
 {
-    public class ExtraArgumentsExpression : Expression
-    {
-        public bool UnwrapOnStack { get; }
+    public bool UnwrapOnStack { get; }
 
-        public ExtraArgumentsExpression(bool unwrapOnStack)
-        {
-            UnwrapOnStack = unwrapOnStack;
-        }
+    public ExtraArgumentsExpression(bool unwrapOnStack)
+    {
+        UnwrapOnStack = unwrapOnStack;
     }
 }

@@ -1,18 +1,17 @@
-namespace EVIL.CommonTypes.TypeSystem
+namespace EVIL.CommonTypes.TypeSystem;
+
+public enum DynamicValueType
 {
-    public enum DynamicValueType
-    {
-        Nil,
-        Number,
-        String,
-        Boolean,
-        Table,
-        Array,
-        Fiber,
-        Chunk,
-        Error,
-        TypeCode,
-        NativeFunction,
-        NativeObject
-    }
+    Nil,
+    Number,
+    String,
+    Boolean,
+    Table,
+    Array,
+    Fiber,
+    Chunk,
+    Error,
+    TypeCode,
+    NativeFunction,
+    NativeObject
 }

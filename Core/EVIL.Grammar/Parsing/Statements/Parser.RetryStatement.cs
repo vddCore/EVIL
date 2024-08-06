@@ -1,7 +1,7 @@
 ﻿namespace EVIL.Grammar.Parsing;
 
-using AST.Statements;
-using Lexical;
+using EVIL.Grammar.AST.Statements;
+using EVIL.Lexical;
 
 public partial class Parser
 {

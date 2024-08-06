@@ -1,14 +1,13 @@
-﻿namespace EVIL.Lexical
+﻿namespace EVIL.Lexical;
+
+public enum TokenClass
 {
-    public enum TokenClass
-    {
-        Operator,
-        Keyword,
-        Identifier,
-        Literal,
-        Alias,
-        Meta,
-        TypeCode,
-        Override
-    }
+    Operator,
+    Keyword,
+    Identifier,
+    Literal,
+    Alias,
+    Meta,
+    TypeCode,
+    Override
 }

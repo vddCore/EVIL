@@ -1,24 +1,23 @@
+namespace EVIL.Grammar.AST.Expressions;
+
 using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Grammar.AST.Expressions
+public sealed class ByExpression : Expression
 {
-    public class ByExpression : Expression
+    public Expression Qualifier { get; }
+    public List<ByArmNode> Arms { get; }
+    public AstNode? ElseArm { get; }
+
+    public ByExpression(Expression qualifier, List<ByArmNode> arms, AstNode? elseArm)
     {
-        public Expression Qualifier { get; }
-        public List<ByArmNode> Arms { get; }
-        public AstNode? ElseArm { get; }
+        Qualifier = qualifier;
+        Arms = arms;
+        ElseArm = elseArm;
 
-        public ByExpression(Expression qualifier, List<ByArmNode> arms, AstNode? elseArm)
-        {
-            Qualifier = qualifier;
-            Arms = arms;
-            ElseArm = elseArm;
-
-            Reparent(Qualifier);
-            Reparent(Arms);
-            Reparent(ElseArm);
-        }
+        Reparent(Qualifier);
+        Reparent(Arms);
+        Reparent(ElseArm);
     }
 }

@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿namespace EVIL.evil;
 
-namespace EVIL.evil
+using System.Threading.Tasks;
+
+internal class Program
 {
-    internal class Program
-    {
-        public static async Task Main(string[] args)
-            => await new EvmFrontEnd().Run(args);
-    }
+    public static async Task Main(string[] args)
+        => await new EvmFrontEnd().Run(args);
 }

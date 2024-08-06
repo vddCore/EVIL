@@ -1,17 +1,16 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.AST.Statements.TopLevel;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Grammar.AST.Statements.TopLevel
+public sealed class AttributeList : AstNode
 {
-    public class AttributeList : AstNode
-    {
-        public List<AttributeNode> Attributes { get; }
+    public List<AttributeNode> Attributes { get; }
 
-        public AttributeList(List<AttributeNode> attributes)
-        {
-            Attributes = attributes;
-            Reparent(Attributes);
-        }
+    public AttributeList(List<AttributeNode> attributes)
+    {
+        Attributes = attributes;
+        Reparent(Attributes);
     }
 }

@@ -1,32 +1,31 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.Parsing;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private ProgramNode Program()
     {
-        private ProgramNode Program()
+        var statementList = new List<Statement>();
+
+        if (CurrentToken == Token.Empty)
         {
-            var statementList = new List<Statement>();
-
-            if (CurrentToken == Token.Empty)
-            {
-                throw new ParserException(
-                    "Internal error: lexer is in an invalid state (current token is empty?).",
-                    (-1, -1)
-                );
-            }
-
-            while (CurrentToken.Type != TokenType.EOF)
-            {
-                statementList.Add(
-                    Statement()
-                );
-            }
-
-            return new ProgramNode(statementList);
+            throw new ParserException(
+                "Internal error: lexer is in an invalid state (current token is empty?).",
+                (-1, -1)
+            );
         }
+
+        while (CurrentToken.Type != TokenType.EOF)
+        {
+            statementList.Add(
+                Statement()
+            );
+        }
+
+        return new ProgramNode(statementList);
     }
 }

@@ -1,97 +1,96 @@
-﻿using System;
+﻿namespace EVIL.Grammar.Parsing;
+
+using System;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
-    {
-        private readonly Lexer _lexer = new();
+    private readonly Lexer _lexer = new();
         
-        private uint _functionDescent;
-        private uint _loopDescent;
+    private uint _functionDescent;
+    private uint _loopDescent;
 
-        public LexerState CurrentState => _lexer.State;
-        public Token CurrentToken => CurrentState.CurrentToken;
+    public LexerState CurrentState => _lexer.State;
+    public Token CurrentToken => CurrentState.CurrentToken;
 
-        public ProgramNode Parse(string source)
+    public ProgramNode Parse(string source)
+    {
+        _functionDescent = 0;
+        _loopDescent = 0;
+        _lexer.LoadSource(source);
+
+        var programNode = Program();
+        Match(Token.EOF);
+
+        return programNode;
+    }
+
+    private T FunctionDescent<T>(Func<T> func) where T : AstNode
+    {
+        _functionDescent++;
+        var ret = func();
+        _functionDescent--;
+
+        return ret;
+    }
+
+    private T LoopDescent<T>(Func<T> func) where T : AstNode
+    {
+        _loopDescent++;
+        var ret = func();
+        _loopDescent--;
+
+        return ret;
+    }
+
+    private (int, int) Match(Token token, string? customErrorMessage = null)
+    {
+        var line = CurrentToken.Line;
+        var column = CurrentToken.Column;
+
+        if (CurrentToken.Type != token.Type)
         {
-            _functionDescent = 0;
-            _loopDescent = 0;
-            _lexer.LoadSource(source);
-
-            var programNode = Program();
-            Match(Token.EOF);
-
-            return programNode;
-        }
-
-        private T FunctionDescent<T>(Func<T> func) where T : AstNode
-        {
-            _functionDescent++;
-            var ret = func();
-            _functionDescent--;
-
-            return ret;
-        }
-
-        private T LoopDescent<T>(Func<T> func) where T : AstNode
-        {
-            _loopDescent++;
-            var ret = func();
-            _loopDescent--;
-
-            return ret;
-        }
-
-        private (int, int) Match(Token token, string? customErrorMessage = null)
-        {
-            var line = CurrentToken.Line;
-            var column = CurrentToken.Column;
-
-            if (CurrentToken.Type != token.Type)
+            var expected = $"'{token.Value}'";
+            if (string.IsNullOrEmpty(token.Value))
             {
-                var expected = $"'{token.Value}'";
-                if (string.IsNullOrEmpty(token.Value))
-                {
-                    expected = WithArticle(token.Type.ToString());
-                }
-
-                var actual = $"'{CurrentToken.Value}'";
-                if (string.IsNullOrEmpty(CurrentToken.Value))
-                {
-                    actual = WithArticle(CurrentToken.Type.ToString());
-                }
-
-                if (customErrorMessage != null)
-                {
-                    customErrorMessage = customErrorMessage
-                            .Replace("$expected", expected)
-                            .Replace("$actual", actual);
-                }
-                else
-                {
-                    customErrorMessage = $"Expected {expected}, got {actual}.";
-                }
-                
-                throw new ParserException(
-                    customErrorMessage,
-                    (line, column)
-                );
+                expected = WithArticle(token.Type.ToString());
             }
 
-            _lexer.NextToken();
-            return (line, column);
+            var actual = $"'{CurrentToken.Value}'";
+            if (string.IsNullOrEmpty(CurrentToken.Value))
+            {
+                actual = WithArticle(CurrentToken.Type.ToString());
+            }
+
+            if (customErrorMessage != null)
+            {
+                customErrorMessage = customErrorMessage
+                    .Replace("$expected", expected)
+                    .Replace("$actual", actual);
+            }
+            else
+            {
+                customErrorMessage = $"Expected {expected}, got {actual}.";
+            }
+                
+            throw new ParserException(
+                customErrorMessage,
+                (line, column)
+            );
         }
 
-        private string WithArticle(string word)
-        {
-            var result = word.ToLower();
+        _lexer.NextToken();
+        return (line, column);
+    }
 
-            return "aeiou".Contains(result[0])
-                ? $"an {result}"
-                : $"a {result}";
-        }
+    private string WithArticle(string word)
+    {
+        var result = word.ToLower();
+
+        return "aeiou".Contains(result[0])
+            ? $"an {result}"
+            : $"a {result}";
     }
 }

@@ -1,28 +1,27 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.AST.Miscellaneous;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST.Miscellaneous
+public sealed class AttributeNode : AstNode
 {
-    public class AttributeNode : AstNode
-    {
-        public IdentifierNode Identifier { get; }
+    public IdentifierNode Identifier { get; }
         
-        public List<AstNode> Values { get; }
-        public Dictionary<IdentifierNode, AstNode> Properties { get; }
+    public List<AstNode> Values { get; }
+    public Dictionary<IdentifierNode, AstNode> Properties { get; }
 
-        public AttributeNode(
-            IdentifierNode identifier,
-            List<AstNode> values,
-            Dictionary<IdentifierNode, AstNode> properties)
-        {
-            Identifier = identifier;
-            Values = values;
-            Properties = properties;
+    public AttributeNode(
+        IdentifierNode identifier,
+        List<AstNode> values,
+        Dictionary<IdentifierNode, AstNode> properties)
+    {
+        Identifier = identifier;
+        Values = values;
+        Properties = properties;
 
-            Reparent(Identifier);
-            Reparent(Values);
-            Reparent(Properties.Keys);
-            Reparent(Properties.Values);
-        }
+        Reparent(Identifier);
+        Reparent(Values);
+        Reparent(Properties.Keys);
+        Reparent(Properties.Values);
     }
 }

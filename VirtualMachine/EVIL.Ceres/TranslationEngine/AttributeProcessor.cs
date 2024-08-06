@@ -1,6 +1,5 @@
-﻿using EVIL.Ceres.ExecutionEngine.Diagnostics;
+﻿namespace EVIL.Ceres.TranslationEngine;
 
-namespace EVIL.Ceres.TranslationEngine
-{
-    public delegate void AttributeProcessor(ChunkAttribute attribute, Chunk chunk);
-}
+using EVIL.Ceres.ExecutionEngine.Diagnostics;
+
+public delegate void AttributeProcessor(ChunkAttribute attribute, Chunk chunk);
