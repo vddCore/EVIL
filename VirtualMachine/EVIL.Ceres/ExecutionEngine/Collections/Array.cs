@@ -6,7 +6,9 @@ using static EVIL.Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 namespace EVIL.Ceres.ExecutionEngine.Collections
 {
-    public class Array : IDynamicValueCollection
+    using EVIL.Ceres.ExecutionEngine.Marshaling;
+
+    public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
     {
         private DynamicValue[] _values;
         
@@ -223,5 +225,11 @@ namespace EVIL.Ceres.ExecutionEngine.Collections
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
+
+        public DynamicValue Index(DynamicValue key)
+            => this[key];
+
+        public void Set(DynamicValue key, DynamicValue value)
+            => this[key] = value;
     }
 }

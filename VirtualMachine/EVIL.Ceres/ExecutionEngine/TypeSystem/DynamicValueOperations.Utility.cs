@@ -3,6 +3,8 @@ using EVIL.CommonTypes.TypeSystem;
 
 namespace EVIL.Ceres.ExecutionEngine.TypeSystem
 {
+    using EVIL.Ceres.ExecutionEngine.Marshaling;
+
     public static partial class DynamicValueOperations
     {
         public static DynamicValue Contains(this DynamicValue a, DynamicValue b)
@@ -71,6 +73,9 @@ namespace EVIL.Ceres.ExecutionEngine.TypeSystem
             {
                 case DynamicValueType.Table:
                     return a.Table![key];
+                
+                case DynamicValueType.NativeObject when a.NativeObject is IIndexableObject indexable:
+                    return indexable.Index(key);
 
                 case DynamicValueType.Array when key.Type != DynamicValueType.Number:
                     throw new UnsupportedDynamicValueOperationException(
@@ -109,7 +114,7 @@ namespace EVIL.Ceres.ExecutionEngine.TypeSystem
                 
                 default:
                     throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to index a {a.Type} value."
+                        $"Attempt to index a non-indexable {a.Type} value."
                     );
             }
         }
