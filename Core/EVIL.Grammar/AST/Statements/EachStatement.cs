@@ -1,30 +1,29 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Statements;
+
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Grammar.AST.Statements
+public sealed class EachStatement : Statement
 {
-    public class EachStatement : Statement
-    {
-        public IdentifierNode KeyIdentifier { get; }
-        public IdentifierNode? ValueIdentifier { get; }
+    public IdentifierNode KeyIdentifier { get; }
+    public IdentifierNode? ValueIdentifier { get; }
         
-        public Expression Iterable { get; }
-        public Statement Statement { get; }
+    public Expression Iterable { get; }
+    public Statement Statement { get; }
 
-        public EachStatement(
-            IdentifierNode keyIdentifier,
-            IdentifierNode? valueIdentifier,
-            Expression iterable,
-            Statement statement)
-        {
-            KeyIdentifier = keyIdentifier;
-            ValueIdentifier = valueIdentifier;
-            Iterable = iterable;
-            Statement = statement;
+    public EachStatement(
+        IdentifierNode keyIdentifier,
+        IdentifierNode? valueIdentifier,
+        Expression iterable,
+        Statement statement)
+    {
+        KeyIdentifier = keyIdentifier;
+        ValueIdentifier = valueIdentifier;
+        Iterable = iterable;
+        Statement = statement;
 
-            Reparent(KeyIdentifier);
-            Reparent(ValueIdentifier);
-            Reparent(Iterable, Statement);
-        }
+        Reparent(KeyIdentifier);
+        Reparent(ValueIdentifier);
+        Reparent(Iterable, Statement);
     }
 }

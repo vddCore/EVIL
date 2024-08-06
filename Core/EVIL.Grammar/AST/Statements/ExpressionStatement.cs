@@ -1,18 +1,17 @@
+namespace EVIL.Grammar.AST.Statements;
+
 using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST.Statements
+public sealed class ExpressionStatement : Statement
 {
-    public sealed class ExpressionStatement : Statement
+    public readonly Expression Expression;
+
+    public ExpressionStatement(Expression expression)
     {
-        public readonly Expression Expression;
+        Expression = expression;
+        Reparent(Expression);
 
-        public ExpressionStatement(Expression expression)
-        {
-            Expression = expression;
-            Reparent(Expression);
-
-            Line = Expression.Line;
-            Column = Expression.Column;
-        }
+        Line = Expression.Line;
+        Column = Expression.Column;
     }
 }

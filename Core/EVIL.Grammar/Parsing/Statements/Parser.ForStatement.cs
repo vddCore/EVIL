@@ -1,94 +1,93 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.Parsing;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private ForStatement ForStatement()
     {
-        private ForStatement ForStatement()
+        var (line, col) = Match(Token.For);
+
+        List<Statement> assignments;
+        Expression condition;
+        List<Statement> iterationStatements;
+
+        Match(Token.LParenthesis);
         {
-            var (line, col) = Match(Token.For);
+            assignments = ForDeclarationList();
 
-            List<Statement> assignments;
-            Expression condition;
-            List<Statement> iterationStatements;
+            Match(Token.Semicolon);
 
-            Match(Token.LParenthesis);
-            {
-                assignments = ForDeclarationList();
+            condition = AssignmentExpression();
 
-                Match(Token.Semicolon);
+            Match(Token.Semicolon);
 
-                condition = AssignmentExpression();
+            iterationStatements = ForStatementList();
+        }
+        Match(Token.RParenthesis);
 
-                Match(Token.Semicolon);
+        var statements = LoopDescent(() => Statement());
 
-                iterationStatements = ForStatementList();
-            }
-            Match(Token.RParenthesis);
+        return new ForStatement(
+            assignments,
+            condition,
+            iterationStatements,
+            statements
+        ) { Line = line, Column = col };
+    }
 
-            var statements = LoopDescent(() => Statement());
+    private List<Statement> ForDeclarationList()
+    {
+        var nodes = new List<Statement> { ForDeclaration() };
 
-            return new ForStatement(
-                assignments,
-                condition,
-                iterationStatements,
-                statements
-            ) { Line = line, Column = col };
+        while (CurrentToken.Type == TokenType.Comma)
+        {
+            Match(Token.Comma);
+            nodes.Add(ForDeclaration());
         }
 
-        private List<Statement> ForDeclarationList()
+        return nodes;
+    }
+
+    private Statement ForDeclaration()
+    {
+        var token = CurrentToken;
+
+        if (token.Type == TokenType.Val)
         {
-            var nodes = new List<Statement> { ForDeclaration() };
-
-            while (CurrentToken.Type == TokenType.Comma)
-            {
-                Match(Token.Comma);
-                nodes.Add(ForDeclaration());
-            }
-
-            return nodes;
-        }
-
-        private Statement ForDeclaration()
-        {
-            var token = CurrentToken;
-
-            if (token.Type == TokenType.Val)
-            {
-                throw new ParserException(
-                    "For-loop `val' declarators must be `rw'.",
-                    (_lexer.State.Line, _lexer.State.Column)
-                );
-            }
-            
-            if (token.Type == TokenType.Rw)
-            {
-                return ReadWriteValStatement();
-            }
-            else if (token.Type == TokenType.Identifier)
-            {
-                return new ExpressionStatement(AssignmentExpression());
-            }
-            else throw new ParserException(
-                "Expected a variable definition or an expression.", 
+            throw new ParserException(
+                "For-loop `val' declarators must be `rw'.",
                 (_lexer.State.Line, _lexer.State.Column)
             );
         }
-
-        private List<Statement> ForStatementList()
+            
+        if (token.Type == TokenType.Rw)
         {
-            var list = new List<Statement> { new ExpressionStatement(AssignmentExpression()) };
-
-            while (CurrentToken.Type == TokenType.Comma)
-            {
-                Match(Token.Comma);
-                list.Add(new ExpressionStatement(AssignmentExpression()));
-            }
-
-            return list;
+            return ReadWriteValStatement();
         }
+        else if (token.Type == TokenType.Identifier)
+        {
+            return new ExpressionStatement(AssignmentExpression());
+        }
+        else throw new ParserException(
+            "Expected a variable definition or an expression.", 
+            (_lexer.State.Line, _lexer.State.Column)
+        );
+    }
+
+    private List<Statement> ForStatementList()
+    {
+        var list = new List<Statement> { new ExpressionStatement(AssignmentExpression()) };
+
+        while (CurrentToken.Type == TokenType.Comma)
+        {
+            Match(Token.Comma);
+            list.Add(new ExpressionStatement(AssignmentExpression()));
+        }
+
+        return list;
     }
 }

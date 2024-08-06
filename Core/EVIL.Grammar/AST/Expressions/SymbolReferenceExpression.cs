@@ -1,14 +1,13 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Expressions;
 
-namespace EVIL.Grammar.AST.Expressions
+using EVIL.Grammar.AST.Base;
+
+public sealed class SymbolReferenceExpression : Expression
 {
-    public sealed class SymbolReferenceExpression : Expression
-    {
-        public string Identifier { get; }
+    public string Identifier { get; }
 
-        public SymbolReferenceExpression(string identifier)
-        {
-            Identifier = identifier;
-        }
+    public SymbolReferenceExpression(string identifier)
+    {
+        Identifier = identifier;
     }
 }

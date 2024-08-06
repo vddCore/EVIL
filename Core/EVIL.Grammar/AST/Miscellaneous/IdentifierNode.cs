@@ -1,14 +1,13 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Grammar.AST.Miscellaneous
+using EVIL.Grammar.AST.Base;
+
+public sealed class IdentifierNode : AstNode
 {
-    public class IdentifierNode : AstNode
-    {
-        public string Name { get; }
+    public string Name { get; }
 
-        public IdentifierNode(string name)
-        {
-            Name = name;
-        }
+    public IdentifierNode(string name)
+    {
+        Name = name;
     }
 }

@@ -1,33 +1,32 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(FnExpression fnExpression)
     {
-        public override void Visit(FnExpression fnExpression)
+        var id = InAnonymousSubChunkDo(() =>
         {
-            var id = InAnonymousSubChunkDo(() =>
+            InNewClosedScopeDo(() =>
             {
-                InNewClosedScopeDo(() =>
+                Chunk.DebugDatabase.DefinedOnLine = fnExpression.Line;
+
+                if (fnExpression.ParameterList != null)
                 {
-                    Chunk.DebugDatabase.DefinedOnLine = fnExpression.Line;
+                    Visit(fnExpression.ParameterList);
+                }
 
-                    if (fnExpression.ParameterList != null)
-                    {
-                        Visit(fnExpression.ParameterList);
-                    }
+                Visit(fnExpression.Statement);
 
-                    Visit(fnExpression.Statement);
-
-                    FinalizeChunk();
-                });
+                FinalizeChunk();
             });
+        });
 
-            Chunk.CodeGenerator.Emit(
-                OpCode.LDCNK,
-                id
-            );
-        }
+        Chunk.CodeGenerator.Emit(
+            OpCode.LDCNK,
+            id
+        );
     }
 }

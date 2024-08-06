@@ -1,20 +1,19 @@
+namespace EVIL.Grammar.AST.Expressions;
+
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 
-namespace EVIL.Grammar.AST.Expressions
+public sealed class ErrorExpression : Expression
 {
-    public class ErrorExpression : Expression
+    public StringConstant? ImplicitMessageConstant { get; }
+    public TableExpression? UserDataTable { get; }
+
+    public ErrorExpression(StringConstant? implicitMessageConstant, TableExpression? userDataTable)
     {
-        public StringConstant? ImplicitMessageConstant { get; }
-        public TableExpression? UserDataTable { get; }
+        ImplicitMessageConstant = implicitMessageConstant;
+        UserDataTable = userDataTable;
 
-        public ErrorExpression(StringConstant? implicitMessageConstant, TableExpression? userDataTable)
-        {
-            ImplicitMessageConstant = implicitMessageConstant;
-            UserDataTable = userDataTable;
-
-            Reparent(ImplicitMessageConstant);
-            Reparent(UserDataTable);
-        }
+        Reparent(ImplicitMessageConstant);
+        Reparent(UserDataTable);
     }
 }

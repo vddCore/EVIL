@@ -1,13 +1,12 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Constants;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(NilConstant nilConstant)
     {
-        public override void Visit(NilConstant nilConstant)
-        {
-            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-        }
+        Chunk.CodeGenerator.Emit(OpCode.LDNIL);
     }
 }

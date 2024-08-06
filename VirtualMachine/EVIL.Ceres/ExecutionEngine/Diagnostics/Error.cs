@@ -1,60 +1,59 @@
+namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
+
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
-namespace EVIL.Ceres.ExecutionEngine.Diagnostics
+public sealed class Error
 {
-    public sealed class Error
-    {
-        private Table UserData { get; } = new();
+    private Table UserData { get; } = new();
         
-        public int Length => UserData.Length;
+    public int Length => UserData.Length;
 
-        public string? Message
+    public string? Message
+    {
+        get
         {
-            get
+            if (UserData["msg"].Type == DynamicValueType.String)
             {
-                if (UserData["msg"].Type == DynamicValueType.String)
-                {
-                    return UserData["msg"].String!;
-                }
-
-                return null;
+                return UserData["msg"].String!;
             }
 
-            set => UserData["msg"] = value ?? DynamicValue.Nil;
+            return null;
         }
 
-        public DynamicValue this[DynamicValue key]
-        {
-            get => UserData[key];
-            set => UserData[key] = value;
-        }
-
-        public Error()
-        {
-        }
-
-        public Error(Table userData)
-        {
-            UserData = userData;
-        }
-        
-        public Error(string message)
-        {
-            Message = message;
-        }
-        
-        public Error(Table userData, string message)
-        {
-            UserData = userData;
-            Message = message;
-        }
-
-        public bool Contains(DynamicValue key)
-            => UserData.Contains(key);
-
-        public bool IsDeeplyEqualTo(Error other)
-            => UserData.IsDeeplyEqualTo(other.UserData);
+        set => UserData["msg"] = value ?? DynamicValue.Nil;
     }
+
+    public DynamicValue this[DynamicValue key]
+    {
+        get => UserData[key];
+        set => UserData[key] = value;
+    }
+
+    public Error()
+    {
+    }
+
+    public Error(Table userData)
+    {
+        UserData = userData;
+    }
+        
+    public Error(string message)
+    {
+        Message = message;
+    }
+        
+    public Error(Table userData, string message)
+    {
+        UserData = userData;
+        Message = message;
+    }
+
+    public bool Contains(DynamicValue key)
+        => UserData.Contains(key);
+
+    public bool IsDeeplyEqualTo(Error other)
+        => UserData.IsDeeplyEqualTo(other.UserData);
 }

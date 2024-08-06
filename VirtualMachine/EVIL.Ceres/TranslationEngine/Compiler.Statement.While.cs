@@ -1,22 +1,21 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(WhileStatement whileStatement)
     {
-        public override void Visit(WhileStatement whileStatement)
+        InNewLoopDo(Loop.LoopKind.While, () =>
         {
-            InNewLoopDo(Loop.LoopKind.While, () =>
-            {
-                Visit(whileStatement.Condition);
-                Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
+            Visit(whileStatement.Condition);
+            Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
 
-                Visit(whileStatement.Statement);
-                Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
+            Visit(whileStatement.Statement);
+            Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
 
-                Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
-            }, false);
-        }
+            Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
+        }, false);
     }
 }

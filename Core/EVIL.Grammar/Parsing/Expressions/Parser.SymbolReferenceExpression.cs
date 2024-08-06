@@ -1,15 +1,14 @@
-﻿using EVIL.Grammar.AST.Expressions;
+﻿namespace EVIL.Grammar.Parsing;
 
-namespace EVIL.Grammar.Parsing
+using EVIL.Grammar.AST.Expressions;
+
+public partial class Parser
 {
-    public partial class Parser
+    private SymbolReferenceExpression SymbolReferenceExpression()
     {
-        private SymbolReferenceExpression SymbolReferenceExpression()
-        {
-            var identifier = Identifier();
+        var identifier = Identifier();
             
-            return new SymbolReferenceExpression(identifier.Name)
-                { Line = identifier.Line, Column = identifier.Column };
-        }
+        return new SymbolReferenceExpression(identifier.Name)
+            { Line = identifier.Line, Column = identifier.Column };
     }
 }

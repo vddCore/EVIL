@@ -1,22 +1,21 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Expressions;
 
-namespace EVIL.Grammar.AST.Expressions
+using EVIL.Grammar.AST.Base;
+
+public sealed class AssignmentExpression : Expression
 {
-    public sealed class AssignmentExpression : Expression
-    {
-        public Expression Left { get; }
-        public Expression Right { get; }
+    public Expression Left { get; }
+    public Expression Right { get; }
         
-        public AssignmentOperationType OperationType { get; }
+    public AssignmentOperationType OperationType { get; }
 
-        public AssignmentExpression(Expression left, Expression right, AssignmentOperationType operationType)
-        {
-            Left = left;
-            Right = right;
+    public AssignmentExpression(Expression left, Expression right, AssignmentOperationType operationType)
+    {
+        Left = left;
+        Right = right;
 
-            OperationType = operationType;
+        OperationType = operationType;
 
-            Reparent(Left, Right);
-        }
+        Reparent(Left, Right);
     }
 }

@@ -1,15 +1,14 @@
+namespace EVIL.Grammar.AST.Statements;
+
 using EVIL.Grammar.AST.Base;
 
-namespace EVIL.Grammar.AST.Statements
+public sealed class ThrowStatement : Statement
 {
-    public class ThrowStatement : Statement
-    {
-        public Expression ThrownExpression { get; }
+    public Expression ThrownExpression { get; }
 
-        public ThrowStatement(Expression thrownExpression)
-        {
-            ThrownExpression = thrownExpression;
-            Reparent(ThrownExpression);
-        }
+    public ThrowStatement(Expression thrownExpression)
+    {
+        ThrownExpression = thrownExpression;
+        Reparent(ThrownExpression);
     }
 }

@@ -1,17 +1,16 @@
-﻿using EVIL.Grammar.AST.Miscellaneous;
+﻿namespace EVIL.Grammar.Parsing;
+
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private IdentifierNode Identifier(string? customErrorMessage = null)
     {
-        private IdentifierNode Identifier(string? customErrorMessage = null)
-        {
-            var name = CurrentToken.Value;
-            var (line, col) = Match(Token.Identifier, customErrorMessage);
+        var name = CurrentToken.Value;
+        var (line, col) = Match(Token.Identifier, customErrorMessage);
 
-            return new IdentifierNode(name)
-                { Line = line, Column = col };
-        }
+        return new IdentifierNode(name)
+            { Line = line, Column = col };
     }
 }

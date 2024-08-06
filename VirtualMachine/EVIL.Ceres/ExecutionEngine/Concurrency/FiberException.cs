@@ -1,10 +1,9 @@
-namespace EVIL.Ceres.ExecutionEngine.Concurrency
+namespace EVIL.Ceres.ExecutionEngine.Concurrency;
+
+public sealed class FiberException : VirtualMachineException
 {
-    public sealed class FiberException : VirtualMachineException
+    public FiberException(string message)
+        : base(message)
     {
-        public FiberException(string message)
-            : base(message)
-        {
-        }
     }
 }

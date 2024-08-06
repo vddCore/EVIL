@@ -1,43 +1,42 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.Parsing;
+
+using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private ValStatement ValStatement(bool readWrite)
     {
-        private ValStatement ValStatement(bool readWrite)
+        var (line, col) = Match(Token.Val);
+
+        var definitions = new Dictionary<IdentifierNode, Expression?>();
+
+        while (true)
         {
-            var (line, col) = Match(Token.Val);
+            var identifier = Identifier();
 
-            var definitions = new Dictionary<IdentifierNode, Expression?>();
-
-            while (true)
+            Expression? initializer = null;
+            if (CurrentToken.Type == TokenType.Assign)
             {
-                var identifier = Identifier();
-
-                Expression? initializer = null;
-                if (CurrentToken.Type == TokenType.Assign)
-                {
-                    Match(Token.Assign);
-                    initializer = AssignmentExpression();
-                }
-
-                definitions.Add(identifier, initializer);
-
-                if (CurrentToken.Type == TokenType.Comma)
-                {
-                    Match(Token.Comma);
-                    continue;
-                }
-
-                break;
+                Match(Token.Assign);
+                initializer = AssignmentExpression();
             }
 
-            return new ValStatement(definitions, readWrite)
-                { Line = line, Column = col };
+            definitions.Add(identifier, initializer);
+
+            if (CurrentToken.Type == TokenType.Comma)
+            {
+                Match(Token.Comma);
+                continue;
+            }
+
+            break;
         }
+
+        return new ValStatement(definitions, readWrite)
+            { Line = line, Column = col };
     }
 }

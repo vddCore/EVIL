@@ -1,36 +1,35 @@
-﻿using EVIL.Ceres.ExecutionEngine.Diagnostics;
+﻿namespace EVIL.Ceres.TranslationEngine;
 
-namespace EVIL.Ceres.TranslationEngine
+using EVIL.Ceres.ExecutionEngine.Diagnostics;
+
+internal class Loop
 {
-    internal class Loop
+    public enum LoopKind
     {
-        public enum LoopKind
-        {
-            For,
-            While,
-            DoWhile,
-            Each
-        }
+        For,
+        While,
+        DoWhile,
+        Each
+    }
         
-        public Chunk Chunk { get; }
-        public LoopKind Kind { get; }
+    public Chunk Chunk { get; }
+    public LoopKind Kind { get; }
 
-        public int StartLabel { get; }
-        public int EndLabel { get; }
-        public int ExtraLabel { get; }
+    public int StartLabel { get; }
+    public int EndLabel { get; }
+    public int ExtraLabel { get; }
 
-        internal Loop(Chunk chunk, LoopKind kind, bool needsExtraLabel)
-        {
-            Chunk = chunk;
-            Kind = kind;
+    internal Loop(Chunk chunk, LoopKind kind, bool needsExtraLabel)
+    {
+        Chunk = chunk;
+        Kind = kind;
             
-            StartLabel = Chunk.CreateLabel();
-            EndLabel = Chunk.CreateLabel();
+        StartLabel = Chunk.CreateLabel();
+        EndLabel = Chunk.CreateLabel();
 
-            if (needsExtraLabel)
-            {
-                ExtraLabel = Chunk.CreateLabel();
-            }
+        if (needsExtraLabel)
+        {
+            ExtraLabel = Chunk.CreateLabel();
         }
     }
 }

@@ -1,15 +1,14 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Grammar.AST.Statements
+using EVIL.Grammar.AST.Base;
+
+public sealed class RetStatement : Statement
 {
-    public sealed class RetStatement : Statement
-    {
-        public Expression? Expression { get; }
+    public Expression? Expression { get; }
 
-        public RetStatement(Expression? expression)
-        {
-            Expression = expression;
-            Reparent(Expression);
-        }
+    public RetStatement(Expression? expression)
+    {
+        Expression = expression;
+        Reparent(Expression);
     }
 }

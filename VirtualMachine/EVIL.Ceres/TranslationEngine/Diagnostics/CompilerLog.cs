@@ -1,4 +1,8 @@
-﻿using System;
+﻿namespace EVIL.Ceres.TranslationEngine.Diagnostics;
+
+using Array = EVIL.Ceres.ExecutionEngine.Collections.Array;
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -6,171 +10,167 @@ using System.Text;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Marshaling;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
-using Array = EVIL.Ceres.ExecutionEngine.Collections.Array;
-using EvilArray = EVIL.Ceres.ExecutionEngine.Collections.Array;
 
-namespace EVIL.Ceres.TranslationEngine.Diagnostics
+public sealed class CompilerLog : IDynamicValueProvider
 {
-    public sealed class CompilerLog : IDynamicValueProvider
+    private readonly List<CompilerMessage> _messages = new();
+
+    public CompilerMessageSeverity MinimumSeverityLevel { get; set; } = CompilerMessageSeverity.Warning;
+        
+    public IReadOnlyList<CompilerMessage> Messages => _messages;
+
+    public event EventHandler<CompilerMessageEmitEventArgs>? MessageEmitted;
+
+    public int VerboseCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Verbose);
+    public int WarningCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Warning);
+
+    public bool HasAnyMessages => VerboseCount > 0 || WarningCount > 0;
+        
+    public void Clear() 
+        => _messages.Clear();
+
+    public void EmitVerbose(
+        string message,
+        string? fileName = null,
+        int messageCode = 0,
+        int line = 0,
+        int column = 0)
     {
-        private readonly List<CompilerMessage> _messages = new();
+        if (MinimumSeverityLevel > CompilerMessageSeverity.Verbose)
+            return;
+            
+        var messageObject = new CompilerMessage(
+            CompilerMessageSeverity.Verbose,
+            message,
+            fileName,
+            messageCode,
+            line,
+            column
+        );
 
-        public CompilerMessageSeverity MinimumSeverityLevel { get; set; } = CompilerMessageSeverity.Warning;
+        _messages.Add(messageObject);
+        MessageEmitted?.Invoke(this, new(messageObject));
+    }
         
-        public IReadOnlyList<CompilerMessage> Messages => _messages;
-
-        public event EventHandler<CompilerMessageEmitEventArgs>? MessageEmitted;
-
-        public int VerboseCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Verbose);
-        public int WarningCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Warning);
-
-        public bool HasAnyMessages => VerboseCount > 0 || WarningCount > 0;
+    public void EmitWarning(
+        string message, 
+        string? fileName = null,
+        int messageCode = 0,
+        int line = 0,
+        int column = 0)
+    {
+        if (MinimumSeverityLevel > CompilerMessageSeverity.Warning)
+            return;
+            
+        var messageObject = new CompilerMessage(
+            CompilerMessageSeverity.Warning,
+            message,
+            fileName,
+            messageCode,
+            line,
+            column
+        );
+            
+        _messages.Add(messageObject);
+        MessageEmitted?.Invoke(this, new(messageObject));
+    }
         
-        public void Clear() 
-            => _messages.Clear();
-
-        public void EmitVerbose(
-            string message,
-            string? fileName = null,
-            int messageCode = 0,
-            int line = 0,
-            int column = 0)
-        {
-            if (MinimumSeverityLevel > CompilerMessageSeverity.Verbose)
-                return;
+    [DoesNotReturn]
+    public void TerminateWithFatal(
+        string message,
+        string? fileName = null,
+        int messageCode = 0,
+        int line = 0,
+        int column = 0,
+        Exception? innerException = null)
+    {
+        var messageObject = new CompilerMessage(
+            CompilerMessageSeverity.Fatal,
+            message,
+            fileName,
+            messageCode,
+            line,
+            column
+        );
             
-            var messageObject = new CompilerMessage(
-                CompilerMessageSeverity.Verbose,
-                message,
-                fileName,
-                messageCode,
-                line,
-                column
-            );
-
-            _messages.Add(messageObject);
-            MessageEmitted?.Invoke(this, new(messageObject));
-        }
+        _messages.Add(messageObject);
+        MessageEmitted?.Invoke(this, new(messageObject));
+            
+        throw new CompilerException(this, innerException);
+    }
         
-        public void EmitWarning(
-            string message, 
-            string? fileName = null,
-            int messageCode = 0,
-            int line = 0,
-            int column = 0)
-        {
-            if (MinimumSeverityLevel > CompilerMessageSeverity.Warning)
-                return;
+    [DoesNotReturn]
+    public T TerminateWithInternalFailure<T>(
+        string message,
+        string? fileName = null,
+        int messageCode = 0,
+        int line = 0,
+        int column = 0,
+        Exception? innerException = null,
+        T dummyReturn = default!)
+    {
+        var messageObject = new CompilerMessage(
+            CompilerMessageSeverity.InternalFailure,
+            message,
+            fileName,
+            messageCode,
+            line,
+            column
+        );
             
-            var messageObject = new CompilerMessage(
-                CompilerMessageSeverity.Warning,
-                message,
-                fileName,
-                messageCode,
-                line,
-                column
-            );
-            
-            _messages.Add(messageObject);
-            MessageEmitted?.Invoke(this, new(messageObject));
-        }
-        
-        [DoesNotReturn]
-        public void TerminateWithFatal(
-            string message,
-            string? fileName = null,
-            int messageCode = 0,
-            int line = 0,
-            int column = 0,
-            Exception? innerException = null)
-        {
-            var messageObject = new CompilerMessage(
-                CompilerMessageSeverity.Fatal,
-                message,
-                fileName,
-                messageCode,
-                line,
-                column
-            );
-            
-            _messages.Add(messageObject);
-            MessageEmitted?.Invoke(this, new(messageObject));
-            
-            throw new CompilerException(this, innerException);
-        }
-        
-        [DoesNotReturn]
-        public T TerminateWithInternalFailure<T>(
-            string message,
-            string? fileName = null,
-            int messageCode = 0,
-            int line = 0,
-            int column = 0,
-            Exception? innerException = null,
-            T dummyReturn = default!)
-        {
-            var messageObject = new CompilerMessage(
-                CompilerMessageSeverity.InternalFailure,
-                message,
-                fileName,
-                messageCode,
-                line,
-                column
-            );
-            
-            _messages.Add(messageObject);
-            MessageEmitted?.Invoke(this, new(messageObject));
+        _messages.Add(messageObject);
+        MessageEmitted?.Invoke(this, new(messageObject));
 
-            throw new CompilerException(this, innerException);
+        throw new CompilerException(this, innerException);
 
-            #pragma warning disable CS0162 
-            /* Keeps compiler happy! */
-            return dummyReturn;
-            #pragma warning restore CS0162
-        }
+        #pragma warning disable CS0162 
+        // ReSharper disable once HeuristicUnreachableCode
+        /* Keeps compiler happy! */
+        return dummyReturn;
+        #pragma warning restore CS0162
+    }
 
-        public string ToString(Func<string, string>? lineProcessor)
+    public string ToString(Func<string, string>? lineProcessor)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var message in _messages)
         {
-            var sb = new StringBuilder();
-
-            foreach (var message in _messages)
+            if (lineProcessor != null)
             {
-                if (lineProcessor != null)
-                {
-                    sb.AppendLine(lineProcessor(message.ToString()));                    
-                }
-                else
-                {
-                    sb.AppendLine($"{message.ToString()}");
-                }
+                sb.AppendLine(lineProcessor(message.ToString()));                    
             }
-
-            return sb.ToString();
-        }
-
-        public override string ToString()
-            => ToString(null);
-
-        public DynamicValue ToDynamicValue()
-        {
-            var ret = new Array(Messages.Count);
-
-            for (var i = 0; i < Messages.Count; i++)
+            else
             {
-                var msg = Messages[i];
-
-                ret[i] = new Table
-                {
-                    { "severity", (int)msg.Severity },
-                    { "message", msg.Message },
-                    { "file_name", msg.FileName ?? DynamicValue.Nil },
-                    { "message_code", msg.MessageCode },
-                    { "line", msg.Line },
-                    { "column", msg.Column }
-                };
+                sb.AppendLine($"{message.ToString()}");
             }
-
-            return ret;
         }
+
+        return sb.ToString();
+    }
+
+    public override string ToString()
+        => ToString(null);
+
+    public DynamicValue ToDynamicValue()
+    {
+        var ret = new Array(Messages.Count);
+
+        for (var i = 0; i < Messages.Count; i++)
+        {
+            var msg = Messages[i];
+
+            ret[i] = new Table
+            {
+                { "severity", (int)msg.Severity },
+                { "message", msg.Message },
+                { "file_name", msg.FileName ?? DynamicValue.Nil },
+                { "message_code", msg.MessageCode },
+                { "line", msg.Line },
+                { "column", msg.Column }
+            };
+        }
+
+        return ret;
     }
 }

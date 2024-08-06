@@ -1,36 +1,35 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(InvocationExpression invocationExpression)
     {
-        public override void Visit(InvocationExpression invocationExpression)
-        {
-            Visit(invocationExpression.ArgumentList);
+        Visit(invocationExpression.ArgumentList);
 
-            if (invocationExpression.Parent is RetStatement
-                && invocationExpression.Callee is SymbolReferenceExpression varRef
-                && varRef.Identifier == Chunk.Name
-                && !invocationExpression.ArgumentList.IsVariadic)
-            {
-                Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);
-            }
-            else
-            {
-                Visit(invocationExpression.Callee);
-                Chunk.CodeGenerator.Emit(
-                    OpCode.INVOKE,
-                    invocationExpression.ArgumentList.Arguments.Count
-                );
+        if (invocationExpression.Parent is RetStatement
+            && invocationExpression.Callee is SymbolReferenceExpression varRef
+            && varRef.Identifier == Chunk.Name
+            && !invocationExpression.ArgumentList.IsVariadic)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);
+        }
+        else
+        {
+            Visit(invocationExpression.Callee);
+            Chunk.CodeGenerator.Emit(
+                OpCode.INVOKE,
+                invocationExpression.ArgumentList.Arguments.Count
+            );
                 
-                Chunk.CodeGenerator.Emit(
-                    invocationExpression.ArgumentList.IsVariadic
+            Chunk.CodeGenerator.Emit(
+                invocationExpression.ArgumentList.IsVariadic
                     ? (byte)1
                     : (byte)0
-                );
-            }
+            );
         }
     }
 }

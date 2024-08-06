@@ -1,15 +1,14 @@
-﻿using System;
+﻿namespace EVIL.Ceres.Runtime;
 
-namespace EVIL.Ceres.Runtime
+using System;
+
+[AttributeUsage(AttributeTargets.Method)]
+public class RuntimeModuleSetterAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class RuntimeModuleSetterAttribute : Attribute
-    {
-        public string SubNameSpace { get; }
+    public string SubNameSpace { get; }
 
-        public RuntimeModuleSetterAttribute(string subNameSpace)
-        {
-            SubNameSpace = subNameSpace;
-        }
+    public RuntimeModuleSetterAttribute(string subNameSpace)
+    {
+        SubNameSpace = subNameSpace;
     }
 }

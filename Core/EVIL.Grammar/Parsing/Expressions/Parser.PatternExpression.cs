@@ -1,29 +1,28 @@
+namespace EVIL.Grammar.Parsing;
+
 using EVIL.Grammar.AST.Base;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private Expression PatternExpression()
     {
-        private Expression PatternExpression()
+        if (CurrentToken.Type == TokenType.By)
         {
-            if (CurrentToken.Type == TokenType.By)
-            {
-                return ByExpression();
-            }
-            else
-            {
-                var node = PrefixExpression();
-                var token = CurrentToken;
+            return ByExpression();
+        }
+        else
+        {
+            var node = PrefixExpression();
+            var token = CurrentToken;
 
-                while (token.Type == TokenType.With)
-                {
-                    node = WithExpression(node);
-                    token = CurrentToken;
-                }
-
-                return node;
+            while (token.Type == TokenType.With)
+            {
+                node = WithExpression(node);
+                token = CurrentToken;
             }
+
+            return node;
         }
     }
 }

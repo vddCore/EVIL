@@ -1,58 +1,56 @@
-﻿using System.Collections.Generic;
+﻿namespace EVIL.Grammar.AST.Expressions;
+
+using System.Collections.Generic;
 using System.Globalization;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 
-namespace EVIL.Grammar.AST.Expressions
+public sealed class IndexerExpression : Expression
 {
-    public sealed class IndexerExpression : Expression
+    public Expression Indexable { get; }
+    public Expression KeyExpression { get; }
+
+    public bool WillBeAssigned { get; }
+
+    public IndexerExpression(Expression indexable, Expression keyExpression, bool willBeAssigned)
     {
-        public Expression Indexable { get; }
-        public Expression KeyExpression { get; }
-
-        public bool WillBeAssigned { get; }
-
-        public IndexerExpression(Expression indexable, Expression keyExpression, bool willBeAssigned)
-        {
-            Indexable = indexable;
-            KeyExpression = keyExpression;
+        Indexable = indexable;
+        KeyExpression = keyExpression;
             
-            WillBeAssigned = willBeAssigned;
+        WillBeAssigned = willBeAssigned;
 
-            Reparent(Indexable, KeyExpression);
+        Reparent(Indexable, KeyExpression);
+    }
+
+    public string BuildChainStringRepresentation()
+    {
+        var stack = new Stack<string>();
+        var current = Indexable;
+            
+        stack.Push(GetKeyStringRepresentation());
+            
+        while (current is IndexerExpression indexerExpression)
+        {
+            stack.Push(indexerExpression.GetKeyStringRepresentation());
+            current = indexerExpression.Indexable;
         }
 
-        public string BuildChainStringRepresentation()
+        if (current is SymbolReferenceExpression symbolReferenceExpression)
         {
-            var stack = new Stack<string>();
-            var current = Indexable;
-            
-            stack.Push(GetKeyStringRepresentation());
-            
-            while (current is IndexerExpression indexerExpression)
-            {
-                stack.Push(indexerExpression.GetKeyStringRepresentation());
-                current = indexerExpression.Indexable;
-            }
-
-            if (current is SymbolReferenceExpression symbolReferenceExpression)
-            {
-                stack.Push(symbolReferenceExpression.Identifier);
-            }
-
-            return string.Join('.', stack);
+            stack.Push(symbolReferenceExpression.Identifier);
         }
 
-        public string GetKeyStringRepresentation()
+        return string.Join('.', stack);
+    }
+
+    public string GetKeyStringRepresentation()
+    {
+        return KeyExpression switch
         {
-            return KeyExpression switch
-            {
-                NumberConstant numberConstant => numberConstant.Value.ToString(CultureInfo.InvariantCulture),
-                StringConstant stringConstant => stringConstant.Value,
-                SymbolReferenceExpression symbolReferenceExpression => symbolReferenceExpression.Identifier,
-                _ => "???"
-            };
-        }
+            NumberConstant numberConstant => numberConstant.Value.ToString(CultureInfo.InvariantCulture),
+            StringConstant stringConstant => stringConstant.Value,
+            SymbolReferenceExpression symbolReferenceExpression => symbolReferenceExpression.Identifier,
+            _ => "???"
+        };
     }
 }
-

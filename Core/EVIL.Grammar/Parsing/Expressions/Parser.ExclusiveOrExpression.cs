@@ -1,27 +1,26 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.Parsing;
+
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
-namespace EVIL.Grammar.Parsing
+public partial class Parser
 {
-    public partial class Parser
+    private Expression ExclusiveOrExpression()
     {
-        private Expression ExclusiveOrExpression()
+        var node = AndExpression();
+        var token = CurrentToken;
+
+        while (token.Type == TokenType.BitwiseXor)
         {
-            var node = AndExpression();
-            var token = CurrentToken;
+            var (line, col) = Match(Token.BitwiseXor);
 
-            while (token.Type == TokenType.BitwiseXor)
-            {
-                var (line, col) = Match(Token.BitwiseXor);
+            node = new BinaryExpression(node, AndExpression(), BinaryOperationType.BitwiseXor)
+                { Line = line, Column = col };
 
-                node = new BinaryExpression(node, AndExpression(), BinaryOperationType.BitwiseXor)
-                    { Line = line, Column = col };
-
-                token = CurrentToken;
-            }
-
-            return node;
+            token = CurrentToken;
         }
+
+        return node;
     }
 }

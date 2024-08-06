@@ -1,16 +1,15 @@
+namespace EVIL.Ceres.TranslationEngine;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
-namespace EVIL.Ceres.TranslationEngine
+public partial class Compiler
 {
-    public partial class Compiler
+    public override void Visit(ThrowStatement throwStatement)
     {
-        public override void Visit(ThrowStatement throwStatement)
-        {
-            Chunk.MarkThrowing();
+        Chunk.MarkThrowing();
             
-            Visit(throwStatement.ThrownExpression);
-            Chunk.CodeGenerator.Emit(OpCode.THROW);
-        }
+        Visit(throwStatement.ThrownExpression);
+        Chunk.CodeGenerator.Emit(OpCode.THROW);
     }
 }

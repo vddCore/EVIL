@@ -1,22 +1,21 @@
-﻿using EVIL.Grammar.AST.Base;
+﻿namespace EVIL.Grammar.AST.Miscellaneous;
 
-namespace EVIL.Grammar.AST.Miscellaneous
+using EVIL.Grammar.AST.Base;
+
+public sealed class ParameterNode : AstNode
 {
-    public sealed class ParameterNode : AstNode
-    {
-        public IdentifierNode Identifier { get; }
-        public bool ReadWrite { get; }
+    public IdentifierNode Identifier { get; }
+    public bool ReadWrite { get; }
         
-        public ConstantExpression? Initializer { get; }
+    public ConstantExpression? Initializer { get; }
 
-        public ParameterNode(IdentifierNode identifier, bool readWrite, ConstantExpression? initializer)
-        {
-            Identifier = identifier;
-            ReadWrite = readWrite;
-            Initializer = initializer;
+    public ParameterNode(IdentifierNode identifier, bool readWrite, ConstantExpression? initializer)
+    {
+        Identifier = identifier;
+        ReadWrite = readWrite;
+        Initializer = initializer;
 
-            Reparent(Identifier);
-            Reparent(Initializer);
-        }
+        Reparent(Identifier);
+        Reparent(Initializer);
     }
 }
