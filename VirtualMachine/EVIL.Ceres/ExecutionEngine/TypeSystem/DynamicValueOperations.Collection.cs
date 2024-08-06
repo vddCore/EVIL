@@ -2,6 +2,8 @@
 
 namespace EVIL.Ceres.ExecutionEngine.TypeSystem
 {
+    using EVIL.Ceres.ExecutionEngine.Marshaling;
+
     public partial class DynamicValueOperations
     {
         public static DynamicValue SetEntry(this DynamicValue a, DynamicValue key, DynamicValue value)
@@ -18,10 +20,14 @@ namespace EVIL.Ceres.ExecutionEngine.TypeSystem
             {
                 a.Error![key] = value;
             }
+            else if (a.Type == DynamicValueType.NativeObject && a.NativeObject is IWriteableObject writeable)
+            {
+                writeable.Set(key, value);
+            }
             else
             {
                 throw new UnsupportedDynamicValueOperationException(
-                    $"Attempt to set an entry of a {a.Type} which is not an Array nor a Table."
+                    $"Attempt to set an entry of a {a.Type} which is not an Array, a Table, nor a writeable object."
                 );
             }
 
