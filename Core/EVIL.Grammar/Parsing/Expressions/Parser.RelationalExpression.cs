@@ -1,6 +1,7 @@
 ﻿namespace EVIL.Grammar.Parsing;
 
 using System.Linq;
+using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
@@ -95,9 +96,29 @@ public partial class Parser
                     );
                 }
 
-                node = new IsExpression(node, typeCodeConstant, invert)
+                StringConstant? nativeTypeConstant = null;
+                if (typeCodeConstant.Value == DynamicValueType.NativeObject)
+                {
+                    if (CurrentToken.Type == TokenType.PlainString || CurrentToken.Type == TokenType.InterpolatedString)
+                    {
+                        var constant = ConstantExpression();
+                        
+                        if (constant is not StringConstant stringConstant)
+                        {
+                            throw new ParserException(
+                                "Expected a string or an interpolated string.",
+                                (constant.Line, constant.Column)
+                            );
+                        }
+                        
+                        nativeTypeConstant = stringConstant;
+                    }
+                }
+
+                node = new IsExpression(node, typeCodeConstant, nativeTypeConstant, invert)
                     { Line = line, Column = col };
             }
+            
             token = CurrentToken;
         }
 

@@ -8,8 +8,18 @@ public partial class Compiler
     public override void Visit(IsExpression isExpression)
     {
         Visit(isExpression.Target);
-        Chunk.CodeGenerator.Emit(OpCode.TYPE);
-        Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)isExpression.Type.Value);
+
+        if (isExpression.IsManagedTypeCheck)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.NTYPE);
+            Visit(isExpression.ManagedTypeName!);
+        }
+        else
+        {
+            Chunk.CodeGenerator.Emit(OpCode.TYPE);
+            Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)isExpression.Type.Value);
+        }
+        
         Chunk.CodeGenerator.Emit(isExpression.Invert ? OpCode.CNE : OpCode.CEQ);
     }
 }

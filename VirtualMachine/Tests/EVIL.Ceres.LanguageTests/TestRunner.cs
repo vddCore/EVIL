@@ -134,6 +134,12 @@ public class TestRunner
 
             VM.Global.Set("__native_object", DynamicValue.FromObject(new object()));
             VM.Global.Set("__tricky", new TrickyTable());
+            VM.Global.Set("__new_dummy_object", new(
+                (_, _) => DynamicValue.FromObject(new DummyNativeClass()))
+            );
+            VM.Global.Set("__new_dummy_object_2", new(
+                (_, _) => DynamicValue.FromObject(new DummyNativeClass()))
+            );
                 
             VM.Global.Set("__throw_test", new((fiber, args) =>
             {
