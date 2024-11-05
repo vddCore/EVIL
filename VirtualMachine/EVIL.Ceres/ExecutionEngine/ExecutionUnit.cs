@@ -1154,6 +1154,22 @@ internal class ExecutionUnit
                 break;
             }
 
+            case OpCode.NTYPE:
+            {
+                a = PopValue();
+
+                if (a.Type != DynamicValueType.NativeObject)
+                {
+                    PushValue(DynamicValue.Nil);
+                }
+                else
+                {
+                    PushValue(a.NativeObject!.GetType().FullName!);
+                }
+
+                break;
+            }
+
             case OpCode.FJMP:
             {
                 var labelId = frame.FetchInt32();

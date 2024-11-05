@@ -44,6 +44,7 @@ public enum OpCode : byte
     TONUMBER,
     TOSTRING,
     TYPE,
+    NTYPE,
     LNOT,
     LAND,
     LOR,

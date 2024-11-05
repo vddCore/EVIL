@@ -8,6 +8,14 @@ public partial class Compiler
     public override void Visit(TypeOfExpression typeOfExpression)
     {
         Visit(typeOfExpression.Target);
-        Chunk.CodeGenerator.Emit(OpCode.TYPE);
+
+        if (typeOfExpression.IsNative)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.NTYPE);
+        }
+        else
+        {
+            Chunk.CodeGenerator.Emit(OpCode.TYPE);
+        }
     }
 }
