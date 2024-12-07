@@ -26,49 +26,49 @@ public partial class Parser
         {
             var (line, col) = Match(Token.AsString);
 
-            return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToString)
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.ToString)
                 { Line = line, Column = col };
         }
         else if (token.Type == TokenType.Plus)
         {
             var (line, col) = Match(Token.Plus);
 
-            return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Plus)
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.Plus)
                 { Line = line, Column = col };
         }
         else if (token.Type == TokenType.Minus)
         {
             var (line, col) = Match(Token.Minus);
 
-            return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.Minus)
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.Minus)
                 { Line = line, Column = col };
         }
         else if (token.Type == TokenType.LogicalNot)
         {
             var (line, col) = Match(Token.LogicalNot);
 
-            return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.LogicalNot)
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.LogicalNot)
                 { Line = line, Column = col };
         }
         else if (token.Type == TokenType.BitwiseNot)
         {
             var (line, col) = Match(Token.BitwiseNot);
 
-            return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.BitwiseNot)
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.BitwiseNot)
                 { Line = line, Column = col };
         }
         else if (token.Type == TokenType.AsNumber)
         {
             var (line, col) = Match(Token.AsNumber);
 
-            return new UnaryExpression(MultiplicativeExpression(), UnaryOperationType.ToNumber)
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.ToNumber)
                 { Line = line, Column = col };
         }
         else if (token.Type == TokenType.Length)
         {
             var (line, col) = Match(Token.Length);
                 
-            return new UnaryExpression(PostfixExpression(), UnaryOperationType.Length) 
+            return new UnaryExpression(UnaryExpression(), UnaryOperationType.Length) 
                 { Line = line, Column = col };
         }
 

@@ -305,9 +305,39 @@ public class TestRunner
         {
             var msg = new StringBuilder();
             msg.AppendLine($"{test.ErrorMessage} [{stamp}]");
+            
+            if (test.Exception != null)
+            {
+                string? vmError = null;
+                
+                if (test.Exception is UserUnhandledExceptionException uuee 
+                    && uuee.EvilExceptionObject.Type == DynamicValueType.Error)
+                {
+                    vmError = uuee.EvilExceptionObject.Error!.Message;
+                }
+                
+                msg.AppendLine("  [CLR exception]");
+                msg.Append($"    {test.Exception.GetType().FullName}: {test.Exception.Message}");
+
+                if (!string.IsNullOrWhiteSpace(vmError))
+                {
+                    msg.Append($" ({vmError})");
+                }
+                
+                msg.AppendLine();
+                
+                foreach (var line in test.Exception.StackTrace!.Split("\r\n", StringSplitOptions.RemoveEmptyEntries))
+                {
+                    msg.AppendLine($"  {line}");
+                }
+            }
+
+            msg.AppendLine();
+            msg.AppendLine("  [EVIL diagnostics]");
+            
             foreach (var line in test.StackTrace)
             {
-                msg.AppendLine($"      {line}");
+                msg.AppendLine($"    {line}");
             }
 
             AddTestFailure(path, chunk, msg.ToString());
