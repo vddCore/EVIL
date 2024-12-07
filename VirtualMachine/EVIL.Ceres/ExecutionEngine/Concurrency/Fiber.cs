@@ -198,13 +198,13 @@ public sealed class Fiber
                         )
                     );
                 }
-                catch
+                catch (Exception e2)
                 {
                     EnterCrashState();
 
                     if (_crashHandler != null)
                     {
-                        _crashHandler(this, e);
+                        _crashHandler(this, e2);
                     }
                 }
             }

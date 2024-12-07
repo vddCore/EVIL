@@ -23,13 +23,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{F12F3290-6350-44AC-9A28-FAFCB371BAC0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Language Reference Manual", "Language Reference Manual", "{71CF56C3-5CCA-47F5-807E-5BCAF0F93147}"
-	ProjectSection(SolutionItems) = preProject
-		Docs\Language Reference Manual\00_intro.md = Docs\Language Reference Manual\00_intro.md
-		Docs\Language Reference Manual\01_script_overview.md = Docs\Language Reference Manual\01_script_overview.md
-		Docs\Language Reference Manual\02_data_types.md = Docs\Language Reference Manual\02_data_types.md
-		Docs\Language Reference Manual\04_expressions.md = Docs\Language Reference Manual\04_expressions.md
-		Docs\Language Reference Manual\03_statements.md = Docs\Language Reference Manual\03_statements.md
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B72D0BB0-95CE-4C61-9DB2-B036BAA51B02}"
 EndProject
