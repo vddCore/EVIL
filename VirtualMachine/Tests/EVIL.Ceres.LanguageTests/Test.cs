@@ -21,6 +21,7 @@ public class Test
 
     public bool Successful { get; private set; } = true;
     public string ErrorMessage { get; private set; } = string.Empty;
+    public Exception? Exception { get; private set; }
     public List<string> StackTrace { get; private set; } = new();
 
     public Test(CeresVM vm, Chunk chunk)
@@ -105,6 +106,7 @@ public class Test
 
         if (!Successful)
         {
+            Exception = exception;
             StackTrace.AddRange(fiber.StackTrace(false).Split('\n').Where(x => !string.IsNullOrEmpty(x)));
         }
 
