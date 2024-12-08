@@ -1328,7 +1328,18 @@ internal class ExecutionUnit
                     if (c.Type != DynamicValueType.Table)
                     {
                         throw new UnsupportedDynamicValueOperationException(
-                            "Attempt to index a string value using a string, but no `str' support table found."
+                            "Attempt to index a String using a String, but no `str' support table found."
+                        );
+                    }
+                }
+                else if (c.Type == DynamicValueType.Array && a.Type == DynamicValueType.String)
+                {
+                    c = _global.Index("arr");
+
+                    if (c.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            "Attempt to index an Array using a String, but no `arr' support table found."
                         );
                     }
                 }
