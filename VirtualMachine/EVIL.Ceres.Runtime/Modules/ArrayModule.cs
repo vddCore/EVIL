@@ -59,7 +59,7 @@ public class ArrayModule : RuntimeModule
         
     [RuntimeModuleFunction("push")]
     [EvilDocFunction(
-        "Appends the given values at the end of the given array.",
+        "Appends the given values at the end of the given array. This operation changes (grows) the size of the array.",
         Returns = "Size of the array after the values have been appended.",
         ReturnType = Number,
         IsVariadic = true
@@ -76,7 +76,7 @@ public class ArrayModule : RuntimeModule
         
     [RuntimeModuleFunction("insert")]
     [EvilDocFunction(
-        "Inserts the given values at the given index of the given array",
+        "Inserts the given values at the given index of the given array. This operation changes (grows) the size of the array.",
         Returns = "Size of the array after the values have been inserted or -1 if the operation fails.",
         ReturnType = Number,
         IsVariadic = true
@@ -91,6 +91,22 @@ public class ArrayModule : RuntimeModule
 
         var values = args.Skip(2).ToArray();
         return array.Insert((int)index, values);
+    }
+    
+    [RuntimeModuleFunction("delete")]
+    [EvilDocFunction(
+        "Deletes a value from the given array using the given index. This operation changes (shrinks) the size of the array.",
+        Returns = "Size of the array after the values have been removed or -1 if the operation fails. ",
+        ReturnType = Number
+    )]
+    [EvilDocArgument("array", "An array from which to delete a value.", Array)]
+    [EvilDocArgument("index", "An integer specifying the index at which to delete the given values.", Number)]
+    private static DynamicValue Delete(Fiber _, params DynamicValue[] args)
+    {
+        args.ExpectArrayAt(0, out var array)
+            .ExpectIntegerAt(1, out var index);
+    
+        return array.Delete((int)index);
     }
         
     [RuntimeModuleFunction("rsh")]

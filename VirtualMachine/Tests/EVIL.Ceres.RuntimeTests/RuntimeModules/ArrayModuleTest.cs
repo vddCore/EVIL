@@ -191,6 +191,75 @@ public class ArrayModuleTest : ModuleTest<ArrayModule>
         arr[6].ShouldBe(0);
         arr[7].ShouldBe(0);
     }
+    
+    [Test]
+    public void DeleteFront()
+    {
+        var result = EvilTestResult(
+            "fn test() {" +
+            "  val values = array() { 4, 2, 1, 3, 7 };" +
+            "  arr.delete(values, 0);" +
+            "" +
+            "  ret values;" +
+            "}"
+        );
+
+        result.Type.ShouldBe(DynamicValueType.Array);
+        var arr = result.Array!;
+
+        arr.Length.ShouldBe(4);
+            
+        arr[0].ShouldBe(2);
+        arr[1].ShouldBe(1);
+        arr[2].ShouldBe(3);
+        arr[3].ShouldBe(7);
+    }
+    
+    [Test]
+    public void DeleteMiddle()
+    {
+        var result = EvilTestResult(
+            "fn test() {" +
+            "  val values = array() { 2, 1, 4, 3, 7 };" +
+            "  arr.delete(values, 2);" +
+            "" +
+            "  ret values;" +
+            "}"
+        );
+
+        result.Type.ShouldBe(DynamicValueType.Array);
+        var arr = result.Array!;
+
+        arr.Length.ShouldBe(4);
+            
+        arr[0].ShouldBe(2);
+        arr[1].ShouldBe(1);
+        arr[2].ShouldBe(3);
+        arr[3].ShouldBe(7);
+    }
+    
+    [Test]
+    public void DeleteBack()
+    {
+        var result = EvilTestResult(
+            "fn test() {" +
+            "  val values = array() { 2, 1, 3, 7, 4 };" +
+            "  arr.delete(values, #values - 1);" +
+            "" +
+            "  ret values;" +
+            "}"
+        );
+
+        result.Type.ShouldBe(DynamicValueType.Array);
+        var arr = result.Array!;
+
+        arr.Length.ShouldBe(4);
+            
+        arr[0].ShouldBe(2);
+        arr[1].ShouldBe(1);
+        arr[2].ShouldBe(3);
+        arr[3].ShouldBe(7);
+    }
 
     [Test]
     public void RightShift()
