@@ -59,19 +59,19 @@ public abstract class ModuleTest<T> where T : RuntimeModule, new()
             
         _vm.MainFiber.BlockUntilFinished();
 
-        while (waitForCrashHandler)
+        while (waitForCrashHandler && _vm.MainFiber.State != FiberState.Finished)
         {
             Thread.Sleep(1);
-        }
-            
-        if (_vm.MainFiber.State == FiberState.Finished)
-        {
-            return _vm.MainFiber.PopValue();
         }
 
         if (_vm.MainFiber.State == FiberState.Crashed)
         {
             throw new Exception("Test has failed inside EVIL world.", fiberException);
+        }
+        
+        if (_vm.MainFiber.State == FiberState.Finished)
+        {
+            return _vm.MainFiber.PopValue();
         }
             
         throw new Exception("There is something wrong with the awaiter logic or the fiber itself.");
