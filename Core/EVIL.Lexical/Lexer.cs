@@ -403,7 +403,10 @@ public class Lexer
                     
                 if (State.Character == '+' || State.Character == '-')
                 {
-                    if (!foundExponent || foundExponentSign)
+                    if (!foundExponent)
+                        break;
+                    
+                    if (foundExponentSign)
                     {
                         throw new LexerException(
                             $"Character `{State.Character}' was unexpected at this time.",
