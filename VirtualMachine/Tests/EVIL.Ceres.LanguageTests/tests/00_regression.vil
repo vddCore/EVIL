@@ -1,4 +1,4 @@
-﻿#[test; disasm("always")]
+﻿#[test]
 fn tonum_indexing {
   val data = { a: { b: { c: "1", d: "2", e: "3", f: "4" } } };
   val x = $data.a.b.c * $data.a.b.d;
