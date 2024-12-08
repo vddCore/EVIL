@@ -4,7 +4,6 @@ using static EVIL.Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
 using System.Collections;
 using System.Collections.Generic;
-using EVIL.Ceres.ExecutionEngine.Marshaling;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
@@ -84,70 +83,68 @@ public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
         => System.Array.IndexOf(_values, value);
 
     public void Fill(DynamicValue value)
-    {
-        for (var i = 0; i < _values.Length; i++)
-        {
-            _values[i] = value;
-        }
-    }
+        => System.Array.Fill(_values, value);
 
     public int Resize(int size)
     {
         if (size < 0)
-        {
             return -1;
-        }
 
         System.Array.Resize(ref _values, size);
-        return _values.Length;
+        return size;
     }
         
     public int Push(params DynamicValue[] values)
     {
         if (values.Length == 0)
             return _values.Length;
-            
-        System.Array.Resize(
-            ref _values,
-            _values.Length + values.Length
-        );
 
-        for (var i = 0; i < values.Length; i++)
-        {
-            _values[_values.Length - values.Length + i] = values[i];
-        }
+        var prevSize = _values.Length;
+        System.Array.Resize(ref _values, prevSize + values.Length);
+        System.Array.Copy(values, 0, _values, prevSize, values.Length);
 
         return _values.Length;
     }
 
     public int Insert(int index, params DynamicValue[] values)
     {
-        if (index < 0)
+        if (index < 0 || index > _values.Length || values.Length == 0)
             return -1;
 
-        if (index > _values.Length)
-            return -1;
+        var newSize = _values.Length + values.Length;
+        System.Array.Resize(ref _values, newSize);
 
-        if (values.Length == 0)
-            return _values.Length;
-            
-        System.Array.Resize(
-            ref _values, 
-            _values.Length + values.Length
+        var elementsToShift = _values.Length - values.Length - index;
+        if (elementsToShift > 0)
+        {
+            System.Array.Copy(
+                _values, 
+                index, 
+                _values, 
+                index + values.Length, 
+                elementsToShift
+            );
+        }
+
+        System.Array.Copy(
+            values, 
+            0, 
+            _values, 
+            index, 
+            values.Length
         );
 
-        var start = _values.Length - values.Length - 1;
-            
-        for (var i = start; i >= index; i--)
-        {
-            _values[_values.Length - values.Length + i] = _values[i];
-        }
+        return newSize;
+    }
+    
+    public int Delete(int index)
+    {
+        if (index < 0 || index >= _values.Length)
+            return -1;
 
-        for (var i = 0; i < values.Length; i++)
-        {
-            _values[index + i] = values[i];
-        }
-
+        System.Array.Copy(_values, index + 1, _values, index, _values.Length - index - 1);
+        System.Array.Resize(ref _values, _values.Length - 1);
+    
         return _values.Length;
     }
 
@@ -158,22 +155,16 @@ public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
 
         var ret = _values[_values.Length - 1];
         System.Array.Resize(ref _values, _values.Length - 1);
-
         return ret;
     }
-        
+
     public DynamicValue LeftShift()
     {
-        if (_values.Length <= 0)
+        if (_values.Length == 0)
             return Nil;
 
         var ret = _values[0];
-
-        for (var i = 1; i < _values.Length; i++)
-        {
-            _values[i - 1] = _values[i];
-        }
-
+        System.Array.Copy(_values, 1, _values, 0, _values.Length - 1);
         System.Array.Resize(ref _values, _values.Length - 1);
             
         return ret;
@@ -183,25 +174,21 @@ public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
     {
         if (Length != other.Length)
             return false;
-            
-        lock (_values)
+
+        for (var i = 0; i < Length; i++)
         {
-            for (var i = 0; i < Length; i++)
+            var thisElement = this[i];
+            var otherElement = other[i];
+
+            if (thisElement.Type == DynamicValueType.Table || thisElement.Type == DynamicValueType.Array)
             {
-                if (this[i].Type == DynamicValueType.Table || this[i].Type == DynamicValueType.Array)
-                {
-                    if (!IsTruth(this[i].IsDeeplyEqualTo(other[i])))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (!IsTruth(this[i].IsEqualTo(other[i])))
-                    {
-                        return false;
-                    }
-                }
+                if (!IsTruth(thisElement.IsDeeplyEqualTo(otherElement)))
+                    return false;
+            }
+            else
+            {
+                if (!IsTruth(thisElement.IsEqualTo(otherElement)))
+                    return false;
             }
         }
 
