@@ -50,7 +50,7 @@ public class DebugModuleTest : ModuleTest<DebugModule>
         );
 
         s.ShouldContain(
-            "at clr!EVIL.EVIL.Ceres.Runtime.Modules.DebugModule::StackTraceString",
+            "at clr!EVIL.Ceres.Runtime.Modules.DebugModule::StackTraceString",
             Case.Sensitive
         );
 
