@@ -13,6 +13,13 @@ public partial class Parser
         if (CurrentToken == Token.DoubleQuestionMark)
         {
             var (line, col) = Match(Token.DoubleQuestionMark);
+
+            if (CurrentToken == Token.Throw)
+            {
+                return new CoalescingExpression(node, ThrowStatement())
+                { Line = line, Column = col };
+            }
+
             return new CoalescingExpression(node, AssignmentExpression())
                 { Line = line, Column = col };
         }

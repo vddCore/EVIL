@@ -35,6 +35,24 @@ public class AssertModule : RuntimeModule
             "  };\n" +
             "}"
         )["throws"]!;
+        
+        this["does_not_throw"] = compiler.Compile(
+            "fn does_not_throw(func) {\n" +
+            "  if (func !is Function) throw error('This function can only test Functions.');\n" +
+            "\n" +
+            "  rw val threw = nil;" +
+            "\n" +
+            "  try {\n" +
+            "    func();\n" +
+            "    threw = false;\n" +
+            "  } catch { threw = true; }\n" +
+            "\n" +
+            "  throw error { " +
+            "    __should_not_have_thrown: true," +
+            "    __threw: threw" +
+            "  };\n" +
+            "}"
+        )["does_not_throw"]!;
             
         MetaTable ??= new Table
         {
