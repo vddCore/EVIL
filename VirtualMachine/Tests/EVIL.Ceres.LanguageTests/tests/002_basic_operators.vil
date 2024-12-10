@@ -231,8 +231,10 @@ fn nil_coalescing_both_nil {
   val b = nil;
   
   val c = a ?? b;
+  val d = b ?? a;
   
   assert.equal(c, nil);
+  assert.equal(d, nil);
 }
 
 #[test]
@@ -245,4 +247,24 @@ fn nil_coalescing_multiple_values {
   val e = a ?? b ?? c ?? d;
   
   assert.equal(c, 21.37);
+}
+
+#[test]
+fn nil_single_coalescing_throw {
+  val b = nil;
+  assert.throws(fn -> b ?? throw("yay!"));
+}
+
+#[test]
+fn nil_coalescing_multiple_no_throw {
+  val a = nil;
+  val b = nil;
+  val c = 2222;
+  
+  assert.does_not_throw(
+    fn -> a 
+       ?? b 
+       ?? c 
+       ?? throw("this shouldn't've happened.")
+   );
 }
