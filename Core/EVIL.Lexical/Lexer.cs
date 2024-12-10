@@ -119,6 +119,10 @@ public class Lexer
                 Advance();
                 State.CurrentToken = Token.DoubleQuestionMark with { Line = line, Column = col };
                 break;
+            case '?' when Peek() == '.':
+                Advance();
+                State.CurrentToken = Token.Elvis with { Line = line, Column = col };
+                break;
             case '?':
                 State.CurrentToken = Token.QuestionMark with { Line = line, Column = col };
                 break;

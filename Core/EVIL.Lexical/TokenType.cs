@@ -57,6 +57,7 @@ public enum TokenType
 
     Comma,
     Colon,
+    Elvis,
     DoubleColon,
     Semicolon,
     LParenthesis,

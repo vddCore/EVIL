@@ -10,13 +10,19 @@ public sealed class IndexerExpression : Expression
     public Expression Indexable { get; }
     public Expression KeyExpression { get; }
 
+    public bool IsConditional { get; }
     public bool WillBeAssigned { get; }
 
-    public IndexerExpression(Expression indexable, Expression keyExpression, bool willBeAssigned)
+    public IndexerExpression(
+        Expression indexable, 
+        Expression keyExpression, 
+        bool isConditional, 
+        bool willBeAssigned)
     {
         Indexable = indexable;
         KeyExpression = keyExpression;
             
+        IsConditional = isConditional;
         WillBeAssigned = willBeAssigned;
 
         Reparent(Indexable, KeyExpression);
