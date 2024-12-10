@@ -1,11 +1,11 @@
-val get_text = fs.file.get_text;
-val file_exists = fs.file.exists;
-val dir_exists = fs.dir.exists;
-val dname = fs.path.get_dname;
-val fname = fs.path.get_fname;
-val strace = debug.strace;
-val path_cmb = fs.path.cmb;
-val evil_compile = evil.compile;
+val get_text = fs?.file?.get_text ?? throw("require: fs.file.get_text missing");
+val file_exists = fs?.file?.exists ?? throw("require: fs.file.exists missing");
+val dir_exists = fs?.dir?.exists ?? throw("require: fs.sue.exists missing");
+val dname = fs?.path?.get_dname ?? throw("require: fs.path.get_dname missing");
+val fname = fs?.path?.get_fname ?? throw("require: fs.path.get_fname missing");
+val strace = debug?.strace ?? throw("require: debug.strace missing");
+val path_cmb = fs?.path?.cmb ?? throw("require: fs.path.cmb missing");
+val evil_compile = evil?.compile ?? throw("require: evil.compile missing");
 
 val attempted_imports = array { };
 

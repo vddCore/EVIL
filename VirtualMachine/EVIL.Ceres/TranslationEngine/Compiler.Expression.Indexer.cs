@@ -7,8 +7,28 @@ public partial class Compiler
 {
     public override void Visit(IndexerExpression indexerExpression)
     {
-        Visit(indexerExpression.Indexable);
-        Visit(indexerExpression.KeyExpression);
-        Chunk.CodeGenerator.Emit(OpCode.INDEX);
+        if (indexerExpression.IsConditional)
+        {
+            var endIndexerLabel = Chunk.CreateLabel();
+            var indexLabel = Chunk.CreateLabel();
+            
+            Visit(indexerExpression.Indexable);
+            Chunk.CodeGenerator.Emit(OpCode.DUP);
+            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            Chunk.CodeGenerator.Emit(OpCode.CEQ);
+            Chunk.CodeGenerator.Emit(OpCode.FJMP, indexLabel);
+            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            Chunk.CodeGenerator.Emit(OpCode.JUMP, endIndexerLabel);
+            Chunk.UpdateLabel(indexLabel, Chunk.CodeGenerator.IP);
+            Visit(indexerExpression.KeyExpression);
+            Chunk.CodeGenerator.Emit(OpCode.INDEX);
+            Chunk.UpdateLabel(endIndexerLabel, Chunk.CodeGenerator.IP);
+        }
+        else
+        {
+            Visit(indexerExpression.Indexable);
+            Visit(indexerExpression.KeyExpression);
+            Chunk.CodeGenerator.Emit(OpCode.INDEX);
+        }
     }
 }

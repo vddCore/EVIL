@@ -12,6 +12,7 @@ public partial class Parser
         TokenType.LParenthesis,
         TokenType.LBracket,
         TokenType.Dot,
+        TokenType.Elvis,
         TokenType.DoubleColon,
         TokenType.Increment,
         TokenType.Decrement,
@@ -47,7 +48,7 @@ public partial class Parser
             {
                 node = InvocationExpression(node);
             }
-            else if (token.Type == TokenType.LBracket || token.Type == TokenType.Dot)
+            else if (token.Type == TokenType.LBracket || token.Type == TokenType.Dot || token.Type == TokenType.Elvis)
             {
                 node = IndexerExpression(node);
             }

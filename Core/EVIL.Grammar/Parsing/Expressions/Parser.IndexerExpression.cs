@@ -11,10 +11,26 @@ public partial class Parser
     {
         int line, col;
         Expression indexer;
+        var isConditional = false;
 
-        if (CurrentToken.Type == TokenType.Dot)
+        if (CurrentToken.Type == TokenType.Dot || CurrentToken.Type == TokenType.Elvis)
         {
-            (line, col) = Match(Token.Dot);
+            if (CurrentToken.Type == TokenType.Dot)
+            {
+                (line, col) = Match(Token.Dot);
+            }
+            else if (CurrentToken.Type == TokenType.Elvis)
+            {
+                (line, col) = Match(Token.Elvis);
+                isConditional = true;
+            }
+            else
+            {
+                throw new ParserException(
+                    $"Unexpected token '{CurrentToken}'.",
+                    (CurrentToken.Line, CurrentToken.Column)
+                );
+            }
 
             var identifier = Identifier();
             indexer = new StringConstant(identifier.Name, false)
@@ -40,7 +56,11 @@ public partial class Parser
             Match(Token.RBracket);
         }
 
-        return new IndexerExpression(indexable, indexer, CurrentToken.Type == TokenType.Assign)
+        return new IndexerExpression(
+                indexable, 
+                indexer, 
+                isConditional,
+                CurrentToken.Type == TokenType.Assign)
             { Line = line, Column = col };
     }
 }
