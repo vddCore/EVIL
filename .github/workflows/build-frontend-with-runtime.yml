@@ -53,7 +53,7 @@ jobs:
         file: FrontEnd/EVIL.evil/EVIL.evil.csproj
 
     - name: Pack artifact
-      uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v4.6.1
       with:
         name: evil-${{ steps.package_version.outputs.version }}_${{ matrix.runtime-identifier }}-${{ matrix.configuration }}
         path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net7.0/${{ matrix.runtime-identifier }}/publish
