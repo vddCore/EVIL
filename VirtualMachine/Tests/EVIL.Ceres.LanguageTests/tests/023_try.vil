@@ -224,3 +224,15 @@ fn try_retry_nested {
   assert.equal(outer_retry_count, 3);
   assert.equal(inner_retry_count, 7);
 }
+
+#[test]
+fn try_catchless {
+  rw val count = 0;
+  
+  try {
+    throw 1;
+    count = 1;
+  }
+  
+  assert.equal(count, 0);
+}

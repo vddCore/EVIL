@@ -7,12 +7,12 @@ public class TryStatement : Statement
 {
     public Statement InnerStatement { get; }
     public IdentifierNode? HandlerExceptionLocal { get; }
-    public Statement HandlerStatement { get; }
+    public Statement? HandlerStatement { get; }
 
     public TryStatement(
         Statement innerStatement,
         IdentifierNode? handlerExceptionLocal, 
-        Statement handlerStatement)
+        Statement? handlerStatement)
     {
         InnerStatement = innerStatement;
         HandlerExceptionLocal = handlerExceptionLocal;

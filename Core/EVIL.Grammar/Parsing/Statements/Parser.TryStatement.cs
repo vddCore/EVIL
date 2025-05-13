@@ -1,5 +1,6 @@
 namespace EVIL.Grammar.Parsing;
 
+using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
@@ -10,17 +11,22 @@ public partial class Parser
     {
         var (line, col) = Match(Token.Try);
         var protectedStatement = BlockStatement();
-        Match(Token.Catch);
-
+        Statement? handlerStatement = null;
         IdentifierNode? exceptionObjectIdentifier = null;
-        if (CurrentToken == Token.LParenthesis)
+        
+        if (CurrentToken == Token.Catch)
         {
-            Match(Token.LParenthesis);
-            exceptionObjectIdentifier = Identifier();
-            Match(Token.RParenthesis);
-        }
+            Match(Token.Catch);
 
-        var handlerStatement = BlockStatement();
+            if (CurrentToken == Token.LParenthesis)
+            {
+                Match(Token.LParenthesis);
+                exceptionObjectIdentifier = Identifier();
+                Match(Token.RParenthesis);
+            }
+
+            handlerStatement = BlockStatement();
+        }
 
         return new TryStatement(
             protectedStatement,
