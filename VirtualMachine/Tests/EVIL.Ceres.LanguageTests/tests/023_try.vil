@@ -236,3 +236,19 @@ fn try_catchless {
   
   assert.equal(count, 0);
 }
+
+#[test]
+fn try_catchless_nested {
+  rw val count = 0;
+  
+  try {
+    count = 2137;
+    try {
+      throw 1;
+      count = 3;
+    }
+    throw 2;
+  }
+  
+  assert.equal(count, 2137);
+}
