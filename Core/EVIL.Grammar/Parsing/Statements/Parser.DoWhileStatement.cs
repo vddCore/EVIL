@@ -9,7 +9,7 @@ public partial class Parser
     {
         var (line, col) = Match(Token.Do);
 
-        var statements = LoopDescent(() => Statement());
+        var statements = LoopDescent(Statement);
             
         Match(Token.While);
         Match(Token.LParenthesis);

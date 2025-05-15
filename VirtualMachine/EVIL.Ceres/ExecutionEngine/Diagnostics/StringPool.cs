@@ -11,16 +11,7 @@ public sealed class StringPool : IEquatable<StringPool>
 
     public int Count => _forward.Count;
 
-    public string? this[int id]
-    {
-        get
-        {
-            if (!_forward.TryGetValue(id, out var str))
-                return null;
-
-            return str;
-        }
-    }
+    public string? this[int id] => _forward.GetValueOrDefault(id);
 
     public StringPool()
     {

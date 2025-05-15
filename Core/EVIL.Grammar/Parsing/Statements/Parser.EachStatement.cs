@@ -36,7 +36,7 @@ public partial class Parser
             
         Match(Token.RParenthesis);
             
-        var statement = LoopDescent(() => Statement());
+        var statement = LoopDescent(Statement);
 
         return new EachStatement(
             keyIdentifier,

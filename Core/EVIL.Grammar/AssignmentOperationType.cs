@@ -1,18 +1,17 @@
-﻿namespace EVIL.Grammar
+﻿namespace EVIL.Grammar;
+
+public enum AssignmentOperationType
 {
-    public enum AssignmentOperationType
-    {
-        Direct,
-        Add,
-        Subtract,
-        Divide,
-        Multiply,
-        Modulo,
-        BitwiseAnd,
-        BitwiseOr,
-        BitwiseXor,
-        ShiftRight,
-        ShiftLeft,
-        Coalesce
-    }
+    Direct,
+    Add,
+    Subtract,
+    Divide,
+    Multiply,
+    Modulo,
+    BitwiseAnd,
+    BitwiseOr,
+    BitwiseXor,
+    ShiftRight,
+    ShiftLeft,
+    Coalesce
 }

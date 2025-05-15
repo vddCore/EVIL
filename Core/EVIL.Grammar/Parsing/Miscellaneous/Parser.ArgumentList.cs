@@ -16,36 +16,42 @@ public partial class Parser
         var (line, col) = Match(Token.LParenthesis);
         while (CurrentToken.Type != TokenType.RParenthesis)
         {
-            if (CurrentToken.Type == TokenType.EOF)
+            switch (CurrentToken.Type)
             {
-                throw new ParserException(
-                    $"Unexpected EOF in argument list.",
-                    (line, col)
-                );
-            }
-
-            if (CurrentToken.Type == TokenType.Multiply)
-            {
-                var (xline, xcol) = Match(Token.Multiply);
-                    
-                if (CurrentToken.Type != TokenType.RParenthesis)
+                case TokenType.EOF:
                 {
                     throw new ParserException(
-                        "Variadic parameter specifier must reside at the end of the parameter list.",
-                        (xline, xcol)
+                        "Unexpected EOF in argument list.",
+                        (line, col)
                     );
                 }
-
-                isVariadic = true;
+                
+                case TokenType.Multiply:
+                {
+                    var (xline, xcol) = Match(Token.Multiply);
                     
-                arguments.Add(
-                    new ExtraArgumentsExpression(true) 
-                        { Line = xline, Column = xcol }
-                );
-            }
-            else
-            {
-                arguments.Add(AssignmentExpression());
+                    if (CurrentToken.Type != TokenType.RParenthesis)
+                    {
+                        throw new ParserException(
+                            "Variadic parameter specifier must reside at the end of the parameter list.",
+                            (xline, xcol)
+                        );
+                    }
+
+                    isVariadic = true;
+                    
+                    arguments.Add(
+                        new ExtraArgumentsExpression(true) 
+                            { Line = xline, Column = xcol }
+                    );
+                    break;
+                }
+
+                default:
+                {
+                    arguments.Add(AssignmentExpression());
+                    break;
+                }
             }
 
             if (CurrentToken.Type == TokenType.RParenthesis)

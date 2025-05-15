@@ -64,7 +64,7 @@ public class AssertModule : RuntimeModule
     private static DynamicValue IsTrue(Fiber _, params DynamicValue[] args)
     {
         args.ExpectBooleanAt(0, out var boolean)
-            .OptionalStringAt(1, $"expected expression to be true, but it was false", out var msg);
+            .OptionalStringAt(1, "expected expression to be true, but it was false", out var msg);
 
         if (!boolean)
         {
@@ -78,7 +78,7 @@ public class AssertModule : RuntimeModule
     private static DynamicValue IsFalse(Fiber _, params DynamicValue[] args)
     {
         args.ExpectBooleanAt(0, out var boolean)
-            .OptionalStringAt(1, $"expected expression to be false, but it was true", out var msg);
+            .OptionalStringAt(1, "expected expression to be false, but it was true", out var msg);
 
         if (boolean)
         {

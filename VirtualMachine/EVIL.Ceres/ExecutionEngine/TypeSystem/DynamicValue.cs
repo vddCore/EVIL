@@ -131,17 +131,17 @@ public struct DynamicValue : IEquatable<DynamicValue>
         switch (Type)
         {
             case DynamicValueType.Number:
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append(Number);
                 break;
                 
             case DynamicValueType.String:
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append($"\"{String}\"");
                 break;
                 
             case DynamicValueType.Boolean:
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append(Boolean);
                 break;
 
@@ -165,7 +165,7 @@ public struct DynamicValue : IEquatable<DynamicValue>
                 break;
                 
             default:
-                sb.Append(" ");
+                sb.Append(' ');
                 sb.Append(this.ConvertToString());
                 break;
         }

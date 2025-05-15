@@ -1,10 +1,9 @@
-namespace EVIL.Ceres.ExecutionEngine.TypeSystem
+namespace EVIL.Ceres.ExecutionEngine.TypeSystem;
+
+public sealed class UnsupportedDynamicValueOperationException : RecoverableVirtualMachineException
 {
-    public sealed class UnsupportedDynamicValueOperationException : RecoverableVirtualMachineException
+    internal UnsupportedDynamicValueOperationException(string message) 
+        : base(message)
     {
-        internal UnsupportedDynamicValueOperationException(string message) 
-            : base(message)
-        {
-        }
     }
 }

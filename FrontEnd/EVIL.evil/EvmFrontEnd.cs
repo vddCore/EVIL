@@ -73,20 +73,20 @@ public partial class EvmFrontEnd
             _compiler.OptimizeCodeGeneration = true;
         }
 
-        if (!extra.Any())
+        switch (extra.Count)
         {
-            Terminate(
-                "Fatal: no input file.",
-                exitCode: ExitCode.NoInputFiles
-            );
-        }
-
-        if (extra.Count > 1)
-        {
-            Terminate(
-                "Fatal: too many input files.",
-                exitCode: ExitCode.TooManyInputFiles
-            );
+            case 0:
+                Terminate(
+                    "Fatal: no input file.",
+                    exitCode: ExitCode.NoInputFiles
+                );
+                break;
+            case > 1:
+                Terminate(
+                    "Fatal: too many input files.",
+                    exitCode: ExitCode.TooManyInputFiles
+                );
+                break;
         }
 
         var scriptPath = extra.First();
@@ -127,7 +127,7 @@ public partial class EvmFrontEnd
         catch (CompilerException ce)
         {
             var msg = $"Compilation error in {scriptPath}:\n" +
-                      $"  {ce.Log.Messages.Last()}";
+                      $"  {ce.Log.Messages[^1]}";
 
             if (ce.InnerException is not null 
                 and not ParserException 
@@ -171,7 +171,7 @@ public partial class EvmFrontEnd
 
             return;
         }
-            
+
         RegisterAllModules();
         SetStandardGlobals(scriptPath);
 
@@ -202,9 +202,9 @@ public partial class EvmFrontEnd
         }
     }
 
-    private List<string> InitializeOptions(string[] args)
+    private static List<string> InitializeOptions(string[] args)
     {
-        List<string> fileNames = new();
+        List<string> fileNames = [];
 
         try
         {
@@ -248,7 +248,7 @@ public partial class EvmFrontEnd
         }
     }
 
-    private List<RuntimeModule> RegisterAllModules()
+    private static List<RuntimeModule> RegisterAllModules()
     {
         var ret = new List<RuntimeModule>();
             
@@ -274,7 +274,7 @@ public partial class EvmFrontEnd
         return ret;
     }
 
-    private void SetStandardGlobals(string scriptPath)
+    private static void SetStandardGlobals(string scriptPath)
     {
         _vm.Global["_G"] = _vm.Global;
             

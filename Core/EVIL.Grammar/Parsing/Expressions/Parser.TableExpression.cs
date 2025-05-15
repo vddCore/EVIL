@@ -51,8 +51,6 @@ public partial class Parser
 
                     Match(Token.Associate);
                     value = AssignmentExpression();
-
-                    initializers.Add(new KeyValuePairExpression(key, value));
                 }
                 else
                 {
@@ -88,9 +86,9 @@ public partial class Parser
                     {
                         value = AssignmentExpression();
                     }
-
-                    initializers.Add(new KeyValuePairExpression(key, value));
                 }
+
+                initializers.Add(new KeyValuePairExpression(key, value));
             }
             else
             {

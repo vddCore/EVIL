@@ -79,22 +79,29 @@ public partial class Parser
                 var selector = AssignmentExpression();
                 var deepEquality = false;
 
-                if (CurrentToken.Type == TokenType.RightArrow)
+                switch (CurrentToken.Type)
                 {
-                    Match(Token.RightArrow);
-                    deepEquality = false;
-                }
-                else if (CurrentToken.Type == TokenType.Associate)
-                {
-                    Match(Token.Associate);
-                    deepEquality = true;
-                }
-                else
-                {
-                    throw new ParserException(
-                        $"Expected '->' or '=>', found '{CurrentToken.Value}'.",
-                        (CurrentToken.Line, CurrentToken.Column)
-                    );
+                    case TokenType.RightArrow:
+                    {
+                        Match(Token.RightArrow);
+                        deepEquality = false;
+                        break;
+                    }
+
+                    case TokenType.Associate:
+                    {
+                        Match(Token.Associate);
+                        deepEquality = true;
+                        break;
+                    }
+
+                    default:
+                    {
+                        throw new ParserException(
+                            $"Expected '->' or '=>', found '{CurrentToken.Value}'.",
+                            (CurrentToken.Line, CurrentToken.Column)
+                        );
+                    }
                 }
 
                 AstNode valueArm;

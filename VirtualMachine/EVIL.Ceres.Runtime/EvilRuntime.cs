@@ -56,19 +56,20 @@ public sealed class EvilRuntime
 
     public List<RuntimeModule> RegisterBuiltInModules()
     {
-        var modules = new List<RuntimeModule>();
-
-        modules.Add(RegisterModule<ArrayModule>(out _));
-        modules.Add(RegisterModule<ConvertModule>(out _));
-        modules.Add(RegisterModule<CoreModule>(out _));
-        modules.Add(RegisterModule<DebugModule>(out _));
-        modules.Add(RegisterModule<EvilModule>(out _));
-        modules.Add(RegisterModule<FsModule>(out _));
-        modules.Add(RegisterModule<IoModule>(out _));
-        modules.Add(RegisterModule<MathModule>(out _));
-        modules.Add(RegisterModule<StringModule>(out _));
-        modules.Add(RegisterModule<TableModule>(out _));
-        modules.Add(RegisterModule<TimeModule>(out _));
+        var modules = new List<RuntimeModule>
+        {
+            RegisterModule<ArrayModule>(out _),
+            RegisterModule<ConvertModule>(out _),
+            RegisterModule<CoreModule>(out _),
+            RegisterModule<DebugModule>(out _),
+            RegisterModule<EvilModule>(out _),
+            RegisterModule<FsModule>(out _),
+            RegisterModule<IoModule>(out _),
+            RegisterModule<MathModule>(out _),
+            RegisterModule<StringModule>(out _),
+            RegisterModule<TableModule>(out _),
+            RegisterModule<TimeModule>(out _)
+        };
 
         return modules;
     }

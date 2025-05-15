@@ -232,7 +232,7 @@ public static class Disassembler
                                     {
                                         if (symId == 0)
                                         {
-                                            output.Write($" (self)");
+                                            output.Write(" (self)");
                                         }
                                     }
                                 }
@@ -301,7 +301,7 @@ public static class Disassembler
                             }
                             else
                             {
-                                output.Write($" (<???>)");
+                                output.Write(" (<???>)");
                             }
                         }
 
@@ -368,7 +368,7 @@ public static class Disassembler
     private static string Literalize(string input)
     {
         var literal = new StringBuilder(input.Length + 2);
-        literal.Append("\"");
+        literal.Append('"');
         foreach (var c in input)
         {
             switch (c)
@@ -418,7 +418,7 @@ public static class Disassembler
             }
         }
 
-        literal.Append("\"");
+        literal.Append('"');
         return literal.ToString();
     }
 }

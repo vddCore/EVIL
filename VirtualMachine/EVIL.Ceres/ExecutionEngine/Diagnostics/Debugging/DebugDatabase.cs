@@ -98,9 +98,9 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
     public bool TryGetLocalRwState(int id, out bool rw)
         => _localRwStates.TryGetValue(id, out rw);
 
-    public bool IsEmpty => !_records.Any()
-                           && !_parameterNames.Any()
-                           && !_localNames.Any()
+    public bool IsEmpty => _records.Count == 0
+                           && _parameterNames.Count == 0
+                           && _localNames.Count == 0
                            && DefinedOnLine == -1;
 
     public void Strip()

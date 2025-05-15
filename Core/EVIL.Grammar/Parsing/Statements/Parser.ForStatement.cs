@@ -29,7 +29,7 @@ public partial class Parser
         }
         Match(Token.RParenthesis);
 
-        var statements = LoopDescent(() => Statement());
+        var statements = LoopDescent(Statement);
 
         return new ForStatement(
             assignments,

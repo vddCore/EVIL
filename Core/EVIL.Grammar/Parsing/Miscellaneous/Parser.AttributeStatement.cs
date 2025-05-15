@@ -28,10 +28,10 @@ public partial class Parser
                 }
                 else
                 {
-                    if (properties.Any())
+                    if (properties.Count != 0)
                     {
                         throw new ParserException(
-                            $"Attribute values must appear before any properties.",
+                            "Attribute values must appear before any properties.",
                             (_lexer.State.Line, _lexer.State.Column)
                         );
                     }

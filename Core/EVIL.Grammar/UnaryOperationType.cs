@@ -1,13 +1,12 @@
-﻿namespace EVIL.Grammar
+﻿namespace EVIL.Grammar;
+
+public enum UnaryOperationType
 {
-    public enum UnaryOperationType
-    {
-        Minus,
-        Plus,
-        ToNumber,
-        ToString,
-        Length,
-        LogicalNot,
-        BitwiseNot
-    }
+    Minus,
+    Plus,
+    ToNumber,
+    ToString,
+    Length,
+    LogicalNot,
+    BitwiseNot
 }

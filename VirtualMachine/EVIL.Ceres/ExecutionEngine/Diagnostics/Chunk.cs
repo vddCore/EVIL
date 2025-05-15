@@ -18,7 +18,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private List<ClosureInfo> _closures;
     private Dictionary<string, ClosureContext> _closureContexts;
     private List<Chunk> _subChunks;
-    private Dictionary<string, int> _namedSubChunkLookup;
+    private readonly Dictionary<string, int> _namedSubChunkLookup;
     private List<BlockProtectionInfo> _protectedBlocks;
 
     private readonly Serializer _serializer;
@@ -59,18 +59,10 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public bool HasSubChunks => Flags.HasFlag(ChunkFlags.HasSubChunks);
     public bool IsSubChunk => Flags.HasFlag(ChunkFlags.IsSubChunk);
 
-    public Chunk? this[string name]
-    {
-        get
-        {
-            if (_namedSubChunkLookup.TryGetValue(name, out var id))
-            {
-                return _subChunks[id];
-            }
-
-            return null;
-        }
-    }
+    public Chunk? this[string name] 
+        => _namedSubChunkLookup.TryGetValue(name, out var id) 
+         ? _subChunks[id] 
+         : null;
 
     public ChunkFlags Flags
     {
@@ -230,6 +222,15 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     {
         var id = SubChunkCount;
 
+        var chunk = new Chunk(BuildName())
+        {
+            IsSpecialName = true,
+            Parent = this
+        };
+
+        _subChunks.Add(chunk);
+        return (id, chunk);
+
         string BuildName()
         {
             var list = new List<string>();
@@ -249,15 +250,6 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             list.Add($"?{id}");
             return string.Join("$", list);
         }
-
-        var chunk = new Chunk(BuildName())
-        {
-            IsSpecialName = true,
-            Parent = this
-        };
-
-        _subChunks.Add(chunk);
-        return (id, chunk);
     }
         
     public (int Id, Chunk SubChunk) AllocateNamedSubChunk(string name, out bool wasReplaced, out Chunk replacedChunk)
@@ -289,7 +281,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         if (!_parameterInitializers.TryAdd(parameterId, constant))
         {
             throw new InvalidOperationException(
-                $"Internal compiler error: Attempt to initialize the same parameter symbol twice."
+                "Internal compiler error: Attempt to initialize the same parameter symbol twice."
             );
         }
     }

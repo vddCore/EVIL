@@ -15,7 +15,7 @@ public abstract class RuntimeModule : PropertyTable
         
     public abstract string FullyQualifiedName { get; }
 
-    public RuntimeModule()
+    protected RuntimeModule()
     {
         RegisterNativeFunctions();
         RegisterNativeSetters();
@@ -81,10 +81,10 @@ public abstract class RuntimeModule : PropertyTable
         }
     }
 
-    private bool HasRequiredFunctionAttribute(MethodInfo method)
+    private static bool HasRequiredFunctionAttribute(MethodInfo method)
         => method.GetCustomAttribute<RuntimeModuleFunctionAttribute>() != null;
 
-    private bool HasSupportedFunctionSignature(MethodInfo method)
+    private static bool HasSupportedFunctionSignature(MethodInfo method)
     {
         var parameters = method.GetParameters();
 
@@ -125,7 +125,7 @@ public abstract class RuntimeModule : PropertyTable
                 continue;
 
             var subNameSpaceParts = tuple.Attribute.SubNameSpace.Split('.');
-            var targetName = subNameSpaceParts[subNameSpaceParts.Length - 1];
+            var targetName = subNameSpaceParts[^1];
 
             if (subNameSpaceParts.Length >= 2)
             {
@@ -137,7 +137,7 @@ public abstract class RuntimeModule : PropertyTable
 
                 if (dynval == DynamicValue.Nil)
                 {
-                    propTable = new PropertyTable();
+                    propTable = [];
                 }
                 else
                 {
@@ -154,10 +154,10 @@ public abstract class RuntimeModule : PropertyTable
         }
     }
 
-    private bool HasRequiredGetterAttribute(MethodInfo method)
+    private static bool HasRequiredGetterAttribute(MethodInfo method)
         => method.GetCustomAttribute<RuntimeModuleGetterAttribute>() != null;
 
-    private bool HasSupportedGetterSignature(MethodInfo method)
+    private static bool HasSupportedGetterSignature(MethodInfo method)
     {
         var parameters = method.GetParameters();
 
@@ -197,11 +197,11 @@ public abstract class RuntimeModule : PropertyTable
                 continue;
 
             var subNameSpaceParts = tuple.Attribute.SubNameSpace.Split('.');
-            var targetName = subNameSpaceParts[subNameSpaceParts.Length - 1];
+            var targetName = subNameSpaceParts[^1];
 
             if (subNameSpaceParts.Length >= 2)
             {
-                var subNameSpace = string.Join('.', subNameSpaceParts[0..^1]);
+                var subNameSpace = string.Join('.', subNameSpaceParts[..^1]);
 
                 var dynval = IndexUsingFullyQualifiedName(subNameSpace);
 
@@ -209,7 +209,7 @@ public abstract class RuntimeModule : PropertyTable
 
                 if (dynval == DynamicValue.Nil)
                 {
-                    propTable = new PropertyTable();
+                    propTable = [];
                 }
                 else
                 {
@@ -226,10 +226,10 @@ public abstract class RuntimeModule : PropertyTable
         }
     }
         
-    private bool HasRequiredSetterAttribute(MethodInfo method)
+    private static bool HasRequiredSetterAttribute(MethodInfo method)
         => method.GetCustomAttribute<RuntimeModuleSetterAttribute>() != null;
 
-    private bool HasSupportedSetterSignature(MethodInfo method)
+    private static bool HasSupportedSetterSignature(MethodInfo method)
     {
         var parameters = method.GetParameters();
 

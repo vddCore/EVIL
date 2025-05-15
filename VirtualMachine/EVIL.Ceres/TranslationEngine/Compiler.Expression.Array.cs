@@ -51,7 +51,7 @@ public partial class Compiler
         }
             
         Chunk.CodeGenerator.Emit(OpCode.ARRNEW);
-        if (arrayExpression.Initializers.Any())
+        if (arrayExpression.Initializers.Count != 0)
         {
             for (var i = 0; i < arrayExpression.Initializers.Count; i++)
             {

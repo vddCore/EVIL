@@ -17,7 +17,7 @@ public partial class Compiler
             var templateString = stringConstant.Value;
             var matches = _stringSubstitutionRegex.Matches(templateString);
 
-            if (!matches.Any())
+            if (matches.Count == 0)
             {
                 var id = Chunk.StringPool.FetchOrAdd(stringConstant.Value);
                 Chunk.CodeGenerator.Emit(

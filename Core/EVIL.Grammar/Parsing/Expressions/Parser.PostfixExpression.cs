@@ -7,16 +7,16 @@ using EVIL.Lexical;
 
 public partial class Parser
 {
-    private List<TokenType> _postfixOperators = new()
-    {
+    private readonly List<TokenType> _postfixOperators =
+    [
         TokenType.LParenthesis,
         TokenType.LBracket,
         TokenType.Dot,
         TokenType.Elvis,
         TokenType.DoubleColon,
         TokenType.Increment,
-        TokenType.Decrement,
-    };
+        TokenType.Decrement
+    ];
 
     private Expression PostfixExpression()
     {
@@ -24,37 +24,52 @@ public partial class Parser
         var token = CurrentToken;
             
         __incdec:
-        if (token.Type == TokenType.Increment)
+        switch (token.Type)
         {
-            var (line, col) = Match(Token.Increment);
+            case TokenType.Increment:
+            {
+                var (line, col) = Match(Token.Increment);
                 
-            return new IncrementationExpression(node, false)
-                { Line = line, Column = col };
-        }
-        else if (token.Type == TokenType.Decrement)
-        {
-            var (line, col) = Match(Token.Decrement);
+                return new IncrementationExpression(node, false)
+                    { Line = line, Column = col };
+            }
+            case TokenType.Decrement:
+            {
+                var (line, col) = Match(Token.Decrement);
                 
-            return new DecrementationExpression(node, false) 
-                { Line = line, Column = col};
+                return new DecrementationExpression(node, false) 
+                    { Line = line, Column = col};
+            }
         }
 
         while (_postfixOperators.Contains(token.Type))
         {
-            if (token.Type == TokenType.Increment || token.Type == TokenType.Decrement)
-                goto __incdec;
+            switch (token.Type)
+            {
+                case TokenType.Increment or TokenType.Decrement:
+                {
+                    goto __incdec;
+                }
 
-            if (token.Type == TokenType.LParenthesis)
-            {
-                node = InvocationExpression(node);
-            }
-            else if (token.Type == TokenType.LBracket || token.Type == TokenType.Dot || token.Type == TokenType.Elvis)
-            {
-                node = IndexerExpression(node);
-            }
-            else if (token.Type == TokenType.DoubleColon)
-            {
-                node = SelfInvocationExpression(node);
+                case TokenType.LParenthesis:
+                {
+                    node = InvocationExpression(node);
+                    break;
+                }
+
+                case TokenType.LBracket:
+                case TokenType.Dot:
+                case TokenType.Elvis:
+                {
+                    node = IndexerExpression(node);
+                    break;
+                }
+
+                case TokenType.DoubleColon:
+                {
+                    node = SelfInvocationExpression(node);
+                    break;
+                }
             }
 
             token = CurrentToken;

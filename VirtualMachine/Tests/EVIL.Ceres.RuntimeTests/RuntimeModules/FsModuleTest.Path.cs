@@ -81,7 +81,7 @@ public partial class FsModuleTest
     public void PathGetRandomFileName()
     {
         var result = EvilTestResult(
-            $"fn test() -> fs.path.rand_fname;"
+            "fn test() -> fs.path.rand_fname;"
         );
             
         result.Type.ShouldBe(DynamicValueType.String);
@@ -103,7 +103,7 @@ public partial class FsModuleTest
     public void PathGetFileNameWithExtension()
     {
         var result = EvilTestResult(
-            $"fn test() -> fs.path.get_fname('/var/lib/something.so.1');"
+            "fn test() -> fs.path.get_fname('/var/lib/something.so.1');"
         );
             
         result.Type.ShouldBe(DynamicValueType.String);
@@ -168,7 +168,7 @@ public partial class FsModuleTest
     public void PathGetExtension()
     {
         var result = EvilTestResult(
-            $"fn test() -> fs.path.get_ext('dobry_jezu.exe');"
+            "fn test() -> fs.path.get_ext('dobry_jezu.exe');"
         );
 
         result.Type.ShouldBe(DynamicValueType.String);
@@ -179,14 +179,14 @@ public partial class FsModuleTest
     public void PathHasExtension()
     {
         var result = EvilTestResult(
-            $"fn test() -> fs.path.has_ext('dobry_jezu.exe');"
+            "fn test() -> fs.path.has_ext('dobry_jezu.exe');"
         );
 
         result.Type.ShouldBe(DynamicValueType.Boolean);
         result.ShouldBe(true);
             
         result = EvilTestResult(
-            $"fn test() -> fs.path.has_ext('dobry_jezu');"
+            "fn test() -> fs.path.has_ext('dobry_jezu');"
         );
             
         result.Type.ShouldBe(DynamicValueType.Boolean);

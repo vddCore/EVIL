@@ -33,7 +33,7 @@ public sealed partial class Chunk
             bw.Write((int)_chunk.Flags);
         }
 
-        private void WriteConstValue(BinaryWriter bw, DynamicValue value)
+        private static void WriteConstValue(BinaryWriter bw, DynamicValue value)
         {
             bw.Write((byte)value.Type);
             switch (value.Type)

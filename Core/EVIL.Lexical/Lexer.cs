@@ -10,20 +10,7 @@ public class Lexer
 
     private string? _sourceCode;
 
-    public LexerState State { get; internal set; } = new();
-
-    public LexerState CopyState()
-    {
-        return new()
-        {
-            Character = State.Character,
-            Column = State.Column,
-            CurrentToken = State.CurrentToken,
-            Line = State.Line,
-            Pointer = State.Pointer,
-            PreviousToken = State.PreviousToken
-        };
-    }
+    public LexerState State { get; private set; } = new();
 
     public void LoadSource(string source)
     {
@@ -48,8 +35,7 @@ public class Lexer
             switch (State.Character)
             {
                 case '.' when Peek() == '.' && Peek(2) == '.':
-                    Advance();
-                    Advance();
+                    Advance(2);
                     State.CurrentToken = Token.Ellipsis with { Line = line, Column = col };
                     break;
                 case '-' when Peek() == '>':
@@ -330,7 +316,7 @@ public class Lexer
 
     public Token PeekToken(int howFar)
     {
-        var prevState = CopyState();
+        var prevState = State with { };
         var token = Token.Empty;
 
         for (var i = 0; i < howFar; i++)

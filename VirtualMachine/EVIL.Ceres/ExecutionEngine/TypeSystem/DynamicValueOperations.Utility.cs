@@ -102,7 +102,7 @@ public static partial class DynamicValueOperations
 
             case DynamicValueType.Chunk when key.Type != DynamicValueType.String:
                 throw new UnsupportedDynamicValueOperationException(
-                    $"Chunks may only be indexed using a String."
+                    "Chunks may only be indexed using a String."
                 );
 
             case DynamicValueType.Chunk:

@@ -27,7 +27,7 @@ public partial class Compiler
                 stack.Push(orBex.Right);
                 stack.Push(orBex.Left);
 
-                while (stack.Any())
+                while (stack.Count != 0)
                 {
                     var node = stack.Pop();
 

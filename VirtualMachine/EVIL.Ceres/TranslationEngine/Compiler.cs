@@ -32,7 +32,7 @@ public partial class Compiler : AstVisitor
     {
         get
         {
-            if (!_closedScopes.Any())
+            if (_closedScopes.Count == 0)
             {
                 throw new InvalidOperationException("Internal error: no scopes defined.");
             }
@@ -42,7 +42,7 @@ public partial class Compiler : AstVisitor
 
         set
         {
-            if (!_closedScopes.Any())
+            if (_closedScopes.Count == 0)
             {
                 throw new InvalidOperationException("Internal error: no scopes defined");
             }

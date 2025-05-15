@@ -10,50 +10,63 @@ public partial class Parser
     {
         var token = CurrentToken;
 
-        if (token.Type == TokenType.LParenthesis)
+        switch (token.Type)
         {
-            var (line, col) = Match(Token.LParenthesis);
+            case TokenType.LParenthesis:
+            {
+                var (line, col) = Match(Token.LParenthesis);
 
-            var node = AssignmentExpression();
-            node.Line = line;
-            node.Column = col;
+                var node = AssignmentExpression();
+                node.Line = line;
+                node.Column = col;
 
-            Match(Token.RParenthesis);
+                Match(Token.RParenthesis);
 
-            return node;
-        }
-        else if (token.Type == TokenType.LBrace)
-        {
-            return TableExpression();
-        }
-        else if (token.Type == TokenType.Array)
-        {
-            return ArrayExpression();
-        }
-        else if (token.Type == TokenType.Error)
-        {
-            return ErrorExpression();
-        }
-        else if (token.Type == TokenType.Ellipsis)
-        {
-            var (line, col) = Match(Token.Ellipsis);
+                return node;
+            }
+
+            case TokenType.LBrace:
+            {
+                return TableExpression();
+            }
+
+            case TokenType.Array:
+            {
+                return ArrayExpression();
+            }
+
+            case TokenType.Error:
+            {
+                return ErrorExpression();
+            }
+            
+            case TokenType.Ellipsis:
+            {
+                var (line, col) = Match(Token.Ellipsis);
                 
-            return new ExtraArgumentsExpression(false) 
-                { Line = line, Column = col };
-        }
-        else if (token.Type == TokenType.Fn)
-        {
-            return FnExpression();
-        }
-        else if (token.Type == TokenType.Identifier)
-        {
-            return SymbolReferenceExpression();
-        }
-        else if (token.Type == TokenType.Self)
-        {
-            return SelfExpression();
-        }
+                return new ExtraArgumentsExpression(false) 
+                    { Line = line, Column = col };
+            }
 
-        return ConstantExpression();
+            case TokenType.Fn:
+            {
+                return FnExpression();
+            }
+
+            case TokenType.Identifier:
+            {
+                return SymbolReferenceExpression();
+            }
+
+            case TokenType.Self:
+            {
+                return SelfExpression();
+            }
+
+            default:
+            {
+                return ConstantExpression();
+            }
+        }
     }
 }

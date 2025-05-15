@@ -85,7 +85,7 @@ public partial class Parser
         return (line, column);
     }
 
-    private string WithArticle(string word)
+    private static string WithArticle(string word)
     {
         var result = word.ToLower();
 

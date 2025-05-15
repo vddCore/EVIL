@@ -306,7 +306,7 @@ public sealed class Fiber
     {
         if (_state == FiberState.Awaiting)
         {
-            if (_waitingFor.Any())
+            if (_waitingFor.Count != 0)
             {
                 return;
             }

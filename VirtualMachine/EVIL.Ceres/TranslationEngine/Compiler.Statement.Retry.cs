@@ -9,7 +9,7 @@ public partial class Compiler
 {
     protected override void Visit(RetryStatement retryStatement)
     {
-        if (!_blockProtectors.Any())
+        if (_blockProtectors.Count == 0)
         {
             Log.TerminateWithFatal(
                 "`retry' was not expected at this time.",

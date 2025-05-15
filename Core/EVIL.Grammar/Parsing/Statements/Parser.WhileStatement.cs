@@ -12,7 +12,7 @@ public partial class Parser
         var condition = AssignmentExpression();
         Match(Token.RParenthesis);
 
-        var statement = LoopDescent(() => Statement());
+        var statement = LoopDescent(Statement);
             
         return new WhileStatement(condition, statement) 
             { Line = line, Column = col };

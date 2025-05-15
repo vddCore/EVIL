@@ -7,11 +7,11 @@ using EVIL.Lexical;
 
 public partial class Parser
 {
-    private List<TokenType> _shiftOperators = new()
-    {
+    private readonly List<TokenType> _shiftOperators =
+    [
         TokenType.ShiftLeft,
         TokenType.ShiftRight
-    };
+    ];
 
     private Expression ShiftExpression()
     {

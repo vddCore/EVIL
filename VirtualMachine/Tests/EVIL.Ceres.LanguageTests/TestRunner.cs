@@ -347,7 +347,7 @@ public class TestRunner
         return test.Successful;
     }
 
-    private (bool Ignore, string? Reason) CheckIgnoreStatus(Chunk chunk)
+    private static (bool Ignore, string? Reason) CheckIgnoreStatus(Chunk chunk)
     {
         if (!chunk.TryGetAttribute("ignore", out var ignoreAttr))
         {
@@ -376,7 +376,7 @@ public class TestRunner
 
     private void ReportAnyTestFailures()
     {
-        if (FailureLog.Any())
+        if (FailureLog.Count != 0)
         {
             TextOut.WriteLine("There were one or more of test failures/inconclusive results:");
         }

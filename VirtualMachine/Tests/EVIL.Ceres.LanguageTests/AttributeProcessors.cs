@@ -14,7 +14,7 @@ public static class AttributeProcessors
             throw new Exception("Only valid on functions marked as a test.");
         }
 
-        if (!testAttribute.Values.Any())
+        if (testAttribute.Values.Count == 0)
         {
             throw new Exception("Only valid on tests returning a value.");
         }
@@ -24,7 +24,7 @@ public static class AttributeProcessors
             throw new Exception("Only valid on tests returning a number.");
         }
 
-        if (approximateAttribute.Values.Any())
+        if (approximateAttribute.Values.Count != 0)
         {
             if (approximateAttribute.Values.Count > 1)
             {
@@ -40,7 +40,7 @@ public static class AttributeProcessors
 
     public static void DisasmAttribute(ChunkAttribute disasmAttribute, Chunk chunk)
     {
-        if (disasmAttribute.Values.Any())
+        if (disasmAttribute.Values.Count != 0)
         {
             if (disasmAttribute.Values[0].Type != DynamicValueType.String)
             {

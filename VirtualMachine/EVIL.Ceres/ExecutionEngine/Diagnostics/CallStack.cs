@@ -9,7 +9,7 @@ public class CallStack
     public const int MaxFrames = 16384;
 
     private int _currentPointer = -1;
-    private StackFrame?[] _frames = new StackFrame[MaxFrames];
+    private readonly StackFrame?[] _frames = new StackFrame[MaxFrames];
 
     public StackFrame this[int index] => _frames[_currentPointer - index]!;
     public int Count => _currentPointer + 1;

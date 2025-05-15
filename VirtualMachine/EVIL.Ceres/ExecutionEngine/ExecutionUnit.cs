@@ -107,7 +107,7 @@ internal class ExecutionUnit
                 var subChunkStack = new Queue<Chunk>();
                 subChunkStack.Enqueue(clone);
 
-                while (subChunkStack.Any())
+                while (subChunkStack.Count != 0)
                 {
                     var currentChunk = subChunkStack.Dequeue();
 
@@ -1556,7 +1556,7 @@ internal class ExecutionUnit
         }
     }
 
-    private bool FindMetaFunction(Table table, string op, [MaybeNullWhen(false)] out Chunk chunk)
+    private static bool FindMetaFunction(Table table, string op, [MaybeNullWhen(false)] out Chunk chunk)
     {
         if (!table.HasMetaTable)
         {

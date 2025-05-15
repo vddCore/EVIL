@@ -28,10 +28,10 @@ public static class RuntimeModuleDocExtensions
 
             if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Get))
             {
-                sb.Append($"**` :: get");
+                sb.Append("**` :: get");
                 if (evilDocPropertyAttribute.IsAnyGet)
                 {
-                    sb.AppendLine($" -> Any`**\n  ");
+                    sb.AppendLine(" -> Any`**\n  ");
                 }
                 else
                 {
@@ -41,10 +41,10 @@ public static class RuntimeModuleDocExtensions
 
             if (evilDocPropertyAttribute.Mode.HasFlag(EvilDocPropertyMode.Set))
             {
-                sb.Append($"**` ::set");
+                sb.Append("**` ::set");
                 if (evilDocPropertyAttribute.IsAnySet)
                 {
-                    sb.AppendLine($" <- Any`**\n  ");
+                    sb.AppendLine(" <- Any`**\n  ");
                 }
                 else
                 {
@@ -111,7 +111,7 @@ public static class RuntimeModuleDocExtensions
         {
             sb.AppendLine("**Synopsis**  ");
             sb.Append($"`{module.FullyQualifiedName}.{runtimeModuleFunctionAttribute.SubNameSpace}");
-            sb.Append("(");
+            sb.Append('(');
             {
                 for (var i = 0; i < evilDocArgumentAttributes.Length; i++)
                 {
@@ -155,11 +155,11 @@ public static class RuntimeModuleDocExtensions
                 sb.Append("...");
             }
 
-            sb.Append($")  ");
+            sb.Append(")  ");
 
             if (evilDocFunctionAttribute.IsAnyReturn)
             {
-                sb.AppendLine($" -> Any`\n  ");
+                sb.AppendLine(" -> Any`\n  ");
             }
             else
             {
@@ -187,7 +187,7 @@ public static class RuntimeModuleDocExtensions
                     var argInfo = evilDocArgumentAttributes[i];
                     var argType = argInfo.IsAnyType ? "Any" : GetTypeString(argInfo.PrimaryType);
 
-                    if (!argInfo.IsAnyType && argInfo.OtherTypes != null)
+                    if (argInfo is { IsAnyType: false, OtherTypes: not null })
                     {
                         foreach (var otherType in argInfo.OtherTypes)
                         {
@@ -309,14 +309,14 @@ public static class RuntimeModuleDocExtensions
 
         if (!string.IsNullOrEmpty(propertyDescriptionString))
         {
-            sb.AppendLine($"## Properties");
+            sb.AppendLine("## Properties");
             sb.AppendLine(propertyDescriptionString);
             sb.AppendLine();
         }
 
         if (!string.IsNullOrEmpty(functionDescriptionString))
         {
-            sb.AppendLine($"## Functions");
+            sb.AppendLine("## Functions");
             sb.AppendLine(functionDescriptionString);
             sb.AppendLine();
         }

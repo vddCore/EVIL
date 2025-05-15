@@ -10,21 +10,28 @@ public partial class Parser
     {
         var token = CurrentToken;
 
-        if (token.Type == TokenType.Increment)
+        switch (token.Type)
         {
-            var (line, col) = Match(Token.Increment);
+            case TokenType.Increment:
+            {
+                var (line, col) = Match(Token.Increment);
                 
-            return new IncrementationExpression(RuntimeExpression(), true) 
-                { Line = line, Column = col };
-        }
-        else if (token.Type == TokenType.Decrement)
-        {
-            var (line, col) = Match(Token.Decrement);
+                return new IncrementationExpression(RuntimeExpression(), true) 
+                    { Line = line, Column = col };
+            }
+            
+            case TokenType.Decrement:
+            {
+                var (line, col) = Match(Token.Decrement);
                 
-            return new DecrementationExpression(RuntimeExpression(), true) 
-                { Line = line, Column = col };
-        }
+                return new DecrementationExpression(RuntimeExpression(), true) 
+                    { Line = line, Column = col };
+            }
 
-        return RuntimeExpression();
+            default:
+            {
+                return RuntimeExpression();
+            }
+        }
     }
 }

@@ -7,12 +7,12 @@ using EVIL.Lexical;
 
 public partial class Parser
 {
-    private static readonly TokenType[] _multiplicativeOperators = new[]
-    {
+    private static readonly TokenType[] _multiplicativeOperators =
+    [
         TokenType.Multiply,
         TokenType.Divide,
         TokenType.Modulo
-    };
+    ];
 
     private Expression MultiplicativeExpression()
     {
@@ -21,26 +21,34 @@ public partial class Parser
 
         while (_multiplicativeOperators.Contains(token.Type))
         {
-            if (token.Type == TokenType.Multiply)
+            switch (token.Type)
             {
-                var (line, col) = Match(Token.Multiply);
+                case TokenType.Multiply:
+                {
+                    var (line, col) = Match(Token.Multiply);
 
-                node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Multiply)
-                    { Line = line, Column = col };
-            }
-            else if (token.Type == TokenType.Divide)
-            {
-                var (line, col) = Match(Token.Divide);
+                    node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Multiply)
+                        { Line = line, Column = col };
+                    break;
+                }
+                
+                case TokenType.Divide:
+                {
+                    var (line, col) = Match(Token.Divide);
 
-                node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Divide)
-                    { Line = line, Column = col };
-            }
-            else if (token.Type == TokenType.Modulo)
-            {
-                var (line, col) = Match(Token.Modulo);
+                    node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Divide)
+                        { Line = line, Column = col };
+                    break;
+                }
+                
+                case TokenType.Modulo:
+                {
+                    var (line, col) = Match(Token.Modulo);
 
-                node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Modulo)
-                    { Line = line, Column = col };
+                    node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Modulo)
+                        { Line = line, Column = col };
+                    break;
+                }
             }
 
             token = CurrentToken;

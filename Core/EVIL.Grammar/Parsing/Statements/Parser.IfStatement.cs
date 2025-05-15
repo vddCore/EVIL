@@ -29,45 +29,52 @@ public partial class Parser
             node.AddStatement(Statement());
         }
 
-        while (CurrentToken.Type == TokenType.Elif || CurrentToken.Type == TokenType.Else)
+        while (CurrentToken.Type is TokenType.Elif or TokenType.Else)
         {
-            if (CurrentToken.Type == TokenType.Elif)
+            switch (CurrentToken.Type)
             {
-                Match(Token.Elif);
-                Match(Token.LParenthesis);
+                case TokenType.Elif:
+                {
+                    Match(Token.Elif);
+                    Match(Token.LParenthesis);
 
-                expression = AssignmentExpression();
+                    expression = AssignmentExpression();
 
-                Match(Token.RParenthesis);
-                node.AddCondition(expression);
-                if (CurrentToken == Token.RightArrow)
-                {
-                    node.AddStatement(ExpressionBodyStatement());
-                    Match(Token.Semicolon);
+                    Match(Token.RParenthesis);
+                    node.AddCondition(expression);
+                    if (CurrentToken == Token.RightArrow)
+                    {
+                        node.AddStatement(ExpressionBodyStatement());
+                        Match(Token.Semicolon);
+                    }
+                    else
+                    {
+                        node.AddStatement(Statement());
+                    }
+
+                    break;
                 }
-                else
+                case TokenType.Else:
                 {
-                    node.AddStatement(Statement());
+                    Match(Token.Else);
+                    if (CurrentToken == Token.RightArrow)
+                    {
+                        node.SetElseBranch(ExpressionBodyStatement());
+                        Match(Token.Semicolon);
+                    }
+                    else
+                    {
+                        node.SetElseBranch(Statement());
+                    }
+
+                    break;
                 }
+                default:
+                    throw new ParserException(
+                        $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",
+                        (_lexer.State.Line, _lexer.State.Column)
+                    );
             }
-            else if (CurrentToken.Type == TokenType.Else)
-            {
-                Match(Token.Else);
-                if (CurrentToken == Token.RightArrow)
-                {
-                    node.SetElseBranch(ExpressionBodyStatement());
-                    Match(Token.Semicolon);
-                }
-                else
-                {
-                    node.SetElseBranch(Statement());
-                }
-            }
-            else
-                throw new ParserException(
-                    $"Expected '}}' or 'else' or 'elif', got '{CurrentToken.Value}'",
-                    (_lexer.State.Line, _lexer.State.Column)
-                );
         }
 
         return node;

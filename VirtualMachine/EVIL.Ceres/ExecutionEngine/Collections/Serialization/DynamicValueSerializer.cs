@@ -192,7 +192,7 @@ internal static class DynamicValueSerializer
         catch (Exception e)
         {
             throw new SerializationException(
-                $"Failed to deserialize a function.",
+                "Failed to deserialize a function.",
                 e
             );
         }
