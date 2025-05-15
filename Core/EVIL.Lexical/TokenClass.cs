@@ -8,6 +8,5 @@ public enum TokenClass
     Literal,
     Alias,
     Meta,
-    TypeCode,
-    Override
+    TypeCode
 }

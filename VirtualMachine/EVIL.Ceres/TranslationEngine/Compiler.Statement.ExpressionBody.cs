@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(ExpressionBodyStatement expressionBodyStatement)
+    protected override void Visit(ExpressionBodyStatement expressionBodyStatement)
     {
         Visit(expressionBodyStatement.Expression);
         Chunk.CodeGenerator.Emit(OpCode.RET);

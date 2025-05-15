@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(WithExpression withExpression)
+    protected override void Visit(WithExpression withExpression)
     {
         Visit(withExpression.BaseExpression);
         Chunk.CodeGenerator.Emit(OpCode.TABCLN, /* isDeepCopy: */ false);

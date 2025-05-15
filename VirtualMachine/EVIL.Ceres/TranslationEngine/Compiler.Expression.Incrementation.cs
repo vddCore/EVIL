@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(IncrementationExpression incrementationExpression)
+    protected override void Visit(IncrementationExpression incrementationExpression)
     {
         if (incrementationExpression.Target is SymbolReferenceExpression vre)
         {

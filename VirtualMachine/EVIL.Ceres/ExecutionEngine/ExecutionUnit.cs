@@ -17,12 +17,12 @@ internal class ExecutionUnit
     private readonly Table _global;
     private readonly Fiber _fiber;
     private readonly CallStack _callStack;
-    private readonly Stack<DynamicValue> _evaluationStack;
+    private readonly ValueStack _evaluationStack;
 
     public ExecutionUnit(
         Table global,
         Fiber fiber,
-        Stack<DynamicValue> evaluationStack,
+        ValueStack evaluationStack,
         CallStack callStack)
     {
         _global = global;

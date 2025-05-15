@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(YieldExpression yieldExpression)
+    protected override void Visit(YieldExpression yieldExpression)
     {
         Visit(yieldExpression.ArgumentList);
         Visit(yieldExpression.Target);

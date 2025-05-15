@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(BreakStatement breakStatement)
+    protected override void Visit(BreakStatement breakStatement)
     {
         Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.EndLabel);
     }

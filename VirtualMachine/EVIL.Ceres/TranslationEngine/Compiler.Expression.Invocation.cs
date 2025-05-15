@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(InvocationExpression invocationExpression)
+    protected override void Visit(InvocationExpression invocationExpression)
     {
         Visit(invocationExpression.ArgumentList);
 

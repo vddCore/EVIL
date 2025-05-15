@@ -8,7 +8,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(AssignmentExpression assignmentExpression)
+    protected override void Visit(AssignmentExpression assignmentExpression)
     {
         if (assignmentExpression.Left is SymbolReferenceExpression symRef)
         {

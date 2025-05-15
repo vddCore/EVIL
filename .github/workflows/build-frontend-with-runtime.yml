@@ -37,7 +37,7 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Run language tests
-      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net7.0
+      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
       run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
 
     - name: Publish to directory
@@ -56,6 +56,6 @@ jobs:
       uses: actions/upload-artifact@v4.6.1
       with:
         name: evil-${{ steps.package_version.outputs.version }}_${{ matrix.runtime-identifier }}-${{ matrix.configuration }}
-        path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net7.0/${{ matrix.runtime-identifier }}/publish
+        path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net9.0/${{ matrix.runtime-identifier }}/publish
         if-no-files-found: error
         retention-days: 90

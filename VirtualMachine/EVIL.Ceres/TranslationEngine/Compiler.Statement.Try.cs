@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(TryStatement tryStatement)
+    protected override void Visit(TryStatement tryStatement)
     {
         var statementEndLabel = Chunk.CreateLabel();
         var enterInsnLabel = Chunk.CreateLabel();

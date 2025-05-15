@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(SelfInvocationExpression selfInvocationExpression)
+    protected override void Visit(SelfInvocationExpression selfInvocationExpression)
     {
         Visit(selfInvocationExpression.Indexable);
         Visit(selfInvocationExpression.ArgumentList);

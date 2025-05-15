@@ -7,16 +7,9 @@ using System.Linq;
 using System.Reflection;
 using EVIL.Ceres.Runtime;
 
-public class RuntimeModuleLoader
+public class RuntimeModuleLoader(EvilRuntime runtime)
 {
     private const string RuntimeModuleExtensionPattern = "*.evrm.dll";
-
-    private readonly EvilRuntime _runtime;
-
-    public RuntimeModuleLoader(EvilRuntime runtime)
-    {
-        _runtime = runtime;
-    }
 
     public List<RuntimeModule> RegisterUserRuntimeModules(string directoryPath)
     {
@@ -33,7 +26,7 @@ public class RuntimeModuleLoader
 
                 foreach (var type in types)
                 {
-                    modules.Add(_runtime.RegisterModule(type, out _));
+                    modules.Add(runtime.RegisterModule(type, out _));
                 }
             }
             catch (Exception e)

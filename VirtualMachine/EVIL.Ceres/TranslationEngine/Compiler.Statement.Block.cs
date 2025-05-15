@@ -4,7 +4,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(BlockStatement blockStatement)
+    protected override void Visit(BlockStatement blockStatement)
     {
         InNewLocalScopeDo(() =>
         {

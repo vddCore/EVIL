@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(SelfExpression selfExpression)
+    protected override void Visit(SelfExpression selfExpression)
     {
         if (!Chunk.IsSelfAware)
         {

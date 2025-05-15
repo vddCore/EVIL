@@ -13,14 +13,14 @@ using EVIL.Ceres.ExecutionEngine.TypeSystem;
 
 public sealed class Fiber
 {
-    private Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
-    private HashSet<Fiber> _waitingFor;
+    private readonly Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
+    private readonly HashSet<Fiber> _waitingFor;
 
-    private Stack<DynamicValue> _evaluationStack;
-    private CallStack _callStack;
-    private Dictionary<string, ClosureContext> _closureContexts;
+    private readonly ValueStack _evaluationStack;
+    private readonly CallStack _callStack;
+    private readonly Dictionary<string, ClosureContext> _closureContexts;
 
-    private ExecutionUnit _executionUnit;
+    private readonly ExecutionUnit _executionUnit;
     private FiberCrashHandler? _crashHandler;
     internal FiberState _state;
 
@@ -38,7 +38,7 @@ public sealed class Fiber
 
     public bool ImmuneToCollection { get; private set; }
 
-    public IReadOnlyCollection<DynamicValue> EvaluationStack
+    public ValueStack EvaluationStack
     {
         get
         {
@@ -67,7 +67,7 @@ public sealed class Fiber
         _scheduledChunks = new Queue<(Chunk, DynamicValue[])>();
         _waitingFor = new HashSet<Fiber>();
 
-        _evaluationStack = new Stack<DynamicValue>();
+        _evaluationStack = new ValueStack();
         _callStack = new CallStack();
         _closureContexts = closureContexts ?? new Dictionary<string, ClosureContext>();
             
@@ -243,7 +243,7 @@ public sealed class Fiber
 
     public void Await()
     {
-        if (!_waitingFor.Any())
+        if (_waitingFor.Count == 0)
         {
             return;
         }
@@ -273,7 +273,7 @@ public sealed class Fiber
 
         if (_state == FiberState.Awaiting)
         {
-            if (!_waitingFor.Any())
+            if (_waitingFor.Count == 0)
             {
                 _state = FiberState.Running;
             }
@@ -371,14 +371,6 @@ public sealed class Fiber
         }
     }
 
-    public bool TryPeekValue(out DynamicValue value)
-    {
-        lock (_evaluationStack)
-        {
-            return _evaluationStack.TryPeek(out value!);
-        }
-    }
-
     public DynamicValue PopValue()
     {
         lock (_evaluationStack)
@@ -387,14 +379,6 @@ public sealed class Fiber
         }
     }
 
-    public bool TryPopValue(out DynamicValue value)
-    {
-        lock (_evaluationStack)
-        {
-            return _evaluationStack.TryPop(out value!);
-        }
-    }
-        
     public ClosureContext SetClosureContext(string chunkName)
     {
         if (!_closureContexts.TryGetValue(chunkName, out var value))

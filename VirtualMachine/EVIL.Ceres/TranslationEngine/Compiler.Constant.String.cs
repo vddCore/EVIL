@@ -9,7 +9,7 @@ public partial class Compiler
 {
     private static Regex _stringSubstitutionRegex = new(@"(?<substitution>\$(?<symbol_name>[\p{L}_]([\p{L}\p{Nd}_]+)?))");
 
-    public override void Visit(StringConstant stringConstant)
+    protected override void Visit(StringConstant stringConstant)
     {
         if (stringConstant.IsInterpolated)
         {

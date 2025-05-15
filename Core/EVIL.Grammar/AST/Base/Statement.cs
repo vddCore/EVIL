@@ -1,5 +1,4 @@
 namespace EVIL.Grammar.AST.Base;
 
-public abstract class Statement : AstNode
-{
-}
+public abstract class Statement 
+    : AstNode;

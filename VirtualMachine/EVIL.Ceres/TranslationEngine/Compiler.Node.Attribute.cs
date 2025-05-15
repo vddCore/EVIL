@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 public partial class Compiler
 {
-    public override void Visit(AttributeNode attributeNode)
+    protected override void Visit(AttributeNode attributeNode)
     {
         var attribute = new ChunkAttribute(attributeNode.Identifier.Name);
 

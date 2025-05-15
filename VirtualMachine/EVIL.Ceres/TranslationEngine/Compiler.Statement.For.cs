@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(ForStatement forStatement)
+    protected override void Visit(ForStatement forStatement)
     {
         InNewLocalScopeDo(() =>
         {

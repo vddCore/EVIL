@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(ErrorExpression errorExpression)
+    protected override void Visit(ErrorExpression errorExpression)
     {
         if (errorExpression.UserDataTable == null && errorExpression.ImplicitMessageConstant == null)
         {

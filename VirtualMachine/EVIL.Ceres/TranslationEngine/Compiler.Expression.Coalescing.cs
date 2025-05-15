@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(CoalescingExpression coalescingExpression)
+    protected override void Visit(CoalescingExpression coalescingExpression)
     {
         var valueNotNilLabel = Chunk.CreateLabel();
             

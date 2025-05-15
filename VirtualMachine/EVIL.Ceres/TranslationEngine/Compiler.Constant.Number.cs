@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Constants;
 
 public partial class Compiler
 {
-    public override void Visit(NumberConstant numberConstant)
+    protected override void Visit(NumberConstant numberConstant)
     {
         if (numberConstant.Value.Equals(0))
         {

@@ -10,7 +10,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(IfStatement ifStatement)
+    protected override void Visit(IfStatement ifStatement)
     {
         var statementEnd = Chunk.CreateLabel();
             

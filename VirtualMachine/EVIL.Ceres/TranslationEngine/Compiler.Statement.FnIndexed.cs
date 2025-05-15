@@ -7,7 +7,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(FnIndexedStatement fnIndexedStatement)
+    protected override void Visit(FnIndexedStatement fnIndexedStatement)
     {
         var indexedChunkName = fnIndexedStatement.Indexer.BuildChainStringRepresentation();
             

@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Constants;
 
 public partial class Compiler
 {
-    public override void Visit(NilConstant nilConstant)
+    protected override void Visit(NilConstant nilConstant)
     {
         Chunk.CodeGenerator.Emit(OpCode.LDNIL);
     }

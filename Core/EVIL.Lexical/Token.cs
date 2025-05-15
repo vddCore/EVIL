@@ -2,21 +2,15 @@
 
 using System;
 
-public struct Token : IEquatable<Token>
+public readonly struct Token(TokenType type, TokenClass @class, string value)
+    : IEquatable<Token>
 {
-    public TokenType Type { get; }
-    public TokenClass Class { get; }
-    public string Value { get; }
+    public TokenType Type { get; } = type;
+    public TokenClass Class { get; } = @class;
+    public string Value { get; } = value;
 
     public int Line { get; init; }
     public int Column { get; init; }
-
-    public Token(TokenType type, TokenClass @class, string value)
-    {
-        Type = type;
-        Class = @class;
-        Value = value;
-    }
 
     public static Token CreateHexInteger(string value)
         => new(TokenType.HexInteger, TokenClass.Literal, value);

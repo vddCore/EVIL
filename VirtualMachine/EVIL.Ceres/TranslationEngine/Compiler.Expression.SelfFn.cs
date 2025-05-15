@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(SelfFnExpression selfFnExpression)
+    protected override void Visit(SelfFnExpression selfFnExpression)
     {
         var id = InAnonymousSubChunkDo(() =>
         {

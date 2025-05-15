@@ -7,7 +7,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(ByExpression byExpression)
+    protected override void Visit(ByExpression byExpression)
     {
         Visit(byExpression.Qualifier);
 

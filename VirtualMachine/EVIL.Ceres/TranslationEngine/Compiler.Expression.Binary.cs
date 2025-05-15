@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(BinaryExpression binaryExpression)
+    protected override void Visit(BinaryExpression binaryExpression)
     {
         Visit(binaryExpression.Left);
         Visit(binaryExpression.Right);

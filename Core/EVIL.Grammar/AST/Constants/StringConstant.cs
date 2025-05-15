@@ -2,14 +2,11 @@
 
 using EVIL.Grammar.AST.Base;
 
-public sealed class StringConstant : ConstantExpression
+public sealed class StringConstant(
+    string value,
+    bool isInterpolated
+) : ConstantExpression
 {
-    public string Value { get; }
-    public bool IsInterpolated { get; }
-
-    public StringConstant(string value, bool isInterpolated)
-    {
-        Value = value;
-        IsInterpolated = isInterpolated;
-    }
+    public string Value { get; } = value;
+    public bool IsInterpolated { get; } = isInterpolated;
 }

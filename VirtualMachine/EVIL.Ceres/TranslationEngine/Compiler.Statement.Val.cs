@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(ValStatement valStatement)
+    protected override void Visit(ValStatement valStatement)
     {
         foreach (var kvp in valStatement.Definitions)
         {

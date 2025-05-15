@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(RetStatement retStatement)
+    protected override void Visit(RetStatement retStatement)
     {
         if (retStatement.Expression != null)
         {

@@ -6,7 +6,7 @@ using EVIL.Grammar.AST.Statements.TopLevel;
 
 public partial class Compiler
 {
-    public override void Visit(FnStatement fnStatement)
+    protected override void Visit(FnStatement fnStatement)
     {
         var localId = -1;
         if (fnStatement.IsLocalDefinition)

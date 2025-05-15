@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(IndexerExpression indexerExpression)
+    protected override void Visit(IndexerExpression indexerExpression)
     {
         if (indexerExpression.IsConditional)
         {

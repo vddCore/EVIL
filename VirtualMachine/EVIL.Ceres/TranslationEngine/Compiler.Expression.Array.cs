@@ -8,7 +8,7 @@ using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
-    public override void Visit(ArrayExpression arrayExpression)
+    protected override void Visit(ArrayExpression arrayExpression)
     {
         int? knownSizeConstraint = null;
             

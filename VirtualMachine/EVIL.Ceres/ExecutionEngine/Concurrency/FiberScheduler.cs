@@ -1,146 +1,119 @@
 namespace EVIL.Ceres.ExecutionEngine.Concurrency;
 
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
-public class FiberScheduler
+public sealed class FiberScheduler
 {
-    private CeresVM _vm;
+    private readonly CeresVM _vm;
     private FiberCrashHandler _defaultCrashHandler;
-
-    private List<Fiber> _fibers;
-    private List<int> _dueForRemoval;
-
-    private bool _running;
-
-    public IReadOnlyList<Fiber> Fibers => _fibers;
+    private readonly ConcurrentFiberCollection _fibers;
+    private volatile bool _running;
+    
     public bool IsRunning => _running;
-        
-    public FiberScheduler(CeresVM vm, FiberCrashHandler defaultCrashHandler)
+    
+    public ConcurrentFiberCollection Fibers => _fibers;
+    
+    public FiberScheduler(
+        CeresVM vm,
+        FiberCrashHandler defaultCrashHandler,
+        int initialCapacity = 16)
     {
         _vm = vm;
         _defaultCrashHandler = defaultCrashHandler;
-            
-        _fibers = new();
-        _dueForRemoval = new();
+        _fibers = new ConcurrentFiberCollection(initialCapacity);
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ProcessFiber(Fiber fiber)
+    {
+        var state = fiber.State;
+        
+        switch (state)
+        {
+            case FiberState.Awaiting:
+                fiber.RemoveFinishedAwaitees();
+                fiber.Resume();
+                break;
+                
+            case FiberState.Fresh:
+                fiber.Resume();
+                break;
+                
+            case FiberState.Paused:
+                return;
+                
+            case FiberState.Finished:
+            case FiberState.Crashed:
+                if (fiber.ImmuneToCollection)
+                    return;
+                break;
+                
+            default:
+                fiber.Resume();
+                if (fiber.State != FiberState.Running)
+                    return;
+                break;
+        }
+        
+        fiber.Step();
+    }
+    
     public void Run()
     {
         _running = true;
-
+        
         while (_running)
         {
-            lock (_fibers)
+            foreach (var kvp in _fibers.Entries)
             {
-                for (var i = 0; i < _fibers.Count; i++)
+                var fiber = kvp.Value;
+                ProcessFiber(fiber);
+                
+                if ((fiber.State == FiberState.Finished || fiber.State == FiberState.Crashed) 
+                    && !fiber.ImmuneToCollection)
                 {
-                    var fiber = _fibers[i];
-                        
-                    if (fiber._state == FiberState.Awaiting)
-                    {
-                        fiber.RemoveFinishedAwaitees();
-                        fiber.Resume();
-                    }
-                    else if (fiber._state == FiberState.Fresh)
-                    {
-                        fiber.Resume();
-                    }
-                    else if (fiber._state == FiberState.Paused)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        if (fiber._state == FiberState.Finished || fiber._state == FiberState.Crashed)
-                        {
-                            if (!fiber.ImmuneToCollection)
-                            {
-                                _dueForRemoval.Add(i);
-                            }
-                        }
-                        else
-                        {
-                            fiber.Resume();
-                        }
-
-                        if (fiber._state != FiberState.Running)
-                        {
-                            continue;
-                        }
-                    }
-                        
-                    fiber.Step();
+                    _fibers.Remove(kvp.Key);
                 }
-
-                RemoveFinishedFibers();
             }
         }
     }
-
-    public void SetDefaultCrashHandler(FiberCrashHandler crashHandler)
-    {
+    
+    public void Stop() => _running = false;
+    
+    public void SetDefaultCrashHandler(FiberCrashHandler crashHandler) => 
         _defaultCrashHandler = crashHandler;
-    }
-
-    public void Stop()
-    {
-        lock (_fibers)
-        {
-            _running = false;
-        }
-    }
-
+    
     public Fiber CreateFiber(
         bool immunized,
         FiberCrashHandler? crashHandler = null,
         Dictionary<string, ClosureContext>? closureContexts = null)
     {
         var fiber = new Fiber(
-            _vm, 
-            crashHandler ?? _defaultCrashHandler, 
+            _vm,
+            crashHandler ?? _defaultCrashHandler,
             closureContexts
         );
-
+        
         if (immunized)
         {
             fiber.Immunize();
         }
-
-        lock (_fibers)
-        {
-            _fibers.Add(fiber);
-        }
-
+        
+        _fibers.Add(fiber);
         return fiber;
     }
-
+    
     public void RemoveCrashedFibers()
     {
-        for (var i = 0; i < _fibers.Count; i++)
+        foreach (var kvp in _fibers.Entries)
         {
-            if (_fibers[i]._state == FiberState.Crashed)
+            if (kvp.Value.State == FiberState.Crashed)
             {
-                _dueForRemoval.Add(i);
+                _fibers.Remove(kvp.Key);
             }
         }
-    }
-
-    private void RemoveFinishedFibers()
-    {
-        if (!_dueForRemoval.Any())
-            return;
-
-        _dueForRemoval.Sort();
-        _dueForRemoval.Reverse();
-
-        for (var i = 0; i < _dueForRemoval.Count; i++)
-        {
-            _fibers.RemoveAt(_dueForRemoval[i]);
-        }
-
-        _dueForRemoval.Clear();
     }
 }

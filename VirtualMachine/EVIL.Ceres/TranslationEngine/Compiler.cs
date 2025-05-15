@@ -203,7 +203,7 @@ public partial class Compiler : AstVisitor
         _loopDescent.Pop();
     }
 
-    public override void Visit(AstNode node)
+    protected override void Visit(AstNode node)
     {
         Line = node.Line;
         Column = node.Column;

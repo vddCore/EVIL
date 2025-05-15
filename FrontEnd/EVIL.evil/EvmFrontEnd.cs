@@ -21,12 +21,12 @@ using Mono.Options;
 
 public partial class EvmFrontEnd
 {
-    private static CeresVM _vm = new(CrashHandler);
-    private static Compiler _compiler = new();
-    private static EvilRuntime _runtime = new(_vm);
-    private static RuntimeModuleLoader _runtimeModuleLoader = new(_runtime);
+    private static readonly CeresVM _vm = new(CrashHandler);
+    private static readonly Compiler _compiler = new();
+    private static readonly EvilRuntime _runtime = new(_vm);
+    private static readonly RuntimeModuleLoader _runtimeModuleLoader = new(_runtime);
 
-    private static OptionSet _options = new()
+    private static readonly OptionSet _options = new()
     {
         { "h|help", "display this message and quit.", (h) => _displayHelpAndQuit = h != null },
         { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
@@ -103,7 +103,7 @@ public partial class EvmFrontEnd
             .Select(x => new DynamicValue(x))
             .ToArray();
             
-        var source = File.ReadAllText(scriptPath);
+        var source = await File.ReadAllTextAsync(scriptPath);
 
         Chunk rootChunk = null!;
         try
@@ -129,9 +129,9 @@ public partial class EvmFrontEnd
             var msg = $"Compilation error in {scriptPath}:\n" +
                       $"  {ce.Log.Messages.Last()}";
 
-            if (ce.InnerException != null 
-                && ce.InnerException is not ParserException 
-                    and not DuplicateSymbolException)
+            if (ce.InnerException is not null 
+                and not ParserException 
+                and not DuplicateSymbolException)
             {
                 msg += $"\n\n {ce.InnerException.Message}";
             }
@@ -154,7 +154,7 @@ public partial class EvmFrontEnd
         {
             try
             {
-                using var fs = new FileStream(
+                await using var fs = new FileStream(
                     Path.Combine(
                         Environment.CurrentDirectory,
                         _outputFileName
@@ -362,7 +362,7 @@ public partial class EvmFrontEnd
                 sb.Append($", on line {scriptTop.Chunk.DebugDatabase.DefinedOnLine}");
             }
 
-            sb.Append(")");
+            sb.Append(')');
         }
         sb.AppendLine(": ");
             

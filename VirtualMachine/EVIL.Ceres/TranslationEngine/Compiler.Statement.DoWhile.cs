@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(DoWhileStatement doWhileStatement)
+    protected override void Visit(DoWhileStatement doWhileStatement)
     {
         InNewLoopDo(Loop.LoopKind.DoWhile, () =>
         {

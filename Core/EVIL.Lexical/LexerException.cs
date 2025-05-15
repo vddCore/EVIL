@@ -2,14 +2,9 @@
 
 using System;
 
-public class LexerException : Exception
+public class LexerException(string message, int line, int column)
+    : Exception(message)
 {
-    public int Line { get; }
-    public int Column { get; }
-
-    public LexerException(string message, int line, int column) : base(message)
-    {
-        Line = line;
-        Column = column;
-    }
+    public int Line { get; } = line;
+    public int Column { get; } = column;
 }

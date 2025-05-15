@@ -7,7 +7,7 @@ using Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(RetryStatement retryStatement)
+    protected override void Visit(RetryStatement retryStatement)
     {
         if (!_blockProtectors.Any())
         {

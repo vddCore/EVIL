@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
@@ -74,11 +75,11 @@ public abstract class AstVisitor
         #nullable enable
     }
 
-    public virtual void Visit(AstNode node)
+    protected virtual void Visit(AstNode node)
     {
         var type = node.GetType();
 
-        if (!Handlers.ContainsKey(type))
+        if (!Handlers.TryGetValue(type, out NodeHandler? value))
         {
             throw new Exception(
                 $"Unknown node type '{type.Name}'. " +
@@ -86,58 +87,58 @@ public abstract class AstVisitor
             );
         }
 
-        Handlers[type](node);
+        value(node);
     }
 
     public abstract void Visit(ProgramNode programNode);
-    public abstract void Visit(AttributeList attributeList);
-    public abstract void Visit(ParameterList parameterList);
-    public abstract void Visit(ArgumentList argumentList);
-    public abstract void Visit(BlockStatement blockStatement);
-    public abstract void Visit(ConditionalExpression conditionalExpression);
-    public abstract void Visit(CoalescingExpression coalescingExpression);
-    public abstract void Visit(NumberConstant numberConstant);
-    public abstract void Visit(StringConstant stringConstant);
-    public abstract void Visit(NilConstant nilConstant);
-    public abstract void Visit(BooleanConstant booleanConstant);
-    public abstract void Visit(TypeCodeConstant typeCodeConstant);
-    public abstract void Visit(AssignmentExpression assignmentExpression);
-    public abstract void Visit(BinaryExpression binaryExpression);
-    public abstract void Visit(UnaryExpression unaryExpression);
-    public abstract void Visit(SymbolReferenceExpression symbolReferenceExpression);
-    public abstract void Visit(ValStatement valStatement);
-    public abstract void Visit(FnIndexedStatement fnIndexedStatement);
-    public abstract void Visit(FnStatement fnStatement);
-    public abstract void Visit(FnTargetedStatement fnTargetedStatement);
-    public abstract void Visit(InvocationExpression invocationExpression);
-    public abstract void Visit(IfStatement ifStatement);
-    public abstract void Visit(ForStatement forStatement);
-    public abstract void Visit(DoWhileStatement doWhileStatement);
-    public abstract void Visit(WhileStatement whileStatement);
-    public abstract void Visit(EachStatement eachStatement);
-    public abstract void Visit(RetStatement retStatement);
-    public abstract void Visit(BreakStatement breakStatement);
-    public abstract void Visit(SkipStatement skipStatement);
-    public abstract void Visit(TryStatement tryStatement);
-    public abstract void Visit(ThrowStatement throwStatement);
-    public abstract void Visit(RetryStatement retryStatement);
-    public abstract void Visit(TableExpression tableExpression);
-    public abstract void Visit(ArrayExpression arrayExpression);
-    public abstract void Visit(ErrorExpression errorExpression);
-    public abstract void Visit(SelfExpression selfExpression);
-    public abstract void Visit(SelfFnExpression selfFnExpression);
-    public abstract void Visit(SelfInvocationExpression selfInvocationExpression);
-    public abstract void Visit(IndexerExpression indexerExpression);
-    public abstract void Visit(IncrementationExpression incrementationExpression);
-    public abstract void Visit(DecrementationExpression decrementationExpression);
-    public abstract void Visit(ExpressionStatement expressionStatement);
-    public abstract void Visit(AttributeNode attributeNode);
-    public abstract void Visit(TypeOfExpression typeOfExpression);
-    public abstract void Visit(YieldExpression yieldExpression);
-    public abstract void Visit(ExpressionBodyStatement expressionBodyStatement);
-    public abstract void Visit(ExtraArgumentsExpression extraArgumentsExpression);
-    public abstract void Visit(FnExpression fnExpression);
-    public abstract void Visit(IsExpression isExpression);
-    public abstract void Visit(ByExpression byExpression);
-    public abstract void Visit(WithExpression withExpression);
+    protected abstract void Visit(AttributeList attributeList);
+    protected abstract void Visit(ParameterList parameterList);
+    protected abstract void Visit(ArgumentList argumentList);
+    protected abstract void Visit(BlockStatement blockStatement);
+    protected abstract void Visit(ConditionalExpression conditionalExpression);
+    protected abstract void Visit(CoalescingExpression coalescingExpression);
+    protected abstract void Visit(NumberConstant numberConstant);
+    protected abstract void Visit(StringConstant stringConstant);
+    protected abstract void Visit(NilConstant nilConstant);
+    protected abstract void Visit(BooleanConstant booleanConstant);
+    protected abstract void Visit(TypeCodeConstant typeCodeConstant);
+    protected abstract void Visit(AssignmentExpression assignmentExpression);
+    protected abstract void Visit(BinaryExpression binaryExpression);
+    protected abstract void Visit(UnaryExpression unaryExpression);
+    protected abstract void Visit(SymbolReferenceExpression symbolReferenceExpression);
+    protected abstract void Visit(ValStatement valStatement);
+    protected abstract void Visit(FnIndexedStatement fnIndexedStatement);
+    protected abstract void Visit(FnStatement fnStatement);
+    protected abstract void Visit(FnTargetedStatement fnTargetedStatement);
+    protected abstract void Visit(InvocationExpression invocationExpression);
+    protected abstract void Visit(IfStatement ifStatement);
+    protected abstract void Visit(ForStatement forStatement);
+    protected abstract void Visit(DoWhileStatement doWhileStatement);
+    protected abstract void Visit(WhileStatement whileStatement);
+    protected abstract void Visit(EachStatement eachStatement);
+    protected abstract void Visit(RetStatement retStatement);
+    protected abstract void Visit(BreakStatement breakStatement);
+    protected abstract void Visit(SkipStatement skipStatement);
+    protected abstract void Visit(TryStatement tryStatement);
+    protected abstract void Visit(ThrowStatement throwStatement);
+    protected abstract void Visit(RetryStatement retryStatement);
+    protected abstract void Visit(TableExpression tableExpression);
+    protected abstract void Visit(ArrayExpression arrayExpression);
+    protected abstract void Visit(ErrorExpression errorExpression);
+    protected abstract void Visit(SelfExpression selfExpression);
+    protected abstract void Visit(SelfFnExpression selfFnExpression);
+    protected abstract void Visit(SelfInvocationExpression selfInvocationExpression);
+    protected abstract void Visit(IndexerExpression indexerExpression);
+    protected abstract void Visit(IncrementationExpression incrementationExpression);
+    protected abstract void Visit(DecrementationExpression decrementationExpression);
+    protected abstract void Visit(ExpressionStatement expressionStatement);
+    protected abstract void Visit(AttributeNode attributeNode);
+    protected abstract void Visit(TypeOfExpression typeOfExpression);
+    protected abstract void Visit(YieldExpression yieldExpression);
+    protected abstract void Visit(ExpressionBodyStatement expressionBodyStatement);
+    protected abstract void Visit(ExtraArgumentsExpression extraArgumentsExpression);
+    protected abstract void Visit(FnExpression fnExpression);
+    protected abstract void Visit(IsExpression isExpression);
+    protected abstract void Visit(ByExpression byExpression);
+    protected abstract void Visit(WithExpression withExpression);
 }

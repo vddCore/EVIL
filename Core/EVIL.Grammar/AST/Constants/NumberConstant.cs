@@ -2,12 +2,8 @@
 
 using EVIL.Grammar.AST.Base;
 
-public sealed class NumberConstant : ConstantExpression
+public sealed class NumberConstant(double value) 
+    : ConstantExpression
 {
-    public double Value { get; }
-
-    public NumberConstant(double value)
-    {
-        Value = value;
-    }
+    public double Value { get; } = value;
 }

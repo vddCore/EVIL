@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Lexical;
 
-public class LexerState
+public record LexerState
 {
     public Token PreviousToken { get; internal set; } = Token.Empty;
     public Token CurrentToken { get; internal set; } = Token.Empty;
@@ -10,16 +10,6 @@ public class LexerState
     public int Pointer { get; internal set; }
     public int Column { get; internal set; }
     public int Line { get; internal set; }
-
-    public LexerState Copy() => new()
-    {
-        Character = Character,
-        Column = Column,
-        CurrentToken = CurrentToken,
-        Line = Line,
-        Pointer = Pointer,
-        PreviousToken = PreviousToken
-    };
 
     internal void Reset()
     {

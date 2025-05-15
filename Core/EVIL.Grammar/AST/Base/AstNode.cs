@@ -17,17 +17,17 @@ public abstract class AstNode
         Line = from.Line;
         Column = from.Column;
         Parent = from.Parent;
-            
-        return (this as T)!;
+
+        return (T)this;
     }
         
     protected void Reparent(params AstNode?[] nodes)
     {
-        for (var i = 0; i < nodes.Length; i++)
+        foreach (var node in nodes)
         {
-            if (nodes[i] != null)
+            if (node != null)
             {
-                nodes[i]!.Parent = this;
+                node!.Parent = this;
             }
         }
     }

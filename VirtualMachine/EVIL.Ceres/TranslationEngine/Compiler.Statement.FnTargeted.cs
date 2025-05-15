@@ -9,7 +9,7 @@ using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
-    public override void Visit(FnTargetedStatement fnTargetedStatement)
+    protected override void Visit(FnTargetedStatement fnTargetedStatement)
     {
         string primaryName;
             

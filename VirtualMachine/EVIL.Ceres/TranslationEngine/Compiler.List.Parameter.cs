@@ -5,7 +5,7 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 public partial class Compiler
 {
-    public override void Visit(ParameterList parameterList)
+    protected override void Visit(ParameterList parameterList)
     {
         for (var i = 0; i < parameterList.Parameters.Count; i++)
         {
