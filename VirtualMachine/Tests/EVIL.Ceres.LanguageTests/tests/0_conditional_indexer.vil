@@ -1,4 +1,4 @@
-﻿#[test;disasm]
+﻿#[test]
 fn elvis_multiple_targets_last_is_nil {
   val a = { 
     b: { 

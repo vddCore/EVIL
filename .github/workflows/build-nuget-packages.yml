@@ -12,7 +12,7 @@ jobs:
       matrix:
         configuration: [Debug, Release]
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout
@@ -35,10 +35,14 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-    - name: Run language tests
+    - name: Run language tests (code optimizations disabled)
       working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
       run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
       
+    - name: Run language tests (code optimizations enabled)
+      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
+      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors -o   
+    
     - name: Create NuGet packages
       run: |
         dotnet pack

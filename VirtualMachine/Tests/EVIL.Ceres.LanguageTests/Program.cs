@@ -9,6 +9,7 @@ vm.Run();
 
 var failOnCompilerErrors = false;
 var failOnTestErrors = false;
+var optimizeCodeGeneration = false;
     
 var argList = new List<string>(args);
 for (var i = argList.Count - 1; i >= 0; i--)
@@ -30,6 +31,14 @@ for (var i = argList.Count - 1; i >= 0; i--)
             argList.RemoveAt(i);
             break;
         }
+
+        case "--optimize-code-generation":
+        case "-o":
+        {
+            optimizeCodeGeneration = true;
+            argList.RemoveAt(i);
+            break;
+        }
     }
 }
 
@@ -40,6 +49,7 @@ await new TestRunner(
     new TestRunnerOptions(
         FailOnCompilerErrors: failOnCompilerErrors,
         FailOnTestErrors: failOnTestErrors,
+        OptimizeCodeGeneration: optimizeCodeGeneration,
         TestDirectories: argList.ToArray()
     )
 ).RunTests();
