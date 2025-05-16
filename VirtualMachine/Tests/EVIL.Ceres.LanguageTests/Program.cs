@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.LanguageTests;
 
 var vm = new CeresVM();
-vm.Start();
+vm.Run();
 
 var failOnCompilerErrors = false;
 var failOnTestErrors = false;
@@ -35,7 +35,7 @@ for (var i = argList.Count - 1; i >= 0; i--)
 
 argList.RemoveAll(x => !Directory.Exists(x));
 
-return await new TestRunner(
+await new TestRunner(
     vm, 
     new TestRunnerOptions(
         FailOnCompilerErrors: failOnCompilerErrors,
@@ -43,3 +43,5 @@ return await new TestRunner(
         TestDirectories: argList.ToArray()
     )
 ).RunTests();
+
+vm.Stop();

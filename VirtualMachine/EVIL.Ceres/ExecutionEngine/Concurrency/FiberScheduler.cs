@@ -2,11 +2,12 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed class FiberScheduler(
-    CeresVM vm,
+    VirtualMachineBase vm,
     FiberCrashHandler defaultCrashHandler,
     int initialCapacity = 16)
 {
@@ -72,7 +73,8 @@ public sealed class FiberScheduler(
         }
     }
     
-    public void Stop() => _running = false;
+    public void Stop() 
+        => _running = false;
     
     public void SetDefaultCrashHandler(FiberCrashHandler crashHandler) => 
         _defaultCrashHandler = crashHandler;

@@ -21,6 +21,8 @@
 #[test] fn mul_int -> assert.equal(4 * 20, 80);
 #[test] fn mul_fp64 -> assert.equal(20 * 0.010685, 0.2137);
 
+#[test] fn aneg -> assert.equal(-(1), -1);
+
 #[test] fn band -> assert.equal(0xFFFF & 0x0F00, 0x0F00);
 #[test] fn bxor -> assert.equal(0xFFFF ^ 0xFFF0, 0x000F);
 #[test] fn bnot -> assert.equal(~0 & 0xFFFF, 0xFFFF);

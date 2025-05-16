@@ -191,8 +191,7 @@ public partial class EvmFrontEnd
             Terminate(msg);
         }
 
-        _vm.Start();
-            
+        _vm.Run();
         _vm.MainFiber.Schedule(rootChunk, scriptArgs);
         await _vm.MainFiber.BlockUntilFinishedAsync();
 

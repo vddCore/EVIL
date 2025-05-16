@@ -25,6 +25,8 @@ public class Lexer
 
     public void NextToken()
     {
+        bool skipAdvance = false;
+        
         while (true)
         {
             SkipWhitespace();
@@ -49,6 +51,10 @@ public class Lexer
                 case '-' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignSubtract with { Line = line, Column = col };
+                    break;
+                case '-' when char.IsDigit(Peek()) && Peek(2) != 'x':
+                    State.CurrentToken = GetDecimalNumber() with { Line = line, Column = col };
+                    skipAdvance = true;
                     break;
                 case '-':
                     State.CurrentToken = Token.Minus with { Line = line, Column = col };
@@ -233,11 +239,11 @@ public class Lexer
                 case ')':
                     State.CurrentToken = Token.RParenthesis with { Line = line, Column = col };
                     break;
-                case '!' when Peek() == 'i' && Peek(2) == 'n' && char.IsWhiteSpace(Peek(3)):
+                case '!' when Peek() == 'i' && Peek(2) == 'n' && (char.IsWhiteSpace(Peek(3))  || Peek(3) == '\0'):
                     Advance(2);
                     State.CurrentToken = Token.NotIn with { Line = line, Column = col };
                     break;
-                case '!' when Peek() == 'i' && Peek(2) == 's' && char.IsWhiteSpace(Peek(3)):
+                case '!' when Peek() == 'i' && Peek(2) == 's' && (char.IsWhiteSpace(Peek(3)) || Peek(3) == '\0'):
                     Advance(2);
                     State.CurrentToken = Token.IsNot with { Line = line, Column = col };
                     break;
@@ -306,10 +312,12 @@ public class Lexer
                     }
                 }
 
-                    throw new LexerException($"Unexpected token '{State.Character}'", col, line);
+                throw new LexerException($"Unexpected token '{State.Character}'", col, line);
             }
 
-            Advance();
+            if (!skipAdvance)
+                Advance();
+            
             break;
         }
     }
@@ -346,70 +354,59 @@ public class Lexer
     {
         var number = string.Empty;
 
-        if (char.IsDigit(State.Character) || State.Character == '.')
+        bool foundDecimal = false;
+        bool foundExponent = false;
+
+        if (State.Character == '-')
         {
-            var foundDecimalSeparator = false;
-            var foundExponent = false;
-                
-            while (char.IsDigit(State.Character) || State.Character == '.' 
-                                                 || State.Character == 'e' 
-                                                 || State.Character == 'E' 
-                                                 || State.Character == '-' 
-                                                 || State.Character == '+')
+            number += State.Character;
+            Advance();
+        }
+
+        if (!char.IsDigit(State.Character) && State.Character != '.')
+        {
+            throw new LexerException($"Character `{State.Character}` was unexpected at this time.", State.Line, State.Column);
+        }
+
+        while (true)
+        {
+            if (char.IsDigit(State.Character))
             {
-                switch (State.Character)
-                {
-                    case '.' when foundDecimalSeparator:
-                    {
-                        throw new LexerException(
-                            $"Character `{State.Character}' was unexpected at this time.",
-                            State.Line,
-                            State.Column
-                        );
-                    }
-
-                    case '.':
-                    {
-                        foundDecimalSeparator = true;
-                        break;
-                    }
-                    
-                    case 'e':
-                    case 'E':
-                    {
-                        if (foundExponent)
-                        {
-                            throw new LexerException(
-                                $"Character `{State.Character}' was unexpected at this time.",
-                                State.Line,
-                                State.Column
-                            );
-                        }
-
-                        foundExponent = true;
-                        break;
-                    }
-                }
-
-                if (State.Character is '+' or '-')
-                {
-                    if (!foundExponent)
-                        break;
-
-                    foundExponent = true;
-                }
-                    
                 number += State.Character;
                 Advance();
             }
-        }
-        else
-        {
-            throw new LexerException(
-                $"Character `{State.Character}' was unexpected at this time.",
-                State.Line,
-                State.Column
-            );
+            else if (State.Character == '.')
+            {
+                if (foundDecimal)
+                    throw new LexerException("Unexpected second decimal point.", State.Line, State.Column);
+
+                foundDecimal = true;
+                number += State.Character;
+                Advance();
+            }
+            else if (State.Character is 'e' or 'E')
+            {
+                if (foundExponent)
+                    throw new LexerException("Unexpected second exponent.", State.Line, State.Column);
+
+                foundExponent = true;
+                number += State.Character;
+                Advance();
+
+                if (State.Character is '+' or '-')
+                {
+                    number += State.Character;
+                    Advance();
+                }
+                else if (!char.IsDigit(State.Character))
+                {
+                    throw new LexerException("Malformed exponent.", State.Line, State.Column);
+                }
+            }
+            else
+            {
+                break;
+            }
         }
 
         try
@@ -418,7 +415,7 @@ public class Lexer
         }
         catch (FormatException)
         {
-            throw new LexerException($"Malformed numeric constant `{number}'.", State.Line, State.Column);
+            throw new LexerException($"Malformed numeric constant `{number}`.", State.Line, State.Column);
         }
     }
 

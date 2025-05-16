@@ -29,13 +29,14 @@ public abstract class ModuleTest<T> where T : RuntimeModule, new()
         _evilRuntime = new EvilRuntime(_vm);
         _evilRuntime.RegisterModule<T>(out _);
 
-        _vm.Start();
+        _vm.Run();
     }
 
     [TearDown]
     public virtual void Teardown()
     {
-        _vm.Dispose();
+        _vm.Stop();
+        
         _evilRuntime = null!;
         _parser = null!;
         _compiler = null!;

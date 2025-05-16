@@ -15,7 +15,7 @@ internal static class ModuleInitializer
         
     [ModuleInitializer]
     public static void Initialize()
-    {
+    {           
         if (OperatingSystem.IsWindows())
         {
             ulong res = 0;

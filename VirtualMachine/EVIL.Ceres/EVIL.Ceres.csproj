@@ -185,4 +185,8 @@
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.Serialization.Formatters" Version="9.0.5" />
+  </ItemGroup>
 </Project>

@@ -54,16 +54,17 @@ public class LexerTests
     {
         _lexer.LoadSource(
             "typeof " +
-            "while break yield false " +
+            "while break yield false catch retry throw" +
             "skip each elif else true " +
-            "val ret for nil " +
-            "if rw do in fn is !is"
+            "val ret for nil try" +
+            "if rw do in fn is !is" +
+            "catch retry throw"
         );
 
         Expect(TypeOf);
-        Expect(While, Break, Yield, False);
+        Expect(While, Break, Yield, False, Catch, Retry, Throw);
         Expect(Skip, Each, Elif, Else, True);
-        Expect(Val, Ret, For, Nil);
+        Expect(Val, Ret, For, Nil, Try);
         Expect(If, Rw, Do, In, Fn, Token.Is, IsNot);
         Expect(EOF);
     }
@@ -136,9 +137,14 @@ public class LexerTests
     [Test]
     public void DecimalNumbers()
     {
-        _lexer.LoadSource("21.37 44.11 .42 27.0 31.1 .1 12");
+        _lexer.LoadSource("(-2) -32E03 21.37 44.11 .42 27.0 31.1 .1 12");
 
+        Expect(LParenthesis);
+        ExpectExact((TokenType.Number, "-2"));
+        Expect(RParenthesis);
+        
         ExpectExact(
+            (TokenType.Number, "-32E03"),
             (TokenType.Number, "21.37"),
             (TokenType.Number, "44.11"),
             (TokenType.Number, ".42"),

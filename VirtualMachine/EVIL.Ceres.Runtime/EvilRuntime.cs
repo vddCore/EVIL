@@ -12,18 +12,11 @@ using EVIL.Ceres.Runtime.Extensions;
 using EVIL.Ceres.Runtime.Modules;
 using EVIL.Ceres.TranslationEngine;
 
-public sealed class EvilRuntime
+public sealed class EvilRuntime(VirtualMachineBase vm)
 {
-    private readonly CeresVM _vm;
-    private readonly Compiler _compiler;
+    private readonly Compiler _compiler = new();
 
-    private Table Global => _vm.Global;
-
-    public EvilRuntime(CeresVM vm)
-    {
-        _vm = vm;
-        _compiler = new Compiler();
-    }
+    private Table Global => vm.Global;
 
     public void RegisterBuiltInFunctions()
     {
@@ -45,7 +38,7 @@ public sealed class EvilRuntime
             {
                 var text = streamReader.ReadToEnd();
                 var root = _compiler.Compile(text, fileName);
-                _vm.MainFiber.Schedule(root);
+                vm.MainFiber.Schedule(root);
             }
             catch (CompilerException e)
             {

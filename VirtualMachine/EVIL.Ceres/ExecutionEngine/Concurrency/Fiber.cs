@@ -32,7 +32,7 @@ public sealed class Fiber
         
     public IReadOnlyDictionary<string, ClosureContext> ClosureContexts => _closureContexts;
 
-    public CeresVM VirtualMachine { get; }
+    public VirtualMachineBase VirtualMachine { get; }
 
     public FiberState State => _state;
 
@@ -60,7 +60,7 @@ public sealed class Fiber
         }
     }
 
-    internal Fiber(CeresVM virtualMachine, Dictionary<string, ClosureContext>? closureContexts = null)
+    internal Fiber(VirtualMachineBase virtualMachine, Dictionary<string, ClosureContext>? closureContexts = null)
     {
         VirtualMachine = virtualMachine;
 
@@ -82,7 +82,7 @@ public sealed class Fiber
     }
 
     internal Fiber(
-        CeresVM virtualMachine, 
+        VirtualMachineBase virtualMachine, 
         FiberCrashHandler fiberCrashHandler,
         Dictionary<string, ClosureContext>? closureContexts = null) : this(virtualMachine, closureContexts)
     {

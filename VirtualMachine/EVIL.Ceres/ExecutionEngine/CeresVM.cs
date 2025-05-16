@@ -1,75 +1,68 @@
 namespace EVIL.Ceres.ExecutionEngine;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine.Collections;
-using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
-public class CeresVM : IDisposable
+public class CeresVM : VirtualMachineBase
 {
-    private Task? _schedulerTask;
-        
-    public Table Global { get; }
-    public FiberScheduler Scheduler { get; }
-    public Fiber MainFiber { get; }
+    public bool IsRunning { get; private set; }
 
-    public CeresVM(FiberCrashHandler? crashHandler = null)
-        : this(new Table(), crashHandler)
+    public CeresVM(FiberCrashHandler? crashHandler = null) 
+        : base(crashHandler)
     {
     }
-        
-    public CeresVM(Table global, FiberCrashHandler? crashHandler = null)
+
+    public CeresVM(Table global, FiberCrashHandler? crashHandler = null) 
+        : base(global, crashHandler)
     {
-        Global = global;
-        Scheduler = new FiberScheduler(this, crashHandler ?? DefaultCrashHandler);
-        MainFiber = Scheduler.CreateFiber(true);
     }
 
-    public void Start()
+    public async Task RunAsync()
     {
-        if (_schedulerTask != null)
+        if (IsRunning)
+            return;
+
+        IsRunning = true;
         {
-            if (_schedulerTask.Status == TaskStatus.Running)
+            await Task.Run(async () =>
             {
-                return;
-            }
+                Scheduler.Run();
+                while (Scheduler.IsRunning)
+                {
+                    await Task.Delay(TimeSpan.FromTicks(1));
+                }
+            });
         }
-            
-        _schedulerTask?.Dispose();
-        _schedulerTask = new Task(Scheduler.Run);
-            
-        _schedulerTask.Start();
+        IsRunning = false;
+    }
+
+    public void Run()
+    {
+        if (IsRunning)
+            return;
+
+        new Thread(() =>
+        {
+            IsRunning = true;
+            {
+                Scheduler.Run();
+                while (Scheduler.IsRunning)
+                {
+                    Thread.Sleep(TimeSpan.FromTicks(1));
+                }
+            }
+            IsRunning = false;
+        }).Start();
     }
 
     public void Stop()
     {
-        if (_schedulerTask == null)
-        {
+        if (!IsRunning)
             return;
-        }
-            
-        if (_schedulerTask.Status != TaskStatus.Running)
-        {
-            return;
-        }
-
+        
         Scheduler.Stop();
-    }
-
-    public void Dispose()
-    {
-        if (_schedulerTask != null && _schedulerTask.Status == TaskStatus.Running)
-        {
-            Stop();
-        }
-            
-        _schedulerTask?.Wait();
-        _schedulerTask?.Dispose();
-    }
-
-    private void DefaultCrashHandler(Fiber fiber, Exception exception)
-    {
-        throw new VirtualMachineException("A fiber has crashed.", exception);
     }
 }

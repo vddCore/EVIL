@@ -15,13 +15,13 @@ public class RuntimeEnvironment
     {
         _vm = new CeresVM();
         _evilRuntime = new EvilRuntime(_vm);
-        _vm.Start();
+        _vm.Run();
     }
 
     [TearDown]
     public void Teardown()
     {
-        _vm.Dispose();
+        _vm.Stop();
         _evilRuntime = null!;
     }
 
