@@ -5,3 +5,8 @@ fn tonum_indexing {
   
   assert.equal(x, 2);
 }
+
+#[test]
+fn type_as_string -> assert.equal(
+  @typeof(nil), "Nil"
+);

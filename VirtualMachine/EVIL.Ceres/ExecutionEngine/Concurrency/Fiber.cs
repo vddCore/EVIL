@@ -371,11 +371,27 @@ public sealed class Fiber
         }
     }
 
+    public bool TryPeekValue(out DynamicValue value)
+    {
+        lock (_evaluationStack)
+        {
+            return _evaluationStack.TryPeek(out value);
+        }
+    }
+
     public DynamicValue PopValue()
     {
         lock (_evaluationStack)
         {
             return _evaluationStack.Pop();
+        }
+    }
+
+    public bool TryPopValue(out DynamicValue value)
+    {
+        lock (_evaluationStack)
+        {
+            return _evaluationStack.TryPop(out value);
         }
     }
 

@@ -10,36 +10,12 @@ public partial class Parser
     {
         var token = CurrentToken;
 
-        if (token.Type == TokenType.TypeOf)
-        {
-            return TypeOfExpression();
-        }
-        else if (token.Type == TokenType.Yield)
+        if (token.Type == TokenType.Yield)
         {
             return YieldExpression();
         }
 
         return UnaryExpression();
-    }
-
-    private TypeOfExpression TypeOfExpression()
-    {
-        var (line, col) = Match(Token.TypeOf);
-
-        var isNative = false;
-        
-        if (CurrentToken.Type == TokenType.LogicalNot)
-        {
-            Match(Token.LogicalNot);
-            isNative = true;
-        }
-        
-        Match(Token.LParenthesis);
-        var target = AssignmentExpression();
-        Match(Token.RParenthesis);
-
-        return new TypeOfExpression(target, isNative)
-            { Line = line, Column = col };
     }
 
     private YieldExpression YieldExpression()

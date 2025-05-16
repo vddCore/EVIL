@@ -62,6 +62,11 @@ public partial class Parser
             {
                 return SelfExpression();
             }
+            
+            case TokenType.TypeOf:
+            {
+                return TypeOfExpression();
+            }
 
             default:
             {
