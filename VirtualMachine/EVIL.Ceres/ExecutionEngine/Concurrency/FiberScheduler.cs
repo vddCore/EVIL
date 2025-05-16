@@ -5,27 +5,18 @@ using System.Runtime.CompilerServices;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
-public sealed class FiberScheduler
+public sealed class FiberScheduler(
+    CeresVM vm,
+    FiberCrashHandler defaultCrashHandler,
+    int initialCapacity = 16)
 {
-    private readonly CeresVM _vm;
-    private FiberCrashHandler _defaultCrashHandler;
-    private readonly ConcurrentFiberCollection _fibers;
+    private FiberCrashHandler _defaultCrashHandler = defaultCrashHandler;
     private volatile bool _running;
     
     public bool IsRunning => _running;
     
-    public ConcurrentFiberCollection Fibers => _fibers;
-    
-    public FiberScheduler(
-        CeresVM vm,
-        FiberCrashHandler defaultCrashHandler,
-        int initialCapacity = 16)
-    {
-        _vm = vm;
-        _defaultCrashHandler = defaultCrashHandler;
-        _fibers = new ConcurrentFiberCollection(initialCapacity);
-    }
-    
+    public ConcurrentFiberCollection Fibers { get; } = new(initialCapacity);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ProcessFiber(Fiber fiber)
     {
@@ -53,7 +44,7 @@ public sealed class FiberScheduler
                 
             default:
                 fiber.Resume();
-                if (fiber.State != FiberState.Running)
+                if (fiber._state != FiberState.Running)
                     return;
                 break;
         }
@@ -67,15 +58,15 @@ public sealed class FiberScheduler
         
         while (_running)
         {
-            foreach (var kvp in _fibers.Entries)
+            foreach (var (id, fiber) in Fibers.Entries)
             {
-                var fiber = kvp.Value;
                 ProcessFiber(fiber);
                 
-                if ((fiber.State == FiberState.Finished || fiber.State == FiberState.Crashed) 
-                    && !fiber.ImmuneToCollection)
+                if (fiber.State is FiberState.Finished 
+                                or FiberState.Crashed 
+                                && !fiber.ImmuneToCollection)
                 {
-                    _fibers.Remove(kvp.Key);
+                    Fibers.Remove(id);
                 }
             }
         }
@@ -92,7 +83,7 @@ public sealed class FiberScheduler
         Dictionary<string, ClosureContext>? closureContexts = null)
     {
         var fiber = new Fiber(
-            _vm,
+            vm,
             crashHandler ?? _defaultCrashHandler,
             closureContexts
         );
@@ -102,17 +93,17 @@ public sealed class FiberScheduler
             fiber.Immunize();
         }
         
-        _fibers.Add(fiber);
+        Fibers.Add(fiber);
         return fiber;
     }
     
     public void RemoveCrashedFibers()
     {
-        foreach (var kvp in _fibers.Entries)
+        foreach (var kvp in Fibers.Entries)
         {
             if (kvp.Value.State == FiberState.Crashed)
             {
-                _fibers.Remove(kvp.Key);
+                Fibers.Remove(kvp.Key);
             }
         }
     }

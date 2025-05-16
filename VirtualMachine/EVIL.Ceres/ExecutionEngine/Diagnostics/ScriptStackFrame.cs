@@ -1,20 +1,20 @@
 ﻿namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
-using Collections_Array = EVIL.Ceres.ExecutionEngine.Collections.Array;
+using EvilArray = EVIL.Ceres.ExecutionEngine.Collections.Array;
 using Array = System.Array;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.CompilerServices;
+
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 
 public sealed record ScriptStackFrame : StackFrame
 {
-    private readonly BinaryReader _chunkReader;
-    private Collections_Array? _extraArguments;
+    private readonly ChunkReader _chunkReader;
+    private EvilArray? _extraArguments;
         
     private readonly Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>> _collectionEnumerators = new();
 
@@ -22,13 +22,13 @@ public sealed record ScriptStackFrame : StackFrame
     public Chunk Chunk { get; }
 
     public DynamicValue[] Arguments { get; }
-    public Collections_Array ExtraArguments => _extraArguments ??= GetExtraArgumentsArray();
+    public EvilArray ExtraArguments => _extraArguments ??= GetExtraArgumentsArray();
 
     public DynamicValue[]? Locals { get; }
     public Stack<BlockProtectionInfo> BlockProtectorStack { get; } = new();
 
     public long PreviousOpCodeIP { get; private set; }
-    public long IP => _chunkReader.BaseStream.Position;
+    public long IP => _chunkReader.IP;
 
     public bool IsProtectedState => Chunk.Flags.HasFlag(ChunkFlags.HasProtectedBlocks) 
                                     && BlockProtectorStack.Count > 0;
@@ -85,12 +85,15 @@ public sealed record ScriptStackFrame : StackFrame
         _chunkReader = Chunk.SpawnCodeReader();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void EnterProtectedBlock(int blockId)
         => BlockProtectorStack.Push(Chunk.ProtectedBlocks[blockId]);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal BlockProtectionInfo ExitProtectedBlock()
         => BlockProtectorStack.Pop();
         
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal DynamicValue[] GetExtraArguments()
     {
         var size = Arguments.Length - Chunk.ParameterCount;
@@ -105,9 +108,10 @@ public sealed record ScriptStackFrame : StackFrame
         return ret;
     }
 
-    internal Collections_Array GetExtraArgumentsArray()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private EvilArray GetExtraArgumentsArray()
     {
-        var ret = new Collections_Array(Arguments.Length - Chunk.ParameterCount);
+        var ret = new EvilArray(Arguments.Length - Chunk.ParameterCount);
 
         for (var i = Chunk.ParameterCount; i < Arguments.Length; i++)
         {
@@ -122,7 +126,7 @@ public sealed record ScriptStackFrame : StackFrame
         => _collectionEnumerators.Push(table.GetEnumerator());
         
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void PushEnumerator(Collections_Array array)
+    internal void PushEnumerator(EvilArray array)
         => _collectionEnumerators.Push(array.GetEnumerator());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -130,20 +134,8 @@ public sealed record ScriptStackFrame : StackFrame
         => _collectionEnumerators.Pop();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Return()
-        => _chunkReader.BaseStream.Seek(0, SeekOrigin.End);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void Advance() 
-        => _chunkReader.BaseStream.Position++;
-
     internal OpCode PeekOpCode()
-    {            
-        var opCode = FetchOpCode();
-
-        _chunkReader.BaseStream.Position--;
-        return opCode;
-    }
+        => _chunkReader.PeekOpCode();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal OpCode FetchOpCode()
@@ -170,16 +162,11 @@ public sealed record ScriptStackFrame : StackFrame
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void JumpAbsolute(long address)
-        => _chunkReader.BaseStream.Seek(address, SeekOrigin.Begin);
+        => _chunkReader.JumpAbsolute(address);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void JumpRelative(long offset)
-        => _chunkReader.BaseStream.Seek(offset, SeekOrigin.Current);
-
-    public override void Dispose()
-    {
-        _chunkReader.Dispose();
-    }
+        => _chunkReader.JumpRelative(offset);
 
     public override string ToString()
         => $"{Chunk.Name}:({Chunk.DebugDatabase.GetLineForIP((int)PreviousOpCodeIP)}) @ {PreviousOpCodeIP:X8}";

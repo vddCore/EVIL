@@ -51,16 +51,8 @@ public class CallStack
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void DisposeAllAndClear()
+    public void Clear()
     {
-        for (var i = 0; i < _frames.Length; i++)
-        {
-            if (_frames[i] == null)
-                break;
-
-            _frames[i]!.Dispose();
-        }
-
         Array.Clear(_frames);
         _currentPointer = -1;
     }

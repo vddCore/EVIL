@@ -153,7 +153,7 @@ public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
         if (_values.Length <= 0)
             return Nil;
 
-        var ret = _values[_values.Length - 1];
+        var ret = _values[^1];
         System.Array.Resize(ref _values, _values.Length - 1);
         return ret;
     }
@@ -180,7 +180,7 @@ public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
             var thisElement = this[i];
             var otherElement = other[i];
 
-            if (thisElement.Type == DynamicValueType.Table || thisElement.Type == DynamicValueType.Array)
+            if (thisElement.Type is DynamicValueType.Table or DynamicValueType.Array)
             {
                 if (!IsTruth(thisElement.IsDeeplyEqualTo(otherElement)))
                     return false;

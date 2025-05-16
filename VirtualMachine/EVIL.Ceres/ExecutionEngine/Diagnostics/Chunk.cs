@@ -170,12 +170,10 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         DebugDatabase = new DebugDatabase();
     }
 
-    public BinaryReader SpawnCodeReader()
+    public ChunkReader SpawnCodeReader()
     {
-        return new BinaryReader(
-            new MemoryStream(_code.ToArray()),
-            Encoding.UTF8,
-            false
+        return new ChunkReader(
+            _code.ToArray()
         );
     }
 

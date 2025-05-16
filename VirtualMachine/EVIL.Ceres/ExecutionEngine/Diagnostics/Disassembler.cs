@@ -85,11 +85,12 @@ public static class Disassembler
         output.WriteLine($"{indent}  .TEXT {{");
 
         var prevLine = -1;
-        using (var reader = chunk.SpawnCodeReader())
+        var reader = chunk.SpawnCodeReader();
+        
         {
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
+            while (reader.IP < reader.Length)
             {
-                var ip = reader.BaseStream.Position;
+                var ip = reader.IP;
                 var opCode = (OpCode)reader.ReadByte();
 
                 if (chunk.HasDebugInfo && options.WriteLineNumbersWhenAvailable)

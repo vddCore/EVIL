@@ -13,25 +13,32 @@ public partial class Compiler
     {
         string primaryName;
             
-        if (fnTargetedStatement.PrimaryTarget is SelfExpression)
+        switch (fnTargetedStatement.PrimaryTarget)
         {
-            primaryName = "self";
-        }
-        else if (fnTargetedStatement.PrimaryTarget is IdentifierNode identifierNode)
-        {
-            primaryName = identifierNode.Name;
-        }
-        else
-        {
-            Log.TerminateWithInternalFailure<object>(
-                $"Expected a self-expression or an identifier found an unsupported node type {fnTargetedStatement.PrimaryTarget.GetType().FullName}.",
-                CurrentFileName,
-                EvilMessageCode.UnexpectedSyntaxNodeFound,
-                fnTargetedStatement.Line,
-                fnTargetedStatement.Column
-            );
+            case SelfExpression:
+            {
+                primaryName = "self";
+                break;
+            }
 
-            return;
+            case IdentifierNode identifierNode:
+            {
+                primaryName = identifierNode.Name;
+                break;
+            }
+
+            default:
+            {
+                Log.TerminateWithInternalFailure<object>(
+                    $"Expected a self-expression or an identifier found an unsupported node type {fnTargetedStatement.PrimaryTarget.GetType().FullName}.",
+                    CurrentFileName,
+                    EvilMessageCode.UnexpectedSyntaxNodeFound,
+                    fnTargetedStatement.Line,
+                    fnTargetedStatement.Column
+                );
+
+                return;
+            }
         }
             
         var targetedChunkName = $"{primaryName}::{fnTargetedStatement.SecondaryIdentifier.Name}";

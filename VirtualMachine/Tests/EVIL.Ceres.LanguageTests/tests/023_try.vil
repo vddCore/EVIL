@@ -252,3 +252,16 @@ fn try_catchless_nested {
   
   assert.equal(count, 2137);
 }
+
+#[test]
+fn try_catchless_retry {
+  rw val count = 0;
+  
+  try {
+    if (count++ < 3) {
+      retry;
+    }
+  }
+  
+  assert.equal(count, 4);
+}

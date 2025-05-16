@@ -324,7 +324,7 @@ public sealed class Fiber
 
         lock (_callStack)
         {
-            _callStack.DisposeAllAndClear();
+            _callStack.Clear();
         }
     }
         

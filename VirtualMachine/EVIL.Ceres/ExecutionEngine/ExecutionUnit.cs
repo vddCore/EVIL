@@ -1,39 +1,26 @@
 namespace EVIL.Ceres.ExecutionEngine;
 
-using Array = System.Array;
-
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
+
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
-internal class ExecutionUnit
+using Array = System.Array;
+
+internal class ExecutionUnit(
+    Table global,
+    Fiber fiber,
+    ValueStack _evaluationStack,
+    CallStack callStack)
 {
-    private readonly Table _global;
-    private readonly Fiber _fiber;
-    private readonly CallStack _callStack;
-    private readonly ValueStack _evaluationStack;
-
-    public ExecutionUnit(
-        Table global,
-        Fiber fiber,
-        ValueStack evaluationStack,
-        CallStack callStack)
-    {
-        _global = global;
-        _fiber = fiber;
-        _evaluationStack = evaluationStack;
-        _callStack = callStack;
-    }
-
     public void Step()
     {
-        var frame = _callStack.Peek().As<ScriptStackFrame>();
+        var frame = callStack.Peek().As<ScriptStackFrame>();
         var opCode = frame.FetchOpCode();
 
         DynamicValue a;
@@ -127,9 +114,9 @@ internal class ExecutionUnit
                         }
 
                         ScriptStackFrame? sourceFrame = null;
-                        for (var j = _callStack.Count - 1; j >= 0; j--)
+                        for (var j = callStack.Count - 1; j >= 0; j--)
                         {
-                            var tmpFrame = _callStack[j].As<ScriptStackFrame>();
+                            var tmpFrame = callStack[j].As<ScriptStackFrame>();
                             if (tmpFrame.Chunk.Name == closure.EnclosedFunctionName)
                             {
                                 sourceFrame = tmpFrame;
@@ -827,19 +814,19 @@ internal class ExecutionUnit
 
                 if (a.Type == DynamicValueType.NativeFunction)
                 {
-                    _callStack.Push(new NativeStackFrame(a.NativeFunction!));
+                    callStack.Push(new NativeStackFrame(a.NativeFunction!));
                         
-                    _fiber.OnNativeFunctionInvoke?.Invoke(
-                        _fiber,
+                    fiber.OnNativeFunctionInvoke?.Invoke(
+                        fiber,
                         a.NativeFunction!
                     );
                         
-                    var value = a.NativeFunction!.Invoke(_fiber, args);
+                    var value = a.NativeFunction!.Invoke(fiber, args);
 
-                    if (_callStack.Peek() is NativeStackFrame)
+                    if (callStack.Peek() is NativeStackFrame)
                     {
                         PushValue(value);
-                        _callStack.Pop();
+                        callStack.Pop();
                     } 
                     else
                     {
@@ -862,9 +849,9 @@ internal class ExecutionUnit
                     args[args.Length - i - 1] = PopValue();
                 }
 
-                _fiber.OnChunkInvoke?.Invoke(
-                    _fiber,
-                    _callStack.Peek().As<ScriptStackFrame>().Chunk,
+                fiber.OnChunkInvoke?.Invoke(
+                    fiber,
+                    callStack.Peek().As<ScriptStackFrame>().Chunk,
                     true
                 );
 
@@ -876,14 +863,14 @@ internal class ExecutionUnit
             {
                 b = PopValue();
                 a = PopValue();
-                _global[b] = a;
+                global[b] = a;
 
                 break;
             }
 
             case OpCode.GETGLOBAL:
             {
-                PushValue(_global[PopValue()]);
+                PushValue(global[PopValue()]);
                 break;
             }
 
@@ -918,9 +905,9 @@ internal class ExecutionUnit
 
                 ScriptStackFrame? targetFrame = null;
 
-                for (var i = 0; i < _callStack.Count; i++)
+                for (var i = 0; i < callStack.Count; i++)
                 {
-                    var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
+                    var tmpScriptFrame = callStack[i].As<ScriptStackFrame>();
 
                     if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                     {
@@ -943,9 +930,9 @@ internal class ExecutionUnit
                         {
                             closureInfo = targetFrame.Chunk.Closures[closureInfo.EnclosedId];
                                 
-                            for (var i = 0; i < _callStack.Count; i++)
+                            for (var i = 0; i < callStack.Count; i++)
                             {
-                                var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
+                                var tmpScriptFrame = callStack[i].As<ScriptStackFrame>();
 
                                 if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                                 {
@@ -1011,9 +998,9 @@ internal class ExecutionUnit
                 var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
 
                 ScriptStackFrame? targetFrame = null;
-                for (var i = 0; i < _callStack.Count; i++)
+                for (var i = 0; i < callStack.Count; i++)
                 {
-                    var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
+                    var tmpScriptFrame = callStack[i].As<ScriptStackFrame>();
 
                     if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                     {
@@ -1034,9 +1021,9 @@ internal class ExecutionUnit
                         {
                             closureInfo = targetFrame.Chunk.Closures[closureInfo.EnclosedId];
                                 
-                            for (var i = 0; i < _callStack.Count; i++)
+                            for (var i = 0; i < callStack.Count; i++)
                             {
-                                var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
+                                var tmpScriptFrame = callStack[i].As<ScriptStackFrame>();
 
                                 if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
                                 {
@@ -1228,9 +1215,7 @@ internal class ExecutionUnit
 
             case OpCode.RET:
             {
-                _callStack.Pop();
-                frame.Dispose();
-
+                callStack.Pop();
                 break;
             }
 
@@ -1321,26 +1306,34 @@ internal class ExecutionUnit
                 a = PopValue(); // Key
                 c = PopValue(); // Table
                     
-                if (c.Type == DynamicValueType.String && a.Type == DynamicValueType.String)
+                switch (c.Type)
                 {
-                    c = _global.Index("str");
-
-                    if (c.Type != DynamicValueType.Table)
+                    case DynamicValueType.String when a.Type == DynamicValueType.String:
                     {
-                        throw new UnsupportedDynamicValueOperationException(
-                            "Attempt to index a String using a String, but no `str' support table found."
-                        );
+                        c = global.Index("str");
+
+                        if (c.Type != DynamicValueType.Table)
+                        {
+                            throw new UnsupportedDynamicValueOperationException(
+                                "Attempt to index a String using a String, but no `str' support table found."
+                            );
+                        }
+
+                        break;
                     }
-                }
-                else if (c.Type == DynamicValueType.Array && a.Type == DynamicValueType.String)
-                {
-                    c = _global.Index("arr");
-
-                    if (c.Type != DynamicValueType.Table)
+                    
+                    case DynamicValueType.Array when a.Type == DynamicValueType.String:
                     {
-                        throw new UnsupportedDynamicValueOperationException(
-                            "Attempt to index an Array using a String, but no `arr' support table found."
-                        );
+                        c = global.Index("arr");
+
+                        if (c.Type != DynamicValueType.Table)
+                        {
+                            throw new UnsupportedDynamicValueOperationException(
+                                "Attempt to index an Array using a String, but no `arr' support table found."
+                            );
+                        }
+
+                        break;
                     }
                 }
                     
@@ -1408,15 +1401,15 @@ internal class ExecutionUnit
                     );
                 }
 
-                var fiber = _fiber.VirtualMachine.Scheduler.CreateFiber(
+                var fiber1 = fiber.VirtualMachine.Scheduler.CreateFiber(
                     false, 
                     closureContexts: (Dictionary<string, ClosureContext>)frame.Fiber.ClosureContexts
                 );
-                fiber.Schedule(a.Chunk!, args);
-                fiber.Resume();
+                fiber1.Schedule(a.Chunk!, args);
+                fiber1.Resume();
 
-                PushValue(fiber);
-                _fiber.WaitFor(fiber);
+                PushValue(fiber1);
+                fiber.WaitFor(fiber1);
                 break;
             }
 
@@ -1463,19 +1456,26 @@ internal class ExecutionUnit
                     a = Collections.Array.FromString(a.String!);
                 }
 
-                if (a.Type == DynamicValueType.Table)
+                switch (a.Type)
                 {
-                    frame.PushEnumerator(a.Table!);
-                }
-                else if (a.Type == DynamicValueType.Array)
-                {
-                    frame.PushEnumerator(a.Array!);
-                }
-                else
-                {
-                    throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to iterate over a {a.Type} value."
-                    );
+                    case DynamicValueType.Table:
+                    {
+                        frame.PushEnumerator(a.Table!);
+                        break;
+                    }
+                    
+                    case DynamicValueType.Array:
+                    {
+                        frame.PushEnumerator(a.Array!);
+                        break;
+                    }
+
+                    default:
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to iterate over a {a.Type} value."
+                        );
+                    }
                 }
 
                 break;
@@ -1492,14 +1492,11 @@ internal class ExecutionUnit
 
                 if (next)
                 {
+                    PushValue(enumerator.Current.Value);
+                    
                     if (isKeyValue)
                     {
-                        PushValue(enumerator.Current.Value);
                         PushValue(enumerator.Current.Key);
-                    }
-                    else
-                    {
-                        PushValue(enumerator.Current.Value);
                     }
                 }
 
@@ -1522,8 +1519,8 @@ internal class ExecutionUnit
 
             case OpCode.THROW:
             {
-                _fiber.UnwindTryHandle(
-                    _callStack.ToArray()
+                fiber.UnwindTryHandle(
+                    callStack.ToArray()
                 );
                 break;
             }
@@ -1556,6 +1553,7 @@ internal class ExecutionUnit
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool FindMetaFunction(Table table, string op, [MaybeNullWhen(false)] out Chunk chunk)
     {
         if (!table.HasMetaTable)
@@ -1575,38 +1573,33 @@ internal class ExecutionUnit
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk, params DynamicValue[] args)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, args));
-        _fiber.OnChunkInvoke?.Invoke(
-            _fiber, 
+        callStack.Push(new ScriptStackFrame(fiber, chunk, args));
+        fiber.OnChunkInvoke?.Invoke(
+            fiber, 
             chunk, 
             false
         );
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DynamicValue PopValue()
     {
-        lock (_evaluationStack)
-        {
-            return _evaluationStack.Pop();
-        }
+        return _evaluationStack.Pop();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DynamicValue PeekValue()
     {
-        lock (_evaluationStack)
-        {
-            return _evaluationStack.Peek();
-        }
+        return _evaluationStack.Peek();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void PushValue(DynamicValue value)
     {
-        lock (_evaluationStack)
-        {
-            _evaluationStack.Push(value);
-        }
+        _evaluationStack.Push(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

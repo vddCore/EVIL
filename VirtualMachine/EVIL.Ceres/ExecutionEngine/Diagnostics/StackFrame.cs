@@ -1,11 +1,7 @@
 namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
-using System;
-
-public abstract record StackFrame : IDisposable
+public abstract record StackFrame
 {
     public T As<T>() where T : StackFrame 
         => (T)this;
-
-    public abstract void Dispose();
 }

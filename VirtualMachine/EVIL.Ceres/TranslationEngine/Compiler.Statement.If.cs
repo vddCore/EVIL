@@ -20,8 +20,7 @@ public partial class Compiler
             var caseEnd = Chunk.CreateLabel();
             var currentConditionExpression = ifStatement.Conditions[i];
                 
-            if (currentConditionExpression is BinaryExpression orBex
-                && orBex.Type == BinaryOperationType.LogicalOr)
+            if (currentConditionExpression is BinaryExpression { Type: BinaryOperationType.LogicalOr } orBex)
             {
                 var stack = new Stack<Expression>();
                 stack.Push(orBex.Right);
@@ -31,7 +30,7 @@ public partial class Compiler
                 {
                     var node = stack.Pop();
 
-                    if (node is BinaryExpression innerBex && innerBex.Type == BinaryOperationType.LogicalOr)
+                    if (node is BinaryExpression { Type: BinaryOperationType.LogicalOr } innerBex)
                     {
                         stack.Push(innerBex.Right);
                         stack.Push(innerBex.Left);
