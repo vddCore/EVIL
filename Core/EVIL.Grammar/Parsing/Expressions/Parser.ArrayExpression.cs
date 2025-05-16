@@ -9,51 +9,86 @@ public partial class Parser
 {
     private ArrayExpression ArrayExpression()
     {
-        var (line, col) = Match(Token.Array);
+        int line, col;
 
         Expression? sizeExpression = null;
-
-        if (CurrentToken == Token.LParenthesis)
+        var expressions = new List<Expression>();
+        
+        if (CurrentToken.Type == TokenType.Array)
         {
-            Match(Token.LParenthesis);
+            (line, col) = Match(Token.Array);
 
-            if (CurrentToken != Token.RParenthesis)
+            if (CurrentToken == Token.LParenthesis)
             {
-                sizeExpression = AssignmentExpression();
+                Match(Token.LParenthesis);
+
+                if (CurrentToken != Token.RParenthesis)
+                {
+                    sizeExpression = AssignmentExpression();
+                }
+
+                Match(Token.RParenthesis);
             }
 
-            Match(Token.RParenthesis);
-        }
-            
-        var expressions = new List<Expression>();
+            if (CurrentToken == Token.LBrace)
+            {
+                Match(Token.LBrace);
+                while (CurrentToken != Token.RBrace)
+                {
+                    expressions.Add(AssignmentExpression());
 
-        if (CurrentToken == Token.LBrace)
+                    if (CurrentToken == Token.RBrace)
+                    {
+                        break;
+                    }
+
+                    Match(
+                        Token.Comma,
+                        "Expected '$expected' or '}', got '$actual'."
+                    );
+                }
+
+                Match(Token.RBrace);
+            }
+            else
+            {
+                if (sizeExpression == null)
+                {
+                    throw new ParserException(
+                        "Inferred array size requires an array initializer.",
+                        (CurrentState.Line, CurrentState.Column)
+                    );
+                }
+            }
+        }
+        else if (CurrentToken.Type == TokenType.LBracket)
         {
-            Match(Token.LBrace);
-            while (CurrentToken != Token.RBrace)
+            (line, col) = Match(Token.LBracket);
+            while (CurrentToken != Token.RBracket)
             {
                 expressions.Add(AssignmentExpression());
 
-                if (CurrentToken == Token.RBrace)
+                if (CurrentToken == Token.RBracket)
                 {
                     break;
                 }
 
-                Match(Token.Comma);
+                Match(
+                    Token.Comma,
+                    "Expected '$expected' or ']', got '$actual'."
+                );
             }
-            Match(Token.RBrace);
+
+            Match(Token.RBracket);
         }
         else
         {
-            if (sizeExpression == null)
-            {
-                throw new ParserException(
-                    "Inferred array size requires an array initializer.",
-                    (CurrentState.Line, CurrentState.Column)
-                );
-            }
+            throw new ParserException(
+                $"Unexpected token '{CurrentToken}'.",
+                (CurrentToken.Line, CurrentToken.Column)
+            );
         }
-            
+
         return new ArrayExpression(sizeExpression, expressions)
             { Line = line, Column = col };
     }

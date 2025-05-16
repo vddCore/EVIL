@@ -16,64 +16,64 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="tests\000_truth.vil">
+    <None Update="tests\001_truth.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\001_constants.vil">
+    <None Update="tests\002_constants.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\002_basic_operators.vil">
+    <None Update="tests\003_basic_operators.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\003_ternary_operator.vil">
+    <None Update="tests\004_ternary_operator.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\004_assignment_operators.vil">
+    <None Update="tests\005_assignment_operators.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\005_while_loop.vil">
+    <None Update="tests\006_while_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\006_do_while_loop.vil">
+    <None Update="tests\007_do_while_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\007_for_loop.vil">
+    <None Update="tests\008_for_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\008_tables.vil">
+    <None Update="tests\009_tables.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\009_invoke.vil">
+    <None Update="tests\010_invoke.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\011_type.vil">
+    <None Update="tests\012_type.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\099_yield.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\013_extra_arguments.vil">
+    <None Update="tests\014_extra_arguments.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\014_nontrivial_tests.vil">
+    <None Update="tests\015_nontrivial_tests.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\015_parameter_initializers.vil">
+    <None Update="tests\016_parameter_initializers.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\016_scope.vil">
+    <None Update="tests\017_scope.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\012_if_statement.vil">
+    <None Update="tests\013_if_statement.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\017_each_loop.vil">
+    <None Update="tests\018_each_loop.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\018_closures.vil">
+    <None Update="tests\019_closures.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\019_import.dofile.vil">
+    <None Update="tests\020_import.dofile.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\lib\test.vil">
@@ -82,16 +82,16 @@
     <None Update="tests\lib\test2.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\010_array.vil">
+    <None Update="tests\011_array.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\020_self.vil">
+    <None Update="tests\022_self.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\021_override.vil">
+    <None Update="tests\024_override.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\019_import.require.vil">
+    <None Update="tests\021_import.require.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="tests\test_module\submod\add.vil">
@@ -103,25 +103,25 @@
     <None Update="tests\test_module\init.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\022_by_expr.vil">
+    <None Update="tests\023_by_expr.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\023_try.vil">
+    <None Update="tests\025_try.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\024_fn_targeted.vil">
+    <None Update="tests\026_fn_targeted.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\025_fn_indexed.vil">
+    <None Update="tests\027_fn_indexed.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\026_with_expr.vil">
+    <None Update="tests\029_with_expr.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\00_regression.vil">
+    <None Update="tests\000_regression.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="tests\0_conditional_indexer.vil">
+    <None Update="tests\028_conditional_indexer.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

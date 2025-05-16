@@ -38,7 +38,7 @@ internal class Scope
                 $"Symbol '{name}' was already defined in the current scope."
             );
         }
-
+        
         var symbol = new Symbol(
             name,
             id,

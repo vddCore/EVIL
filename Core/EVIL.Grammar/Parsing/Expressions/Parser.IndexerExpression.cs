@@ -13,23 +13,22 @@ public partial class Parser
         Expression indexer;
         var isConditional = false;
 
-        if (CurrentToken.Type == TokenType.Dot || CurrentToken.Type == TokenType.Elvis)
+        if (CurrentToken.Type is TokenType.Dot or TokenType.Elvis)
         {
-            if (CurrentToken.Type == TokenType.Dot)
+            switch (CurrentToken.Type)
             {
-                (line, col) = Match(Token.Dot);
-            }
-            else if (CurrentToken.Type == TokenType.Elvis)
-            {
-                (line, col) = Match(Token.Elvis);
-                isConditional = true;
-            }
-            else
-            {
-                throw new ParserException(
-                    $"Unexpected token '{CurrentToken}'.",
-                    (CurrentToken.Line, CurrentToken.Column)
-                );
+                case TokenType.Dot:
+                    (line, col) = Match(Token.Dot);
+                    break;
+                case TokenType.Elvis:
+                    (line, col) = Match(Token.Elvis);
+                    isConditional = true;
+                    break;
+                default:
+                    throw new ParserException(
+                        $"Unexpected token '{CurrentToken}'.",
+                        (CurrentToken.Line, CurrentToken.Column)
+                    );
             }
 
             var identifier = Identifier();
@@ -39,9 +38,23 @@ public partial class Parser
                 Column = identifier.Column
             };
         }
-        else // must be bracket then
+        else if (CurrentToken.Type is TokenType.LBracket or TokenType.ElvisArray)
         {
-            (line, col) = Match(Token.LBracket);
+            switch (CurrentToken.Type)
+            {
+                case TokenType.LBracket:
+                    (line, col) = Match(Token.LBracket);
+                    break;
+                case TokenType.ElvisArray:
+                    (line, col) = Match(Token.ElvisArray);
+                    isConditional = true;
+                    break;
+                default:
+                    throw new ParserException(
+                        $"Unexpected token '{CurrentToken}'.",
+                        (CurrentToken.Line, CurrentToken.Column)
+                    );
+            }
 
             indexer = AssignmentExpression();
 
@@ -54,6 +67,13 @@ public partial class Parser
             }
                 
             Match(Token.RBracket);
+        }
+        else
+        {
+            throw new ParserException(
+                $"Unexpected token '{CurrentToken}'.",
+                (CurrentToken.Line, CurrentToken.Column)
+            );
         }
 
         return new IndexerExpression(

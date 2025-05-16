@@ -1,0 +1,164 @@
+﻿#[test]
+fn simple_table_expansion_by_varref {
+  val t = { hello: "world" };
+  val t2 = t with { new: "value!" };
+  
+  assert.is_of_type(t, Table);
+  assert.equal(t.hello, "world");
+  assert.equal(t.new, nil);
+  
+  assert.is_of_type(t2, Table);
+  assert.equal(t2.hello, "world");
+  assert.equal(t2.new, "value!");
+}
+
+#[test]
+fn dual_table_expansion {
+  val t = { a: 21.37 } with { b: "haha" };
+  
+  assert.is_of_type(t, Table);
+  assert.approx_equal(t.a, 21.37);
+  assert.equal(t.b, "haha");
+}
+
+#[test]
+fn multiple_table_expansion {
+  val t = { a: 11.11 } 
+     with { b: "lmao" } 
+     with { c: "i see absolutely no way in which this can be abused." }
+     with { d: "nuh-uh" };
+     
+  assert.is_of_type(t, Table);
+  assert.approx_equal(t.a, 11.11);
+  assert.equal(t.b, "lmao");
+  assert.equal(t.c, "i see absolutely no way in which this can be abused.");
+  assert.equal(t.d, "nuh-uh");
+}
+
+#[test]
+fn table_value_replacement {
+  val t = { i_am: Table, some: "value, too" };
+  val t2 = t with { i_am: "a string" };
+  
+  assert.is_of_type(t, Table);
+  assert.equal(t.i_am, Table);
+  assert.equal(t.some, "value, too");
+  
+  assert.is_of_type(t2, Table);
+  assert.equal(t2.i_am, "a string");
+  assert.equal(t2.some, "value, too");
+}
+
+#[test]
+fn expansion_as_table_initializer {
+  val t = { a: "1", b: "2" };
+  val t2 = { t: t with { c: "3" } };
+  
+  assert.is_of_type(t2.t, Table);
+  assert.equal(t2.t.a, "1");
+  assert.equal(t2.t.b, "2");
+  assert.equal(t2.t.c, "3");
+}
+
+fn produce_table(name) -> ({ name: name });
+
+#[test]
+fn expansion_from_ret_value {
+  val t = produce_table("test.exe") with { type: "file" };
+  
+  assert.is_of_type(t, Table); 
+  assert.equal(t.name, "test.exe");
+  assert.equal(t.type, "file");
+}
+
+#[test]
+fn nested_with_expansion {
+  val base = { x: 1, y: 2 };
+  val extended = base with { y: 3 } with { z: 4 };
+  
+  assert.equal(base.x, 1);
+  assert.equal(base.y, 2);
+  assert.equal(extended.x, 1);
+  assert.equal(extended.y, 3);
+  assert.equal(extended.z, 4);
+}
+
+#[test]
+fn with_on_empty_table {
+  val t = {} with { new_key: "fresh" };
+  
+  assert.is_of_type(t, Table);
+  assert.equal(t.new_key, "fresh");
+}
+
+#[test]
+fn deep_nested_tables_expansion {
+  val base = { a: { b: { c: 1 } } };
+  val extended = base with { a: base.a with { b: base.a.b with { d: 2 } } };
+  
+  assert.equal(base.a.b.c, 1);
+  assert.equal(base.a.b.d, nil);
+  assert.equal(extended.a.b.c, 1);
+  assert.equal(extended.a.b.d, 2);
+}
+
+#[test]
+fn with_overwrites_with_nil {
+  val t = { key: "value" };
+  val t2 = t with { key: nil };
+  
+  assert.equal(t.key, "value");
+  assert.equal(t2.key, nil);
+}
+
+#[test]
+fn with_adds_new_entries_only {
+  val base = { a: 1, b: 2 };
+  val extended = base with { c: 3 };
+  
+  assert.equal(base.c, nil);
+  assert.equal(extended.a, 1);
+  assert.equal(extended.b, 2);
+  assert.equal(extended.c, 3);
+}
+
+#[test]
+fn with_chaining_and_overwriting {
+  val t = { a: 5 };
+  val t2 = t with { a: 10 };
+  val t3 = t2 with { a: 15, b: 20 };
+  
+  assert.equal(t.a, 5);
+  assert.equal(t2.a, 10);
+  assert.equal(t3.a, 15);
+  assert.equal(t3.b, 20);
+}
+
+#[test]
+fn with_and_function_calls_combined {
+  loc fn make_table(x) -> { v: x };
+  val t = make_table(42) with { extra: "hello" };
+  
+  assert.equal(t.v, 42);
+  assert.equal(t.extra, "hello");
+}
+
+#[test]
+fn with_on_table_containing_array {
+  val t = { arr: [1, 2, 3] };
+  val t2 = t with { arr: [4, 5, 6] };
+  
+  assert.equal(t.arr[0], 1);
+  assert.equal(t2.arr[0], 4);
+}
+
+#[test]
+fn with_preserves_original_table_identity {
+  val t = { foo: "bar" };
+  val t2 = t with { baz: "qux" };
+  
+  assert.not_equal(t, t2);
+  assert.equal(t.foo, "bar");
+  assert.equal(t2.foo, "bar");
+  assert.equal(t2.baz, "qux");
+}

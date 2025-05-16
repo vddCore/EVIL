@@ -1,0 +1,177 @@
+﻿#[test]
+fn elvis_multiple_targets_last_is_nil {
+  val a = { 
+    b: { 
+      c: { d: nil }
+    }
+  };
+  
+  val v = a?.b?.c?.d?.e;
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_multiple_targets_all_nil {
+  val a = { };
+  
+  val v = a?.b?.c?.d?.e;
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_single_target_is_nil {
+  val a = nil;
+  val b = a?.nope;
+  
+  assert.equal(b, nil);
+}
+
+#[test]
+fn elvis_multiple_targets_nil_throw {
+  val a = {
+    b: {
+      c: { d: nil }
+    }
+  };
+  
+  assert.throws(fn -> a?.b?.c?.d?.e ?? throw("yep. that's a throw.")); 
+}
+
+#[test]
+fn elvis_middle_target_is_nil {
+  val a = {
+    b: nil
+  };
+
+  val v = a?.b?.c?.d;
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_first_target_is_nil {
+  val a = nil;
+  val v = a?.b?.c;
+
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_fallback_value_if_nil {
+  val a = nil;
+  val b = a?.b?.c ?? 42;
+
+  assert.equal(b, 42);
+}
+
+#[test]
+fn elvis_fallback_skipped_if_not_nil {
+  val a = {
+    b: {
+      c: "not nil"
+    }
+  };
+
+  val v = a?.b?.c ?? "fallback";
+  assert.equal(v, "not nil");
+}
+
+#[test]
+fn elvis_deep_access_valid_chain {
+  val a = {
+    b: {
+      c: {
+        d: {
+          e: "found me"
+        }
+      }
+    }
+  };
+
+  val v = a?.b?.c?.d?.e;
+  assert.equal(v, "found me");
+}
+
+#[test]
+fn elvis_with_array_like_access {
+  val a = {
+    list: [
+      { name: "one" },
+      nil,
+      { name: "three" }
+    ]
+  };
+
+  val name = a?.list?[1]?.name;
+  assert.equal(name, nil);
+}
+
+#[test]
+fn elvis_index_on_nil_array {
+  val a = nil;
+  val v = a?[0]?.name;
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_index_inside_struct_chain {
+  val a = {
+    b: {
+      list: array {
+        { name: "one" },
+        nil,
+        { name: "three" }
+      }
+    }
+  };
+
+  val v = a?.b?.list?[2]?.name;
+  assert.equal(v, "three");
+}
+
+#[test]
+fn elvis_chain_breaks_on_nil_in_array {
+  val a = {
+    b: {
+      list: [ nil ]
+    }
+  };
+
+  val v = a?.b?.list?[0]?.whatever;
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_nested_index_and_struct {
+  val a = {
+    matrix: [
+      { { v: "yes" }, nil },
+      nil
+    ]
+  };
+
+  val v = a?.matrix?[0]?[0]?.v;
+  assert.equal(v, "yes");
+}
+
+#[test]
+fn elvis_throw_on_nil_indexed {
+  val a = nil;
+
+  assert.throws(fn -> a?[3]?.prop ?? throw("nope, nil spotted"));
+}
+
+#[test]
+fn elvis_chain_with_multiple_indexes {
+  val a = {
+    grid: [
+      [ { value: 1 }, { value: 2 } ],
+      [ { value: 3 }, nil ]
+    ]
+  };
+
+  val v1 = a?.grid?[0]?[1]?.value;
+  val v2 = a?.grid?[1]?[1]?.value;
+
+  assert.equal(v1, 2);
+  assert.equal(v2, nil);
+}

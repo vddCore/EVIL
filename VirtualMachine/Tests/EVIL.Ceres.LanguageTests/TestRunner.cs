@@ -79,11 +79,15 @@ public class TestRunner
 
             foreach (var path in paths)
             {
+                TextOut.Write($"  Compiling test '{path}'...");
                 var source = File.ReadAllText(path);
                 try
                 {
-                    TextOut.Write($"  Compiling test '{path}'...");
-                    var rootChunk = compiler.Compile(source, Path.GetFullPath(path));
+                    var rootChunk = compiler.Compile(
+                        source,
+                        Path.GetFullPath(path)
+                    );
+                    
                     testSet.AddTestRootChunk(path, rootChunk);
                     TextOut.WriteLine(" [ PASS ]");
 
@@ -93,7 +97,7 @@ public class TestRunner
                         compiler.Log.Clear();
                     }
                 }
-                catch (CompilerException)
+                catch
                 {
                     TextOut.WriteLine(" [ FAIL ]");
                     TextOut.WriteLine(compiler.Log.ToString((s) => $"  | {s}"));

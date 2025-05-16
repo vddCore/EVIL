@@ -1,0 +1,151 @@
+﻿#[test]
+fn out_of_scope_evaluates_to_global {
+  val a = 10;
+  b = 33;
+  
+  {
+    val b = 21;
+  }
+  
+  assert.equal(b, 33);
+}
+
+#[test]
+fn local_scope_hides_global_scope {
+  a = "jp2gmd";
+  
+  val a = 21.37;
+  assert.equal(a, 21.37);
+}
+
+#[test]
+fn mixed_local_and_global_scopes {
+  a = "jp2gmd"; rw val b = 2;
+  
+  {
+    glob_a = a;
+    val a = 20;
+    glob_a2 = a;
+    glob_b = b;
+    b = 10;
+  }
+  
+  assert.equal(a, "jp2gmd");
+  assert.equal(b, 10);
+  assert.equal(glob_a, a);
+  assert.equal(glob_a2, 20);
+  assert.equal(glob_b, 2);
+}
+
+#[test]
+fn variables_go_out_of_scope {
+  {
+    val x = 10; 
+    {
+      assert.equal(x, 10);
+      val y = 20; 
+      {
+        assert.equal(y, 20);
+        val z = 30; 
+        {
+          assert.equal(z, 30);
+          val w = 40;
+          assert.equal(w, 40);
+        } 
+        assert.equal(w, nil);
+      }
+      assert.equal(z, nil);
+    }
+    assert.equal(y, nil); 
+  }
+  assert.equal(x, nil);
+}
+
+#[test]
+fn inner_block_can_mutate_outer_rw {
+  rw val counter = 0;
+
+  {
+    counter = counter + 1;
+  }
+
+  assert.equal(counter, 1);
+}
+
+#[test]
+fn assigning_outside_defined_scope_has_no_effect {
+  {
+    val x = 10;
+  }
+
+  x = 999;
+
+  assert.equal(x, 999);
+}
+
+#[test]
+fn function_local_scope_isolated {
+  val outer = "global";
+
+  loc fn test {
+    val outer = "local";
+    assert.equal(outer, "local");
+  }
+
+  test();
+  assert.equal(outer, "global");
+}
+
+#[test]
+fn function_can_access_global_unshadowed {
+  val common = "shared";
+
+  loc fn get_common {
+    ret common;
+  }
+
+  assert.equal(get_common(), "shared");
+}
+
+#[test]
+fn nested_function_scope_closure_behavior {
+  rw val counter = 0;
+
+  loc fn outer {
+    val local = "void";
+
+    loc fn inner {
+      counter = counter + 1;
+      ret local;
+    }
+
+    ret inner();
+  }
+
+  val result = outer();
+  assert.equal(result, "void");
+  assert.equal(counter, 1);
+}
+
+#[test]
+fn scope_does_not_leak_after_block_exit {
+  {
+    val spooky = "👻";
+  }
+
+  assert.equal(spooky, nil);
+}
+
+#[test]
+fn rw_variable_changes_persist_through_nested_blocks {
+  rw val mood = "neutral";
+
+  {
+    mood = "happy";
+    {
+      mood = "ecstatic";
+    }
+  }
+
+  assert.equal(mood, "ecstatic");
+}

@@ -13,6 +13,7 @@ public partial class Parser
         TokenType.LBracket,
         TokenType.Dot,
         TokenType.Elvis,
+        TokenType.ElvisArray,
         TokenType.DoubleColon,
         TokenType.Increment,
         TokenType.Decrement
@@ -60,6 +61,7 @@ public partial class Parser
                 case TokenType.LBracket:
                 case TokenType.Dot:
                 case TokenType.Elvis:
+                case TokenType.ElvisArray:
                 {
                     node = IndexerExpression(node);
                     break;

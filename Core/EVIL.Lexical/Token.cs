@@ -89,6 +89,7 @@ public readonly struct Token(TokenType type, TokenClass @class, string value)
     public static readonly Token AsString = new(TokenType.AsString, TokenClass.Operator, "@");
     public static readonly Token QuestionMark = new(TokenType.QuestionMark, TokenClass.Operator, "?");
     public static readonly Token Elvis = new(TokenType.Elvis, TokenClass.Operator, "?.");
+    public static readonly Token ElvisArray = new(TokenType.ElvisArray, TokenClass.Operator, "?[");
     public static readonly Token DoubleQuestionMark = new(TokenType.DoubleQuestionMark, TokenClass.Operator, "??");
     public static readonly Token Colon = new(TokenType.Colon, TokenClass.Operator, ":");
     public static readonly Token DoubleColon = new(TokenType.DoubleColon, TokenClass.Operator, "::");

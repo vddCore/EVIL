@@ -51,6 +51,24 @@ public sealed class UnaryExpression : Expression
             }
         }
 
+        if (right is BooleanConstant booleanConstant)
+        {
+            switch (Type)
+            {
+                case UnaryOperationType.LogicalNot:
+                    return new BooleanConstant(!booleanConstant.Value)
+                        .CopyMetadata<BooleanConstant>(this);
+                
+                case UnaryOperationType.ToNumber:
+                    return new NumberConstant(booleanConstant.Value ? 1 : 0)
+                        .CopyMetadata<NumberConstant>(this);
+                
+                case UnaryOperationType.ToString:
+                    return new StringConstant(booleanConstant.Value.ToString(CultureInfo.InvariantCulture).ToLower(), false)
+                        .CopyMetadata<StringConstant>(this);
+            }
+        }
+
         if (right is StringConstant stringConstant)
         {
             switch (Type)

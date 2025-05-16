@@ -30,6 +30,7 @@ public partial class Parser
                 return TableExpression();
             }
 
+            case TokenType.LBracket:
             case TokenType.Array:
             {
                 return ArrayExpression();
