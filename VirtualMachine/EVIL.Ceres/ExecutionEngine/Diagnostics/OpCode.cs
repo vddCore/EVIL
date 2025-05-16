@@ -56,6 +56,8 @@ public enum OpCode : byte
     CLT,
     CGE,
     CLE,
+    VJMP,
+    NJMP,
     FJMP,
     TJMP,
     JUMP,

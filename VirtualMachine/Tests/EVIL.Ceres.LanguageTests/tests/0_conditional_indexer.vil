@@ -1,12 +1,4 @@
-﻿#[test]
-fn elvis_single_target_is_nil {
-  val a = nil;
-  val b = a?.nope;
-  
-  assert.equal(b, nil);
-}
-
-#[test]
+﻿#[test;disasm]
 fn elvis_multiple_targets_last_is_nil {
   val a = { 
     b: { 
@@ -16,6 +8,22 @@ fn elvis_multiple_targets_last_is_nil {
   
   val v = a?.b?.c?.d?.e;
   assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_multiple_targets_all_nil {
+  val a = { };
+  
+  val v = a?.b?.c?.d?.e;
+  assert.equal(v, nil);
+}
+
+#[test]
+fn elvis_single_target_is_nil {
+  val a = nil;
+  val b = a?.nope;
+  
+  assert.equal(b, nil);
 }
 
 #[test]

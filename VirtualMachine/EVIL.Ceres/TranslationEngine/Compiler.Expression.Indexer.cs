@@ -12,11 +12,22 @@ public partial class Compiler
             var endIndexerLabel = Chunk.CreateLabel();
             var indexLabel = Chunk.CreateLabel();
             
+            indexerExpression.SetTag("end_label", endIndexerLabel);
             Visit(indexerExpression.Indexable);
+
+            if (OptimizeCodeGeneration)
+            {
+                var parent = indexerExpression;
+                while (parent.Parent is IndexerExpression { IsConditional: true } outer)
+                {
+                    parent = outer;
+                }
+
+                endIndexerLabel = parent.GetTag<int>("end_label");
+            }
+
             Chunk.CodeGenerator.Emit(OpCode.DUP);
-            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-            Chunk.CodeGenerator.Emit(OpCode.CEQ);
-            Chunk.CodeGenerator.Emit(OpCode.FJMP, indexLabel);
+            Chunk.CodeGenerator.Emit(OpCode.VJMP, indexLabel);
             Chunk.CodeGenerator.Emit(OpCode.LDNIL);
             Chunk.CodeGenerator.Emit(OpCode.JUMP, endIndexerLabel);
             Chunk.UpdateLabel(indexLabel, Chunk.CodeGenerator.IP);

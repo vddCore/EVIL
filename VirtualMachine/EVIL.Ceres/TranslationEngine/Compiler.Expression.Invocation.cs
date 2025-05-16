@@ -10,8 +10,7 @@ public partial class Compiler
     {
         Visit(invocationExpression.ArgumentList);
 
-        if (invocationExpression.Parent is RetStatement
-            && invocationExpression.Callee is SymbolReferenceExpression varRef
+        if (invocationExpression is { Parent: RetStatement, Callee: SymbolReferenceExpression varRef }
             && varRef.Identifier == Chunk.Name
             && !invocationExpression.ArgumentList.IsVariadic)
         {

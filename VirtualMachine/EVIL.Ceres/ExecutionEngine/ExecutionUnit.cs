@@ -1157,6 +1157,34 @@ internal class ExecutionUnit(
                 break;
             }
 
+            case OpCode.NJMP:
+            {
+                var labelId = frame.FetchInt32();
+
+                if (PopValue() == DynamicValue.Nil)
+                {
+                    frame.JumpAbsolute(
+                        frame.Chunk.Labels[labelId]
+                    );
+                }
+
+                break;
+            }
+
+            case OpCode.VJMP:
+            {
+                var labelId = frame.FetchInt32();
+
+                if (PopValue() != DynamicValue.Nil)
+                {
+                    frame.JumpAbsolute(
+                        frame.Chunk.Labels[labelId]
+                    );
+                }
+
+                break;
+            }
+
             case OpCode.FJMP:
             {
                 var labelId = frame.FetchInt32();

@@ -137,8 +137,9 @@ public class LexerTests
     [Test]
     public void DecimalNumbers()
     {
-        _lexer.LoadSource("(-2) -32E03 21.37 44.11 .42 27.0 31.1 .1 12");
+        _lexer.LoadSource("- 2 (-2) -32E03 21.37 44.11 .42 27.0 31.1 .1 12");
 
+        ExpectExact((TokenType.Number, "-2"));
         Expect(LParenthesis);
         ExpectExact((TokenType.Number, "-2"));
         Expect(RParenthesis);
@@ -162,7 +163,8 @@ public class LexerTests
     {
         _lexer.LoadSource(
             "0x1 0x12 0x123 0x1234 0x12345 0x123456 0x1234567 " +
-            "0x12345678 0xDEADBEEF13371 0x1D34d 0x2CafE 0x3b33f"
+            "0x12345678 0xDEADBEEF13371 0x1D34d 0x2CafE 0x3b33f" +
+            "-0x1234"
         );
 
         ExpectExact(
@@ -177,7 +179,8 @@ public class LexerTests
             (TokenType.HexInteger, "DEADBEEF13371"),
             (TokenType.HexInteger, "1D34d"),
             (TokenType.HexInteger, "2CafE"),
-            (TokenType.HexInteger, "3b33f")
+            (TokenType.HexInteger, "3b33f"),
+            (TokenType.HexInteger, "-1234")
         );
 
         Expect(EOF);

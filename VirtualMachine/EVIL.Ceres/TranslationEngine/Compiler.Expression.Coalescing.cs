@@ -11,9 +11,7 @@ public partial class Compiler
             
         Visit(coalescingExpression.Left);
         Chunk.CodeGenerator.Emit(OpCode.DUP);
-        Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-        Chunk.CodeGenerator.Emit(OpCode.CNE);
-        Chunk.CodeGenerator.Emit(OpCode.TJMP, valueNotNilLabel);
+        Chunk.CodeGenerator.Emit(OpCode.VJMP, valueNotNilLabel);
         Chunk.CodeGenerator.Emit(OpCode.POP);
         Visit(coalescingExpression.Right);
             

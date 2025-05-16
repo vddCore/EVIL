@@ -246,6 +246,8 @@ public static class Disassembler
                     case OpCode.FJMP:
                     case OpCode.TJMP:
                     case OpCode.JUMP:
+                    case OpCode.NJMP:
+                    case OpCode.VJMP:
                         output.Write(opCode);
                         output.Write(" ");
 

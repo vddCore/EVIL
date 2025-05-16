@@ -25,8 +25,6 @@ public class Lexer
 
     public void NextToken()
     {
-        bool skipAdvance = false;
-        
         while (true)
         {
             SkipWhitespace();
@@ -51,10 +49,6 @@ public class Lexer
                 case '-' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignSubtract with { Line = line, Column = col };
-                    break;
-                case '-' when char.IsDigit(Peek()) && Peek(2) != 'x':
-                    State.CurrentToken = GetDecimalNumber() with { Line = line, Column = col };
-                    skipAdvance = true;
                     break;
                 case '-':
                     State.CurrentToken = Token.Minus with { Line = line, Column = col };
@@ -315,9 +309,7 @@ public class Lexer
                 throw new LexerException($"Unexpected token '{State.Character}'", col, line);
             }
 
-            if (!skipAdvance)
-                Advance();
-            
+            Advance();
             break;
         }
     }
@@ -356,13 +348,7 @@ public class Lexer
 
         bool foundDecimal = false;
         bool foundExponent = false;
-
-        if (State.Character == '-')
-        {
-            number += State.Character;
-            Advance();
-        }
-
+        
         if (!char.IsDigit(State.Character) && State.Character != '.')
         {
             throw new LexerException($"Character `{State.Character}` was unexpected at this time.", State.Line, State.Column);
