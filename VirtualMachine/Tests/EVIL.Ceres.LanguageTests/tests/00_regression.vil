@@ -10,3 +10,10 @@ fn tonum_indexing {
 fn type_as_string -> assert.equal(
   @typeof(nil), "Nil"
 );
+
+loc fn test_yield -> 2137;
+
+#[test]
+fn yield_unary -> assert.equal(
+  @yield<test_yield>(), "2137"
+);

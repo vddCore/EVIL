@@ -16,7 +16,7 @@ public partial class Parser
             {
                 var (line, col) = Match(Token.Increment);
                 
-                return new IncrementationExpression(RuntimeExpression(), true) 
+                return new IncrementationExpression(UnaryExpression(), true) 
                     { Line = line, Column = col };
             }
             
@@ -24,13 +24,13 @@ public partial class Parser
             {
                 var (line, col) = Match(Token.Decrement);
                 
-                return new DecrementationExpression(RuntimeExpression(), true) 
+                return new DecrementationExpression(UnaryExpression(), true) 
                     { Line = line, Column = col };
             }
 
             default:
             {
-                return RuntimeExpression();
+                return UnaryExpression();
             }
         }
     }

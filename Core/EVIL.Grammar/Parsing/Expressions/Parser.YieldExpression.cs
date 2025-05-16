@@ -6,18 +6,6 @@ using EVIL.Lexical;
 
 public partial class Parser
 {
-    private Expression RuntimeExpression()
-    {
-        var token = CurrentToken;
-
-        if (token.Type == TokenType.Yield)
-        {
-            return YieldExpression();
-        }
-
-        return UnaryExpression();
-    }
-
     private YieldExpression YieldExpression()
     {
         var (line, col) = Match(Token.Yield);

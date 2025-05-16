@@ -39,12 +39,12 @@ public partial class Parser
             {
                 return ErrorExpression();
             }
-            
+
             case TokenType.Ellipsis:
             {
                 var (line, col) = Match(Token.Ellipsis);
-                
-                return new ExtraArgumentsExpression(false) 
+
+                return new ExtraArgumentsExpression(false)
                     { Line = line, Column = col };
             }
 
@@ -62,10 +62,15 @@ public partial class Parser
             {
                 return SelfExpression();
             }
-            
+
             case TokenType.TypeOf:
             {
                 return TypeOfExpression();
+            }
+
+            case TokenType.Yield:
+            {
+                return YieldExpression();
             }
 
             default:

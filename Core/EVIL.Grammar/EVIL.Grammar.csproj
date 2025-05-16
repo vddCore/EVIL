@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
 
-    <Version>7.0.0</Version>
+    <Version>8.0.0</Version>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
