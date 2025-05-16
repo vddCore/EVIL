@@ -35,7 +35,7 @@ public class TestRunner
         Options = options;
             
         TestDirectories = Options.TestDirectories.Select(
-            x => Path.GetFullPath(x)
+            Path.GetFullPath
         ).ToArray();
             
         TextOut = Options.TestOutput ?? Console.Out;
@@ -127,10 +127,10 @@ public class TestRunner
             var ignored = 0;
 
             var path = testRoot.Key;
-            TextOut.WriteLine($"--- [TEST '{path}'] ---");
+            await TextOut.WriteLineAsync($"--- [TEST '{path}'] ---");
 
             VM.Global.Clear();
-            VM.Global.Set("__native_func", new((_, args) => { return args[3]; }));
+            VM.Global.Set("__native_func", new((_, args) => args[3]));
 
             VM.Global.Set("__native_object", DynamicValue.FromObject(new object()));
             VM.Global.Set("__tricky", new TrickyTable());
@@ -141,10 +141,9 @@ public class TestRunner
                 (_, _) => DynamicValue.FromObject(new DummyNativeClass()))
             );
                 
-            VM.Global.Set("__throw_test", new((fiber, args) =>
-            {
-                return fiber.ThrowFromNative(args[0]);
-            }));
+            VM.Global.Set("__throw_test", new(
+                (fiber, args) => fiber.ThrowFromNative(args[0]))
+            );
 
             Runtime.RegisterBuiltInModules();
             Runtime.RegisterBuiltInFunctions();
@@ -160,7 +159,7 @@ public class TestRunner
                 
             var testRootChunk = testRoot.Value;
             VM.MainFiber.Schedule(testRootChunk);
-            VM.MainFiber.BlockUntilFinished();
+            await VM.MainFiber.BlockUntilFinishedAsync();
                 
             var testChunks = new List<Chunk>();
             foreach (var (name, _) in testRootChunk.NamedSubChunkLookup)
@@ -177,7 +176,7 @@ public class TestRunner
 
             if (testChunks.Count == 0)
             {
-                TextOut.WriteLine($"Test file '{path}' has no tests. Ignoring...");
+                await TextOut.WriteLineAsync($"Test file '{path}' has no tests. Ignoring...");
                 continue;
             }
 
@@ -197,7 +196,7 @@ public class TestRunner
                     whenToDisassemble = attr.Values[0].String;
                 }
 
-                TextOut.Write($"[{i + 1}/{testChunks.Count}] ");
+                await TextOut.WriteAsync($"[{i + 1}/{testChunks.Count}] ");
 
                 var result = await RunTestChunk(chunk, path);
 
@@ -207,7 +206,7 @@ public class TestRunner
                     ))
                 {
                     Disassembler.Disassemble(chunk, TextOut);
-                    TextOut.WriteLine();
+                    await TextOut.WriteLineAsync();
                 }
 
                 if (result == false)
@@ -230,12 +229,12 @@ public class TestRunner
 
             failuresOccurred |= failed > 0;  
                     
-            TextOut.WriteLine($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
+            await TextOut.WriteLineAsync($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
             using (var process = Process.GetCurrentProcess())
             {
-                TextOut.WriteLine($"Total process memory so far: {process.WorkingSet64} bytes.");
+                await TextOut.WriteLineAsync($"Total process memory so far: {process.WorkingSet64} bytes.");
             }
-            TextOut.WriteLine();
+            await TextOut.WriteLineAsync();
 
             if (failuresOccurred && Options.FailOnTestErrors)
             {
@@ -249,7 +248,7 @@ public class TestRunner
         {
             if (Options.FailOnTestErrors)
             {
-                TextOut.WriteLine("Test run aborted early due to one or more test failures.");
+                await TextOut.WriteLineAsync("Test run aborted early due to one or more test failures.");
             }
                 
             return 2;
@@ -264,14 +263,14 @@ public class TestRunner
 
         if (ignore)
         {
-            TextOut.Write($"[IGNORED] '{chunk.Name}'");
+            await TextOut.WriteAsync($"[IGNORED] '{chunk.Name}'");
 
             if (why != null)
             {
-                TextOut.Write($": {why}");
+                await TextOut.WriteAsync($": {why}");
             }
 
-            TextOut.WriteLine();
+            await TextOut.WriteLineAsync();
             return null;
         }
 
@@ -291,14 +290,14 @@ public class TestRunner
         {
             if (test.CallsAnyAsserts)
             {
-                TextOut.WriteLine($"[PASSED] '{chunk.Name}' [{stamp}]");
+                await TextOut.WriteLineAsync($"[PASSED] '{chunk.Name}' [{stamp}]");
             }
             else
             {
                 var msg = $"No assertions were made. [{stamp}]";
                     
                 AddTestFailure(path, chunk, msg);
-                TextOut.WriteLine($"[INCONCLUSIVE] '{chunk.Name}': {msg}");
+                await TextOut.WriteLineAsync($"[INCONCLUSIVE] '{chunk.Name}': {msg}");
             }
         }
         else
@@ -341,7 +340,7 @@ public class TestRunner
             }
 
             AddTestFailure(path, chunk, msg.ToString());
-            TextOut.WriteLine($"[FAILED] '{chunk.Name}': {msg}");
+            await TextOut.WriteLineAsync($"[FAILED] '{chunk.Name}': {msg}");
         }
 
         return test.Successful;
