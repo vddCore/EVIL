@@ -43,16 +43,16 @@ public sealed class BinaryExpression : Expression
                             .CopyMetadata<NumberConstant>(this);
 
                     case BinaryOperationType.Equal:
-                        return new NumberConstant(lnc.Value == rnc.Value ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value == rnc.Value)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.Greater:
-                        return new NumberConstant(lnc.Value >= rnc.Value ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value >= rnc.Value)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.Less:
-                        return new NumberConstant(lnc.Value < rnc.Value ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value < rnc.Value)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.Subtract:
                         return new NumberConstant(lnc.Value - rnc.Value)
@@ -79,16 +79,16 @@ public sealed class BinaryExpression : Expression
                             .CopyMetadata<NumberConstant>(this);
 
                     case BinaryOperationType.LogicalAnd:
-                        return new NumberConstant(lnc.Value != 0 && rnc.Value != 0 ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value != 0 && rnc.Value != 0)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.LogicalOr:
-                        return new NumberConstant(lnc.Value != 0 || rnc.Value != 0 ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value != 0 || rnc.Value != 0)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.NotEqual:
-                        return new NumberConstant(lnc.Value != rnc.Value ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value != rnc.Value)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.ShiftLeft:
                         return new NumberConstant((long)lnc.Value << (int)rnc.Value)
@@ -99,12 +99,12 @@ public sealed class BinaryExpression : Expression
                             .CopyMetadata<NumberConstant>(this);
 
                     case BinaryOperationType.GreaterOrEqual:
-                        return new NumberConstant(lnc.Value >= rnc.Value ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value >= rnc.Value)
+                            .CopyMetadata<BooleanConstant>(this);
 
                     case BinaryOperationType.LessOrEqual:
-                        return new NumberConstant(lnc.Value <= rnc.Value ? 1 : 0)
-                            .CopyMetadata<NumberConstant>(this);
+                        return new BooleanConstant(lnc.Value <= rnc.Value)
+                            .CopyMetadata<BooleanConstant>(this);
                 }
             }
         }
@@ -131,10 +131,11 @@ public sealed class BinaryExpression : Expression
                             .CopyMetadata<StringConstant>(this);
                     }
 
-                    return new StringConstant(str.Substring(amount), false)
+                    return new StringConstant(str[amount..], false)
                         .CopyMetadata<StringConstant>(this);
                 }
-                else if (Type == BinaryOperationType.ShiftRight)
+
+                if (Type == BinaryOperationType.ShiftRight)
                 {
                     var str = lsc.Value;
                     var amount = str.Length - (int)rnc.Value;

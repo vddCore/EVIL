@@ -34,8 +34,8 @@ public sealed class UnaryExpression : Expression
                         .CopyMetadata<NumberConstant>(this);
                     
                 case UnaryOperationType.LogicalNot:
-                    return new BooleanConstant(numberConstant.Value != 0)
-                        .CopyMetadata<NumberConstant>(this);
+                    return new BooleanConstant(numberConstant.Value == 0)
+                        .CopyMetadata<BooleanConstant>(this);
 
                 case UnaryOperationType.BitwiseNot:
                     return new NumberConstant(~(long)numberConstant.Value)
