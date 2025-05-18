@@ -33,7 +33,6 @@ fn yield_zombie {
         yield<dies_and_rises_2>();
       } catch (e) {
         outer_arg = e;
-        io.println(e);
       }
     }
 
