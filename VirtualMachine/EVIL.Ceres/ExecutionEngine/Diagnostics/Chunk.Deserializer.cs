@@ -148,8 +148,7 @@ public sealed partial class Chunk
                                 br.ReadInt32(),
                                 br.ReadInt32(),
                                 br.ReadString(),
-                                br.ReadBoolean(),
-                                br.ReadBoolean(),
+                                (ClosureType)br.ReadInt32(),
                                 br.ReadBoolean()
                             )
                         );

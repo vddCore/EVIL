@@ -8,9 +8,7 @@ public record ClosureInfo
     public int EnclosedId { get; }
     public string EnclosedFunctionName { get; }
         
-    public bool IsParameter { get; }
-    public bool IsClosure { get; }
-    public bool IsLocal => !IsParameter && !IsClosure;
+    public ClosureType Type { get; }
         
     public bool IsSharedScope { get; }
 
@@ -18,15 +16,13 @@ public record ClosureInfo
         int nestingLevel,
         int enclosedId,
         string enclosedFunctionName,
-        bool isParameter,
-        bool isClosure,
+        ClosureType type,
         bool isSharedScope)
     {
         NestingLevel = nestingLevel;
         EnclosedId = enclosedId;
         EnclosedFunctionName = enclosedFunctionName;
-        IsParameter = isParameter;
-        IsClosure = isClosure;
+        Type = type;
         IsSharedScope = isSharedScope;
     }
 
@@ -35,8 +31,7 @@ public record ClosureInfo
         return NestingLevel == other?.NestingLevel
                && EnclosedId == other.EnclosedId
                && EnclosedFunctionName == other.EnclosedFunctionName
-               && IsParameter == other.IsParameter
-               && IsClosure == other.IsClosure
+               && Type == other.Type
                && IsSharedScope == other.IsSharedScope;
     }
 
@@ -45,8 +40,7 @@ public record ClosureInfo
             NestingLevel,
             EnclosedId,
             EnclosedFunctionName,
-            IsParameter,
-            IsClosure,
+            Type,
             IsSharedScope
         );
 }

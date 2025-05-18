@@ -199,15 +199,14 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         return value;
     }
         
-    public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, string enclosedFunctionName, bool isParameter, bool isClosure, bool isSharedScope)
+    public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, string enclosedFunctionName, ClosureType closureType, bool isSharedScope)
     {
         var id = ClosureCount;
         var ret = new ClosureInfo(
             nestingLevel,
             enclosedId,
             enclosedFunctionName,
-            isParameter,
-            isClosure,
+            closureType,
             isSharedScope
         );
 

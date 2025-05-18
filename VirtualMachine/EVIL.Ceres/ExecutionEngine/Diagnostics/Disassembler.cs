@@ -1,5 +1,6 @@
 namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -137,15 +138,13 @@ public static class Disassembler
                         if (options.WriteClosureInfo)
                         {
                             var closure = chunk.Closures[closureId];
-                            var closureType = "local";
-                            if (closure.IsParameter)
+                            var closureType = closure.Type switch
                             {
-                                closureType = "parameter";
-                            }
-                            else if (closure.IsClosure)
-                            {
-                                closureType = "closure";
-                            }
+                                ClosureType.Parameter => "parameter",
+                                ClosureType.Local => "local",
+                                ClosureType.Closure => "closure",
+                                _ => "???"
+                            };
 
                             var names = new List<string>();
                             var closureFrom = chunk;

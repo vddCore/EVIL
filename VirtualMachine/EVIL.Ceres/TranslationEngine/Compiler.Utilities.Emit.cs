@@ -10,13 +10,15 @@ public partial class Compiler
     {
         if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
         {
-            if (opCode == OpCode.RET || opCode == OpCode.TAILINVOKE)
+            if (opCode is OpCode.RET 
+                       or OpCode.TAILINVOKE
+                       or OpCode.THROW)
             {
                 return;
             }
         }
 
-        /* Either we have no instructions in chunk, or it's not a RET. */
+        /* Either we have no instructions in chunk, or it's not a RET nor THROW. */
         Chunk.CodeGenerator.Emit(OpCode.LDNIL);
         Chunk.CodeGenerator.Emit(OpCode.RET);
     }
@@ -65,12 +67,34 @@ public partial class Compiler
             }
             else
             {
+                ClosureType closureType;
+                switch (sym.Type)
+                {
+                    case Symbol.SymbolType.Parameter:
+                        closureType = ClosureType.Parameter;
+                        break;
+                    case Symbol.SymbolType.Local:
+                        closureType = ClosureType.Local;
+                        break;
+                    case Symbol.SymbolType.Closure:
+                        closureType = ClosureType.Closure;
+                        break;
+                    default:
+                        Log.TerminateWithInternalFailure(
+                            $"Invalid type '{sym.Type}' for symbol '{identifier}'.",
+                            CurrentFileName,
+                            line: Line,
+                            column: Column,
+                            dummyReturn: OpCode.NOOP
+                        );
+                        return;
+                }
+
                 var result = Chunk.AllocateClosure(
                     level,
                     sym.Id,
                     ownerScope.Chunk.Name,
-                    sym.Type == Symbol.SymbolType.Parameter,
-                    sym.Type == Symbol.SymbolType.Closure,
+                    closureType,
                     ReferenceEquals(ownerScope.Chunk, _rootChunk)
                 );
 
@@ -160,12 +184,34 @@ public partial class Compiler
             }
             else
             {
+                ClosureType closureType;
+                switch (sym.Type)
+                {
+                    case Symbol.SymbolType.Parameter:
+                        closureType = ClosureType.Parameter;
+                        break;
+                    case Symbol.SymbolType.Local:
+                        closureType = ClosureType.Local;
+                        break;
+                    case Symbol.SymbolType.Closure:
+                        closureType = ClosureType.Closure;
+                        break;
+                    default:
+                        Log.TerminateWithInternalFailure(
+                            $"Invalid type '{sym.Type}' for symbol '{identifier}'.",
+                            CurrentFileName,
+                            line: Line,
+                            column: Column,
+                            dummyReturn: OpCode.NOOP
+                        );
+                        return;
+                }
+                
                 var result = Chunk.AllocateClosure(
                     level,
                     sym.Id,
                     ownerScope.Chunk.Name,
-                    sym.Type == Symbol.SymbolType.Parameter,
-                    sym.Type == Symbol.SymbolType.Closure,
+                    closureType,
                     ReferenceEquals(ownerScope.Chunk, _rootChunk)
                 );
 

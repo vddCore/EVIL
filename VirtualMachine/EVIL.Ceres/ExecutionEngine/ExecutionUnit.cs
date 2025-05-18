@@ -816,7 +816,7 @@ internal class ExecutionUnit
                 var localId = frame.FetchInt32();
                 
                 frame.Locals![localId] = a;
-                PropagateLocalToSubClosures(frame, localId, a);
+                PropagateValueToSubClosures(frame, ClosureType.Local, localId, a);
                 break;
             }
 
@@ -832,7 +832,7 @@ internal class ExecutionUnit
                 var argId = frame.FetchInt32();
 
                 frame.Arguments[argId] = a;
-                PropagateArgumentToSubClosures(frame, argId, a);
+                PropagateValueToSubClosures(frame, ClosureType.Parameter, argId, a);
                 break;
             }
 
@@ -1394,7 +1394,7 @@ internal class ExecutionUnit
 
     private ClosureInfo ResolveInnermostClosure(ClosureInfo closureInfo, ref ScriptStackFrame? frame)
     {
-        while (closureInfo.IsClosure)
+        while (closureInfo.Type == ClosureType.Closure)
         {
             closureInfo = frame!.Chunk.Closures[closureInfo.EnclosedId];
             frame = FindClosureSourceFrame(closureInfo.EnclosedFunctionName);
@@ -1409,12 +1409,12 @@ internal class ExecutionUnit
 
         if (sourceFrame != null)
         {
-            if (info.IsParameter)
+            if (info.Type == ClosureType.Parameter)
             {
                 return sourceFrame.Arguments[info.EnclosedId];
             }
 
-            if (info.IsClosure)
+            if (info.Type == ClosureType.Closure)
             {
                 var resolved = ResolveInnermostClosure(info, ref sourceFrame);
                 var ctx = resolved.IsSharedScope
@@ -1428,7 +1428,7 @@ internal class ExecutionUnit
         }
         else
         {
-            if (info.IsClosure)
+            if (info.Type == ClosureType.Closure)
             {
                 var chunk = currentFrame.Chunk;
                 while (chunk.Name != info.EnclosedFunctionName)
@@ -1453,13 +1453,13 @@ internal class ExecutionUnit
 
         if (targetFrame != null)
         {
-            if (info.IsParameter)
+            if (info.Type == ClosureType.Parameter)
             {
                 targetFrame.Arguments[info.EnclosedId] = value;
                 return;
             }
 
-            if (info.IsClosure)
+            if (info.Type == ClosureType.Closure)
             {
                 var resolved = ResolveInnermostClosure(info, ref targetFrame);
                 var ctx = resolved.IsSharedScope
@@ -1474,7 +1474,7 @@ internal class ExecutionUnit
             return;
         }
 
-        if (info.IsClosure)
+        if (info.Type == ClosureType.Closure)
         {
             var chunk = currentFrame.Chunk;
             while (chunk.Name != info.EnclosedFunctionName)
@@ -1512,11 +1512,12 @@ internal class ExecutionUnit
                 if (sourceFrame == null)
                     continue;
 
-                DynamicValue value = closure.IsParameter
-                    ? sourceFrame.Arguments[closure.EnclosedId]
-                    : closure.IsClosure
-                        ? GetClosureValue(stackFrame, sourceFrame.Chunk.Closures[closure.EnclosedId])
-                        : sourceFrame.Locals![closure.EnclosedId];
+                DynamicValue value = closure.Type switch
+                {
+                    ClosureType.Parameter => sourceFrame.Arguments[closure.EnclosedId],
+                    ClosureType.Closure => GetClosureValue(stackFrame, sourceFrame.Chunk.Closures[closure.EnclosedId]),
+                    _ => sourceFrame.Locals![closure.EnclosedId]
+                };
 
                 ctx.Values[closure.EnclosedId] = value;
             }
@@ -1525,8 +1526,8 @@ internal class ExecutionUnit
                 subChunkQueue.Enqueue(current.SubChunks[i].Clone());
         }
     }
-    
-    private void PropagateLocalToSubClosures(ScriptStackFrame frame, int localId, DynamicValue value)
+
+    private void PropagateValueToSubClosures(ScriptStackFrame frame, ClosureType closureType, int slotId, DynamicValue value)
     {
         var subChunkQueue = new Queue<Chunk>(frame.Chunk.SubChunks);
 
@@ -1536,36 +1537,7 @@ internal class ExecutionUnit
 
             foreach (var closure in current.Closures)
             {
-                if (!closure.IsLocal || closure.EnclosedId != localId)
-                    continue;
-
-                var context = closure.IsSharedScope
-                    ? frame.Fiber.SetClosureContext(closure.EnclosedFunctionName)
-                    : current.SetClosureContext(closure.EnclosedFunctionName);
-
-                var sourceFrame = FindClosureSourceFrame(closure.EnclosedFunctionName);
-                if (sourceFrame != null)
-                {
-                    context.Values[closure.EnclosedId] = value;
-                }
-            }
-
-            for (var i = 0; i < current.SubChunks.Count; i++) 
-                subChunkQueue.Enqueue(current.SubChunks[i].Clone());
-        }
-    }
-    
-    private void PropagateArgumentToSubClosures(ScriptStackFrame frame, int localId, DynamicValue value)
-    {
-        var subChunkQueue = new Queue<Chunk>(frame.Chunk.SubChunks);
-
-        while (subChunkQueue.Count > 0)
-        {
-            var current = subChunkQueue.Dequeue();
-
-            foreach (var closure in current.Closures)
-            {
-                if (!closure.IsParameter || closure.EnclosedId != localId)
+                if (closure.Type != closureType || closure.EnclosedId != slotId)
                     continue;
 
                 var context = closure.IsSharedScope
