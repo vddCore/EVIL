@@ -17,7 +17,7 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
     );
     
     public int Count => _fibers.Count;
-    public IEnumerable<KeyValuePair<int, Fiber>> Entries => _fibers;
+    public IReadOnlyDictionary<int, Fiber> Entries => _fibers;
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Add(Fiber fiber)
@@ -31,6 +31,24 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(int id) 
         => _fibers.TryRemove(id, out _);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void RemoveFinished()
+    {
+        var copy = new Dictionary<int, Fiber>(_fibers);
+
+        foreach (var (id, fiber) in copy)
+        {
+            if (fiber.State is FiberState.Finished 
+                            or FiberState.Crashed 
+                            && !fiber.ImmuneToCollection)
+            {
+                Remove(id);
+            }
+        }
+        
+        copy.Clear();
+    }
     
     public void Clear() 
         => _fibers.Clear();

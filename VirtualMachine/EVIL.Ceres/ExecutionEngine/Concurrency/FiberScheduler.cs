@@ -1,5 +1,6 @@
 namespace EVIL.Ceres.ExecutionEngine.Concurrency;
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -19,38 +20,36 @@ public sealed class FiberScheduler(
     public ConcurrentFiberCollection Fibers { get; } = new(initialCapacity);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ProcessFiber(Fiber fiber)
+    private void ProcessFiber(Fiber fiber)
     {
         var state = fiber.State;
         
         switch (state)
         {
-            case FiberState.Awaiting:
-                fiber.RemoveFinishedAwaitees();
-                fiber.Resume();
-                break;
-                
             case FiberState.Fresh:
                 fiber.Resume();
                 break;
-                
+            
             case FiberState.Paused:
-                return;
-                
-            case FiberState.Finished:
             case FiberState.Crashed:
-                if (fiber.ImmuneToCollection)
-                    return;
-                break;
-                
-            default:
-                fiber.Resume();
-                if (fiber._state != FiberState.Running)
-                    return;
+            case FiberState.Finished when fiber.ImmuneToCollection:
+                return;
+            
+            case FiberState.Awaiting:
+                fiber.CheckAwaiteesCrashing();
+                fiber.RemoveFinishedAwaitees();
+
+                if (fiber.State != FiberState.Crashed)
+                {
+                    fiber.Resume();
+                }
                 break;
         }
-        
-        fiber.Step();
+
+        if (fiber.State == FiberState.Running)
+        {
+            fiber.Step();
+        }
     }
     
     public void Run()
@@ -59,16 +58,21 @@ public sealed class FiberScheduler(
         
         while (_running)
         {
-            foreach (var (id, fiber) in Fibers.Entries)
+            try
             {
-                ProcessFiber(fiber);
-                
-                if (fiber.State is FiberState.Finished 
-                                or FiberState.Crashed 
-                                && !fiber.ImmuneToCollection)
+                foreach (var (_, fiber) in Fibers.Entries)
                 {
-                    Fibers.Remove(id);
+                    ProcessFiber(fiber);
                 }
+                
+                Fibers.RemoveFinished();
+            }
+            catch
+            {
+                /***
+                 * Suppress exception from bubbling up,
+                 * causing a StackOverflowException
+                 ***/
             }
         }
     }

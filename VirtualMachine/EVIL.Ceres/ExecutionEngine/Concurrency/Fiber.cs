@@ -163,7 +163,7 @@ public sealed class Fiber
         {
             if (_state != FiberState.Running)
                 return;
-
+            
             lock (_callStack)
             {
                 if (_callStack.Count == 0)
@@ -459,7 +459,7 @@ public sealed class Fiber
             }
             else
             {
-                var exceptionObject = PopValue();
+                var exceptionObject = PeekValue();
 
                 throw new UserUnhandledExceptionException(
                     "A user-unhandled exception has been thrown.",
@@ -469,10 +469,33 @@ public sealed class Fiber
             }
         }
     }
+    
+    internal void CheckAwaiteesCrashing()
+    {
+        foreach (var fiber in _waitingFor)
+        {
+            if (fiber._state == FiberState.Crashed)
+            {
+                try
+                {
+                    PushValue(fiber.PeekValue());
+                    UnwindTryHandle(_callStack.ToArray());
+                }
+                catch (Exception e)
+                {
+                    EnterCrashState();
+                    _crashHandler?.Invoke(this, e);
+                }
+            }
+        }
+    }
 
     internal void RemoveFinishedAwaitees()
     {
-        _waitingFor.RemoveWhere(x => x._state == FiberState.Finished);
+        _waitingFor.RemoveWhere(
+            x => x._state is FiberState.Finished 
+                          or FiberState.Crashed
+        );
     }
 
     private void EnterCrashState()

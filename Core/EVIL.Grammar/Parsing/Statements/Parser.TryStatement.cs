@@ -10,7 +10,8 @@ public partial class Parser
     private TryStatement TryStatement()
     {
         var (line, col) = Match(Token.Try);
-        var protectedStatement = BlockStatement();
+
+        Statement protectedStatement = Statement();
         Statement? handlerStatement = null;
         IdentifierNode? exceptionObjectIdentifier = null;
         

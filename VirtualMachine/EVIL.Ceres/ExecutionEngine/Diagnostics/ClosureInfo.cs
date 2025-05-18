@@ -10,6 +10,7 @@ public record ClosureInfo
         
     public bool IsParameter { get; }
     public bool IsClosure { get; }
+    public bool IsLocal => !IsParameter && !IsClosure;
         
     public bool IsSharedScope { get; }
 

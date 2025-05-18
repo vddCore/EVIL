@@ -11,7 +11,7 @@ using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 
-public struct DynamicValue : IEquatable<DynamicValue>
+public readonly struct DynamicValue : IEquatable<DynamicValue>
 {
     public static readonly DynamicValue Nil = new();
     public static readonly DynamicValue One = new((double)1);

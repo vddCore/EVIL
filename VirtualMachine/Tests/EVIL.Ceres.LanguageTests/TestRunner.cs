@@ -337,11 +337,16 @@ public class TestRunner
 
             msg.AppendLine();
             msg.AppendLine("  [EVIL diagnostics]");
-            
-            foreach (var line in test.StackTrace)
+
+            foreach (var (fiberId, stackTrace) in test.FiberStackTraces)
             {
-                msg.AppendLine($"    {line}");
+                msg.AppendLine($"    [Fiber {fiberId}]");
+                foreach (var line in stackTrace)
+                {
+                    msg.AppendLine($"      {line}");
+                }
             }
+
 
             AddTestFailure(path, chunk, msg.ToString());
             await TextOut.WriteLineAsync($"[FAILED] '{chunk.Name}': {msg}");

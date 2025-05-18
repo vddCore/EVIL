@@ -91,12 +91,12 @@ internal class ExecutionUnit(
                     frame.FetchInt32()
                 ].Clone();
                     
-                var subChunkStack = new Queue<Chunk>();
-                subChunkStack.Enqueue(clone);
+                var subChunkQueue = new Queue<Chunk>();
+                subChunkQueue.Enqueue(clone);
 
-                while (subChunkStack.Count != 0)
+                while (subChunkQueue.Count != 0)
                 {
-                    var currentChunk = subChunkStack.Dequeue();
+                    var currentChunk = subChunkQueue.Dequeue();
 
                     for (var i = 0; i < currentChunk.ClosureCount; i++)
                     {
@@ -163,7 +163,7 @@ internal class ExecutionUnit(
                         
                     foreach (var child in currentChunk.SubChunks)
                     {
-                        subChunkStack.Enqueue(child.Clone());
+                        subChunkQueue.Enqueue(child.Clone());
                     }
                 }
 
@@ -876,7 +876,61 @@ internal class ExecutionUnit(
 
             case OpCode.SETLOCAL:
             {
-                frame.Locals![frame.FetchInt32()] = PopValue();
+                a = PopValue();
+                var localId = frame.FetchInt32();
+
+                frame.Locals![localId] = a;
+                
+                var subChunkQueue = new Queue<Chunk>();
+
+                foreach (var subChunk in frame.Chunk.SubChunks) 
+                    subChunkQueue.Enqueue(subChunk);
+
+                while (subChunkQueue.Count != 0)
+                {
+                    var currentChunk = subChunkQueue.Dequeue();
+
+                    for (var i = 0; i < currentChunk.ClosureCount; i++)
+                    {
+                        var closure = currentChunk.Closures[i];
+
+                        ClosureContext closureContext;
+
+                        if (closure.IsSharedScope)
+                        {
+                            closureContext = frame.Fiber.SetClosureContext(closure.EnclosedFunctionName);
+                        }
+                        else
+                        {
+                            closureContext = currentChunk.SetClosureContext(closure.EnclosedFunctionName);
+                        }
+
+                        ScriptStackFrame? sourceFrame = null;
+                        for (var j = callStack.Count - 1; j >= 0; j--)
+                        {
+                            var tmpFrame = callStack[j].As<ScriptStackFrame>();
+                            if (tmpFrame.Chunk.Name == closure.EnclosedFunctionName)
+                            {
+                                sourceFrame = tmpFrame;
+                                break;
+                            }
+                        }
+
+                        if (sourceFrame == null)
+                        {
+                            continue;
+                        }
+
+                        if (closure.IsLocal && closure.EnclosedId == localId)
+                        {
+                            closureContext.Values[closure.EnclosedId] = sourceFrame.Locals![closure.EnclosedId];
+                        }
+                    }
+
+                    foreach (var child in currentChunk.SubChunks) 
+                        subChunkQueue.Enqueue(child.Clone());
+                }
+
                 break;
             }
 
@@ -1421,23 +1475,23 @@ internal class ExecutionUnit(
 
                 a = PopValue(); // chunk
                 var args = PopArguments(argumentCount);
-
+                
                 if (a.Type != DynamicValueType.Chunk)
                 {
                     throw new UnsupportedDynamicValueOperationException(
                         $"Attempt to yield to a {a.Type} value."
                     );
                 }
-
-                var fiber1 = fiber.VirtualMachine.Scheduler.CreateFiber(
+                
+                var awaitee = fiber.VirtualMachine.Scheduler.CreateFiber(
                     false, 
                     closureContexts: (Dictionary<string, ClosureContext>)frame.Fiber.ClosureContexts
                 );
-                fiber1.Schedule(a.Chunk!, args);
-                fiber1.Resume();
+                awaitee.Schedule(a.Chunk!, args);
+                awaitee.Resume();
 
-                PushValue(fiber1);
-                fiber.WaitFor(fiber1);
+                PushValue(awaitee);
+                fiber.WaitFor(awaitee);
                 break;
             }
 

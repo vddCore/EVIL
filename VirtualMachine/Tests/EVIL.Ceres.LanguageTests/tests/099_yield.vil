@@ -1,4 +1,12 @@
-﻿fn jp2gmd(a, b, c) -> b + 0.37;
+﻿glob ??= { 
+  a: 0,
+  b: 0,
+  counter: 0,
+  yield_depth: 0,
+  loop_counter: 0
+};
+
+fn jp2gmd(a, b, c) -> b + 0.37;
 
 fn delay(ms) { 
   val end = time.stamp.ms + ms;
@@ -8,7 +16,7 @@ fn delay(ms) {
 }
 
 fn dep_a {
-  if (glob_a--) {
+  if (glob.a--) {
     yield<delay>(10);
     yield<dep_b>();
   }
@@ -17,7 +25,7 @@ fn dep_a {
 }
 
 fn dep_b {
-  if (glob_b--) {
+  if (glob.b--) {
     yield<delay>(10);
     yield<dep_a>(2000);
   }
@@ -44,12 +52,12 @@ fn yield_delay {
 
 #[test]
 fn yield_interdependent {
-  glob_a = 3;
-  glob_b = 3;
+  glob.a = 3;
+  glob.b = 3;
   val a = yield<dep_a>();
   
-  glob_a = 3;
-  glob_b = 3;
+  glob.a = 3;
+  glob.b = 3;
   val b = yield<dep_b>();
   
   assert.equal(a, 213.7); 
@@ -73,3 +81,181 @@ fn yield_expression -> assert.equal(
   yield<[ref_dep_b()]>(),
   0.2137
 );
+
+fn fiber_leaf(name, delay_time) {
+  yield<delay>(delay_time);
+  glob.counter += 1;
+  ret name;
+}
+
+fn fiber_branch(name, depth) {
+  if (depth <= 0) ret yield<fiber_leaf>(name + "_leaf", 100);
+  
+  val left = yield<fiber_branch>(name + "_L", depth - 1);
+  val right = yield<fiber_branch>(name + "_R", depth - 1);
+  
+  ret name + "[" + left + "," + right + "]";
+}
+
+glob.counter = 0;
+
+#[test]
+fn yield_fiber_tree {  
+  val result = yield<fiber_branch>("root", 3);
+  
+  assert.equal(glob.counter, 8);
+  
+  assert("root" in result);
+  assert("_leaf" in result);
+  assert("[" in result);
+  assert("]" in result);
+}
+
+fn recurse_yield(n) {
+  glob.yield_depth += 1;
+  if (n > 0) {
+    yield<delay>(10);
+    ret yield<recurse_yield>(n - 1);
+  }
+  
+  ret glob.yield_depth;
+}
+
+#[test]
+fn yield_recursion_stress {
+  glob.yield_depth = 0;
+  val result = yield<recurse_yield>(50);
+  
+  assert.equal(result, 51);
+}
+
+fn loopy_yield(n) {
+  for (rw val i = 0; i < n; i += 1) {
+    yield<delay>(1);
+    loop_counter++;
+  }
+  
+  ret loop_counter;
+}
+
+#[test]
+fn yield_loop_stress {
+  loop_counter = 0;
+  val result = yield<loopy_yield>(1000);
+  
+  assert.equal(result, 1000);
+}
+
+fn mixed_ret(v) {
+  if (v == 0) ret "zero";
+  if (v == 1) ret 1.0;
+  yield<delay>(10);
+  ret v;
+}
+
+#[test]
+fn yield_mixed_types {
+  assert.equal(yield<mixed_ret>(0), "zero");
+  assert.equal(yield<mixed_ret>(1), 1.0);
+  assert.equal(yield<mixed_ret>(2), 2);
+}
+
+fn quickie(n) {
+  yield<delay>(n);
+  ret n;
+}
+
+#[test]
+fn yield_parallel {
+  val results = [
+    yield<quickie>(10),
+    yield<quickie>(20),
+    yield<quickie>(5),
+    yield<quickie>(1)
+  ];
+  
+  assert(results <==> [10, 20, 5, 1]);
+}
+
+fn meta_yield {
+  ret yield<delay>(5);
+}
+
+fn double_yield {
+  val x = yield<meta_yield>();
+  ret x + 1;
+}
+
+#[test]
+fn yield_inside_yielded {
+  val result = yield<double_yield>();
+  assert.equal(result, 3.137);
+}
+
+#[test]
+fn yield_exception_handling {
+  loc fn boom {
+    yield<delay>(1);
+    throw "kaboom!";
+  }
+  
+  try {
+    yield<boom>();
+    assert(true == false);
+  } catch (e) {
+    assert.equal(e, "kaboom!");
+  }
+}
+
+fn thrower {
+  yield<delay>(1);
+  throw "error mid-yield";
+}
+
+fn catcher {
+  try {
+    yield<thrower>();
+  } catch (e) {
+    ret "caught: " + e;
+  }
+  
+  ret "no error?";
+}
+
+#[test]
+fn yield_stack_unwind {
+  val result = yield<catcher>();
+  assert.equal(result, "caught: error mid-yield");
+}
+
+#[test]
+fn yield_zombie {
+  rw val zombified = false;
+
+  loc fn dies_and_rises {
+    rw val zombified_2 = false;
+    
+    loc fn dies_and_rises_2 {
+      if (!zombified_2) {
+        zombified_2 = true;
+        yield<delay>(10);
+        yield<dies_and_rises_2>();
+        throw "aaa";
+      }
+    }
+
+    if (!zombified) {
+      zombified = true;
+      yield<delay>(10);
+      yield<dies_and_rises>();
+      
+      try yield<dies_and_rises_2>();
+    }
+
+    ret "undead";
+  }
+
+  zombified = false;
+  val result = yield<dies_and_rises>();
+  assert.equal(result, "undead");
+}

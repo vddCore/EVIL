@@ -22,7 +22,7 @@ public class Test
     public bool Successful { get; private set; } = true;
     public string ErrorMessage { get; private set; } = string.Empty;
     public Exception? Exception { get; private set; }
-    public List<string> StackTrace { get; private set; } = new();
+    public Dictionary<int, List<string>> FiberStackTraces { get; private set; } = new();
 
     public Test(CeresVM vm, Chunk chunk)
     {
@@ -107,7 +107,13 @@ public class Test
         if (!Successful)
         {
             Exception = exception;
-            StackTrace.AddRange(fiber.StackTrace(false).Split('\n').Where(x => !string.IsNullOrEmpty(x)));
+            foreach (var (id, runningFiber) in fiber.VirtualMachine.Scheduler.Fibers.Entries)
+            {
+                var list = new List<string>();
+                list.AddRange(runningFiber.StackTrace(false).Split('\n').Where(x => !string.IsNullOrEmpty(x)));
+                
+                FiberStackTraces[id] = list;
+            }
         }
 
         _processingCrash = false;
