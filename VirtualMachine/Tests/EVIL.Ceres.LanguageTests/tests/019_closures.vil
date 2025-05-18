@@ -282,4 +282,3 @@ fn modify_external_scope_closure {
   assert.equal(result_c, false);
   assert.equal(result_d, "Type");
 }
-

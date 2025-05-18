@@ -22,11 +22,14 @@ public sealed class Fiber
 
     private readonly ExecutionUnit _executionUnit;
     private FiberCrashHandler? _crashHandler;
+
     internal FiberState _state;
 
     internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
     internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
 
+    public Fiber? Parent { get; internal set; }
+    
     public FiberCrashHandler? CrashHandler => _crashHandler;
     public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
         
