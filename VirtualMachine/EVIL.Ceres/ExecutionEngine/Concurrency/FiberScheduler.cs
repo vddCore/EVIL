@@ -19,6 +19,8 @@ public sealed class FiberScheduler(
     
     public ConcurrentFiberCollection Fibers { get; } = new(initialCapacity);
 
+    public FiberCrashHandler DefaultCrashHandler => _defaultCrashHandler;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessFiber(Fiber fiber)
     {
@@ -90,7 +92,7 @@ public sealed class FiberScheduler(
     {
         var fiber = new Fiber(
             vm,
-            crashHandler ?? _defaultCrashHandler,
+            crashHandler ?? DefaultCrashHandler,
             closureContexts
         );
         

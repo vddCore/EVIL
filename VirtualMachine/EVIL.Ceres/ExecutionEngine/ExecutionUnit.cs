@@ -1196,15 +1196,15 @@ internal class ExecutionUnit
                     );
                 }
                 
-                var awaitee = _fiber.VirtualMachine.Scheduler.CreateFiber(
+                var awaitee = _fiber.SpawnChild(
                     false, 
                     closureContexts: (Dictionary<string, ClosureContext>)frame.Fiber.ClosureContexts
                 );
-                awaitee.Parent = _fiber;
                 awaitee.Schedule(a.Chunk!, args);
                 awaitee.Resume();
-
+                
                 PushValue(awaitee);
+
                 _fiber.WaitFor(awaitee);
                 break;
             }

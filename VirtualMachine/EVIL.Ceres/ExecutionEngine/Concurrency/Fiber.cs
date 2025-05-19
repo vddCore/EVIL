@@ -423,6 +423,21 @@ public sealed class Fiber
         OnNativeFunctionInvoke = handler;
     }
 
+    public Fiber SpawnChild(
+        bool immunized,
+        FiberCrashHandler? crashHandler = null,
+        Dictionary<string, ClosureContext>? closureContexts = null)
+    {
+        var fiber = VirtualMachine.Scheduler.CreateFiber(
+            immunized,
+            crashHandler,
+            closureContexts ?? _closureContexts
+        );
+
+        fiber.Parent = this;
+        return fiber;
+    }
+
     public DynamicValue ThrowFromNative(DynamicValue value)
     {
         lock (_callStack)
