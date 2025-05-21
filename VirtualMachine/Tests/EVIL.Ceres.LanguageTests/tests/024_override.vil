@@ -505,3 +505,22 @@ fn exists_override {
   assert.is_of_type(resultB, Boolean);
   assert.equal(resultB, true);
 }
+
+#[test]
+fn targeted_fn_recursive_invoke {
+  val Object = {};
+  val mt = {
+    __invoke: fn(self, x) {
+      self.count = (self.count ?? 0) + 1;
+      if (self.count < 3) {
+        ret self(x + 1);
+      }
+      ret x;
+    }
+  };
+
+  tbl.set_mt(Object, mt);
+
+  val result = Object(1);
+  assert.equal(result, 3);
+}

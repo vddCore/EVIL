@@ -88,7 +88,7 @@ public class LexerTests
         );
 
         Expect(
-            Plus, Minus, Divide, Multiply, Modulo, BitwiseAnd, BitwiseNot,
+            Plus, Minus, Slash, Asterisk, Modulo, BitwiseAnd, BitwiseNot,
             BitwiseOr, BitwiseXor, ShiftLeft, ShiftRight
         );
 

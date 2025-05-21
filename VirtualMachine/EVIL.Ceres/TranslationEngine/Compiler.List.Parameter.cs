@@ -7,11 +7,29 @@ public partial class Compiler
 {
     protected override void Visit(ParameterList parameterList)
     {
+        if (parameterList.HasSelf)
+        {
+            if (Chunk.IsSelfAware)
+            {
+                Log.EmitWarning(
+                    "An explicit `self' parameter is not required for this function.",
+                    CurrentFileName,
+                    EvilMessageCode.RedundantSelfParameter,
+                    parameterList.Line,
+                    parameterList.Column
+                );
+            }
+            else
+            {
+                Chunk.AllocateParameter();
+                Chunk.MarkSelfAware();
+            }
+        }
+
         for (var i = 0; i < parameterList.Parameters.Count; i++)
         {
             var parameter = parameterList.Parameters[i];
             var parameterId = Chunk.AllocateParameter();
-
 
             try
             {

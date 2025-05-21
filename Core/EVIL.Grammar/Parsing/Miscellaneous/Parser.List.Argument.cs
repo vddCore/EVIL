@@ -26,9 +26,9 @@ public partial class Parser
                     );
                 }
                 
-                case TokenType.Multiply:
+                case TokenType.Asterisk:
                 {
-                    var (xline, xcol) = Match(Token.Multiply);
+                    var (xline, xcol) = Match(Token.Asterisk);
                     
                     if (CurrentToken.Type != TokenType.RParenthesis)
                     {

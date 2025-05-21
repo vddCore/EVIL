@@ -59,8 +59,8 @@ public readonly struct Token(TokenType type, TokenClass @class, string value)
     public static readonly Token AssignCoalesce = new(TokenType.AssignCoalesce, TokenClass.Operator, "??=");
     public static readonly Token Plus = new(TokenType.Plus, TokenClass.Operator, "+");
     public static readonly Token Minus = new(TokenType.Minus, TokenClass.Operator, "-");
-    public static readonly Token Divide = new(TokenType.Divide, TokenClass.Operator, "/");
-    public static readonly Token Multiply = new(TokenType.Multiply, TokenClass.Operator, "*");
+    public static readonly Token Slash = new(TokenType.Slash, TokenClass.Operator, "/");
+    public static readonly Token Asterisk = new(TokenType.Asterisk, TokenClass.Operator, "*");
     public static readonly Token Modulo = new(TokenType.Modulo, TokenClass.Operator, "%");
     public static readonly Token BitwiseAnd = new(TokenType.BitwiseAnd, TokenClass.Operator, "&");
     public static readonly Token BitwiseNot = new(TokenType.BitwiseNot, TokenClass.Operator, "~");

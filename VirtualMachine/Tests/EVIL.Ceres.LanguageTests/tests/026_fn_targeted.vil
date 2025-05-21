@@ -172,3 +172,96 @@ fn targeted_fn_self {
   val result = Object("Aura")::say_hi();
   assert.equal(result, "Hiii Aura!");
 }
+
+#[test]
+fn targeted_fn_redefinition {
+  val Object = {};
+  
+  loc fn Object::say_hi() -> "Hi!";
+  assert.equal(Object::say_hi(), "Hi!");
+  
+  loc fn Object::say_hi() -> "Actually, hello!";
+  assert.equal(Object::say_hi(), "Actually, hello!");
+}
+
+#[test]
+fn targeted_fn_clone_behavior {
+  val Base = {};
+  
+  loc fn Base::copy() {
+    val Clone = {};
+    Clone.msg = self.msg;
+    loc fn Clone::speak() -> self.msg;
+    ret Clone;
+  }
+
+  Base.msg = "you will be like me";
+  val c1 = Base::copy();
+  val c2 = Base::copy() with { msg: "nah, i'm my own thing" };
+
+  assert.equal(c1::speak(), "you will be like me");
+  assert.equal(c2::speak(), "nah, i'm my own thing");
+}
+
+#[test]
+fn targeted_fn_dynamic_dispatch {
+  val A = {};
+  val B = {};
+
+  loc fn A::exec() -> "A's turn";
+  loc fn B::exec() -> "B steps in";
+
+  rw val current = A;
+  
+  val first = current::exec();
+  current = B;
+  val second = current::exec();
+
+  assert.equal(first, "A's turn");
+  assert.equal(second, "B steps in");
+}
+
+#[test]
+fn targeted_fn_reality_bleed {
+  val Entity = {};
+
+  loc fn Entity::inject_fracture() {
+    self.phase = "prefracture";
+    
+    try {
+      throw error("Reality fracture occurred.");
+    } catch (err) {
+      val t = {};
+
+      self.phase = "fractured";
+      self.err = err;
+
+      loc fn t::whisper(x) -> "the void answers: " + x;
+
+      val ghost_mt = {
+        __get: self::fn(k) -> t[k]
+      };
+      
+      tbl.set_mt(Entity, ghost_mt);
+    }
+
+    ret "fracture injected";
+  }
+
+  loc fn Entity::observe() {
+    if (self.phase == "fractured") {
+      ret self::whisper("you saw too much.");
+    } else {
+      ret "the fabric is intact.";
+    }
+  }
+
+  val result1 = Entity::observe();
+  assert.equal(result1, "the fabric is intact.");
+
+  val result2 = Entity::inject_fracture();
+  assert.equal(result2, "fracture injected");
+
+  val result3 = Entity::observe();
+  assert.equal(result3, "the void answers: you saw too much.");
+}

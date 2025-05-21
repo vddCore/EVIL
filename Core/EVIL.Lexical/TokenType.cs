@@ -6,8 +6,8 @@ public enum TokenType
         
     Minus,
     Plus,
-    Multiply,
-    Divide,
+    Asterisk,
+    Slash,
     Modulo,
     BitwiseAnd,
     BitwiseOr,

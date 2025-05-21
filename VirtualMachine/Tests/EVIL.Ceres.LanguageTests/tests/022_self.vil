@@ -131,3 +131,58 @@ fn self_builder {
   assert.equal(chair::get_description(), "It's a chair.");
   assert.equal(chair::get_purpose(), "For sitting on.");
 }
+
+#[test]
+fn self_reentrant_call() {
+  val looper = {
+    count: 0,
+    loopy: self::fn {
+      self.count++;
+      if (self.count < 5) self::loopy();
+    }
+  };
+
+  looper::loopy();
+  assert.equal(looper.count, 5);
+}
+
+#[test]
+fn self_stack_abuse {
+  val s = {
+    a: self::fn -> self::b(),
+    b: self::fn -> self::c(),
+    c: self::fn -> 42
+  };
+
+  assert.equal(s::a(), 42);
+}
+
+#[test]
+fn self_set_nested {
+  val obj = {
+    data: {},
+    set_nested: self::fn(k, v) {
+      self.data[k] = {
+        value: v,
+        get: self::fn -> self.value
+      };
+    }
+  };
+
+  obj::set_nested("weird", 1337);
+  assert.equal(obj.data["weird"]::get(), 1337);
+}
+
+#[test]
+fn self_explicit_parameter {
+  val obj = { };
+  
+  loc fn explicit(self) {
+    self.i_am = "here";
+  }
+  
+  obj.explicit = explicit;
+  
+  obj::explicit();
+  assert.equal(obj.i_am, "here");
+}

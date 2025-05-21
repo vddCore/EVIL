@@ -9,8 +9,8 @@ public partial class Parser
 {
     private static readonly TokenType[] _multiplicativeOperators =
     [
-        TokenType.Multiply,
-        TokenType.Divide,
+        TokenType.Asterisk,
+        TokenType.Slash,
         TokenType.Modulo
     ];
 
@@ -23,18 +23,18 @@ public partial class Parser
         {
             switch (token.Type)
             {
-                case TokenType.Multiply:
+                case TokenType.Asterisk:
                 {
-                    var (line, col) = Match(Token.Multiply);
+                    var (line, col) = Match(Token.Asterisk);
 
                     node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Multiply)
                         { Line = line, Column = col };
                     break;
                 }
                 
-                case TokenType.Divide:
+                case TokenType.Slash:
                 {
-                    var (line, col) = Match(Token.Divide);
+                    var (line, col) = Match(Token.Slash);
 
                     node = new BinaryExpression(node, PatternExpression(), BinaryOperationType.Divide)
                         { Line = line, Column = col };

@@ -75,7 +75,7 @@ public class Lexer
                     State.CurrentToken = Token.AssignMultiply with { Line = line, Column = col };
                     break;
                 case '*':
-                    State.CurrentToken = Token.Multiply with { Line = line, Column = col };
+                    State.CurrentToken = Token.Asterisk with { Line = line, Column = col };
                     break;
                 case '/' when Peek() == '/':
                     SkipLineComment();
@@ -94,7 +94,7 @@ public class Lexer
                     State.CurrentToken = Token.AssignDivide with { Line = line, Column = col };
                     break;
                 case '/':
-                    State.CurrentToken = Token.Divide with { Line = line, Column = col };
+                    State.CurrentToken = Token.Slash with { Line = line, Column = col };
                     break;
                 case '?' when Peek() == '?' && Peek(2) == '=':
                     Advance();

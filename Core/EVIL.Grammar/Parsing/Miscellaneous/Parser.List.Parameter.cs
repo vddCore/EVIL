@@ -13,6 +13,25 @@ public partial class Parser
         var parameters = new List<ParameterNode>();
         var hasInitializers = false;
         var preceedingComma = false;
+        var hasSelf = false;
+        
+        if (CurrentToken.Type == TokenType.Self)
+        {
+            var (sline, scol) = Match(Token.Self);        
+                    
+            if (parameters.Count != 0)
+            {
+                throw new ParserException(
+                    "`self' parameter must reside at the beginning of the parameter list.",
+                    (sline, scol)
+                );
+            }
+
+            hasSelf = true;
+            
+            if (CurrentToken.Type == TokenType.Comma)
+                Match(Token.Comma);
+        }
             
         while (CurrentToken.Type != TokenType.RParenthesis)
         {
@@ -61,7 +80,7 @@ public partial class Parser
         }
         Match(Token.RParenthesis);
 
-        return new ParameterList(parameters)
+        return new ParameterList(parameters, hasSelf)
             { Line = line, Column = col };
     }
 }

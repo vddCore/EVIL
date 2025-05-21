@@ -70,3 +70,34 @@ fn array_assignment_copies_ref {
   
   assert.equal(aref[0], 2);
 }
+
+#[test]
+fn array_self_reference_does_not_crash {
+  val arr = [nil];
+  arr[0] = arr;
+
+  assert.is_of_type(arr[0], Array);
+  assert.equal(arr[0][0], arr);
+}
+
+#[test]
+fn array_func_weird_mutation {
+  val arr = array { 1, 2, 3 };
+
+  val f = fn -> arr[1] = arr[1] + arr[arr[1]];
+
+  f();
+  assert.throws(fn -> f());
+}
+
+#[test]
+fn array_null_deref {
+  val arr = [nil];
+  assert.throws(fn -> arr[0] + 1);
+}
+
+#[test]
+fn array_invalid_index_type {
+  val arr = [1, 2, 3];
+  assert.throws(fn -> arr["catgirl"] = 69);
+}
