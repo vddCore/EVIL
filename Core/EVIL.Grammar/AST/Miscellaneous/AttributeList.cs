@@ -1,8 +1,7 @@
-﻿namespace EVIL.Grammar.AST.Statements.TopLevel;
+﻿namespace EVIL.Grammar.AST.Miscellaneous;
 
 using System.Collections.Generic;
 using EVIL.Grammar.AST.Base;
-using EVIL.Grammar.AST.Miscellaneous;
 
 public sealed class AttributeList : AstNode
 {

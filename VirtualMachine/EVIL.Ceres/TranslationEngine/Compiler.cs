@@ -13,8 +13,6 @@ using EVIL.Grammar;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.Parsing;
-using EVIL.Grammar.Traversal;
 using EVIL.Lexical;
 
 public partial class Compiler : AstVisitor

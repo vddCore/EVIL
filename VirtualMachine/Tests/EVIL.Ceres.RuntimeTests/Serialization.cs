@@ -3,13 +3,13 @@
 using System.IO;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine;
-using EVIL.Grammar.Parsing;
+using EVIL.Grammar;
 using NUnit.Framework;
 
 public class Serialization
 {
-    private Parser _parser = new();
-    private Compiler _compiler = new();
+    private readonly Parser _parser = new();
+    private readonly Compiler _compiler = new();
 
     [SetUp]
     public void Setup()

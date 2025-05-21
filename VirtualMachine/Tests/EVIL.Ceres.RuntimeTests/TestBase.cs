@@ -6,7 +6,7 @@ using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.TranslationEngine;
-using EVIL.Grammar.Parsing;
+using EVIL.Grammar;
 using NUnit.Framework;
 
 public abstract class TestBase

@@ -3,7 +3,6 @@
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.AST.Statements.TopLevel;
 
 public sealed class FnIndexedStatement : Statement
 {

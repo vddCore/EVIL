@@ -7,7 +7,6 @@ using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
-using EVIL.Grammar.Parsing;
 using NUnit.Framework;
 
 public abstract class ModuleTest<T> : TestBase

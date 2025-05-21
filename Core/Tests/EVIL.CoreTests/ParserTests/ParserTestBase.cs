@@ -1,7 +1,7 @@
 namespace EVIL.CoreTests.ParserTests;
 
+using EVIL.Grammar;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.Parsing;
 using NUnit.Framework;
 
 public abstract class ParserTestBase

@@ -4,7 +4,7 @@ using System;
 using System.Text;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.Runtime;
-using EVIL.Grammar.Parsing;
+using EVIL.Grammar;
 using EVIL.Lexical;
 
 public partial class EvmFrontEnd
