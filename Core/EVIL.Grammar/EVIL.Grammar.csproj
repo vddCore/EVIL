@@ -12,4 +12,178 @@
     <ProjectReference Include="..\EVIL.CommonTypes\EVIL.CommonTypes.csproj"/>
     <ProjectReference Include="..\EVIL.Lexical\EVIL.Lexical.csproj"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Parser.Expression.Additive.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.And.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Array.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Assignment.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.By.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Coalescing.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Conditional.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Constant.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Equality.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Error.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Fn.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Indexer.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Invocation.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.LogicalAnd.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.LogicalOr.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Multiplicative.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Or.Exclusive.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Or.Inclusive.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Pattern.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Postfix.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Prefix.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Primary.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Relational.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Self.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.SelfFn.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.SelfInvocation.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Shift.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.SymbolReference.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Table.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.TypeOf.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Unary.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.With.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Expression.Yield.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Identifier.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.List.Argument.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.List.Attribute.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.List.Parameter.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Program.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Attribute.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Block.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Break.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.DoWhile.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Each.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Expression.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.ExpressionBody.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Fn.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.For.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.If.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Ret.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Retry.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Skip.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Throw.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Try.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Val.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.Val.ReadWrite.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Parser.Statement.While.cs">
+      <DependentUpon>Parser.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
