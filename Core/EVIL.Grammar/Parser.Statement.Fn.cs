@@ -59,7 +59,7 @@ public partial class Parser
                     
                 while (CurrentToken.Type == TokenType.Dot)
                 {
-                    expression = IndexerExpression(expression);
+                    expression = IndexerExpression(expression, true);
                 }
 
                 primaryTarget = expression;

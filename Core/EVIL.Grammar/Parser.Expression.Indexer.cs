@@ -7,7 +7,7 @@ using EVIL.Lexical;
 
 public partial class Parser
 {
-    private IndexerExpression IndexerExpression(Expression indexable)
+    private IndexerExpression IndexerExpression(Expression indexable, bool createTableIfNonExistent)
     {
         int line, col;
         Expression indexer;
@@ -80,7 +80,8 @@ public partial class Parser
                 indexable, 
                 indexer, 
                 isConditional,
-                CurrentToken.Type == TokenType.Assign)
+                CurrentToken.Type == TokenType.Assign,
+                createTableIfNonExistent)
             { Line = line, Column = col };
     }
 }

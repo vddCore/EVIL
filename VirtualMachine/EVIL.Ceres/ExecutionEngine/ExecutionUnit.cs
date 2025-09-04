@@ -1433,6 +1433,30 @@ internal class ExecutionUnit
                 break;
             }
 
+            case OpCode.INOCT:
+            {
+                a = PopValue(); // Key
+                c = PopValue(); // Table
+
+                if (c.Type != DynamicValueType.Table)
+                {
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to index or create a table on an unsupported type '{c.Type}'"
+                    );
+                }
+
+                var value = c.Index(a);
+                
+                if (value == DynamicValue.Nil)
+                {
+                    value = new Table();
+                    c.SetEntry(a, value);
+                }
+
+                PushValue(value);
+                break;
+            }
+
             case OpCode.TABCLN:
             {
                 var isDeepClone = frame.FetchByte() > 0;

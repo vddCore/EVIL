@@ -28,3 +28,32 @@ fn fn_indexed_byref {
   assert.is_of_type(t.func, Function);
   assert.equal(t.func(10, 2), 20);    
 }
+
+#[test]
+fn fn_indexed_inoct_create_one {
+  val a = { };
+  
+  loc fn a.b.c(d) -> d * 2;
+  
+  assert.is_of_type(a, Table);
+  assert.is_of_type(a.b, Table);
+  assert.is_of_type(a.b.c, Function);
+  assert.equal(a.b.c(2), 4);
+}
+
+#[test]
+fn fn_indexed_inoct_create_many {
+  val a = { };
+  
+  loc fn a.b.c.d.e.f.g.h(i, j, k) -> i + j + k;
+  
+  assert.is_of_type(a, Table);
+  assert.is_of_type(a.b, Table);
+  assert.is_of_type(a.b.c, Table);
+  assert.is_of_type(a.b.c.d, Table);
+  assert.is_of_type(a.b.c.d.e, Table);
+  assert.is_of_type(a.b.c.d.e.f, Table);
+  assert.is_of_type(a.b.c.d.e.f.g, Table);
+  assert.is_of_type(a.b.c.d.e.f.g.h, Function);
+  assert.equal(a.b.c.d.e.f.g.h(1, 2, 3), 6);
+}

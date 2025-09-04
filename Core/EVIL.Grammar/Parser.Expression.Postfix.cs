@@ -63,7 +63,7 @@ public partial class Parser
                 case TokenType.Elvis:
                 case TokenType.ElvisArray:
                 {
-                    node = IndexerExpression(node);
+                    node = IndexerExpression(node, false);
                     break;
                 }
 

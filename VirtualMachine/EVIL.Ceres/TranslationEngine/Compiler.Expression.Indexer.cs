@@ -32,14 +32,25 @@ public partial class Compiler
             Chunk.CodeGenerator.Emit(OpCode.JUMP, endIndexerLabel);
             Chunk.UpdateLabel(indexLabel, Chunk.CodeGenerator.IP);
             Visit(indexerExpression.KeyExpression);
-            Chunk.CodeGenerator.Emit(OpCode.INDEX);
+            
+            Chunk.CodeGenerator.Emit(
+                indexerExpression.CreateTableIfNonExistent 
+                    ? OpCode.INOCT 
+                    : OpCode.INDEX
+            );
+            
             Chunk.UpdateLabel(endIndexerLabel, Chunk.CodeGenerator.IP);
         }
         else
         {
             Visit(indexerExpression.Indexable);
             Visit(indexerExpression.KeyExpression);
-            Chunk.CodeGenerator.Emit(OpCode.INDEX);
+            
+            Chunk.CodeGenerator.Emit(
+                indexerExpression.CreateTableIfNonExistent 
+                    ? OpCode.INOCT 
+                    : OpCode.INDEX
+            );
         }
     }
 }

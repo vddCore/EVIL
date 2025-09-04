@@ -12,18 +12,21 @@ public sealed class IndexerExpression : Expression
 
     public bool IsConditional { get; }
     public bool WillBeAssigned { get; }
+    public bool CreateTableIfNonExistent { get; }
 
     public IndexerExpression(
         Expression indexable, 
         Expression keyExpression, 
         bool isConditional, 
-        bool willBeAssigned)
+        bool willBeAssigned,
+        bool createTableIfNonExistent)
     {
         Indexable = indexable;
         KeyExpression = keyExpression;
             
         IsConditional = isConditional;
         WillBeAssigned = willBeAssigned;
+        CreateTableIfNonExistent = createTableIfNonExistent;
 
         Reparent(Indexable, KeyExpression);
     }

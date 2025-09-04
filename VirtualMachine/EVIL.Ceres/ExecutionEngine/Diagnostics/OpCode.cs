@@ -66,6 +66,7 @@ public enum OpCode : byte
     ELINIT,
     ELSET,
     INDEX,
+    INOCT,
     TABCLN,
     YIELD,
     YRET,
