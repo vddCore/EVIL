@@ -1,4 +1,31 @@
-﻿fn delay(ms) { 
+﻿//#[test;disasm("always")]
+//fn for_loop_table_fill {
+//  val t = {};
+//  
+//  for (rw val i = 0; i < 4; i++) {
+//    t[i] = i;
+//  }
+//  
+//  assert.equal(t[0], 0);
+//  assert.equal(t[1], 1);
+//  assert.equal(t[2], 2);
+//  assert.equal(t[3], 3);
+//}
+//
+//#[test;disasm("always")]
+//fn for_loop_closure_capture {
+//  val funcs = {};
+//  
+//  for (rw val i = 0; i < 3; i++) {
+//    funcs[i] = fn -> i;
+//  }
+//
+//  assert.equal(funcs[0](), 0);
+//  assert.equal(funcs[1](), 1);
+//  assert.equal(funcs[2](), 2);
+//}
+
+fn delay(ms) { 
   val end = time.stamp.ms + ms;
   while(time.stamp.ms < end){}
 

@@ -144,6 +144,8 @@ public class TestRunner
             VM.Global.Set("__new_dummy_object_2", new(
                 (_, _) => DynamicValue.FromObject(new DummyNativeClass()))
             );
+            VM.Global.Set("__new_native_type_provider_object", new (
+                (_, _) => DynamicValue.FromObject(new NativeTypeProviderObject())));
                 
             VM.Global.Set("__throw_test", new(
                 (fiber, args) => fiber.ThrowFromNative(args[0]))

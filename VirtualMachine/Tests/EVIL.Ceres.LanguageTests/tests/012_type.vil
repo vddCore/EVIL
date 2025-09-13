@@ -127,7 +127,7 @@ fn value_is_native_type_via_interpolated_string {
 }
 
 #[test]
-fn value_native_type_get_when_native_object() {
+fn value_native_type_get_when_native_object {
   val testval = __new_dummy_object();
   val type = typeof!(testval);
   
@@ -135,7 +135,22 @@ fn value_native_type_get_when_native_object() {
 }
 
 #[test]
-fn value_native_type_get_when_not_native_object() {
+fn value_native_type_get_when_not_native_object {
   val type = typeof!(21.37);
   assert.equal(type, nil);
+}
+
+#[test]
+fn value_native_type_get_when_type_provider {
+  val testval = __new_native_type_provider_object();
+  val type = typeof!(testval);
+  
+  assert.equal(type, "SomeNativeTypeLol");
+}
+
+#[test]
+fn value_is_native_type_with_provider {
+  val testval = __new_native_type_provider_object();
+  
+  assert(testval is NativeObject "SomeNativeTypeLol");
 }
