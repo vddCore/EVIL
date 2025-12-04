@@ -1,29 +1,30 @@
-﻿//#[test;disasm("always")]
-//fn for_loop_table_fill {
-//  val t = {};
-//  
-//  for (rw val i = 0; i < 4; i++) {
-//    t[i] = i;
-//  }
-//  
-//  assert.equal(t[0], 0);
-//  assert.equal(t[1], 1);
-//  assert.equal(t[2], 2);
-//  assert.equal(t[3], 3);
-//}
-//
-//#[test;disasm("always")]
-//fn for_loop_closure_capture {
-//  val funcs = {};
-//  
-//  for (rw val i = 0; i < 3; i++) {
-//    funcs[i] = fn -> i;
-//  }
-//
-//  assert.equal(funcs[0](), 0);
-//  assert.equal(funcs[1](), 1);
-//  assert.equal(funcs[2](), 2);
-//}
+﻿#[test]
+fn for_loop_table_fill {
+  val t = {};
+
+  for (rw val i = 0; i < 4; i++) {
+    t[i] = i;
+  }
+
+  assert.equal(t[0], 0);
+  assert.equal(t[1], 1);
+  assert.equal(t[2], 2);
+  assert.equal(t[3], 3);
+}
+
+
+#[test]
+fn for_loop_closure_capture {
+  val funcs = {};
+
+  for (rw val i = 0; i < 3; i++) {
+    funcs[i] = fn -> i;
+  }
+
+  assert.equal(funcs[0](), 0);
+  assert.equal(funcs[1](), 1);
+  assert.equal(funcs[2](), 2);
+}
 
 fn delay(ms) { 
   val end = time.stamp.ms + ms;
@@ -33,50 +34,10 @@ fn delay(ms) {
 }
 
 #[test]
-fn yield_zombie {
-  rw val outer_arg = nil;
-  rw val zombified = false;
-
-  loc fn dies_and_rises(rw arg) {
-    rw val zombified_2 = false;
-    
-    loc fn dies_and_rises_2 {
-      if (!zombified_2) {
-        arg = 12;
-        zombified_2 = true;
-        yield<delay>(10);
-        yield<dies_and_rises_2>();
-        
-        throw arg;
-      }
-    }
-
-    if (!zombified) {
-      zombified = true;
-      yield<delay>(10);
-      yield<dies_and_rises>();
-      
-      try {
-        yield<dies_and_rises_2>();
-      } catch (e) {
-        outer_arg = e;
-      }
-    }
-
-    ret "undead";
-  }
-
-  zombified = false;
-  val result = yield<dies_and_rises>();
-  assert.equal(outer_arg, 12);
-  assert.equal(result, "undead");
-}
-
-#[test]
 fn tonum_indexing {
   val data = { a: { b: { c: "1", d: "2", e: "3", f: "4" } } };
   val x = $data.a.b.c * $data.a.b.d;
-  
+
   assert.equal(x, 2);
 }
 

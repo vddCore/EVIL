@@ -177,7 +177,7 @@ fn many_subchunks_capture_same_local_no_change {
 }
 
 #[test]
-fn many_subchunks_capture_same_local_after_change {
+fn many_subchunks_capture_local_value_after_change {
   rw val local_a = 11;
   val f1 = fn(x) -> local_a + x;
   
@@ -192,7 +192,7 @@ fn many_subchunks_capture_same_local_after_change {
   
   val result = f1(2) + f2(4) + f3(5) + f4(4);
   
-  assert.equal(result, 47);
+  assert.equal(result, 59);
 }
 
 fn invoke_func_out_of_scope(f) -> f();

@@ -1088,7 +1088,18 @@ internal class ExecutionUnit
                     }
                     else
                     {
-                        PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
+                        if (frame.Chunk.ClosureContexts.ContainsKey(closureInfo.EnclosedFunctionName))
+                        {
+                            PushValue(
+                                frame.Chunk.ClosureContexts[
+                                    closureInfo.EnclosedFunctionName
+                                ].Values[closureInfo.EnclosedId]
+                            );
+                        }
+                        else
+                        {
+                            PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
+                        }
                     }
                 }
                 else

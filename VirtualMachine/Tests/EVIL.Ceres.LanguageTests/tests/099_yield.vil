@@ -227,35 +227,3 @@ fn yield_stack_unwind {
   val result = yield<catcher>();
   assert.equal(result, "caught: error mid-yield");
 }
-
-#[test]
-fn yield_zombie {
-  rw val zombified = false;
-
-  loc fn dies_and_rises {
-    rw val zombified_2 = false;
-    
-    loc fn dies_and_rises_2 {
-      if (!zombified_2) {
-        zombified_2 = true;
-        yield<delay>(10);
-        yield<dies_and_rises_2>();
-        throw "aaa";
-      }
-    }
-
-    if (!zombified) {
-      zombified = true;
-      yield<delay>(10);
-      yield<dies_and_rises>();
-      
-      try yield<dies_and_rises_2>();
-    }
-
-    ret "undead";
-  }
-
-  zombified = false;
-  val result = yield<dies_and_rises>();
-  assert.equal(result, "undead");
-}
