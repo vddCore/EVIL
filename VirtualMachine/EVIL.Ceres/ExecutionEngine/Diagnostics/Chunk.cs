@@ -355,6 +355,16 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
     public Chunk Clone()
     {
+        var contexts = new Dictionary<string, ClosureContext>();
+        foreach (var kvp in _closureContexts)
+        {
+            contexts[kvp.Key] = new ClosureContext(kvp.Value.EnclosedFunctionName);
+            foreach (var kvp2 in kvp.Value.Values)
+            {
+                contexts[kvp.Key].Values[kvp2.Key] = kvp2.Value;
+            }
+        }
+        
         var clone = new Chunk(
             Name,
             _code.ToArray(),
@@ -369,7 +379,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             IsSelfAware = IsSelfAware,
             _subChunks = new(_subChunks),
             _closures = new(_closures),
-            _closureContexts = new(_closureContexts),
+            _closureContexts = contexts,
             _labels = new(_labels),
             _attributes = new(_attributes),
             _parameterInitializers = new(_parameterInitializers),

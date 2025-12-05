@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.Marshaling;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
@@ -1087,7 +1088,18 @@ internal class ExecutionUnit
                     }
                     else
                     {
-                        PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
+                        if (frame.Chunk.ClosureContexts.ContainsKey(closureInfo.EnclosedFunctionName))
+                        {
+                            PushValue(
+                                frame.Chunk.ClosureContexts[
+                                    closureInfo.EnclosedFunctionName
+                                ].Values[closureInfo.EnclosedId]
+                            );
+                        }
+                        else
+                        {
+                            PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
+                        }
                     }
                 }
                 else
@@ -1190,7 +1202,16 @@ internal class ExecutionUnit
                 }
                 else
                 {
-                    PushValue(a.NativeObject!.GetType().FullName!);
+                    var obj = a.NativeObject!;
+
+                    if (obj is INativeTypeProvider nativeTypeProvider)
+                    {
+                        PushValue(nativeTypeProvider.ProvideType());
+                    }
+                    else
+                    {
+                        PushValue(a.NativeObject!.GetType().FullName!);
+                    }
                 }
 
                 break;
@@ -1449,7 +1470,7 @@ internal class ExecutionUnit
                 
                 if (value == DynamicValue.Nil)
                 {
-                    value = new Table();
+                    value = new Table();                   
                     c.SetEntry(a, value);
                 }
 
