@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.ExecutionEngine.Concurrency;
 
 using System;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,19 +36,25 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveFinished()
     {
-        var copy = new Dictionary<int, Fiber>(_fibers);
-
-        foreach (var (id, fiber) in copy)
+        var toRemove = ArrayPool<int>.Shared.Rent(_fibers.Count);
+        var removeCount = 0;
+        
+        foreach (var (id, fiber) in _fibers)
         {
             if (fiber.State is FiberState.Finished 
                             or FiberState.Crashed 
                             && !fiber.ImmuneToCollection)
             {
-                Remove(id);
+                toRemove[removeCount++] = id;
             }
         }
         
-        copy.Clear();
+        for (var i = 0; i < removeCount; i++)
+        {
+            Remove(toRemove[i]);
+        }
+        
+        ArrayPool<int>.Shared.Return(toRemove, clearArray: true);
     }
     
     public void Clear() 

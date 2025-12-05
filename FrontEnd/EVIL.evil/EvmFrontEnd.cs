@@ -199,6 +199,8 @@ public partial class EvmFrontEnd
         {
             await Task.Delay(1);
         }
+        
+        _vm.Stop();
     }
 
     private static List<string> InitializeOptions(string[] args)
