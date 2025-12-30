@@ -238,7 +238,9 @@ public class TestRunner
             await TextOut.WriteLineAsync($"{passed} tests passed, {failed} failed, {ignored} {verb} ignored.");
             using (var process = Process.GetCurrentProcess())
             {
-                await TextOut.WriteLineAsync($"Total process memory so far: {process.WorkingSet64} bytes.");
+                await TextOut.WriteLineAsync($"Total memory so far:");
+                await TextOut.WriteLineAsync($" - Process: {process.WorkingSet64} bytes.");
+                await TextOut.WriteLineAsync($" - GC: {GC.GetGCMemoryInfo().TotalCommittedBytes} bytes.");
             }
             await TextOut.WriteLineAsync();
 

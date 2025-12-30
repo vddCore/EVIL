@@ -17,7 +17,7 @@ internal class ExecutionUnit
 {
     private readonly Table _global;
     private readonly Fiber _fiber;
-    private readonly ValueStack _evaluationStack1;
+    private readonly ValueStack _evaluationStack;
     private readonly CallStack _callStack;
 
     public ExecutionUnit(Table global,
@@ -27,7 +27,7 @@ internal class ExecutionUnit
     {
         _global = global;
         _fiber = fiber;
-        _evaluationStack1 = evaluationStack;
+        _evaluationStack = evaluationStack;
         _callStack = callStack;
     }
 
@@ -1700,19 +1700,19 @@ internal class ExecutionUnit
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DynamicValue PopValue()
     {
-        return _evaluationStack1.Pop();
+        return _evaluationStack.Pop();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DynamicValue PeekValue()
     {
-        return _evaluationStack1.Peek();
+        return _evaluationStack.Peek();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void PushValue(DynamicValue value)
     {
-        _evaluationStack1.Push(value);
+        _evaluationStack.Push(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.LanguageTests;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ public class Test
 {
     private readonly Chunk _chunk;
     private bool _processingCrash;
+    private bool _readyToProcessCrash;
 
     public Fiber Fiber { get; }
 
@@ -45,10 +47,11 @@ public class Test
         {
             await Task.Delay(TimeSpan.FromMicroseconds(1));
         }
-
+        
         if (Fiber.State == FiberState.Crashed)
         {
             _processingCrash = true;
+            _readyToProcessCrash = true;
         }
     }
 
@@ -62,8 +65,13 @@ public class Test
         Fiber.DeImmunize();
     }
 
-    private void TestCrashHandler(Fiber fiber, Exception exception)
+    private async void TestCrashHandler(Fiber fiber, Exception exception)
     {
+        while (!_readyToProcessCrash)
+        {
+            await Task.Delay(TimeSpan.FromMicroseconds(1));
+        }
+        
         Successful = false;
 
         if (exception is UserUnhandledExceptionException uuee)
@@ -115,7 +123,7 @@ public class Test
                 FiberStackTraces[id] = list;
             }
         }
-
+        
         _processingCrash = false;
     }
 
