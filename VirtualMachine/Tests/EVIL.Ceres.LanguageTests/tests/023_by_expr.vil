@@ -284,3 +284,29 @@ fn by_expression_qualifier_is_function_result {
 
   assert.equal(result, "match");
 }
+
+#[test]
+fn by_expression_branch_is_expression {
+    val result = by (1 + 2) {
+        (1 + 2) -> "match",
+        else: "no match"
+    };
+    
+    assert.equal(result, "match");
+}
+
+#[test]
+fn by_expression_branch_is_function {
+    loc fn test_qualifier_provider(arg) -> arg;
+    loc fn test_branch_provider(arg) -> arg + 1;
+    
+    val result = by test_qualifier_provider(1) {
+        test_branch_provider(0) -> "match",
+        test_branch_provider(1) -> "uhh...",
+        test_branch_provider(2) -> "something is really wrong.",
+        test_branch_provider(3) -> "no. really.",
+        else: "no match"
+    };
+    
+    assert.equal(result, "match");
+}
