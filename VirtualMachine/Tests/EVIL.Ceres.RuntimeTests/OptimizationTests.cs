@@ -1610,4 +1610,319 @@ public class OptimizationTests : TestBase
         Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
         Assert.That(result.Number, Is.EqualTo(600005.0));
     }
+
+    [Test]
+    public void ByExpression_ConstantCases_EmitsSwitchOpCodeAndNoLinearCeqChain()
+    {
+        var script = """
+            fn match_fn(x) {
+                ret by x {
+                    1 -> "one",
+                    2 -> "two",
+                    3 -> "three",
+                    else: "other"
+                };
+            }
+            fn test() {
+                ret [match_fn(1), match_fn(2), match_fn(3), match_fn(99)];
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "by_switch_test");
+        var matchChunk = chunk["match_fn"]!;
+
+        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var reader = matchChunk.SpawnCodeReader();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            opcodes.Add(op);
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.LDTYPE:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+                case OpCode.SWITCH:
+                {
+                    reader.ReadInt32(); // defaultIp
+                    var count = reader.ReadInt32();
+                    for (var i = 0; i < count; i++)
+                    {
+                        var type = (DynamicValueType)reader.ReadByte();
+                        switch (type)
+                        {
+                            case DynamicValueType.Nil:
+                                break;
+                            case DynamicValueType.Boolean:
+                                reader.ReadBoolean();
+                                break;
+                            case DynamicValueType.Number:
+                                reader.ReadDouble();
+                                break;
+                            case DynamicValueType.String:
+                                reader.ReadInt32();
+                                break;
+                            case DynamicValueType.TypeCode:
+                                reader.ReadByte();
+                                break;
+                        }
+                        reader.ReadInt32(); // targetIp
+                    }
+                    break;
+                }
+            }
+        }
+
+        Assert.That(opcodes, Contains.Item(OpCode.SWITCH));
+        Assert.That(opcodes, Does.Not.Contain(OpCode.CEQ));
+        Assert.That(opcodes, Does.Not.Contain(OpCode.FJMP));
+
+        var res = EvilTestResult(script);
+        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(res.Array![0].String, Is.EqualTo("one"));
+        Assert.That(res.Array![1].String, Is.EqualTo("two"));
+        Assert.That(res.Array![2].String, Is.EqualTo("three"));
+        Assert.That(res.Array![3].String, Is.EqualTo("other"));
+    }
+
+    [Test]
+    public void ByExpression_ManyCases_Dispatches20CasesCorrectly()
+    {
+        var script = """
+            fn dispatch_test(k) {
+                ret by k {
+                    0 -> "c0",
+                    1 -> "c1",
+                    2 -> "c2",
+                    3 -> "c3",
+                    4 -> "c4",
+                    5 -> "c5",
+                    6 -> "c6",
+                    7 -> "c7",
+                    8 -> "c8",
+                    9 -> "c9",
+                    10 -> "c10",
+                    11 -> "c11",
+                    12 -> "c12",
+                    13 -> "c13",
+                    14 -> "c14",
+                    15 -> "c15",
+                    16 -> "c16",
+                    17 -> "c17",
+                    18 -> "c18",
+                    19 -> "c19",
+                    else: "default"
+                };
+            }
+            fn test() {
+                val arr = array(21);
+                for (rw val i = 0; i < 20; i++) {
+                    arr[i] = dispatch_test(i);
+                }
+                arr[20] = dispatch_test(999);
+                ret arr;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "by_20_cases");
+        var matchChunk = chunk["dispatch_test"]!;
+        var reader = matchChunk.SpawnCodeReader();
+        var hasSwitch = false;
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            if (op == OpCode.SWITCH)
+            {
+                hasSwitch = true;
+                break;
+            }
+        }
+        Assert.That(hasSwitch, Is.True);
+
+        var res = EvilTestResult(script);
+        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+        for (var i = 0; i < 20; i++)
+        {
+            Assert.That(res.Array![i].String, Is.EqualTo($"c{i}"));
+        }
+        Assert.That(res.Array![20].String, Is.EqualTo("default"));
+    }
+
+    [Test]
+    public void ByExpression_MixedConstantTypes_DispatchesAllTypes()
+    {
+        var script = """
+            fn match_types(x) {
+                ret by x {
+                    nil -> "it_nil",
+                    true -> "it_true",
+                    false -> "it_false",
+                    "hello" -> "it_str",
+                    42 -> "it_num",
+                    String -> "it_type_str",
+                    Number -> "it_type_num",
+                    else: "unknown"
+                };
+            }
+            fn test() {
+                ret [
+                    match_types(nil),
+                    match_types(true),
+                    match_types(false),
+                    match_types("hello"),
+                    match_types(42),
+                    match_types(String),
+                    match_types(Number),
+                    match_types("other")
+                ];
+            }
+            """;
+
+        var res = EvilTestResult(script);
+        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(res.Array![0].String, Is.EqualTo("it_nil"));
+        Assert.That(res.Array![1].String, Is.EqualTo("it_true"));
+        Assert.That(res.Array![2].String, Is.EqualTo("it_false"));
+        Assert.That(res.Array![3].String, Is.EqualTo("it_str"));
+        Assert.That(res.Array![4].String, Is.EqualTo("it_num"));
+        Assert.That(res.Array![5].String, Is.EqualTo("it_type_str"));
+        Assert.That(res.Array![6].String, Is.EqualTo("it_type_num"));
+        Assert.That(res.Array![7].String, Is.EqualTo("unknown"));
+    }
+
+    [Test]
+    public void ByExpression_NonConstantArms_FallsBackToLinearSearch()
+    {
+        var script = """
+            loc fn get_dynamic_key() -> 42;
+            fn match_dynamic(x) {
+                ret by x {
+                    get_dynamic_key() -> "dynamic_match",
+                    else: "no_match"
+                };
+            }
+            fn test() {
+                ret [match_dynamic(42), match_dynamic(99)];
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "by_fallback");
+        var matchChunk = chunk["match_dynamic"]!;
+        var reader = matchChunk.SpawnCodeReader();
+        var opcodes = new System.Collections.Generic.List<OpCode>();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            opcodes.Add(op);
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.LDTYPE:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+            }
+        }
+
+        Assert.That(opcodes, Does.Not.Contain(OpCode.SWITCH));
+        Assert.That(opcodes, Contains.Item(OpCode.CEQ));
+        Assert.That(opcodes, Contains.Item(OpCode.FJMP));
+
+        var res = EvilTestResult(script);
+        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(res.Array![0].String, Is.EqualTo("dynamic_match"));
+        Assert.That(res.Array![1].String, Is.EqualTo("no_match"));
+    }
+
+    [Test]
+    public void ByExpression_Serialization_PreservesSwitchDispatch()
+    {
+        var script = """
+            fn test() {
+                val f = fn(x) -> by x {
+                    1 -> "one",
+                    2 -> "two",
+                    "hello" -> "world",
+                    else: "none"
+                };
+                ret [f(1), f(2), f("hello"), f(999)];
+            }
+            """;
+
+        var originalChunk = Compiler.Compile(script, "by_serialize_test");
+        using var ms = new System.IO.MemoryStream();
+        originalChunk.Serialize(ms);
+        ms.Seek(0, System.IO.SeekOrigin.Begin);
+        var deserializedChunk = Chunk.Deserialize(ms, out _, out _);
+
+        Assert.That(deserializedChunk, Is.EqualTo(originalChunk));
+
+        VM.MainFiber.Schedule(deserializedChunk);
+        VM.MainFiber.Schedule(deserializedChunk["test"]!, false);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+
+        var res = VM.MainFiber.PopValue();
+        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(res.Array![0].String, Is.EqualTo("one"));
+        Assert.That(res.Array![1].String, Is.EqualTo("two"));
+        Assert.That(res.Array![2].String, Is.EqualTo("world"));
+        Assert.That(res.Array![3].String, Is.EqualTo("none"));
+    }
 }

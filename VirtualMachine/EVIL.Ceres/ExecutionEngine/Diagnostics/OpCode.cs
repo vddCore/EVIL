@@ -32,6 +32,7 @@ public enum OpCode : byte
     DEC,
     INVOKE,
     TAILINVOKE,
+    SWITCH,
     SETGLOBAL,
     GETGLOBAL,
     SETLOCAL,
@@ -74,6 +75,7 @@ public enum OpCode : byte
     EXISTS,
     TONUMBER,
     TOSTRING,
+    STRCAT,
     TYPE,
     NTYPE,
     LNOT,
@@ -110,6 +112,5 @@ public enum OpCode : byte
     ENTER,
     THROW,
     LEAVE,
-    ERRNEW,
-    STRCAT
+    ERRNEW
 }

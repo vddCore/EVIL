@@ -31,6 +31,10 @@ public sealed class ChunkReader
         => _memory[IP++];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool ReadBoolean()
+        => _memory[IP++] != 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe int ReadInt32()
     {
         fixed (byte* ptr = &_memory[IP])

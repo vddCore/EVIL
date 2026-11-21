@@ -1100,6 +1100,22 @@ internal class ExecutionUnit
                     break;
                 }
 
+                case OpCode.SWITCH:
+                {
+                    var switchTable = frame.Chunk.GetSwitchTable((int)frame.PreviousOpCodeIP);
+                    var qualifier = PopValue();
+                    
+                    if (switchTable.Cases.TryGetValue(qualifier, out var targetIp))
+                    {
+                        frame.JumpAbsolute(targetIp);
+                    }
+                    else
+                    {
+                        frame.JumpAbsolute(switchTable.DefaultIp);
+                    }
+                    break;
+                }
+
                 case OpCode.EXISTS:
                 {
                     b = PopValue();
@@ -1540,7 +1556,7 @@ internal class ExecutionUnit
 
             if (_callStack.Count != currentDepth)
             {
-                frame = _callStack.Peek() as ScriptStackFrame;
+                frame = (_callStack.Peek() as ScriptStackFrame)!;
 
                 if (frame == null)
                 {

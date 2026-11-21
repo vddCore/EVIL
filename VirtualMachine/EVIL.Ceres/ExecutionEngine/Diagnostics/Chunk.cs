@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.TypeSystem;
 
 public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 {
@@ -21,6 +23,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private List<Chunk> _subChunks;
     private Dictionary<string, int> _namedSubChunkLookup;
     private List<BlockProtectionInfo> _protectedBlocks;
+    private readonly ConcurrentDictionary<int, SwitchTable> _switchTables = new();
 
     private readonly Serializer _serializer;
 
@@ -31,7 +34,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
     public StringPool StringPool { get; }
     public CodeGenerator CodeGenerator { get; }
-    public DebugDatabase DebugDatabase { get; private set; }
+    public DebugDatabase DebugDatabase { get; private init; }
 
     public int ParameterCount { get; private set; }
     public int LocalCount { get; private set; }
@@ -179,7 +182,12 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         StringPool = new StringPool(stringConstants);
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
-            BytecodeModified = () => _cachedCode = null
+            BytecodeModified = () =>
+            {
+                _cachedCode = null;
+                _labelsBackpatched = false;
+                _switchTables.Clear();
+            }
         };
         DebugDatabase = new DebugDatabase();
     }
@@ -206,9 +214,59 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             {
                 _cachedCode = null;
                 _labelsBackpatched = false;
+                _switchTables.Clear();
             }
         };
         DebugDatabase = new DebugDatabase();
+    }
+
+    public SwitchTable GetSwitchTable(int opCodeIp)
+        => _switchTables.GetOrAdd(opCodeIp, BuildSwitchTable);
+
+    private SwitchTable BuildSwitchTable(int opCodeIp)
+    {
+        BackpatchLabels();
+
+        var code = Code;
+        using var ms = new MemoryStream(code);
+        ms.Seek(opCodeIp + 1, SeekOrigin.Begin);
+        using var reader = new BinaryReader(ms, Encoding.UTF8);
+
+        var defaultIp = reader.ReadInt32();
+        var count = reader.ReadInt32();
+        var cases = new Dictionary<DynamicValue, int>(count);
+
+        for (var i = 0; i < count; i++)
+        {
+            var type = (DynamicValueType)reader.ReadByte();
+            DynamicValue val;
+            switch (type)
+            {
+                case DynamicValueType.Nil:
+                    val = DynamicValue.Nil;
+                    break;
+                case DynamicValueType.Boolean:
+                    val = new DynamicValue(reader.ReadBoolean());
+                    break;
+                case DynamicValueType.Number:
+                    val = new DynamicValue(reader.ReadDouble());
+                    break;
+                case DynamicValueType.String:
+                    var strId = reader.ReadInt32();
+                    val = new DynamicValue(StringPool[strId]!);
+                    break;
+                case DynamicValueType.TypeCode:
+                    val = new DynamicValue((DynamicValueType)reader.ReadByte());
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unexpected constant type in SWITCH: {type}");
+            }
+
+            var targetIp = reader.ReadInt32();
+            cases.TryAdd(val, targetIp);
+        }
+
+        return new SwitchTable(defaultIp, cases);
     }
 
     private bool _labelsBackpatched;
@@ -216,11 +274,16 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public void BackpatchLabels()
     {
         if (_labelsBackpatched)
+        {
             return;
+        }
+
         _labelsBackpatched = true;
 
         if (_labels.Count == 0 || CodeGenerator.JumpFixups.Count == 0)
+        {
             return;
+        }
 
         var currentPos = _code.Position;
         using var reader = new BinaryReader(_code, Encoding.UTF8, true);

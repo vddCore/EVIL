@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -112,18 +113,22 @@ public static class Disassembler
                 {
                     case OpCode.YIELD:
                     case OpCode.NEXT:
+                    {
                         output.Write(opCode);
                         output.Write(" ");
                         output.WriteLine(reader.ReadInt32());
                         break;
-                        
+                    }
+
                     case OpCode.INVOKE:
+                    {
                         output.Write(opCode);
                         output.Write(" ");
                         output.Write(reader.ReadInt32());
                         output.Write(" ");
                         output.WriteLine(reader.ReadByte() == 1 ? "VARARGS" : "");
                         break;
+                    }
 
                     case OpCode.GETCLOSURE_0:
                     case OpCode.GETCLOSURE_1:
@@ -208,16 +213,18 @@ public static class Disassembler
                         output.WriteLine();
                         break;
                     }
-                        
+
                     case OpCode.TABCLN:
+                    {
                         output.Write(opCode);
                         output.Write(" ");
 
                         var isDeepClone = reader.ReadByte();
                         output.Write(isDeepClone);
-                            
+
                         output.WriteLine();
                         break;
+                    }
 
                     case OpCode.SETLOCAL_0:
                     case OpCode.SETLOCAL_1:
@@ -267,8 +274,18 @@ public static class Disassembler
 
                         if (chunk.HasDebugInfo)
                         {
-                            if (opCode is OpCode.SETLOCAL_0 or OpCode.SETLOCAL_1 or OpCode.SETLOCAL_2 or OpCode.SETLOCAL_3 or OpCode.SETLOCAL_B or OpCode.SETLOCAL
-                                or OpCode.GETLOCAL_0 or OpCode.GETLOCAL_1 or OpCode.GETLOCAL_2 or OpCode.GETLOCAL_3 or OpCode.GETLOCAL_B or OpCode.GETLOCAL)
+                            if (opCode is OpCode.SETLOCAL 
+                                       or OpCode.SETLOCAL_0
+                                       or OpCode.SETLOCAL_1 
+                                       or OpCode.SETLOCAL_2 
+                                       or OpCode.SETLOCAL_3 
+                                       or OpCode.SETLOCAL_B 
+                                       or OpCode.GETLOCAL 
+                                       or OpCode.GETLOCAL_0
+                                       or OpCode.GETLOCAL_1 
+                                       or OpCode.GETLOCAL_2 
+                                       or OpCode.GETLOCAL_3 
+                                       or OpCode.GETLOCAL_B)
                             {
                                 if (options.WriteLocalNames)
                                 {
@@ -314,6 +331,54 @@ public static class Disassembler
 
                         output.WriteLine();
                         break;
+
+                    case OpCode.SWITCH:
+                    {
+                        output.Write(opCode);
+                        output.Write(" ");
+
+                        var defaultIp = reader.ReadInt32();
+                        var count = reader.ReadInt32();
+                        output.WriteLine($"default: 0x{defaultIp:X8}, count: {count}");
+
+                        for (var i = 0; i < count; i++)
+                        {
+                            var type = (DynamicValueType)reader.ReadByte();
+                            string valStr;
+                            switch (type)
+                            {
+                                case DynamicValueType.Nil:
+                                    valStr = "nil";
+                                    break;
+                                
+                                case DynamicValueType.Boolean:
+                                    valStr = reader.ReadBoolean().ToString().ToLowerInvariant();
+                                    break;
+                                
+                                case DynamicValueType.Number:
+                                    valStr = reader.ReadDouble().ToString(CultureInfo.InvariantCulture);
+                                    break;
+                                
+                                case DynamicValueType.String:
+                                    var strId = reader.ReadInt32();
+                                    var s = chunk.StringPool[strId];
+                                    valStr = s != null ? $"\"{s}\"" : "<null>";
+                                    break;
+                                
+                                case DynamicValueType.TypeCode:
+                                    valStr = ((DynamicValueType)reader.ReadByte()).ToString();
+                                    break;
+                                
+                                default:
+                                    valStr = $"<unknown {type}>";
+                                    break;
+                            }
+
+                            var caseTargetIp = reader.ReadInt32();
+                            output.WriteLine($"{indent}    case {valStr} => 0x{caseTargetIp:X8}");
+                        }
+                        break;
+                    }
 
                     case OpCode.LDTYPE:
                         var typeCode = (DynamicValueType)reader.ReadByte();
@@ -435,6 +500,7 @@ public static class Disassembler
     {
         var literal = new StringBuilder(input.Length + 2);
         literal.Append('"');
+        
         foreach (var c in input)
         {
             switch (c)
@@ -442,35 +508,46 @@ public static class Disassembler
                 case '\"':
                     literal.Append("\\\"");
                     break;
+                
                 case '\\':
                     literal.Append(@"\\");
                     break;
+                
                 case '\0':
                     literal.Append(@"\0");
                     break;
+                
                 case '\a':
                     literal.Append(@"\a");
                     break;
+                
                 case '\b':
                     literal.Append(@"\b");
                     break;
+                
                 case '\f':
                     literal.Append(@"\f");
                     break;
+                
                 case '\n':
                     literal.Append(@"\n");
                     break;
+                
                 case '\r':
                     literal.Append(@"\r");
                     break;
+                
                 case '\t':
                     literal.Append(@"\t");
                     break;
+                
                 case '\v':
                     literal.Append(@"\v");
                     break;
+
                 default:
-                    if (c >= 0x20 && c <= 0x7e)
+                {
+                    if (c >= 0x20 && c <= 0x7E)
                     {
                         literal.Append(c);
                     }
@@ -481,6 +558,7 @@ public static class Disassembler
                     }
 
                     break;
+                }
             }
         }
 

@@ -130,21 +130,27 @@ public sealed class CodeGenerator : IDisposable
             case OpCode.GETLOCAL:
                 EmitGetLocal(operand);
                 return;
+            
             case OpCode.SETLOCAL:
                 EmitSetLocal(operand);
                 return;
+            
             case OpCode.GETARG:
                 EmitGetArg(operand);
                 return;
+            
             case OpCode.SETARG:
                 EmitSetArg(operand);
                 return;
+            
             case OpCode.GETCLOSURE:
                 EmitGetClosure(operand);
                 return;
+            
             case OpCode.SETCLOSURE:
                 EmitSetClosure(operand);
                 return;
+            
             case OpCode.LDTYPE:
                 Emit(OpCode.LDTYPE, (byte)operand);
                 return;
@@ -162,15 +168,21 @@ public sealed class CodeGenerator : IDisposable
             case 1: Emit(OpCode.GETLOCAL_1); break;
             case 2: Emit(OpCode.GETLOCAL_2); break;
             case 3: Emit(OpCode.GETLOCAL_3); break;
+
             default:
+            {
                 if ((uint)operand <= byte.MaxValue)
+                {
                     Emit(OpCode.GETLOCAL_B, (byte)operand);
+                }
                 else
                 {
                     Emit(OpCode.GETLOCAL);
                     Emit(operand);
                 }
+
                 break;
+            }
         }
     }
 
@@ -182,15 +194,21 @@ public sealed class CodeGenerator : IDisposable
             case 1: Emit(OpCode.SETLOCAL_1); break;
             case 2: Emit(OpCode.SETLOCAL_2); break;
             case 3: Emit(OpCode.SETLOCAL_3); break;
+
             default:
+            {
                 if ((uint)operand <= byte.MaxValue)
+                {
                     Emit(OpCode.SETLOCAL_B, (byte)operand);
+                }
                 else
                 {
                     Emit(OpCode.SETLOCAL);
                     Emit(operand);
                 }
+
                 break;
+            }
         }
     }
 
@@ -202,15 +220,21 @@ public sealed class CodeGenerator : IDisposable
             case 1: Emit(OpCode.GETARG_1); break;
             case 2: Emit(OpCode.GETARG_2); break;
             case 3: Emit(OpCode.GETARG_3); break;
+
             default:
+            {
                 if ((uint)operand <= byte.MaxValue)
+                {
                     Emit(OpCode.GETARG_B, (byte)operand);
+                }
                 else
                 {
                     Emit(OpCode.GETARG);
                     Emit(operand);
                 }
+
                 break;
+            }
         }
     }
 
@@ -222,15 +246,21 @@ public sealed class CodeGenerator : IDisposable
             case 1: Emit(OpCode.SETARG_1); break;
             case 2: Emit(OpCode.SETARG_2); break;
             case 3: Emit(OpCode.SETARG_3); break;
+
             default:
+            {
                 if ((uint)operand <= byte.MaxValue)
+                {
                     Emit(OpCode.SETARG_B, (byte)operand);
+                }
                 else
                 {
                     Emit(OpCode.SETARG);
                     Emit(operand);
                 }
+
                 break;
+            }
         }
     }
 
@@ -242,15 +272,21 @@ public sealed class CodeGenerator : IDisposable
             case 1: Emit(OpCode.GETCLOSURE_1); break;
             case 2: Emit(OpCode.GETCLOSURE_2); break;
             case 3: Emit(OpCode.GETCLOSURE_3); break;
+
             default:
+            {
                 if ((uint)operand <= byte.MaxValue)
+                {
                     Emit(OpCode.GETCLOSURE_B, (byte)operand);
+                }
                 else
                 {
                     Emit(OpCode.GETCLOSURE);
                     Emit(operand);
                 }
+
                 break;
+            }
         }
     }
 
@@ -262,15 +298,21 @@ public sealed class CodeGenerator : IDisposable
             case 1: Emit(OpCode.SETCLOSURE_1); break;
             case 2: Emit(OpCode.SETCLOSURE_2); break;
             case 3: Emit(OpCode.SETCLOSURE_3); break;
+
             default:
+            {
                 if ((uint)operand <= byte.MaxValue)
+                {
                     Emit(OpCode.SETCLOSURE_B, (byte)operand);
+                }
                 else
                 {
                     Emit(OpCode.SETCLOSURE);
                     Emit(operand);
                 }
+
                 break;
+            }
         }
     }
         
@@ -301,6 +343,12 @@ public sealed class CodeGenerator : IDisposable
         }
 
         _writer.Write(value);
+    }
+
+    public void EmitJumpTarget(int labelId)
+    {
+        _jumpFixups.Add(IP);
+        _writer.Write(labelId);
     }
 
     public void Emit(bool value)
