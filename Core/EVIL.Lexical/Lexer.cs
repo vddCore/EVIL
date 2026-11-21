@@ -310,7 +310,7 @@ public class Lexer
                     }
                 }
 
-                throw new LexerException($"Unexpected token '{State.Character}'", col, line);
+                throw new LexerException($"Unexpected token '{State.Character}'", line, col);
             }
 
             Advance();

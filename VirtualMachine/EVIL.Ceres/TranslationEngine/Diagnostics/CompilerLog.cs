@@ -10,8 +10,9 @@ using System.Text;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Marshaling;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
+using EVIL.CommonTypes.Diagnostics;
 
-public sealed class CompilerLog : IDynamicValueProvider
+public sealed class CompilerLog : IDynamicValueProvider, IDiagnosticSink
 {
     private readonly List<CompilerMessage> _messages = new();
 
@@ -23,11 +24,24 @@ public sealed class CompilerLog : IDynamicValueProvider
 
     public int VerboseCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Verbose);
     public int WarningCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Warning);
+    public int FatalCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.Fatal);
+    public int InternalFailureCount => _messages.Count(x => x.Severity == CompilerMessageSeverity.InternalFailure);
 
-    public bool HasAnyMessages => VerboseCount > 0 || WarningCount > 0;
+    public int ErrorCount => FatalCount + InternalFailureCount;
+    public bool HasErrors => ErrorCount > 0;
+    public bool HasAnyMessages => _messages.Count > 0;
+
+    public IReadOnlyList<Diagnostic> Diagnostics => _messages.Select(m => m.ToDiagnostic()).ToArray();
         
     public void Clear() 
         => _messages.Clear();
+
+    public void Report(Diagnostic diagnostic)
+    {
+        var messageObject = CompilerMessage.FromDiagnostic(diagnostic);
+        _messages.Add(messageObject);
+        MessageEmitted?.Invoke(this, new(messageObject));
+    }
 
     public void EmitVerbose(
         string message,

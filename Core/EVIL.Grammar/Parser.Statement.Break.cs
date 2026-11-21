@@ -11,7 +11,7 @@ public partial class Parser
         {
             throw new ParserException(
                 "Unexpected 'break' outside of a loop.", 
-                (_lexer.State.Column, _lexer.State.Line)
+                (_lexer.State.Line, _lexer.State.Column)
             );
         }
             

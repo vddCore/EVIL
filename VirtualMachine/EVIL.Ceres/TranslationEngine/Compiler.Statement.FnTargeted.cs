@@ -79,7 +79,7 @@ public partial class Compiler
         {
             Log.TerminateWithInternalFailure<object>(
                 $"Targeted function '{replacedChunk.Name}' defined on line {fnTargetedStatement.Line} has " +
-                $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {fnTargetedStatement.Line}.",
+                $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {replacedChunk.DebugDatabase.DefinedOnLine}.",
                 CurrentFileName,
                 EvilMessageCode.FnTargetedStatementRedefinedExistingChunk,
                 fnTargetedStatement.Line,

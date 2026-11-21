@@ -57,7 +57,7 @@ public partial class Compiler
                 catch (DuplicateSymbolException dse)
                 {
                     Log.TerminateWithFatal(
-                        $"The symbol '{eachStatement.KeyIdentifier.Name}' already exists in this scope " +
+                        $"The symbol '{eachStatement.ValueIdentifier.Name}' already exists in this scope " +
                         $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
                         CurrentFileName,
                         EvilMessageCode.DuplicateSymbolInScope,
@@ -89,10 +89,12 @@ public partial class Compiler
                 }
 
                 Visit(eachStatement.Statement);
+                
                 if (!_isUnreachable)
                 {
                     Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
                 }
+                
                 Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
                 Chunk.CodeGenerator.Emit(OpCode.EEND);
             }, false);

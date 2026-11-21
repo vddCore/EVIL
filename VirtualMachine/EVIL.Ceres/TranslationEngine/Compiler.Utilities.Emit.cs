@@ -145,8 +145,8 @@ public partial class Compiler
                         $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
                         CurrentFileName,
                         EvilMessageCode.DuplicateSymbolInScope,
-                        sym.DefinedOnLine,
-                        sym.DefinedOnColumn,
+                        Line,
+                        Column,
                         dse
                     );
                 }
@@ -262,8 +262,8 @@ public partial class Compiler
                         $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
                         CurrentFileName,
                         EvilMessageCode.DuplicateSymbolInScope,
-                        sym.DefinedOnLine,
-                        sym.DefinedOnColumn,
+                        Line,
+                        Column,
                         dse
                     );
                 }

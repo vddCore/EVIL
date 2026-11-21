@@ -45,7 +45,7 @@ public partial class Compiler
         {
             Log.TerminateWithInternalFailure<object>(
                 $"Indexed function '{replacedChunk.Name}' defined on line {fnIndexedStatement.Line} has " +
-                $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {fnIndexedStatement.Line}.",
+                $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {replacedChunk.DebugDatabase.DefinedOnLine}.",
                 CurrentFileName,
                 EvilMessageCode.FnIndexedStatementRedefinedExistingChunk,
                 fnIndexedStatement.Line,
