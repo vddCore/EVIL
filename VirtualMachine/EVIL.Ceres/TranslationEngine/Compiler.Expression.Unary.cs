@@ -8,6 +8,20 @@ public partial class Compiler
 {
     protected override void Visit(UnaryExpression unaryExpression)
     {
+        var reduced = unaryExpression.Reduce();
+        if (reduced != unaryExpression)
+        {
+            if (reduced is UnaryExpression reducedUnary)
+            {
+                unaryExpression = reducedUnary;
+            }
+            else
+            {
+                Visit(reduced);
+                return;
+            }
+        }
+
         Visit(unaryExpression.Right);
 
         if (unaryExpression.Type != UnaryOperationType.Plus)

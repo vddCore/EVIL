@@ -64,7 +64,7 @@ public sealed class UnaryExpression : Expression
                         .CopyMetadata<NumberConstant>(this);
                 
                 case UnaryOperationType.ToString:
-                    return new StringConstant(booleanConstant.Value.ToString(CultureInfo.InvariantCulture).ToLower(), false)
+                    return new StringConstant(booleanConstant.Value.ToString().ToLowerInvariant(), false)
                         .CopyMetadata<StringConstant>(this);
             }
         }
@@ -79,7 +79,7 @@ public sealed class UnaryExpression : Expression
 
                 case UnaryOperationType.ToNumber:
                 {
-                    if (double.TryParse(stringConstant.Value, out var value))
+                    if (double.TryParse(stringConstant.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
                     {
                         return new NumberConstant(value)
                             .CopyMetadata<NumberConstant>(this);
@@ -91,7 +91,45 @@ public sealed class UnaryExpression : Expression
                 case UnaryOperationType.ToString:
                     return new StringConstant(stringConstant.Value, stringConstant.IsInterpolated)
                         .CopyMetadata<StringConstant>(this);
+
+                case UnaryOperationType.LogicalNot:
+                    return new BooleanConstant(false)
+                        .CopyMetadata<BooleanConstant>(this);
             }
+        }
+
+        if (right is NilConstant)
+        {
+            switch (Type)
+            {
+                case UnaryOperationType.LogicalNot:
+                    return new BooleanConstant(true)
+                        .CopyMetadata<BooleanConstant>(this);
+
+                case UnaryOperationType.ToString:
+                    return new StringConstant("nil", false)
+                        .CopyMetadata<StringConstant>(this);
+            }
+        }
+
+        if (right is TypeCodeConstant typeCodeConstant)
+        {
+            switch (Type)
+            {
+                case UnaryOperationType.LogicalNot:
+                    return new BooleanConstant(false)
+                        .CopyMetadata<BooleanConstant>(this);
+
+                case UnaryOperationType.ToString:
+                    return new StringConstant(typeCodeConstant.Value.ToString(), false)
+                        .CopyMetadata<StringConstant>(this);
+            }
+        }
+
+        if (right != Right)
+        {
+            return new UnaryExpression(right, Type)
+                .CopyMetadata<UnaryExpression>(this);
         }
 
         return this;

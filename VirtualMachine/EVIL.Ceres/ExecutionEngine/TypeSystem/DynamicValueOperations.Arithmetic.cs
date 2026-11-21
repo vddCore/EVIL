@@ -17,6 +17,16 @@ public static partial class DynamicValueOperations
             return new(a.String + b.String);
         }
 
+        if (a.Type == DynamicValueType.String)
+        {
+            return new(a.String + b.ConvertToString().String);
+        }
+
+        if (b.Type == DynamicValueType.String)
+        {
+            return new(a.ConvertToString().String + b.String);
+        }
+
         throw new UnsupportedDynamicValueOperationException(
             $"Attempt to add a {a.Type} to a {b.Type}."
         );

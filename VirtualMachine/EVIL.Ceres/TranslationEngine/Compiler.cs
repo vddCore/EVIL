@@ -18,12 +18,12 @@ public partial class Compiler : AstVisitor
 {
     private Chunk _rootChunk = null!;
 
-    private readonly Stack<Chunk> _chunks = new();
-    private Dictionary<string, List<AttributeProcessor>> _attributeProcessors = new();
+    private readonly Stack<Chunk> _chunks = [];
+    private readonly Dictionary<string, List<AttributeProcessor>> _attributeProcessors = [];
 
-    private readonly Stack<BlockProtectionInfo> _blockProtectors = new();
-    private readonly Stack<Loop> _loopDescent = new();
-    private readonly List<Scope> _closedScopes = new();
+    private readonly Stack<BlockProtectionInfo> _blockProtectors = [];
+    private readonly Stack<Loop> _loopDescent = [];
+    private readonly List<Scope> _closedScopes = [];
 
     private Scope CurrentScope
     {
@@ -205,7 +205,7 @@ public partial class Compiler : AstVisitor
         Line = node.Line;
         Column = node.Column;
 
-        if (node is Expression expression && OptimizeCodeGeneration)
+        if (node is Expression expression)
         {
             node = expression.Reduce();
         }
@@ -217,7 +217,7 @@ public partial class Compiler : AstVisitor
     {
         if (!_attributeProcessors.TryGetValue(attributeName, out var list))
         {
-            list = new List<AttributeProcessor>();
+            list = [];
             _attributeProcessors.Add(attributeName, list);
         }
 
@@ -226,38 +226,36 @@ public partial class Compiler : AstVisitor
 
     private DynamicValue ExtractConstantValueFrom(AstNode valueNode)
     {
-        if (valueNode is BooleanConstant boolConst)
+        switch (valueNode)
         {
-            return boolConst.Value;
-        }
-        else if (valueNode is NilConstant)
-        {
-            return DynamicValue.Nil;
-        }
-        else if (valueNode is NumberConstant numConst)
-        {
-            return numConst.Value;
-        }
-        else if (valueNode is StringConstant stringConst)
-        {
-            return stringConst.Value;
-        }
-        else if (valueNode is TypeCodeConstant typeCodeConst)
-        {
-            return typeCodeConst.Value;
-        }
-        else
-        {
-            Log.TerminateWithInternalFailure(
-                $"Unexpected constant value node type '{valueNode.GetType().FullName}'.",
-                CurrentFileName,
-                line: valueNode.Line,
-                column: valueNode.Column,
-                dummyReturn: DynamicValue.Zero
-            );
+            case BooleanConstant boolConst:
+                return boolConst.Value;
+            
+            case NilConstant:
+                return DynamicValue.Nil;
+            
+            case NumberConstant numConst:
+                return numConst.Value;
+            
+            case StringConstant stringConst:
+                return stringConst.Value;
+            
+            case TypeCodeConstant typeCodeConst:
+                return typeCodeConst.Value;
 
-            // Dummy return to keep compiler happy.
-            return DynamicValue.Zero;
+            default:
+            {
+                Log.TerminateWithInternalFailure(
+                    $"Unexpected constant value node type '{valueNode.GetType().FullName}'.",
+                    CurrentFileName,
+                    line: valueNode.Line,
+                    column: valueNode.Column,
+                    dummyReturn: DynamicValue.Zero
+                );
+
+                // Dummy return to keep compiler happy.
+                return DynamicValue.Zero;
+            }
         }
     }
 }

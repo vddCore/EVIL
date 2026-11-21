@@ -9,6 +9,20 @@ public partial class Compiler
 {
     protected override void Visit(BinaryExpression binaryExpression)
     {
+        var reduced = binaryExpression.Reduce();
+        if (reduced != binaryExpression)
+        {
+            if (reduced is BinaryExpression reducedBinary)
+            {
+                binaryExpression = reducedBinary;
+            }
+            else
+            {
+                Visit(reduced);
+                return;
+            }
+        }
+
         if (binaryExpression.Type == BinaryOperationType.LogicalAnd)
         {
             EmitLogicalAnd(binaryExpression);
