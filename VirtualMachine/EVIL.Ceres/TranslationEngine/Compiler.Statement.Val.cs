@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -25,12 +25,14 @@ public partial class Compiler
             catch (DuplicateSymbolException dse)
             {
                 Log.TerminateWithFatal(
-                    $"The symbol '{kvp.Key.Name}' already exists in this scope " +
-                    $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                    CurrentFileName,
-                    EvilMessageCode.DuplicateSymbolInScope,
-                    kvp.Key.Line,
-                    kvp.Key.Column,
+                    CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                        GetLocation(kvp.Key),
+                        [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                        kvp.Key.Name,
+                        dse.ExistingSymbol.TypeName,
+                        dse.Line,
+                        dse.Column
+                    ),
                     dse
                 );
 

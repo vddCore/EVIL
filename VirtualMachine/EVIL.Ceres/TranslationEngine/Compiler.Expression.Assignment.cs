@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
@@ -24,17 +24,21 @@ public partial class Compiler
                 Chunk.CodeGenerator.Emit(OpCode.VJMP, valueNotNilLabel);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
                 Visit(assignmentExpression.Right);
+                
                 if (!isStatement)
                 {
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                 }
+                
                 EmitVarSet(symRef.Identifier);
 
                 if (isStatement)
                 {
                     var endLabel = Chunk.CreateLabel();
+                    
                     Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
                     Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+                    
                     Chunk.CodeGenerator.Emit(OpCode.POP);
                     Chunk.UpdateLabel(endLabel, Chunk.CodeGenerator.IP);
                 }
@@ -65,10 +69,10 @@ public partial class Compiler
                         AssignmentOperationType.ShiftLeft => OpCode.SHL,
                         AssignmentOperationType.ShiftRight => OpCode.SHR,
                         _ => Log.TerminateWithInternalFailure(
-                            $"Invalid assignment operation type '{assignmentExpression.OperationType}'.",
-                            CurrentFileName,
-                            line: Line,
-                            column: Column,
+                            CompilerDiagnostics.InternalCompilerError.Create(
+                                GetLocation(Line, Column),
+                                $"Invalid assignment operation type '{assignmentExpression.OperationType}'."
+                            ),
                             dummyReturn: OpCode.NOOP
                         )
                     }
@@ -163,10 +167,10 @@ public partial class Compiler
                         AssignmentOperationType.ShiftLeft => OpCode.SHL,
                         AssignmentOperationType.ShiftRight => OpCode.SHR,
                         _ => Log.TerminateWithInternalFailure(
-                            $"Invalid assignment operation type '{assignmentExpression.OperationType}'.",
-                            CurrentFileName,
-                            line: Line,
-                            column: Column,
+                            CompilerDiagnostics.InternalCompilerError.Create(
+                                GetLocation(Line, Column),
+                                $"Invalid assignment operation type '{assignmentExpression.OperationType}'."
+                            ),
                             dummyReturn: OpCode.NOOP
                         )
                     }
@@ -198,11 +202,9 @@ public partial class Compiler
         else
         {
             Log.TerminateWithFatal(
-                "Illegal assignment target.",
-                CurrentFileName,
-                EvilMessageCode.IllegalAssignmentTarget,
-                Line,
-                Column
+                CompilerDiagnostics.IllegalAssignmentTarget.Create(
+                    GetLocation(Line, Column)
+                )
             );
         }
     }

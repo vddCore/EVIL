@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 
@@ -22,6 +22,7 @@ public partial class Compiler
                 OpCode.ARRINIT,
                 arrayExpression.Initializers.Count
             );
+            
             return;
         }
 
@@ -39,11 +40,9 @@ public partial class Compiler
             if (arrayExpression.Initializers.Count > knownSizeConstraint.Value)
             {
                 Log.TerminateWithFatal(
-                    "Attempt to initialize a constant size array with too many entries.",
-                    CurrentFileName,
-                    EvilMessageCode.TooManyInitializersForConstSizeArray,
-                    arrayExpression.Line,
-                    arrayExpression.Column
+                    CompilerDiagnostics.TooManyInitializersForConstSizeArray.Create(
+                        GetLocation(arrayExpression)
+                    )
                 );
             }
                 

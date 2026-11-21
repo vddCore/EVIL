@@ -8,6 +8,7 @@ using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
@@ -57,6 +58,12 @@ public partial class Compiler : AstVisitor
 
     public string CurrentFileName { get; private set; } = string.Empty;
 
+    private SourceLocation GetLocation(AstNode node) 
+        => new(CurrentFileName, node.Line, node.Column);
+
+    private SourceLocation GetLocation(int line, int column) 
+        => new(CurrentFileName, line, column);
+
     public CompilerLog Log { get; } = new();
     public bool OptimizeCodeGeneration { get; set; }
 
@@ -84,22 +91,20 @@ public partial class Compiler : AstVisitor
         catch (LexerException le)
         {
             Log.TerminateWithFatal(
-                le.Message,
-                CurrentFileName,
-                EvilMessageCode.LexerError,
-                line: le.Line,
-                column: le.Column,
+                CompilerDiagnostics.LexicalError.Create(
+                    new SourceLocation(CurrentFileName, le.Line, le.Column),
+                    le.Message
+                ),
                 innerException: le
             );
         }
         catch (ParserException pe)
         {
             Log.TerminateWithFatal(
-                pe.Message,
-                CurrentFileName,
-                EvilMessageCode.ParserError,
-                line: pe.Line,
-                column: pe.Column,
+                CompilerDiagnostics.SyntaxError.Create(
+                    new SourceLocation(CurrentFileName, pe.Line, pe.Column),
+                    pe.Message
+                ),
                 innerException: pe
             );
         }
@@ -275,10 +280,10 @@ public partial class Compiler : AstVisitor
             default:
             {
                 Log.TerminateWithInternalFailure(
-                    $"Unexpected constant value node type '{valueNode.GetType().FullName}'.",
-                    CurrentFileName,
-                    line: valueNode.Line,
-                    column: valueNode.Column,
+                    CompilerDiagnostics.InternalCompilerError.Create(
+                        GetLocation(valueNode),
+                        $"Unexpected constant value node type '{valueNode.GetType().FullName}'."
+                    ),
                     dummyReturn: DynamicValue.Zero
                 );
 

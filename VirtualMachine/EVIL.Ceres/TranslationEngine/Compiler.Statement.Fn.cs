@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -26,12 +26,14 @@ public partial class Compiler
             catch (DuplicateSymbolException dse)
             {
                 Log.TerminateWithFatal(
-                    $"The symbol '{fnStatement.Identifier.Name}' already exists in this scope " +
-                    $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                    CurrentFileName,
-                    EvilMessageCode.DuplicateSymbolInScope,
-                    fnStatement.Identifier.Line,
-                    fnStatement.Identifier.Column,
+                    CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                        GetLocation(fnStatement.Identifier),
+                        [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                        fnStatement.Identifier.Name,
+                        dse.ExistingSymbol.TypeName,
+                        dse.Line,
+                        dse.Column
+                    ),
                     dse
                 );
 
@@ -67,13 +69,15 @@ public partial class Compiler
 
         if (wasExistingReplaced)
         {
-            Log.EmitWarning(
-                $"Named function '{replacedChunk.Name}' defined on line {fnStatement.Line} is " +
-                $"re-defining a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {replacedChunk.DebugDatabase.DefinedOnLine}.",
-                CurrentFileName,
-                EvilMessageCode.FnStatementRedefinedExistingChunk,
-                fnStatement.Line,
-                fnStatement.Column
+            Log.Report(
+                CompilerDiagnostics.FnStatementRedefinedExistingChunk.Create(
+                    GetLocation(fnStatement),
+                    [new RelatedLocation(new SourceLocation(replacedChunk.DebugDatabase.DefinedInFile, replacedChunk.DebugDatabase.DefinedOnLine, 1), "Previously defined here")],
+                    replacedChunk.Name,
+                    fnStatement.Line,
+                    replacedChunk.DebugDatabase.DefinedInFile,
+                    replacedChunk.DebugDatabase.DefinedOnLine
+                )
             );
         }
 

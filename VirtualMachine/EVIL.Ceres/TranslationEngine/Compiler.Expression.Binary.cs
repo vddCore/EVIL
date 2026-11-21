@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
@@ -177,10 +178,10 @@ public partial class Compiler
             default:
             {
                 Log.TerminateWithInternalFailure(
-                    $"Invalid binary operation type '{binaryExpression.Type}'.",
-                    CurrentFileName,
-                    line: Line,
-                    column: Column,
+                    CompilerDiagnostics.InternalCompilerError.Create(
+                        GetLocation(Line, Column),
+                        $"Invalid binary operation type '{binaryExpression.Type}'."
+                    ),
                     dummyReturn: OpCode.NOOP
                 );
 

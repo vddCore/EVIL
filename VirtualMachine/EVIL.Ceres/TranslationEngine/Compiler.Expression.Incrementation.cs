@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
@@ -68,11 +68,9 @@ public partial class Compiler
         else
         {
             Log.TerminateWithFatal(
-                "Illegal incrementation target.",
-                CurrentFileName,
-                EvilMessageCode.IllegalIncrementationTarget,
-                Line,
-                Column
+                CompilerDiagnostics.IllegalIncrementationTarget.Create(
+                    GetLocation(Line, Column)
+                )
             );
         }
     }

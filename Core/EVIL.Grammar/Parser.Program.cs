@@ -5,7 +5,6 @@ using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Diagnostics;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 public partial class Parser

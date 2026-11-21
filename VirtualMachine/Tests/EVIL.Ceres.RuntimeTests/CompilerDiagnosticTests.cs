@@ -1,6 +1,8 @@
 namespace EVIL.Ceres.RuntimeTests;
 
+using System.Linq;
 using EVIL.Ceres.TranslationEngine;
+using EVIL.CommonTypes.Diagnostics;
 using NUnit.Framework;
 using Shouldly;
 
@@ -18,5 +20,117 @@ public class CompilerDiagnosticTests
         compiler.Log.HasErrors.ShouldBeTrue();
         compiler.Log.ErrorCount.ShouldBe(2);
         compiler.Log.Messages.Count.ShouldBe(2);
+    }
+
+    [Test]
+    public void Compiler_DuplicateSymbol_ReportsEV2001WithRelatedLocation()
+    {
+        var compiler = new Compiler();
+        var source = "val a = 10;\nval a = 20;";
+
+        var ex = Should.Throw<CompilerException>(() => compiler.Compile(source, "dup.vil"));
+        
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV2001");
+        diag.ShouldNotBeNull();
+        diag.Location.Line.ShouldBe(2);
+        diag.Location.FilePath.ShouldBe("dup.vil");
+        diag.RelatedLocations.ShouldNotBeNull();
+        diag.RelatedLocations.Count.ShouldBe(1);
+        diag.RelatedLocations[0].Location.Line.ShouldBe(1);
+    }
+
+    [Test]
+    public void Compiler_WriteToReadOnly_ReportsEV2002()
+    {
+        var compiler = new Compiler();
+        var source = "val a = 10;\na = 20;";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "readonly.vil"));
+
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV2002");
+        diag.ShouldNotBeNull();
+        diag.Message.ShouldContain("read-only");
+    }
+
+    [Test]
+    public void Compiler_IllegalAssignmentTarget_ReportsEV4001()
+    {
+        var compiler = new Compiler();
+        var source = "foo() = 20;";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "illegal_target.vil"));
+
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV4001");
+        diag.ShouldNotBeNull();
+    }
+
+    [Test]
+    public void Compiler_NamedFunctionRedefinition_EmitsWarningEV4006()
+    {
+        var compiler = new Compiler();
+        var source = "fn foo() -> 1;\nfn foo() -> 2;";
+
+        compiler.Compile(source, "redef.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV4006");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void Compiler_TargetedFunctionRedefinition_EmitsWarningEV4007()
+    {
+        var compiler = new Compiler();
+        var source = "val obj = {};\nloc fn obj::bar() -> 1;\nloc fn obj::bar() -> 2;";
+
+        compiler.Compile(source, "redef_targeted.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+    }
+
+    [Test]
+    public void Compiler_TooManyInitializersForConstSizeArray_ReportsEV4005()
+    {
+        var compiler = new Compiler();
+        var source = "val arr = array(2) { 1, 2, 3 };";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "arr_overflow.vil"));
+
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV4005");
+        diag.ShouldNotBeNull();
+    }
+
+    [Test]
+    public void Compiler_SelfInSelfUnawareFunction_ReportsEV4004()
+    {
+        var compiler = new Compiler();
+        var source = "fn foo() { ret self; }";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "self_err.vil"));
+
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV4004");
+        diag.ShouldNotBeNull();
+    }
+
+    [Test]
+    public void Compiler_ByWithoutDefault_ReportsEV8002()
+    {
+        var compiler = new Compiler();
+        var source = "val x = 1;\nval y = by x { 1 => \"one\" };";
+
+        compiler.Compile(source, "by_test.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8002");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
     }
 }

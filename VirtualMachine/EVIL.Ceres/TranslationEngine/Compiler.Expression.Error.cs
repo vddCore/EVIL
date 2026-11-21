@@ -1,10 +1,8 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
-using EVIL.Grammar.AST.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
-using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
@@ -13,11 +11,9 @@ public partial class Compiler
         if (errorExpression.UserDataTable == null && errorExpression.ImplicitMessageConstant == null)
         {
             Log.TerminateWithFatal(
-                "An error expression must have at least an implicit message constant.",
-                CurrentFileName,
-                EvilMessageCode.MissingErrorInformation,
-                errorExpression.Line,
-                errorExpression.Column
+                CompilerDiagnostics.MissingErrorInformation.Create(
+                    GetLocation(errorExpression)
+                )
             );
                 
             return;

@@ -1,5 +1,6 @@
 ﻿namespace EVIL.Ceres.TranslationEngine.Diagnostics;
 
+using System.Collections.Generic;
 using System.Text;
 using EVIL.CommonTypes.Diagnostics;
 
@@ -9,7 +10,8 @@ public sealed record CompilerMessage(
     string? FileName = null,
     int MessageCode = 0,
     int Line = 0,
-    int Column = 0
+    int Column = 0,
+    IReadOnlyList<RelatedLocation>? RelatedLocations = null
 )
 {
     public SourceLocation Location => new(FileName, Line, Column);
@@ -33,7 +35,7 @@ public sealed record CompilerMessage(
             diagSeverity
         );
 
-        return new Diagnostic(descriptor, Location, diagSeverity, Message);
+        return new Diagnostic(descriptor, Location, diagSeverity, Message, null, RelatedLocations);
     }
 
     public static CompilerMessage FromDiagnostic(Diagnostic diagnostic)
@@ -59,7 +61,8 @@ public sealed record CompilerMessage(
             diagnostic.Location.FilePath,
             code,
             diagnostic.Location.Line,
-            diagnostic.Location.Column
+            diagnostic.Location.Column,
+            diagnostic.RelatedLocations
         );
     }
 

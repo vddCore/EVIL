@@ -2,7 +2,7 @@
 
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -43,16 +43,16 @@ public partial class Compiler
             
         if (wasExistingReplaced)
         {
-            Log.TerminateWithInternalFailure<object>(
-                $"Indexed function '{replacedChunk.Name}' defined on line {fnIndexedStatement.Line} has " +
-                $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {replacedChunk.DebugDatabase.DefinedOnLine}.",
-                CurrentFileName,
-                EvilMessageCode.FnIndexedStatementRedefinedExistingChunk,
-                fnIndexedStatement.Line,
-                fnIndexedStatement.Column
+            Log.Report(
+                CompilerDiagnostics.FnIndexedStatementRedefinedExistingChunk.Create(
+                    GetLocation(fnIndexedStatement),
+                    [new RelatedLocation(new SourceLocation(replacedChunk.DebugDatabase.DefinedInFile, replacedChunk.DebugDatabase.DefinedOnLine, 1), "Previously defined here")],
+                    replacedChunk.Name,
+                    fnIndexedStatement.Line,
+                    replacedChunk.DebugDatabase.DefinedInFile,
+                    replacedChunk.DebugDatabase.DefinedOnLine
+                )
             );
-
-            return;
         }
             
         Chunk.CodeGenerator.Emit(

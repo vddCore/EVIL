@@ -39,8 +39,25 @@ public sealed class CompilerLog : IDynamicValueProvider, IDiagnosticSink
     public void Report(Diagnostic diagnostic)
     {
         var messageObject = CompilerMessage.FromDiagnostic(diagnostic);
+        if (messageObject.Severity < MinimumSeverityLevel)
+            return;
+
         _messages.Add(messageObject);
         MessageEmitted?.Invoke(this, new(messageObject));
+    }
+
+    [DoesNotReturn]
+    public void TerminateWithFatal(Diagnostic diagnostic, Exception? innerException = null)
+    {
+        Report(diagnostic);
+        throw new CompilerException(this, innerException);
+    }
+
+    [DoesNotReturn]
+    public T TerminateWithInternalFailure<T>(Diagnostic diagnostic, Exception? innerException = null, T dummyReturn = default!)
+    {
+        Report(diagnostic);
+        throw new CompilerException(this, innerException);
     }
 
     public void EmitVerbose(

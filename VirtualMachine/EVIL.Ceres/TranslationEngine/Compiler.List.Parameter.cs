@@ -1,6 +1,6 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Miscellaneous;
 
 public partial class Compiler
@@ -11,12 +11,10 @@ public partial class Compiler
         {
             if (Chunk.IsSelfAware)
             {
-                Log.EmitWarning(
-                    "An explicit `self' parameter is not required for this function.",
-                    CurrentFileName,
-                    EvilMessageCode.RedundantSelfParameter,
-                    parameterList.Line,
-                    parameterList.Column
+                Log.Report(
+                    CompilerDiagnostics.RedundantSelfParameter.Create(
+                        GetLocation(parameterList)
+                    )
                 );
             }
             else
@@ -44,12 +42,14 @@ public partial class Compiler
             catch (DuplicateSymbolException dse)
             {
                 Log.TerminateWithFatal(
-                    $"The symbol '{parameter.Identifier.Name}' already exists in this scope " +
-                    $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                    CurrentFileName,
-                    EvilMessageCode.DuplicateSymbolInScope,
-                    parameter.Identifier.Line,
-                    parameter.Identifier.Column,
+                    CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                        GetLocation(parameter.Identifier),
+                        [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                        parameter.Identifier.Name,
+                        dse.ExistingSymbol.TypeName,
+                        dse.Line,
+                        dse.Column
+                    ),
                     dse
                 );
 

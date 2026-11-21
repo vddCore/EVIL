@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -27,12 +27,14 @@ public partial class Compiler
             catch (DuplicateSymbolException dse)
             {
                 Log.TerminateWithFatal(
-                    $"The symbol '{eachStatement.KeyIdentifier.Name}' already exists in this scope " +
-                    $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                    CurrentFileName,
-                    EvilMessageCode.DuplicateSymbolInScope,
-                    eachStatement.KeyIdentifier.Line,
-                    eachStatement.KeyIdentifier.Column,
+                    CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                        GetLocation(eachStatement.KeyIdentifier),
+                        [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                        eachStatement.KeyIdentifier.Name,
+                        dse.ExistingSymbol.TypeName,
+                        dse.Line,
+                        dse.Column
+                    ),
                     dse
                 );
 
@@ -57,12 +59,14 @@ public partial class Compiler
                 catch (DuplicateSymbolException dse)
                 {
                     Log.TerminateWithFatal(
-                        $"The symbol '{eachStatement.ValueIdentifier.Name}' already exists in this scope " +
-                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                        CurrentFileName,
-                        EvilMessageCode.DuplicateSymbolInScope,
-                        eachStatement.ValueIdentifier.Line,
-                        eachStatement.ValueIdentifier.Column,
+                        CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                            GetLocation(eachStatement.ValueIdentifier),
+                            [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                            eachStatement.ValueIdentifier.Name,
+                            dse.ExistingSymbol.TypeName,
+                            dse.Line,
+                            dse.Column
+                        ),
                         dse
                     );
 

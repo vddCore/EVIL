@@ -1,5 +1,7 @@
 namespace EVIL.CommonTypes.Diagnostics;
 
+using System.Collections.Generic;
+
 public sealed record DiagnosticDescriptor(
     string Id,
     string Title,
@@ -17,15 +19,49 @@ public sealed record DiagnosticDescriptor(
             ? string.Format(MessageFormat, messageArgs)
             : MessageFormat;
 
-        return new Diagnostic(this, location, DefaultSeverity, formattedMessage, messageArgs);
+        return new Diagnostic(
+            this,
+            location,
+            DefaultSeverity,
+            formattedMessage,
+            messageArgs
+        );
     }
 
-    public Diagnostic CreateWithSeverity(DiagnosticSeverity severity, SourceLocation location, params object[] messageArgs)
+    public Diagnostic Create(
+        SourceLocation location,
+        IReadOnlyList<RelatedLocation>? relatedLocations,
+        params object[] messageArgs)
     {
         var formattedMessage = messageArgs is { Length: > 0 }
             ? string.Format(MessageFormat, messageArgs)
             : MessageFormat;
 
-        return new Diagnostic(this, location, severity, formattedMessage, messageArgs);
+        return new Diagnostic(
+            this, 
+            location, 
+            DefaultSeverity, 
+            formattedMessage,
+            messageArgs,
+            relatedLocations
+        );
+    }
+
+    public Diagnostic CreateWithSeverity(
+        DiagnosticSeverity severity,
+        SourceLocation location,
+        params object[] messageArgs)
+    {
+        var formattedMessage = messageArgs is { Length: > 0 }
+            ? string.Format(MessageFormat, messageArgs)
+            : MessageFormat;
+
+        return new Diagnostic(
+            this,
+            location,
+            severity,
+            formattedMessage,
+            messageArgs
+        );
     }
 }

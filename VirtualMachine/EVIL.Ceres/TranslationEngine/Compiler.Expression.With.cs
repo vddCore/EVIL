@@ -1,7 +1,7 @@
 ﻿namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
@@ -14,11 +14,9 @@ public partial class Compiler
         if (!withExpression.TableExpansionExpression.Keyed)
         {
             Log.TerminateWithFatal(
-                "Expected a keyed expansion table.",
-                CurrentFileName,
-                EvilMessageCode.KeyedExpansionTableExpected,
-                withExpression.TableExpansionExpression.Line,
-                withExpression.TableExpansionExpression.Column
+                CompilerDiagnostics.KeyedExpansionTableExpected.Create(
+                    GetLocation(withExpression.TableExpansionExpression)
+                )
             );
 
             return;

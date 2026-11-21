@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
 
@@ -36,10 +37,10 @@ public partial class Compiler
                     UnaryOperationType.ToString => OpCode.TOSTRING,
                     UnaryOperationType.ToNumber => OpCode.TONUMBER,
                     _ => Log.TerminateWithInternalFailure(
-                        $"Invalid unary operation type '{unaryExpression.Type}'.",
-                        CurrentFileName,
-                        line: Line,
-                        column: Column,
+                        CompilerDiagnostics.InternalCompilerError.Create(
+                            GetLocation(Line, Column),
+                            $"Invalid unary operation type '{unaryExpression.Type}'."
+                        ),
                         dummyReturn: OpCode.NOOP
                     )
                 }

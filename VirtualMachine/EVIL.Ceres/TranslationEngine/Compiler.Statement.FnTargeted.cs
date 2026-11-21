@@ -2,7 +2,7 @@ namespace EVIL.Ceres.TranslationEngine;
 
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
@@ -29,12 +29,11 @@ public partial class Compiler
 
             default:
             {
-                Log.TerminateWithInternalFailure<object>(
-                    $"Expected a self-expression or an identifier found an unsupported node type {fnTargetedStatement.PrimaryTarget.GetType().FullName}.",
-                    CurrentFileName,
-                    EvilMessageCode.UnexpectedSyntaxNodeFound,
-                    fnTargetedStatement.Line,
-                    fnTargetedStatement.Column
+                Log.TerminateWithFatal(
+                    CompilerDiagnostics.UnexpectedSyntaxNode.Create(
+                        GetLocation(fnTargetedStatement.PrimaryTarget),
+                        fnTargetedStatement.PrimaryTarget.GetType().Name
+                    )
                 );
 
                 return;
@@ -77,16 +76,16 @@ public partial class Compiler
             
         if (wasExistingReplaced)
         {
-            Log.TerminateWithInternalFailure<object>(
-                $"Targeted function '{replacedChunk.Name}' defined on line {fnTargetedStatement.Line} has " +
-                $"re-defined a previously defined function of the same name in {replacedChunk.DebugDatabase.DefinedInFile} on line {replacedChunk.DebugDatabase.DefinedOnLine}.",
-                CurrentFileName,
-                EvilMessageCode.FnTargetedStatementRedefinedExistingChunk,
-                fnTargetedStatement.Line,
-                fnTargetedStatement.Column
+            Log.Report(
+                CompilerDiagnostics.FnTargetedStatementRedefinedExistingChunk.Create(
+                    GetLocation(fnTargetedStatement),
+                    [new RelatedLocation(new SourceLocation(replacedChunk.DebugDatabase.DefinedInFile, replacedChunk.DebugDatabase.DefinedOnLine, 1), "Previously defined here")],
+                    replacedChunk.Name,
+                    fnTargetedStatement.Line,
+                    replacedChunk.DebugDatabase.DefinedInFile,
+                    replacedChunk.DebugDatabase.DefinedOnLine
+                )
             );
-
-            return;
         }
             
         Chunk.CodeGenerator.Emit(

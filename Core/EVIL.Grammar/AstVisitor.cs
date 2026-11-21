@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Diagnostics;
@@ -33,7 +34,18 @@ public abstract class AstVisitor
             continue;
 
             void Handler(AstNode node)
-                => method.Invoke(this, [node]);
+            {
+                try
+                {
+                    method.Invoke(this, [node]);
+                }
+                catch (TargetInvocationException tie) when (tie.InnerException != null)
+                {
+                    ExceptionDispatchInfo
+                        .Capture(tie.InnerException)
+                        .Throw();
+                }
+            }
         }
     }
 

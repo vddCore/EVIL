@@ -1,8 +1,8 @@
 ﻿namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
@@ -110,10 +110,10 @@ public partial class Compiler
                         break;
                     default:
                         Log.TerminateWithInternalFailure(
-                            $"Invalid type '{sym.Type}' for symbol '{identifier}'.",
-                            CurrentFileName,
-                            line: Line,
-                            column: Column,
+                            CompilerDiagnostics.InternalCompilerError.Create(
+                                GetLocation(Line, Column),
+                                $"Invalid type '{sym.Type}' for symbol '{identifier}'."
+                            ),
                             dummyReturn: OpCode.NOOP
                         );
                         return;
@@ -141,12 +141,14 @@ public partial class Compiler
                 catch (DuplicateSymbolException dse)
                 {
                     Log.TerminateWithFatal(
-                        $"The symbol '{sym.Name}' already exists in this scope " +
-                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                        CurrentFileName,
-                        EvilMessageCode.DuplicateSymbolInScope,
-                        Line,
-                        Column,
+                        CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                            GetLocation(Line, Column),
+                            [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                            sym.Name,
+                            dse.ExistingSymbol.TypeName,
+                            dse.Line,
+                            dse.Column
+                        ),
                         dse
                     );
                 }
@@ -227,10 +229,10 @@ public partial class Compiler
                         break;
                     default:
                         Log.TerminateWithInternalFailure(
-                            $"Invalid type '{sym.Type}' for symbol '{identifier}'.",
-                            CurrentFileName,
-                            line: Line,
-                            column: Column,
+                            CompilerDiagnostics.InternalCompilerError.Create(
+                                GetLocation(Line, Column),
+                                $"Invalid type '{sym.Type}' for symbol '{identifier}'."
+                            ),
                             dummyReturn: OpCode.NOOP
                         );
                         return;
@@ -258,12 +260,14 @@ public partial class Compiler
                 catch (DuplicateSymbolException dse)
                 {
                     Log.TerminateWithFatal(
-                        $"The symbol '{sym.Name}' already exists in this scope " +
-                        $"and is a {dse.ExistingSymbol.TypeName} (previously defined on line {dse.Line}, column {dse.Column}).",
-                        CurrentFileName,
-                        EvilMessageCode.DuplicateSymbolInScope,
-                        Line,
-                        Column,
+                        CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                            GetLocation(Line, Column),
+                            [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                            sym.Name,
+                            dse.ExistingSymbol.TypeName,
+                            dse.Line,
+                            dse.Column
+                        ),
                         dse
                     );
                 }

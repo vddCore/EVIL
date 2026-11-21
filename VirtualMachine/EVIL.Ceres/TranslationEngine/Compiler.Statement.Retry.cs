@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Ceres.TranslationEngine;
 
-using Diagnostics;
+using CommonTypes.Diagnostics;
 using ExecutionEngine.Diagnostics;
 using Grammar.AST.Statements;
 
@@ -11,11 +11,10 @@ public partial class Compiler
         if (_blockProtectors.Count == 0)
         {
             Log.TerminateWithFatal(
-                "`retry' was not expected at this time.",
-                CurrentFileName,
-                EvilMessageCode.UnexpectedSyntaxNodeFound,
-                retryStatement.Line,
-                retryStatement.Column
+                CompilerDiagnostics.UnexpectedSyntaxNode.Create(
+                    GetLocation(retryStatement),
+                    "retry"
+                )
             );
         }
         

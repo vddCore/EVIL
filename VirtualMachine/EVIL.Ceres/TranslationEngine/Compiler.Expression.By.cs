@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
@@ -163,12 +163,10 @@ public partial class Compiler
         }
         else
         {
-            Log.EmitWarning(
-                "By-expression has no default arm and will always return `nil' if input matching fails. Consider adding a default arm using `else' keyword.",
-                CurrentFileName,
-                EvilMessageCode.NoDefaultByArm,
-                byExpression.Line,
-                byExpression.Column
+            Log.Report(
+                CompilerDiagnostics.NoDefaultByArm.Create(
+                    GetLocation(byExpression)
+                )
             );
 
             Chunk.CodeGenerator.Emit(OpCode.LDNIL);
@@ -225,12 +223,10 @@ public partial class Compiler
         }
         else
         {
-            Log.EmitWarning(
-                "By-expression has no default arm and will always return `nil' if input matching fails. Consider adding a default arm using `else' keyword.",
-                CurrentFileName,
-                EvilMessageCode.NoDefaultByArm,
-                byExpression.Line,
-                byExpression.Column
+            Log.Report(
+                CompilerDiagnostics.NoDefaultByArm.Create(
+                    GetLocation(byExpression)
+                )
             );
 
             Chunk.CodeGenerator.Emit(OpCode.LDNIL);

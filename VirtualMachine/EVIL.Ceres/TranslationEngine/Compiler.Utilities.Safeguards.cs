@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Ceres.TranslationEngine;
 
-using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.CommonTypes.Diagnostics;
 
 public partial class Compiler
 {
@@ -11,12 +11,13 @@ public partial class Compiler
             var sym = result!.Value.Symbol;
                 
             Log.TerminateWithFatal(
-                $"Attempt to set a value of a read-only {sym.Type.ToString().ToLower()} `{sym.Name}' " +
-                $"(defined on line {sym.DefinedOnLine})",
-                CurrentFileName,
-                EvilMessageCode.AttemptToWriteReadOnlyLocal,
-                Line,
-                Column
+                CompilerDiagnostics.AttemptToWriteReadOnly.Create(
+                    GetLocation(Line, Column),
+                    [new RelatedLocation(new SourceLocation(CurrentFileName, sym.DefinedOnLine, sym.DefinedOnColumn), "Defined here as read-only")],
+                    sym.Type.ToString().ToLower(),
+                    sym.Name,
+                    sym.DefinedOnLine
+                )
             );
         }
     }
