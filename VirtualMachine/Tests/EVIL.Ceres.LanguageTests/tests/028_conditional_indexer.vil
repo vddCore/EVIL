@@ -175,3 +175,14 @@ fn elvis_chain_with_multiple_indexes {
   assert.equal(v1, 2);
   assert.equal(v2, nil);
 }
+
+#[test]
+fn elvis_stack_balance_on_nil {
+  val a = nil;
+  val r1 = a?.b;
+  val r2 = a?.b?.c;
+  val r3 = a?.b?.c?.d;
+  assert.equal(r1, nil);
+  assert.equal(r2, nil);
+  assert.equal(r3, nil);
+}

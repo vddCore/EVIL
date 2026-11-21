@@ -1,10 +1,9 @@
-namespace EVIL.Ceres.ExecutionEngine;
+namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using EVIL.Ceres.ExecutionEngine.Diagnostics;
 
 public sealed class CodeGenerator : IDisposable
 {
@@ -14,6 +13,7 @@ public sealed class CodeGenerator : IDisposable
     private readonly Stack<int> _opCodeAddresses;
 
     public Action<int, OpCode>? OpCodeEmitted { get; set; }
+    internal Action? BytecodeModified { get; set; }
 
     public int IP
     {
@@ -64,6 +64,7 @@ public sealed class CodeGenerator : IDisposable
 
     public void Emit(OpCode value)
     {
+        BytecodeModified?.Invoke();
         _opCodeAddresses.Push(IP);
         _writer.Write((byte)value);
 
@@ -118,7 +119,7 @@ public sealed class CodeGenerator : IDisposable
     public long Label(int offset = 0)
     {
         _labels.Add(IP + offset);
-        return _labels[_labels.Count - 1];
+        return _labels[^1];
     }
 
     public void Dispose()

@@ -7,10 +7,19 @@ public partial class Compiler
 {
     protected override void Visit(SelfInvocationExpression selfInvocationExpression)
     {
-        Visit(selfInvocationExpression.Indexable);
-        Visit(selfInvocationExpression.ArgumentList);
+        var tempLocal = Chunk.AllocateLocal();
 
         Visit(selfInvocationExpression.Indexable);
+        Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempLocal);
+
+        // Push 'self' as the first argument
+        Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempLocal);
+
+        // Push subsequent arguments
+        Visit(selfInvocationExpression.ArgumentList);
+
+        // Push receiver for method indexing
+        Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempLocal);
             
         var identifierNameId = Chunk.StringPool.FetchOrAdd(
             selfInvocationExpression.Identifier.Name

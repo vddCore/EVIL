@@ -10,7 +10,7 @@ public partial class Compiler
     {
         Visit(expressionStatement.Expression);
 
-        if (expressionStatement.Expression is not AssignmentExpression)
+        if (expressionStatement.Expression is not (AssignmentExpression or IncrementationExpression or DecrementationExpression))
         {
             Chunk.CodeGenerator.Emit(OpCode.POP);
         }

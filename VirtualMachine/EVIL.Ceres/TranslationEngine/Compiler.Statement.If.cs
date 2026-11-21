@@ -1,11 +1,6 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using System.Collections.Generic;
-using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Grammar;
-using EVIL.Grammar.AST.Base;
-using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -19,45 +14,8 @@ public partial class Compiler
             var statementStart = Chunk.CreateLabel();
             var caseEnd = Chunk.CreateLabel();
             var currentConditionExpression = ifStatement.Conditions[i];
-                
-            if (currentConditionExpression is BinaryExpression { Type: BinaryOperationType.LogicalOr } orBex)
-            {
-                var stack = new Stack<Expression>();
-                stack.Push(orBex.Right);
-                stack.Push(orBex.Left);
 
-                while (stack.Count != 0)
-                {
-                    var node = stack.Pop();
-
-                    if (node is BinaryExpression { Type: BinaryOperationType.LogicalOr } innerBex)
-                    {
-                        stack.Push(innerBex.Right);
-                        stack.Push(innerBex.Left);
-                    }
-                    else
-                    {
-                        Visit(node);
-                        Chunk.CodeGenerator.Emit(
-                            OpCode.TJMP,
-                            statementStart
-                        );
-                    }
-                }
-                    
-                Chunk.CodeGenerator.Emit(
-                    OpCode.JUMP,
-                    caseEnd
-                );
-            }
-            else
-            {
-                Visit(currentConditionExpression);
-                Chunk.CodeGenerator.Emit(
-                    OpCode.FJMP,
-                    caseEnd
-                );
-            }
+            EmitConditionBranch(currentConditionExpression, statementStart, caseEnd, true);
 
             Chunk.UpdateLabel(statementStart, Chunk.CodeGenerator.IP);
 
@@ -73,10 +31,6 @@ public partial class Compiler
         if (ifStatement.ElseBranch != null)
         {
             Visit(ifStatement.ElseBranch);
-        }
-        else
-        {
-            Chunk.CodeGenerator.Emit(OpCode.NOOP);
         }
 
         Chunk.UpdateLabel(

@@ -9,12 +9,15 @@ public partial class Compiler
     {
         InNewLoopDo(Loop.LoopKind.DoWhile, () =>
         {
+            var bodyLabel = Loop.ExtraLabel;
+            Chunk.UpdateLabel(bodyLabel, Chunk.CodeGenerator.IP);
+
             Visit(doWhileStatement.Statement);
 
-            Visit(doWhileStatement.Condition);
-            Chunk.CodeGenerator.Emit(OpCode.TJMP, Loop.StartLabel);
+            Chunk.UpdateLabel(Loop.StartLabel, Chunk.CodeGenerator.IP);
+            EmitConditionBranch(doWhileStatement.Condition, bodyLabel, Loop.EndLabel, false);
 
             Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
-        }, false);
+        }, true);
     }
 }

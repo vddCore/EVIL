@@ -3,9 +3,42 @@
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
+using EVIL.Grammar;
+using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
 {
+    private void EmitConditionBranch(Expression condition, int trueLabel, int falseLabel, bool trueIsFallthrough)
+    {
+        if (condition is BinaryExpression { Type: BinaryOperationType.LogicalAnd } andBex)
+        {
+            var rhsLabel = Chunk.CreateLabel();
+            EmitConditionBranch(andBex.Left, rhsLabel, falseLabel, true);
+            Chunk.UpdateLabel(rhsLabel, Chunk.CodeGenerator.IP);
+            EmitConditionBranch(andBex.Right, trueLabel, falseLabel, trueIsFallthrough);
+        }
+        else if (condition is BinaryExpression { Type: BinaryOperationType.LogicalOr } orBex)
+        {
+            var rhsLabel = Chunk.CreateLabel();
+            EmitConditionBranch(orBex.Left, trueLabel, rhsLabel, false);
+            Chunk.UpdateLabel(rhsLabel, Chunk.CodeGenerator.IP);
+            EmitConditionBranch(orBex.Right, trueLabel, falseLabel, trueIsFallthrough);
+        }
+        else
+        {
+            Visit(condition);
+            if (trueIsFallthrough)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.FJMP, falseLabel);
+            }
+            else
+            {
+                Chunk.CodeGenerator.Emit(OpCode.TJMP, trueLabel);
+            }
+        }
+    }
+
     private void FinalizeChunk()
     {
         if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
@@ -256,7 +289,7 @@ public partial class Compiler
         }
     }
 
-    private (int ClosedScopeLevel, Scoping.Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
+    private (int ClosedScopeLevel, Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
     {
         for (var i = 0; i < _closedScopes.Count; i++)
         {

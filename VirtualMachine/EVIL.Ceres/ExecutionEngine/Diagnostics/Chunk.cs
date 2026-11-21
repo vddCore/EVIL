@@ -11,6 +11,7 @@ using EVIL.Ceres.ExecutionEngine.TypeSystem;
 
 public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 {
+    private byte[]? _cachedCode;
     private readonly MemoryStream _code;
     private List<int> _labels;
     private List<ChunkAttribute> _attributes;
@@ -18,7 +19,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private List<ClosureInfo> _closures;
     private Dictionary<string, ClosureContext> _closureContexts;
     private List<Chunk> _subChunks;
-    private readonly Dictionary<string, int> _namedSubChunkLookup;
+    private Dictionary<string, int> _namedSubChunkLookup;
     private List<BlockProtectionInfo> _protectedBlocks;
 
     private readonly Serializer _serializer;
@@ -49,7 +50,9 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public IReadOnlyDictionary<string, int> NamedSubChunkLookup => _namedSubChunkLookup;
     public IReadOnlyList<BlockProtectionInfo> ProtectedBlocks => _protectedBlocks;
 
-    public byte[] Code => _code.GetBuffer();
+    public Upvalue[]? Upvalues { get; set; }
+
+    public byte[] Code => _cachedCode ??= _code.ToArray();
 
     public bool HasParameters => Flags.HasFlag(ChunkFlags.HasParameters);
     public bool HasLocals => Flags.HasFlag(ChunkFlags.HasLocals);
@@ -128,12 +131,16 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         Name = name;
         StringPool = new StringPool();
-        CodeGenerator = new CodeGenerator(_code, _labels);
+        CodeGenerator = new CodeGenerator(_code, _labels)
+        {
+            BytecodeModified = () => _cachedCode = null
+        };
         DebugDatabase = new DebugDatabase();
     }
 
     public Chunk(string name, byte[] code)
     {
+        _cachedCode = code;
         _code = new MemoryStream(code, 0, code.Length, true, true);
         _labels = new List<int>();
         _attributes = new List<ChunkAttribute>();
@@ -147,12 +154,16 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         Name = name;
         StringPool = new StringPool();
-        CodeGenerator = new CodeGenerator(_code, _labels);
+        CodeGenerator = new CodeGenerator(_code, _labels)
+        {
+            BytecodeModified = () => _cachedCode = null
+        };
         DebugDatabase = new DebugDatabase();
     }
 
     public Chunk(string name, byte[] code, string[] stringConstants)
     {
+        _cachedCode = code;
         _code = new MemoryStream(code, 0, code.Length, true, true);
         _labels = new List<int>();
         _attributes = new List<ChunkAttribute>();
@@ -166,15 +177,39 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         Name = name;
         StringPool = new StringPool(stringConstants);
-        CodeGenerator = new CodeGenerator(_code, _labels);
+        CodeGenerator = new CodeGenerator(_code, _labels)
+        {
+            BytecodeModified = () => _cachedCode = null
+        };
+        DebugDatabase = new DebugDatabase();
+    }
+
+    public Chunk(string name, byte[] code, StringPool stringPool)
+    {
+        _cachedCode = code;
+        _code = new MemoryStream(code, 0, code.Length, true, true);
+        _labels = new List<int>();
+        _attributes = new List<ChunkAttribute>();
+        _parameterInitializers = new Dictionary<int, DynamicValue>();
+        _closures = new List<ClosureInfo>();
+        _closureContexts = new Dictionary<string, ClosureContext>();
+        _subChunks = new List<Chunk>();
+        _namedSubChunkLookup = new Dictionary<string, int>();
+        _protectedBlocks = new List<BlockProtectionInfo>();
+        _serializer = new Serializer(this);
+
+        Name = name;
+        StringPool = stringPool;
+        CodeGenerator = new CodeGenerator(_code, _labels)
+        {
+            BytecodeModified = () => _cachedCode = null
+        };
         DebugDatabase = new DebugDatabase();
     }
 
     public ChunkReader SpawnCodeReader()
     {
-        return new ChunkReader(
-            _code.ToArray()
-        );
+        return new ChunkReader(Code);
     }
 
     public void MarkThrowing()
@@ -325,7 +360,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public byte[] ComputeChecksum()
     {
         var bytes = new List<byte>();
-        bytes.AddRange(_code.ToArray());
+        bytes.AddRange(Code);
         foreach (var subChunk in _subChunks)
         {
             bytes.AddRange(subChunk.ComputeChecksum());
@@ -355,20 +390,21 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
     public Chunk Clone()
     {
-        var contexts = new Dictionary<string, ClosureContext>();
+        var contexts = new Dictionary<string, ClosureContext>(_closureContexts.Count);
         foreach (var kvp in _closureContexts)
         {
-            contexts[kvp.Key] = new ClosureContext(kvp.Value.EnclosedFunctionName);
+            var ctx = new ClosureContext(kvp.Value.EnclosedFunctionName);
             foreach (var kvp2 in kvp.Value.Values)
             {
-                contexts[kvp.Key].Values[kvp2.Key] = kvp2.Value;
+                ctx.Values[kvp2.Key] = kvp2.Value;
             }
+            contexts[kvp.Key] = ctx;
         }
         
         var clone = new Chunk(
             Name,
-            _code.ToArray(),
-            StringPool.ToArray()
+            Code,
+            StringPool
         )
         {
             Parent = Parent,
@@ -377,13 +413,17 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             ParameterCount = ParameterCount,
             DebugDatabase = DebugDatabase,
             IsSelfAware = IsSelfAware,
-            _subChunks = new(_subChunks),
-            _closures = new(_closures),
+            IsSpecialName = IsSpecialName,
+            MayThrow = MayThrow,
+            Upvalues = Upvalues != null ? (Upvalue[])Upvalues.Clone() : null,
+            _subChunks = _subChunks,
+            _namedSubChunkLookup = _namedSubChunkLookup,
+            _closures = _closures,
             _closureContexts = contexts,
-            _labels = new(_labels),
-            _attributes = new(_attributes),
-            _parameterInitializers = new(_parameterInitializers),
-            _protectedBlocks = new(_protectedBlocks)
+            _labels = _labels,
+            _attributes = _attributes,
+            _parameterInitializers = _parameterInitializers,
+            _protectedBlocks = _protectedBlocks
         };
 
         return clone;

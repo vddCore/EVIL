@@ -18,6 +18,8 @@ public sealed class Fiber
     private readonly ValueStack _evaluationStack;
     private readonly CallStack _callStack;
     private readonly Dictionary<string, ClosureContext> _closureContexts;
+    private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _sharedUpvalues;
+    private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _closedUpvalues = new();
 
     private readonly ExecutionUnit _executionUnit;
     private FiberCrashHandler? _crashHandler;
@@ -62,16 +64,20 @@ public sealed class Fiber
         }
     }
 
-    internal Fiber(VirtualMachineBase virtualMachine, Dictionary<string, ClosureContext>? closureContexts = null)
+    internal Fiber(
+        VirtualMachineBase virtualMachine,
+        Dictionary<string, ClosureContext>? closureContexts = null,
+        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null)
     {
         VirtualMachine = virtualMachine;
 
         _scheduledChunks = new Queue<(Chunk, DynamicValue[])>();
-        _waitingFor = new HashSet<Fiber>();
+        _waitingFor = [];
 
         _evaluationStack = new ValueStack();
         _callStack = new CallStack();
         _closureContexts = closureContexts ?? new Dictionary<string, ClosureContext>();
+        _sharedUpvalues = sharedUpvalues ?? new Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>();
             
         _executionUnit = new ExecutionUnit(
             virtualMachine.Global,
@@ -86,7 +92,8 @@ public sealed class Fiber
     internal Fiber(
         VirtualMachineBase virtualMachine, 
         FiberCrashHandler fiberCrashHandler,
-        Dictionary<string, ClosureContext>? closureContexts = null) : this(virtualMachine, closureContexts)
+        Dictionary<string, ClosureContext>? closureContexts = null,
+        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null) : this(virtualMachine, closureContexts, sharedUpvalues)
     {
         SetCrashHandler(fiberCrashHandler);
     }
@@ -166,26 +173,36 @@ public sealed class Fiber
             if (_state != FiberState.Running)
                 return;
             
-            lock (_callStack)
+            const int batchQuantum = 32;
+            for (var i = 0; i < batchQuantum; i++)
             {
                 if (_callStack.Count == 0)
                 {
-                    lock (_scheduledChunks)
+                    lock (_callStack)
                     {
-                        if (_scheduledChunks.TryDequeue(out var info))
+                        if (_callStack.Count == 0)
                         {
-                            Invoke(info.Chunk, info.Arguments);
-                        }
-                        else
-                        {
-                            _state = FiberState.Finished;
-                            return;
+                            lock (_scheduledChunks)
+                            {
+                                if (_scheduledChunks.TryDequeue(out var info))
+                                {
+                                    Invoke(info.Chunk, info.Arguments);
+                                }
+                                else
+                                {
+                                    _state = FiberState.Finished;
+                                    return;
+                                }
+                            }
                         }
                     }
                 }
-            }
 
-            _executionUnit.Step();
+                _executionUnit.Step();
+
+                if (_state != FiberState.Running || _callStack.Count == 0)
+                    break;
+            }
         }
         catch (Exception e)
         {
@@ -407,6 +424,18 @@ public sealed class Fiber
         return value;
     }
 
+    public bool TryGetSharedUpvalue(string funcName, int slot, bool isLocal, out Upvalue upvalue)
+        => _sharedUpvalues.TryGetValue((funcName, slot, isLocal), out upvalue!);
+
+    public void RegisterSharedUpvalue(string funcName, int slot, bool isLocal, Upvalue upvalue)
+        => _sharedUpvalues[(funcName, slot, isLocal)] = upvalue;
+
+    public bool TryGetClosedUpvalue(string funcName, int slot, bool isLocal, out Upvalue upvalue)
+        => _closedUpvalues.TryGetValue((funcName, slot, isLocal), out upvalue!);
+
+    public void SaveClosedUpvalue(string funcName, int slot, bool isLocal, Upvalue upvalue)
+        => _closedUpvalues[(funcName, slot, isLocal)] = upvalue;
+
     public void SetCrashHandler(FiberCrashHandler? crashHandler)
     {
         _crashHandler = crashHandler;
@@ -430,7 +459,8 @@ public sealed class Fiber
         var fiber = VirtualMachine.Scheduler.CreateFiber(
             immunized,
             crashHandler,
-            closureContexts ?? _closureContexts
+            closureContexts ?? _closureContexts,
+            _sharedUpvalues
         );
 
         fiber.Parent = this;
@@ -465,6 +495,7 @@ public sealed class Fiber
                 
             while (_callStack.Count > 1 && !scriptFrame.IsProtectedState)
             {
+                scriptFrame.CloseUpvalues();
                 _callStack.Pop();
                 scriptFrame = _callStack.Peek().As<ScriptStackFrame>();
             }

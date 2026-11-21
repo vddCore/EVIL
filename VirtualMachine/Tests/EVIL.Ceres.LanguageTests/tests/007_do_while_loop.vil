@@ -70,3 +70,19 @@ fn do_while_nested {
   assert.equal(b, 0);
   assert.equal(c, 0);
 }
+
+#[test]
+fn do_while_skip_evaluates_condition {
+  rw val a = 0;
+  rw val count = 0;
+  do {
+    count++;
+    a++;
+    if (a < 5) {
+      skip;
+    }
+  } while (a < 5);
+
+  assert.equal(a, 5);
+  assert.equal(count, 5);
+}

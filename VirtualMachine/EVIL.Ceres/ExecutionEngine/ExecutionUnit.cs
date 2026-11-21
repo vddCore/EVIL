@@ -100,87 +100,27 @@ internal class ExecutionUnit
 
             case OpCode.LDCNK:
             {
-                var clone = frame.Chunk.SubChunks[
-                    frame.FetchInt32()
-                ].Clone();
-                    
-                var subChunkQueue = new Queue<Chunk>();
-                subChunkQueue.Enqueue(clone);
+                var subChunk = frame.Chunk.SubChunks[frame.FetchInt32()];
+                Chunk chunkToPush;
 
-                while (subChunkQueue.Count != 0)
+                if (subChunk.ClosureCount == 0)
                 {
-                    var currentChunk = subChunkQueue.Dequeue();
-
-                    for (var i = 0; i < currentChunk.ClosureCount; i++)
+                    chunkToPush = subChunk;
+                }
+                else
+                {
+                    var clone = subChunk.Clone();
+                    var upvalues = new Upvalue[clone.ClosureCount];
+                    for (var i = 0; i < clone.ClosureCount; i++)
                     {
-                        var closure = currentChunk.Closures[i];
-
-                        ClosureContext closureContext;
-
-                        if (closure.IsSharedScope)
-                        {
-                            closureContext = frame.Fiber.SetClosureContext(closure.EnclosedFunctionName);
-                        }
-                        else
-                        {
-                            closureContext = currentChunk.SetClosureContext(closure.EnclosedFunctionName);
-                        }
-
-                        ScriptStackFrame? sourceFrame = null;
-                        for (var j = _callStack.Count - 1; j >= 0; j--)
-                        {
-                            var tmpFrame = _callStack[j].As<ScriptStackFrame>();
-                            if (tmpFrame.Chunk.Name == closure.EnclosedFunctionName)
-                            {
-                                sourceFrame = tmpFrame;
-                                break;
-                            }
-                        }
-
-                        if (sourceFrame == null)
-                        {
-                            continue;
-                        }
-
-                        if (closure.Type == ClosureType.Parameter)
-                        {
-                            closureContext.Values[closure.EnclosedId] = sourceFrame.Arguments[closure.EnclosedId];
-                        }
-                        else if (closure.Type == ClosureType.Closure)
-                        {
-                            // This is probably going to fuck up at some point :skull:
-                            // I just don't know when.
-                            //
-                            // This is pain. First-class functions are pain.
-                            // Curing testicular cancer was easier than implementing  this shit.
-                            //
-                            var innerClosure = sourceFrame.Chunk.Closures[closure.EnclosedId];
-                                
-                            if (innerClosure.IsSharedScope)
-                            {
-                                closureContext.Values[innerClosure.EnclosedId] = sourceFrame.Fiber
-                                    .ClosureContexts[innerClosure.EnclosedFunctionName].Values[innerClosure.EnclosedId];
-                            }
-                            else
-                            {
-                                    
-                                closureContext.Values[innerClosure.EnclosedId] = sourceFrame.Chunk
-                                    .ClosureContexts[innerClosure.EnclosedFunctionName].Values[innerClosure.EnclosedId];
-                            }
-                        }
-                        else
-                        {
-                            closureContext.Values[closure.EnclosedId] = sourceFrame.Locals![closure.EnclosedId];
-                        }
+                        upvalues[i] = ResolveUpvalue(frame, clone.Closures[i]);
                     }
-                        
-                    foreach (var child in currentChunk.SubChunks)
-                    {
-                        subChunkQueue.Enqueue(child.Clone());
-                    }
+
+                    clone.Upvalues = upvalues;
+                    chunkToPush = clone;
                 }
 
-                PushValue(clone);
+                PushValue(chunkToPush);
                 break;
             }
 
@@ -855,11 +795,17 @@ internal class ExecutionUnit
 
             case OpCode.TAILINVOKE:
             {
+                frame.CloseUpvalues();
                 var args = frame.Arguments;
 
                 for (var i = 0; i < frame.Arguments.Length; i++)
                 {
                     args[args.Length - i - 1] = PopValue();
+                }
+
+                if (frame.Locals != null)
+                {
+                    Array.Clear(frame.Locals, 0, frame.Locals.Length);
                 }
 
                 _fiber.OnChunkInvoke?.Invoke(
@@ -891,9 +837,15 @@ internal class ExecutionUnit
             {
                 a = PopValue();
                 var localId = frame.FetchInt32();
+                if (frame.Locals![localId].Type == DynamicValueType.Nil && frame.HasOpenLocalUpvalue(localId))
+                {
+                    frame.UpdateOpenLocalUpvalue(localId, a);
+                }
+                else
+                {
+                    frame.InvalidateLocalUpvalue(localId);
+                }
                 frame.Locals![localId] = a;
-
-                PropagateValueToSubClosures(frame, ClosureType.Local, localId, a);
                 break;
             }
 
@@ -907,9 +859,8 @@ internal class ExecutionUnit
             {
                 var argId = frame.FetchInt32();
                 a = PopValue();
+                frame.InvalidateArgumentUpvalue(argId);
                 frame.Arguments[argId] = a;
-                
-                PropagateValueToSubClosures(frame, ClosureType.Parameter, argId, a);
                 break;
             }
 
@@ -922,216 +873,14 @@ internal class ExecutionUnit
             case OpCode.SETCLOSURE:
             {
                 var closureId = frame.FetchInt32();
-                var closureInfo = frame.Chunk.Closures[closureId];
-
-                ScriptStackFrame? targetFrame = null;
-                Fiber? targetFiber = _fiber;
-
-                while (targetFiber != null)
-                {
-                    for (var i = 0; i < targetFiber.CallStack.Count; i++)
-                    {
-                        var tmpScriptFrame = targetFiber.CallStack[i].As<ScriptStackFrame>();
-
-                        if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
-                        {
-                            targetFrame = tmpScriptFrame;
-                            break;
-                        }
-                    }
-
-                    if (targetFrame != null)
-                        break;
-
-                    targetFiber = targetFiber.Parent;
-                }
-
-                var value = PopValue();
-
-                if (targetFrame != null)
-                {
-                    if (closureInfo.Type == ClosureType.Parameter)
-                    {
-                        targetFrame.Arguments[closureInfo.EnclosedId] = value;
-                    }
-                    else if (closureInfo.Type == ClosureType.Closure)
-                    {
-                        while (closureInfo.Type == ClosureType.Closure)
-                        {
-                            closureInfo = targetFrame.Chunk.Closures[closureInfo.EnclosedId];
-                                
-                            for (var i = 0; i < _callStack.Count; i++)
-                            {
-                                var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
-
-                                if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
-                                {
-                                    targetFrame = tmpScriptFrame;
-                                    break;
-                                }
-                            }
-                        }
-                            
-                        ClosureContext closureContext;
-
-                        if (closureInfo.IsSharedScope)
-                        {
-                            closureContext = targetFrame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-                        else
-                        {
-                            closureContext = targetFrame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-
-                        closureContext.Values[closureInfo.EnclosedId] = value;
-                    }
-                    else
-                    {
-                        targetFrame.Locals![closureInfo.EnclosedId] = value;
-                    }
-                }
-                else
-                {
-                    ClosureContext closureContext;
-                        
-                    if (closureInfo.IsSharedScope)
-                    {
-                        closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
-                    }
-                    else
-                    {
-                        if (closureInfo.Type == ClosureType.Closure)
-                        {
-                            var currentChunk = frame.Chunk;
-                            while (currentChunk.Name != closureInfo.EnclosedFunctionName)
-                            {
-                                currentChunk = currentChunk.Parent!;
-                            }
-
-                            closureInfo = currentChunk.Closures[closureInfo.EnclosedId];
-                            closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-                        else
-                        {
-                            closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-                    }
-                        
-                    closureContext.Values[closureInfo.EnclosedId] = value;
-                }
-
+                frame.Upvalues![closureId].Set(PopValue());
                 break;
             }
 
             case OpCode.GETCLOSURE:
             {
-                var closureInfo = frame.Chunk.Closures[frame.FetchInt32()];
-
-                ScriptStackFrame? targetFrame = null;
-                Fiber? targetFiber = _fiber;
-
-                while (targetFiber != null)
-                {
-                    for (var i = 0; i < targetFiber.CallStack.Count; i++)
-                    {
-                        var tmpScriptFrame = targetFiber.CallStack[i].As<ScriptStackFrame>();
-
-                        if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
-                        {
-                            targetFrame = tmpScriptFrame;
-                            break;
-                        }
-                    }
-
-                    if (targetFrame != null)
-                        break;
-
-                    targetFiber = targetFiber.Parent;
-                }
-
-                if (targetFrame != null)
-                {
-                    if (closureInfo.Type == ClosureType.Parameter)
-                    {
-                        PushValue(targetFrame.Arguments[closureInfo.EnclosedId]);
-                    }
-                    else if (closureInfo.Type == ClosureType.Closure)
-                    {
-                        while (closureInfo.Type == ClosureType.Closure)
-                        {
-                            closureInfo = targetFrame.Chunk.Closures[closureInfo.EnclosedId];
-                                
-                            for (var i = 0; i < _callStack.Count; i++)
-                            {
-                                var tmpScriptFrame = _callStack[i].As<ScriptStackFrame>();
-
-                                if (tmpScriptFrame.Chunk.Name == closureInfo.EnclosedFunctionName)
-                                {
-                                    targetFrame = tmpScriptFrame;
-                                    break;
-                                }
-                            }
-                        }
-                            
-                        ClosureContext closureContext;
-
-                        if (closureInfo.IsSharedScope)
-                        {
-                            closureContext = targetFrame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-                        else
-                        {
-                            closureContext = targetFrame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-
-                        PushValue(closureContext.Values[closureInfo.EnclosedId]);
-                    }
-                    else
-                    {
-                        if (frame.Chunk.ClosureContexts.ContainsKey(closureInfo.EnclosedFunctionName))
-                        {
-                            PushValue(
-                                frame.Chunk.ClosureContexts[
-                                    closureInfo.EnclosedFunctionName
-                                ].Values[closureInfo.EnclosedId]
-                            );
-                        }
-                        else
-                        {
-                            PushValue(targetFrame.Locals![closureInfo.EnclosedId]);
-                        }
-                    }
-                }
-                else
-                {
-                    ClosureContext closureContext;
-                        
-                    if (closureInfo.IsSharedScope)
-                    {
-                        closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
-                    }
-                    else /* Probably called from somewhere *outside* EVIL. */
-                    {
-                        if (closureInfo.Type == ClosureType.Closure)
-                        {
-                            var currentChunk = frame.Chunk;
-                            while (currentChunk.Name != closureInfo.EnclosedFunctionName)
-                            {
-                                currentChunk = currentChunk.Parent!;
-                            }
-
-                            closureInfo = currentChunk.Closures[closureInfo.EnclosedId];
-                            closureContext = frame.Fiber.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-                        else
-                        {
-                            closureContext = frame.Chunk.ClosureContexts[closureInfo.EnclosedFunctionName];
-                        }
-                    }   
-
-                    PushValue(closureContext.Values[closureInfo.EnclosedId]);
-                }
-
+                var closureId = frame.FetchInt32();
+                PushValue(frame.Upvalues![closureId].Get());
                 break;
             }
 
@@ -1303,6 +1052,7 @@ internal class ExecutionUnit
 
             case OpCode.RET:
             {
+                frame.CloseUpvalues();
                 _callStack.Pop();
                 break;
             }
@@ -1718,6 +1468,9 @@ internal class ExecutionUnit
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DynamicValue[] PopArguments(int count)
     {
+        if (count == 0)
+            return [];
+
         var args = new DynamicValue[count];
         for (var i = 0; i < count; i++)
         {
@@ -1750,32 +1503,131 @@ internal class ExecutionUnit
         return null;
     }
     
-    private void PropagateValueToSubClosures(ScriptStackFrame frame, ClosureType closureType, int slotId, DynamicValue value)
+    private Upvalue ResolveUpvalue(ScriptStackFrame frame, ClosureInfo closure)
     {
-        var subChunkQueue = new Queue<Chunk>(frame.Chunk.SubChunks);
-
-        while (subChunkQueue.Count > 0)
+        if (closure.IsSharedScope)
         {
-            var current = subChunkQueue.Dequeue();
-
-            foreach (var closure in current.Closures)
+            if (_fiber.TryGetSharedUpvalue(
+                    closure.EnclosedFunctionName, 
+                    closure.EnclosedId,
+                    closure.Type == ClosureType.Local,
+                    out var shared))
             {
-                if (closure.Type != closureType || closure.EnclosedId != slotId)
-                    continue;
+                return shared;
+            }
 
-                var context = closure.IsSharedScope
-                    ? frame.Fiber.SetClosureContext(closure.EnclosedFunctionName)
-                    : current.SetClosureContext(closure.EnclosedFunctionName);
-
-                var sourceFrame = FindClosureSourceFrame(closure.EnclosedFunctionName);
-                if (sourceFrame != null)
+            Upvalue? upval = null;
+            if (frame.Chunk.Name == closure.EnclosedFunctionName)
+            {
+                if (closure.Type == ClosureType.Local)
                 {
-                    context.Values[closure.EnclosedId] = value;
+                    upval = frame.GetOrCreateLocalUpvalue(closure.EnclosedId);
+                }
+                else if (closure.Type == ClosureType.Parameter)
+                {
+                    upval = frame.GetOrCreateArgumentUpvalue(closure.EnclosedId);
+                }
+                else if (frame.Upvalues != null && closure.EnclosedId < frame.Upvalues.Length)
+                {
+                    upval = frame.Upvalues[closure.EnclosedId];
+                }
+            }
+            else
+            {
+                var targetFrame = FindClosureSourceFrame(closure.EnclosedFunctionName);
+                if (targetFrame != null)
+                {
+                    if (closure.Type == ClosureType.Local)
+                    {
+                        upval = targetFrame.GetOrCreateLocalUpvalue(closure.EnclosedId);
+                    }
+                    else if (closure.Type == ClosureType.Parameter)
+                    {
+                        upval = targetFrame.GetOrCreateArgumentUpvalue(closure.EnclosedId);
+                    }
+                    else if (targetFrame.Upvalues != null && closure.EnclosedId < targetFrame.Upvalues.Length)
+                    {
+                        upval = targetFrame.Upvalues[closure.EnclosedId];
+                    }
+                }
+                else if (
+                    _fiber.TryGetClosedUpvalue(
+                        closure.EnclosedFunctionName,
+                        closure.EnclosedId,
+                        closure.Type == ClosureType.Local,
+                        out var closed))
+                {
+                    upval = closed;
                 }
             }
 
-            for (var i = 0; i < current.SubChunks.Count; i++) 
-                subChunkQueue.Enqueue(current.SubChunks[i]);
+            upval ??= new Upvalue(DynamicValue.Nil);
+            _fiber.RegisterSharedUpvalue(
+                closure.EnclosedFunctionName,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                upval
+            );
+            
+            return upval;
         }
+
+        if (frame.Chunk.Name == closure.EnclosedFunctionName)
+        {
+            if (closure.Type == ClosureType.Local)
+            {
+                return frame.GetOrCreateLocalUpvalue(closure.EnclosedId);
+            }
+
+            if (closure.Type == ClosureType.Parameter)
+            {
+                return frame.GetOrCreateArgumentUpvalue(closure.EnclosedId);
+            }
+
+            if (closure.Type == ClosureType.Closure 
+                && frame.Upvalues != null 
+                && closure.EnclosedId < frame.Upvalues.Length)
+            {
+                return frame.Upvalues[closure.EnclosedId];
+            }
+        }
+
+        if (closure.Type == ClosureType.Closure 
+            && frame.Upvalues != null 
+            && closure.EnclosedId < frame.Upvalues.Length)
+        {
+            return frame.Upvalues[closure.EnclosedId];
+        }
+
+        var sourceFrame = FindClosureSourceFrame(closure.EnclosedFunctionName);
+        if (sourceFrame != null)
+        {
+            if (closure.Type == ClosureType.Local)
+            {
+                return sourceFrame.GetOrCreateLocalUpvalue(closure.EnclosedId);
+            }
+
+            if (closure.Type == ClosureType.Parameter)
+            {
+                return sourceFrame.GetOrCreateArgumentUpvalue(closure.EnclosedId);
+            }
+
+            if (closure.Type == ClosureType.Closure && sourceFrame.Upvalues != null &&
+                closure.EnclosedId < sourceFrame.Upvalues.Length)
+            {
+                return sourceFrame.Upvalues[closure.EnclosedId];
+            }
+        }
+
+        if (_fiber.TryGetClosedUpvalue(
+                closure.EnclosedFunctionName, 
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                out var closedVal))
+        {
+            return closedVal;
+        }
+
+        return new Upvalue(DynamicValue.Nil);
     }
 }

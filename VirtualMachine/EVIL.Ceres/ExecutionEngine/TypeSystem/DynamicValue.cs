@@ -4,6 +4,7 @@ using Collections_Array = EVIL.Ceres.ExecutionEngine.Collections.Array;
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Collections.Serialization;
@@ -20,95 +21,110 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
     public static readonly DynamicValue False = new(false);
     public static readonly DynamicValue EmptyString = new("");
         
-    public DynamicValueType Type { get; }
+    public readonly double Number;
+    public readonly DynamicValueType Type;
+    private readonly object? _reference;
 
-    public double Number { get; }
-    public string? String { get; }
-    public bool Boolean { get; }
-    public Table? Table { get; }
-    public Collections_Array? Array { get; }
-    public Fiber? Fiber { get; }
-    public Chunk? Chunk { get; }
-    public Error? Error { get; }
-    public DynamicValueType TypeCode { get; }
-    public NativeFunction? NativeFunction { get; }
-    public object? NativeObject { get; }
+    public bool Boolean => Number != 0;
+    public DynamicValueType TypeCode => (DynamicValueType)(int)Number;
+    public string? String => (string?)_reference;
+    public Table? Table => (Table?)_reference;
+    public Collections_Array? Array => (Collections_Array?)_reference;
+    public Fiber? Fiber => (Fiber?)_reference;
+    public Chunk? Chunk => (Chunk?)_reference;
+    public Error? Error => (Error?)_reference;
+    public NativeFunction? NativeFunction => (NativeFunction?)_reference;
+    public object? NativeObject => _reference;
 
     public DynamicValue()
     {
         Type = DynamicValueType.Nil;
+        Number = 0;
+        _reference = null;
     }
         
     public DynamicValue(double value)
     {
         Number = value;
         Type = DynamicValueType.Number;
+        _reference = null;
     }
 
     public DynamicValue(string value)
     {
-        String = value;
         Type = DynamicValueType.String;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(char value)
     {
-        String = value.ToString();
         Type = DynamicValueType.String;
+        Number = 0;
+        _reference = value.ToString();
     }
 
     public DynamicValue(bool value)
     {
-        Boolean = value;
+        Number = value ? 1.0 : 0.0;
         Type = DynamicValueType.Boolean;
+        _reference = null;
     }
 
     public DynamicValue(Table value)
     {
-        Table = value;
         Type = DynamicValueType.Table;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(Collections_Array value)
     {
-        Array = value;
         Type = DynamicValueType.Array;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(Fiber value)
     {
-        Fiber = value;
         Type = DynamicValueType.Fiber;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(Chunk value)
     {
-        Chunk = value;
         Type = DynamicValueType.Chunk;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(Error value)
     {
-        Error = value;
         Type = DynamicValueType.Error;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(DynamicValueType value)
     {
-        TypeCode = value;
+        Number = (double)(int)value;
         Type = DynamicValueType.TypeCode;
+        _reference = null;
     }
 
     public DynamicValue(NativeFunction value)
     {
-        NativeFunction = value;
         Type = DynamicValueType.NativeFunction;
+        Number = 0;
+        _reference = value;
     }
 
     public DynamicValue(object? value)
     {
-        NativeObject = value;
         Type = DynamicValueType.NativeObject;
+        Number = 0;
+        _reference = value;
     }
 
     public void Serialize(Stream stream, bool throwOnUnsupported = false)
@@ -174,17 +190,23 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
     }
 
     public bool Equals(DynamicValue other) 
-        => Type == other.Type 
-           && Number.Equals(other.Number) 
-           && String == other.String
-           && Boolean == other.Boolean
-           && Equals(Table, other.Table) 
-           && Equals(Array, other.Array)
-           && Equals(Fiber, other.Fiber)
-           && Equals(Chunk, other.Chunk)
-           && Equals(Error, other.Error)
-           && TypeCode == other.TypeCode
-           && Equals(NativeFunction, other.NativeFunction);
+    {
+        if (Type != other.Type) return false;
+        return Type switch
+        {
+            DynamicValueType.Nil => true,
+            DynamicValueType.Number => Number.Equals(other.Number),
+            DynamicValueType.Boolean => (Number != 0) == (other.Number != 0),
+            DynamicValueType.TypeCode => (int)Number == (int)other.Number,
+            DynamicValueType.String => String == other.String,
+            DynamicValueType.NativeObject => Equals(_reference, other._reference) 
+                                          || (_reference != null 
+                                              && other._reference != null 
+                                              && _reference.GetType() == other._reference.GetType() 
+                                              && _reference.ToString() == other._reference.ToString()),
+            _ => Equals(_reference, other._reference)
+        };
+    }
 
     public override bool Equals(object? obj) 
         => obj is DynamicValue other 
@@ -192,22 +214,14 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
 
     public override int GetHashCode()
     {
-        var hashCode = new HashCode();
-            
-        hashCode.Add((int)Type);
-        hashCode.Add(Number);
-        hashCode.Add(String);
-        hashCode.Add(Boolean);
-        hashCode.Add(Table);
-        hashCode.Add(Array);
-        hashCode.Add(Fiber);
-        hashCode.Add(Chunk);
-        hashCode.Add(Error);
-        hashCode.Add(TypeCode);
-        hashCode.Add(NativeFunction);
-        hashCode.Add(NativeObject);
-            
-        return hashCode.ToHashCode();
+        return Type switch
+        {
+            DynamicValueType.Nil => 0,
+            DynamicValueType.Number => HashCode.Combine((int)Type, Number),
+            DynamicValueType.Boolean => HashCode.Combine((int)Type, Boolean),
+            DynamicValueType.TypeCode => HashCode.Combine((int)Type, (int)TypeCode),
+            _ => HashCode.Combine((int)Type, _reference)
+        };
     }
 
     public static bool operator ==(DynamicValue left, DynamicValue right) 
@@ -231,126 +245,109 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
 
     public static explicit operator double(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Number)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
-
-        return value.Number;
+        return value.Type != DynamicValueType.Number 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.") 
+            : value.Number;
     }
         
     public static explicit operator float(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Number)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
-
-        return (float)value.Number;
+        return value.Type != DynamicValueType.Number
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.")
+            : (float)value.Number;
     }
         
     public static explicit operator int(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Number)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
-
-        return (int)value.Number;
+        return value.Type != DynamicValueType.Number
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.")
+            : (int)value.Number;
     }
         
     public static explicit operator uint(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Number)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
-
-        return (uint)value.Number;
+        return value.Type != DynamicValueType.Number
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.")
+            : (uint)value.Number;
     }
         
     public static explicit operator long(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Number)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
-
-        return (long)value.Number;
+        return value.Type != DynamicValueType.Number
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.")
+            : (long)value.Number;
     }
         
     public static explicit operator ulong(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Number)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.");
-
-        return (ulong)value.Number;
+        return value.Type != DynamicValueType.Number
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Number.")
+            : (ulong)value.Number;
     }
         
     public static explicit operator string(DynamicValue value)
-    {
-        return value.ConvertToString().String!;
-    }
-        
+        => value.ConvertToString().String!;
+
     public static explicit operator bool(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Boolean)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Boolean.");
-
-        return value.Boolean;
+        return value.Type != DynamicValueType.Boolean 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Boolean.") 
+            : value.Boolean;
     }
 
     public static explicit operator Table(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Table)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Table.");
-
-        return value.Table!;
+        return value.Type != DynamicValueType.Table 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Table.")
+            : value.Table!;
     }
 
     public static explicit operator Collections_Array(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Array)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to an Array.");
-
-        return value.Array!;
+        return value.Type != DynamicValueType.Array 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to an Array.") 
+            : value.Array!;
     }
 
     public static explicit operator Fiber(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Fiber)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Fiber.");
-
-        return value.Fiber!;
+        return value.Type != DynamicValueType.Fiber 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Fiber.") 
+            : value.Fiber!;
     }
         
     public static explicit operator Chunk(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Chunk)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Chunk.");
-
-        return value.Chunk!;
+        return value.Type != DynamicValueType.Chunk
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a Chunk.") 
+            : value.Chunk!;
     }
 
     public static explicit operator Error(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.Error)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to an Error.");
-
-        return value.Error!;
+        return value.Type != DynamicValueType.Error 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to an Error.")
+            : value.Error!;
     }
         
     public static explicit operator DynamicValueType(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.TypeCode)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a TypeCode");
-
-        return value.TypeCode;
+        return value.Type != DynamicValueType.TypeCode 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a TypeCode") 
+            : value.TypeCode;
     }
         
     public static explicit operator NativeFunction(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.NativeFunction)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeFunction.");
-
-        return value.NativeFunction!;
+        return value.Type != DynamicValueType.NativeFunction 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeFunction.") 
+            : value.NativeFunction!;
     }
 
     public static object ToObject(DynamicValue value)
     {
-        if (value.Type != DynamicValueType.NativeObject)
-            throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeObject.");
-
-        return value.NativeObject!;
+        return value.Type != DynamicValueType.NativeObject 
+            ? throw new InvalidCastException($"Cannot cast dynamic type '{value.Type}' to a NativeObject.") 
+            : value.NativeObject!;
     }        
 }

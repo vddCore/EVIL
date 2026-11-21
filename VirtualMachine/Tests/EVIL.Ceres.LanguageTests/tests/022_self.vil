@@ -186,3 +186,20 @@ fn self_explicit_parameter {
   obj::explicit();
   assert.equal(obj.i_am, "here");
 }
+
+#[test]
+fn self_invocation_receiver_evaluated_once {
+  rw val eval_count = 0;
+  val factory = {
+    create: fn {
+      eval_count++;
+      ret {
+        num: 42,
+        get_val: self::fn() -> self.num
+      };
+    }
+  };
+  val res = factory.create()::get_val();
+  assert.equal(res, 42);
+  assert.equal(eval_count, 1);
+}

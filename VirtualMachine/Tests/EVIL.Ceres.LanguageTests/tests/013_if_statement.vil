@@ -110,3 +110,24 @@ fn or_shortcircuit_complex_else_branch {
   assert.equal(x, 5);
 }
 
+#[test]
+fn and_shortcircuit_left_is_false {
+  rw val x = nil;
+  rw val executed = false;
+  if (x != nil && x > 0) {
+    executed = true;
+  }
+  assert.equal(executed, false);
+}
+
+#[test]
+fn and_shortcircuit_nested_conditions {
+  rw val a = nil;
+  rw val b = 10;
+  rw val res = 0;
+  if ((a != nil && a > 0) || (b != nil && b == 10)) {
+    res = 1;
+  }
+  assert.equal(res, 1);
+}
+

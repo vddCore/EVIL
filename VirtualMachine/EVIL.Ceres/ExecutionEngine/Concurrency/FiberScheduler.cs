@@ -88,12 +88,14 @@ public sealed class FiberScheduler(
     public Fiber CreateFiber(
         bool immunized,
         FiberCrashHandler? crashHandler = null,
-        Dictionary<string, ClosureContext>? closureContexts = null)
+        Dictionary<string, ClosureContext>? closureContexts = null,
+        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null)
     {
         var fiber = new Fiber(
             vm,
             crashHandler ?? DefaultCrashHandler,
-            closureContexts
+            closureContexts,
+            sharedUpvalues
         );
         
         if (immunized)

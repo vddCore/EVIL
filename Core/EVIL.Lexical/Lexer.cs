@@ -237,11 +237,11 @@ public class Lexer
                 case ')':
                     State.CurrentToken = Token.RParenthesis with { Line = line, Column = col };
                     break;
-                case '!' when Peek() == 'i' && Peek(2) == 'n' && (char.IsWhiteSpace(Peek(3))  || Peek(3) == '\0'):
+                case '!' when Peek() == 'i' && Peek(2) == 'n' && !IsLegalIdentifierCharacter(Peek(3)):
                     Advance(2);
                     State.CurrentToken = Token.NotIn with { Line = line, Column = col };
                     break;
-                case '!' when Peek() == 'i' && Peek(2) == 's' && (char.IsWhiteSpace(Peek(3)) || Peek(3) == '\0'):
+                case '!' when Peek() == 'i' && Peek(2) == 's' && !IsLegalIdentifierCharacter(Peek(3)):
                     Advance(2);
                     State.CurrentToken = Token.IsNot with { Line = line, Column = col };
                     break;
@@ -461,7 +461,7 @@ public class Lexer
             "Array" => Token.ArrayTypeCode,
             "Fiber" => Token.FiberTypeCode,
             "Error" => Token.ErrorTypeCode,
-            "Function" => Token.ChunkTypeCode,
+            "Function" or "Fn" => Token.ChunkTypeCode,
             "Type" => Token.TypeCodeTypeCode,
             "NativeFunction" => Token.NativeFunctionTypeCode,
             "NativeObject" => Token.NativeObjectTypeCode,
@@ -547,7 +547,10 @@ public class Lexer
                             str += '\\';
                             break;
                         case '$':
-                            str += '$';
+                            if (delimiter == '"')
+                                str += "\\$";
+                            else
+                                str += '$';
                             break;
                         default:
                             throw new LexerException(
@@ -558,6 +561,117 @@ public class Lexer
                     }
 
                     Advance();
+                    continue;
+                }
+
+                case '$' when delimiter == '"' && Peek() == '{':
+                {
+                    str += "${";
+                    Advance(2);
+
+                    var braceDepth = 1;
+                    while (braceDepth > 0 && State.Character != (char)0)
+                    {
+                        if (State.Character == '\\')
+                        {
+                            str += State.Character;
+                            Advance();
+                            if (State.Character != (char)0)
+                            {
+                                str += State.Character;
+                                Advance();
+                            }
+                            continue;
+                        }
+
+                        if (State.Character == '/' && Peek() == '/')
+                        {
+                            str += "//";
+                            Advance(2);
+                            while (State.Character != '\n' && State.Character != (char)0)
+                            {
+                                str += State.Character;
+                                Advance();
+                            }
+                            continue;
+                        }
+
+                        if (State.Character == '/' && Peek() == '*')
+                        {
+                            str += "/*";
+                            Advance(2);
+                            while (State.Character != (char)0)
+                            {
+                                if (State.Character == '*' && Peek() == '/')
+                                {
+                                    str += "*/";
+                                    Advance(2);
+                                    break;
+                                }
+
+                                str += State.Character;
+                                Advance();
+                            }
+                            continue;
+                        }
+
+                        if (State.Character == '"' || State.Character == '\'')
+                        {
+                            var quote = State.Character;
+                            str += quote;
+                            Advance();
+
+                            while (State.Character != quote && State.Character != (char)0)
+                            {
+                                if (State.Character == '\\')
+                                {
+                                    str += State.Character;
+                                    Advance();
+                                    if (State.Character != (char)0)
+                                    {
+                                        str += State.Character;
+                                        Advance();
+                                    }
+                                    continue;
+                                }
+
+                                str += State.Character;
+                                Advance();
+                            }
+
+                            if (State.Character == quote)
+                            {
+                                str += quote;
+                                Advance();
+                            }
+                            continue;
+                        }
+
+                        if (State.Character == '{')
+                        {
+                            braceDepth++;
+                            str += '{';
+                            Advance();
+                            continue;
+                        }
+
+                        if (State.Character == '}')
+                        {
+                            braceDepth--;
+                            str += '}';
+                            Advance();
+                            continue;
+                        }
+
+                        str += State.Character;
+                        Advance();
+                    }
+
+                    if (braceDepth > 0)
+                    {
+                        throw new LexerException("Unterminated expression in interpolated string.", line, col);
+                    }
+
                     continue;
                 }
 

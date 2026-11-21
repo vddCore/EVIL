@@ -310,3 +310,17 @@ fn by_expression_branch_is_function {
     
     assert.equal(result, "match");
 }
+
+#[test]
+fn by_expression_with_throw_arm_and_subsequent_arms {
+    val test_by = fn(v) -> by v {
+        1 -> 100,
+        2 -> throw("error 2"),
+        3 -> 300,
+        else: 999
+    };
+    assert.equal(test_by(1), 100);
+    assert.equal(test_by(3), 300);
+    assert.equal(test_by(4), 999);
+    assert.throws(fn -> test_by(2));
+}

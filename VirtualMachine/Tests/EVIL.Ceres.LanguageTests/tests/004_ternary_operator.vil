@@ -116,3 +116,10 @@ fn ternary_all_branches_are_ternaries() {
   
   assert.equal(result, "sukceso");
 }
+
+#[test]
+fn ternary_and_shortcircuit {
+  val x = nil;
+  val result = (x != nil && x > 0) ? "yes" : "no";
+  assert.equal(result, "no");
+}

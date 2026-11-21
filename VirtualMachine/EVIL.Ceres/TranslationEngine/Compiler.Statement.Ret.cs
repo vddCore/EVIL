@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -11,10 +12,12 @@ public partial class Compiler
         {
             Visit(retStatement.Expression);
 
-            if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
+            if (retStatement.Expression is InvocationExpression && Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
             {
                 if (opCode == OpCode.TAILINVOKE)
+                {
                     return;
+                }
             }
         }
         else

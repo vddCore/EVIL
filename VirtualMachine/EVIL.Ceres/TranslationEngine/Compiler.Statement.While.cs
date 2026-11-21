@@ -9,9 +9,10 @@ public partial class Compiler
     {
         InNewLoopDo(Loop.LoopKind.While, () =>
         {
-            Visit(whileStatement.Condition);
-            Chunk.CodeGenerator.Emit(OpCode.FJMP, Loop.EndLabel);
+            var bodyLabel = Chunk.CreateLabel();
+            EmitConditionBranch(whileStatement.Condition, bodyLabel, Loop.EndLabel, true);
 
+            Chunk.UpdateLabel(bodyLabel, Chunk.CodeGenerator.IP);
             Visit(whileStatement.Statement);
             Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
 

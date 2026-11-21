@@ -74,16 +74,30 @@ public partial class Compiler
         {
             if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
             {
+                var tempTarget = Chunk.AllocateLocal();
+                var tempKey = Chunk.AllocateLocal();
+
+                Visit(ie.Indexable);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempTarget);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempKey);
+
                 var valueNotNilLabel = Chunk.CreateLabel();
 
-                Visit(ie);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
+                Chunk.CodeGenerator.Emit(ie.CreateTableIfNonExistent ? OpCode.INOCT : OpCode.INDEX);
+
                 Chunk.CodeGenerator.Emit(OpCode.DUP);
                 Chunk.CodeGenerator.Emit(OpCode.VJMP, valueNotNilLabel);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
                 Visit(assignmentExpression.Right);
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
-                Visit(ie.Indexable);
-                Visit(ie.KeyExpression);
+                if (assignmentExpression.Parent is not ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
                 Chunk.CodeGenerator.Emit(OpCode.ELSET);
                 Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
 
@@ -92,7 +106,18 @@ public partial class Compiler
 
             if (assignmentExpression.OperationType != AssignmentOperationType.Direct)
             {
-                Visit(ie);
+                var tempTarget = Chunk.AllocateLocal();
+                var tempKey = Chunk.AllocateLocal();
+
+                Visit(ie.Indexable);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempTarget);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempKey);
+
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
+                Chunk.CodeGenerator.Emit(ie.CreateTableIfNonExistent ? OpCode.INOCT : OpCode.INDEX);
+
                 Visit(assignmentExpression.Right);
 
                 Chunk.CodeGenerator.Emit(
@@ -117,20 +142,29 @@ public partial class Compiler
                         )
                     }
                 );
+
+                if (assignmentExpression.Parent is not ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
+
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
+                Chunk.CodeGenerator.Emit(OpCode.ELSET);
             }
             else
             {
                 Visit(assignmentExpression.Right);
-            }
 
-            if (assignmentExpression.Parent is not ExpressionStatement)
-            {
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
-            }
+                if (assignmentExpression.Parent is not ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
 
-            Visit(ie.Indexable);
-            Visit(ie.KeyExpression);
-            Chunk.CodeGenerator.Emit(OpCode.ELSET);
+                Visit(ie.Indexable);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.ELSET);
+            }
         }
         else
         {

@@ -6,3 +6,9 @@ fn get_add_fn -> add;
 #[test] fn invoke -> assert.equal(add(2, 2), 4);
 #[test] fn invoke_indirect -> assert.equal(get_add_fn()(3, 3), 6);
 #[test] fn invoke_native -> assert.equal(__native_func(1, 2, 3, 21.37), 21.37);
+
+#[test]
+fn tail_call_expression_body_recursion {
+  loc fn sum(n, acc) -> n == 0 ? acc : sum(n - 1, acc + 1);
+  assert.equal(sum(1000, 0), 1000);
+}

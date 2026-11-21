@@ -27,6 +27,18 @@ public partial class Parser
         return programNode;
     }
 
+    public Expression ParseExpression(string expressionSource)
+    {
+        _functionDescent = 0;
+        _loopDescent = 0;
+        _lexer.LoadSource(expressionSource);
+
+        var expression = AssignmentExpression();
+        Match(Token.EOF);
+
+        return expression;
+    }
+
     private T FunctionDescent<T>(Func<T> func) where T : AstNode
     {
         _functionDescent++;

@@ -44,8 +44,9 @@ public partial class Compiler
             if (arms[i].ValueArm is Expression)
             {
                 Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
-                Chunk.UpdateLabel(labels[i], Chunk.CodeGenerator.IP);
             }
+
+            Chunk.UpdateLabel(labels[i], Chunk.CodeGenerator.IP);
         }
 
         if (elseArm != null)

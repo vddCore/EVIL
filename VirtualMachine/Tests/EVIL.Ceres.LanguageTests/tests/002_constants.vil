@@ -108,3 +108,59 @@ fn number_with_exponent {
   assert.equal(b, 200);
   assert.equal(c, 0.03);
 }
+
+#[test]
+fn interpolated_string_escaped_dollar {
+  val a = "hello";
+  assert.equal("\$a = $a", '$a = hello');
+  assert.equal("\$a", '$a');
+  assert.equal("cost: \$100", 'cost: $100');
+}
+
+#[test]
+fn type_fn_alias {
+  assert.equal(typeof(fn() {}), Fn);
+  assert(fn() {} is Fn);
+}
+
+#[test]
+fn interpolated_string_expressions() {
+  val x = 10;
+  val y = 20;
+  assert.equal("sum: ${x + y}", 'sum: 30');
+  assert.equal("${x} + ${y} = ${x + y}", '10 + 20 = 30');
+  assert.equal("${1 + 2 * 3}", '7');
+}
+
+#[test]
+fn interpolated_string_expression_conditional() {
+  val active = true;
+  assert.equal("status: ${active ? 'online' : 'offline'}", 'status: online');
+  assert.equal("status: ${!active ? 'online' : 'offline'}", 'status: offline');
+  assert.equal("nested quotes: ${active ? "yes" : "no"}", 'nested quotes: yes');
+}
+
+#[test]
+fn interpolated_string_expression_members_and_calls() {
+  val t = { name: "EVIL", ver: 2 };
+  val arr = array { 100, 200, 300 };
+  loc fn square(n) -> n * n;
+  
+  assert.equal("lang: ${t.name} v${t.ver}", 'lang: EVIL v2');
+  assert.equal("item: ${arr[1]}", 'item: 200');
+  assert.equal("calc: ${square(5)}", 'calc: 25');
+  assert.equal("table expr: ${ { num: 42 }.num }", 'table expr: 42');
+}
+
+#[test]
+fn interpolated_string_expression_nested_interpolation() {
+  val a = 5;
+  assert.equal("outer: ${"inner: ${a * 2}"}", 'outer: inner: 10');
+}
+
+#[test]
+fn interpolated_string_expression_escaped() {
+  val a = 1;
+  val b = 2;
+  assert.equal("calc: \${a + b} = ${a + b}", 'calc: ${a + b} = 3');
+}

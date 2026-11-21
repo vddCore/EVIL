@@ -54,11 +54,10 @@ public class LexerTests
     {
         _lexer.LoadSource(
             "typeof " +
-            "while break yield false catch retry throw" +
+            "while break yield false catch retry throw " +
             "skip each elif else true " +
-            "val ret for nil try" +
-            "if rw do in fn is !is" +
-            "catch retry throw"
+            "val ret for nil try " +
+            "if rw do in fn is !is"
         );
 
         Expect(TypeOf);
@@ -139,13 +138,16 @@ public class LexerTests
     {
         _lexer.LoadSource("- 2 (-2) -32E03 21.37 44.11 .42 27.0 31.1 .1 12");
 
-        ExpectExact((TokenType.Number, "-2"));
+        Expect(Minus);
+        ExpectExact((TokenType.Number, "2"));
         Expect(LParenthesis);
-        ExpectExact((TokenType.Number, "-2"));
+        Expect(Minus);
+        ExpectExact((TokenType.Number, "2"));
         Expect(RParenthesis);
+        Expect(Minus);
         
         ExpectExact(
-            (TokenType.Number, "-32E03"),
+            (TokenType.Number, "32E03"),
             (TokenType.Number, "21.37"),
             (TokenType.Number, "44.11"),
             (TokenType.Number, ".42"),
@@ -163,7 +165,7 @@ public class LexerTests
     {
         _lexer.LoadSource(
             "0x1 0x12 0x123 0x1234 0x12345 0x123456 0x1234567 " +
-            "0x12345678 0xDEADBEEF13371 0x1D34d 0x2CafE 0x3b33f" +
+            "0x12345678 0xDEADBEEF13371 0x1D34d 0x2CafE 0x3b33f " +
             "-0x1234"
         );
 
@@ -179,9 +181,11 @@ public class LexerTests
             (TokenType.HexInteger, "DEADBEEF13371"),
             (TokenType.HexInteger, "1D34d"),
             (TokenType.HexInteger, "2CafE"),
-            (TokenType.HexInteger, "3b33f"),
-            (TokenType.HexInteger, "-1234")
+            (TokenType.HexInteger, "3b33f")
         );
+
+        Expect(Minus);
+        ExpectExact((TokenType.HexInteger, "1234"));
 
         Expect(EOF);
     }
@@ -209,17 +213,71 @@ public class LexerTests
     }
 
     [Test]
+    public void StringDollarEscape()
+    {
+        _lexer.LoadSource(
+            "\"double \\$var\" 'single \\$var'"
+        );
+
+        ExpectExact(
+            (TokenType.InterpolatedString, "double \\$var"),
+            (TokenType.PlainString, "single $var")
+        );
+
+        Expect(EOF);
+    }
+
+    [Test]
+    public void NotInAndIsNotOrthogonality()
+    {
+        _lexer.LoadSource("!in !is !in(x) !is(x) !in/*comment*/y !inside !island");
+
+        Expect(NotIn, IsNot);
+        Expect(NotIn, LParenthesis);
+        ExpectExact((TokenType.Identifier, "x"));
+        Expect(RParenthesis);
+        Expect(IsNot, LParenthesis);
+        ExpectExact((TokenType.Identifier, "x"));
+        Expect(RParenthesis);
+        Expect(NotIn);
+        ExpectExact((TokenType.Identifier, "y"));
+        Expect(LogicalNot);
+        ExpectExact((TokenType.Identifier, "inside"));
+        Expect(LogicalNot);
+        ExpectExact((TokenType.Identifier, "island"));
+        Expect(EOF);
+    }
+
+    [Test]
     public void TypeCodes()
     {
         _lexer.LoadSource(
             "Nil Number Boolean String " +
             "Table Function Type " +
-            "NativeFunction NativeObject"
+            "NativeFunction NativeObject Fn"
         );
 
         Expect(NilTypeCode, NumberTypeCode, BooleanTypeCode, StringTypeCode);
         Expect(TableTypeCode, ChunkTypeCode, TypeCodeTypeCode);
-        Expect(NativeFunctionTypeCode, NativeObjectTypeCode);
+        Expect(NativeFunctionTypeCode, NativeObjectTypeCode, ChunkTypeCode);
+        Expect(EOF);
+    }
+
+    [Test]
+    public void InterpolatedStringExpressions()
+    {
+        _lexer.LoadSource(
+            "\"result: ${1 + 2}\" " +
+            "\"nested: ${flag ? \"yes\" : \"no\"}\" " +
+            "\"table: ${{ a: 1 }.a}\""
+        );
+
+        ExpectExact(
+            (TokenType.InterpolatedString, "result: ${1 + 2}"),
+            (TokenType.InterpolatedString, "nested: ${flag ? \"yes\" : \"no\"}"),
+            (TokenType.InterpolatedString, "table: ${{ a: 1 }.a}")
+        );
+
         Expect(EOF);
     }
 }

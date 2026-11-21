@@ -225,3 +225,29 @@ fn assignment_expression_statement {
   assert(a is Number);
   assert.equal(a, 0);
 }
+
+#[test]
+fn compound_assignment_index_evaluated_once {
+  rw val call_count = 0;
+  val get_index = fn {
+    call_count++;
+    ret "key";
+  };
+  val t = { key: 10 };
+  t[get_index()] += 5;
+  assert.equal(t.key, 15);
+  assert.equal(call_count, 1);
+}
+
+#[test]
+fn indexed_increment_evaluated_once {
+  rw val idx_calls = 0;
+  val get_idx = fn {
+    idx_calls++;
+    ret 0;
+  };
+  val arr = array { 100 };
+  arr[get_idx()]++;
+  assert.equal(arr[0], 101);
+  assert.equal(idx_calls, 1);
+}

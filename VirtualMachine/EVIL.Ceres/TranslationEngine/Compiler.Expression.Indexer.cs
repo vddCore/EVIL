@@ -28,7 +28,6 @@ public partial class Compiler
 
             Chunk.CodeGenerator.Emit(OpCode.DUP);
             Chunk.CodeGenerator.Emit(OpCode.VJMP, indexLabel);
-            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
             Chunk.CodeGenerator.Emit(OpCode.JUMP, endIndexerLabel);
             Chunk.UpdateLabel(indexLabel, Chunk.CodeGenerator.IP);
             Visit(indexerExpression.KeyExpression);
