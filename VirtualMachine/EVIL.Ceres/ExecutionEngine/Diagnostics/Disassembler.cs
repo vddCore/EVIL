@@ -250,13 +250,8 @@ public static class Disassembler
                         output.Write(opCode);
                         output.Write(" ");
 
-                        var labelid = reader.ReadInt32();
-                        output.Write(labelid);
-
-                        if (options.WriteLabelAddresses)
-                        {
-                            output.Write($" ({chunk.Labels[labelid]:X8})");
-                        }
+                        var targetIp = reader.ReadInt32();
+                        output.Write($"0x{targetIp:X8}");
 
                         output.WriteLine();
                         break;

@@ -11,6 +11,8 @@ public sealed class CodeGenerator : IDisposable
     private readonly BinaryWriter _writer;
     private readonly List<int> _labels;
     private readonly Stack<int> _opCodeAddresses;
+    private readonly List<int> _jumpFixups;
+    private bool _nextOperandIsJumpFixup;
 
     public Action<int, OpCode>? OpCodeEmitted { get; set; }
     internal Action? BytecodeModified { get; set; }
@@ -23,12 +25,14 @@ public sealed class CodeGenerator : IDisposable
 
     public IReadOnlyList<int> Labels => _labels;
     public IReadOnlyCollection<int> OpCodeAddresses => _opCodeAddresses;
+    public IReadOnlyList<int> JumpFixups => _jumpFixups;
         
     internal CodeGenerator(MemoryStream code, List<int> labels)
     {
         _code = code;
         _labels = labels;
         _opCodeAddresses = new();
+        _jumpFixups = new();
             
         _writer = new BinaryWriter(_code, Encoding.UTF8, true);
     }
@@ -67,6 +71,15 @@ public sealed class CodeGenerator : IDisposable
         BytecodeModified?.Invoke();
         _opCodeAddresses.Push(IP);
         _writer.Write((byte)value);
+
+        if (value is OpCode.JUMP or OpCode.FJMP or OpCode.TJMP or OpCode.VJMP or OpCode.NJMP)
+        {
+            _nextOperandIsJumpFixup = true;
+        }
+        else
+        {
+            _nextOperandIsJumpFixup = false;
+        }
 
         OpCodeEmitted?.Invoke(_opCodeAddresses.Peek(), value);
     }
@@ -108,7 +121,15 @@ public sealed class CodeGenerator : IDisposable
         => _writer.Write(value);
 
     public void Emit(int value)
-        => _writer.Write(value);
+    {
+        if (_nextOperandIsJumpFixup)
+        {
+            _jumpFixups.Add(IP);
+            _nextOperandIsJumpFixup = false;
+        }
+
+        _writer.Write(value);
+    }
 
     public void Emit(bool value)
         => _writer.Write(value);

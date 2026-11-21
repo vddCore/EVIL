@@ -52,7 +52,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
     public Upvalue[]? Upvalues { get; set; }
 
-    public byte[] Code => _cachedCode ??= _code.ToArray();
+    public byte[] Code => _cachedCode ??= FinalizeAndGetCode();
 
     public bool HasParameters => Flags.HasFlag(ChunkFlags.HasParameters);
     public bool HasLocals => Flags.HasFlag(ChunkFlags.HasLocals);
@@ -202,9 +202,49 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         StringPool = stringPool;
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
-            BytecodeModified = () => _cachedCode = null
+            BytecodeModified = () =>
+            {
+                _cachedCode = null;
+                _labelsBackpatched = false;
+            }
         };
         DebugDatabase = new DebugDatabase();
+    }
+
+    private bool _labelsBackpatched;
+
+    public void BackpatchLabels()
+    {
+        if (_labelsBackpatched)
+            return;
+        _labelsBackpatched = true;
+
+        if (_labels.Count == 0 || CodeGenerator.JumpFixups.Count == 0)
+            return;
+
+        var currentPos = _code.Position;
+        using var reader = new BinaryReader(_code, Encoding.UTF8, true);
+        using var writer = new BinaryWriter(_code, Encoding.UTF8, true);
+
+        foreach (var fixupOffset in CodeGenerator.JumpFixups)
+        {
+            _code.Seek(fixupOffset, SeekOrigin.Begin);
+            var labelId = reader.ReadInt32();
+            if (labelId >= 0 && labelId < _labels.Count)
+            {
+                var targetIp = _labels[labelId];
+                _code.Seek(fixupOffset, SeekOrigin.Begin);
+                writer.Write(targetIp);
+            }
+        }
+
+        _code.Seek(currentPos, SeekOrigin.Begin);
+    }
+
+    private byte[] FinalizeAndGetCode()
+    {
+        BackpatchLabels();
+        return _code.ToArray();
     }
 
     public ChunkReader SpawnCodeReader()
@@ -383,7 +423,10 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     }
 
     public void Serialize(Stream stream)
-        => _serializer.Write(stream);
+    {
+        BackpatchLabels();
+        _serializer.Write(stream);
+    }
 
     public static Chunk Deserialize(Stream stream, out byte version, out long timestamp)
         => Deserializer.Deserialize(stream, out version, out timestamp);

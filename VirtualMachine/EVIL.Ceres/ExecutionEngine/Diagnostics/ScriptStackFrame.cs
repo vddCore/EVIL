@@ -95,6 +95,162 @@ public sealed record ScriptStackFrame : StackFrame
         _chunkReader = Chunk.SpawnCodeReader();
     }
 
+    internal ScriptStackFrame(Fiber fiber, Chunk chunk, ValueStack stack, int argumentCount)
+    {
+        Fiber = fiber;
+        Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
+
+        var paramCount = chunk.ParameterCount;
+        if (paramCount == 0 && argumentCount == 0)
+        {
+            Arguments = [];
+        }
+        else
+        {
+            var len = Math.Max(paramCount, argumentCount);
+            Arguments = new DynamicValue[len];
+
+            if (chunk.ParameterInitializers.Count > 0)
+            {
+                foreach (var (k, v) in chunk.ParameterInitializers)
+                {
+                    if (k < len)
+                    {
+                        Arguments[k] = v;
+                    }
+                }
+            }
+
+            stack.PopTo(Arguments.AsSpan(0, argumentCount));
+        }
+
+        if (chunk.LocalCount > 0)
+        {
+            Locals = new DynamicValue[chunk.LocalCount];
+        }
+
+        Upvalues = chunk.Upvalues;
+        _chunkReader = Chunk.SpawnCodeReader();
+    }
+
+    internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue a)
+    {
+        Fiber = fiber;
+        Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
+
+        var len = Math.Max(chunk.ParameterCount, 1);
+        Arguments = new DynamicValue[len];
+        if (chunk.ParameterInitializers.Count > 0)
+        {
+            foreach (var (k, v) in chunk.ParameterInitializers)
+            {
+                if (k < len)
+                {
+                    Arguments[k] = v;
+                }
+            }
+        }
+        Arguments[0] = a;
+
+        if (chunk.LocalCount > 0)
+        {
+            Locals = new DynamicValue[chunk.LocalCount];
+        }
+
+        Upvalues = chunk.Upvalues;
+        _chunkReader = Chunk.SpawnCodeReader();
+    }
+
+    internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue a, DynamicValue b)
+    {
+        Fiber = fiber;
+        Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
+
+        var len = Math.Max(chunk.ParameterCount, 2);
+        Arguments = new DynamicValue[len];
+        if (chunk.ParameterInitializers.Count > 0)
+        {
+            foreach (var (k, v) in chunk.ParameterInitializers)
+            {
+                if (k < len)
+                {
+                    Arguments[k] = v;
+                }
+            }
+        }
+        Arguments[0] = a;
+        Arguments[1] = b;
+
+        if (chunk.LocalCount > 0)
+        {
+            Locals = new DynamicValue[chunk.LocalCount];
+        }
+
+        Upvalues = chunk.Upvalues;
+        _chunkReader = Chunk.SpawnCodeReader();
+    }
+
+    internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c)
+    {
+        Fiber = fiber;
+        Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
+
+        var len = Math.Max(chunk.ParameterCount, 3);
+        Arguments = new DynamicValue[len];
+        if (chunk.ParameterInitializers.Count > 0)
+        {
+            foreach (var (k, v) in chunk.ParameterInitializers)
+            {
+                if (k < len)
+                {
+                    Arguments[k] = v;
+                }
+            }
+        }
+        Arguments[0] = a;
+        Arguments[1] = b;
+        Arguments[2] = c;
+
+        if (chunk.LocalCount > 0)
+        {
+            Locals = new DynamicValue[chunk.LocalCount];
+        }
+
+        Upvalues = chunk.Upvalues;
+        _chunkReader = Chunk.SpawnCodeReader();
+    }
+
+    internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c, DynamicValue d)
+    {
+        Fiber = fiber;
+        Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
+
+        var len = Math.Max(chunk.ParameterCount, 4);
+        Arguments = new DynamicValue[len];
+        if (chunk.ParameterInitializers.Count > 0)
+        {
+            foreach (var (k, v) in chunk.ParameterInitializers)
+            {
+                if (k < len)
+                {
+                    Arguments[k] = v;
+                }
+            }
+        }
+        Arguments[0] = a;
+        Arguments[1] = b;
+        Arguments[2] = c;
+        Arguments[3] = d;
+
+        if (chunk.LocalCount > 0)
+        {
+            Locals = new DynamicValue[chunk.LocalCount];
+        }
+
+        Upvalues = chunk.Upvalues;
+        _chunkReader = Chunk.SpawnCodeReader();
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Upvalue GetOrCreateLocalUpvalue(int localId)
     {

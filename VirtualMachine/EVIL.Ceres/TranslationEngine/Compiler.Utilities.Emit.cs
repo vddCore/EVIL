@@ -43,17 +43,21 @@ public partial class Compiler
     {
         if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
         {
-            if (opCode is OpCode.RET 
+            if (opCode is not (OpCode.RET 
                        or OpCode.TAILINVOKE
-                       or OpCode.THROW)
+                       or OpCode.THROW))
             {
-                return;
+                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+                Chunk.CodeGenerator.Emit(OpCode.RET);
             }
         }
+        else
+        {
+            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            Chunk.CodeGenerator.Emit(OpCode.RET);
+        }
 
-        /* Either we have no instructions in chunk, or it's not a RET nor THROW. */
-        Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-        Chunk.CodeGenerator.Emit(OpCode.RET);
+        Chunk.BackpatchLabels();
     }
         
     private void EmitVarSet(string identifier)

@@ -3,14 +3,12 @@ namespace EVIL.Ceres.ExecutionEngine;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Marshaling;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
-
 using Array = System.Array;
 
 internal class ExecutionUnit
@@ -31,1387 +29,1408 @@ internal class ExecutionUnit
         _callStack = callStack;
     }
 
-    public void Step()
+    public void Step() => Step(1);
+
+    public void Step(int maxInstructions)
     {
-        var frame = _callStack.Peek().As<ScriptStackFrame>();
-        var opCode = frame.FetchOpCode();
-
-        DynamicValue a;
-        DynamicValue b;
-        DynamicValue c;
-
-        switch (opCode)
+        if (_callStack.Count == 0 || _fiber.State != FiberState.Running)
         {
-            case OpCode.NOOP:
+            return;
+        }
+
+        if (_callStack.Peek() is not ScriptStackFrame frame)
+        {
+            return;
+        }
+
+        var currentDepth = _callStack.Count;
+
+        for (var stepIndex = 0; stepIndex < maxInstructions; stepIndex++)
+        {
+            var opCode = frame.FetchOpCode();
+
+            DynamicValue a;
+            DynamicValue b;
+            DynamicValue c;
+
+            switch (opCode)
             {
-                break;
-            }
-
-            case OpCode.DUP:
-            {
-                PushValue(PeekValue());
-                break;
-            }
-
-            case OpCode.LDNUM:
-            {
-                PushValue(frame.FetchDouble());
-                break;
-            }
-
-            case OpCode.LDNIL:
-            {
-                PushValue(DynamicValue.Nil);
-                break;
-            }
-
-            case OpCode.LDONE:
-            {
-                PushValue(DynamicValue.One);
-                break;
-            }
-
-            case OpCode.LDZERO:
-            {
-                PushValue(DynamicValue.Zero);
-                break;
-            }
-
-            case OpCode.LDTRUE:
-            {
-                PushValue(DynamicValue.True);
-                break;
-            }
-
-            case OpCode.LDFALSE:
-            {
-                PushValue(DynamicValue.False);
-                break;
-            }
-
-            case OpCode.LDSTR:
-            {
-                PushValue(frame.Chunk.StringPool[
-                    frame.FetchInt32()
-                ]!);
-
-                break;
-            }
-
-            case OpCode.LDCNK:
-            {
-                var subChunk = frame.Chunk.SubChunks[frame.FetchInt32()];
-                Chunk chunkToPush;
-
-                if (subChunk.ClosureCount == 0)
+                case OpCode.NOOP:
                 {
-                    chunkToPush = subChunk;
-                }
-                else
-                {
-                    var clone = subChunk.Clone();
-                    var upvalues = new Upvalue[clone.ClosureCount];
-                    for (var i = 0; i < clone.ClosureCount; i++)
-                    {
-                        upvalues[i] = ResolveUpvalue(frame, clone.Closures[i]);
-                    }
-
-                    clone.Upvalues = upvalues;
-                    chunkToPush = clone;
-                }
-
-                PushValue(chunkToPush);
-                break;
-            }
-
-            case OpCode.LDTYPE:
-            {
-                PushValue((DynamicValueType)frame.FetchInt32());
-                break;
-            }
-
-            case OpCode.ADD:
-            {
-                b = PopValue();
-                a = PopValue();
-
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.AddMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.AddMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.Add(b));
-                break;
-            }
-
-            case OpCode.SUB:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.SubtractMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.SubtractMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.Subtract(b));
-                break;
-            }
-
-            case OpCode.MUL:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.MultiplyMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.MultiplyMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.Multiply(b));
-                break;
-            }
-
-            case OpCode.DIV:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.DivideMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.DivideMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.DivideBy(b));
-                break;
-            }
-
-            case OpCode.MOD:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.ModuloMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.ModuloMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.Modulo(b));
-                break;
-            }
-
-            case OpCode.SHL:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.ShiftLeftMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.ShiftLeftMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.ShiftLeft(b));
-                break;
-            }
-
-            case OpCode.SHR:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.ShiftRightMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.ShiftRightMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.ShiftRight(b));
-                break;
-            }
-
-            case OpCode.POP:
-            {
-                PopValue();
-                break;
-            }
-
-            case OpCode.ANEG:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.ArithmeticNegateMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.ArithmeticallyNegate());
-                break;
-            }
-
-            case OpCode.LNOT:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.LogicalNotMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.LogicallyNegate());
-                break;
-            }
-
-            case OpCode.LOR:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.LogicalOrMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.LogicalOrMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.LogicalOr(b));
-                break;
-            }
-
-            case OpCode.LAND:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.LogicalAndMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.LogicalAndMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.LogicalAnd(b));
-                break;
-            }
-
-            case OpCode.BOR:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.BitwiseOrMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.BitwiseOrMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.BitwiseOr(b));
-                break;
-            }
-
-            case OpCode.BXOR:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.BitwiseXorMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.BitwiseXorMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.BitwiseXor(b));
-                break;
-            }
-
-            case OpCode.BAND:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.BitwiseAndMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.BitwiseAndMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.BitwiseAnd(b));
-                break;
-            }
-
-            case OpCode.BNOT:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.BitwiseNotMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-
-                PushValue(a.BitwiseNegate());
-                break;
-            }
-
-            case OpCode.DEQ:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.DeepEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.DeepEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsDeeplyEqualTo(b));
-                break;
-            }
-
-            case OpCode.DNE:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.DeepNotEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.DeepNotEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsDeeplyNotEqualTo(b));
-                break;
-            }
-
-            case OpCode.CEQ:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.EqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.EqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsEqualTo(b));
-                break;
-            }
-
-            case OpCode.CNE:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.NotEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.NotEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsNotEqualTo(b));
-                break;
-            }
-
-            case OpCode.CGT:
-            {
-                b = PopValue();
-                a = PopValue();
-
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.GreaterThanMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.GreaterThanMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.IsGreaterThan(b));
-                break;
-            }
-
-            case OpCode.CGE:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.GreaterEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.GreaterEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsGreaterThanOrEqualTo(b));
-                break;
-            }
-
-            case OpCode.CLT:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.LessThanMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.LessThanMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsLessThan(b));
-                break;
-            }
-
-            case OpCode.CLE:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.LessEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.LessEqualMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a, b);
-                        break;
-                    }
-                }
-
-                PushValue(a.IsLessThanOrEqualTo(b));
-                break;
-            }
-
-            case OpCode.INVOKE:
-            {
-                a = PopValue();
-
-                var argumentCount = frame.FetchInt32();
-                var isVariadic = frame.FetchByte() == 1;
-
-                if (isVariadic)
-                {
-                    argumentCount += frame.ExtraArguments.Length - 1;
-                    // -1 because variadic specifier is treated as an argument
-                }
-                    
-                var args = PopArguments(argumentCount);
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.InvokeMetaKey, out var chunk))
-                    {
-                        var overrideArgs = new DynamicValue[args.Length + 1];
-                        overrideArgs[0] = a;
-                        Array.Copy(
-                            args, 0,
-                            overrideArgs, 1,
-                            args.Length
-                        );
-                            
-                        InvokeChunk(chunk, overrideArgs);
-                        break;
-                    }
-                }
-
-                if (a.Type == DynamicValueType.Chunk)
-                {
-                    InvokeChunk(a.Chunk!, args);
                     break;
                 }
 
-                if (a.Type == DynamicValueType.NativeFunction)
+                case OpCode.DUP:
                 {
-                    _callStack.Push(new NativeStackFrame(a.NativeFunction!));
-                        
-                    _fiber.OnNativeFunctionInvoke?.Invoke(
-                        _fiber,
-                        a.NativeFunction!
-                    );
-                        
-                    var value = a.NativeFunction!.Invoke(_fiber, args);
-
-                    if (_callStack.Peek() is NativeStackFrame)
-                    {
-                        PushValue(value);
-                        _callStack.Pop();
-                    } 
-                    else
-                    {
-                        /* We probably threw from native, nothing else to be done. */
-                    }
+                    PushValue(PeekValue());
                     break;
                 }
 
-                throw new UnsupportedDynamicValueOperationException(
-                    $"Attempt to invoke a {a.Type} value."
-                );
-            }
-
-            case OpCode.TAILINVOKE:
-            {
-                frame.CloseUpvalues();
-                var args = frame.Arguments;
-
-                for (var i = 0; i < frame.Arguments.Length; i++)
+                case OpCode.LDNUM:
                 {
-                    args[args.Length - i - 1] = PopValue();
+                    PushValue(frame.FetchDouble());
+                    break;
                 }
 
-                if (frame.Locals != null)
-                {
-                    Array.Clear(frame.Locals, 0, frame.Locals.Length);
-                }
-
-                _fiber.OnChunkInvoke?.Invoke(
-                    _fiber,
-                    _callStack.Peek().As<ScriptStackFrame>().Chunk,
-                    true
-                );
-
-                frame.JumpAbsolute(0);
-                break;
-            }
-
-            case OpCode.SETGLOBAL:
-            {
-                b = PopValue();
-                a = PopValue();
-                _global[b] = a;
-
-                break;
-            }
-
-            case OpCode.GETGLOBAL:
-            {
-                PushValue(_global[PopValue()]);
-                break;
-            }
-
-            case OpCode.SETLOCAL:
-            {
-                a = PopValue();
-                var localId = frame.FetchInt32();
-                if (frame.Locals![localId].Type == DynamicValueType.Nil && frame.HasOpenLocalUpvalue(localId))
-                {
-                    frame.UpdateOpenLocalUpvalue(localId, a);
-                }
-                else
-                {
-                    frame.InvalidateLocalUpvalue(localId);
-                }
-                frame.Locals![localId] = a;
-                break;
-            }
-
-            case OpCode.GETLOCAL:
-            {
-                PushValue(frame.Locals![frame.FetchInt32()]);
-                break;
-            }
-
-            case OpCode.SETARG:
-            {
-                var argId = frame.FetchInt32();
-                a = PopValue();
-                frame.InvalidateArgumentUpvalue(argId);
-                frame.Arguments[argId] = a;
-                break;
-            }
-
-            case OpCode.GETARG:
-            {
-                PushValue(frame.Arguments[frame.FetchInt32()]);
-                break;
-            }
-
-            case OpCode.SETCLOSURE:
-            {
-                var closureId = frame.FetchInt32();
-                frame.Upvalues![closureId].Set(PopValue());
-                break;
-            }
-
-            case OpCode.GETCLOSURE:
-            {
-                var closureId = frame.FetchInt32();
-                PushValue(frame.Upvalues![closureId].Get());
-                break;
-            }
-
-            case OpCode.LENGTH:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.LengthMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.GetLength());
-                break;
-            }
-
-            case OpCode.TOSTRING:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.ToStringMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.ConvertToString());
-                break;
-            }
-
-            case OpCode.TONUMBER:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.ToNumberMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.ConvertToNumber());
-                break;
-            }
-
-            case OpCode.TYPE:
-            {
-                PushValue(PopValue().Type);
-                break;
-            }
-
-            case OpCode.NTYPE:
-            {
-                a = PopValue();
-
-                if (a.Type != DynamicValueType.NativeObject)
+                case OpCode.LDNIL:
                 {
                     PushValue(DynamicValue.Nil);
+                    break;
                 }
-                else
-                {
-                    var obj = a.NativeObject!;
 
-                    if (obj is INativeTypeProvider nativeTypeProvider)
+                case OpCode.LDONE:
+                {
+                    PushValue(DynamicValue.One);
+                    break;
+                }
+
+                case OpCode.LDZERO:
+                {
+                    PushValue(DynamicValue.Zero);
+                    break;
+                }
+
+                case OpCode.LDTRUE:
+                {
+                    PushValue(DynamicValue.True);
+                    break;
+                }
+
+                case OpCode.LDFALSE:
+                {
+                    PushValue(DynamicValue.False);
+                    break;
+                }
+
+                case OpCode.LDSTR:
+                {
+                    PushValue(frame.Chunk.StringPool[
+                        frame.FetchInt32()
+                    ]!);
+
+                    break;
+                }
+
+                case OpCode.LDCNK:
+                {
+                    var subChunk = frame.Chunk.SubChunks[frame.FetchInt32()];
+                    Chunk chunkToPush;
+
+                    if (subChunk.ClosureCount == 0)
                     {
-                        PushValue(nativeTypeProvider.ProvideType());
+                        chunkToPush = subChunk;
                     }
                     else
                     {
-                        PushValue(a.NativeObject!.GetType().FullName!);
-                    }
-                }
-
-                break;
-            }
-
-            case OpCode.NJMP:
-            {
-                var labelId = frame.FetchInt32();
-
-                if (PopValue() == DynamicValue.Nil)
-                {
-                    frame.JumpAbsolute(
-                        frame.Chunk.Labels[labelId]
-                    );
-                }
-
-                break;
-            }
-
-            case OpCode.VJMP:
-            {
-                var labelId = frame.FetchInt32();
-
-                if (PopValue() != DynamicValue.Nil)
-                {
-                    frame.JumpAbsolute(
-                        frame.Chunk.Labels[labelId]
-                    );
-                }
-
-                break;
-            }
-
-            case OpCode.FJMP:
-            {
-                var labelId = frame.FetchInt32();
-
-                if (!DynamicValue.IsTruth(PopValue()))
-                {
-                    frame.JumpAbsolute(
-                        frame.Chunk.Labels[labelId]
-                    );
-                }
-
-                break;
-            }
-
-            case OpCode.TJMP:
-            {
-                var labelId = frame.FetchInt32();
-
-                if (DynamicValue.IsTruth(PopValue()))
-                {
-                    frame.JumpAbsolute(
-                        frame.Chunk.Labels[labelId]
-                    );
-                }
-
-                break;
-            }
-
-            case OpCode.JUMP:
-            {
-                frame.JumpAbsolute(
-                    frame.Chunk.Labels[
-                        frame.FetchInt32()
-                    ]
-                );
-                break;
-            }
-
-            case OpCode.EXISTS:
-            {
-                b = PopValue();
-                a = PopValue();
-                    
-                if (b.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(b.Table!, Table.ExistsMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, b, a);
-                        break;
-                    }
-                }
-
-                PushValue(b.Contains(a));
-                break;
-            }
-
-            case OpCode.RET:
-            {
-                frame.CloseUpvalues();
-                _callStack.Pop();
-                break;
-            }
-
-            case OpCode.INC:
-            {
-                a = PopValue();
-
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.IncrementMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.Increment());
-                break;
-            }
-
-            case OpCode.DEC:
-            {
-                a = PopValue();
-                    
-                if (a.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(a.Table!, Table.DecrementMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, a);
-                        break;
-                    }
-                }
-                    
-                PushValue(a.Decrement());
-                break;
-            }
-
-            case OpCode.TABNEW:
-            {
-                PushValue(new Table());
-                break;
-            }
-
-            case OpCode.ARRNEW:
-            {
-                a = PopValue();
-
-                if (a.Type != DynamicValueType.Number)
-                {
-                    throw new UnsupportedDynamicValueOperationException("Array size must be a Number.");
-                }
-
-                PushValue(new Collections.Array((int)a.Number));
-                break;
-            }
-
-            case OpCode.ELINIT:
-            {
-                b = PopValue();
-                a = PopValue();
-                c = PeekValue();
-
-                c.SetEntry(b, a);
-                break;
-            }
-
-            case OpCode.ELSET:
-            {
-                b = PopValue(); // Key
-                c = PopValue(); // Table
-                a = PopValue(); // Value
-                    
-                if (c.Type == DynamicValueType.Table)
-                {
-                    if (FindMetaFunction(c.Table!, Table.SetMetaKey, out var chunk))
-                    {
-                        InvokeChunk(chunk, c, b, a);
-                        break;
-                    }
-                }
-                    
-                c.SetEntry(b, a);
-                break;
-            }
-
-            case OpCode.INDEX:
-            {
-                a = PopValue(); // Key
-                c = PopValue(); // Table
-                    
-                switch (c.Type)
-                {
-                    case DynamicValueType.String when a.Type == DynamicValueType.String:
-                    {
-                        c = _global.Index("str");
-
-                        if (c.Type != DynamicValueType.Table)
+                        var clone = subChunk.Clone();
+                        var upvalues = new Upvalue[clone.ClosureCount];
+                        for (var i = 0; i < clone.ClosureCount; i++)
                         {
-                            throw new UnsupportedDynamicValueOperationException(
-                                "Attempt to index a String using a String, but no `str' support table found."
+                            upvalues[i] = ResolveUpvalue(frame, clone.Closures[i]);
+                        }
+
+                        clone.Upvalues = upvalues;
+                        chunkToPush = clone;
+                    }
+
+                    PushValue(chunkToPush);
+                    break;
+                }
+
+                case OpCode.LDTYPE:
+                {
+                    PushValue((DynamicValueType)frame.FetchInt32());
+                    break;
+                }
+
+                case OpCode.ADD:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.AddMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.AddMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.Add(b));
+                    break;
+                }
+
+                case OpCode.SUB:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.SubtractMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.SubtractMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.Subtract(b));
+                    break;
+                }
+
+                case OpCode.MUL:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.MultiplyMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.MultiplyMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.Multiply(b));
+                    break;
+                }
+
+                case OpCode.DIV:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.DivideMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.DivideMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.DivideBy(b));
+                    break;
+                }
+
+                case OpCode.MOD:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.ModuloMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ModuloMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.Modulo(b));
+                    break;
+                }
+
+                case OpCode.SHL:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.ShiftLeftMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ShiftLeftMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.ShiftLeft(b));
+                    break;
+                }
+
+                case OpCode.SHR:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.ShiftRightMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ShiftRightMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.ShiftRight(b));
+                    break;
+                }
+
+                case OpCode.POP:
+                {
+                    PopValue();
+                    break;
+                }
+
+                case OpCode.ANEG:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.ArithmeticNegateMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.ArithmeticallyNegate());
+                    break;
+                }
+
+                case OpCode.LNOT:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.LogicalNotMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.LogicallyNegate());
+                    break;
+                }
+
+                case OpCode.LOR:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.LogicalOrMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LogicalOrMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.LogicalOr(b));
+                    break;
+                }
+
+                case OpCode.LAND:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.LogicalAndMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LogicalAndMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.LogicalAnd(b));
+                    break;
+                }
+
+                case OpCode.BOR:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.BitwiseOrMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.BitwiseOrMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.BitwiseOr(b));
+                    break;
+                }
+
+                case OpCode.BXOR:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.BitwiseXorMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.BitwiseXorMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.BitwiseXor(b));
+                    break;
+                }
+
+                case OpCode.BAND:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.BitwiseAndMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.BitwiseAndMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.BitwiseAnd(b));
+                    break;
+                }
+
+                case OpCode.BNOT:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.BitwiseNotMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.BitwiseNegate());
+                    break;
+                }
+
+                case OpCode.DEQ:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.DeepEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.DeepEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsDeeplyEqualTo(b));
+                    break;
+                }
+
+                case OpCode.DNE:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.DeepNotEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.DeepNotEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsDeeplyNotEqualTo(b));
+                    break;
+                }
+
+                case OpCode.CEQ:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.EqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.EqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsEqualTo(b));
+                    break;
+                }
+
+                case OpCode.CNE:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.NotEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.NotEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsNotEqualTo(b));
+                    break;
+                }
+
+                case OpCode.CGT:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.GreaterThanMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.GreaterThanMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsGreaterThan(b));
+                    break;
+                }
+
+                case OpCode.CGE:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.GreaterEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.GreaterEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsGreaterThanOrEqualTo(b));
+                    break;
+                }
+
+                case OpCode.CLT:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.LessThanMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LessThanMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsLessThan(b));
+                    break;
+                }
+
+                case OpCode.CLE:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.LessEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.LessEqualMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a, b);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.IsLessThanOrEqualTo(b));
+                    break;
+                }
+
+                case OpCode.INVOKE:
+                {
+                    a = PopValue();
+
+                    var argumentCount = frame.FetchInt32();
+                    var isVariadic = frame.FetchByte() == 1;
+
+                    if (isVariadic)
+                    {
+                        argumentCount += frame.ExtraArguments.Length - 1;
+                        // -1 because variadic specifier is treated as an argument
+                    }
+
+                    if (a.Type == DynamicValueType.Chunk)
+                    {
+                        InvokeChunkFromStack(a.Chunk!, argumentCount);
+                        break;
+                    }
+
+                    var args = PopArguments(argumentCount);
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.InvokeMetaKey, out var chunk))
+                        {
+                            var overrideArgs = new DynamicValue[args.Length + 1];
+                            overrideArgs[0] = a;
+                            Array.Copy(
+                                args, 0,
+                                overrideArgs, 1,
+                                args.Length
                             );
+
+                            InvokeChunk(chunk, overrideArgs);
+                            break;
+                        }
+                    }
+
+                    if (a.Type == DynamicValueType.NativeFunction)
+                    {
+                        _callStack.Push(new NativeStackFrame(a.NativeFunction!));
+
+                        _fiber.OnNativeFunctionInvoke?.Invoke(
+                            _fiber,
+                            a.NativeFunction!
+                        );
+
+                        var value = a.NativeFunction!.Invoke(_fiber, args);
+
+                        if (_callStack.Peek() is NativeStackFrame)
+                        {
+                            PushValue(value);
+                            _callStack.Pop();
+                        }
+                        else
+                        {
+                            /* We probably threw from native, nothing else to be done. */
                         }
 
                         break;
                     }
-                    
-                    case DynamicValueType.Array when a.Type == DynamicValueType.String:
-                    {
-                        c = _global.Index("arr");
 
-                        if (c.Type != DynamicValueType.Table)
-                        {
-                            throw new UnsupportedDynamicValueOperationException(
-                                "Attempt to index an Array using a String, but no `arr' support table found."
-                            );
-                        }
-
-                        break;
-                    }
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to invoke a {a.Type} value."
+                    );
                 }
-                    
-                if (c.Type == DynamicValueType.Table)
-                {
-                    if (!c.Table!.Contains(a))
-                    {
-                        var mt = c.Table!.MetaTable;
-                            
-                        if (mt != null)
-                        {
-                            var value = mt[Table.GetMetaKey];
 
-                            if (value.Type == DynamicValueType.Chunk)
+                case OpCode.TAILINVOKE:
+                {
+                    frame.CloseUpvalues();
+                    var args = frame.Arguments;
+
+                    _evaluationStack.PopTo(args);
+
+                    if (frame.Locals != null)
+                    {
+                        Array.Clear(frame.Locals, 0, frame.Locals.Length);
+                    }
+
+                    _fiber.OnChunkInvoke?.Invoke(
+                        _fiber,
+                        _callStack.Peek().As<ScriptStackFrame>().Chunk,
+                        true
+                    );
+
+                    frame.JumpAbsolute(0);
+                    break;
+                }
+
+                case OpCode.SETGLOBAL:
+                {
+                    b = PopValue();
+                    a = PopValue();
+                    _global[b] = a;
+
+                    break;
+                }
+
+                case OpCode.GETGLOBAL:
+                {
+                    PushValue(_global[PopValue()]);
+                    break;
+                }
+
+                case OpCode.SETLOCAL:
+                {
+                    a = PopValue();
+                    var localId = frame.FetchInt32();
+                    if (frame.Locals![localId].Type == DynamicValueType.Nil && frame.HasOpenLocalUpvalue(localId))
+                    {
+                        frame.UpdateOpenLocalUpvalue(localId, a);
+                    }
+                    else
+                    {
+                        frame.InvalidateLocalUpvalue(localId);
+                    }
+
+                    frame.Locals![localId] = a;
+                    break;
+                }
+
+                case OpCode.GETLOCAL:
+                {
+                    PushValue(frame.Locals![frame.FetchInt32()]);
+                    break;
+                }
+
+                case OpCode.SETARG:
+                {
+                    var argId = frame.FetchInt32();
+                    a = PopValue();
+                    frame.InvalidateArgumentUpvalue(argId);
+                    frame.Arguments[argId] = a;
+                    break;
+                }
+
+                case OpCode.GETARG:
+                {
+                    PushValue(frame.Arguments[frame.FetchInt32()]);
+                    break;
+                }
+
+                case OpCode.SETCLOSURE:
+                {
+                    var closureId = frame.FetchInt32();
+                    frame.Upvalues![closureId].Set(PopValue());
+                    break;
+                }
+
+                case OpCode.GETCLOSURE:
+                {
+                    var closureId = frame.FetchInt32();
+                    PushValue(frame.Upvalues![closureId].Get());
+                    break;
+                }
+
+                case OpCode.LENGTH:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.LengthMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.GetLength());
+                    break;
+                }
+
+                case OpCode.TOSTRING:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.ToStringMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.ConvertToString());
+                    break;
+                }
+
+                case OpCode.TONUMBER:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.ToNumberMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.ConvertToNumber());
+                    break;
+                }
+
+                case OpCode.TYPE:
+                {
+                    PushValue(PopValue().Type);
+                    break;
+                }
+
+                case OpCode.NTYPE:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.NativeObject)
+                    {
+                        PushValue(DynamicValue.Nil);
+                    }
+                    else
+                    {
+                        var obj = a.NativeObject!;
+
+                        if (obj is INativeTypeProvider nativeTypeProvider)
+                        {
+                            PushValue(nativeTypeProvider.ProvideType());
+                        }
+                        else
+                        {
+                            PushValue(a.NativeObject!.GetType().FullName!);
+                        }
+                    }
+
+                    break;
+                }
+
+                case OpCode.NJMP:
+                {
+                    var targetIp = frame.FetchInt32();
+
+                    if (PopValue() == DynamicValue.Nil)
+                    {
+                        frame.JumpAbsolute(targetIp);
+                    }
+
+                    break;
+                }
+
+                case OpCode.VJMP:
+                {
+                    var targetIp = frame.FetchInt32();
+
+                    if (PopValue() != DynamicValue.Nil)
+                    {
+                        frame.JumpAbsolute(targetIp);
+                    }
+
+                    break;
+                }
+
+                case OpCode.FJMP:
+                {
+                    var targetIp = frame.FetchInt32();
+
+                    if (!DynamicValue.IsTruth(PopValue()))
+                    {
+                        frame.JumpAbsolute(targetIp);
+                    }
+
+                    break;
+                }
+
+                case OpCode.TJMP:
+                {
+                    var targetIp = frame.FetchInt32();
+
+                    if (DynamicValue.IsTruth(PopValue()))
+                    {
+                        frame.JumpAbsolute(targetIp);
+                    }
+
+                    break;
+                }
+
+                case OpCode.JUMP:
+                {
+                    frame.JumpAbsolute(frame.FetchInt32());
+                    break;
+                }
+
+                case OpCode.EXISTS:
+                {
+                    b = PopValue();
+                    a = PopValue();
+
+                    if (b.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(b.Table!, Table.ExistsMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, b, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(b.Contains(a));
+                    break;
+                }
+
+                case OpCode.RET:
+                {
+                    frame.CloseUpvalues();
+                    _callStack.Pop();
+                    break;
+                }
+
+                case OpCode.INC:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.IncrementMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.Increment());
+                    break;
+                }
+
+                case OpCode.DEC:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(a.Table!, Table.DecrementMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, a);
+                            break;
+                        }
+                    }
+
+                    PushValue(a.Decrement());
+                    break;
+                }
+
+                case OpCode.TABNEW:
+                {
+                    PushValue(new Table());
+                    break;
+                }
+
+                case OpCode.ARRNEW:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Number)
+                    {
+                        throw new UnsupportedDynamicValueOperationException("Array size must be a Number.");
+                    }
+
+                    PushValue(new Collections.Array((int)a.Number));
+                    break;
+                }
+
+                case OpCode.ELINIT:
+                {
+                    b = PopValue();
+                    a = PopValue();
+                    c = PeekValue();
+
+                    c.SetEntry(b, a);
+                    break;
+                }
+
+                case OpCode.ELSET:
+                {
+                    b = PopValue(); // Key
+                    c = PopValue(); // Table
+                    a = PopValue(); // Value
+
+                    if (c.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(c.Table!, Table.SetMetaKey, out var chunk))
+                        {
+                            InvokeChunk(chunk, c, b, a);
+                            break;
+                        }
+                    }
+
+                    c.SetEntry(b, a);
+                    break;
+                }
+
+                case OpCode.INDEX:
+                {
+                    a = PopValue(); // Key
+                    c = PopValue(); // Table
+
+                    switch (c.Type)
+                    {
+                        case DynamicValueType.String when a.Type == DynamicValueType.String:
+                        {
+                            c = _global.Index("str");
+
+                            if (c.Type != DynamicValueType.Table)
                             {
-                                InvokeChunk(value.Chunk!, c, a);
-                                break;
+                                throw new UnsupportedDynamicValueOperationException(
+                                    "Attempt to index a String using a String, but no `str' support table found."
+                                );
                             }
 
-                            if (value.Type == DynamicValueType.Table)
+                            break;
+                        }
+
+                        case DynamicValueType.Array when a.Type == DynamicValueType.String:
+                        {
+                            c = _global.Index("arr");
+
+                            if (c.Type != DynamicValueType.Table)
                             {
-                                PushValue(value.Table!.Index(a));
-                                break;
+                                throw new UnsupportedDynamicValueOperationException(
+                                    "Attempt to index an Array using a String, but no `arr' support table found."
+                                );
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if (c.Type == DynamicValueType.Table)
+                    {
+                        if (!c.Table!.Contains(a))
+                        {
+                            var mt = c.Table!.MetaTable;
+
+                            if (mt != null)
+                            {
+                                var value = mt[Table.GetMetaKey];
+
+                                if (value.Type == DynamicValueType.Chunk)
+                                {
+                                    InvokeChunk(value.Chunk!, c, a);
+                                    break;
+                                }
+
+                                if (value.Type == DynamicValueType.Table)
+                                {
+                                    PushValue(value.Table!.Index(a));
+                                    break;
+                                }
                             }
                         }
                     }
+
+                    PushValue(c.Index(a));
+                    break;
                 }
 
-                PushValue(c.Index(a));
-                break;
-            }
-
-            case OpCode.INOCT:
-            {
-                a = PopValue(); // Key
-                c = PopValue(); // Table
-
-                if (c.Type != DynamicValueType.Table)
+                case OpCode.INOCT:
                 {
-                    throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to index or create a table on an unsupported type '{c.Type}'"
-                    );
-                }
+                    a = PopValue(); // Key
+                    c = PopValue(); // Table
 
-                var value = c.Index(a);
-                
-                if (value == DynamicValue.Nil)
-                {
-                    value = new Table();                   
-                    c.SetEntry(a, value);
-                }
-
-                PushValue(value);
-                break;
-            }
-
-            case OpCode.TABCLN:
-            {
-                var isDeepClone = frame.FetchByte() > 0;
-                a = PopValue();
-
-                if (a.Type != DynamicValueType.Table)
-                {
-                    throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to clone a {a.Type} value."
-                    );
-                }
-                    
-                PushValue(
-                    isDeepClone
-                        ? a.Table!.DeepCopy()
-                        : a.Table!.ShallowCopy()
-                );
-                    
-                break;
-            }
-
-            case OpCode.YIELD:
-            {
-                var argumentCount = frame.FetchInt32();
-
-                a = PopValue(); // chunk
-                var args = PopArguments(argumentCount);
-                
-                if (a.Type != DynamicValueType.Chunk)
-                {
-                    throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to yield to a {a.Type} value."
-                    );
-                }
-                
-                var awaitee = _fiber.SpawnChild(
-                    false, 
-                    closureContexts: (Dictionary<string, ClosureContext>)frame.Fiber.ClosureContexts
-                );
-                awaitee.Schedule(a.Chunk!, args);
-                awaitee.Resume();
-                
-                PushValue(awaitee);
-
-                _fiber.WaitFor(awaitee);
-                break;
-            }
-
-            case OpCode.YRET:
-            {
-                a = PopValue();
-
-                if (a.Type != DynamicValueType.Fiber)
-                {
-                    throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to resume from a {a.Type} value. " +
-                        $"Messing with code generation now, are we?"
-                    );
-                }
-
-                PushValue(a.Fiber!.PopValue());
-                break;
-            }
-
-            case OpCode.XARGS:
-            {
-                var mode = frame.FetchByte();
-
-                if (mode == 0)
-                {
-                    PushValue(frame.ExtraArguments);
-                }
-                else if (mode == 1)
-                {
-                    for (var i = 0; i < frame.ExtraArguments.Length; i++)
-                    {
-                        PushValue(frame.ExtraArguments[i]);
-                    }
-                }
-                break;
-            }
-
-            case OpCode.EACH:
-            {
-                a = PopValue();
-
-                if (a.Type == DynamicValueType.String)
-                {
-                    a = Collections.Array.FromString(a.String!);
-                }
-
-                switch (a.Type)
-                {
-                    case DynamicValueType.Table:
-                    {
-                        frame.PushEnumerator(a.Table!);
-                        break;
-                    }
-                    
-                    case DynamicValueType.Array:
-                    {
-                        frame.PushEnumerator(a.Array!);
-                        break;
-                    }
-
-                    default:
+                    if (c.Type != DynamicValueType.Table)
                     {
                         throw new UnsupportedDynamicValueOperationException(
-                            $"Attempt to iterate over a {a.Type} value."
+                            $"Attempt to index or create a table on an unsupported type '{c.Type}'"
                         );
                     }
-                }
 
-                break;
-            }
+                    var value = c.Index(a);
 
-            case OpCode.NEXT:
-            {
-                var isKeyValue = frame.FetchInt32() != 0;
-                var enumerator = frame.CurrentEnumerator ?? throw new VirtualMachineException(
-                    "Attempt to iterate without an active iterator."
-                );
-
-                var next = enumerator.MoveNext();
-
-                if (next)
-                {
-                    PushValue(enumerator.Current.Value);
-                    
-                    if (isKeyValue)
+                    if (value == DynamicValue.Nil)
                     {
-                        PushValue(enumerator.Current.Key);
+                        value = new Table();
+                        c.SetEntry(a, value);
                     }
+
+                    PushValue(value);
+                    break;
                 }
 
-                PushValue(next);
-                break;
-            }
-
-            case OpCode.EEND:
-            {
-                frame.PopEnumerator();
-                break;
-            }
-
-            case OpCode.ENTER:
-            {
-                var blockId = frame.FetchInt32();
-                frame.EnterProtectedBlock(blockId);
-                break;
-            }
-
-            case OpCode.THROW:
-            {
-                _fiber.UnwindTryHandle(
-                    _callStack.ToArray()
-                );
-                break;
-            }
-
-            case OpCode.LEAVE:
-            {
-                frame.ExitProtectedBlock();
-                break;
-            }
-
-            case OpCode.ERRNEW:
-            {
-                a = PopValue();
-
-                if (a.Type != DynamicValueType.Table)
+                case OpCode.TABCLN:
                 {
-                    throw new UnsupportedDynamicValueOperationException(
-                        $"Attempt to create an Error out of a value type '{a.Type}'."
+                    var isDeepClone = frame.FetchByte() > 0;
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to clone a {a.Type} value."
+                        );
+                    }
+
+                    PushValue(
+                        isDeepClone
+                            ? a.Table!.DeepCopy()
+                            : a.Table!.ShallowCopy()
                     );
+
+                    break;
                 }
 
-                PushValue(new Error(a.Table!));
-                break;
+                case OpCode.YIELD:
+                {
+                    var argumentCount = frame.FetchInt32();
+
+                    a = PopValue(); // chunk
+                    var args = PopArguments(argumentCount);
+
+                    if (a.Type != DynamicValueType.Chunk)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to yield to a {a.Type} value."
+                        );
+                    }
+
+                    var awaitee = _fiber.SpawnChild(
+                        false,
+                        closureContexts: (Dictionary<string, ClosureContext>)frame.Fiber.ClosureContexts
+                    );
+                    awaitee.Schedule(a.Chunk!, args);
+                    awaitee.Resume();
+
+                    PushValue(awaitee);
+
+                    _fiber.WaitFor(awaitee);
+                    break;
+                }
+
+                case OpCode.YRET:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Fiber)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to resume from a {a.Type} value. " +
+                            $"Messing with code generation now, are we?"
+                        );
+                    }
+
+                    PushValue(a.Fiber!.PopValue());
+                    break;
+                }
+
+                case OpCode.XARGS:
+                {
+                    var mode = frame.FetchByte();
+
+                    if (mode == 0)
+                    {
+                        PushValue(frame.ExtraArguments);
+                    }
+                    else if (mode == 1)
+                    {
+                        for (var i = 0; i < frame.ExtraArguments.Length; i++)
+                        {
+                            PushValue(frame.ExtraArguments[i]);
+                        }
+                    }
+
+                    break;
+                }
+
+                case OpCode.EACH:
+                {
+                    a = PopValue();
+
+                    if (a.Type == DynamicValueType.String)
+                    {
+                        a = Collections.Array.FromString(a.String!);
+                    }
+
+                    switch (a.Type)
+                    {
+                        case DynamicValueType.Table:
+                        {
+                            frame.PushEnumerator(a.Table!);
+                            break;
+                        }
+
+                        case DynamicValueType.Array:
+                        {
+                            frame.PushEnumerator(a.Array!);
+                            break;
+                        }
+
+                        default:
+                        {
+                            throw new UnsupportedDynamicValueOperationException(
+                                $"Attempt to iterate over a {a.Type} value."
+                            );
+                        }
+                    }
+
+                    break;
+                }
+
+                case OpCode.NEXT:
+                {
+                    var isKeyValue = frame.FetchInt32() != 0;
+                    var enumerator = frame.CurrentEnumerator ?? throw new VirtualMachineException(
+                        "Attempt to iterate without an active iterator."
+                    );
+
+                    var next = enumerator.MoveNext();
+
+                    if (next)
+                    {
+                        PushValue(enumerator.Current.Value);
+
+                        if (isKeyValue)
+                        {
+                            PushValue(enumerator.Current.Key);
+                        }
+                    }
+
+                    PushValue(next);
+                    break;
+                }
+
+                case OpCode.EEND:
+                {
+                    frame.PopEnumerator();
+                    break;
+                }
+
+                case OpCode.ENTER:
+                {
+                    var blockId = frame.FetchInt32();
+                    frame.EnterProtectedBlock(blockId);
+                    break;
+                }
+
+                case OpCode.THROW:
+                {
+                    _fiber.UnwindTryHandle(
+                        _callStack.ToArray()
+                    );
+                    break;
+                }
+
+                case OpCode.LEAVE:
+                {
+                    frame.ExitProtectedBlock();
+                    break;
+                }
+
+                case OpCode.ERRNEW:
+                {
+                    a = PopValue();
+
+                    if (a.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to create an Error out of a value type '{a.Type}'."
+                        );
+                    }
+
+                    PushValue(new Error(a.Table!));
+                    break;
+                }
+
+                default:
+                {
+                    throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
+                }
             }
 
-            default:
+            if (_fiber.State != FiberState.Running || _callStack.Count == 0)
             {
-                throw new VirtualMachineException($"Invalid opcode '{opCode}'.");
+                return;
+            }
+
+            if (_callStack.Count != currentDepth)
+            {
+                frame = _callStack.Peek() as ScriptStackFrame;
+
+                if (frame == null)
+                {
+                    return;
+                }
+
+                currentDepth = _callStack.Count;
             }
         }
     }
@@ -1437,14 +1456,52 @@ internal class ExecutionUnit
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void InvokeChunk(Chunk chunk, params DynamicValue[] args)
+    private void InvokeChunk(Chunk chunk)
+    {
+        _callStack.Push(new ScriptStackFrame(_fiber, chunk, []));
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InvokeChunk(Chunk chunk, DynamicValue a)
+    {
+        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a));
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InvokeChunk(Chunk chunk, DynamicValue a, DynamicValue b)
+    {
+        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a, b));
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InvokeChunk(Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c)
+    {
+        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a, b, c));
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InvokeChunk(Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c, DynamicValue d)
+    {
+        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a, b, c, d));
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InvokeChunk(Chunk chunk, DynamicValue[] args)
     {
         _callStack.Push(new ScriptStackFrame(_fiber, chunk, args));
-        _fiber.OnChunkInvoke?.Invoke(
-            _fiber, 
-            chunk, 
-            false
-        );
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void InvokeChunkFromStack(Chunk chunk, int argumentCount)
+    {
+        _callStack.Push(new ScriptStackFrame(_fiber, chunk, _evaluationStack, argumentCount));
+        _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1468,18 +1525,9 @@ internal class ExecutionUnit
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private DynamicValue[] PopArguments(int count)
     {
-        if (count == 0)
-            return [];
-
-        var args = new DynamicValue[count];
-        for (var i = 0; i < count; i++)
-        {
-            args[count - i - 1] = PopValue();
-        }
-
-        return args;
+        return _evaluationStack.PopArguments(count);
     }
-    
+
     private ScriptStackFrame? FindClosureSourceFrame(string enclosedFunctionName)
     {
         var currentFiber = _fiber;
@@ -1487,7 +1535,7 @@ internal class ExecutionUnit
         while (currentFiber != null)
         {
             var callStack = currentFiber.CallStack;
-            
+
             for (var i = callStack.Count - 1; i >= 0; i--)
             {
                 var frame = callStack[i].As<ScriptStackFrame>();
@@ -1496,19 +1544,19 @@ internal class ExecutionUnit
                     return frame;
                 }
             }
-            
+
             currentFiber = currentFiber.Parent;
         }
 
         return null;
     }
-    
+
     private Upvalue ResolveUpvalue(ScriptStackFrame frame, ClosureInfo closure)
     {
         if (closure.IsSharedScope)
         {
             if (_fiber.TryGetSharedUpvalue(
-                    closure.EnclosedFunctionName, 
+                    closure.EnclosedFunctionName,
                     closure.EnclosedId,
                     closure.Type == ClosureType.Local,
                     out var shared))
@@ -1568,7 +1616,7 @@ internal class ExecutionUnit
                 closure.Type == ClosureType.Local,
                 upval
             );
-            
+
             return upval;
         }
 
@@ -1584,16 +1632,16 @@ internal class ExecutionUnit
                 return frame.GetOrCreateArgumentUpvalue(closure.EnclosedId);
             }
 
-            if (closure.Type == ClosureType.Closure 
-                && frame.Upvalues != null 
+            if (closure.Type == ClosureType.Closure
+                && frame.Upvalues != null
                 && closure.EnclosedId < frame.Upvalues.Length)
             {
                 return frame.Upvalues[closure.EnclosedId];
             }
         }
 
-        if (closure.Type == ClosureType.Closure 
-            && frame.Upvalues != null 
+        if (closure.Type == ClosureType.Closure
+            && frame.Upvalues != null
             && closure.EnclosedId < frame.Upvalues.Length)
         {
             return frame.Upvalues[closure.EnclosedId];
@@ -1620,7 +1668,7 @@ internal class ExecutionUnit
         }
 
         if (_fiber.TryGetClosedUpvalue(
-                closure.EnclosedFunctionName, 
+                closure.EnclosedFunctionName,
                 closure.EnclosedId,
                 closure.Type == ClosureType.Local,
                 out var closedVal))

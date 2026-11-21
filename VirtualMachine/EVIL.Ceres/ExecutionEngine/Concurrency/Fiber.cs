@@ -173,35 +173,50 @@ public sealed class Fiber
             if (_state != FiberState.Running)
                 return;
             
-            const int batchQuantum = 32;
-            for (var i = 0; i < batchQuantum; i++)
+            if (_callStack.Count == 0)
             {
-                if (_callStack.Count == 0)
+                lock (_callStack)
                 {
-                    lock (_callStack)
+                    if (_callStack.Count == 0)
                     {
-                        if (_callStack.Count == 0)
+                        lock (_scheduledChunks)
                         {
-                            lock (_scheduledChunks)
+                            if (_scheduledChunks.TryDequeue(out var info))
                             {
-                                if (_scheduledChunks.TryDequeue(out var info))
-                                {
-                                    Invoke(info.Chunk, info.Arguments);
-                                }
-                                else
-                                {
-                                    _state = FiberState.Finished;
-                                    return;
-                                }
+                                Invoke(info.Chunk, info.Arguments);
+                            }
+                            else
+                            {
+                                _state = FiberState.Finished;
+                                return;
                             }
                         }
                     }
                 }
+            }
 
-                _executionUnit.Step();
+            const int batchQuantum = 32;
+            _executionUnit.Step(batchQuantum);
 
-                if (_state != FiberState.Running || _callStack.Count == 0)
-                    break;
+            if (_callStack.Count == 0)
+            {
+                lock (_callStack)
+                {
+                    if (_callStack.Count == 0)
+                    {
+                        lock (_scheduledChunks)
+                        {
+                            if (_scheduledChunks.TryDequeue(out var info))
+                            {
+                                Invoke(info.Chunk, info.Arguments);
+                            }
+                            else
+                            {
+                                _state = FiberState.Finished;
+                            }
+                        }
+                    }
+                }
             }
         }
         catch (Exception e)

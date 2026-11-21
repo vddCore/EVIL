@@ -426,4 +426,139 @@ public class OptimizationTests : TestBase
         Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
         Assert.That(result.Array![1].Number, Is.EqualTo(42.0));
     }
+
+    [Test]
+    public void GeneralExpression_And_ShortCircuitsInVariableAssignment()
+    {
+        var script = """
+            fn test() {
+                rw val side_effect = 0;
+                val bump = fn() {
+                    side_effect++;
+                    ret true;
+                };
+
+                val result = false && bump();
+                ret [result, side_effect];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Boolean, Is.False);
+        Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+    }
+
+    [Test]
+    public void GeneralExpression_Or_ShortCircuitsInVariableAssignment()
+    {
+        var script = """
+            fn test() {
+                rw val side_effect = 0;
+                val bump = fn() {
+                    side_effect++;
+                    ret false;
+                };
+
+                val result = true || bump();
+                ret [result, side_effect];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Boolean, Is.True);
+        Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+    }
+
+    [Test]
+    public void CoalesceAssignment_Statement_DoesNotLeakEvaluationStack()
+    {
+        var script = """
+            fn test() {
+                rw val x = nil;
+                x ??= 10;
+                x ??= 20;
+                
+                val t = { a: nil };
+                t.a ??= 30;
+                t.a ??= 40;
+
+                ret [x, t.a];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(10.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(30.0));
+    }
+
+    [Test]
+    public void Jump_Backpatching_EncodesDirectTargetAddressesInBytecode()
+    {
+        var script = """
+            fn test() {
+                rw val sum = 0;
+                rw val i = 0;
+                while (i < 5) {
+                    sum += i;
+                    i++;
+                }
+                ret sum;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+        Assert.That(result.Number, Is.EqualTo(10.0));
+    }
+
+    [Test]
+    public void Chained_LogicalExpressions_ShortCircuitCorrectly()
+    {
+        var script = """
+            fn test() {
+                rw val side_effects = 0;
+                val err = fn() {
+                    side_effects++;
+                    ret true;
+                };
+
+                val a = false && err() && err();
+                val b = true || err() || err();
+                val c = (false && err()) || (true && 42);
+
+                ret [a, b, c, side_effects];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Boolean, Is.False);
+        Assert.That(result.Array![1].Boolean, Is.True);
+        Assert.That(result.Array![2].Boolean, Is.True);
+        Assert.That(result.Array![3].Number, Is.EqualTo(0.0));
+    }
+
+    [Test]
+    public void InvokeChunkFromStack_HighVolumeInvocations_ExecuteFastAndCorrect()
+    {
+        var script = """
+            fn test() {
+                val add = fn(a, b) -> a + b;
+                rw val sum = 0;
+                rw val i = 0;
+                while (i < 1000) {
+                    sum = add(sum, 1);
+                    i++;
+                }
+                ret sum;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+        Assert.That(result.Number, Is.EqualTo(1000.0));
+    }
 }

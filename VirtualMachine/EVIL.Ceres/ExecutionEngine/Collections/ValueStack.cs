@@ -18,6 +18,7 @@ public sealed class ValueStack(int initialCapacity = 1024)
         {
             _Array.Resize(ref _items, _items.Length * 2);
         }
+        
         _items[_count++] = value;
     }
     
@@ -25,8 +26,10 @@ public sealed class ValueStack(int initialCapacity = 1024)
     public DynamicValue Pop()
     {
         if (_count == 0)
+        {
             throw new InvalidOperationException("Stack is empty");
-            
+        }
+
         return _items[--_count];
     }
     
@@ -36,8 +39,10 @@ public sealed class ValueStack(int initialCapacity = 1024)
         value = DynamicValue.Nil;
 
         if (_count == 0)
+        {
             return false;
-            
+        }
+
         value = _items[--_count];
         return true;
     }
@@ -46,7 +51,9 @@ public sealed class ValueStack(int initialCapacity = 1024)
     public DynamicValue Peek()
     {
         if (_count == 0)
+        {
             throw new InvalidOperationException("Stack is empty");
+        }
             
         return _items[_count - 1];
     }
@@ -69,5 +76,42 @@ public sealed class ValueStack(int initialCapacity = 1024)
         _count = 0;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public DynamicValue[] PopArguments(int count)
+    {
+        if (count == 0)
+        {
+            return [];
+        }
+
+        if (_count < count)
+        {
+            throw new InvalidOperationException("Stack underflow");
+        }
+
+        var args = new DynamicValue[count];
+        _count -= count;
+        _Array.Copy(_items, _count, args, 0, count);
+        return args;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void PopTo(Span<DynamicValue> destination)
+    {
+        var count = destination.Length;
+        if (count == 0)
+        {
+            return;
+        }
+
+        if (_count < count)
+        {
+            throw new InvalidOperationException("Stack underflow");
+        }
+
+        _count -= count;
+        new ReadOnlySpan<DynamicValue>(_items, _count, count).CopyTo(destination);
+    }
+
     public int Count => _count;
 }

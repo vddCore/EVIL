@@ -16,6 +16,7 @@ public partial class Compiler
 
             if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
             {
+                var isStatement = assignmentExpression.Parent is ExpressionStatement;
                 var valueNotNilLabel = Chunk.CreateLabel();
 
                 EmitVarGet(symRef.Identifier);
@@ -23,9 +24,24 @@ public partial class Compiler
                 Chunk.CodeGenerator.Emit(OpCode.VJMP, valueNotNilLabel);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
                 Visit(assignmentExpression.Right);
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
+                if (!isStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
                 EmitVarSet(symRef.Identifier);
-                Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+
+                if (isStatement)
+                {
+                    var endLabel = Chunk.CreateLabel();
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
+                    Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+                    Chunk.CodeGenerator.Emit(OpCode.POP);
+                    Chunk.UpdateLabel(endLabel, Chunk.CodeGenerator.IP);
+                }
+                else
+                {
+                    Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+                }
 
                 return;
             }
@@ -74,6 +90,7 @@ public partial class Compiler
         {
             if (assignmentExpression.OperationType == AssignmentOperationType.Coalesce)
             {
+                var isStatement = assignmentExpression.Parent is ExpressionStatement;
                 var tempTarget = Chunk.AllocateLocal();
                 var tempKey = Chunk.AllocateLocal();
 
@@ -92,14 +109,26 @@ public partial class Compiler
                 Chunk.CodeGenerator.Emit(OpCode.VJMP, valueNotNilLabel);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
                 Visit(assignmentExpression.Right);
-                if (assignmentExpression.Parent is not ExpressionStatement)
+                if (!isStatement)
                 {
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                 }
                 Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
                 Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
                 Chunk.CodeGenerator.Emit(OpCode.ELSET);
-                Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+
+                if (isStatement)
+                {
+                    var endLabel = Chunk.CreateLabel();
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
+                    Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+                    Chunk.CodeGenerator.Emit(OpCode.POP);
+                    Chunk.UpdateLabel(endLabel, Chunk.CodeGenerator.IP);
+                }
+                else
+                {
+                    Chunk.UpdateLabel(valueNotNilLabel, Chunk.CodeGenerator.IP);
+                }
 
                 return;
             }
