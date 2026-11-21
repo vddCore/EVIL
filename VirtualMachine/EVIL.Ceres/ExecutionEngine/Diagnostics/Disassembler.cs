@@ -274,6 +274,9 @@ public static class Disassembler
                         break;
                         
                     case OpCode.ENTER:
+                    case OpCode.ARRINIT:
+                    case OpCode.TABINIT:
+                    case OpCode.STRCAT:
                         output.Write(opCode);
                         output.Write(" ");
                         output.Write(reader.ReadInt32());

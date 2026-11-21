@@ -7,7 +7,11 @@ public partial class Compiler
 {
     protected override void Visit(TableExpression tableExpression)
     {
-        Chunk.CodeGenerator.Emit(OpCode.TABNEW);
+        if (tableExpression.Initializers.Count == 0)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.TABNEW);
+            return;
+        }
 
         if (tableExpression.Keyed)
         {
@@ -16,30 +20,24 @@ public partial class Compiler
                 var kvpe = (KeyValuePairExpression)expr;
                 Visit(kvpe.ValueNode);
                 Visit(kvpe.KeyNode);
-                Chunk.CodeGenerator.Emit(OpCode.ELINIT);
             }
+
+            Chunk.CodeGenerator.Emit(
+                OpCode.TABINIT,
+                -tableExpression.Initializers.Count
+            );
         }
         else
         {
             for (var i = 0; i < tableExpression.Initializers.Count; i++)
             {
                 Visit(tableExpression.Initializers[i]);
-
-                if (i == 0)
-                {
-                    Chunk.CodeGenerator.Emit(OpCode.LDZERO);
-                }
-                else if (i == 1)
-                {
-                    Chunk.CodeGenerator.Emit(OpCode.LDONE);
-                }
-                else
-                {
-                    Chunk.CodeGenerator.Emit(OpCode.LDNUM, (double)i);
-                }
-
-                Chunk.CodeGenerator.Emit(OpCode.ELINIT);
             }
+
+            Chunk.CodeGenerator.Emit(
+                OpCode.TABINIT,
+                tableExpression.Initializers.Count
+            );
         }
     }
 }

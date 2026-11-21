@@ -3,22 +3,37 @@
 using System.Runtime.CompilerServices;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 
-public sealed class ChunkReader(byte[] memory)
+public sealed class ChunkReader
 {
+    private byte[] _memory;
     public long IP;
-    public readonly long Length = memory.Length;
+    public long Length { get; private set; }
+
+    public ChunkReader(byte[] memory)
+    {
+        _memory = memory;
+        Length = memory.Length;
+        IP = 0;
+    }
+
+    public void Reset(byte[] memory)
+    {
+        _memory = memory;
+        Length = memory.Length;
+        IP = 0;
+    }
 
     public OpCode PeekOpCode()
-        => (OpCode)memory[IP];
+        => (OpCode)_memory[IP];
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte ReadByte()
-        => memory[IP++];
+        => _memory[IP++];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe int ReadInt32()
     {
-        fixed (byte* ptr = &memory[IP])
+        fixed (byte* ptr = &_memory[IP])
         {
             int value = Unsafe.ReadUnaligned<int>(ptr);
             IP += sizeof(int);
@@ -30,7 +45,7 @@ public sealed class ChunkReader(byte[] memory)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe long ReadInt64()
     {
-        fixed (byte* ptr = &memory[IP])
+        fixed (byte* ptr = &_memory[IP])
         {
             long value = Unsafe.ReadUnaligned<long>(ptr);
             IP += sizeof(long);
@@ -42,7 +57,7 @@ public sealed class ChunkReader(byte[] memory)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe double ReadDouble()
     {
-        fixed (byte* ptr = &memory[IP])
+        fixed (byte* ptr = &_memory[IP])
         {
             double value = Unsafe.ReadUnaligned<double>(ptr);
             IP += sizeof(double);

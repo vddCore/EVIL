@@ -1054,6 +1054,7 @@ internal class ExecutionUnit
                 {
                     frame.CloseUpvalues();
                     _callStack.Pop();
+                    _fiber.ReturnScriptFrame(frame);
                     break;
                 }
 
@@ -1117,6 +1118,54 @@ internal class ExecutionUnit
                     c = PeekValue();
 
                     c.SetEntry(b, a);
+                    break;
+                }
+
+                case OpCode.ARRINIT:
+                {
+                    var count = frame.FetchInt32();
+                    var elements = PopArguments(count);
+                    PushValue(new Collections.Array(elements));
+                    break;
+                }
+
+                case OpCode.TABINIT:
+                {
+                    var count = frame.FetchInt32();
+                    if (count >= 0)
+                    {
+                        var elements = PopArguments(count);
+                        PushValue(new Table(elements));
+                    }
+                    else
+                    {
+                        var pairCount = -count;
+                        var items = PopArguments(pairCount * 2);
+                        var table = new Table(pairCount);
+                        for (var i = 0; i < pairCount; i++)
+                        {
+                            var val = items[i * 2];
+                            var key = items[i * 2 + 1];
+                            table.Set(key, val);
+                        }
+
+                        PushValue(table);
+                    }
+
+                    break;
+                }
+
+                case OpCode.STRCAT:
+                {
+                    var count = frame.FetchInt32();
+                    var parts = PopArguments(count);
+                    var strings = new string[count];
+                    for (var i = 0; i < count; i++)
+                    {
+                        strings[i] = parts[i].Type == DynamicValueType.String ? parts[i].String! : parts[i].ConvertToString().String ?? string.Empty;
+                    }
+
+                    PushValue(string.Concat(strings));
                     break;
                 }
 
@@ -1458,49 +1507,49 @@ internal class ExecutionUnit
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, []));
+        _callStack.Push(_fiber.RentScriptFrame(chunk));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk, DynamicValue a)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a));
+        _callStack.Push(_fiber.RentScriptFrame(chunk, a));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk, DynamicValue a, DynamicValue b)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a, b));
+        _callStack.Push(_fiber.RentScriptFrame(chunk, a, b));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a, b, c));
+        _callStack.Push(_fiber.RentScriptFrame(chunk, a, b, c));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c, DynamicValue d)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, a, b, c, d));
+        _callStack.Push(_fiber.RentScriptFrame(chunk, a, b, c, d));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunk(Chunk chunk, DynamicValue[] args)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, args));
+        _callStack.Push(_fiber.RentScriptFrame(chunk, args));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InvokeChunkFromStack(Chunk chunk, int argumentCount)
     {
-        _callStack.Push(new ScriptStackFrame(_fiber, chunk, _evaluationStack, argumentCount));
+        _callStack.Push(_fiber.RentScriptFrame(chunk, _evaluationStack, argumentCount));
         _fiber.OnChunkInvoke?.Invoke(_fiber, chunk, false);
     }
 

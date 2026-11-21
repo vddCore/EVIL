@@ -234,16 +234,35 @@ public partial class Compiler
                 return;
             }
 
-            var isFirst = true;
-            foreach (var segment in segments)
+            var meaningfulSegments = segments.Where(s => s.Kind != InterpolatedSegmentKind.Literal || s.Text.Length > 0).ToList();
+            if (meaningfulSegments.Count == 0)
+            {
+                var id = Chunk.StringPool.FetchOrAdd(string.Empty);
+                Chunk.CodeGenerator.Emit(OpCode.LDSTR, (int)id);
+                return;
+            }
+
+            if (meaningfulSegments.Count == 1)
+            {
+                var seg = meaningfulSegments[0];
+                if (seg.Kind == InterpolatedSegmentKind.Literal)
+                {
+                    var id = Chunk.StringPool.FetchOrAdd(seg.Text);
+                    Chunk.CodeGenerator.Emit(OpCode.LDSTR, (int)id);
+                }
+                else
+                {
+                    Visit(seg.Expr!);
+                    Chunk.CodeGenerator.Emit(OpCode.TOSTRING);
+                }
+
+                return;
+            }
+
+            foreach (var segment in meaningfulSegments)
             {
                 if (segment.Kind == InterpolatedSegmentKind.Literal)
                 {
-                    if (segment.Text.Length == 0)
-                    {
-                        continue;
-                    }
-
                     var id = Chunk.StringPool.FetchOrAdd(segment.Text);
                     Chunk.CodeGenerator.Emit(
                         OpCode.LDSTR,
@@ -255,16 +274,9 @@ public partial class Compiler
                     Visit(segment.Expr!);
                     Chunk.CodeGenerator.Emit(OpCode.TOSTRING);
                 }
-
-                if (!isFirst)
-                {
-                    Chunk.CodeGenerator.Emit(OpCode.ADD);
-                }
-                else
-                {
-                    isFirst = false;
-                }
             }
+
+            Chunk.CodeGenerator.Emit(OpCode.STRCAT, meaningfulSegments.Count);
         }
         else
         {

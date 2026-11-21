@@ -561,4 +561,251 @@ public class OptimizationTests : TestBase
         Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
         Assert.That(result.Number, Is.EqualTo(1000.0));
     }
+
+    [Test]
+    public void Table_HybridStorage_DenseIntegerKeys_FastArrayPath()
+    {
+        var script = """
+            fn test() {
+                val t = { 10, 20, 30, 40, 50 };
+                rw val sum = 0;
+                for (rw val i = 0; i < #t; i++) {
+                    sum += t[i];
+                }
+                ret [sum, #t, 0 in t, 4 in t, 5 in t];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(150.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(5.0));
+        Assert.That(result.Array![2].Boolean, Is.True);
+        Assert.That(result.Array![3].Boolean, Is.True);
+        Assert.That(result.Array![4].Boolean, Is.False);
+    }
+
+    [Test]
+    public void Table_MixedStorage_DenseIntegerAndHashKeys_CorrectSemantics()
+    {
+        var script = """
+            fn test() {
+                val t = { name: "Ceres", version: 2.4 };
+                t[0] = 100;
+                t[1] = 200;
+                t[10] = "sparse";
+                ret [t[0], t[1], t.name, t.version, t[10], #t];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(100.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(200.0));
+        Assert.That(result.Array![2].String, Is.EqualTo("Ceres"));
+        Assert.That(result.Array![3].Number, Is.EqualTo(2.4));
+        Assert.That(result.Array![4].String, Is.EqualTo("sparse"));
+        Assert.That(result.Array![5].Number, Is.EqualTo(5.0));
+    }
+
+    [Test]
+    public void Table_SetToNil_DecrementsLengthAndRemovesKey()
+    {
+        var script = """
+            fn test() {
+                val t = { 10, 20, 30 };
+                val lenBefore = #t;
+                t[1] = nil;
+                val lenAfter = #t;
+                val hasZero = 0 in t;
+                val hasOne = 1 in t;
+                val hasTwo = 2 in t;
+                ret [lenBefore, lenAfter, hasZero, hasOne, hasTwo, t[1]];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(2.0));
+        Assert.That(result.Array![2].Boolean, Is.True);
+        Assert.That(result.Array![3].Boolean, Is.False);
+        Assert.That(result.Array![4].Boolean, Is.True);
+        Assert.That(result.Array![5].Type, Is.EqualTo(DynamicValueType.Nil));
+    }
+
+    [Test]
+    public void BatchContainerLiteral_ArrInit_ConstructsArrayDirectly()
+    {
+        var script = """
+            fn test() {
+                val arr = [10, 20, 30, 40];
+                ret [#arr, arr[0], arr[1], arr[2], arr[3]];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(4.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
+        Assert.That(result.Array![2].Number, Is.EqualTo(20.0));
+        Assert.That(result.Array![3].Number, Is.EqualTo(30.0));
+        Assert.That(result.Array![4].Number, Is.EqualTo(40.0));
+    }
+
+    [Test]
+    public void BatchContainerLiteral_TabInit_ConstructsUnkeyedTableDirectly()
+    {
+        var script = """
+            fn test() {
+                val t = { "a", "b", "c" };
+                ret [#t, t[0], t[1], t[2]];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+        Assert.That(result.Array![1].String, Is.EqualTo("a"));
+        Assert.That(result.Array![2].String, Is.EqualTo("b"));
+        Assert.That(result.Array![3].String, Is.EqualTo("c"));
+    }
+
+    [Test]
+    public void BatchContainerLiteral_TabInit_ConstructsKeyedTableDirectly()
+    {
+        var script = """
+            fn test() {
+                val t = { x: 10, y: 20, z: 30 };
+                ret [#t, t.x, t.y, t.z];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
+        Assert.That(result.Array![2].Number, Is.EqualTo(20.0));
+        Assert.That(result.Array![3].Number, Is.EqualTo(30.0));
+    }
+
+    [Test]
+    public void BatchContainerLiteral_EmptyContainers_ConstructEmptyInstances()
+    {
+        var script = """
+            fn test() {
+                val a = [];
+                val t = {};
+                ret [#a, #t];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(0.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+    }
+
+    [Test]
+    public void StringInterpolation_VariadicStrcat_InterpolatesMultipleSegmentsCorrectly()
+    {
+        var script = """
+            fn test() {
+                val name = "Ceres";
+                val version = 2.4;
+                val active = true;
+                val result = "Engine: $name, v$version (active: $active)";
+                ret result;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
+        Assert.That(result.String, Is.EqualTo("Engine: Ceres, v2.4 (active: true)"));
+    }
+
+    [Test]
+    public void StringInterpolation_SingleExpression_ConvertsToStringDirectly()
+    {
+        var script = """
+            fn test() {
+                val num = 42;
+                val str = "$num";
+                ret [str, str is String];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].String, Is.EqualTo("42"));
+        Assert.That(result.Array![1].Boolean, Is.True);
+    }
+
+    [Test]
+    public void StringInterpolation_NoExpressions_EmitsSingleStringConstant()
+    {
+        var script = """
+            fn test() {
+                val str = "Plain literal string without vars";
+                ret str;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
+        Assert.That(result.String, Is.EqualTo("Plain literal string without vars"));
+    }
+
+    [Test]
+    public void ScriptStackFrame_Pooling_ZeroAllocationsOnFunctionCallLoop()
+    {
+        var script = """
+            fn add(a, b) -> a + b;
+
+            fn test() {
+                rw val sum = 0;
+                for (rw val i = 0; i < 1000; i++) {
+                    sum = add(sum, 1);
+                }
+                ret sum;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+        Assert.That(result.Number, Is.EqualTo(1000.0));
+    }
+
+    [Test]
+    public void ScriptStackFrame_Pooling_DeepRecursionExecutesCorrectly()
+    {
+        var script = """
+            fn recurse(n) {
+                if (n <= 0) {
+                    ret 0;
+                }
+                ret 1 + recurse(n - 1);
+            }
+
+            fn test() {
+                ret recurse(500);
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+        Assert.That(result.Number, Is.EqualTo(500.0));
+    }
+
+    [Test]
+    public void CallFrame_Struct_RepresentsMetadataCorrectly()
+    {
+        var chunk = new Chunk("test_chunk", [0x01, 0x02]);
+        var callFrame = new CallFrame(chunk, null, 10, 42);
+
+        Assert.That(callFrame.Chunk, Is.SameAs(chunk));
+        Assert.That(callFrame.Upvalues, Is.Null);
+        Assert.That(callFrame.BasePointer, Is.EqualTo(10));
+        Assert.That(callFrame.ReturnIP, Is.EqualTo(42));
+    }
 }

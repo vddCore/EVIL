@@ -14,21 +14,25 @@ public partial class Compiler
             
         if (arrayExpression.SizeExpression == null)
         {
+            for (var i = 0; i < arrayExpression.Initializers.Count; i++)
+            {
+                Visit(arrayExpression.Initializers[i]);
+            }
+
             Chunk.CodeGenerator.Emit(
-                OpCode.LDNUM,
-                (double)arrayExpression.Initializers.Count
+                OpCode.ARRINIT,
+                arrayExpression.Initializers.Count
             );
+            return;
+        }
+
+        if (arrayExpression.SizeExpression.Reduce() is NumberConstant nc)
+        {
+            knownSizeConstraint = (int)nc.Value;
         }
         else
         {
-            if (arrayExpression.SizeExpression.Reduce() is NumberConstant nc)
-            {
-                knownSizeConstraint = (int)nc.Value;
-            }
-            else
-            {
-                Visit(arrayExpression.SizeExpression);
-            }
+            Visit(arrayExpression.SizeExpression);
         }
 
         if (knownSizeConstraint != null)

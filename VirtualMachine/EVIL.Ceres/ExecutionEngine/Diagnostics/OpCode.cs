@@ -77,5 +77,8 @@ public enum OpCode : byte
     ENTER,
     THROW,
     LEAVE,
-    ERRNEW
+    ERRNEW,
+    ARRINIT,
+    TABINIT,
+    STRCAT
 }

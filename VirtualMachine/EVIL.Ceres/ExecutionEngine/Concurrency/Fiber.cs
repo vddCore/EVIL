@@ -21,6 +21,10 @@ public sealed class Fiber
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _sharedUpvalues;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _closedUpvalues = new();
 
+    private readonly Stack<ScriptStackFrame> _scriptFramePool = new();
+    private readonly Stack<DynamicValue[]>[] _argumentsPool = new Stack<DynamicValue[]>[16];
+    private readonly Stack<DynamicValue[]>[] _localsPool = new Stack<DynamicValue[]>[32];
+
     private readonly ExecutionUnit _executionUnit;
     private FiberCrashHandler? _crashHandler;
 
@@ -358,7 +362,14 @@ public sealed class Fiber
 
         lock (_callStack)
         {
-            _callStack.Clear();
+            while (_callStack.Count > 0)
+            {
+                var f = _callStack.Pop();
+                if (f is ScriptStackFrame ssf)
+                {
+                    ReturnScriptFrame(ssf);
+                }
+            }
         }
     }
         
@@ -512,6 +523,7 @@ public sealed class Fiber
             {
                 scriptFrame.CloseUpvalues();
                 _callStack.Pop();
+                ReturnScriptFrame(scriptFrame);
                 scriptFrame = _callStack.Peek().As<ScriptStackFrame>();
             }
 
@@ -570,7 +582,114 @@ public sealed class Fiber
     {
         lock (_callStack)
         {
-            _callStack.Push(new ScriptStackFrame(this, chunk, args));
+            _callStack.Push(RentScriptFrame(chunk, args));
         }
+    }
+
+    internal DynamicValue[] RentArguments(int len)
+    {
+        if (len == 0) return [];
+        if (len < _argumentsPool.Length)
+        {
+            var pool = _argumentsPool[len];
+            if (pool != null && pool.Count > 0)
+            {
+                return pool.Pop();
+            }
+        }
+        return new DynamicValue[len];
+    }
+
+    internal void ReturnArguments(DynamicValue[] args)
+    {
+        var len = args.Length;
+        if (len == 0) return;
+        System.Array.Clear(args, 0, len);
+        if (len < _argumentsPool.Length)
+        {
+            var pool = _argumentsPool[len] ??= new Stack<DynamicValue[]>();
+            pool.Push(args);
+        }
+    }
+
+    internal DynamicValue[]? RentLocals(int localCount)
+    {
+        if (localCount == 0) return null;
+        if (localCount < _localsPool.Length)
+        {
+            var pool = _localsPool[localCount];
+            if (pool != null && pool.Count > 0)
+            {
+                return pool.Pop();
+            }
+        }
+        return new DynamicValue[localCount];
+    }
+
+    internal void ReturnLocals(DynamicValue[]? locals)
+    {
+        if (locals == null) return;
+        var len = locals.Length;
+        System.Array.Clear(locals, 0, len);
+        if (len < _localsPool.Length)
+        {
+            var pool = _localsPool[len] ??= new Stack<DynamicValue[]>();
+            pool.Push(locals);
+        }
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk, ValueStack stack, int argumentCount)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk, stack, argumentCount);
+        return frame;
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk, DynamicValue[] args)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk, args);
+        return frame;
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk);
+        return frame;
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk, DynamicValue a)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk, a);
+        return frame;
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk, DynamicValue a, DynamicValue b)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk, a, b);
+        return frame;
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk, a, b, c);
+        return frame;
+    }
+
+    internal ScriptStackFrame RentScriptFrame(Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c, DynamicValue d)
+    {
+        var frame = _scriptFramePool.Count > 0 ? _scriptFramePool.Pop() : new ScriptStackFrame(this);
+        frame.Reset(this, chunk, a, b, c, d);
+        return frame;
+    }
+
+    internal void ReturnScriptFrame(ScriptStackFrame frame)
+    {
+        frame.ReleaseArrays(this);
+        _scriptFramePool.Push(frame);
     }
 }

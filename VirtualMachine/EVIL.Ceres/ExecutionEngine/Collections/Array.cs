@@ -58,6 +58,11 @@ public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
         }
     }
         
+    public Array(DynamicValue[] values)
+    {
+        _values = values ?? [];
+    }
+
     public Array(Array array)
     {
         _values = new DynamicValue[array.Length];
