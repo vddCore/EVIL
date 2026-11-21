@@ -38,7 +38,7 @@ public partial class Parser
                 catch (ParserException pe)
                 {
                     ReportParserException(pe);
-                    statements.Add(new DiagnosticStatement(pe.Message)
+                    statements.Add(new DiagnosticNode(pe.Message)
                     {
                         Line = pe.Line,
                         Column = pe.Column
@@ -48,7 +48,7 @@ public partial class Parser
                 catch (LexerException le)
                 {
                     ReportLexerException(le);
-                    statements.Add(new DiagnosticStatement(le.Message)
+                    statements.Add(new DiagnosticNode(le.Message)
                     {
                         Line = le.Line,
                         Column = le.Column

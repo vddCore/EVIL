@@ -115,6 +115,10 @@ public abstract class AstVisitor
     protected abstract void Visit(IsExpression isExpression);
     protected abstract void Visit(ByExpression byExpression);
     protected abstract void Visit(WithExpression withExpression);
-    protected abstract void Visit(DiagnosticStatement diagnosticStatement);
-    protected abstract void Visit(DiagnosticExpression diagnosticExpression);
+    
+    protected virtual void Visit(DiagnosticNode diagnosticNode) { }
+    protected virtual void Visit(IdentifierNode identifierNode) { }
+    protected virtual void Visit(KeyValuePairExpression keyValuePairExpression) { }
+    protected virtual void Visit(ByArmNode byArmNode) { }
+    protected virtual void Visit(ParameterNode parameterNode) { }
 }

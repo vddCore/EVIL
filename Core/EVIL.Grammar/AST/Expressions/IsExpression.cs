@@ -19,6 +19,10 @@ public sealed class IsExpression : Expression
         ManagedTypeName = managedTypeName;
         Invert = invert;
 
-        Reparent(Target, Type, ManagedTypeName);
+        Reparent(
+            Target,
+            Type,
+            ManagedTypeName
+        );
     }
 }

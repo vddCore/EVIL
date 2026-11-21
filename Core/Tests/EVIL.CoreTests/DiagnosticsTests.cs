@@ -155,9 +155,9 @@ public class DiagnosticsTests
         bag.ErrorCount.ShouldBe(2);
 
         program.Statements.Count.ShouldBe(4);
-        program.Statements[0].ShouldBeOfType<DiagnosticStatement>();
+        program.Statements[0].ShouldBeOfType<DiagnosticNode>();
         program.Statements[1].ShouldBeOfType<ValStatement>();
-        program.Statements[2].ShouldBeOfType<DiagnosticStatement>();
+        program.Statements[2].ShouldBeOfType<DiagnosticNode>();
         program.Statements[3].ShouldBeOfType<ValStatement>();
     }
 
@@ -175,7 +175,7 @@ public class DiagnosticsTests
         var fn = (FnStatement)program.Statements[0];
         var block = (BlockStatement)fn.Statement;
         block.Statements.Count.ShouldBe(2);
-        block.Statements[0].ShouldBeOfType<DiagnosticStatement>();
+        block.Statements[0].ShouldBeOfType<DiagnosticNode>();
         block.Statements[1].ShouldBeOfType<ValStatement>();
     }
 

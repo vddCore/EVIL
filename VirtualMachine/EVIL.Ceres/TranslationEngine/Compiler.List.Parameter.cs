@@ -7,21 +7,10 @@ public partial class Compiler
 {
     protected override void Visit(ParameterList parameterList)
     {
-        if (parameterList.HasSelf)
+        if (parameterList.HasSelf && !Chunk.IsSelfAware)
         {
-            if (Chunk.IsSelfAware)
-            {
-                Log.Report(
-                    CompilerDiagnostics.RedundantSelfParameter.Create(
-                        GetLocation(parameterList)
-                    )
-                );
-            }
-            else
-            {
-                Chunk.AllocateParameter();
-                Chunk.MarkSelfAware();
-            }
+            Chunk.AllocateParameter();
+            Chunk.MarkSelfAware();
         }
 
         for (var i = 0; i < parameterList.Parameters.Count; i++)

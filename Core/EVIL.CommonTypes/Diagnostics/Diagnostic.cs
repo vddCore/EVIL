@@ -31,7 +31,7 @@ public sealed record Diagnostic(
         sb.Append(": ");
         sb.Append(Message);
 
-        if (RelatedLocations != null && RelatedLocations.Count > 0)
+        if (RelatedLocations is { Count: > 0 })
         {
             foreach (var related in RelatedLocations)
             {

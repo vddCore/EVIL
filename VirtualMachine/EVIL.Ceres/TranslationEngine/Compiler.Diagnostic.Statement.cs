@@ -4,7 +4,7 @@ using EVIL.Grammar.AST.Diagnostics;
 
 public partial class Compiler
 {
-    protected override void Visit(DiagnosticStatement diagnosticStatement)
+    protected override void Visit(DiagnosticNode diagnosticNode)
     {
     }
 }

@@ -186,4 +186,10 @@
       <DependentUpon>Parser.cs</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>EVIL.Ceres</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 </Project>

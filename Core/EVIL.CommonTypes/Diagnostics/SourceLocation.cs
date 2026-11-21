@@ -19,11 +19,15 @@ public readonly record struct SourceLocation(
     {
         if (string.IsNullOrEmpty(FilePath))
         {
-            return Line > 0 ? (Column > 0 ? $"({Line},{Column})" : $"({Line})") : string.Empty;
+            return Line > 0 
+                ? (Column > 0 ? $"({Line},{Column})" : $"({Line})")
+                : string.Empty;
         }
 
         return Line > 0
-            ? (Column > 0 ? $"{FilePath}({Line},{Column})" : $"{FilePath}({Line})")
-            : FilePath;
+            ? (Column > 0 
+                ? $"{FilePath}({Line},{Column})" 
+                : $"{FilePath}({Line})"
+            ) : FilePath;
     }
 }

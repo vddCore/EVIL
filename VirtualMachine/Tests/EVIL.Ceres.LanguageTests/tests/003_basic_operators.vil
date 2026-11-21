@@ -61,8 +61,6 @@
 
 #[test]
 fn precedence_nested_coalescing {
-  val a = nil;
-  val b = nil;
   val c = 5 + 6 * 2 ?? 99;
   assert.equal(c, 17);
 }
@@ -288,7 +286,7 @@ fn nil_coalescing_multiple_values {
   
   val e = a ?? b ?? c ?? d;
   
-  assert.equal(c, 21.37);
+  assert.equal(e, 21.37);
 }
 
 #[test]

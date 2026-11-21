@@ -123,7 +123,7 @@ public class CompilerDiagnosticTests
     public void Compiler_ByWithoutDefault_ReportsEV8002()
     {
         var compiler = new Compiler();
-        var source = "val x = 1;\nval y = by x { 1 => \"one\" };";
+        var source = "val _x = 1;\nval _y = by _x { 1 => \"one\" };";
 
         compiler.Compile(source, "by_test.vil");
 
@@ -132,5 +132,103 @@ public class CompilerDiagnosticTests
         var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8002");
         diag.ShouldNotBeNull();
         diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void Compiler_WhenEnableAnalyzersIsFalse_DoesNotRunAnalyzers()
+    {
+        var compiler = new Compiler { EnableAnalyzers = false };
+        var source = "val _x = 1;\nval _y = by _x { 1 => \"one\" };";
+
+        compiler.Compile(source, "no_analyzers.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(0);
+    }
+
+    [Test]
+    public void Compiler_TableDuplicateKey_ReportsEV8006()
+    {
+        var compiler = new Compiler();
+        var source = "val _t = { a: 1, a: 2 };";
+
+        compiler.Compile(source, "dup_key.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8006");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void Compiler_CatchlessTry_ReportsEV8005()
+    {
+        var compiler = new Compiler();
+        var source = "try { val _x = 1; }";
+
+        compiler.Compile(source, "catchless.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8005");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void Compiler_UnreachableCode_ReportsEV8004()
+    {
+        var compiler = new Compiler();
+        var source = "fn foo() { ret 1; val _x = 2; }";
+
+        compiler.Compile(source, "unreachable.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8004");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void Compiler_RedundantSelfParameter_ReportsEV8001()
+    {
+        var compiler = new Compiler();
+        var source = "val _obj = {};\nloc fn _obj::bar(self, x) -> x;";
+
+        compiler.Compile(source, "redundant_self.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8001");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void Compiler_UnusedVariable_ReportsEV8003()
+    {
+        var compiler = new Compiler();
+        var source = "val unusedVar = 10;\nval _used = 20;";
+
+        compiler.Compile(source, "unused.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8003");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'unusedVar'");
+    }
+
+    [Test]
+    public void Compiler_UnusedVariable_RecognizesInterpolatedStringUsage()
+    {
+        var compiler = new Compiler();
+        var source = "val name = \"Bob\";\nval _greeting = \"Hello, $name!\";";
+
+        compiler.Compile(source, "interpolated_usage.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(0);
     }
 }

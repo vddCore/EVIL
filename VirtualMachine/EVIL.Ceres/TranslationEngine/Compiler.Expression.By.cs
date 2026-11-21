@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
-using EVIL.CommonTypes.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
@@ -163,12 +162,6 @@ public partial class Compiler
         }
         else
         {
-            Log.Report(
-                CompilerDiagnostics.NoDefaultByArm.Create(
-                    GetLocation(byExpression)
-                )
-            );
-
             Chunk.CodeGenerator.Emit(OpCode.LDNIL);
         }
 
@@ -223,12 +216,6 @@ public partial class Compiler
         }
         else
         {
-            Log.Report(
-                CompilerDiagnostics.NoDefaultByArm.Create(
-                    GetLocation(byExpression)
-                )
-            );
-
             Chunk.CodeGenerator.Emit(OpCode.LDNIL);
         }
 

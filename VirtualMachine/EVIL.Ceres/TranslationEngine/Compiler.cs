@@ -10,6 +10,7 @@ using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
 using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar;
+using EVIL.Grammar.Analysis;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
@@ -66,6 +67,8 @@ public partial class Compiler : AstVisitor
 
     public CompilerLog Log { get; } = new();
     public bool OptimizeCodeGeneration { get; set; }
+    public AnalyzerDriver AnalyzerDriver { get; set; } = AnalyzerDriver.CreateDefault();
+    public bool EnableAnalyzers { get; set; } = true;
 
     public Compiler(bool optimizeCodeGeneration = false)
     {
@@ -119,6 +122,11 @@ public partial class Compiler : AstVisitor
         _isUnreachable = false;
         _closedScopes.Clear();
         _chunks.Clear();
+
+        if (EnableAnalyzers && AnalyzerDriver != null)
+        {
+            AnalyzerDriver.Analyze(programNode, CurrentFileName, Log);
+        }
 
         return InRootChunkDo(() => Visit(programNode));
     }

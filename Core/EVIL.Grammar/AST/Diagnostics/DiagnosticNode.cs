@@ -2,11 +2,11 @@ namespace EVIL.Grammar.AST.Diagnostics;
 
 using EVIL.Grammar.AST.Base;
 
-public sealed class DiagnosticStatement : Statement
+public sealed class DiagnosticNode : Statement
 {
     public string? ErrorMessage { get; }
 
-    public DiagnosticStatement(string? errorMessage = null)
+    public DiagnosticNode(string? errorMessage = null)
     {
         ErrorMessage = errorMessage;
     }

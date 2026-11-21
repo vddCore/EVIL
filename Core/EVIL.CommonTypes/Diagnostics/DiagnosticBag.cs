@@ -3,11 +3,12 @@ namespace EVIL.CommonTypes.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 public sealed class DiagnosticBag : IDiagnosticSink
 {
     private readonly List<Diagnostic> _diagnostics = [];
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     public event EventHandler<Diagnostic>? DiagnosticReported;
 
@@ -17,7 +18,7 @@ public sealed class DiagnosticBag : IDiagnosticSink
         {
             lock (_lock)
             {
-                return _diagnostics.ToArray();
+                return [.._diagnostics];
             }
         }
     }
@@ -39,7 +40,9 @@ public sealed class DiagnosticBag : IDiagnosticSink
         {
             lock (_lock)
             {
-                return _diagnostics.Count(d => d.Severity == DiagnosticSeverity.Info);
+                return _diagnostics.Count(
+                    d => d.Severity == DiagnosticSeverity.Info
+                );
             }
         }
     }
@@ -50,7 +53,9 @@ public sealed class DiagnosticBag : IDiagnosticSink
         {
             lock (_lock)
             {
-                return _diagnostics.Count(d => d.Severity == DiagnosticSeverity.Warning);
+                return _diagnostics.Count(
+                    d => d.Severity == DiagnosticSeverity.Warning
+                );
             }
         }
     }
@@ -61,7 +66,11 @@ public sealed class DiagnosticBag : IDiagnosticSink
         {
             lock (_lock)
             {
-                return _diagnostics.Count(d => d.Severity is DiagnosticSeverity.Error or DiagnosticSeverity.Fatal or DiagnosticSeverity.InternalError);
+                return _diagnostics.Count(
+                    d => d.Severity is DiagnosticSeverity.Error 
+                                    or DiagnosticSeverity.Fatal
+                                    or DiagnosticSeverity.InternalError
+                );
             }
         }
     }
@@ -72,7 +81,10 @@ public sealed class DiagnosticBag : IDiagnosticSink
         {
             lock (_lock)
             {
-                return _diagnostics.Count(d => d.Severity is DiagnosticSeverity.Fatal or DiagnosticSeverity.InternalError);
+                return _diagnostics.Count(
+                    d => d.Severity is DiagnosticSeverity.Fatal 
+                                    or DiagnosticSeverity.InternalError
+                );
             }
         }
     }
@@ -87,7 +99,10 @@ public sealed class DiagnosticBag : IDiagnosticSink
             _diagnostics.Add(diagnostic);
         }
 
-        DiagnosticReported?.Invoke(this, diagnostic);
+        DiagnosticReported?.Invoke(
+            this,
+            diagnostic
+        );
     }
 
     public void Clear()
@@ -102,7 +117,10 @@ public sealed class DiagnosticBag : IDiagnosticSink
     {
         lock (_lock)
         {
-            return string.Join(Environment.NewLine, _diagnostics.Select(d => d.ToString()));
+            return string.Join(
+                Environment.NewLine,
+                _diagnostics.Select(d => d.ToString())
+            );
         }
     }
 }
