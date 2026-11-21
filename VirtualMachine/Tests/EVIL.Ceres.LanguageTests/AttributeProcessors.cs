@@ -1,7 +1,6 @@
 ﻿namespace EVIL.Ceres.LanguageTests;
 
 using System;
-using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 

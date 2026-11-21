@@ -17,7 +17,7 @@ public partial class Compiler
         else
         {
             Chunk.CodeGenerator.Emit(OpCode.TYPE);
-            Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)isExpression.Type.Value);
+            Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (byte)isExpression.Type.Value);
         }
         
         Chunk.CodeGenerator.Emit(isExpression.Invert ? OpCode.CNE : OpCode.CEQ);

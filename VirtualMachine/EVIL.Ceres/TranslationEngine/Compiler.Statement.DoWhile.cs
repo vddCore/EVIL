@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler

@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,7 +32,7 @@ public partial class Compiler
         }
     }
 
-    private List<InterpolatedSegment> ParseInterpolatedSegments(string templateString, StringConstant stringConstant)
+    private static List<InterpolatedSegment> ParseInterpolatedSegments(string templateString, StringConstant stringConstant)
     {
         var segments = new List<InterpolatedSegment>();
         var currentLiteral = new StringBuilder();

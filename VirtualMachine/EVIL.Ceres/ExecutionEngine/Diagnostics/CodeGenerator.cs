@@ -86,8 +86,35 @@ public sealed class CodeGenerator : IDisposable
 
     public void Emit(OpCode value, double operand)
     {
+        if (value == OpCode.LDNUM)
+        {
+            EmitNumber(operand);
+            return;
+        }
+
         Emit(value);
         Emit(operand);
+    }
+
+    public void EmitNumber(double value)
+    {
+        if (value == 0.0 && !double.IsNegative(value))
+        {
+            Emit(OpCode.LDZERO);
+        }
+        else if (value == 1.0)
+        {
+            Emit(OpCode.LDONE);
+        }
+        else if (value >= sbyte.MinValue && value <= sbyte.MaxValue && Math.Truncate(value) == value && !(value == 0.0 && double.IsNegative(value)))
+        {
+            Emit(OpCode.LDNUM_I8, (byte)(sbyte)value);
+        }
+        else
+        {
+            Emit(OpCode.LDNUM);
+            Emit(value);
+        }
     }
 
     public void Emit(OpCode value, long operand)
@@ -98,8 +125,153 @@ public sealed class CodeGenerator : IDisposable
         
     public void Emit(OpCode value, int operand)
     {
+        switch (value)
+        {
+            case OpCode.GETLOCAL:
+                EmitGetLocal(operand);
+                return;
+            case OpCode.SETLOCAL:
+                EmitSetLocal(operand);
+                return;
+            case OpCode.GETARG:
+                EmitGetArg(operand);
+                return;
+            case OpCode.SETARG:
+                EmitSetArg(operand);
+                return;
+            case OpCode.GETCLOSURE:
+                EmitGetClosure(operand);
+                return;
+            case OpCode.SETCLOSURE:
+                EmitSetClosure(operand);
+                return;
+            case OpCode.LDTYPE:
+                Emit(OpCode.LDTYPE, (byte)operand);
+                return;
+        }
+
         Emit(value);
         Emit(operand);
+    }
+
+    public void EmitGetLocal(int operand)
+    {
+        switch (operand)
+        {
+            case 0: Emit(OpCode.GETLOCAL_0); break;
+            case 1: Emit(OpCode.GETLOCAL_1); break;
+            case 2: Emit(OpCode.GETLOCAL_2); break;
+            case 3: Emit(OpCode.GETLOCAL_3); break;
+            default:
+                if ((uint)operand <= byte.MaxValue)
+                    Emit(OpCode.GETLOCAL_B, (byte)operand);
+                else
+                {
+                    Emit(OpCode.GETLOCAL);
+                    Emit(operand);
+                }
+                break;
+        }
+    }
+
+    public void EmitSetLocal(int operand)
+    {
+        switch (operand)
+        {
+            case 0: Emit(OpCode.SETLOCAL_0); break;
+            case 1: Emit(OpCode.SETLOCAL_1); break;
+            case 2: Emit(OpCode.SETLOCAL_2); break;
+            case 3: Emit(OpCode.SETLOCAL_3); break;
+            default:
+                if ((uint)operand <= byte.MaxValue)
+                    Emit(OpCode.SETLOCAL_B, (byte)operand);
+                else
+                {
+                    Emit(OpCode.SETLOCAL);
+                    Emit(operand);
+                }
+                break;
+        }
+    }
+
+    public void EmitGetArg(int operand)
+    {
+        switch (operand)
+        {
+            case 0: Emit(OpCode.GETARG_0); break;
+            case 1: Emit(OpCode.GETARG_1); break;
+            case 2: Emit(OpCode.GETARG_2); break;
+            case 3: Emit(OpCode.GETARG_3); break;
+            default:
+                if ((uint)operand <= byte.MaxValue)
+                    Emit(OpCode.GETARG_B, (byte)operand);
+                else
+                {
+                    Emit(OpCode.GETARG);
+                    Emit(operand);
+                }
+                break;
+        }
+    }
+
+    public void EmitSetArg(int operand)
+    {
+        switch (operand)
+        {
+            case 0: Emit(OpCode.SETARG_0); break;
+            case 1: Emit(OpCode.SETARG_1); break;
+            case 2: Emit(OpCode.SETARG_2); break;
+            case 3: Emit(OpCode.SETARG_3); break;
+            default:
+                if ((uint)operand <= byte.MaxValue)
+                    Emit(OpCode.SETARG_B, (byte)operand);
+                else
+                {
+                    Emit(OpCode.SETARG);
+                    Emit(operand);
+                }
+                break;
+        }
+    }
+
+    public void EmitGetClosure(int operand)
+    {
+        switch (operand)
+        {
+            case 0: Emit(OpCode.GETCLOSURE_0); break;
+            case 1: Emit(OpCode.GETCLOSURE_1); break;
+            case 2: Emit(OpCode.GETCLOSURE_2); break;
+            case 3: Emit(OpCode.GETCLOSURE_3); break;
+            default:
+                if ((uint)operand <= byte.MaxValue)
+                    Emit(OpCode.GETCLOSURE_B, (byte)operand);
+                else
+                {
+                    Emit(OpCode.GETCLOSURE);
+                    Emit(operand);
+                }
+                break;
+        }
+    }
+
+    public void EmitSetClosure(int operand)
+    {
+        switch (operand)
+        {
+            case 0: Emit(OpCode.SETCLOSURE_0); break;
+            case 1: Emit(OpCode.SETCLOSURE_1); break;
+            case 2: Emit(OpCode.SETCLOSURE_2); break;
+            case 3: Emit(OpCode.SETCLOSURE_3); break;
+            default:
+                if ((uint)operand <= byte.MaxValue)
+                    Emit(OpCode.SETCLOSURE_B, (byte)operand);
+                else
+                {
+                    Emit(OpCode.SETCLOSURE);
+                    Emit(operand);
+                }
+                break;
+        }
     }
         
     public void Emit(OpCode value, byte operand)

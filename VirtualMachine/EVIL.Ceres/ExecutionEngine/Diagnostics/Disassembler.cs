@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.ExecutionEngine.Diagnostics;
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -126,14 +125,36 @@ public static class Disassembler
                         output.WriteLine(reader.ReadByte() == 1 ? "VARARGS" : "");
                         break;
 
+                    case OpCode.GETCLOSURE_0:
+                    case OpCode.GETCLOSURE_1:
+                    case OpCode.GETCLOSURE_2:
+                    case OpCode.GETCLOSURE_3:
+                    case OpCode.GETCLOSURE_B:
                     case OpCode.GETCLOSURE:
+                    case OpCode.SETCLOSURE_0:
+                    case OpCode.SETCLOSURE_1:
+                    case OpCode.SETCLOSURE_2:
+                    case OpCode.SETCLOSURE_3:
+                    case OpCode.SETCLOSURE_B:
                     case OpCode.SETCLOSURE:
                     {
                         output.Write(opCode);
-                        output.Write(" ");
 
-                        var closureId = reader.ReadInt32();
-                        output.Write(closureId);
+                        int closureId = opCode switch
+                        {
+                            OpCode.GETCLOSURE_0 or OpCode.SETCLOSURE_0 => 0,
+                            OpCode.GETCLOSURE_1 or OpCode.SETCLOSURE_1 => 1,
+                            OpCode.GETCLOSURE_2 or OpCode.SETCLOSURE_2 => 2,
+                            OpCode.GETCLOSURE_3 or OpCode.SETCLOSURE_3 => 3,
+                            OpCode.GETCLOSURE_B or OpCode.SETCLOSURE_B => reader.ReadByte(),
+                            _ => reader.ReadInt32()
+                        };
+
+                        if (opCode is OpCode.GETCLOSURE_B or OpCode.GETCLOSURE or OpCode.SETCLOSURE_B or OpCode.SETCLOSURE)
+                        {
+                            output.Write(" ");
+                            output.Write(closureId);
+                        }
 
                         if (options.WriteClosureInfo)
                         {
@@ -198,19 +219,56 @@ public static class Disassembler
                         output.WriteLine();
                         break;
 
+                    case OpCode.SETLOCAL_0:
+                    case OpCode.SETLOCAL_1:
+                    case OpCode.SETLOCAL_2:
+                    case OpCode.SETLOCAL_3:
+                    case OpCode.SETLOCAL_B:
                     case OpCode.SETLOCAL:
+                    case OpCode.GETLOCAL_0:
+                    case OpCode.GETLOCAL_1:
+                    case OpCode.GETLOCAL_2:
+                    case OpCode.GETLOCAL_3:
+                    case OpCode.GETLOCAL_B:
                     case OpCode.GETLOCAL:
+                    case OpCode.SETARG_0:
+                    case OpCode.SETARG_1:
+                    case OpCode.SETARG_2:
+                    case OpCode.SETARG_3:
+                    case OpCode.SETARG_B:
                     case OpCode.SETARG:
+                    case OpCode.GETARG_0:
+                    case OpCode.GETARG_1:
+                    case OpCode.GETARG_2:
+                    case OpCode.GETARG_3:
+                    case OpCode.GETARG_B:
                     case OpCode.GETARG:
+                    {
                         output.Write(opCode);
-                        output.Write(" ");
 
-                        var symId = reader.ReadInt32();
-                        output.Write(symId);
+                        int symId = opCode switch
+                        {
+                            OpCode.SETLOCAL_0 or OpCode.GETLOCAL_0 or OpCode.SETARG_0 or OpCode.GETARG_0 => 0,
+                            OpCode.SETLOCAL_1 or OpCode.GETLOCAL_1 or OpCode.SETARG_1 or OpCode.GETARG_1 => 1,
+                            OpCode.SETLOCAL_2 or OpCode.GETLOCAL_2 or OpCode.SETARG_2 or OpCode.GETARG_2 => 2,
+                            OpCode.SETLOCAL_3 or OpCode.GETLOCAL_3 or OpCode.SETARG_3 or OpCode.GETARG_3 => 3,
+                            OpCode.SETLOCAL_B or OpCode.GETLOCAL_B or OpCode.SETARG_B or OpCode.GETARG_B => reader.ReadByte(),
+                            _ => reader.ReadInt32()
+                        };
+
+                        if (opCode is OpCode.SETLOCAL_B or OpCode.SETLOCAL 
+                            or OpCode.GETLOCAL_B or OpCode.GETLOCAL 
+                            or OpCode.SETARG_B or OpCode.SETARG 
+                            or OpCode.GETARG_B or OpCode.GETARG)
+                        {
+                            output.Write(" ");
+                            output.Write(symId);
+                        }
 
                         if (chunk.HasDebugInfo)
                         {
-                            if (opCode == OpCode.SETLOCAL || opCode == OpCode.GETLOCAL)
+                            if (opCode is OpCode.SETLOCAL_0 or OpCode.SETLOCAL_1 or OpCode.SETLOCAL_2 or OpCode.SETLOCAL_3 or OpCode.SETLOCAL_B or OpCode.SETLOCAL
+                                or OpCode.GETLOCAL_0 or OpCode.GETLOCAL_1 or OpCode.GETLOCAL_2 or OpCode.GETLOCAL_3 or OpCode.GETLOCAL_B or OpCode.GETLOCAL)
                             {
                                 if (options.WriteLocalNames)
                                 {
@@ -241,6 +299,7 @@ public static class Disassembler
 
                         output.WriteLine();
                         break;
+                    }
 
                     case OpCode.FJMP:
                     case OpCode.TJMP:
@@ -257,12 +316,19 @@ public static class Disassembler
                         break;
 
                     case OpCode.LDTYPE:
-                        var typeCode = reader.ReadInt32();
+                        var typeCode = (DynamicValueType)reader.ReadByte();
 
                         output.Write(opCode);
                         output.Write(" ");
-                        output.Write(typeCode);
-                        output.Write($" ; {(DynamicValueType)typeCode}");
+                        output.Write((byte)typeCode);
+                        output.Write($" ; {typeCode}");
+                        output.WriteLine();
+                        break;
+
+                    case OpCode.LDNUM_I8:
+                        output.Write(opCode);
+                        output.Write(" ");
+                        output.Write((sbyte)reader.ReadByte());
                         output.WriteLine();
                         break;
 

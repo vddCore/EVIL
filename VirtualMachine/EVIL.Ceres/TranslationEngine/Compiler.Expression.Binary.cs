@@ -186,7 +186,7 @@ public partial class Compiler
         // if it's a table then can't afford to short circuit - __land exists.
         Chunk.CodeGenerator.Emit(OpCode.DUP);
         Chunk.CodeGenerator.Emit(OpCode.TYPE);
-        Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)DynamicValueType.Table);
+        Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (byte)DynamicValueType.Table);
         Chunk.CodeGenerator.Emit(OpCode.CEQ);
         Chunk.CodeGenerator.Emit(OpCode.TJMP, evalRightLabel);
 
@@ -216,7 +216,7 @@ public partial class Compiler
         // same as above but __lor exists.
         Chunk.CodeGenerator.Emit(OpCode.DUP);
         Chunk.CodeGenerator.Emit(OpCode.TYPE);
-        Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (int)DynamicValueType.Table);
+        Chunk.CodeGenerator.Emit(OpCode.LDTYPE, (byte)DynamicValueType.Table);
         Chunk.CodeGenerator.Emit(OpCode.CEQ);
         Chunk.CodeGenerator.Emit(OpCode.TJMP, evalRightLabel);
 

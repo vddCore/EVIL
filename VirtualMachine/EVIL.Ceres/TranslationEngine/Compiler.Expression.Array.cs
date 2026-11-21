@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Grammar.AST.Constants;

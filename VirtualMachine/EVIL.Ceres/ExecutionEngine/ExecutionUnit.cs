@@ -72,6 +72,12 @@ internal class ExecutionUnit
                     break;
                 }
 
+                case OpCode.LDNUM_I8:
+                {
+                    PushValue((double)(sbyte)frame.FetchByte());
+                    break;
+                }
+
                 case OpCode.LDNIL:
                 {
                     PushValue(DynamicValue.Nil);
@@ -139,7 +145,7 @@ internal class ExecutionUnit
 
                 case OpCode.LDTYPE:
                 {
-                    PushValue((DynamicValueType)frame.FetchInt32());
+                    PushValue((DynamicValueType)frame.FetchByte());
                     break;
                 }
 
@@ -844,57 +850,119 @@ internal class ExecutionUnit
                     break;
                 }
 
-                case OpCode.SETLOCAL:
-                {
-                    a = PopValue();
-                    var localId = frame.FetchInt32();
-                    if (frame.Locals![localId].Type == DynamicValueType.Nil && frame.HasOpenLocalUpvalue(localId))
-                    {
-                        frame.UpdateOpenLocalUpvalue(localId, a);
-                    }
-                    else
-                    {
-                        frame.InvalidateLocalUpvalue(localId);
-                    }
-
-                    frame.Locals![localId] = a;
+                case OpCode.SETLOCAL_0:
+                    SetLocal(frame, 0, PopValue());
                     break;
-                }
+                case OpCode.SETLOCAL_1:
+                    SetLocal(frame, 1, PopValue());
+                    break;
+                case OpCode.SETLOCAL_2:
+                    SetLocal(frame, 2, PopValue());
+                    break;
+                case OpCode.SETLOCAL_3:
+                    SetLocal(frame, 3, PopValue());
+                    break;
+                case OpCode.SETLOCAL_B:
+                    SetLocal(frame, frame.FetchByte(), PopValue());
+                    break;
+                case OpCode.SETLOCAL:
+                    SetLocal(frame, frame.FetchInt32(), PopValue());
+                    break;
 
+                case OpCode.GETLOCAL_0:
+                    PushValue(frame.Locals![0]);
+                    break;
+                case OpCode.GETLOCAL_1:
+                    PushValue(frame.Locals![1]);
+                    break;
+                case OpCode.GETLOCAL_2:
+                    PushValue(frame.Locals![2]);
+                    break;
+                case OpCode.GETLOCAL_3:
+                    PushValue(frame.Locals![3]);
+                    break;
+                case OpCode.GETLOCAL_B:
+                    PushValue(frame.Locals![frame.FetchByte()]);
+                    break;
                 case OpCode.GETLOCAL:
-                {
                     PushValue(frame.Locals![frame.FetchInt32()]);
                     break;
-                }
 
-                case OpCode.SETARG:
-                {
-                    var argId = frame.FetchInt32();
-                    a = PopValue();
-                    frame.InvalidateArgumentUpvalue(argId);
-                    frame.Arguments[argId] = a;
+                case OpCode.SETARG_0:
+                    SetArg(frame, 0, PopValue());
                     break;
-                }
+                case OpCode.SETARG_1:
+                    SetArg(frame, 1, PopValue());
+                    break;
+                case OpCode.SETARG_2:
+                    SetArg(frame, 2, PopValue());
+                    break;
+                case OpCode.SETARG_3:
+                    SetArg(frame, 3, PopValue());
+                    break;
+                case OpCode.SETARG_B:
+                    SetArg(frame, frame.FetchByte(), PopValue());
+                    break;
+                case OpCode.SETARG:
+                    SetArg(frame, frame.FetchInt32(), PopValue());
+                    break;
 
+                case OpCode.GETARG_0:
+                    PushValue(frame.Arguments[0]);
+                    break;
+                case OpCode.GETARG_1:
+                    PushValue(frame.Arguments[1]);
+                    break;
+                case OpCode.GETARG_2:
+                    PushValue(frame.Arguments[2]);
+                    break;
+                case OpCode.GETARG_3:
+                    PushValue(frame.Arguments[3]);
+                    break;
+                case OpCode.GETARG_B:
+                    PushValue(frame.Arguments[frame.FetchByte()]);
+                    break;
                 case OpCode.GETARG:
-                {
                     PushValue(frame.Arguments[frame.FetchInt32()]);
                     break;
-                }
 
+                case OpCode.SETCLOSURE_0:
+                    frame.Upvalues![0].Set(PopValue());
+                    break;
+                case OpCode.SETCLOSURE_1:
+                    frame.Upvalues![1].Set(PopValue());
+                    break;
+                case OpCode.SETCLOSURE_2:
+                    frame.Upvalues![2].Set(PopValue());
+                    break;
+                case OpCode.SETCLOSURE_3:
+                    frame.Upvalues![3].Set(PopValue());
+                    break;
+                case OpCode.SETCLOSURE_B:
+                    frame.Upvalues![frame.FetchByte()].Set(PopValue());
+                    break;
                 case OpCode.SETCLOSURE:
-                {
-                    var closureId = frame.FetchInt32();
-                    frame.Upvalues![closureId].Set(PopValue());
+                    frame.Upvalues![frame.FetchInt32()].Set(PopValue());
                     break;
-                }
 
-                case OpCode.GETCLOSURE:
-                {
-                    var closureId = frame.FetchInt32();
-                    PushValue(frame.Upvalues![closureId].Get());
+                case OpCode.GETCLOSURE_0:
+                    PushValue(frame.Upvalues![0].Get());
                     break;
-                }
+                case OpCode.GETCLOSURE_1:
+                    PushValue(frame.Upvalues![1].Get());
+                    break;
+                case OpCode.GETCLOSURE_2:
+                    PushValue(frame.Upvalues![2].Get());
+                    break;
+                case OpCode.GETCLOSURE_3:
+                    PushValue(frame.Upvalues![3].Get());
+                    break;
+                case OpCode.GETCLOSURE_B:
+                    PushValue(frame.Upvalues![frame.FetchByte()].Get());
+                    break;
+                case OpCode.GETCLOSURE:
+                    PushValue(frame.Upvalues![frame.FetchInt32()].Get());
+                    break;
 
                 case OpCode.LENGTH:
                 {
@@ -1726,5 +1794,27 @@ internal class ExecutionUnit
         }
 
         return new Upvalue(DynamicValue.Nil);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void SetLocal(ScriptStackFrame frame, int localId, DynamicValue a)
+    {
+        if (frame.Locals![localId].Type == DynamicValueType.Nil && frame.HasOpenLocalUpvalue(localId))
+        {
+            frame.UpdateOpenLocalUpvalue(localId, a);
+        }
+        else
+        {
+            frame.InvalidateLocalUpvalue(localId);
+        }
+
+        frame.Locals![localId] = a;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void SetArg(ScriptStackFrame frame, int argId, DynamicValue a)
+    {
+        frame.InvalidateArgumentUpvalue(argId);
+        frame.Arguments[argId] = a;
     }
 }

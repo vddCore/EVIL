@@ -9,7 +9,7 @@ public partial class Compiler
     {
         Chunk.CodeGenerator.Emit(
             OpCode.LDTYPE,
-            (int)typeCodeConstant.Value
+            (byte)typeCodeConstant.Value
         );
     }
 }

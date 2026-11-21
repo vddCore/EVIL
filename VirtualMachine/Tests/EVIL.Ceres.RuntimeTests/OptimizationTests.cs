@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.RuntimeTests;
 
-using System;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
@@ -807,5 +806,439 @@ public class OptimizationTests : TestBase
         Assert.That(callFrame.Upvalues, Is.Null);
         Assert.That(callFrame.BasePointer, Is.EqualTo(10));
         Assert.That(callFrame.ReturnIP, Is.EqualTo(42));
+    }
+
+    [Test]
+    public void CompactBytecode_NumericConstants_EncodingsAndExecution()
+    {
+        var script = """
+            fn test() {
+                val a = 0;
+                val b = 1;
+                val c = 2;
+                val d = -1;
+                val e = 42;
+                val f = -128;
+                val g = 127;
+                val h = 1000;
+                val i = 3.14;
+                ret [a, b, c, d, e, f, g, h, i];
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "num_test");
+        var testChunk = chunk["test"]!;
+
+        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var reader = testChunk.SpawnCodeReader();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            opcodes.Add(op);
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.LDTYPE:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+            }
+        }
+
+        Assert.That(opcodes, Contains.Item(OpCode.LDZERO), "0 should compile to LDZERO");
+        Assert.That(opcodes, Contains.Item(OpCode.LDONE), "1 should compile to LDONE");
+        Assert.That(opcodes, Contains.Item(OpCode.LDNUM_I8), "Small numbers should compile to LDNUM_I8");
+        Assert.That(opcodes, Contains.Item(OpCode.LDNUM), "Large or non-integer numbers should compile to LDNUM");
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(0.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(1.0));
+        Assert.That(result.Array![2].Number, Is.EqualTo(2.0));
+        Assert.That(result.Array![3].Number, Is.EqualTo(-1.0));
+        Assert.That(result.Array![4].Number, Is.EqualTo(42.0));
+        Assert.That(result.Array![5].Number, Is.EqualTo(-128.0));
+        Assert.That(result.Array![6].Number, Is.EqualTo(127.0));
+        Assert.That(result.Array![7].Number, Is.EqualTo(1000.0));
+        Assert.That(result.Array![8].Number, Is.EqualTo(3.14));
+    }
+
+    [Test]
+    public void CompactBytecode_DynamicValueType_EncodingAndExecution()
+    {
+        var script = """
+            fn test() {
+                val t = String;
+                val isStr = "hello" is String;
+                val isNum = 42 is Number;
+                ret [t == String, isStr, isNum];
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "type_test");
+        var testChunk = chunk["test"]!;
+
+        var foundLdType = false;
+        var reader = testChunk.SpawnCodeReader();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            if (op == OpCode.LDTYPE)
+            {
+                foundLdType = true;
+                var byteVal = reader.ReadByte();
+                Assert.That(byteVal, Is.LessThan(20), "LDTYPE operand should be a compact byte");
+                continue;
+            }
+
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+            }
+        }
+
+        Assert.That(foundLdType, Is.True, "Expected OpCode.LDTYPE to be emitted");
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Boolean, Is.True);
+        Assert.That(result.Array![1].Boolean, Is.True);
+        Assert.That(result.Array![2].Boolean, Is.True);
+    }
+
+    [Test]
+    public void CompactBytecode_SpecializedLocals_EncodingAndExecution()
+    {
+        var script = """
+            fn test() {
+                rw val v0 = 10;
+                rw val v1 = 20;
+                rw val v2 = 30;
+                rw val v3 = 40;
+                rw val v4 = 50;
+                v0 += 1;
+                v1 += 2;
+                v2 += 3;
+                v3 += 4;
+                v4 += 5;
+                ret [v0, v1, v2, v3, v4];
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "locals_test");
+        var testChunk = chunk["test"]!;
+
+        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var reader = testChunk.SpawnCodeReader();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            opcodes.Add(op);
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.LDTYPE:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+            }
+        }
+
+        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_0));
+        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_1));
+        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_2));
+        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_3));
+        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_B));
+
+        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_0));
+        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_1));
+        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_2));
+        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_3));
+        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_B));
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+        Assert.That(result.Array![0].Number, Is.EqualTo(11.0));
+        Assert.That(result.Array![1].Number, Is.EqualTo(22.0));
+        Assert.That(result.Array![2].Number, Is.EqualTo(33.0));
+        Assert.That(result.Array![3].Number, Is.EqualTo(44.0));
+        Assert.That(result.Array![4].Number, Is.EqualTo(55.0));
+    }
+
+    [Test]
+    public void CompactBytecode_SpecializedParameters_EncodingAndExecution()
+    {
+        var script = """
+            fn worker(p0, p1, p2, p3, p4) {
+                ret p0 + p1 + p2 + p3 + p4;
+            }
+
+            fn test() {
+                ret worker(1, 2, 3, 4, 5);
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "params_test");
+        var workerChunk = chunk["worker"]!;
+
+        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var reader = workerChunk.SpawnCodeReader();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            opcodes.Add(op);
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.LDTYPE:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+            }
+        }
+
+        Assert.That(opcodes, Contains.Item(OpCode.GETARG_0));
+        Assert.That(opcodes, Contains.Item(OpCode.GETARG_1));
+        Assert.That(opcodes, Contains.Item(OpCode.GETARG_2));
+        Assert.That(opcodes, Contains.Item(OpCode.GETARG_3));
+        Assert.That(opcodes, Contains.Item(OpCode.GETARG_B));
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+        Assert.That(result.Number, Is.EqualTo(15.0));
+    }
+
+    [Test]
+    public void CompactBytecode_SpecializedClosures_EncodingAndExecution()
+    {
+        var script = """
+            fn test() {
+                rw val a = 1;
+                rw val b = 2;
+                rw val c = 3;
+                rw val d = 4;
+                rw val e = 5;
+
+                val f = fn() {
+                    a += 10;
+                    b += 20;
+                    c += 30;
+                    d += 40;
+                    e += 50;
+                    ret a + b + c + d + e;
+                };
+
+                ret f();
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "closure_compact_test");
+        var closureChunk = chunk["test"]!.SubChunks[0];
+
+        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var reader = closureChunk.SpawnCodeReader();
+        while (reader.IP < reader.Length)
+        {
+            var op = (OpCode)reader.ReadByte();
+            opcodes.Add(op);
+            switch (op)
+            {
+                case OpCode.LDNUM:
+                    reader.ReadDouble();
+                    break;
+                case OpCode.LDNUM_I8:
+                case OpCode.LDTYPE:
+                case OpCode.GETLOCAL_B:
+                case OpCode.SETLOCAL_B:
+                case OpCode.GETARG_B:
+                case OpCode.SETARG_B:
+                case OpCode.GETCLOSURE_B:
+                case OpCode.SETCLOSURE_B:
+                    reader.ReadByte();
+                    break;
+                case OpCode.GETLOCAL:
+                case OpCode.SETLOCAL:
+                case OpCode.GETARG:
+                case OpCode.SETARG:
+                case OpCode.GETCLOSURE:
+                case OpCode.SETCLOSURE:
+                case OpCode.LDSTR:
+                case OpCode.LDCNK:
+                case OpCode.ENTER:
+                case OpCode.ARRINIT:
+                case OpCode.TABINIT:
+                case OpCode.STRCAT:
+                case OpCode.FJMP:
+                case OpCode.TJMP:
+                case OpCode.JUMP:
+                case OpCode.NJMP:
+                case OpCode.VJMP:
+                    reader.ReadInt32();
+                    break;
+            }
+        }
+
+        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_0));
+        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_1));
+        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_2));
+        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_3));
+        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_B));
+
+        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_0));
+        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_1));
+        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_2));
+        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_3));
+        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_B));
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+        // (1 + 10) + (2 + 20) + (3 + 30) + (4 + 40) + (5 + 50) = 11 + 22 + 33 + 44 + 55 = 165
+        Assert.That(result.Number, Is.EqualTo(165.0));
+    }
+
+    [Test]
+    public void CompactBytecode_Disassembler_FormatsAllNewOpcodes()
+    {
+        var script = """
+            fn worker(p0, p1, p2, p3, p4) {
+                rw val l0 = 0;
+                rw val l1 = 1;
+                rw val l2 = 2;
+                rw val l3 = 3;
+                rw val l4 = 4;
+                val t = String;
+                val closure = fn() {
+                    ret p0 + p1 + p2 + p3 + p4;
+                };
+                ret l0 + l1 + l2 + l3 + l4 + p0 + closure();
+            }
+
+            fn test() {
+                ret worker(10, 20, 30, 40, 50);
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "disasm_test");
+        var sw = new System.IO.StringWriter();
+        Disassembler.Disassemble(chunk, sw);
+        var disasm = sw.ToString();
+
+        Assert.That(disasm, Does.Contain("LDNUM_I8"));
+        Assert.That(disasm, Does.Contain("LDTYPE"));
+        Assert.That(disasm, Does.Contain("SETLOCAL_0"));
+        Assert.That(disasm, Does.Contain("GETLOCAL_0"));
+        Assert.That(disasm, Does.Contain("GETARG_0"));
+        Assert.That(disasm, Does.Contain("GETCLOSURE_0"));
     }
 }
