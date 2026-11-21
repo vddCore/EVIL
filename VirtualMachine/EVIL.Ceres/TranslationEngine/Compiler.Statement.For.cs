@@ -21,9 +21,18 @@ public partial class Compiler
                 Chunk.UpdateLabel(Loop.StartLabel, Chunk.CodeGenerator.IP);
 
                 foreach (var iterationStatement in forStatement.IterationStatements)
+                {
+                    if (_isUnreachable)
+                    {
+                        break;
+                    }
                     Visit(iterationStatement);
+                }
 
-                Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.ExtraLabel);
+                if (!_isUnreachable)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.ExtraLabel);
+                }
                 Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
             }, true);
         });

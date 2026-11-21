@@ -14,7 +14,10 @@ public partial class Compiler
             Visit(doWhileStatement.Statement);
 
             Chunk.UpdateLabel(Loop.StartLabel, Chunk.CodeGenerator.IP);
-            EmitConditionBranch(doWhileStatement.Condition, bodyLabel, Loop.EndLabel, false);
+            if (!_isUnreachable)
+            {
+                EmitConditionBranch(doWhileStatement.Condition, bodyLabel, Loop.EndLabel, false);
+            }
 
             Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
         }, true);

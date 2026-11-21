@@ -17,10 +17,10 @@ using EVIL.Lexical;
 public partial class Compiler : AstVisitor
 {
     private Chunk _rootChunk = null!;
+    private bool _isUnreachable;
 
     private readonly Stack<Chunk> _chunks = [];
     private readonly Dictionary<string, List<AttributeProcessor>> _attributeProcessors = [];
-
     private readonly Stack<BlockProtectionInfo> _blockProtectors = [];
     private readonly Stack<Loop> _loopDescent = [];
     private readonly List<Scope> _closedScopes = [];
@@ -105,6 +105,7 @@ public partial class Compiler : AstVisitor
     public Chunk Compile(ProgramNode programNode, string fileName = "")
     {
         CurrentFileName = fileName;
+        _isUnreachable = false;
         _closedScopes.Clear();
         _chunks.Clear();
 
@@ -114,6 +115,14 @@ public partial class Compiler : AstVisitor
     private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
     {
         Chunk.DebugDatabase.AddDebugRecord(Line, ip);
+    }
+
+    private void OnChunkLabelUpdated(int labelId, int ip)
+    {
+        if (Chunk.IsLabelTargeted(labelId))
+        {
+            _isUnreachable = false;
+        }
     }
 
     private Chunk InRootChunkDo(Action action)
@@ -133,9 +142,11 @@ public partial class Compiler : AstVisitor
         _rootChunk = new Chunk(chunkName);
         _rootChunk.DebugDatabase.DefinedInFile = CurrentFileName;
         _rootChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
+        _rootChunk.LabelUpdated = OnChunkLabelUpdated;
 
         _chunks.Push(_rootChunk);
         {
+            _isUnreachable = false;
             InNewClosedScopeDo(action);
             FinalizeChunk();
         }
@@ -166,12 +177,18 @@ public partial class Compiler : AstVisitor
         var result = Chunk.AllocateAnonymousSubChunk();
         result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
         result.SubChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
+        result.SubChunk.LabelUpdated = OnChunkLabelUpdated;
+
+        var wasUnreachable = _isUnreachable;
+        _isUnreachable = false;
 
         _chunks.Push(result.SubChunk);
         {
             action();
         }
         _chunks.Pop();
+
+        _isUnreachable = wasUnreachable;
 
         return result.Id;
     }
@@ -181,12 +198,18 @@ public partial class Compiler : AstVisitor
         var result = Chunk.AllocateNamedSubChunk(name, out wasReplaced, out replacedChunk);
         result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
         result.SubChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
+        result.SubChunk.LabelUpdated = OnChunkLabelUpdated;
+
+        var wasUnreachable = _isUnreachable;
+        _isUnreachable = false;
 
         _chunks.Push(result.SubChunk);
         {
             action();
         }
         _chunks.Pop();
+
+        _isUnreachable = wasUnreachable;
 
         return result.Id;
     }

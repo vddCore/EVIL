@@ -15,7 +15,8 @@ public sealed class CodeGenerator : IDisposable
     private bool _nextOperandIsJumpFixup;
 
     public Action<int, OpCode>? OpCodeEmitted { get; set; }
-    internal Action? BytecodeModified { get; set; }
+    internal Action? CodeModified { get; set; }
+    public Action<int>? LabelTargetEmitted { get; set; }
 
     public int IP
     {
@@ -68,7 +69,7 @@ public sealed class CodeGenerator : IDisposable
 
     public void Emit(OpCode value)
     {
-        BytecodeModified?.Invoke();
+        CodeModified?.Invoke();
         _opCodeAddresses.Push(IP);
         _writer.Write((byte)value);
 
@@ -340,6 +341,7 @@ public sealed class CodeGenerator : IDisposable
         {
             _jumpFixups.Add(IP);
             _nextOperandIsJumpFixup = false;
+            LabelTargetEmitted?.Invoke(value);
         }
 
         _writer.Write(value);
@@ -348,6 +350,7 @@ public sealed class CodeGenerator : IDisposable
     public void EmitJumpTarget(int labelId)
     {
         _jumpFixups.Add(IP);
+        LabelTargetEmitted?.Invoke(labelId);
         _writer.Write(labelId);
     }
 
@@ -366,6 +369,8 @@ public sealed class CodeGenerator : IDisposable
     public void Dispose()
     {
         OpCodeEmitted = null;
+        CodeModified = null;
+        LabelTargetEmitted = null;
         _opCodeAddresses.Clear();
             
         _writer.Dispose();

@@ -16,6 +16,7 @@ public partial class Compiler
             {
                 if (opCode == OpCode.TAILINVOKE)
                 {
+                    _isUnreachable = true;
                     return;
                 }
             }
@@ -26,5 +27,6 @@ public partial class Compiler
         }
 
         Chunk.CodeGenerator.Emit(OpCode.RET);
+        _isUnreachable = true;
     }
 }

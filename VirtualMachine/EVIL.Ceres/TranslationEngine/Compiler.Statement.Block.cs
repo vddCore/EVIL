@@ -10,6 +10,11 @@ public partial class Compiler
         {
             foreach (var node in blockStatement.Statements)
             {
+                if (_isUnreachable)
+                {
+                    break;
+                }
+
                 Visit(node);
             }
         });

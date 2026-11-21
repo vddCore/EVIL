@@ -14,10 +14,12 @@ public partial class Compiler
         {
             if (opCode == OpCode.TAILINVOKE)
             {
+                _isUnreachable = true;
                 return;
             }
         }
 
         Chunk.CodeGenerator.Emit(OpCode.RET);
+        _isUnreachable = true;
     }
 }

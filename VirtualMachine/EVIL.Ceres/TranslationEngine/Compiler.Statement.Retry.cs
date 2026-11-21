@@ -23,5 +23,6 @@ public partial class Compiler
             OpCode.JUMP, 
             BlockProtector.EnterLabelId
         );
+        _isUnreachable = true;
     }
 }

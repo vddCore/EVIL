@@ -89,7 +89,10 @@ public partial class Compiler
                 }
 
                 Visit(eachStatement.Statement);
-                Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
+                if (!_isUnreachable)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
+                }
                 Chunk.UpdateLabel(Loop.EndLabel, Chunk.CodeGenerator.IP);
                 Chunk.CodeGenerator.Emit(OpCode.EEND);
             }, false);

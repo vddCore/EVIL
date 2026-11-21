@@ -8,5 +8,6 @@ public partial class Compiler
     protected override void Visit(SkipStatement skipStatement)
     {
         Chunk.CodeGenerator.Emit(OpCode.JUMP, Loop.StartLabel);
+        _isUnreachable = true;
     }
 }

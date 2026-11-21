@@ -8,6 +8,11 @@ public partial class Compiler
     {
         foreach (var statement in programNode.Statements)
         {
+            if (_isUnreachable)
+            {
+                break;
+            }
+
             Visit(statement);
         }
     }

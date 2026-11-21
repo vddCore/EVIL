@@ -20,10 +20,13 @@ public partial class Compiler
             Chunk.UpdateLabel(statementStart, Chunk.CodeGenerator.IP);
 
             Visit(ifStatement.Statements[i]);
-            Chunk.CodeGenerator.Emit(
-                OpCode.JUMP,
-                statementEnd
-            );
+            if (!_isUnreachable)
+            {
+                Chunk.CodeGenerator.Emit(
+                    OpCode.JUMP,
+                    statementEnd
+                );
+            }
 
             Chunk.UpdateLabel(caseEnd, Chunk.CodeGenerator.IP);
         }

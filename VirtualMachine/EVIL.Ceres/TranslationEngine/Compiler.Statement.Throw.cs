@@ -11,5 +11,6 @@ public partial class Compiler
             
         Visit(throwStatement.ThrownExpression);
         Chunk.CodeGenerator.Emit(OpCode.THROW);
+        _isUnreachable = true;
     }
 }

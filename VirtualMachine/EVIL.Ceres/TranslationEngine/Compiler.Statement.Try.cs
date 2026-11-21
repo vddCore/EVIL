@@ -18,14 +18,18 @@ public partial class Compiler
             BlockProtector.StartAddress = Chunk.CodeGenerator.IP;
             Visit(tryStatement.InnerStatement);
             BlockProtector.Length = Chunk.CodeGenerator.IP - BlockProtector.StartAddress;
-            Chunk.CodeGenerator.Emit(OpCode.LEAVE);
-            Chunk.CodeGenerator.Emit(OpCode.JUMP, statementEndLabel);
+            if (!_isUnreachable)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.LEAVE);
+                Chunk.CodeGenerator.Emit(OpCode.JUMP, statementEndLabel);
+            }
             BlockProtector.HandlerAddress = Chunk.CodeGenerator.IP;
 
             if (tryStatement.HandlerStatement != null)
             {
                 InNewLocalScopeDo(() =>
                 {
+                    _isUnreachable = false;
                     Chunk.CodeGenerator.Emit(OpCode.LEAVE);
 
                     if (tryStatement.HandlerExceptionLocal != null)
@@ -50,6 +54,7 @@ public partial class Compiler
             }
             else
             {
+                _isUnreachable = false;
                 Chunk.CodeGenerator.Emit(OpCode.LEAVE);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
             }

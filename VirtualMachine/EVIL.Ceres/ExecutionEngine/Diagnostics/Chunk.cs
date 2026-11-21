@@ -15,6 +15,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 {
     private byte[]? _cachedCode;
     private readonly MemoryStream _code;
+    private bool _labelsBackpatched;
     private List<int> _labels;
     private List<ChunkAttribute> _attributes;
     private Dictionary<int, DynamicValue> _parameterInitializers;
@@ -24,6 +25,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private Dictionary<string, int> _namedSubChunkLookup;
     private List<BlockProtectionInfo> _protectedBlocks;
     private readonly ConcurrentDictionary<int, SwitchTable> _switchTables = new();
+    private readonly HashSet<int> _targetedLabels = [];
 
     private readonly Serializer _serializer;
 
@@ -54,7 +56,6 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public IReadOnlyList<BlockProtectionInfo> ProtectedBlocks => _protectedBlocks;
 
     public Upvalue[]? Upvalues { get; set; }
-
     public byte[] Code => _cachedCode ??= FinalizeAndGetCode();
 
     public bool HasParameters => Flags.HasFlag(ChunkFlags.HasParameters);
@@ -136,7 +137,13 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         StringPool = new StringPool();
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
-            BytecodeModified = () => _cachedCode = null
+            CodeModified = () =>
+            {
+                _cachedCode = null;
+                _labelsBackpatched = false;
+                _switchTables.Clear();
+            },
+            LabelTargetEmitted = MarkLabelTargeted
         };
         DebugDatabase = new DebugDatabase();
     }
@@ -159,7 +166,13 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         StringPool = new StringPool();
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
-            BytecodeModified = () => _cachedCode = null
+            CodeModified = () =>
+            {
+                _cachedCode = null;
+                _labelsBackpatched = false;
+                _switchTables.Clear();
+            },
+            LabelTargetEmitted = MarkLabelTargeted
         };
         DebugDatabase = new DebugDatabase();
     }
@@ -182,12 +195,13 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         StringPool = new StringPool(stringConstants);
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
-            BytecodeModified = () =>
+            CodeModified = () =>
             {
                 _cachedCode = null;
                 _labelsBackpatched = false;
                 _switchTables.Clear();
-            }
+            },
+            LabelTargetEmitted = MarkLabelTargeted
         };
         DebugDatabase = new DebugDatabase();
     }
@@ -210,12 +224,13 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         StringPool = stringPool;
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
-            BytecodeModified = () =>
+            CodeModified = () =>
             {
                 _cachedCode = null;
                 _labelsBackpatched = false;
                 _switchTables.Clear();
-            }
+            },
+            LabelTargetEmitted = MarkLabelTargeted
         };
         DebugDatabase = new DebugDatabase();
     }
@@ -228,10 +243,11 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         BackpatchLabels();
 
         var code = Code;
+        
         using var ms = new MemoryStream(code);
         ms.Seek(opCodeIp + 1, SeekOrigin.Begin);
+        
         using var reader = new BinaryReader(ms, Encoding.UTF8);
-
         var defaultIp = reader.ReadInt32();
         var count = reader.ReadInt32();
         var cases = new Dictionary<DynamicValue, int>(count);
@@ -240,24 +256,30 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         {
             var type = (DynamicValueType)reader.ReadByte();
             DynamicValue val;
+            
             switch (type)
             {
                 case DynamicValueType.Nil:
                     val = DynamicValue.Nil;
                     break;
+                
                 case DynamicValueType.Boolean:
                     val = new DynamicValue(reader.ReadBoolean());
                     break;
+                
                 case DynamicValueType.Number:
                     val = new DynamicValue(reader.ReadDouble());
                     break;
+                
                 case DynamicValueType.String:
                     var strId = reader.ReadInt32();
                     val = new DynamicValue(StringPool[strId]!);
                     break;
+                
                 case DynamicValueType.TypeCode:
                     val = new DynamicValue((DynamicValueType)reader.ReadByte());
                     break;
+                
                 default:
                     throw new InvalidOperationException($"Unexpected constant type in SWITCH: {type}");
             }
@@ -268,8 +290,6 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         return new SwitchTable(defaultIp, cases);
     }
-
-    private bool _labelsBackpatched;
 
     public void BackpatchLabels()
     {
@@ -292,6 +312,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         foreach (var fixupOffset in CodeGenerator.JumpFixups)
         {
             _code.Seek(fixupOffset, SeekOrigin.Begin);
+            
             var labelId = reader.ReadInt32();
             if (labelId >= 0 && labelId < _labels.Count)
             {
@@ -337,7 +358,12 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         return value;
     }
         
-    public (int Id, ClosureInfo Closure) AllocateClosure(int nestingLevel, int enclosedId, string enclosedFunctionName, ClosureType closureType, bool isSharedScope)
+    public (int Id, ClosureInfo Closure) AllocateClosure(
+        int nestingLevel,
+        int enclosedId,
+        string enclosedFunctionName,
+        ClosureType closureType,
+        bool isSharedScope)
     {
         var id = ClosureCount;
         var ret = new ClosureInfo(
@@ -437,11 +463,22 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         return info;
     }
 
+    public Action<int, int>? LabelUpdated { get; set; }
+
+    public void MarkLabelTargeted(int labelId)
+        => _targetedLabels.Add(labelId);
+
+    public bool IsLabelTargeted(int labelId)
+        => _targetedLabels.Contains(labelId);
+
     public void AddAttribute(ChunkAttribute attribute)
         => _attributes.Add(attribute);
 
     public void UpdateLabel(int id, int ip)
-        => _labels[id] = ip;
+    {
+        _labels[id] = ip;
+        LabelUpdated?.Invoke(id, ip);
+    }
 
     public ChunkAttribute[] GetAttributes(string name)
         => _attributes.Where(x => x.Name == name).ToArray();

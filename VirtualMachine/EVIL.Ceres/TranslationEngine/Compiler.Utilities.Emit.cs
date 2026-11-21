@@ -15,6 +15,7 @@ public partial class Compiler
         {
             var rhsLabel = Chunk.CreateLabel();
             EmitConditionBranch(andBex.Left, rhsLabel, falseLabel, true);
+            
             Chunk.UpdateLabel(rhsLabel, Chunk.CodeGenerator.IP);
             EmitConditionBranch(andBex.Right, trueLabel, falseLabel, trueIsFallthrough);
         }
@@ -22,6 +23,7 @@ public partial class Compiler
         {
             var rhsLabel = Chunk.CreateLabel();
             EmitConditionBranch(orBex.Left, trueLabel, rhsLabel, false);
+            
             Chunk.UpdateLabel(rhsLabel, Chunk.CodeGenerator.IP);
             EmitConditionBranch(orBex.Right, trueLabel, falseLabel, trueIsFallthrough);
         }
@@ -41,17 +43,7 @@ public partial class Compiler
 
     private void FinalizeChunk()
     {
-        if (Chunk.CodeGenerator.TryPeekOpCode(out var opCode))
-        {
-            if (opCode is not (OpCode.RET 
-                       or OpCode.TAILINVOKE
-                       or OpCode.THROW))
-            {
-                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
-                Chunk.CodeGenerator.Emit(OpCode.RET);
-            }
-        }
-        else
+        if (!_isUnreachable)
         {
             Chunk.CodeGenerator.Emit(OpCode.LDNIL);
             Chunk.CodeGenerator.Emit(OpCode.RET);
