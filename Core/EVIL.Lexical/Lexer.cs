@@ -3,6 +3,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using EVIL.CommonTypes.Diagnostics;
 
 public class Lexer
 {
@@ -11,6 +12,27 @@ public class Lexer
     private string? _sourceCode;
 
     public LexerState State { get; private set; } = new();
+    public IDiagnosticSink? DiagnosticSink { get; set; }
+    public string? FilePath { get; set; }
+
+    public Lexer(IDiagnosticSink? diagnosticSink = null, string? filePath = null)
+    {
+        DiagnosticSink = diagnosticSink;
+        FilePath = filePath;
+    }
+
+    private void ReportLexerError(DiagnosticDescriptor descriptor, SourceLocation location, string fallbackMessage, params object[] args)
+    {
+        if (DiagnosticSink != null)
+        {
+            DiagnosticSink.Report(descriptor.Create(location, args));
+        }
+        else
+        {
+            var msg = args.Length > 0 ? string.Format(fallbackMessage, args) : fallbackMessage;
+            throw new LexerException(msg, location);
+        }
+    }
 
     public void LoadSource(string source)
     {
@@ -310,7 +332,14 @@ public class Lexer
                     }
                 }
 
-                throw new LexerException($"Unexpected token '{State.Character}'", line, col);
+                ReportLexerError(
+                    CompilerDiagnostics.UnexpectedCharacter,
+                    new SourceLocation(FilePath, line, col),
+                    "Unexpected token '{0}'",
+                    State.Character
+                );
+                Advance();
+                break;
             }
 
             Advance();
@@ -355,7 +384,13 @@ public class Lexer
         
         if (!char.IsDigit(State.Character) && State.Character != '.')
         {
-            throw new LexerException($"Character `{State.Character}` was unexpected at this time.", State.Line, State.Column);
+            ReportLexerError(
+                CompilerDiagnostics.UnexpectedCharacter,
+                new SourceLocation(FilePath, State.Line, State.Column),
+                "Character `{0}` was unexpected at this time.",
+                State.Character
+            );
+            return Token.CreateNumber("0");
         }
 
         while (true)
@@ -368,7 +403,15 @@ public class Lexer
             else if (State.Character == '.')
             {
                 if (foundDecimal)
-                    throw new LexerException("Unexpected second decimal point.", State.Line, State.Column);
+                {
+                    ReportLexerError(
+                        CompilerDiagnostics.MalformedNumericConstant,
+                        new SourceLocation(FilePath, State.Line, State.Column),
+                        "Unexpected second decimal point."
+                    );
+                    Advance();
+                    continue;
+                }
 
                 foundDecimal = true;
                 number += State.Character;
@@ -377,7 +420,15 @@ public class Lexer
             else if (State.Character is 'e' or 'E')
             {
                 if (foundExponent)
-                    throw new LexerException("Unexpected second exponent.", State.Line, State.Column);
+                {
+                    ReportLexerError(
+                        CompilerDiagnostics.MalformedNumericConstant,
+                        new SourceLocation(FilePath, State.Line, State.Column),
+                        "Unexpected second exponent."
+                    );
+                    Advance();
+                    continue;
+                }
 
                 foundExponent = true;
                 number += State.Character;
@@ -390,7 +441,11 @@ public class Lexer
                 }
                 else if (!char.IsDigit(State.Character))
                 {
-                    throw new LexerException("Malformed exponent.", State.Line, State.Column);
+                    ReportLexerError(
+                        CompilerDiagnostics.MalformedNumericConstant,
+                        new SourceLocation(FilePath, State.Line, State.Column),
+                        "Malformed exponent."
+                    );
                 }
             }
             else
@@ -405,7 +460,13 @@ public class Lexer
         }
         catch (FormatException)
         {
-            throw new LexerException($"Malformed numeric constant `{number}`.", State.Line, State.Column);
+            ReportLexerError(
+                CompilerDiagnostics.MalformedNumericConstant,
+                new SourceLocation(FilePath, State.Line, State.Column),
+                "Malformed numeric constant `{0}`.",
+                number
+            );
+            return Token.CreateNumber("0");
         }
     }
 
@@ -488,10 +549,12 @@ public class Lexer
 
         if (delimiter != '"' && delimiter != '\'')
         {
-            throw new LexerException(
-                "Strings can only be delimited by '' or \"\".",
-                line, col
+            ReportLexerError(
+                CompilerDiagnostics.UnexpectedCharacter,
+                new SourceLocation(FilePath, line, col),
+                "Strings can only be delimited by '' or \"\"."
             );
+            return Token.CreatePlainString(string.Empty);
         }
 
         Advance();
@@ -502,7 +565,12 @@ public class Lexer
             {
                 case (char)0:
                 {
-                    throw new LexerException("Unterminated string.", line, col);
+                    ReportLexerError(
+                        CompilerDiagnostics.UnterminatedString,
+                        new SourceLocation(FilePath, line, col),
+                        "Unterminated string."
+                    );
+                    return delimiter == '\'' ? Token.CreatePlainString(str) : Token.CreateInterpolatedString(str);
                 }
 
                 case '\\':
@@ -553,11 +621,13 @@ public class Lexer
                                 str += '$';
                             break;
                         default:
-                            throw new LexerException(
-                                "Unrecognized escape sequence.", 
-                                State.Line,
-                                State.Column
+                            ReportLexerError(
+                                CompilerDiagnostics.UnexpectedCharacter,
+                                new SourceLocation(FilePath, State.Line, State.Column),
+                                "Unrecognized escape sequence."
                             );
+                            str += State.Character;
+                            break;
                     }
 
                     Advance();
@@ -669,7 +739,11 @@ public class Lexer
 
                     if (braceDepth > 0)
                     {
-                        throw new LexerException("Unterminated expression in interpolated string.", line, col);
+                        ReportLexerError(
+                            CompilerDiagnostics.UnterminatedInterpolatedExpression,
+                            new SourceLocation(FilePath, line, col),
+                            "Unterminated expression in interpolated string."
+                        );
                     }
 
                     continue;
@@ -707,9 +781,12 @@ public class Lexer
             }
             else
             {
-                throw new LexerException(
-                    "Invalid universal character code.",
-                    State.Line, State.Column);
+                ReportLexerError(
+                    CompilerDiagnostics.UnexpectedCharacter,
+                    new SourceLocation(FilePath, State.Line, State.Column),
+                    "Invalid universal character code."
+                );
+                return '?';
             }
         }
 

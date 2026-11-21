@@ -68,11 +68,17 @@ public partial class Compiler : AstVisitor
     public Chunk Compile(string source, string fileName = "")
     {
         CurrentFileName = fileName;
-        var parser = new Parser();
+        var parser = new Parser(Log, fileName);
 
         try
         {
             var program = parser.Parse(source);
+
+            if (Log.HasErrors)
+            {
+                throw new CompilerException(Log);
+            }
+
             return Compile(program, fileName);
         }
         catch (LexerException le)

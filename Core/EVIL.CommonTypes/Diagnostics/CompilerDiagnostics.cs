@@ -3,6 +3,11 @@ namespace EVIL.CommonTypes.Diagnostics;
 public static class CompilerDiagnostics
 {
     // Lexical (EV0xxx)
+    public static readonly DiagnosticDescriptor LexicalError = new(
+        "EV0001", "Lexical Error", "{0}",
+        DiagnosticCategory.Lexical, DiagnosticSeverity.Error
+    );
+
     public static readonly DiagnosticDescriptor UnterminatedString = new(
         "EV0100", "Unterminated String", "Unterminated string.",
         DiagnosticCategory.Lexical, DiagnosticSeverity.Error
@@ -24,6 +29,11 @@ public static class CompilerDiagnostics
     );
 
     // Syntax (EV1xxx)
+    public static readonly DiagnosticDescriptor SyntaxError = new(
+        "EV1000", "Syntax Error", "{0}",
+        DiagnosticCategory.Syntax, DiagnosticSeverity.Error
+    );
+
     public static readonly DiagnosticDescriptor UnexpectedToken = new(
         "EV1001", "Unexpected Token", "Expected {0}, got {1}.",
         DiagnosticCategory.Syntax, DiagnosticSeverity.Error
@@ -76,55 +86,55 @@ public static class CompilerDiagnostics
     // Bytecode & Codegen (EV4xxx)
     public static readonly DiagnosticDescriptor IllegalAssignmentTarget = new(
         "EV4001", "Illegal Assignment Target", "Illegal assignment target.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Error
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Error
     );
 
     public static readonly DiagnosticDescriptor IllegalIncrementationTarget = new(
         "EV4002", "Illegal Incrementation Target", "Illegal incrementation target.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Error
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Error
     );
 
     public static readonly DiagnosticDescriptor IllegalDecrementationTarget = new(
         "EV4003", "Illegal Decrementation Target", "Illegal decrementation target.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Error
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Error
     );
 
     public static readonly DiagnosticDescriptor SelfUsedInSelfUnawareFunction = new(
         "EV4004", "Self in Self-Unaware Function", "Attempt to use 'self' in a self-unaware function.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Error
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Error
     );
 
     public static readonly DiagnosticDescriptor TooManyInitializersForConstSizeArray = new(
         "EV4005", "Too Many Initializers", "Attempt to initialize a constant size array with too many entries.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Error
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Error
     );
 
     public static readonly DiagnosticDescriptor FnStatementRedefinedExistingChunk = new(
         "EV4006", "Function Redefined",
         "Named function '{0}' defined on line {1} is re-defining a previously defined function of the same name in {2} on line {3}.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Warning
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Warning
     );
 
     public static readonly DiagnosticDescriptor FnTargetedStatementRedefinedExistingChunk = new(
         "EV4007", "Targeted Function Redefined",
         "Targeted function '{0}' defined on line {1} has re-defined a previously defined function of the same name in {2} on line {3}.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Warning
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Warning
     );
 
     public static readonly DiagnosticDescriptor FnIndexedStatementRedefinedExistingChunk = new(
         "EV4008", "Indexed Function Redefined",
         "Indexed function '{0}' defined on line {1} has re-defined a previously defined function of the same name in {2} on line {3}.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Warning
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Warning
     );
 
     public static readonly DiagnosticDescriptor MissingErrorInformation = new(
         "EV4009", "Missing Error Information", "An error expression must have at least an implicit message constant.",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.Error
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.Error
     );
 
     public static readonly DiagnosticDescriptor InternalCompilerError = new(
         "EV4999", "Internal Compiler Error", "Internal compiler error: {0}",
-        DiagnosticCategory.Codegen, DiagnosticSeverity.InternalError
+        DiagnosticCategory.CodeGen, DiagnosticSeverity.InternalError
     );
 
     // Quality, Style & Inspections (EV8xxx)

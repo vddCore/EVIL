@@ -29,7 +29,7 @@ public sealed record CompilerMessage(
             MessageCode > 0 ? $"EV{MessageCode:D4}" : "EV0000",
             Severity.ToString(),
             Message,
-            DiagnosticCategory.Codegen,
+            DiagnosticCategory.CodeGen,
             diagSeverity
         );
 

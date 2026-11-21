@@ -1,7 +1,9 @@
 ﻿namespace EVIL.Grammar;
 
 using System.Collections.Generic;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
@@ -18,11 +20,46 @@ public partial class Parser
             {
                 throw new ParserException(
                     $"Unexpected EOF in a block statement. Unmatched '{{' on line {line}, column {col}.",
-                    (_lexer.State.Column, _lexer.State.Line)
+                    new SourceLocation(FilePath, _lexer.State.Line, _lexer.State.Column)
                 );
             }
 
-            statements.Add(Statement());
+            if (DiagnosticSink != null)
+            {
+                if (DiagnosticSink.ErrorCount >= MaxErrors)
+                {
+                    break;
+                }
+
+                try
+                {
+                    statements.Add(Statement());
+                }
+                catch (ParserException pe)
+                {
+                    ReportParserException(pe);
+                    statements.Add(new DiagnosticStatement(pe.Message)
+                    {
+                        Line = pe.Line,
+                        Column = pe.Column
+                    });
+                    Synchronize();
+                }
+                catch (LexerException le)
+                {
+                    ReportLexerException(le);
+                    statements.Add(new DiagnosticStatement(le.Message)
+                    {
+                        Line = le.Line,
+                        Column = le.Column
+                    });
+                    Synchronize();
+                }
+            }
+            else
+            {
+                statements.Add(Statement());
+            }
         }
         Match(Token.RBrace);
 

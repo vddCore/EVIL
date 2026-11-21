@@ -6,7 +6,7 @@ public enum DiagnosticCategory
     Syntax,
     Semantic,
     Type,
-    Codegen,
+    CodeGen,
     Host,
     Inspection,
     Plugin

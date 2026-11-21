@@ -1,19 +1,31 @@
 ﻿namespace EVIL.Grammar;
 
 using System;
+using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Lexical;
 
 public partial class Parser
 {
-    private readonly Lexer _lexer = new();
+    private readonly Lexer _lexer;
         
     private uint _functionDescent;
     private uint _loopDescent;
 
     public LexerState CurrentState => _lexer.State;
     public Token CurrentToken => CurrentState.CurrentToken;
+
+    public IDiagnosticSink? DiagnosticSink { get; set; }
+    public string? FilePath { get; set; }
+    public int MaxErrors { get; set; } = 20;
+
+    public Parser(IDiagnosticSink? diagnosticSink = null, string? filePath = null)
+    {
+        DiagnosticSink = diagnosticSink;
+        FilePath = filePath;
+        _lexer = new Lexer(diagnosticSink, filePath);
+    }
 
     public ProgramNode Parse(string source)
     {
@@ -22,7 +34,10 @@ public partial class Parser
         _lexer.LoadSource(source);
 
         var programNode = Program();
-        Match(Token.EOF);
+        if (DiagnosticSink == null || DiagnosticSink.ErrorCount < MaxErrors)
+        {
+            Match(Token.EOF);
+        }
 
         return programNode;
     }
@@ -37,6 +52,71 @@ public partial class Parser
         Match(Token.EOF);
 
         return expression;
+    }
+
+    public void Synchronize()
+    {
+        if (CurrentToken.Type != TokenType.EOF)
+        {
+            _lexer.NextToken();
+        }
+
+        while (CurrentToken.Type != TokenType.EOF)
+        {
+            if (StateIsStatementDelimiter(CurrentToken))
+            {
+                if (CurrentToken.Type == TokenType.Semicolon)
+                {
+                    _lexer.NextToken();
+                }
+                return;
+            }
+
+            _lexer.NextToken();
+        }
+    }
+
+    private static bool StateIsStatementDelimiter(Token token)
+    {
+        return token.Type switch
+        {
+            TokenType.Semicolon => true,
+            TokenType.Val => true,
+            TokenType.Rw => true,
+            TokenType.Fn => true,
+            TokenType.If => true,
+            TokenType.While => true,
+            TokenType.Do => true,
+            TokenType.For => true,
+            TokenType.Each => true,
+            TokenType.Ret => true,
+            TokenType.Throw => true,
+            TokenType.Try => true,
+            TokenType.RBrace => true,
+            _ => false
+        };
+    }
+
+    private void ReportParserException(ParserException pe)
+    {
+        var loc = pe.Location.HasLocation 
+            ? pe.Location 
+            : new SourceLocation(FilePath, pe.Line, pe.Column);
+
+        DiagnosticSink?.Report(
+            CompilerDiagnostics.SyntaxError.Create(loc, pe.Message)
+        );
+    }
+
+    private void ReportLexerException(LexerException le)
+    {
+        var loc = le.Location.HasLocation 
+            ? le.Location 
+            : new SourceLocation(FilePath, le.Line, le.Column);
+
+        DiagnosticSink?.Report(
+            CompilerDiagnostics.LexicalError.Create(loc, le.Message)
+        );
     }
 
     private T FunctionDescent<T>(Func<T> func) where T : AstNode
@@ -89,7 +169,7 @@ public partial class Parser
                 
             throw new ParserException(
                 customErrorMessage,
-                (line, column)
+                new SourceLocation(FilePath, line, column)
             );
         }
 

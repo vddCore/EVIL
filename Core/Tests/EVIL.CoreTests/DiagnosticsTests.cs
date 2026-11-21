@@ -2,6 +2,8 @@ namespace EVIL.CoreTests;
 
 using EVIL.CommonTypes.Diagnostics;
 using EVIL.Grammar;
+using EVIL.Grammar.AST.Diagnostics;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 using NUnit.Framework;
 using Shouldly;
@@ -123,5 +125,76 @@ public class DiagnosticsTests
         pe.Location.FilePath.ShouldBe("script.vil");
         pe.Location.Line.ShouldBe(20);
         pe.Location.Column.ShouldBe(8);
+    }
+
+    [Test]
+    public void Lexer_WithDiagnosticSink_RecoversFromMultipleErrors()
+    {
+        var bag = new DiagnosticBag();
+        var lexer = new Lexer(bag, "test.vil");
+        lexer.LoadSource("val a = ` + 10; val b = ` + 20;");
+        while (lexer.State.CurrentToken.Type != TokenType.EOF)
+        {
+            lexer.NextToken();
+        }
+
+        bag.HasErrors.ShouldBeTrue();
+        bag.ErrorCount.ShouldBe(2);
+    }
+
+    [Test]
+    public void Parser_WithDiagnosticSink_RecoversAndProducesErrorStatementNodes()
+    {
+        var bag = new DiagnosticBag();
+        var parser = new Parser(bag, "multi_err.vil");
+
+        var source = "val = 1;\nval b = 2;\nval = 3;\nval c = 4;";
+        var program = parser.Parse(source);
+
+        bag.HasErrors.ShouldBeTrue();
+        bag.ErrorCount.ShouldBe(2);
+
+        program.Statements.Count.ShouldBe(4);
+        program.Statements[0].ShouldBeOfType<DiagnosticStatement>();
+        program.Statements[1].ShouldBeOfType<ValStatement>();
+        program.Statements[2].ShouldBeOfType<DiagnosticStatement>();
+        program.Statements[3].ShouldBeOfType<ValStatement>();
+    }
+
+    [Test]
+    public void Parser_BlockStatement_RecoversFromSyntaxError()
+    {
+        var bag = new DiagnosticBag();
+        var parser = new Parser(bag, "block_err.vil");
+
+        var source = "fn test() {\nval = 1;\nval valid = 10;\n}";
+        var program = parser.Parse(source);
+
+        bag.HasErrors.ShouldBeTrue();
+        program.Statements.Count.ShouldBe(1);
+        var fn = (FnStatement)program.Statements[0];
+        var block = (BlockStatement)fn.Statement;
+        block.Statements.Count.ShouldBe(2);
+        block.Statements[0].ShouldBeOfType<DiagnosticStatement>();
+        block.Statements[1].ShouldBeOfType<ValStatement>();
+    }
+
+    [Test]
+    public void Parser_WithoutDiagnosticSink_ThrowsParserException()
+    {
+        var parser = new Parser();
+        Should.Throw<ParserException>(() => parser.Parse("val = 1;"));
+    }
+
+    [Test]
+    public void Parser_RespectsMaxErrors()
+    {
+        var bag = new DiagnosticBag();
+        var parser = new Parser(bag, "max_err.vil") { MaxErrors = 3 };
+
+        var source = "val = 1;\nval = 2;\nval = 3;\nval = 4;\nval = 5;\nval = 6;";
+        var program = parser.Parse(source);
+
+        bag.ErrorCount.ShouldBe(3);
     }
 }

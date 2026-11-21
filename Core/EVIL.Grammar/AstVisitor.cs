@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
+using EVIL.Grammar.AST.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
@@ -102,4 +103,6 @@ public abstract class AstVisitor
     protected abstract void Visit(IsExpression isExpression);
     protected abstract void Visit(ByExpression byExpression);
     protected abstract void Visit(WithExpression withExpression);
+    protected abstract void Visit(DiagnosticStatement diagnosticStatement);
+    protected abstract void Visit(DiagnosticExpression diagnosticExpression);
 }

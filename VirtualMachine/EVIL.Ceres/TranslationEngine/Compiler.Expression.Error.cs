@@ -2,7 +2,9 @@ namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.Grammar.AST.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
 {
