@@ -9,28 +9,29 @@ using _Array = System.Array;
 public sealed class ValueStack(int initialCapacity = 1024)
 {
     private DynamicValue[] _items = new DynamicValue[initialCapacity];
-    private int _count;
+
+    public int Count { get; private set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Push(DynamicValue value)
     {
-        if (_count == _items.Length)
+        if (Count == _items.Length)
         {
             _Array.Resize(ref _items, _items.Length * 2);
         }
         
-        _items[_count++] = value;
+        _items[Count++] = value;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DynamicValue Pop()
     {
-        if (_count == 0)
+        if (Count == 0)
         {
             throw new InvalidOperationException("Stack is empty");
         }
 
-        return _items[--_count];
+        return _items[--Count];
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -38,24 +39,24 @@ public sealed class ValueStack(int initialCapacity = 1024)
     {
         value = DynamicValue.Nil;
 
-        if (_count == 0)
+        if (Count == 0)
         {
             return false;
         }
 
-        value = _items[--_count];
+        value = _items[--Count];
         return true;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DynamicValue Peek()
     {
-        if (_count == 0)
+        if (Count == 0)
         {
             throw new InvalidOperationException("Stack is empty");
         }
             
-        return _items[_count - 1];
+        return _items[Count - 1];
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,17 +64,19 @@ public sealed class ValueStack(int initialCapacity = 1024)
     {
         value = DynamicValue.Nil;
         
-        if (_count == 0)
+        if (Count == 0)
+        {
             return false;
+        }
             
-        value = _items[_count - 1];
+        value = _items[Count - 1];
         return true;
     }
     
     public void Clear()
     {
-        _Array.Clear(_items, 0, _count);
-        _count = 0;
+        _Array.Clear(_items, 0, Count);
+        Count = 0;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,14 +87,14 @@ public sealed class ValueStack(int initialCapacity = 1024)
             return [];
         }
 
-        if (_count < count)
+        if (Count < count)
         {
             throw new InvalidOperationException("Stack underflow");
         }
 
         var args = new DynamicValue[count];
-        _count -= count;
-        _Array.Copy(_items, _count, args, 0, count);
+        Count -= count;
+        _Array.Copy(_items, Count, args, 0, count);
         return args;
     }
 
@@ -104,14 +107,30 @@ public sealed class ValueStack(int initialCapacity = 1024)
             return;
         }
 
-        if (_count < count)
+        if (Count < count)
         {
             throw new InvalidOperationException("Stack underflow");
         }
 
-        _count -= count;
-        new ReadOnlySpan<DynamicValue>(_items, _count, count).CopyTo(destination);
+        Count -= count;
+        new ReadOnlySpan<DynamicValue>(_items, Count, count).CopyTo(destination);
     }
 
-    public int Count => _count;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ReadOnlySpan<DynamicValue> PopSpan(int count)
+    {
+        if (count == 0)
+        {
+            return [];
+        }
+
+        if (Count < count)
+        {
+            throw new InvalidOperationException("Stack underflow");
+        }
+
+        Count -= count;
+        return new ReadOnlySpan<DynamicValue>(_items, Count, count);
+    }
+
 }

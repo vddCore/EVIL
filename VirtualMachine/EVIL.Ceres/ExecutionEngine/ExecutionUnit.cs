@@ -1124,15 +1124,11 @@ internal class ExecutionUnit
                 {
                     var switchTable = frame.Chunk.GetSwitchTable((int)frame.PreviousOpCodeIP);
                     var qualifier = PopValue();
+
+                    frame.JumpAbsolute(switchTable.Cases.TryGetValue(qualifier, out var targetIp)
+                        ? targetIp
+                        : switchTable.DefaultIp);
                     
-                    if (switchTable.Cases.TryGetValue(qualifier, out var targetIp))
-                    {
-                        frame.JumpAbsolute(targetIp);
-                    }
-                    else
-                    {
-                        frame.JumpAbsolute(switchTable.DefaultIp);
-                    }
                     break;
                 }
 
@@ -1238,22 +1234,14 @@ internal class ExecutionUnit
                     var count = frame.FetchInt32();
                     if (count >= 0)
                     {
-                        var elements = PopArguments(count);
+                        var elements = _evaluationStack.PopSpan(count);
                         PushValue(new Table(elements));
                     }
                     else
                     {
                         var pairCount = -count;
-                        var items = PopArguments(pairCount * 2);
-                        var table = new Table(pairCount);
-                        for (var i = 0; i < pairCount; i++)
-                        {
-                            var val = items[i * 2];
-                            var key = items[i * 2 + 1];
-                            table.Set(key, val);
-                        }
-
-                        PushValue(table);
+                        var items = _evaluationStack.PopSpan(pairCount * 2);
+                        PushValue(Table.CreateKeyed(items));
                     }
 
                     break;
@@ -1330,27 +1318,33 @@ internal class ExecutionUnit
 
                     if (c.Type == DynamicValueType.Table)
                     {
-                        if (!c.Table!.Contains(a))
+                        var tbl = c.Table!;
+                        if (tbl.TryGetValue(a, out var val))
                         {
-                            var mt = c.Table!.MetaTable;
+                            PushValue(val);
+                            break;
+                        }
 
-                            if (mt != null)
+                        var mt = tbl.MetaTable;
+                        if (mt != null)
+                        {
+                            var value = mt[Table.GetMetaKey];
+
+                            if (value.Type == DynamicValueType.Chunk)
                             {
-                                var value = mt[Table.GetMetaKey];
+                                InvokeChunk(value.Chunk!, c, a);
+                                break;
+                            }
 
-                                if (value.Type == DynamicValueType.Chunk)
-                                {
-                                    InvokeChunk(value.Chunk!, c, a);
-                                    break;
-                                }
-
-                                if (value.Type == DynamicValueType.Table)
-                                {
-                                    PushValue(value.Table!.Index(a));
-                                    break;
-                                }
+                            if (value.Type == DynamicValueType.Table)
+                            {
+                                PushValue(value.Table!.Index(a));
+                                break;
                             }
                         }
+
+                        PushValue(DynamicValue.Nil);
+                        break;
                     }
 
                     PushValue(c.Index(a));
@@ -1369,12 +1363,11 @@ internal class ExecutionUnit
                         );
                     }
 
-                    var value = c.Index(a);
-
-                    if (value == DynamicValue.Nil)
+                    var tbl = c.Table!;
+                    if (!tbl.TryGetValue(a, out var value) || value == DynamicValue.Nil)
                     {
                         value = new Table();
-                        c.SetEntry(a, value);
+                        tbl.Set(a, value);
                     }
 
                     PushValue(value);

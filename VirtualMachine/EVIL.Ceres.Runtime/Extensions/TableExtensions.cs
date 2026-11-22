@@ -7,8 +7,11 @@ using EVIL.CommonTypes.TypeSystem;
 
 public static class TableExtensions
 {
-    public static DynamicValue SetUsingPath<TSubTable>(this Table table, string fullyQualifiedName, DynamicValue value, bool replaceIfExists = true)
-        where TSubTable: Table, new()
+    public static DynamicValue SetUsingPath<TSubTable>(
+        this Table table,
+        string fullyQualifiedName, 
+        DynamicValue value,
+        bool replaceIfExists = true) where TSubTable: Table, new()
     {
         var segments = fullyQualifiedName.Split(".");
         var tablePath = segments
@@ -16,27 +19,30 @@ public static class TableExtensions
             .ToArray();
 
         var memberName = segments.Last();
-        var currentTable = table;
+        Table currentTable = table;
+        
         foreach (var tableName in tablePath)
         {
-            if (!currentTable.Contains(tableName))
+            if (!currentTable.TryGetValue(tableName, out var existingVal))
             {
+                var newSubTable = new TSubTable();
                 currentTable.Set(
                     tableName,
-                    new TSubTable()
+                    newSubTable
                 );
+                currentTable = newSubTable;
             }
             else
             {
-                if (currentTable[tableName].Type != DynamicValueType.Table)
+                if (existingVal.Type != DynamicValueType.Table)
                 {
                     throw new EvilRuntimeException(
                         $"Attempted to set '{value}' as '{fullyQualifiedName}', but '{tableName}' is not a Table."
                     );
                 }
-            }
 
-            currentTable = currentTable[tableName].Table!;
+                currentTable = existingVal.Table!;
+            }
         }
 
         if (currentTable.Contains(memberName) && !replaceIfExists)
@@ -65,15 +71,17 @@ public static class TableExtensions
             .ToArray();
 
         var memberName = segments.Last();
-        var currentTable = table;
+        Table currentTable = table;
+        
         foreach (var tableName in tablePath)
         {
-            if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+            if (!currentTable.TryGetValue(tableName, out var existingVal) 
+                || existingVal.Type != DynamicValueType.Table)
             {
                 return false;
             }
 
-            currentTable = currentTable[tableName].Table!;
+            currentTable = existingVal.Table!;
         }
 
         return currentTable.Contains(memberName);
@@ -87,21 +95,21 @@ public static class TableExtensions
             .ToArray();
 
         var memberName = segments.Last();
-        var currentTable = (Table)table;
+        Table currentTable = table;
+        
         foreach (var tableName in tablePath)
         {
-            if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+            if (!currentTable.TryGetValue(tableName, out var existingVal) 
+                || existingVal.Type != DynamicValueType.Table)
             {
                 return false;
             }
 
-            currentTable = currentTable[tableName].Table!;
+            currentTable = existingVal.Table!;
         }
 
-        if (currentTable is not PropertyTable pt)
-            return false;
-            
-        return pt.ContainsValue(memberName);
+        return currentTable is PropertyTable pt 
+            && pt.ContainsValue(memberName);
     }
         
     public static bool ContainsGetterPath(this PropertyTable table, string fullyQualifiedName)
@@ -112,21 +120,21 @@ public static class TableExtensions
             .ToArray();
 
         var memberName = segments.Last();
-        var currentTable = (Table)table;
+        Table currentTable = table;
+        
         foreach (var tableName in tablePath)
         {
-            if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+            if (!currentTable.TryGetValue(tableName, out var existingVal) 
+                || existingVal.Type != DynamicValueType.Table)
             {
                 return false;
             }
 
-            currentTable = currentTable[tableName].Table!;
+            currentTable = existingVal.Table!;
         }
 
-        if (currentTable is not PropertyTable pt)
-            return false;
-            
-        return pt.ContainsGetter(memberName);
+        return currentTable is PropertyTable pt 
+            && pt.ContainsGetter(memberName);
     }
         
     public static bool ContainsSetterPath(this PropertyTable table, string fullyQualifiedName)
@@ -137,19 +145,23 @@ public static class TableExtensions
             .ToArray();
 
         var memberName = segments.Last();
-        var currentTable = (Table)table;
+        Table currentTable = table;
+        
         foreach (var tableName in tablePath)
         {
-            if (!(currentTable.Contains(tableName) && currentTable[tableName].Type == DynamicValueType.Table))
+            if (!currentTable.TryGetValue(tableName, out var existingVal) 
+                || existingVal.Type != DynamicValueType.Table)
             {
                 return false;
             }
 
-            currentTable = currentTable[tableName].Table!;
+            currentTable = existingVal.Table!;
         }
 
         if (currentTable is not PropertyTable pt)
+        {
             return false;
+        }
             
         return pt.ContainsSetter(memberName);
     }

@@ -63,24 +63,29 @@ public class PropertyTable : Table
     public virtual bool RemoveSetter(DynamicValue key)
         => _setters.Remove(key);
 
-    protected override DynamicValue OnIndex(DynamicValue key)
+    protected override bool OnTryGetValue(DynamicValue key, out DynamicValue value)
     {
-        if (_getters.TryGetValue(key, out var getter))
+        if (_getters.Count > 0 && _getters.TryGetValue(key, out var getter))
         {
-            return getter(key);
+            value = getter(key);
+            return true;
         }
 
-        return base.OnIndex(key);
+        return base.OnTryGetValue(key, out value);
+    }
+
+    protected override DynamicValue OnIndex(DynamicValue key)
+    {
+        return OnTryGetValue(key, out var val) 
+            ? val 
+            : DynamicValue.Nil;
     }
 
     protected override (DynamicValue Key, DynamicValue Value) OnBeforeSet(DynamicValue key, DynamicValue value)
     {
-        if (_setters.TryGetValue(key, out var setter))
-        {
-            return setter(key, value);
-        }
-
-        return base.OnBeforeSet(key, value);
+        return _setters.TryGetValue(key, out var setter) 
+            ? setter(key, value)
+            : base.OnBeforeSet(key, value);
     }
 
     public virtual bool ContainsGetter(DynamicValue key)

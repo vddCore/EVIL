@@ -1,5 +1,6 @@
 namespace EVIL.Ceres.RuntimeTests;
 
+using System;
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
@@ -260,7 +261,10 @@ public class DisassemblyModelTests : TestBase
 
         var line2Insts = disasm.GetForLine(2);
         Assert.That(line2Insts, Is.Not.Empty);
-        Assert.That(line2Insts.All(i => i.Line == 2), Is.True);
+        Assert.That(
+            line2Insts.All(i => i.Line == 2),
+            Is.True
+        );
     }
 
     [Test]
@@ -295,5 +299,212 @@ public class DisassemblyModelTests : TestBase
             getClosure!.SymbolicAnnotation,
             Does.Contain("'outer'")
         );
+    }
+
+    [Test]
+    public void ChunkDisassembly_FindAtOffset_HandlesExactAndMissingOffsets()
+    {
+        var script = """
+            fn test() {
+                val a = 1;
+                val b = 2;
+                ret a + b;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_find_offset");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        var first = disasm.Instructions[0];
+        var found = disasm.FindAtOffset(first.Offset);
+        
+        Assert.That(found, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(found!.Offset, Is.EqualTo(first.Offset));
+
+            Assert.That(disasm.FindAtOffset(99999), Is.Null);
+            Assert.That(disasm.FindAtOffset(-1), Is.Null);
+        }
+    }
+
+    [Test]
+    public void ChunkDisassembly_IndexOf_HandlesExactAndMissingOffsets()
+    {
+        var script = """
+            fn test() {
+                val a = 10;
+                ret a;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_index_of");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        for (var i = 0; i < disasm.Instructions.Count; i++)
+        {
+            Assert.That(disasm.IndexOf(disasm.Instructions[i].Offset), Is.EqualTo(i));
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(disasm.IndexOf(99999), Is.EqualTo(-1));
+            Assert.That(disasm.IndexOf(-5), Is.EqualTo(-1));
+        }
+    }
+
+    [Test]
+    public void ChunkDisassembly_GetRange_HandlesEdgeCasesAndCountExceeding()
+    {
+        var script = """
+            fn test() {
+                val a = 1;
+                val b = 2;
+                val c = 3;
+                ret a + b + c;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_get_range_edges");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(disasm.GetRange(0, 0), Is.Empty);
+            Assert.That(disasm.GetRange(0, -5), Is.Empty);
+        }
+
+        var all = disasm.GetRange(0, disasm.InstructionCount + 100);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(all, Has.Count.EqualTo(disasm.InstructionCount));
+            Assert.That(disasm.GetRange(99999, 5), Is.Empty);
+        }
+    }
+
+    [Test]
+    public void ChunkDisassembly_GetWindow_HandlesAsymmetricRadii()
+    {
+        var script = """
+            fn test() {
+                rw val a = 1;
+                rw val b = 2;
+                rw val c = 3;
+                rw val d = 4;
+                rw val e = 5;
+                rw val f = 6;
+                rw val g = 7;
+                rw val h = 8;
+                ret a + b + c + d + e + f + g + h;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_asymmetric_window");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        var centerIdx = 5;
+        var centerIp = disasm.Instructions[centerIdx].Offset;
+        var window = disasm.GetWindow(centerIp, radiusBefore: 2, radiusAfter: 4);
+
+        Assert.That(window, Has.Count.EqualTo(7));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(
+                window[0].Offset,
+                Is.EqualTo(disasm.Instructions[centerIdx - 2].Offset)
+            );
+            
+            Assert.That(
+                window[2].Offset,
+                Is.EqualTo(centerIp)
+            );
+            
+            Assert.That(
+                window[6].Offset,
+                Is.EqualTo(disasm.Instructions[centerIdx + 4].Offset)
+            );
+        }
+    }
+
+    [Test]
+    public void ChunkDisassembly_GetForLine_NonExistentLine_ReturnsEmptyList()
+    {
+        var script = "fn test() { ret 1; }";
+        var chunk = Compiler.Compile(script, "test_nonexistent_line");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        Assert.That(disasm.GetForLine(9999), Is.Empty);
+    }
+
+    [Test]
+    public void InstructionDecoder_DecodesNumericConstantsAndDoubleOperands()
+    {
+        var script = """
+            fn test() {
+                val pi = 3.14159;
+                ret pi;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_double_operands");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        var ldnum = disasm.Instructions.FirstOrDefault(i => i.OpCode == OpCode.LDNUM);
+        Assert.That(ldnum, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(ldnum!.Operands, Has.Count.EqualTo(1));
+            Assert.That(ldnum.Operands[0].Kind, Is.EqualTo(OperandKind.ImmediateDouble));
+            Assert.That(
+                Convert.ToDouble(ldnum.Operands[0].RawValue),
+                Is.EqualTo(3.14159).Within(0.00001)
+            );
+        }
+    }
+
+    [Test]
+    public void InstructionDecoder_DecodesLoopBackwardBranches()
+    {
+        var script = """
+            fn test() {
+                rw val i = 0;
+                while (i < 5) {
+                    i += 1;
+                }
+                ret i;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_backward_branch");
+        var testChunk = chunk["test"]!;
+        var disasm = testChunk.Disassemble();
+
+        var backwardJump = disasm.Instructions.FirstOrDefault(
+            i => i is { IsBranch: true, TargetOffset: not null } 
+              && i.TargetOffset.Value < i.Offset
+        );
+        
+        Assert.That(backwardJump, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backwardJump!.IsBranch, Is.True);
+            Assert.That(backwardJump.TargetOffset, Is.Not.Null);
+        }
+        Assert.That(backwardJump.TargetOffset!.Value, Is.LessThan(backwardJump.Offset));
+
+        var targetInst = disasm.FindAtOffset(backwardJump.TargetOffset.Value);
+        Assert.That(targetInst, Is.Not.Null);
+        
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(targetInst!.IsJumpTarget, Is.True);
+            Assert.That(targetInst.Label, Is.EqualTo($"L_{backwardJump.TargetOffset.Value:X4}"));
+        }
     }
 }

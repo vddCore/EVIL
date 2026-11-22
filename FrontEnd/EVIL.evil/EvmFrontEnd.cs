@@ -11,6 +11,7 @@ using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly.Rendering;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
@@ -37,6 +38,10 @@ public partial class EvmFrontEnd
     private static bool _displayVersionAndQuit;
     private static bool _generateModuleDocsAndQuit;
     private static bool _disassembleCompiledScript;
+    private static string? _disassembleTarget;
+    private static bool _disasmRawBytes;
+    private static bool _disasmNoSubchunks;
+    private static bool _disasmNoSource;
     private static bool _optimizeCode;
     private static bool _compileOnly;
     private static bool _debugMode;
@@ -54,7 +59,14 @@ public partial class EvmFrontEnd
         { "h|help", "display this message and quit.", (h) => _displayHelpAndQuit = h != null },
         { "v|version", "display compiler and VM version information.", (v) => _displayVersionAndQuit = v != null },
         { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
-        { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null },
+        { "d|disasm:", "disassemble compiled script bytecode (optionally specify function name, e.g. -d=my_func).", (d) =>
+        {
+            _disassembleCompiledScript = true;
+            _disassembleTarget = string.IsNullOrWhiteSpace(d) ? null : d.Trim();
+        }},
+        { "raw-bytes", "include raw opcode hex bytes in disassembly.", (b) => _disasmRawBytes = b != null },
+        { "no-subchunks", "do not recurse into nested subchunks during disassembly.", (s) => _disasmNoSubchunks = s != null },
+        { "no-source", "disable source code interleaving in disassembly.", (s) => _disasmNoSource = s != null },
         { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null },
         { "debug", "start script in interactive CLI debugger (evdb).", (b) => _debugMode = b != null },
         { "dap", "start Debug Adapter Protocol (DAP) server over stdio.", (p) => _dapMode = p != null },
@@ -210,8 +222,47 @@ public partial class EvmFrontEnd
 
         if (_disassembleCompiledScript)
         {
-            Console.WriteLine($"Disassembly of '{scriptPath}'\n-------------------");
-            Disassembler.Disassemble(rootChunk, Console.Out);
+            var options = new DisassemblyFormatOptions
+            {
+                ShowAddresses = true,
+                AddressFormat = AddressFormat.HexPrefixed,
+                ShowRawBytes = _disasmRawBytes,
+                ShowSourceInterleaving = !_disasmNoSource,
+                ShowSymbols = true,
+                ShowBranchLabels = true,
+                ShowBranchOffsets = true,
+                ShowChunkHeader = true,
+                IncludeSubChunks = !_disasmNoSubchunks,
+                SourceProvider = path =>
+                {
+                    if (string.IsNullOrEmpty(path) || path == scriptPath)
+                    {
+                        return File.Exists(scriptPath) ? File.ReadAllLines(scriptPath) : source.Split('\n');
+                    }
+                    return File.Exists(path) ? File.ReadAllLines(path) : null;
+                },
+                ColorMode = ColorMode.Auto
+            };
+
+            if (!string.IsNullOrEmpty(_disassembleTarget))
+            {
+                var targetChunk = FindChunk(rootChunk, _disassembleTarget);
+                if (targetChunk == null)
+                {
+                    Terminate($"Fatal: function or subchunk '{_disassembleTarget}' not found in '{scriptPath}'.", exitCode: ExitCode.GenericError);
+                    return;
+                }
+
+                Console.WriteLine($"Disassembly of '{targetChunk.Name}' in '{scriptPath}'\n-------------------");
+                var targetDisasm = targetChunk.Disassemble();
+                DisassemblyFormatter.FormatChunk(targetDisasm, Console.Out, options);
+            }
+            else
+            {
+                Console.WriteLine($"Disassembly of '{scriptPath}'\n-------------------");
+                var disasm = rootChunk.Disassemble();
+                DisassemblyFormatter.FormatChunk(disasm, Console.Out, options);
+            }
         }
 
         if (_compiler.Log.HasAnyMessages)
@@ -503,5 +554,25 @@ public partial class EvmFrontEnd
         sb.Append(Fiber.StackTrace(callStack));
             
         Terminate(sb.ToString(), exitCode: ExitCode.RuntimeError);
+    }
+
+    private static Chunk? FindChunk(Chunk chunk, string name)
+    {
+        if (string.Equals(chunk.Name, name, StringComparison.OrdinalIgnoreCase))
+        {
+            return chunk;
+        }
+
+        for (var i = 0; i < chunk.SubChunkCount; i++)
+        {
+            var sub = chunk.SubChunks[i];
+            var found = FindChunk(sub, name);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
     }
 }

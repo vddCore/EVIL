@@ -24,6 +24,17 @@ public class TrickyTable : Table
         return base.OnIndex(key);
     }
 
+    protected override bool OnTryGetValue(DynamicValue key, out DynamicValue value)
+    {
+        if (key.Type == DynamicValueType.String && key.String == "d20")
+        {
+            value = OnIndex(key);
+            return value != DynamicValue.Nil;
+        }
+
+        return base.OnTryGetValue(key, out value);
+    }
+
     protected override (DynamicValue Key, DynamicValue Value) OnBeforeSet(DynamicValue key, DynamicValue value)
     {
         if (key.Type == DynamicValueType.String && key.String == "d20")

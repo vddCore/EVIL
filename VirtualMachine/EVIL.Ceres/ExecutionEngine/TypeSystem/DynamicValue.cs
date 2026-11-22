@@ -37,79 +37,90 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
 
     public DynamicValue()
     {
+        _reference = null;
+        
         Type = DynamicValueType.Nil;
         Number = 0;
-        _reference = null;
     }
         
     public DynamicValue(double value)
     {
+        _reference = null;
+        
         Number = value;
         Type = DynamicValueType.Number;
-        _reference = null;
     }
 
     public DynamicValue(string value)
     {
+        _reference = value;
+        
         Type = DynamicValueType.String;
         Number = 0;
-        _reference = value;
     }
 
     public DynamicValue(char value)
     {
+        _reference = value.ToString();
+        
         Type = DynamicValueType.String;
         Number = 0;
-        _reference = value.ToString();
     }
 
     public DynamicValue(bool value)
     {
+        _reference = null;
+        
         Number = value ? 1.0 : 0.0;
         Type = DynamicValueType.Boolean;
-        _reference = null;
     }
 
     public DynamicValue(Table value)
     {
+        _reference = value;
+        
         Type = DynamicValueType.Table;
         Number = 0;
-        _reference = value;
     }
 
     public DynamicValue(Collections_Array value)
     {
+        _reference = value;
+        
         Type = DynamicValueType.Array;
         Number = 0;
-        _reference = value;
     }
 
     public DynamicValue(Fiber value)
     {
+        _reference = value;
+        
         Type = DynamicValueType.Fiber;
         Number = 0;
-        _reference = value;
     }
 
     public DynamicValue(Chunk value)
     {
+        _reference = value;
+        
         Type = DynamicValueType.Chunk;
         Number = 0;
-        _reference = value;
     }
 
     public DynamicValue(Error value)
     {
+        _reference = value;
+    
         Type = DynamicValueType.Error;
         Number = 0;
-        _reference = value;
     }
 
     public DynamicValue(DynamicValueType value)
     {
+        _reference = null;
+        
         Number = (double)(int)value;
         Type = DynamicValueType.TypeCode;
-        _reference = null;
     }
 
     public DynamicValue(NativeFunction value)
@@ -121,9 +132,10 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
 
     public DynamicValue(object? value)
     {
+        _reference = value;
+        
         Type = DynamicValueType.NativeObject;
         Number = 0;
-        _reference = value;
     }
 
     public void Serialize(Stream stream, bool throwOnUnsupported = false)
@@ -197,7 +209,7 @@ public readonly struct DynamicValue : IEquatable<DynamicValue>
             DynamicValueType.Number => Number.Equals(other.Number),
             DynamicValueType.Boolean => (Number != 0) == (other.Number != 0),
             DynamicValueType.TypeCode => (int)Number == (int)other.Number,
-            DynamicValueType.String => String == other.String,
+            DynamicValueType.String => ReferenceEquals(_reference, other._reference) || String == other.String,
             DynamicValueType.NativeObject => Equals(_reference, other._reference) 
                                           || (_reference != null 
                                               && other._reference != null 

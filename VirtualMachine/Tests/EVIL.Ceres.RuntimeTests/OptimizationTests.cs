@@ -16,20 +16,32 @@ public class OptimizationTests : TestBase
         Assert.That(nilVal.Type, Is.EqualTo(DynamicValueType.Nil));
 
         DynamicValue trueVal = true;
-        Assert.That(trueVal.Type, Is.EqualTo(DynamicValueType.Boolean));
-        Assert.That(trueVal.Boolean, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trueVal.Type, Is.EqualTo(DynamicValueType.Boolean));
+            Assert.That(trueVal.Boolean, Is.True);
+        }
 
         DynamicValue falseVal = false;
-        Assert.That(falseVal.Type, Is.EqualTo(DynamicValueType.Boolean));
-        Assert.That(falseVal.Boolean, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(falseVal.Type, Is.EqualTo(DynamicValueType.Boolean));
+            Assert.That(falseVal.Boolean, Is.False);
+        }
 
         DynamicValue numVal = 42.5;
-        Assert.That(numVal.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(numVal.Number, Is.EqualTo(42.5));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(numVal.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(numVal.Number, Is.EqualTo(42.5));
+        }
 
         DynamicValue typeVal = DynamicValueType.String;
-        Assert.That(typeVal.Type, Is.EqualTo(DynamicValueType.TypeCode));
-        Assert.That(typeVal.TypeCode, Is.EqualTo(DynamicValueType.String));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(typeVal.Type, Is.EqualTo(DynamicValueType.TypeCode));
+            Assert.That(typeVal.TypeCode, Is.EqualTo(DynamicValueType.String));
+        }
 
         DynamicValue strVal1 = "hello";
         DynamicValue strVal2 = "hello";
@@ -46,10 +58,13 @@ public class OptimizationTests : TestBase
 
         var clone = chunk.Clone();
 
-        // Code and StringPool must have a shared ref between clones.
-        Assert.That(clone.Code, Is.SameAs(originalCode));
-        Assert.That(clone.StringPool, Is.SameAs(originalPool));
-        Assert.That(clone.Code.Length, Is.EqualTo(3));
+        using (Assert.EnterMultipleScope())
+        {
+            // Code and StringPool must have a shared ref between clones.
+            Assert.That(clone.Code, Is.SameAs(originalCode));
+            Assert.That(clone.StringPool, Is.SameAs(originalPool));
+        }
+        Assert.That(clone.Code, Has.Length.EqualTo(3));
     }
 
     [Test]
@@ -59,9 +74,12 @@ public class OptimizationTests : TestBase
         var reader1 = chunk.SpawnCodeReader();
         var reader2 = chunk.SpawnCodeReader();
 
-        Assert.That(reader1.Length, Is.EqualTo(2));
-        Assert.That(reader2.Length, Is.EqualTo(2));
-        Assert.That(chunk.Code.Length, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reader1.Length, Is.EqualTo(2));
+            Assert.That(reader2.Length, Is.EqualTo(2));
+            Assert.That(chunk.Code, Has.Length.EqualTo(2));
+        }
     }
 
     [Test]
@@ -80,10 +98,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        
-        // sum = 2 * sum(0..499) = 2 * (499 * 500 / 2) = 249500
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(249500.0));
+        using (Assert.EnterMultipleScope())
+        {
+            // sum = 2 * sum(0..499) = 2 * (499 * 500 / 2) = 249500
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(249500.0));
+        }
     }
 
     [Test]
@@ -103,10 +123,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        
-        // 10 + 20 + 30 + 40 = 100
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(100.0));
+        using (Assert.EnterMultipleScope())
+        {
+            // 10 + 20 + 30 + 40 = 100
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(100.0));
+        }
     }
 
     [Test]
@@ -137,9 +159,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(102.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(102.0));
+        }
     }
 
     [Test]
@@ -161,8 +186,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(55.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(55.0));
+        }
     }
 
     [Test]
@@ -183,8 +211,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(30.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(30.0));
+        }
     }
 
     [Test]
@@ -203,8 +234,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(42000.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(42000.0));
+        }
     }
 
     [Test]
@@ -230,8 +264,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(35.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(35.0));
+        }
     }
 
     [Test]
@@ -255,8 +292,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(135.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(135.0));
+        }
     }
 
     [Test]
@@ -285,9 +325,12 @@ public class OptimizationTests : TestBase
         var result = EvilTestResult(script);
         sw.Stop();
 
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(50000.0));
-        Assert.That(sw.ElapsedMilliseconds, Is.LessThan(2000), $"Execution took too long: {sw.ElapsedMilliseconds}ms");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(50000.0));
+            Assert.That(sw.ElapsedMilliseconds, Is.LessThan(2000), $"Execution took too long: {sw.ElapsedMilliseconds}ms");
+        }
     }
 
     [Test]
@@ -302,8 +345,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(50000.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(50000.0));
+        }
     }
 
     [Test]
@@ -326,8 +372,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(0.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(0.0));
+        }
     }
 
     [Test]
@@ -350,8 +399,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(10.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(10.0));
+        }
     }
 
     [Test]
@@ -373,9 +425,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(15.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(15.0));
+        }
     }
 
     [Test]
@@ -397,9 +452,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(11.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(11.0));
+        }
     }
 
     [Test]
@@ -423,9 +481,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(42.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(1.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(42.0));
+        }
     }
 
     [Test]
@@ -445,9 +506,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Boolean, Is.False);
-        Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Boolean, Is.False);
+            Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+        }
     }
 
     [Test]
@@ -467,9 +531,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Boolean, Is.True);
-        Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Boolean, Is.True);
+            Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+        }
     }
 
     [Test]
@@ -490,9 +557,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(10.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(30.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(10.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(30.0));
+        }
     }
 
     [Test]
@@ -511,8 +581,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(10.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(10.0));
+        }
     }
 
     [Test]
@@ -535,11 +608,14 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Boolean, Is.False);
-        Assert.That(result.Array![1].Boolean, Is.True);
-        Assert.That(result.Array![2].Boolean, Is.True);
-        Assert.That(result.Array![3].Number, Is.EqualTo(0.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Boolean, Is.False);
+            Assert.That(result.Array![1].Boolean, Is.True);
+            Assert.That(result.Array![2].Boolean, Is.True);
+            Assert.That(result.Array![3].Number, Is.EqualTo(0.0));
+        }
     }
 
     [Test]
@@ -559,8 +635,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(1000.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(1000.0));
+        }
     }
 
     [Test]
@@ -578,12 +657,15 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(150.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(5.0));
-        Assert.That(result.Array![2].Boolean, Is.True);
-        Assert.That(result.Array![3].Boolean, Is.True);
-        Assert.That(result.Array![4].Boolean, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(150.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(5.0));
+            Assert.That(result.Array![2].Boolean, Is.True);
+            Assert.That(result.Array![3].Boolean, Is.True);
+            Assert.That(result.Array![4].Boolean, Is.False);
+        }
     }
 
     [Test]
@@ -600,13 +682,16 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(100.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(200.0));
-        Assert.That(result.Array![2].String, Is.EqualTo("Ceres"));
-        Assert.That(result.Array![3].Number, Is.EqualTo(2.4));
-        Assert.That(result.Array![4].String, Is.EqualTo("sparse"));
-        Assert.That(result.Array![5].Number, Is.EqualTo(5.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(100.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(200.0));
+            Assert.That(result.Array![2].String, Is.EqualTo("Ceres"));
+            Assert.That(result.Array![3].Number, Is.EqualTo(2.4));
+            Assert.That(result.Array![4].String, Is.EqualTo("sparse"));
+            Assert.That(result.Array![5].Number, Is.EqualTo(5.0));
+        }
     }
 
     [Test]
@@ -626,13 +711,16 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(2.0));
-        Assert.That(result.Array![2].Boolean, Is.True);
-        Assert.That(result.Array![3].Boolean, Is.False);
-        Assert.That(result.Array![4].Boolean, Is.True);
-        Assert.That(result.Array![5].Type, Is.EqualTo(DynamicValueType.Nil));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(2.0));
+            Assert.That(result.Array![2].Boolean, Is.True);
+            Assert.That(result.Array![3].Boolean, Is.False);
+            Assert.That(result.Array![4].Boolean, Is.True);
+            Assert.That(result.Array![5].Type, Is.EqualTo(DynamicValueType.Nil));
+        }
     }
 
     [Test]
@@ -646,12 +734,15 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(4.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
-        Assert.That(result.Array![2].Number, Is.EqualTo(20.0));
-        Assert.That(result.Array![3].Number, Is.EqualTo(30.0));
-        Assert.That(result.Array![4].Number, Is.EqualTo(40.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(4.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
+            Assert.That(result.Array![2].Number, Is.EqualTo(20.0));
+            Assert.That(result.Array![3].Number, Is.EqualTo(30.0));
+            Assert.That(result.Array![4].Number, Is.EqualTo(40.0));
+        }
     }
 
     [Test]
@@ -665,11 +756,14 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
-        Assert.That(result.Array![1].String, Is.EqualTo("a"));
-        Assert.That(result.Array![2].String, Is.EqualTo("b"));
-        Assert.That(result.Array![3].String, Is.EqualTo("c"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+            Assert.That(result.Array![1].String, Is.EqualTo("a"));
+            Assert.That(result.Array![2].String, Is.EqualTo("b"));
+            Assert.That(result.Array![3].String, Is.EqualTo("c"));
+        }
     }
 
     [Test]
@@ -683,11 +777,14 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
-        Assert.That(result.Array![2].Number, Is.EqualTo(20.0));
-        Assert.That(result.Array![3].Number, Is.EqualTo(30.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(3.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
+            Assert.That(result.Array![2].Number, Is.EqualTo(20.0));
+            Assert.That(result.Array![3].Number, Is.EqualTo(30.0));
+        }
     }
 
     [Test]
@@ -702,9 +799,105 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(0.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(0.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(0.0));
+        }
+    }
+
+    [Test]
+    public void Table_TryGetValue_DenseIntegerAndHashKeys_RetrievesValuesCorrectly()
+    {
+        var table = new ExecutionEngine.Collections.Table();
+        table.Set(0, 100);
+        table.Set(1, 200);
+        table.Set("name", "Ceres");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.TryGetValue(0, out var v0), Is.True);
+            Assert.That(v0.Number, Is.EqualTo(100.0));
+
+            Assert.That(table.TryGetValue(1, out var v1), Is.True);
+            Assert.That(v1.Number, Is.EqualTo(200.0));
+
+            Assert.That(table.TryGetValue("name", out var vName), Is.True);
+            Assert.That(vName.String, Is.EqualTo("Ceres"));
+
+            Assert.That(table.TryGetValue(2, out var v2), Is.False);
+            Assert.That(v2, Is.EqualTo(DynamicValue.Nil));
+
+            Assert.That(table.TryGetValue("nonexistent", out var vNonexistent), Is.False);
+            Assert.That(vNonexistent, Is.EqualTo(DynamicValue.Nil));
+        }
+    }
+
+    [Test]
+    public void Table_TryGetValue_SetToNil_ReturnsFalse()
+    {
+        var table = new ExecutionEngine.Collections.Table();
+        table.Set("key", "value");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.TryGetValue("key", out var vBefore), Is.True);
+            Assert.That(vBefore.String, Is.EqualTo("value"));
+        }
+
+        table.Set("key", DynamicValue.Nil);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.TryGetValue("key", out var vAfter), Is.False);
+            Assert.That(vAfter, Is.EqualTo(DynamicValue.Nil));
+        }
+    }
+
+    [Test]
+    public void Table_SinglePassIndex_PreservesMetatableAndNilSemantics()
+    {
+        var script = """
+            fn test() {
+                val t = { a: 42, b: "hello" };
+                val valA = t.a;
+                val valB = t.b;
+                val valC = t.nonexistent;
+                ret [valA, valB, valC];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(42.0));
+            Assert.That(result.Array![1].String, Is.EqualTo("hello"));
+            Assert.That(result.Array![2].Type, Is.EqualTo(DynamicValueType.Nil));
+        }
+    }
+
+    [Test]
+    public void Table_TabInit_SpanDraining_ConstructsAccurateStructures()
+    {
+        var script = """
+            fn test() {
+                val unkeyed = { 10, 20, 30, 40 };
+                val keyed = { alpha: 1, beta: 2, gamma: 3 };
+                ret [#unkeyed, unkeyed[0], unkeyed[3], #keyed, keyed.alpha, keyed.gamma];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(4.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(10.0));
+            Assert.That(result.Array![2].Number, Is.EqualTo(40.0));
+            Assert.That(result.Array![3].Number, Is.EqualTo(3.0));
+            Assert.That(result.Array![4].Number, Is.EqualTo(1.0));
+            Assert.That(result.Array![5].Number, Is.EqualTo(3.0));
+        }
     }
 
     [Test]
@@ -721,8 +914,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
-        Assert.That(result.String, Is.EqualTo("Engine: Ceres, v2.4 (active: true)"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
+            Assert.That(result.String, Is.EqualTo("Engine: Ceres, v2.4 (active: true)"));
+        }
     }
 
     [Test]
@@ -737,9 +933,12 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].String, Is.EqualTo("42"));
-        Assert.That(result.Array![1].Boolean, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].String, Is.EqualTo("42"));
+            Assert.That(result.Array![1].Boolean, Is.True);
+        }
     }
 
     [Test]
@@ -753,8 +952,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
-        Assert.That(result.String, Is.EqualTo("Plain literal string without vars"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
+            Assert.That(result.String, Is.EqualTo("Plain literal string without vars"));
+        }
     }
 
     [Test]
@@ -773,8 +975,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(1000.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(1000.0));
+        }
     }
 
     [Test]
@@ -794,8 +999,11 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(500.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(500.0));
+        }
     }
 
     [Test]
@@ -804,10 +1012,13 @@ public class OptimizationTests : TestBase
         var chunk = new Chunk("test_chunk", [0x01, 0x02]);
         var callFrame = new CallFrame(chunk, null, 10, 42);
 
-        Assert.That(callFrame.Chunk, Is.SameAs(chunk));
-        Assert.That(callFrame.Upvalues, Is.Null);
-        Assert.That(callFrame.BasePointer, Is.EqualTo(10));
-        Assert.That(callFrame.ReturnIP, Is.EqualTo(42));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(callFrame.Chunk, Is.SameAs(chunk));
+            Assert.That(callFrame.Upvalues, Is.Null);
+            Assert.That(callFrame.BasePointer, Is.EqualTo(10));
+            Assert.That(callFrame.ReturnIP, Is.EqualTo(42));
+        }
     }
 
     [Test]
@@ -882,16 +1093,19 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes, Contains.Item(OpCode.LDNUM), "Large or non-integer numbers should compile to LDNUM");
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(0.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(1.0));
-        Assert.That(result.Array![2].Number, Is.EqualTo(2.0));
-        Assert.That(result.Array![3].Number, Is.EqualTo(-1.0));
-        Assert.That(result.Array![4].Number, Is.EqualTo(42.0));
-        Assert.That(result.Array![5].Number, Is.EqualTo(-128.0));
-        Assert.That(result.Array![6].Number, Is.EqualTo(127.0));
-        Assert.That(result.Array![7].Number, Is.EqualTo(1000.0));
-        Assert.That(result.Array![8].Number, Is.EqualTo(3.14));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(0.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(1.0));
+            Assert.That(result.Array![2].Number, Is.EqualTo(2.0));
+            Assert.That(result.Array![3].Number, Is.EqualTo(-1.0));
+            Assert.That(result.Array![4].Number, Is.EqualTo(42.0));
+            Assert.That(result.Array![5].Number, Is.EqualTo(-128.0));
+            Assert.That(result.Array![6].Number, Is.EqualTo(127.0));
+            Assert.That(result.Array![7].Number, Is.EqualTo(1000.0));
+            Assert.That(result.Array![8].Number, Is.EqualTo(3.14));
+        }
     }
 
     [Test]
@@ -963,10 +1177,13 @@ public class OptimizationTests : TestBase
         Assert.That(foundLdType, Is.True, "Expected OpCode.LDTYPE to be emitted");
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Boolean, Is.True);
-        Assert.That(result.Array![1].Boolean, Is.True);
-        Assert.That(result.Array![2].Boolean, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Boolean, Is.True);
+            Assert.That(result.Array![1].Boolean, Is.True);
+            Assert.That(result.Array![2].Boolean, Is.True);
+        }
     }
 
     [Test]
@@ -1036,25 +1253,31 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_0));
-        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_1));
-        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_2));
-        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_3));
-        Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_B));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_0));
+            Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_1));
+            Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_2));
+            Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_3));
+            Assert.That(opcodes, Contains.Item(OpCode.SETLOCAL_B));
 
-        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_0));
-        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_1));
-        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_2));
-        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_3));
-        Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_B));
+            Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_0));
+            Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_1));
+            Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_2));
+            Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_3));
+            Assert.That(opcodes, Contains.Item(OpCode.GETLOCAL_B));
+        }
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(11.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(22.0));
-        Assert.That(result.Array![2].Number, Is.EqualTo(33.0));
-        Assert.That(result.Array![3].Number, Is.EqualTo(44.0));
-        Assert.That(result.Array![4].Number, Is.EqualTo(55.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(11.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(22.0));
+            Assert.That(result.Array![2].Number, Is.EqualTo(33.0));
+            Assert.That(result.Array![3].Number, Is.EqualTo(44.0));
+            Assert.That(result.Array![4].Number, Is.EqualTo(55.0));
+        }
     }
 
     [Test]
@@ -1118,15 +1341,21 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes, Contains.Item(OpCode.GETARG_0));
-        Assert.That(opcodes, Contains.Item(OpCode.GETARG_1));
-        Assert.That(opcodes, Contains.Item(OpCode.GETARG_2));
-        Assert.That(opcodes, Contains.Item(OpCode.GETARG_3));
-        Assert.That(opcodes, Contains.Item(OpCode.GETARG_B));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(opcodes, Contains.Item(OpCode.GETARG_0));
+            Assert.That(opcodes, Contains.Item(OpCode.GETARG_1));
+            Assert.That(opcodes, Contains.Item(OpCode.GETARG_2));
+            Assert.That(opcodes, Contains.Item(OpCode.GETARG_3));
+            Assert.That(opcodes, Contains.Item(OpCode.GETARG_B));
+        }
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(15.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(15.0));
+        }
     }
 
     [Test]
@@ -1201,22 +1430,29 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_0));
-        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_1));
-        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_2));
-        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_3));
-        Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_B));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_0));
+            Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_1));
+            Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_2));
+            Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_3));
+            Assert.That(opcodes, Contains.Item(OpCode.GETCLOSURE_B));
 
-        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_0));
-        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_1));
-        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_2));
-        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_3));
-        Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_B));
+            Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_0));
+            Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_1));
+            Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_2));
+            Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_3));
+            Assert.That(opcodes, Contains.Item(OpCode.SETCLOSURE_B));
+        }
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        // (1 + 10) + (2 + 20) + (3 + 30) + (4 + 40) + (5 + 50) = 11 + 22 + 33 + 44 + 55 = 165
-        Assert.That(result.Number, Is.EqualTo(165.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            
+            // (1 + 10) + (2 + 20) + (3 + 30) + (4 + 40) + (5 + 50) = 11 + 22 + 33 + 44 + 55 = 165
+            Assert.That(result.Number, Is.EqualTo(165.0));
+        }
     }
 
     [Test]
@@ -1316,8 +1552,11 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes, Contains.Item(OpCode.LDNUM));
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(600000.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(600000.0));
+        }
     }
 
     [Test]
@@ -1384,11 +1623,14 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes, Does.Not.Contain(OpCode.ADD));
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].String, Is.EqualTo("item_1"));
-        Assert.That(result.Array![1].String, Is.EqualTo("hello world"));
-        Assert.That(result.Array![2].String, Is.EqualTo("42_id"));
-        Assert.That(result.Array![3].String, Is.EqualTo("flag_true"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].String, Is.EqualTo("item_1"));
+            Assert.That(result.Array![1].String, Is.EqualTo("hello world"));
+            Assert.That(result.Array![2].String, Is.EqualTo("42_id"));
+            Assert.That(result.Array![3].String, Is.EqualTo("flag_true"));
+        }
     }
 
     [Test]
@@ -1457,26 +1699,32 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes, Does.Not.Contain(OpCode.BAND));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.BOR));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.BXOR));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.SHL));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.SHR));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.LAND));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.LOR));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.LNOT));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(opcodes, Does.Not.Contain(OpCode.BAND));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.BOR));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.BXOR));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.SHL));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.SHR));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.LAND));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.LOR));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.LNOT));
+        }
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Number, Is.EqualTo(8.0));
-        Assert.That(result.Array![1].Number, Is.EqualTo(14.0));
-        Assert.That(result.Array![2].Number, Is.EqualTo(6.0));
-        Assert.That(result.Array![3].Number, Is.EqualTo(16.0));
-        Assert.That(result.Array![4].Number, Is.EqualTo(8.0));
-        Assert.That(result.Array![5].Boolean, Is.False);
-        Assert.That(result.Array![6].Boolean, Is.True);
-        Assert.That(result.Array![7].Boolean, Is.False);
-        Assert.That(result.Array![8].Boolean, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(8.0));
+            Assert.That(result.Array![1].Number, Is.EqualTo(14.0));
+            Assert.That(result.Array![2].Number, Is.EqualTo(6.0));
+            Assert.That(result.Array![3].Number, Is.EqualTo(16.0));
+            Assert.That(result.Array![4].Number, Is.EqualTo(8.0));
+            Assert.That(result.Array![5].Boolean, Is.False);
+            Assert.That(result.Array![6].Boolean, Is.True);
+            Assert.That(result.Array![7].Boolean, Is.False);
+            Assert.That(result.Array![8].Boolean, Is.True);
+        }
     }
 
     [Test]
@@ -1546,25 +1794,31 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes, Does.Not.Contain(OpCode.CGT));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.CGE));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.CLT));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.CLE));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.CEQ));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.CNE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(opcodes, Does.Not.Contain(OpCode.CGT));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.CGE));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.CLT));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.CLE));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.CEQ));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.CNE));
+        }
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(result.Array![0].Boolean, Is.True);
-        Assert.That(result.Array![1].Boolean, Is.False);
-        Assert.That(result.Array![2].Boolean, Is.True);
-        Assert.That(result.Array![3].Boolean, Is.True);
-        Assert.That(result.Array![4].Boolean, Is.True);
-        Assert.That(result.Array![5].Boolean, Is.True);
-        Assert.That(result.Array![6].Boolean, Is.False);
-        Assert.That(result.Array![7].Boolean, Is.True);
-        Assert.That(result.Array![8].Boolean, Is.True);
-        Assert.That(result.Array![9].Boolean, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Boolean, Is.True);
+            Assert.That(result.Array![1].Boolean, Is.False);
+            Assert.That(result.Array![2].Boolean, Is.True);
+            Assert.That(result.Array![3].Boolean, Is.True);
+            Assert.That(result.Array![4].Boolean, Is.True);
+            Assert.That(result.Array![5].Boolean, Is.True);
+            Assert.That(result.Array![6].Boolean, Is.False);
+            Assert.That(result.Array![7].Boolean, Is.True);
+            Assert.That(result.Array![8].Boolean, Is.True);
+            Assert.That(result.Array![9].Boolean, Is.False);
+        }
     }
 
     [Test]
@@ -1629,8 +1883,11 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes.FindAll(op => op == OpCode.ADD).Count, Is.EqualTo(1));
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(600005.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(600005.0));
+        }
     }
 
     [Test]
@@ -1736,11 +1993,14 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes, Does.Not.Contain(OpCode.FJMP));
 
         var res = EvilTestResult(script);
-        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(res.Array![0].String, Is.EqualTo("one"));
-        Assert.That(res.Array![1].String, Is.EqualTo("two"));
-        Assert.That(res.Array![2].String, Is.EqualTo("three"));
-        Assert.That(res.Array![3].String, Is.EqualTo("other"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(res.Array![0].String, Is.EqualTo("one"));
+            Assert.That(res.Array![1].String, Is.EqualTo("two"));
+            Assert.That(res.Array![2].String, Is.EqualTo("three"));
+            Assert.That(res.Array![3].String, Is.EqualTo("other"));
+        }
     }
 
     [Test]
@@ -1838,15 +2098,18 @@ public class OptimizationTests : TestBase
             """;
 
         var res = EvilTestResult(script);
-        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(res.Array![0].String, Is.EqualTo("it_nil"));
-        Assert.That(res.Array![1].String, Is.EqualTo("it_true"));
-        Assert.That(res.Array![2].String, Is.EqualTo("it_false"));
-        Assert.That(res.Array![3].String, Is.EqualTo("it_str"));
-        Assert.That(res.Array![4].String, Is.EqualTo("it_num"));
-        Assert.That(res.Array![5].String, Is.EqualTo("it_type_str"));
-        Assert.That(res.Array![6].String, Is.EqualTo("it_type_num"));
-        Assert.That(res.Array![7].String, Is.EqualTo("unknown"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(res.Array![0].String, Is.EqualTo("it_nil"));
+            Assert.That(res.Array![1].String, Is.EqualTo("it_true"));
+            Assert.That(res.Array![2].String, Is.EqualTo("it_false"));
+            Assert.That(res.Array![3].String, Is.EqualTo("it_str"));
+            Assert.That(res.Array![4].String, Is.EqualTo("it_num"));
+            Assert.That(res.Array![5].String, Is.EqualTo("it_type_str"));
+            Assert.That(res.Array![6].String, Is.EqualTo("it_type_num"));
+            Assert.That(res.Array![7].String, Is.EqualTo("unknown"));
+        }
     }
 
     [Test]
@@ -1918,9 +2181,12 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes, Contains.Item(OpCode.FJMP));
 
         var res = EvilTestResult(script);
-        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(res.Array![0].String, Is.EqualTo("dynamic_match"));
-        Assert.That(res.Array![1].String, Is.EqualTo("no_match"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(res.Array![0].String, Is.EqualTo("dynamic_match"));
+            Assert.That(res.Array![1].String, Is.EqualTo("no_match"));
+        }
     }
 
     [Test]
@@ -1952,11 +2218,14 @@ public class OptimizationTests : TestBase
         VM.MainFiber.BlockUntilFinished();
 
         var res = VM.MainFiber.PopValue();
-        Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
-        Assert.That(res.Array![0].String, Is.EqualTo("one"));
-        Assert.That(res.Array![1].String, Is.EqualTo("two"));
-        Assert.That(res.Array![2].String, Is.EqualTo("world"));
-        Assert.That(res.Array![3].String, Is.EqualTo("none"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(res.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(res.Array![0].String, Is.EqualTo("one"));
+            Assert.That(res.Array![1].String, Is.EqualTo("two"));
+            Assert.That(res.Array![2].String, Is.EqualTo("world"));
+            Assert.That(res.Array![3].String, Is.EqualTo("none"));
+        }
     }
 
     [Test]
@@ -2023,11 +2292,14 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes, Does.Not.Contain(OpCode.SETLOCAL_B));
         Assert.That(opcodes, Does.Not.Contain(OpCode.SETLOCAL_0));
         Assert.That(opcodes, Does.Not.Contain(OpCode.LDSTR));
-        Assert.That(opcodes.FindAll(op => op == OpCode.RET).Count, Is.EqualTo(1));
+        Assert.That(opcodes.FindAll(op => op == OpCode.RET), Has.Count.EqualTo(1));
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(42.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(42.0));
+        }
     }
 
     [Test]
@@ -2163,8 +2435,11 @@ public class OptimizationTests : TestBase
         Assert.That(opcodes.FindAll(op => op == OpCode.ADD).Count, Is.EqualTo(1));
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(10.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(10.0));
+        }
     }
 
     [Test]
@@ -2230,11 +2505,14 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes.FindAll(op => op == OpCode.ADD).Count, Is.EqualTo(1));
+        Assert.That(opcodes.FindAll(op => op == OpCode.ADD), Has.Count.EqualTo(1));
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(10.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(10.0));
+        }
     }
 
     [Test]
@@ -2301,8 +2579,11 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes.FindAll(op => op == OpCode.RET).Count, Is.EqualTo(2));
-        Assert.That(opcodes, Does.Not.Contain(OpCode.SETLOCAL));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(opcodes.FindAll(op => op == OpCode.RET), Has.Count.EqualTo(2));
+            Assert.That(opcodes, Does.Not.Contain(OpCode.SETLOCAL));
+        }
         Assert.That(opcodes, Does.Not.Contain(OpCode.SETLOCAL_B));
 
         var res1 = EvilTestResult(script, 5);
@@ -2355,7 +2636,10 @@ public class OptimizationTests : TestBase
             """;
 
         var result = EvilTestResult(script);
-        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
-        Assert.That(result.Number, Is.EqualTo(3.0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(3.0));
+        }
     }
 }

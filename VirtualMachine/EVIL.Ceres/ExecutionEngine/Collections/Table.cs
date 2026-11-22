@@ -90,6 +90,39 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         _hashPart = new();
     }
 
+    public Table(ReadOnlySpan<DynamicValue> arrayPart)
+    {
+        var len = arrayPart.Length;
+        _arrayPart = new DynamicValue[len];
+        arrayPart.CopyTo(_arrayPart);
+        var count = 0;
+        
+        for (var i = 0; i < len; i++)
+        {
+            if (_arrayPart[i] != Nil)
+            {
+                count++;
+            }
+        }
+
+        _arrayPartCount = count;
+        _hashPart = new();
+    }
+
+    public static Table CreateKeyed(ReadOnlySpan<DynamicValue> items)
+    {
+        var pairCount = items.Length / 2;
+        var table = new Table(pairCount);
+        for (var i = 0; i < pairCount; i++)
+        {
+            var val = items[i * 2];
+            var key = items[i * 2 + 1];
+            table.Set(key, val);
+        }
+
+        return table;
+    }
+
     public Table(IDynamicValueCollection collection)
     {
         if (collection is Table other)
@@ -158,7 +191,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
 
         if (value == Nil)
         {
-            if (IsIntegerKey(key, out var idx) && _arrayPart != null && idx < _arrayPart.Length)
+            if (IsIntegerKey(key, out var idx) && _arrayPart != null && (uint)idx < (uint)_arrayPart.Length)
             {
                 if (_arrayPart[idx] != Nil)
                 {
@@ -167,13 +200,16 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 }
             }
 
-            _hashPart.Remove(key);
+            if (_hashPart.Count > 0)
+            {
+                _hashPart.Remove(key);
+            }
         }
         else
         {
             if (IsIntegerKey(key, out var index))
             {
-                if (_arrayPart != null && index < _arrayPart.Length)
+                if (_arrayPart != null && (uint)index < (uint)_arrayPart.Length)
                 {
                     if (_arrayPart[index] == Nil)
                     {
@@ -181,7 +217,10 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                     }
 
                     _arrayPart[index] = value;
-                    _hashPart.Remove(key);
+                    if (_hashPart.Count > 0)
+                    {
+                        _hashPart.Remove(key);
+                    }
                 }
                 else if (_arrayPart == null && index < 4)
                 {
@@ -189,7 +228,10 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                     System.Array.Fill(_arrayPart, Nil);
                     _arrayPart[index] = value;
                     _arrayPartCount = 1;
-                    _hashPart.Remove(key);
+                    if (_hashPart.Count > 0)
+                    {
+                        _hashPart.Remove(key);
+                    }
                 }
                 else if (_arrayPart != null && index < MaxArrayPartCapacity && index <= _arrayPart.Length * 2)
                 {
@@ -199,7 +241,10 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                     System.Array.Fill(_arrayPart, Nil, oldLen, newLen - oldLen);
                     _arrayPart[index] = value;
                     _arrayPartCount++;
-                    _hashPart.Remove(key);
+                    if (_hashPart.Count > 0)
+                    {
+                        _hashPart.Remove(key);
+                    }
                 }
                 else
                 {
@@ -227,17 +272,36 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     public DynamicValue Index(DynamicValue key)
         => OnIndex(key);
 
-    protected virtual DynamicValue OnIndex(DynamicValue key)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryGetValue(DynamicValue key, out DynamicValue value)
+        => OnTryGetValue(key, out value);
+
+    protected virtual bool OnTryGetValue(DynamicValue key, out DynamicValue value)
     {
-        if (IsIntegerKey(key, out var index) && _arrayPart != null && index < _arrayPart.Length)
+        if (IsIntegerKey(key, out var index) && _arrayPart != null && (uint)index < (uint)_arrayPart.Length)
         {
             var val = _arrayPart[index];
             if (val != Nil)
-                return val;
+            {
+                value = val;
+                return true;
+            }
         }
 
         if (_hashPart.TryGetValue(key, out var hashVal))
-            return hashVal;
+        {
+            value = hashVal;
+            return true;
+        }
+
+        value = Nil;
+        return false;
+    }
+
+    protected virtual DynamicValue OnIndex(DynamicValue key)
+    {
+        if (OnTryGetValue(key, out var val))
+            return val;
 
         return Nil;
     }
@@ -249,7 +313,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
 
     protected virtual bool OnContains(DynamicValue key)
     {
-        if (IsIntegerKey(key, out var index) && _arrayPart != null && index < _arrayPart.Length)
+        if (IsIntegerKey(key, out var index) && _arrayPart != null && (uint)index < (uint)_arrayPart.Length)
         {
             if (_arrayPart[index] != Nil)
                 return true;
@@ -369,8 +433,10 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
 
     public Table ShallowCopy()
     {
-        var copy = new Table();
-        copy.MetaTable = MetaTable?.ShallowCopy();
+        var copy = new Table
+        {
+            MetaTable = MetaTable?.ShallowCopy()
+        };
 
         if (_arrayPart != null)
         {
@@ -389,8 +455,10 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
 
     public Table DeepCopy()
     {
-        var copy = new Table();
-        copy.MetaTable = MetaTable?.DeepCopy();
+        var copy = new Table
+        {
+            MetaTable = MetaTable?.DeepCopy()
+        };
 
         if (_arrayPart != null)
         {
@@ -428,27 +496,28 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     public bool IsDeeplyEqualTo(Table other)
     {
         if (Length != other.Length)
-            return false;
-
-        foreach (var kvp in this)
         {
-            var k = kvp.Key;
-            var thisVal = kvp.Value;
+            return false;
+        }
 
-            if (!other.Contains(k))
-                return false;
-
-            var otherVal = other[k];
-            if (thisVal.Type == DynamicValueType.Table)
+        foreach (var (key, val) in this)
+        {
+            if (!other.TryGetValue(key, out var otherVal))
             {
-                if (otherVal.Type != DynamicValueType.Table || !IsTruth(thisVal.IsDeeplyEqualTo(otherVal)))
+                return false;
+            }
+
+            if (val.Type == DynamicValueType.Table)
+            {
+                if (otherVal.Type != DynamicValueType.Table 
+                    || !IsTruth(val.IsDeeplyEqualTo(otherVal)))
                 {
                     return false;
                 }
             }
             else
             {
-                if (!IsTruth(thisVal.IsEqualTo(otherVal)))
+                if (!IsTruth(val.IsEqualTo(otherVal)))
                 {
                     return false;
                 }
@@ -469,10 +538,14 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             ret = currentTable[segments[i]];
 
             if (ret == Nil)
+            {
                 return ret;
+            }
 
             if (ret.Type != DynamicValueType.Table && i + 1 < segments.Length)
+            {
                 return ret;
+            }
 
             currentTable = ret.Table!;
         }
@@ -488,7 +561,10 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             {
                 if (_arrayPart[idx] != Nil)
                 {
-                    yield return new KeyValuePair<DynamicValue, DynamicValue>((double)idx, _arrayPart[idx]);
+                    yield return new KeyValuePair<DynamicValue, DynamicValue>(
+                        (double)idx,
+                        _arrayPart[idx]
+                    );
                 }
             }
         }
