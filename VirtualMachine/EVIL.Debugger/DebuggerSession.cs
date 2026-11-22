@@ -76,6 +76,22 @@ public sealed class DebuggerSession : IDebuggerSession
         return bp.Id;
     }
 
+    public int AddAddressBreakpoint(
+        Chunk chunk,
+        int ip,
+        string? condition = null,
+        string? hitCondition = null)
+    {
+        var bp = BreakpointManager.AddAddressBreakpoint(
+            chunk,
+            ip,
+            condition,
+            hitCondition
+        );
+
+        return bp.Id;
+    }
+
     public bool RemoveBreakpoint(int breakpointId)
         => BreakpointManager.RemoveBreakpoint(breakpointId);
 
@@ -411,7 +427,8 @@ public sealed class DebuggerSession : IDebuggerSession
         {
             for (var i = 0; i < frame.Locals.Length; i++)
             {
-                if (frame.Chunk.DebugDatabase.TryGetLocalName(i, out var name) && name == variableName)
+                if (frame.Chunk.DebugDatabase.TryGetLocalName(i, out var name) 
+                    && name == variableName)
                 {
                     frame.Locals[i] = value;
                     return;
@@ -421,7 +438,8 @@ public sealed class DebuggerSession : IDebuggerSession
 
         for (var i = 0; i < frame.Arguments.Length; i++)
         {
-            if (frame.Chunk.DebugDatabase.TryGetParameterName(i, out var name) && name == variableName)
+            if (frame.Chunk.DebugDatabase.TryGetParameterName(i, out var name) 
+                && name == variableName)
             {
                 frame.Arguments[i] = value;
                 return;

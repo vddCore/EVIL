@@ -19,7 +19,21 @@ public interface IDebuggerSession
 
     void BindBreakpoints(Chunk chunk);
 
-    int AddBreakpoint(string file, int line, int column = 0, string? condition = null, string? hitCondition = null);
+    int AddBreakpoint(
+        string file,
+        int line,
+        int column = 0,
+        string? condition = null,
+        string? hitCondition = null
+    );
+
+    int AddAddressBreakpoint(
+        Chunk chunk, 
+        int ip,
+        string? condition = null,
+        string? hitCondition = null
+    );
+    
     bool RemoveBreakpoint(int breakpointId);
     IReadOnlyList<IBreakpoint> GetBreakpoints();
 
@@ -31,8 +45,21 @@ public interface IDebuggerSession
     void Pause();
     void Detach();
 
-    bool ShouldBreakAt(Fiber fiber, ScriptStackFrame frame, int ip, OpCode opCode, out StopReason reason);
-    void OnBreakEncountered(Fiber fiber, ScriptStackFrame frame, int ip, OpCode opCode, StopReason reason);
+    bool ShouldBreakAt(
+        Fiber fiber, 
+        ScriptStackFrame frame,
+        int ip,
+        OpCode opCode,
+        out StopReason reason
+    );
+    
+    void OnBreakEncountered(
+        Fiber fiber,
+        ScriptStackFrame frame,
+        int ip,
+        OpCode opCode,
+        StopReason reason
+    );
 
     IReadOnlyList<Fiber> GetFibers();
     CallStack GetCallStack(Fiber fiber);

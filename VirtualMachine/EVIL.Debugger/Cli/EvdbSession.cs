@@ -9,6 +9,8 @@ using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly.Rendering;
+using System.Globalization;
 
 public sealed class EvdbSession
 {
@@ -20,6 +22,8 @@ public sealed class EvdbSession
     private ScriptStackFrame? _activeFrame;
     private int _selectedFrameIndex;
     private bool _quitRequested;
+    private StepMode _lastStepMode = StepMode.None;
+    private bool _disasmOnStep = false;
 
     public EvdbSession(CeresVM vm, DebuggerSession debugger, string scriptPath)
     {
@@ -52,11 +56,23 @@ public sealed class EvdbSession
         Console.ForegroundColor = ConsoleColor.White;
         Console.Write($"{Path.GetFileName(file)}:{line}");
         Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.Write($" in function '{(string.IsNullOrEmpty(frame.Chunk.Name) ? "<anonymous>" : frame.Chunk.Name)}'");
+        Console.Write(
+            $" in function '{(string.IsNullOrEmpty(frame.Chunk.Name) 
+                ? "<anonymous>" 
+                : frame.Chunk.Name)}'"
+        );
         Console.ResetColor();
         Console.WriteLine($" (IP: 0x{frame.IP:X4})");
 
-        PrintSourceContext(file, line);
+        if (_lastStepMode == StepMode.StepInstruction || _disasmOnStep)
+        {
+            PrintDisassemblySnippet(frame, (int)frame.IP, radius: 2);
+        }
+        else
+        {
+            PrintSourceContext(file, line);
+        }
+
         EnterPromptLoop();
     }
 
@@ -95,26 +111,31 @@ public sealed class EvdbSession
                 case "c":
                 case "cont":
                 case "continue":
+                    _lastStepMode = StepMode.None;
                     _debugger.Continue();
                     return;
 
                 case "s":
                 case "step":
+                    _lastStepMode = StepMode.StepInto;
                     _debugger.StepInto();
                     return;
 
                 case "n":
                 case "next":
+                    _lastStepMode = StepMode.StepOver;
                     _debugger.StepOver();
                     return;
 
                 case "fin":
                 case "finish":
+                    _lastStepMode = StepMode.StepOut;
                     _debugger.StepOut();
                     return;
 
                 case "si":
                 case "stepi":
+                    _lastStepMode = StepMode.StepInstruction;
                     _debugger.StepInstruction();
                     return;
 
@@ -176,7 +197,7 @@ public sealed class EvdbSession
 
                 case "dis":
                 case "disasm":
-                    DisassembleCurrentChunk();
+                    HandleDisassemble(args);
                     break;
 
                 case "info":
@@ -186,11 +207,13 @@ public sealed class EvdbSession
                 case "q":
                 case "quit":
                 case "exit":
+                {
                     _quitRequested = true;
                     _debugger.Continue();
                     _vm.Stop();
                     Environment.Exit(0);
                     return;
+                }
 
                 default:
                     Console.WriteLine($"Unknown command '{cmd}'. Type 'help' for available commands.");
@@ -222,6 +245,39 @@ public sealed class EvdbSession
         var target = tokens[0];
         var condition = tokens.Length > 1 ? tokens[1] : null;
 
+        if (target.StartsWith('*'))
+        {
+            var addrStr = target.TrimStart('*').Trim();
+            int ip;
+            if (addrStr.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!int.TryParse(addrStr[2..], NumberStyles.HexNumber, null, out ip))
+                {
+                    Console.WriteLine($"Invalid hex address '{addrStr}'.");
+                    return;
+                }
+            }
+            else if (!int.TryParse(addrStr, out ip))
+            {
+                Console.WriteLine($"Invalid address '{addrStr}'.");
+                return;
+            }
+
+            var frame = GetSelectedFrame();
+            if (frame == null)
+            {
+                Console.WriteLine("No active stack frame to resolve address breakpoint.");
+                return;
+            }
+
+            var addrBpId = _debugger.AddAddressBreakpoint(frame.Chunk, ip, condition);
+            Console.WriteLine(
+                $"[evdb] Breakpoint #{addrBpId} set at IP 0x{ip:X4} in function " +
+                $"'{(string.IsNullOrEmpty(frame.Chunk.Name) ? "<anonymous>" : frame.Chunk.Name)}'" +
+                $"{(condition != null ? $" if ({condition})" : "")}");
+            return;
+        }
+
         string file;
         int line;
 
@@ -229,6 +285,7 @@ public sealed class EvdbSession
         {
             var split = target.Split(':', 2);
             file = split[0];
+            
             if (!int.TryParse(split[1], out line))
             {
                 Console.WriteLine($"Invalid line number '{split[1]}'.");
@@ -315,10 +372,24 @@ public sealed class EvdbSession
 
     private void HandleSet(string args)
     {
+        if (args.StartsWith("disasm-on-step", StringComparison.OrdinalIgnoreCase))
+        {
+            var valPart = args["disasm-on-step".Length..]
+                .Trim()
+                .TrimStart('=')
+                .Trim()
+                .ToLowerInvariant();
+            
+            _disasmOnStep = valPart is "on" or "true" or "1" or "yes";
+            
+            Console.WriteLine($"[evdb] disasm-on-step = {(_disasmOnStep ? "on" : "off")}");
+            return;
+        }
+
         var parts = args.Split('=', 2, StringSplitOptions.TrimEntries);
         if (parts.Length != 2)
         {
-            Console.WriteLine("Usage: set <variable> = <expression>");
+            Console.WriteLine("Usage: set <variable> = <expression> OR set disasm-on-step on|off");
             return;
         }
 
@@ -332,6 +403,7 @@ public sealed class EvdbSession
         var varName = parts[0];
         var exprVal = _debugger.EvaluateInFrame(frame, parts[1]);
         _debugger.SetFrameLocal(frame, varName, exprVal);
+        
         Console.WriteLine($"[evdb] Set {varName} = {exprVal}");
     }
 
@@ -362,14 +434,17 @@ public sealed class EvdbSession
         if (int.TryParse(args.Trim(), out var idx))
         {
             var fiber = _debugger.ActiveFiber ?? _vm.MainFiber;
+            
             if (idx >= 0 && idx < fiber.CallStack.Count)
             {
                 _selectedFrameIndex = idx;
                 var frame = GetSelectedFrame();
+                
                 if (frame != null)
                 {
                     var line = frame.Chunk.DebugDatabase.GetLineForIP((int)frame.PreviousOpCodeIP);
                     var file = frame.Chunk.DebugDatabase.DefinedInFile;
+                    
                     Console.WriteLine($"Selected frame #{idx}: {frame.Chunk.Name} at {Path.GetFileName(file)}:{line}");
                     PrintSourceContext(file, line);
                 }
@@ -388,7 +463,10 @@ public sealed class EvdbSession
     private void PrintLocals()
     {
         var frame = GetSelectedFrame();
-        if (frame == null) return;
+        if (frame == null)
+        {
+            return;
+        }
 
         var locals = _debugger.GetFrameLocals(frame);
         if (locals.Count == 0)
@@ -407,7 +485,10 @@ public sealed class EvdbSession
     private void PrintArguments()
     {
         var frame = GetSelectedFrame();
-        if (frame == null) return;
+        if (frame == null)
+        {
+            return;
+        }
 
         var args = _debugger.GetFrameArguments(frame);
         if (args.Count == 0)
@@ -512,16 +593,261 @@ public sealed class EvdbSession
         PrintSourceContext(curFile, curLine, radius: 7);
     }
 
-    private void DisassembleCurrentChunk()
+    private void HandleDisassemble(string args)
     {
         var frame = GetSelectedFrame();
         if (frame == null)
         {
+            Console.WriteLine("No active stack frame.");
             return;
         }
 
-        Console.WriteLine($"Disassembly of {frame.Chunk.Name}:");
-        Disassembler.Disassemble(frame.Chunk, Console.Out);
+        var showRawBytes = false;
+        var showMixed = true;
+        var includeSubChunks = false;
+        var showAll = false;
+        int count = 11;
+        string? targetToken = null;
+
+        var tokens = args.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var token in tokens)
+        {
+            switch (token.ToLowerInvariant())
+            {
+                case "-b":
+                case "--bytes":
+                    showRawBytes = true;
+                    break;
+
+                case "-m":
+                case "--mixed":
+                    showMixed = true;
+                    break;
+
+                case "--no-mixed":
+                    showMixed = false;
+                    break;
+
+                case "-s":
+                case "--subchunks":
+                    includeSubChunks = true;
+                    break;
+
+                case "-a":
+                case "--all":
+                case "all":
+                    showAll = true;
+                    break;
+
+                default:
+                {
+                    if (int.TryParse(token, out var parsedCount)
+                        && !token.StartsWith('*')
+                        && !token.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    {
+                        count = parsedCount;
+                    }
+                    else
+                    {
+                        targetToken = token;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        var targetChunk = frame.Chunk;
+        int? startAddress = null;
+        int? targetLine = null;
+
+        if (!string.IsNullOrEmpty(targetToken))
+        {
+            if (targetToken.StartsWith('*'))
+            {
+                var addrStr = targetToken.TrimStart('*').Trim();
+                if (addrStr.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (int.TryParse(addrStr[2..], NumberStyles.HexNumber, null, out var hexIp))
+                    {
+                        startAddress = hexIp;
+                    }
+                }
+                else if (int.TryParse(addrStr, out var decIp))
+                {
+                    startAddress = decIp;
+                }
+            }
+            else if (targetToken.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+            {
+                if (int.TryParse(targetToken[2..], NumberStyles.HexNumber, null, out var hexIp))
+                {
+                    startAddress = hexIp;
+                }
+            }
+            else
+            {
+                var root = (_vm.MainFiber.CallStack.Count > 0 
+                    ? (_vm.MainFiber.CallStack[0] as ScriptStackFrame)?.Chunk 
+                    : null
+                ) ?? frame.Chunk;
+                
+                var found = FindSubChunk(frame.Chunk, targetToken) ?? FindSubChunk(root, targetToken);
+                if (found != null)
+                {
+                    targetChunk = found;
+                }
+                else if (int.TryParse(targetToken, out var num))
+                {
+                    if (num >= 0 && num < frame.Chunk.SubChunkCount)
+                    {
+                        targetChunk = frame.Chunk.SubChunks[num];
+                    }
+                    else if (frame.Chunk.HasDebugInfo && frame.Chunk.DebugDatabase.GetFirstIPForLine(num) >= 0)
+                    {
+                        targetLine = num;
+                    }
+                }
+            }
+        }
+
+        var disasm = targetChunk.Disassemble();
+
+        var options = new DisassemblyFormatOptions
+        {
+            ShowAddresses = true,
+            AddressFormat = AddressFormat.HexPrefixed,
+            ShowRawBytes = showRawBytes,
+            ShowSourceInterleaving = showMixed,
+            ShowSymbols = true,
+            ShowRuntimeValues = true,
+            ShowBranchLabels = true,
+            ShowBranchOffsets = true,
+            ShowChunkHeader = showAll,
+            IncludeSubChunks = includeSubChunks,
+            HighlightIP = (targetChunk == frame.Chunk) ? (int)frame.IP : null,
+            Breakpoints = _debugger.GetBreakpoints(),
+            FrameContext = (targetChunk == frame.Chunk) ? frame : null,
+            SourceProvider = GetSourceLines,
+            ColorMode = ColorMode.Auto
+        };
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine(
+            $"Disassembly of " +
+            $"{targetChunk.Name}{(targetChunk is { HasDebugInfo: true, DebugDatabase.DefinedOnLine: > 0 } 
+                ? $" (def. on line {targetChunk.DebugDatabase.DefinedOnLine})" 
+                : "")
+            }:"
+        );
+        
+        Console.ResetColor();
+
+        if (targetLine.HasValue)
+        {
+            var lineInsts = disasm.GetForLine(targetLine.Value);
+            if (lineInsts.Count == 0)
+            {
+                Console.WriteLine($"No instructions found for line {targetLine.Value}.");
+                return;
+            }
+
+            foreach (var inst in lineInsts)
+            {
+                DisassemblyFormatter.FormatInstruction(inst, disasm, Console.Out, options);
+            }
+        }
+        else if (startAddress.HasValue)
+        {
+            DisassemblyFormatter.FormatRange(
+                disasm,
+                Console.Out,
+                startAddress.Value,
+                count,
+                options
+            );
+        }
+        else if (showAll)
+        {
+            DisassemblyFormatter.FormatChunk(
+                disasm,
+                Console.Out,
+                options
+            );
+        }
+        else
+        {
+            var centerIp = (targetChunk == frame.Chunk) 
+                ? (int)frame.IP 
+                : 0;
+            
+            var radius = Math.Max(1, count / 2);
+            
+            DisassemblyFormatter.FormatWindow(
+                disasm,
+                Console.Out,
+                centerIp,
+                options, 
+                radiusBefore: radius,
+                radiusAfter: radius
+            );
+        }
+    }
+
+    private void PrintDisassemblySnippet(ScriptStackFrame frame, int ip, int radius = 2)
+    {
+        var disasm = frame.Chunk.Disassemble();
+        var options = new DisassemblyFormatOptions
+        {
+            ShowAddresses = true,
+            AddressFormat = AddressFormat.HexPrefixed,
+            ShowRawBytes = false,
+            ShowSourceInterleaving = true,
+            ShowSymbols = true,
+            ShowRuntimeValues = true,
+            ShowBranchLabels = true,
+            ShowBranchOffsets = true,
+            ShowChunkHeader = false,
+            HighlightIP = ip,
+            Breakpoints = _debugger.GetBreakpoints(),
+            FrameContext = frame,
+            SourceProvider = GetSourceLines,
+            ColorMode = ColorMode.Auto
+        };
+
+        DisassemblyFormatter.FormatWindow(
+            disasm,
+            Console.Out,
+            ip,
+            options,
+            radiusBefore: radius,
+            radiusAfter: radius
+        );
+    }
+
+    private static Chunk? FindSubChunk(Chunk chunk, string name)
+    {
+        if (string.Equals(chunk.Name, name, StringComparison.OrdinalIgnoreCase))
+        {
+            return chunk;
+        }
+
+        for (var i = 0; i < chunk.SubChunkCount; i++)
+        {
+            var sub = chunk.SubChunks[i];
+            if (string.Equals(sub.Name, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return sub;
+            }
+            
+            var nested = FindSubChunk(sub, name);
+            if (nested != null)
+            {
+                return nested;
+            }
+        }
+
+        return null;
     }
 
     private ScriptStackFrame? GetSelectedFrame()
@@ -529,13 +855,14 @@ public sealed class EvdbSession
         var fiber = _debugger.ActiveFiber ?? _vm.MainFiber;
         if (_selectedFrameIndex < fiber.CallStack.Count)
         {
-            return fiber.CallStack[_selectedFrameIndex] as ScriptStackFrame ?? _activeFrame;
+            return fiber.CallStack[_selectedFrameIndex] as ScriptStackFrame 
+                ?? _activeFrame;
         }
         
         return _activeFrame;
     }
 
-    private void PrintSourceContext(string filePath, int centerLine, int radius = 4)
+    private string[]? GetSourceLines(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
         {
@@ -549,11 +876,18 @@ public sealed class EvdbSession
                 lines = File.ReadAllLines(filePath);
                 _sourceFiles[filePath] = lines;
             }
-            else
-            {
-                Console.WriteLine($"[Source file '{filePath}' not found on disk]");
-                return;
-            }
+        }
+
+        return lines;
+    }
+
+    private void PrintSourceContext(string filePath, int centerLine, int radius = 4)
+    {
+        var lines = GetSourceLines(filePath);
+        if (lines == null || lines.Length == 0)
+        {
+            Console.WriteLine($"[Source file '{filePath}' not found on disk]");
+            return;
         }
 
         var start = Math.Max(1, centerLine - radius);
@@ -583,10 +917,16 @@ public sealed class EvdbSession
                 Console.Write("   ");
             }
 
-            Console.ForegroundColor = isCurrent ? ConsoleColor.Yellow : ConsoleColor.DarkGray;
+            Console.ForegroundColor = isCurrent 
+                ? ConsoleColor.Yellow 
+                : ConsoleColor.DarkGray;
+            
             Console.Write($"{i,4}: ");
 
-            Console.ForegroundColor = isCurrent ? ConsoleColor.White : ConsoleColor.Gray;
+            Console.ForegroundColor = isCurrent 
+                ? ConsoleColor.White 
+                : ConsoleColor.Gray;
+            
             Console.WriteLine(lines[i - 1]);
             Console.ResetColor();
         }
@@ -608,22 +948,26 @@ Execution:
 Breakpoints:
   b, break <line>             Set a breakpoint on current file at <line>.
   b, break <file>:<line>      Set a breakpoint on <file> at <line>.
-  b <line> <condition>        Set a conditional breakpoint (e.g. b 12 x > 5).
+  b *<address>                Set an address breakpoint at bytecode offset (e.g. b *0x0010).
+  b <target> <condition>      Set a conditional breakpoint (e.g. b 12 x > 5).
   d, delete <id>              Delete breakpoint by ID.
   breakpoints, bps            List all active breakpoints.
 
 Inspection:
-  p, print <expr>     Evaluate and print an expression in the active stack frame.
-  set <var> = <expr>  Mutate a local variable in the active stack frame.
-  bt, backtrace       Display call stack frames.
-  f, frame <index>    Select active stack frame for inspection.
-  locals              Display local variables in the active stack frame.
-  args                Display arguments in the active stack frame.
-  fibers              Display all running coroutines/fibers.
-  fiber <id>          Select active fiber.
-  l, list [line]      Display source code context.
-  dis, disasm         Disassemble bytecode of the current chunk.
-  h, help             Display this help message.
+  p, print <expr>             Evaluate and print an expression in the active stack frame.
+  set <var> = <expr>          Mutate a local variable in the active stack frame.
+  set disasm-on-step <on|off> Toggle automatic disassembly snippet display on every step.
+  bt, backtrace               Display call stack frames.
+  f, frame <index>            Select active stack frame for inspection.
+  locals                      Display local variables in the active stack frame.
+  args                        Display arguments in the active stack frame.
+  fibers                      Display all running fibers.
+  fiber <id>                  Select active fiber.
+  l, list [line]              Display source code context.
+  dis, disasm [flags] [tgt]   Disassemble bytecode (defaults to window around current IP).
+                              Flags: -a (all), -b (raw bytes), -m/--mixed, --no-mixed, -s (no source).
+                              Target: *<address>, <line>, or <function_name>.
+  h, help                     Display this help message.
 ");
     }
 }

@@ -77,7 +77,8 @@ The `evdb` shell provides GDB/LLDB-style commands:
 | :--- | :--- | :--- |
 | `break` | `b <line>` | Set a breakpoint at `<line>` in the current source file. |
 | | `b <file>:<line>` | Set a breakpoint at `<line>` in `<file>`. |
-| | `b <line> <expr>` | Set a conditional breakpoint (e.g. `b 12 amount > 50`). |
+| | `b *<address>` | Set an address breakpoint at bytecode offset (e.g. `b *0x0010` or `b *16`). |
+| | `b <target> <expr>` | Set a conditional breakpoint (e.g. `b 12 amount > 50` or `b *0x0010 x == 2`). |
 | `delete` | `d <id>` | Delete breakpoint by numeric ID. |
 | `breakpoints` | `bps`, `info break` | Display a table of all active breakpoints, locations, hit counts, and conditions. |
 
@@ -86,12 +87,13 @@ The `evdb` shell provides GDB/LLDB-style commands:
 | :--- | :--- | :--- |
 | `print <expr>` | `p <expr>` | Evaluate any EVIL expression inside the active stack frame's scope and print the result. |
 | `set <var> = <expr>` | - | Mutate a local variable, argument, or global in the current frame. |
+| `set disasm-on-step <on\|off>` | - | Toggle automatic disassembly snippet display on every step (`s`, `n`, `fin`). |
 | `locals` | `info locals` | Display all local variables defined in the selected stack frame. |
 | `args` | `info args` | Display all arguments (and `self`) in the selected stack frame. |
 | `backtrace` | `bt`, `where` | Display the call stack backtrace with frame indices and IP offsets. |
 | `frame <idx>` | `f <idx>` | Select a stack frame by index (e.g. `f 1` to inspect the caller frame). |
 | `list [line]` | `l` | Display source code surrounding the current execution pointer or a given line. |
-| `disasm` | `dis` | Disassemble bytecode opcodes for the current chunk. |
+| `disasm [flags] [target]` | `dis` | Disassemble bytecode. Defaults to an 11-instruction window around active IP with live value annotations. Flags: `-a` (full chunk), `-b` (raw bytes), `-m`/`--mixed`, `--no-mixed`, `-s` (no source). Target: `*<addr>`, `<line>`, or `<func>`. |
 | `fibers` | `info fibers` | List all running fibers, their states, and call stack depths. |
 | `fiber <id>` | - | Switch active debugging fiber by ID. |
 | `help` | `h`, `?` | Display command help and usage instructions. |
@@ -336,19 +338,22 @@ To fix a bug or change game state mid-run:
 ```
 
 ### Bytecode & Instruction Stepping
-Inspect virtual machine opcodes live:
+Inspect virtual machine opcodes live with windowed disassembly, active instruction cursor `=>`, and runtime variable annotations:
 ```text
 (evdb) dis
-Disassembly of take_damage:
-0x0000: GETARG_0
-0x0001: LDSTR 0x0000 ("hp")
-0x0002: INDEX
-0x0003: GETARG_1
-0x0004: SUB
-0x0005: SETLOCAL_0
-...
+; Disassembly of take_damage (12 instructions, 21 bytes)
+   0x0000: GETARG_0             ; arg[0] (self) = <Table> { hp: 100, name: "Hero" }
+   0x0001: LDSTR 0x0000         ; "hp"
+   0x0002: INDEX
+=> 0x0003: GETARG_1             ; arg[1] (amount) = 15
+   0x0004: SUB
+   0x0005: SETLOCAL_0           ; local[0] (remaining)
 
 (evdb) si
-[evdb] Stopped (Step) at combat.vil:8 (IP: 0x0001)
+=> 0x0004: SUB
+[evdb] Stopped (Step) at combat.vil:10 (IP: 0x0004)
+
+(evdb) b *0x0004
+[evdb] Breakpoint #3 set at IP 0x0004 in function 'take_damage'
 ```
-Each `si` executes exactly one VM opcode.
+Each `si` executes exactly one VM opcode and prints the active instruction disassembly. Use `set disasm-on-step on` to display the disassembly snippet on every step.

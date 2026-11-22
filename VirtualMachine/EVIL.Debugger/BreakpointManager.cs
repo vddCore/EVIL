@@ -48,6 +48,47 @@ public sealed class BreakpointManager
         return bp;
     }
 
+    public Breakpoint AddAddressBreakpoint(
+        Chunk chunk,
+        int ip,
+        string? condition = null,
+        string? hitCondition = null)
+    {
+        var line = chunk.HasDebugInfo ? chunk.DebugDatabase.GetLineForIP(ip) : 0;
+        var file = chunk.HasDebugInfo ? chunk.DebugDatabase.DefinedInFile : string.Empty;
+
+        var bp = new Breakpoint
+        {
+            Id = _nextBreakpointId++,
+            FilePath = file,
+            Line = line,
+            Column = 0,
+            Condition = condition,
+            HitCondition = hitCondition,
+            Enabled = true,
+            BoundChunk = chunk,
+            BoundIP = ip,
+            IsVerified = true
+        };
+
+        _breakpoints[bp.Id] = bp;
+
+        var key = (chunk, ip);
+        if (!_boundBreakpoints.TryGetValue(key, out var list))
+        {
+            list = [];
+            _boundBreakpoints[key] = list;
+        }
+
+        if (!list.Contains(bp))
+        {
+            list.Add(bp);
+        }
+
+        OnBreakpointBound?.Invoke(bp);
+        return bp;
+    }
+
     public bool RemoveBreakpoint(int id)
     {
         if (_breakpoints.Remove(id, out var bp))
@@ -173,12 +214,16 @@ public sealed class BreakpointManager
         foreach (var bp in list)
         {
             if (!bp.Enabled)
+            {
                 continue;
+            }
 
             bp.HitCount++;
 
             if (!bp.MatchesHitCondition())
+            {
                 continue;
+            }
 
             if (!string.IsNullOrWhiteSpace(bp.Condition))
             {
@@ -195,7 +240,7 @@ public sealed class BreakpointManager
                 }
                 catch
                 {
-                    // If condition evaluation throws, break for inspection
+                    /* break if eval throws. */
                 }
             }
 

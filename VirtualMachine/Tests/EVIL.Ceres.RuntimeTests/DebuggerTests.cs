@@ -1,8 +1,10 @@
 namespace EVIL.Ceres.RuntimeTests;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
@@ -29,12 +31,15 @@ public class DebuggerTests
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-val a = 1;
-val b = 2;
-val c = 3;
-val d = a + b + c;
-";
+        var source = """
+
+                     val a = 1;
+                     val b = 2;
+                     val c = 3;
+                     val d = a + b + c;
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_break.vil");
 
         var hitCount = 0;
@@ -61,11 +66,15 @@ val d = a + b + c;
     public async Task Runtime_ExecutionFlow_WithBuiltinFunctions_ExecutesSuccessfully()
     {
         var vm = new CeresVM();
+        
         var runtime = new EvilRuntime(vm);
         runtime.RegisterBuiltInModules();
         runtime.RegisterBuiltInFunctions();
+        
         var compiler = new Compiler();
-        var chunk = compiler.Compile("a = 0; while (a < 1000) { a += 1; } final_a = a;", "test.vil");
+        var chunk = compiler.Compile(
+            "a = 0; while (a < 1000) { a += 1; } final_a = a;", "test.vil"
+        );
         
         vm.MainFiber.Schedule(chunk);
         vm.Run();
@@ -81,11 +90,14 @@ val d = a + b + c;
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-val x = 10;
-val y = 20;
-val z = 30;
-";
+        var source = """
+
+                     val x = 10;
+                     val y = 20;
+                     val z = 30;
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_step_over.vil");
 
         var stoppedLines = new List<int>();
@@ -122,14 +134,17 @@ val z = 30;
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-fn compute(val1, val2) {
-    val res = val1 + val2;
-    ret res;
-}
+        var source = """
 
-val r = compute(5, 10);
-";
+                     fn compute(val1, val2) {
+                         val res = val1 + val2;
+                         ret res;
+                     }
+
+                     val r = compute(5, 10);
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_step_into.vil");
 
         var stoppedFunctions = new List<string>();
@@ -165,16 +180,19 @@ val r = compute(5, 10);
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-fn helper() {
-    val a = 1;
-    val b = 2;
-    ret a + b;
-}
+        var source = """
 
-val ans = helper();
-val after = ans * 2;
-";
+                     fn helper() {
+                         val a = 1;
+                         val b = 2;
+                         ret a + b;
+                     }
+
+                     val ans = helper();
+                     val after = ans * 2;
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_step_out.vil");
 
         var stoppedDepths = new List<int>();
@@ -210,13 +228,15 @@ val after = ans * 2;
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-for (rw val i = 0; i < 10; i++) {
-    val square = i * i;
-}
-";
-        var chunk = compiler.Compile(source, "test_cond.vil");
+        var source = """
 
+                     for (rw val i = 0; i < 10; i++) {
+                         val square = i * i;
+                     }
+
+                     """;
+        
+        var chunk = compiler.Compile(source, "test_cond.vil");
         var hitValues = new List<double>();
 
         session.AddBreakpoint("test_cond.vil", 3, condition: "i == 7");
@@ -242,13 +262,15 @@ for (rw val i = 0; i < 10; i++) {
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-for (rw val i = 0; i < 9; i++) {
-    val temp = i;
-}
-";
-        var chunk = compiler.Compile(source, "test_hit_cond.vil");
+        var source = """
 
+                     for (rw val i = 0; i < 9; i++) {
+                         val temp = i;
+                     }
+
+                     """;
+        
+        var chunk = compiler.Compile(source, "test_hit_cond.vil");
         var hits = 0;
 
         session.AddBreakpoint("test_hit_cond.vil", 3, hitCondition: "% 3");
@@ -272,15 +294,18 @@ for (rw val i = 0; i < 9; i++) {
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-fn test_func(x, y) {
-    val z = 100;
-    val res = x + y + z;
-    ret res;
-}
+        var source = """
 
-test_func(10, 20);
-";
+                     fn test_func(x, y) {
+                         val z = 100;
+                         val res = x + y + z;
+                         ret res;
+                     }
+
+                     test_func(10, 20);
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_eval.vil");
 
         DynamicValue evalResult1 = DynamicValue.Nil;
@@ -309,21 +334,23 @@ test_func(10, 20);
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-fn run() {
-    rw val multiplier = 2;
-    val total = 10 * multiplier;
-    ret total;
-}
+        var source = """
 
-final_result = run();
-";
+                     fn run() {
+                         rw val multiplier = 2;
+                         val total = 10 * multiplier;
+                         ret total;
+                     }
+
+                     final_result = run();
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_mutate.vil");
 
         session.AddBreakpoint("test_mutate.vil", 4);
         session.OnStopped += (fiber, frame, reason) =>
         {
-            // Mutate multiplier from 2 to 5 while suspended!
             session.SetFrameLocal(frame, "multiplier", new DynamicValue(5));
             session.Continue();
         };
@@ -334,7 +361,7 @@ final_result = run();
         vm.Stop();
 
         var finalResult = vm.Global["final_result"];
-        finalResult.Number.ShouldBe(50); // 10 * 5 = 50 instead of 10 * 2 = 20!
+        finalResult.Number.ShouldBe(50);
     }
 
     [Test]
@@ -343,18 +370,20 @@ final_result = run();
         var (vm, _, compiler) = CreateEnvironment();
         var session = new DebuggerSession(vm);
 
-        var source = @"
-fn worker() {
-    val a = 1;
-    val b = 2;
-    ret a + b;
-}
+        var source = """
 
-val f_res = yield worker();
-val main_after = 42;
-";
+                     fn worker() {
+                         val a = 1;
+                         val b = 2;
+                         ret a + b;
+                     }
+
+                     val f_res = yield worker();
+                     val main_after = 42;
+
+                     """;
+        
         var chunk = compiler.Compile(source, "test_fibers.vil");
-
         int fiberCount = 0;
 
         session.AddBreakpoint("test_fibers.vil", 9);
@@ -370,5 +399,84 @@ val main_after = 42;
         vm.Stop();
 
         fiberCount.ShouldBeGreaterThanOrEqualTo(1);
+    }
+
+    [Test]
+    public async Task Debugger_AddressBreakpoint_PausesAtExactIP()
+    {
+        var (vm, _, compiler) = CreateEnvironment();
+        var session = new DebuggerSession(vm);
+
+        var source = """
+
+                     val a = 10;
+                     val b = 20;
+                     val c = a + b;
+
+                     """;
+        
+        var chunk = compiler.Compile(source, "test_addr_break.vil");
+        var disasm = chunk.Disassemble();
+        disasm.Instructions.Count.ShouldBeGreaterThan(1);
+        var targetInstr = disasm.Instructions[1];
+
+        var hitCount = 0;
+        int hitIP = -1;
+
+        session.AddAddressBreakpoint(chunk, targetInstr.Offset);
+        session.OnStopped += (fiber, frame, reason) =>
+        {
+            hitCount++;
+            hitIP = (int)frame.IP;
+            session.Continue();
+        };
+
+        vm.Run();
+        vm.MainFiber.Schedule(chunk);
+        await vm.MainFiber.BlockUntilFinishedAsync();
+        vm.Stop();
+
+        hitCount.ShouldBe(1);
+        hitIP.ShouldBe(targetInstr.Offset);
+    }
+
+    [Test]
+    public async Task Debugger_AddressBreakpoint_WithCondition_EvaluatesConditionCorrectly()
+    {
+        var (vm, _, compiler) = CreateEnvironment();
+        var session = new DebuggerSession(vm);
+
+        var source = """
+
+                     rw val x = 0;
+                     while (x < 5) {
+                         x = x + 1;
+                     }
+
+                     """;
+        
+        var chunk = compiler.Compile(source, "test_addr_cond.vil");
+        var disasm = chunk.Disassemble();
+
+        var loopInstr = disasm.Instructions.FirstOrDefault(i => i.Line == 4);
+        loopInstr.ShouldNotBeNull();
+
+        var hitValues = new List<double>();
+
+        session.AddAddressBreakpoint(chunk, loopInstr.Offset, condition: "x == 3");
+        session.OnStopped += (fiber, frame, reason) =>
+        {
+            var val = session.EvaluateInFrame(frame, "x");
+            hitValues.Add(val.Number);
+            session.Continue();
+        };
+
+        vm.Run();
+        vm.MainFiber.Schedule(chunk);
+        await vm.MainFiber.BlockUntilFinishedAsync();
+        vm.Stop();
+
+        hitValues.Count.ShouldBe(1);
+        hitValues[0].ShouldBe(3);
     }
 }
