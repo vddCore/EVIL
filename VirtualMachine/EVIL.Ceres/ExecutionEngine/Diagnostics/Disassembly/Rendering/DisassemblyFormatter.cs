@@ -80,6 +80,35 @@ public static class DisassemblyFormatter
         }
     }
 
+    public static void FormatInstructions(
+        IReadOnlyList<Instruction> instructions,
+        ChunkDisassembly disasm,
+        TextWriter output,
+        DisassemblyFormatOptions? options = null)
+    {
+        ArgumentNullException.ThrowIfNull(instructions);
+        ArgumentNullException.ThrowIfNull(disasm);
+        ArgumentNullException.ThrowIfNull(output);
+
+        options ??= DisassemblyFormatOptions.Default;
+        var palette = ResolvePalette(options.ColorMode);
+        var indent = new string(' ', options.IndentLevel);
+        var prevLine = -1;
+
+        for (var i = 0; i < instructions.Count; i++)
+        {
+            FormatInstructionWithContext(
+                instructions[i],
+                disasm,
+                output,
+                options,
+                palette,
+                indent,
+                ref prevLine
+            );
+        }
+    }
+
     public static void FormatWindow(
         ChunkDisassembly disasm,
         TextWriter output,
@@ -91,30 +120,13 @@ public static class DisassemblyFormatter
         ArgumentNullException.ThrowIfNull(disasm);
         ArgumentNullException.ThrowIfNull(output);
 
-        options ??= DisassemblyFormatOptions.Default;
-        var palette = ResolvePalette(options.ColorMode);
-        var indent = new string(' ', options.IndentLevel);
-
         var window = disasm.GetWindow(
             centerIp,
             radiusBefore,
             radiusAfter
         );
 
-        var prevLine = -1;
-
-        for (var i = 0; i < window.Count; i++)
-        {
-            FormatInstructionWithContext(
-                window[i],
-                disasm,
-                output,
-                options,
-                palette,
-                indent,
-                ref prevLine
-            );
-        }
+        FormatInstructions(window, disasm, output, options);
     }
 
     public static void FormatRange(
@@ -127,25 +139,8 @@ public static class DisassemblyFormatter
         ArgumentNullException.ThrowIfNull(disasm);
         ArgumentNullException.ThrowIfNull(output);
 
-        options ??= DisassemblyFormatOptions.Default;
-        var palette = ResolvePalette(options.ColorMode);
-        var indent = new string(' ', options.IndentLevel);
-
         var slice = disasm.GetRange(startIp, count);
-        var prevLine = -1;
-
-        for (var i = 0; i < slice.Count; i++)
-        {
-            FormatInstructionWithContext(
-                slice[i],
-                disasm,
-                output,
-                options,
-                palette,
-                indent,
-                ref prevLine
-            );
-        }
+        FormatInstructions(slice, disasm, output, options);
     }
 
     public static void FormatInstruction(
@@ -189,7 +184,7 @@ public static class DisassemblyFormatter
             FormatSourceContext(inst.Line, disasm.Chunk, output, options, palette, indent);
         }
 
-        if (inst.IsJumpTarget && options is { ShowBranchLabels: true, ShowChunkHeader: false })
+        if (inst.IsJumpTarget && options.ShowBranchLabels)
         {
             output.WriteLine($"{indent}{palette.Label}{inst.Label}:{palette.Reset}");
         }
@@ -220,7 +215,7 @@ public static class DisassemblyFormatter
         }
 
         output.Write(
-            options.ShowChunkHeader
+            options.ShowChunkHeader && options.HighlightIP == null
                 ? $"{indent}    "
                 : $"{indent}{gutter}"
         );
@@ -315,13 +310,7 @@ public static class DisassemblyFormatter
         AnsiPalette palette,
         string indent)
     {
-        if (options.ShowChunkHeader)
-        {
-            output.WriteLine($"{indent}   line {line}:");
-            return;
-        }
-
-        if (options is { ShowSourceInterleaving: false, ShowLineNumbers: false })
+        if (options is { ShowSourceInterleaving: false, ShowLineNumbers: false } && !options.ShowChunkHeader)
         {
             return;
         }
@@ -343,6 +332,10 @@ public static class DisassemblyFormatter
                 $"{indent}   {palette.Comment}; line {line}: " +
                 $"{sourceLine}{palette.Reset}"
             );
+        }
+        else if (options.ShowChunkHeader)
+        {
+            output.WriteLine($"{indent}   line {line}:");
         }
         else if (options.ShowLineNumbers)
         {

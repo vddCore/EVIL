@@ -14,6 +14,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>EVIL.Ceres.RuntimeTests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Core\EVIL.CommonTypes\EVIL.CommonTypes.csproj"/>
     <ProjectReference Include="..\..\Core\EVIL.Diagnostics\EVIL.Diagnostics.csproj"/>
     <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj"/>

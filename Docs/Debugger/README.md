@@ -93,10 +93,10 @@ The `evdb` shell provides GDB/LLDB-style commands:
 | `backtrace` | `bt`, `where` | Display the call stack backtrace with frame indices and IP offsets. |
 | `frame <idx>` | `f <idx>` | Select a stack frame by index (e.g. `f 1` to inspect the caller frame). |
 | `list [line]` | `l` | Display source code surrounding the current execution pointer or a given line. |
-| `disasm [flags] [target]` | `dis` | Disassemble bytecode. Defaults to an 11-instruction window around active IP with live value annotations. Flags: `-a` (full chunk), `-b` (raw bytes), `-m`/`--mixed`, `--no-mixed`, `-s` (no source). Target: `*<addr>`, `<line>`, or `<func>`. |
+| `disasm [flags] [target]` | `dis` | Disassemble bytecode. Defaults to an 11-instruction window around active IP with live value annotations. Supports relative range slicing (`r <from>:<to>`, e.g. `r 0:10`, `r -10:10`), flag bundling (`-am`, `-abm`), targets (`*<addr>`, `<line>`, `<func>`), and interleaved source. Type `help dis` for full usage. |
 | `fibers` | `info fibers` | List all running fibers, their states, and call stack depths. |
 | `fiber <id>` | - | Switch active debugging fiber by ID. |
-| `help` | `h`, `?` | Display command help and usage instructions. |
+| `help [command]` | `h`, `?` | Display general help or detailed help for a specific command (e.g. `help dis`, `help break`). |
 
 ---
 
@@ -357,3 +357,31 @@ Inspect virtual machine opcodes live with windowed disassembly, active instructi
 [evdb] Breakpoint #3 set at IP 0x0004 in function 'take_damage'
 ```
 Each `si` executes exactly one VM opcode and prints the active instruction disassembly. Use `set disasm-on-step on` to display the disassembly snippet on every step.
+
+#### Relative Range Windowing (`r <from>:<to>`)
+Specify custom instruction windows relative to the current instruction pointer (`frame.IP`):
+```text
+(evdb) dis r 0:10        # Current instruction and 10 instructions after (11 total)
+(evdb) dis r -10:10      # 10 instructions before, current instruction, and 10 instructions after (21 total)
+(evdb) dis r -5:0        # 5 instructions before up to the current instruction
+(evdb) dis range 5:15    # Instructions from +5 to +15 offsets ahead
+```
+
+#### Mixing Flags and Flag Bundling
+Combine rendering modes with single flags or bundled short flags:
+```text
+(evdb) dis -a -m         # Full chunk with interleaved source lines
+(evdb) dis -am           # Bundled: all instructions + mixed source
+(evdb) dis -abm          # Bundled: all instructions + raw hex bytes + mixed source
+(evdb) dis -bm r 0:10    # Relative window with raw hex bytes and mixed source
+```
+
+#### Detailed Subcommand Help
+Get comprehensive documentation, usage examples, and syntax options for any subcommand:
+```text
+(evdb) help dis          # or: dis help, dis -h, dis --help
+(evdb) help break
+(evdb) help print
+(evdb) help set
+(evdb) help backtrace
+```

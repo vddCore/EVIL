@@ -19,11 +19,12 @@ public sealed class EvdbSession
     private readonly string _initialScriptPath;
     private readonly Dictionary<string, string[]> _sourceFiles = new(StringComparer.OrdinalIgnoreCase);
 
-    private ScriptStackFrame? _activeFrame;
+    internal ScriptStackFrame? ActiveFrame { get; set; }
+
     private int _selectedFrameIndex;
     private bool _quitRequested;
     private StepMode _lastStepMode = StepMode.None;
-    private bool _disasmOnStep = false;
+    private bool _disasmOnStep;
 
     public EvdbSession(CeresVM vm, DebuggerSession debugger, string scriptPath)
     {
@@ -40,7 +41,7 @@ public sealed class EvdbSession
 
     private void HandleStopped(Fiber fiber, ScriptStackFrame frame, StopReason reason)
     {
-        _activeFrame = frame;
+        ActiveFrame = frame;
         _selectedFrameIndex = 0;
 
         var line = frame.Chunk.DebugDatabase.GetLineForIP((int)frame.IP);
@@ -105,7 +106,7 @@ public sealed class EvdbSession
                 case "h":
                 case "help":
                 case "?":
-                    PrintHelp();
+                    HandleHelp(args);
                     break;
 
                 case "c":
@@ -180,6 +181,7 @@ public sealed class EvdbSession
                     break;
 
                 case "locals":
+                case "loc":
                     PrintLocals();
                     break;
 
@@ -200,6 +202,7 @@ public sealed class EvdbSession
                     HandleDisassemble(args);
                     break;
 
+                case "i":
                 case "info":
                     HandleInfo(args);
                     break;
@@ -226,10 +229,10 @@ public sealed class EvdbSession
     {
         if (string.IsNullOrWhiteSpace(args))
         {
-            if (_activeFrame != null)
+            if (ActiveFrame != null)
             {
-                var curLine = _activeFrame.Chunk.DebugDatabase.GetLineForIP((int)_activeFrame.IP);
-                var curFile = _activeFrame.Chunk.DebugDatabase.DefinedInFile;
+                var curLine = ActiveFrame.Chunk.DebugDatabase.GetLineForIP((int)ActiveFrame.IP);
+                var curFile = ActiveFrame.Chunk.DebugDatabase.DefinedInFile;
                 if (curLine > 0)
                 {
                     var bp = _debugger.AddBreakpoint(curFile, curLine);
@@ -294,7 +297,7 @@ public sealed class EvdbSession
         }
         else
         {
-            file = _activeFrame?.Chunk.DebugDatabase.DefinedInFile ?? _initialScriptPath;
+            file = ActiveFrame?.Chunk.DebugDatabase.DefinedInFile ?? _initialScriptPath;
             if (!int.TryParse(target, out line))
             {
                 Console.WriteLine($"Invalid line number '{target}'.");
@@ -310,14 +313,11 @@ public sealed class EvdbSession
     {
         if (int.TryParse(args.Trim(), out var id))
         {
-            if (_debugger.RemoveBreakpoint(id))
-            {
-                Console.WriteLine($"[evdb] Breakpoint #{id} deleted.");
-            }
-            else
-            {
-                Console.WriteLine($"[evdb] Breakpoint #{id} not found.");
-            }
+            Console.WriteLine(
+                _debugger.RemoveBreakpoint(id)
+                    ? $"[evdb] Breakpoint #{id} deleted."
+                    : $"[evdb] Breakpoint #{id} not found."
+            );
         }
         else
         {
@@ -420,11 +420,17 @@ public sealed class EvdbSession
             {
                 var line = ssf.Chunk.DebugDatabase.GetLineForIP((int)ssf.PreviousOpCodeIP);
                 var file = Path.GetFileName(ssf.Chunk.DebugDatabase.DefinedInFile);
-                Console.WriteLine($"{marker} #{i}  {ssf.Chunk.Name ?? "<anonymous>"} at {file}:{line} (IP: 0x{ssf.PreviousOpCodeIP:X4})");
+                Console.WriteLine(
+                    $"{marker} #{i}  {ssf.Chunk.Name ?? "<anonymous>"} at {file}:{line} " +
+                    $"(IP: 0x{ssf.PreviousOpCodeIP:X4})"
+                );
             }
             else if (callStack[i] is NativeStackFrame nsf)
             {
-                Console.WriteLine($"{marker} #{i}  clr!{nsf.NativeFunction.Method.DeclaringType?.Name}::{nsf.NativeFunction.Method.Name}");
+                Console.WriteLine(
+                    $"{marker} #{i}  clr!{nsf.NativeFunction.Method.DeclaringType?.Name}" +
+                    $"::{nsf.NativeFunction.Method.Name}"
+                );
             }
         }
     }
@@ -549,6 +555,7 @@ public sealed class EvdbSession
         switch (sub)
         {
             case "locals":
+            case "loc":
             case "l":
                 PrintLocals();
                 break;
@@ -593,12 +600,22 @@ public sealed class EvdbSession
         PrintSourceContext(curFile, curLine, radius: 7);
     }
 
-    private void HandleDisassemble(string args)
+    internal void HandleDisassemble(string args, TextWriter? output = null)
     {
+        output ??= Console.Out;
         var frame = GetSelectedFrame();
         if (frame == null)
         {
-            Console.WriteLine("No active stack frame.");
+            output.WriteLine("No active stack frame.");
+            return;
+        }
+
+        var tokens = args.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (tokens.Length > 0 
+            && (tokens[0] is "help" or "-h" or "--help" 
+                || tokens.Any(t => t is "help" or "--help")))
+        {
+            PrintSubcommandHelp("dis", output);
             return;
         }
 
@@ -608,48 +625,99 @@ public sealed class EvdbSession
         var showAll = false;
         int count = 11;
         string? targetToken = null;
+        (int from, int to)? relativeRange = null;
 
-        var tokens = args.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        foreach (var token in tokens)
+        for (var i = 0; i < tokens.Length; i++)
         {
-            switch (token.ToLowerInvariant())
+            var token = tokens[i];
+            var lower = token.ToLowerInvariant();
+
+            if (lower is "r" or "range")
             {
-                case "-b":
-                case "--bytes":
-                    showRawBytes = true;
-                    break;
-
-                case "-m":
-                case "--mixed":
-                    showMixed = true;
-                    break;
-
-                case "--no-mixed":
-                    showMixed = false;
-                    break;
-
-                case "-s":
-                case "--subchunks":
-                    includeSubChunks = true;
-                    break;
-
-                case "-a":
-                case "--all":
-                case "all":
-                    showAll = true;
-                    break;
-
-                default:
+                if (i + 1 < tokens.Length)
                 {
-                    if (int.TryParse(token, out var parsedCount)
-                        && !token.StartsWith('*')
-                        && !token.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                    i++;
+                    var rangeArg = tokens[i];
+                    if (TryParseRelativeRange(rangeArg, out var parsedRange))
                     {
-                        count = parsedCount;
+                        relativeRange = parsedRange;
                     }
                     else
                     {
-                        targetToken = token;
+                        output.WriteLine($"Invalid relative range '{rangeArg}'. Expected format: r <before>:<after> (e.g. r 0:10, r -10:10)");
+                        return;
+                    }
+                }
+                else
+                {
+                    output.WriteLine("Usage: dis r <before>:<after> (e.g. dis r 0:10, dis r -10:10)");
+                    return;
+                }
+            }
+            else if (lower.StartsWith("r:") || lower.StartsWith("range:"))
+            {
+                var colonIdx = token.IndexOf(':');
+                var rangeArg = token[(colonIdx + 1)..];
+                if (TryParseRelativeRange(rangeArg, out var parsedRange))
+                {
+                    relativeRange = parsedRange;
+                }
+                else
+                {
+                    output.WriteLine($"Invalid relative range '{rangeArg}'. Expected format: r:<before>:<after> (e.g. r:0:10, r:-10:10)");
+                    return;
+                }
+            }
+            else switch (lower)
+            {
+                case "--bytes":
+                    showRawBytes = true;
+                    break;
+                case "--mixed":
+                    showMixed = true;
+                    break;
+                case "--no-mixed" or "--no-source":
+                    showMixed = false;
+                    break;
+                case "--subchunks":
+                    includeSubChunks = true;
+                    break;
+                case "--all" or "all":
+                    showAll = true;
+                    break;
+                default:
+                {
+                    if (token.StartsWith('-') 
+                        && !token.StartsWith("--") 
+                        && token.Length > 1 
+                        && char.IsLetter(token[1]))
+                    {
+                        for (var c = 1; c < token.Length; c++)
+                        {
+                            switch (char.ToLowerInvariant(token[c]))
+                            {
+                                case 'a': showAll = true; break;
+                                case 'b': showRawBytes = true; break;
+                                case 'm': showMixed = true; break;
+                                case 's': includeSubChunks = true; break;
+                                default:
+                                    output.WriteLine($"Unknown flag '-{token[c]}'. Type 'help dis' for usage.");
+                                    return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (int.TryParse(token, out var parsedCount)
+                            && !token.StartsWith('*')
+                            && !token.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+                        {
+                            count = parsedCount;
+                        }
+                        else
+                        {
+                            targetToken = token;
+                        }
                     }
 
                     break;
@@ -703,7 +771,8 @@ public sealed class EvdbSession
                     {
                         targetChunk = frame.Chunk.SubChunks[num];
                     }
-                    else if (frame.Chunk.HasDebugInfo && frame.Chunk.DebugDatabase.GetFirstIPForLine(num) >= 0)
+                    else if (frame.Chunk.HasDebugInfo 
+                             && frame.Chunk.DebugDatabase.GetFirstIPForLine(num) >= 0)
                     {
                         targetLine = num;
                     }
@@ -723,45 +792,109 @@ public sealed class EvdbSession
             ShowRuntimeValues = true,
             ShowBranchLabels = true,
             ShowBranchOffsets = true,
-            ShowChunkHeader = showAll,
+            ShowChunkHeader = false,
             IncludeSubChunks = includeSubChunks,
-            HighlightIP = (targetChunk == frame.Chunk) ? (int)frame.IP : null,
+            HighlightIP = (targetChunk == frame.Chunk) 
+                ? (int)frame.IP 
+                : null,
             Breakpoints = _debugger.GetBreakpoints(),
-            FrameContext = (targetChunk == frame.Chunk) ? frame : null,
+            FrameContext = (targetChunk == frame.Chunk) 
+                ? frame 
+                : null,
             SourceProvider = GetSourceLines,
             ColorMode = ColorMode.Auto
         };
 
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine(
+        output.WriteLine(
             $"Disassembly of " +
             $"{targetChunk.Name}{(targetChunk is { HasDebugInfo: true, DebugDatabase.DefinedOnLine: > 0 } 
                 ? $" (def. on line {targetChunk.DebugDatabase.DefinedOnLine})" 
                 : "")
             }:"
         );
-        
-        Console.ResetColor();
 
         if (targetLine.HasValue)
         {
             var lineInsts = disasm.GetForLine(targetLine.Value);
             if (lineInsts.Count == 0)
             {
-                Console.WriteLine($"No instructions found for line {targetLine.Value}.");
+                output.WriteLine($"No instructions found for line {targetLine.Value}.");
                 return;
             }
 
-            foreach (var inst in lineInsts)
+            DisassemblyFormatter.FormatInstructions(
+                lineInsts,
+                disasm,
+                output,
+                options
+            );
+        }
+        else if (relativeRange.HasValue)
+        {
+            if (disasm.Instructions.Count == 0)
             {
-                DisassemblyFormatter.FormatInstruction(inst, disasm, Console.Out, options);
+                output.WriteLine("No instructions in chunk.");
+                return;
             }
+
+            var centerIp = (targetChunk == frame.Chunk) 
+                ? (int)frame.IP 
+                : 0;
+            
+            var idx = disasm.IndexOf(centerIp);
+            
+            if (idx < 0)
+            {
+                for (var k = disasm.Instructions.Count - 1; k >= 0; k--)
+                {
+                    if (disasm.Instructions[k].Offset <= centerIp)
+                    {
+                        idx = k;
+                        break;
+                    }
+                }
+                
+                if (idx < 0)
+                {
+                    idx = 0;
+                }
+            }
+
+            var startIdx = idx + relativeRange.Value.from;
+            var endIdx = idx + relativeRange.Value.to;
+
+            if (startIdx > endIdx)
+            {
+                (startIdx, endIdx) = (endIdx, startIdx);
+            }
+
+            startIdx = Math.Max(0, startIdx);
+            endIdx = Math.Min(disasm.Instructions.Count - 1, endIdx);
+
+            if (startIdx >= disasm.Instructions.Count || endIdx < 0 || startIdx > endIdx)
+            {
+                output.WriteLine("Specified relative range is outside of chunk instruction bounds.");
+                return;
+            }
+
+            var slice = new List<Instruction>(endIdx - startIdx + 1);
+            for (var k = startIdx; k <= endIdx; k++)
+            {
+                slice.Add(disasm.Instructions[k]);
+            }
+
+            DisassemblyFormatter.FormatInstructions(
+                slice,
+                disasm,
+                output,
+                options
+            );
         }
         else if (startAddress.HasValue)
         {
             DisassemblyFormatter.FormatRange(
                 disasm,
-                Console.Out,
+                output,
                 startAddress.Value,
                 count,
                 options
@@ -769,11 +902,28 @@ public sealed class EvdbSession
         }
         else if (showAll)
         {
-            DisassemblyFormatter.FormatChunk(
+            DisassemblyFormatter.FormatInstructions(
+                disasm.Instructions,
                 disasm,
-                Console.Out,
+                output,
                 options
             );
+
+            if (includeSubChunks && targetChunk.SubChunkCount > 0)
+            {
+                for (var s = 0; s < targetChunk.SubChunkCount; s++)
+                {
+                    var sub = targetChunk.SubChunks[s];
+                    output.WriteLine();
+                    output.WriteLine($"Subchunk '{sub.Name}':");
+                    DisassemblyFormatter.FormatInstructions(
+                        sub.Disassemble().Instructions,
+                        sub.Disassemble(),
+                        output,
+                        options
+                    );
+                }
+            }
         }
         else
         {
@@ -785,7 +935,7 @@ public sealed class EvdbSession
             
             DisassemblyFormatter.FormatWindow(
                 disasm,
-                Console.Out,
+                output,
                 centerIp,
                 options, 
                 radiusBefore: radius,
@@ -856,10 +1006,10 @@ public sealed class EvdbSession
         if (_selectedFrameIndex < fiber.CallStack.Count)
         {
             return fiber.CallStack[_selectedFrameIndex] as ScriptStackFrame 
-                ?? _activeFrame;
+                ?? ActiveFrame;
         }
         
-        return _activeFrame;
+        return ActiveFrame;
     }
 
     private string[]? GetSourceLines(string filePath)
@@ -898,8 +1048,9 @@ public sealed class EvdbSession
         {
             var isCurrent = (i == centerLine);
             var hasBp = bps.Any(
-                b => b.Line == i && Path.GetFileName(b.FilePath).Equals(Path.GetFileName(filePath),
-                StringComparison.OrdinalIgnoreCase)
+                b => b.Line == i 
+                  && Path.GetFileName(b.FilePath)
+                         .Equals(Path.GetFileName(filePath), StringComparison.OrdinalIgnoreCase)
             );
 
             if (isCurrent)
@@ -932,42 +1083,157 @@ public sealed class EvdbSession
         }
     }
 
-    private static void PrintHelp()
+    private static bool TryParseRelativeRange(string rangeStr, out (int from, int to) range)
     {
-        Console.WriteLine(@"
-EVIL Command-Line Debugger (evdb)
----------------------------------
-Execution:
-  c, continue         Resume program execution until next breakpoint or pause.
-  s, step             Step into the next statement or function call.
-  n, next             Step over the next statement.
-  fin, finish         Step out of current function to caller.
-  si, stepi           Execute exactly one VM opcode instruction.
-  q, quit             Abort execution and exit debugger.
+        range = default((int, int));
+        
+        var sep = rangeStr.Contains("..") ? ".." : ":";
+        if (!rangeStr.Contains(sep))
+        {
+            return false;
+        }
 
-Breakpoints:
-  b, break <line>             Set a breakpoint on current file at <line>.
-  b, break <file>:<line>      Set a breakpoint on <file> at <line>.
-  b *<address>                Set an address breakpoint at bytecode offset (e.g. b *0x0010).
-  b <target> <condition>      Set a conditional breakpoint (e.g. b 12 x > 5).
-  d, delete <id>              Delete breakpoint by ID.
-  breakpoints, bps            List all active breakpoints.
+        var parts = rangeStr.Split(sep, 2, StringSplitOptions.TrimEntries);
+        if (!int.TryParse(parts[0], out var from) || !int.TryParse(parts[1], out var to))
+        {
+            return false;
+        }
 
-Inspection:
-  p, print <expr>             Evaluate and print an expression in the active stack frame.
-  set <var> = <expr>          Mutate a local variable in the active stack frame.
-  set disasm-on-step <on|off> Toggle automatic disassembly snippet display on every step.
-  bt, backtrace               Display call stack frames.
-  f, frame <index>            Select active stack frame for inspection.
-  locals                      Display local variables in the active stack frame.
-  args                        Display arguments in the active stack frame.
-  fibers                      Display all running fibers.
-  fiber <id>                  Select active fiber.
-  l, list [line]              Display source code context.
-  dis, disasm [flags] [tgt]   Disassemble bytecode (defaults to window around current IP).
-                              Flags: -a (all), -b (raw bytes), -m/--mixed, --no-mixed, -s (no source).
-                              Target: *<address>, <line>, or <function_name>.
-  h, help                     Display this help message.
-");
+        range = (from, to);
+        return true;
+    }
+
+    internal static void HandleHelp(string args, TextWriter? output = null)
+    {
+        if (string.IsNullOrWhiteSpace(args))
+        {
+            PrintGeneralHelp(output);
+            return;
+        }
+
+        PrintSubcommandHelp(args.Trim(), output);
+    }
+
+    internal static void PrintGeneralHelp(TextWriter? output = null)
+    {
+        var outWriter = output ?? Console.Out;
+        outWriter.WriteLine(StringResources.GeneralHelp);
+    }
+
+    internal static void PrintSubcommandHelp(string subcmd, TextWriter? output = null)
+    {
+        var outWriter = output ?? Console.Out;
+        switch (subcmd.ToLowerInvariant())
+        {
+            case "dis":
+            case "disasm":
+            case "disassemble":
+                outWriter.WriteLine(StringResources.DisassembleSubCommandHelp);
+                break;
+
+            case "b":
+            case "break":
+            case "breakpoint":
+                outWriter.WriteLine(StringResources.BreakpointSubCommandHelp);
+                break;
+
+            case "d":
+            case "delete":
+                outWriter.WriteLine(StringResources.DeleteSubCommandHelp);
+                break;
+
+            case "breakpoints":
+            case "bps":
+                outWriter.WriteLine(StringResources.BreakpointsSubCommandHelp);
+                break;
+
+            case "c":
+            case "cont":
+            case "continue":
+                outWriter.WriteLine(StringResources.ContinueSubCommandHelp);
+                break;
+
+            case "s":
+            case "step":
+                outWriter.WriteLine(StringResources.StepSubCommandHelp);
+                break;
+
+            case "n":
+            case "next":
+                outWriter.WriteLine(StringResources.NextSubCommandHelp);
+                break;
+
+            case "fin":
+            case "finish":
+                outWriter.WriteLine(StringResources.FinishSubCommandHelp);
+                break;
+
+            case "si":
+            case "stepi":
+                outWriter.WriteLine(StringResources.StepiSubCommandHelp);
+                break;
+
+            case "p":
+            case "print":
+                outWriter.WriteLine(StringResources.PrintSubCommandHelp);
+                break;
+
+            case "set":
+                outWriter.WriteLine(StringResources.SetSubCommandHelp);
+                break;
+
+            case "bt":
+            case "backtrace":
+            case "where":
+                outWriter.WriteLine(StringResources.BacktraceSubCommandHelp);
+                break;
+
+            case "f":
+            case "frame":
+                outWriter.WriteLine(StringResources.FrameSubCommandHelp);
+                break;
+
+            case "loc":
+            case "locals":
+                outWriter.WriteLine(StringResources.LocalsSubCommandHelp);
+                break;
+
+            case "args":
+                outWriter.WriteLine(StringResources.ArgsSubCommandHelp);
+                break;
+
+            case "fibers":
+                outWriter.WriteLine(StringResources.FibersSubCommandHelp);
+                break;
+
+            case "fiber":
+                outWriter.WriteLine(StringResources.FiberSubCommandHelp);
+                break;
+
+            case "info":
+                outWriter.WriteLine(StringResources.InfoSubCommandHelp);
+                break;
+
+            case "l":
+            case "list":
+                outWriter.WriteLine(StringResources.ListSubCommandHelp);
+                break;
+
+            case "q":
+            case "quit":
+            case "exit":
+                outWriter.WriteLine(StringResources.QuitSubCommandHelp);
+                break;
+
+            case "h":
+            case "help":
+            case "?":
+                PrintGeneralHelp(outWriter);
+                break;
+
+            default:
+                outWriter.WriteLine($"Unknown command '{subcmd}'. Type 'help' for available commands.");
+                break;
+        }
     }
 }
