@@ -50,6 +50,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Parser", "PackageProje
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.VM", "PackageProjects\EVIL.VM\EVIL.VM.csproj", "{021189CD-8631-4452-BC45-57566A76BC3A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Syntax", "Syntax", "{FD2371A9-C735-4A5E-B91E-220F8E3835D3}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\Syntax\evil.ebnf = Docs\Syntax\evil.ebnf
+		Docs\Syntax\evil.l = Docs\Syntax\evil.l
+		Docs\Syntax\evil.y = Docs\Syntax\evil.y
+		Docs\Syntax\main.c = Docs\Syntax\main.c
+		Docs\Syntax\Makefile = Docs\Syntax\Makefile
+		Docs\Syntax\README.md = Docs\Syntax\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,5 +152,6 @@ Global
 		{021189CD-8631-4452-BC45-57566A76BC3A} = {2A6F0687-56F1-4451-8745-1F4EB1470C89}
 		{834AD06C-519F-4DA3-9CFD-45556606FD34} = {24C79A7F-AD81-452E-84F1-F47CBBBC1D3B}
 		{D7B30777-FBB8-4323-BC72-4035A233E7EE} = {24C79A7F-AD81-452E-84F1-F47CBBBC1D3B}
+		{FD2371A9-C735-4A5E-B91E-220F8E3835D3} = {F12F3290-6350-44AC-9A28-FAFCB371BAC0}
 	EndGlobalSection
 EndGlobal

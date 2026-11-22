@@ -12,6 +12,7 @@ public partial class Parser
         
     private uint _functionDescent;
     private uint _loopDescent;
+    private int _ternaryDepth;
 
     public LexerState CurrentState => _lexer.State;
     public Token CurrentToken => CurrentState.CurrentToken;
@@ -31,6 +32,7 @@ public partial class Parser
     {
         _functionDescent = 0;
         _loopDescent = 0;
+        _ternaryDepth = 0;
         _lexer.LoadSource(source);
 
         var programNode = Program();
@@ -46,6 +48,7 @@ public partial class Parser
     {
         _functionDescent = 0;
         _loopDescent = 0;
+        _ternaryDepth = 0;
         _lexer.LoadSource(expressionSource);
 
         var expression = AssignmentExpression();

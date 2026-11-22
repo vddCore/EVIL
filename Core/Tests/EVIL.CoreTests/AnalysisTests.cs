@@ -5,6 +5,7 @@ using EVIL.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Analysis;
 using EVIL.Analysis.Analyzers;
+using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;
 using NUnit.Framework;
 using Shouldly;
@@ -12,7 +13,7 @@ using Shouldly;
 [TestFixture]
 public class AnalysisTests
 {
-    private static (EVIL.Grammar.AST.Miscellaneous.ProgramNode Program, DiagnosticBag Bag) ParseAndAnalyze(
+    private static (ProgramNode Program, DiagnosticBag Bag) ParseAndAnalyze(
         string source,
         params IDiagnosticAnalyzer[] analyzers)
     {
@@ -149,7 +150,7 @@ public class AnalysisTests
     [Test]
     public void UnusedVariableAnalyzer_TakesIntoAccountSelfInvocationTarget()
     {
-        var source = "val t = {};\nt::func();";
+        var source = "val t = {};\nt:func();";
         var (_, bag) = ParseAndAnalyze(source, new UnusedVariableAnalyzer());
 
         bag.Count.ShouldBe(0);

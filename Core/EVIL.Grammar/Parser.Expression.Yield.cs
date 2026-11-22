@@ -1,6 +1,5 @@
 ﻿namespace EVIL.Grammar;
 
-using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
@@ -10,24 +9,17 @@ public partial class Parser
     {
         var (line, col) = Match(Token.Yield);
 
-        Match(Token.LessThan);
+        var invocation = PostfixExpression();
 
-        Expression target;
-        if (CurrentToken == Token.LBracket)
+        if (invocation is not (AST.Expressions.InvocationExpression or AST.Expressions.SelfInvocationExpression))
         {
-            Match(Token.LBracket);
-            target = AssignmentExpression();
-            Match(Token.RBracket);
+            throw new ParserException(
+                $"Expected function invocation after 'yield', found '{invocation.GetType().Name}'.",
+                (invocation.Line, invocation.Column)
+            );
         }
-        else
-        {
-            target = SymbolReferenceExpression();
-        }
-        Match(Token.GreaterThan);
-            
-        var argumentList = ArgumentList();
-            
-        return new YieldExpression(target, argumentList)
+
+        return new YieldExpression(invocation)
             { Line = line, Column = col };
     }
 }

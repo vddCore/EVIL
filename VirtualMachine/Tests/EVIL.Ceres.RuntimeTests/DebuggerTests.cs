@@ -1,13 +1,8 @@
 namespace EVIL.Ceres.RuntimeTests;
 
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
-using EVIL.Ceres.ExecutionEngine.Concurrency;
-using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
@@ -355,7 +350,7 @@ fn worker() {
     ret a + b;
 }
 
-val f_res = yield<worker>();
+val f_res = yield worker();
 val main_after = 42;
 ";
         var chunk = compiler.Compile(source, "test_fibers.vil");

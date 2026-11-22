@@ -89,7 +89,7 @@ echo 'val x = 42;' | ./evil_parser
 - **Logical**: `&&`, `||`
 - **Bitwise**: `&`, `|`, `^`, `~`, `<<`, `>>`
 - **Assignment**: `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, `??=`
-- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `::` (self / scope method call)
+- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `:` (method call), `::` (targeted fn / self::fn)
 - **Functions & Closures**: `=>` (association / arm), `->` (expression body / arm), `...` (extra arguments / varargs), `*` (variadic forwarding)
 - **Null Coalescing**: `??`
 
@@ -178,8 +178,8 @@ From lowest to highest precedence:
 | 14 | Pattern | `by (expr) { ... }`, `expr with { ... }` | Non-assoc / Left |
 | 15 | Prefix | `++expr`, `--expr` | Right |
 | 16 | Unary | `+`, `-`, `!`, `~`, `@`, `#`, `$` | Right |
-| 17 | Postfix | `expr()`, `expr[]`, `expr.id`, `expr?.id`, `expr?[idx]`, `expr::method()`, `expr++`, `expr--` | Left |
-| 18 | Primary | Identifiers, literals, tables `{...}`, arrays `[...]` / `array(...)`, parenthesized `(...)`, block functions `fn(...) {...}`, `typeof(...)`, `yield<T>(...)`, `error(...)` | Atomic |
+| 17 | Postfix | `expr()`, `expr[]`, `expr.id`, `expr?.id`, `expr?[idx]`, `expr:method()`, `expr++`, `expr--` | Left |
+| 18 | Primary | Identifiers, literals, tables `{...}`, arrays `[...]` / `array(...)`, parenthesized `(...)`, block functions `fn(...) {...}`, `typeof(...)`, `yield expr(...)`, `error(...)` | Atomic |
 
 ---
 

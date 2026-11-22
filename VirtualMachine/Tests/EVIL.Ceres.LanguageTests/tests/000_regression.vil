@@ -50,5 +50,5 @@ loc fn test_yield -> 2137;
 
 #[test]
 fn yield_unary -> assert.equal(
-  @yield<test_yield>(), "2137"
+  @yield test_yield(), "2137"
 );

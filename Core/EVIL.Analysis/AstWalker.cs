@@ -370,7 +370,7 @@ public class AstWalker : AstVisitor
 
     protected override void Visit(YieldExpression yieldExpression)
     {
-        Visit(yieldExpression.Target);
+        Visit(yieldExpression.Invocation);
     }
 
     protected override void Visit(IsExpression isExpression)
@@ -412,7 +412,7 @@ public class AstWalker : AstVisitor
             var segments = InterpolatedStringParser.ParseSegments(stringConstant, throwOnError: false);
             foreach (var segment in segments)
             {
-                if (segment.Kind == InterpolatedSegmentKind.Expression && segment.Expr != null)
+                if (segment is { Kind: InterpolatedSegmentKind.Expression, Expr: not null })
                 {
                     Visit(segment.Expr);
                 }

@@ -151,11 +151,11 @@ public class OptimizationTests : TestBase
                         if (n <= 1) {
                             ret n;
                         }
-                        ret self::fib(n - 1) + self::fib(n - 2);
+                        ret self:fib(n - 1) + self:fib(n - 2);
                     }
                 };
 
-                ret obj::fib(10);
+                ret obj:fib(10);
             }
             """;
 
@@ -416,7 +416,7 @@ public class OptimizationTests : TestBase
                     get_num: self::fn() -> self.num
                 };
 
-                val r = t::get_self()::get_num();
+                val r = t:get_self():get_num();
                 ret [eval_count, r];
             }
             """;

@@ -13,7 +13,18 @@ public partial class Parser
         if (CurrentToken.Type == TokenType.QuestionMark)
         {
             var (line, col) = Match(Token.QuestionMark);
-            var trueExpression = AssignmentExpression();
+            
+            _ternaryDepth++;
+            Expression trueExpression;
+            try
+            {
+                trueExpression = AssignmentExpression();
+            }
+            finally
+            {
+                _ternaryDepth--;
+            }
+            
             Match(Token.Colon);
             var falseExpression = ConditionalExpression();
 

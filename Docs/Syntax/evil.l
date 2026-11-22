@@ -1,8 +1,7 @@
 %{
-/*
+/**
  * Flex lexical scanner for the EVIL programming language.
- * Generated based on Core/EVIL.Lexical/Lexer.cs and Token.cs.
- */
+ **/
 
 #include <stdio.h>
 #include <stdlib.h>

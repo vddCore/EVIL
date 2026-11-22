@@ -1,15 +1,9 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.Grammar;
-using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
-using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.StringInterpolation;
-using EVIL.Lexical;
 
 public partial class Compiler
 {

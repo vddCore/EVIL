@@ -7,7 +7,6 @@ using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 
 public sealed class BreakpointManager

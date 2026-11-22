@@ -1,8 +1,7 @@
 %{
-/*
+/**
  * Bison LALR(1)/GLR Grammar Specification for the EVIL programming language.
- * Conforms to the EVIL AST and parser in Core/EVIL.Grammar.
- */
+ **/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -137,8 +136,9 @@ void yyerror(const char *s);
 %left '+' '-'
 %left '*' '/' '%'
 %left TOKEN_WITH
+%precedence TOKEN_YIELD
 %precedence UNARY PREFIX
-%precedence POSTFIX
+%precedence POSTFIX TOKEN_INCREMENT TOKEN_DECREMENT
 %left '.' TOKEN_ELVIS TOKEN_ELVIS_ARRAY '[' '(' TOKEN_DOUBLE_COLON
 
 %start program
@@ -334,7 +334,6 @@ attribute_arg_list
 
 attribute_arg
     : assignment_expression
-    | IDENTIFIER '=' assignment_expression
     ;
 
 fn_head
@@ -585,7 +584,7 @@ postfix_expression
     | postfix_expression '.' IDENTIFIER
     | postfix_expression TOKEN_ELVIS IDENTIFIER
     | postfix_expression TOKEN_ELVIS_ARRAY assignment_expression ']'
-    | postfix_expression TOKEN_DOUBLE_COLON IDENTIFIER '(' argument_list_opt ')'
+    | postfix_expression ':' IDENTIFIER '(' argument_list_opt ')'
     | postfix_expression TOKEN_INCREMENT %prec POSTFIX
     | postfix_expression TOKEN_DECREMENT %prec POSTFIX
     ;
@@ -639,10 +638,10 @@ table_entry_seq
     ;
 
 table_entry
-    : assignment_expression
+    : assignment_expression %dprec 1
     | self_fn_expression
-    | IDENTIFIER ':' assignment_expression
-    | IDENTIFIER ':' self_fn_expression
+    | IDENTIFIER ':' assignment_expression %dprec 2
+    | IDENTIFIER ':' self_fn_expression %dprec 2
     | assignment_expression TOKEN_ASSOCIATE assignment_expression
     | assignment_expression TOKEN_ASSOCIATE self_fn_expression
     ;
@@ -682,8 +681,7 @@ typeof_expression
     ;
 
 yield_expression
-    : TOKEN_YIELD '<' IDENTIFIER '>' '(' argument_list_opt ')'
-    | TOKEN_YIELD '<' '[' assignment_expression ']' '>' '(' argument_list_opt ')'
+    : TOKEN_YIELD postfix_expression
     ;
 
 fn_block_expression

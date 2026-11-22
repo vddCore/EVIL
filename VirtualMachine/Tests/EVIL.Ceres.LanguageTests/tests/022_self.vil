@@ -4,7 +4,7 @@ fn selfness_in_table {
     f: self::fn(a, b) -> self.result = a + b
   };
 
-  val result = t::f(2, 3);
+  val result = t:f(2, 3);
   
   assert.equal(result, 5);
   assert.equal(result, t.result);
@@ -19,7 +19,7 @@ fn self_fn_ret {
     }
   };
   
-  val result = t::func(21, 0.37);
+  val result = t:func(21, 0.37);
   assert.equal(result, 21.37);
 }
 
@@ -46,27 +46,27 @@ fn self_fn_state {
   };
   
   assert.equal(chair.leg_count, 4);
-  assert.is_false(chair::is_broken());
-  assert.equal(chair::get_status(), chair.__quips[0]);
+  assert.is_false(chair:is_broken());
+  assert.equal(chair:get_status(), chair.__quips[0]);
   
-  chair::add_leg();
-  assert(chair::is_broken());
+  chair:add_leg();
+  assert(chair:is_broken());
   assert.equal(chair.leg_count, 5);
-  assert.equal(chair::get_status(), chair.__quips[3]);
+  assert.equal(chair:get_status(), chair.__quips[3]);
   
-  chair::break_leg();
-  chair::break_leg();
-  assert(chair::is_broken());
+  chair:break_leg();
+  chair:break_leg();
+  assert(chair:is_broken());
   assert.equal(chair.leg_count, 3);
-  assert.equal(chair::get_status(), chair.__quips[2]);
+  assert.equal(chair:get_status(), chair.__quips[2]);
   
-  chair::break_leg();
-  chair::break_leg();
-  chair::break_leg();
-  chair::break_leg();
-  assert(chair::is_broken());
+  chair:break_leg();
+  chair:break_leg();
+  chair:break_leg();
+  chair:break_leg();
+  assert(chair:is_broken());
   assert.equal(chair.leg_count, -1);
-  assert.equal(chair::get_status(), chair.__quips[1]);
+  assert.equal(chair:get_status(), chair.__quips[1]);
   
   ret result;
 }
@@ -84,10 +84,10 @@ fn self_referencing_self {
     }
   };
   
-  val t2 = t::get_self()::create_new();
-  t2::set(21.37);
+  val t2 = t:get_self():create_new();
+  t2:set(21.37);
   
-  assert(t <==> t::get_self());
+  assert(t <==> t:get_self());
   assert.equal(t2.__value, 21.37);
 }
 
@@ -120,16 +120,16 @@ fn self_builder {
     get_purpose: self::fn -> self.__purpose
   }};
   
-  val chair = ThingBuilder::new("chair")
-   :: with_class("furniture")
-   :: with_description("It's a chair.")
-   :: with_purpose("For sitting on.");
+  val chair = ThingBuilder:new("chair")
+   : with_class("furniture")
+   : with_description("It's a chair.")
+   : with_purpose("For sitting on.");
    
   assert(chair is Table); // Haha.
-  assert.equal(chair::get_name(), "chair");
-  assert.equal(chair::get_class(), "furniture");
-  assert.equal(chair::get_description(), "It's a chair.");
-  assert.equal(chair::get_purpose(), "For sitting on.");
+  assert.equal(chair:get_name(), "chair");
+  assert.equal(chair:get_class(), "furniture");
+  assert.equal(chair:get_description(), "It's a chair.");
+  assert.equal(chair:get_purpose(), "For sitting on.");
 }
 
 #[test]
@@ -138,23 +138,23 @@ fn self_reentrant_call() {
     count: 0,
     loopy: self::fn {
       self.count++;
-      if (self.count < 5) self::loopy();
+      if (self.count < 5) self:loopy();
     }
   };
 
-  looper::loopy();
+  looper:loopy();
   assert.equal(looper.count, 5);
 }
 
 #[test]
 fn self_stack_abuse {
   val s = {
-    a: self::fn -> self::b(),
-    b: self::fn -> self::c(),
+    a: self::fn -> self:b(),
+    b: self::fn -> self:c(),
     c: self::fn -> 42
   };
 
-  assert.equal(s::a(), 42);
+  assert.equal(s:a(), 42);
 }
 
 #[test]
@@ -169,8 +169,8 @@ fn self_set_nested {
     }
   };
 
-  obj::set_nested("weird", 1337);
-  assert.equal(obj.data["weird"]::get(), 1337);
+  obj:set_nested("weird", 1337);
+  assert.equal(obj.data["weird"]:get(), 1337);
 }
 
 #[test]
@@ -183,7 +183,7 @@ fn self_explicit_parameter {
   
   obj.explicit = explicit;
   
-  obj::explicit();
+  obj:explicit();
   assert.equal(obj.i_am, "here");
 }
 
@@ -199,7 +199,7 @@ fn self_invocation_receiver_evaluated_once {
       };
     }
   };
-  val res = factory.create()::get_val();
+  val res = factory.create():get_val();
   assert.equal(res, 42);
   assert.equal(eval_count, 1);
 }

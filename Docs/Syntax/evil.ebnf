@@ -240,7 +240,7 @@ postfix_suffix
     | ".", identifier
     | "?.", identifier
     | "?[", assignment_expression, "]"
-    | "::", identifier, "(", [ argument_list ], ")"
+    | ":", identifier, "(", [ argument_list ], ")"
     | "++"
     | "--" ;
 
@@ -293,8 +293,7 @@ typeof_expression
     = "typeof", [ "!" ], "(", assignment_expression, ")" ;
 
 yield_expression
-    = "yield", "<", identifier, ">", "(", [ argument_list ], ")"
-    | "yield", "<", "[", assignment_expression, "]", ">", "(", [ argument_list ], ")" ;
+    = "yield", postfix_expression ;
 
 constant_expression
     = number

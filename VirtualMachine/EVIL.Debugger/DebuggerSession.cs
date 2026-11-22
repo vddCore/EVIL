@@ -2,7 +2,6 @@ namespace EVIL.Debugger;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
@@ -10,7 +9,6 @@ using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.TranslationEngine;
-using EVIL.CommonTypes.TypeSystem;
 
 public sealed class DebuggerSession : IDebuggerSession
 {

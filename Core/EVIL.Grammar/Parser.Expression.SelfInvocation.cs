@@ -8,7 +8,8 @@ public partial class Parser
 {
     private SelfInvocationExpression SelfInvocationExpression(Expression indexable)
     {
-        var (line, col) = Match(Token.DoubleColon);
+        var (line, col) = Match(Token.Colon);
+        
         var identifier = Identifier();
         var argumentList = ArgumentList();
 

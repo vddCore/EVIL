@@ -1,19 +1,30 @@
 ﻿namespace EVIL.Grammar.AST.Expressions;
 
+using System;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Miscellaneous;
 
 public sealed class YieldExpression : Expression
 {
-    public Expression Target { get; }
-    public ArgumentList ArgumentList { get; }
+    public Expression Invocation { get; }
 
-    public YieldExpression(Expression target, ArgumentList argumentList)
+    public AstNode Target => Invocation switch
     {
-        Target = target;
-        ArgumentList = argumentList;
+        InvocationExpression inv => inv.Callee,
+        SelfInvocationExpression self => self.Identifier,
+        _ => Invocation
+    };
 
-        Reparent(Target);
-        Reparent(ArgumentList);
+    public ArgumentList ArgumentList => Invocation switch
+    {
+        InvocationExpression inv => inv.ArgumentList,
+        SelfInvocationExpression self => self.ArgumentList,
+        _ => throw new InvalidOperationException()
+    };
+
+    public YieldExpression(Expression invocation)
+    {
+        Invocation = invocation;
+        Reparent(Invocation);
     }
 }

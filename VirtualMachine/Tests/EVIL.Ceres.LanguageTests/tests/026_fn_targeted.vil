@@ -11,22 +11,22 @@ val mt = {
     }
     
     loc fn Object::add(a, b) {
-      self::set_vars(a, b);
+      self:set_vars(a, b);
       ret self.result = self.a + self.b;
     }
     
     loc fn Object::sub(a, b) {
-      self::set_vars(a, b);
+      self:set_vars(a, b);
       ret self.result = self.a - self.b;
     }
     
     loc fn Object::mul(a, b) {
-      self::set_vars(a, b);
+      self:set_vars(a, b);
       ret self.result = self.a * self.b;
     }
     
     loc fn Object::div(a, b) {
-      self::set_vars(a, b);
+      self:set_vars(a, b);
       
       if (self.b == 0) {
         throw error("i could return a NaN here but fuck your input.");
@@ -44,32 +44,32 @@ fn targeted_fn_self_invocations {
   
   assert.equal(instance.__name, "instance_name_uwu");
   
-  val add_result = instance::add(21, 37);
+  val add_result = instance:add(21, 37);
   assert.equal(instance.a, 21);
   assert.equal(instance.b, 37);
   assert.equal(instance.result, 58);
   assert.equal(instance.result, add_result);
   
-  val sub_result = instance::sub(37, 21);
+  val sub_result = instance:sub(37, 21);
   assert.equal(instance.a, 37);
   assert.equal(instance.b, 21);
   assert.equal(instance.result, 16);
   assert.equal(instance.result, sub_result);
   
-  val mul_result = instance::mul(21, 37);
+  val mul_result = instance:mul(21, 37);
   assert.equal(instance.a, 21);
   assert.equal(instance.b, 37);
   assert.equal(instance.result, 777);
   assert.equal(instance.result, mul_result);
   
-  val div_result = instance::div(600, 50);
+  val div_result = instance:div(600, 50);
   assert.equal(instance.a, 600);
   assert.equal(instance.b, 50);
   assert.equal(instance.result, 12);
   assert.equal(instance.result, div_result);
   
   try {
-    instance::div(20, 0);
+    instance:div(20, 0);
   } catch (err) {
     assert.equal(
       err.msg,
@@ -87,7 +87,7 @@ fn targeted_fn_in_local {
     ret x;
   }
 
-  val result = Object::meow(2137);
+  val result = Object:meow(2137);
   
   assert.equal(Object.result, "meow! 2137");
   assert.equal(result, 2137);
@@ -108,7 +108,7 @@ fn targeted_fn_nested {
     ret Object;
   }
   
-  val inner_ref = Object::thing(222)::jp2gmd();
+  val inner_ref = Object:thing(222):jp2gmd();
   assert.equal(inner_ref.uwu, 222);
 }
 
@@ -122,7 +122,7 @@ fn targeted_fn_conditional {
     loc fn Object::say_hi(a1) -> "Hiiii $a1!";
   }
   
-  val result = Object::say_hi("Aura");
+  val result = Object:say_hi("Aura");
   
   assert.equal(result, "Hiiii Aura!");
 }
@@ -138,7 +138,7 @@ fn targeted_fn_multiscope {
       loc fn Object::say_hi(a1) -> "Hiiii $a1!";
     }
   
-    val result = Object::say_hi("Aura");
+    val result = Object:say_hi("Aura");
     assert.equal(result, "Hiiii Aura!");
   }
   
@@ -151,7 +151,7 @@ fn targeted_fn_multiscope {
       loc fn Object::say_hi(a1) -> "I should've never been executed, $a1!";
     }
   
-    val result = Object::say_hi("Aura");
+    val result = Object:say_hi("Aura");
     assert.equal(result, "Hiiii Aura!");
   }
 }
@@ -169,7 +169,7 @@ fn targeted_fn_self {
  
   tbl.set_mt(Object, mt);
 
-  val result = Object("Aura")::say_hi();
+  val result = Object("Aura"):say_hi();
   assert.equal(result, "Hiii Aura!");
 }
 
@@ -178,10 +178,10 @@ fn targeted_fn_redefinition {
   val Object = {};
   
   loc fn Object::say_hi() -> "Hi!";
-  assert.equal(Object::say_hi(), "Hi!");
+  assert.equal(Object:say_hi(), "Hi!");
   
   loc fn Object::say_hi() -> "Actually, hello!";
-  assert.equal(Object::say_hi(), "Actually, hello!");
+  assert.equal(Object:say_hi(), "Actually, hello!");
 }
 
 #[test]
@@ -196,11 +196,11 @@ fn targeted_fn_clone_behavior {
   }
 
   Base.msg = "you will be like me";
-  val c1 = Base::copy();
-  val c2 = Base::copy() with { msg: "nah, i'm my own thing" };
+  val c1 = Base:copy();
+  val c2 = Base:copy() with { msg: "nah, i'm my own thing" };
 
-  assert.equal(c1::speak(), "you will be like me");
-  assert.equal(c2::speak(), "nah, i'm my own thing");
+  assert.equal(c1:speak(), "you will be like me");
+  assert.equal(c2:speak(), "nah, i'm my own thing");
 }
 
 #[test]
@@ -213,9 +213,9 @@ fn targeted_fn_dynamic_dispatch {
 
   rw val current = A;
   
-  val first = current::exec();
+  val first = current:exec();
   current = B;
-  val second = current::exec();
+  val second = current:exec();
 
   assert.equal(first, "A's turn");
   assert.equal(second, "B steps in");
@@ -250,18 +250,18 @@ fn targeted_fn_reality_bleed {
 
   loc fn Entity::observe() {
     if (self.phase == "fractured") {
-      ret self::whisper("you saw too much.");
+      ret self:whisper("you saw too much.");
     } else {
       ret "the fabric is intact.";
     }
   }
 
-  val result1 = Entity::observe();
+  val result1 = Entity:observe();
   assert.equal(result1, "the fabric is intact.");
 
-  val result2 = Entity::inject_fracture();
+  val result2 = Entity:inject_fracture();
   assert.equal(result2, "fracture injected");
 
-  val result3 = Entity::observe();
+  val result3 = Entity:observe();
   assert.equal(result3, "the void answers: you saw too much.");
 }

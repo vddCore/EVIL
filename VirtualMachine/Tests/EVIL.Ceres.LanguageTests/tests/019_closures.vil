@@ -114,7 +114,7 @@ fn delay(ms) {
 fn spawn_yielding_closure {
   ret fn() {
     val start = time.stamp.ms;
-    val retval = yield<delay>(500);
+    val retval = yield delay(500);
     
     ret { 
       stamp_result: time.stamp.ms,
@@ -126,7 +126,7 @@ fn spawn_yielding_closure {
 #[test]
 fn yield_delay_from_closure {
   val f = spawn_yielding_closure();
-  val r = yield<f>();
+  val r = yield f();
   
   
   assert.greater_than_or_equal(r.stamp_result, 1000);
