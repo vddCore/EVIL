@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
@@ -113,10 +113,12 @@ public partial class Compiler
                 Chunk.CodeGenerator.Emit(OpCode.VJMP, valueNotNilLabel);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
                 Visit(assignmentExpression.Right);
+                
                 if (!isStatement)
                 {
                     Chunk.CodeGenerator.Emit(OpCode.DUP);
                 }
+                
                 Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
                 Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
                 Chunk.CodeGenerator.Emit(OpCode.ELSET);

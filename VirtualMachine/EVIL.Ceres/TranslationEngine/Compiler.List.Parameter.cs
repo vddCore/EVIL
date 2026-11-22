@@ -1,6 +1,6 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Miscellaneous;
 
 public partial class Compiler
@@ -33,7 +33,10 @@ public partial class Compiler
                 Log.TerminateWithFatal(
                     CompilerDiagnostics.DuplicateSymbolInScope.Create(
                         GetLocation(parameter.Identifier),
-                        [new RelatedLocation(new SourceLocation(CurrentFileName, dse.Line, dse.Column), "Previously defined here")],
+                        [new RelatedLocation(
+                            new SourceLocation(CurrentFileName, dse.Line, dse.Column),
+                            "Previously defined here"
+                        )],
                         parameter.Identifier.Name,
                         dse.ExistingSymbol.TypeName,
                         dse.Line,

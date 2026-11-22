@@ -15,7 +15,7 @@ public partial class Compiler
             indexerExpression.SetTag("end_label", endIndexerLabel);
             Visit(indexerExpression.Indexable);
 
-            if (OptimizeCodeGeneration)
+            if (Options.OptimizeCodeGeneration)
             {
                 var parent = indexerExpression;
                 while (parent.Parent is IndexerExpression { IsConditional: true } outer)

@@ -1,7 +1,7 @@
 ﻿namespace EVIL.Grammar;
 
 using System.Collections.Generic;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Diagnostics;
 using EVIL.Grammar.AST.Miscellaneous;

@@ -1,7 +1,7 @@
 ﻿namespace EVIL.Grammar;
 
 using System;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 
 public class ParserException : Exception
 {

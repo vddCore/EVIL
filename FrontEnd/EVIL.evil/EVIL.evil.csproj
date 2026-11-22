@@ -16,6 +16,14 @@
     <ProjectReference Include="..\..\VirtualMachine\EVIL.Ceres\EVIL.Ceres.csproj">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </ProjectReference>
+    
+    <ProjectReference Include="..\..\Core\EVIL.CommonTypes\EVIL.CommonTypes.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+    
+    <ProjectReference Include="..\..\Core\EVIL.Diagnostics\EVIL.Diagnostics.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
   </ItemGroup>
   
   <ItemGroup>

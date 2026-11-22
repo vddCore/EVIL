@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Ceres.TranslationEngine;
 
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 
 public partial class Compiler
 {

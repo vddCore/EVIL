@@ -2,7 +2,7 @@ namespace EVIL.Ceres.TranslationEngine;
 
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Miscellaneous;
 using EVIL.Grammar.AST.Statements;

@@ -1,6 +1,6 @@
 namespace EVIL.CoreTests;
 
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Diagnostics;
 using EVIL.Grammar.AST.Statements;
@@ -193,7 +193,7 @@ public class DiagnosticsTests
         var parser = new Parser(bag, "max_err.vil") { MaxErrors = 3 };
 
         var source = "val = 1;\nval = 2;\nval = 3;\nval = 4;\nval = 5;\nval = 6;";
-        var program = parser.Parse(source);
+        _ = parser.Parse(source);
 
         bag.ErrorCount.ShouldBe(3);
     }

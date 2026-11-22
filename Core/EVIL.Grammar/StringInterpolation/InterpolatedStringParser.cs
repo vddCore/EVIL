@@ -7,7 +7,7 @@ using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Lexical;
 
-internal static class InterpolatedStringParser
+public static class InterpolatedStringParser
 {
     public static List<InterpolatedSegment> ParseSegments(StringConstant stringConstant, bool throwOnError = true)
     {

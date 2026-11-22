@@ -2,7 +2,7 @@
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Expressions;
@@ -102,13 +102,17 @@ public partial class Compiler
                     case Symbol.SymbolType.Parameter:
                         closureType = ClosureType.Parameter;
                         break;
+                    
                     case Symbol.SymbolType.Local:
                         closureType = ClosureType.Local;
                         break;
+                    
                     case Symbol.SymbolType.Closure:
                         closureType = ClosureType.Closure;
                         break;
+
                     default:
+                    {
                         Log.TerminateWithInternalFailure(
                             CompilerDiagnostics.InternalCompilerError.Create(
                                 GetLocation(Line, Column),
@@ -117,6 +121,7 @@ public partial class Compiler
                             dummyReturn: OpCode.NOOP
                         );
                         return;
+                    }
                 }
 
                 var result = Chunk.AllocateClosure(
@@ -221,13 +226,17 @@ public partial class Compiler
                     case Symbol.SymbolType.Parameter:
                         closureType = ClosureType.Parameter;
                         break;
+                    
                     case Symbol.SymbolType.Local:
                         closureType = ClosureType.Local;
                         break;
+                    
                     case Symbol.SymbolType.Closure:
                         closureType = ClosureType.Closure;
                         break;
+
                     default:
+                    {
                         Log.TerminateWithInternalFailure(
                             CompilerDiagnostics.InternalCompilerError.Create(
                                 GetLocation(Line, Column),
@@ -236,6 +245,7 @@ public partial class Compiler
                             dummyReturn: OpCode.NOOP
                         );
                         return;
+                    }
                 }
                 
                 var result = Chunk.AllocateClosure(

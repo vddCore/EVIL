@@ -1,7 +1,5 @@
 namespace EVIL.evil;
 
-using EvilArray = EVIL.Ceres.ExecutionEngine.Collections.Array;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,16 +13,33 @@ using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
 using EVIL.CommonTypes.TypeSystem;
+using EVIL.Diagnostics.Formatters;
 using EVIL.Grammar;
-using EVIL.Lexical;
 using Mono.Options;
+
+using EvilArray = EVIL.Ceres.ExecutionEngine.Collections.Array;
 
 public partial class EvmFrontEnd
 {
     private static readonly CeresVM _vm = new(CrashHandler);
-    private static readonly Compiler _compiler = new();
     private static readonly EvilRuntime _runtime = new(_vm);
     private static readonly RuntimeModuleLoader _runtimeModuleLoader = new(_runtime);
+
+    private static readonly CompilerOptions _compilerOptions = new();
+    private static Compiler? _compiler;
+    
+    private static bool _displayHelpAndQuit;
+    private static bool _displayVersionAndQuit;
+    private static bool _generateModuleDocsAndQuit;
+    private static bool _disassembleCompiledScript;
+    private static bool _optimizeCode;
+    private static bool _compileOnly;
+    private static string _outputFileName = "a.evx";
+    private static string _diagnosticsFormat = "standard";
+    private static bool _warnAsError;
+    private static int _maxErrors = 64;
+    private static readonly List<string> _noWarnCodes = [];
+    private static readonly List<string> _warnAsErrorCodes = [];
 
     private static readonly OptionSet _options = new()
     {
@@ -33,20 +48,44 @@ public partial class EvmFrontEnd
         { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
         { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null },
         { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null },
+        { "f|diagnostics-format=", "diagnostics formatting style: standard, rich, or json (default: standard).", f => _diagnosticsFormat = f },
+        { "w|warn-as-error:", "treat warnings as errors (optionally comma-separated error codes, e.g. EV8003).", w =>
+        {
+            if (string.IsNullOrWhiteSpace(w))
+            {
+                _warnAsError = true;
+            }
+            else
+            {
+                foreach (var code in w.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    if (!string.IsNullOrWhiteSpace(code))
+                    {
+                        _warnAsErrorCodes.Add(code);
+                    }
+                }
+            }
+        }},
+        { "nowarn=", "suppress specific warning codes (comma-separated, e.g. EV8003,EV8002).", n =>
+        {
+            if (!string.IsNullOrWhiteSpace(n))
+            {
+                foreach (var code in n.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    if (!string.IsNullOrWhiteSpace(code))
+                    {
+                        _noWarnCodes.Add(code);
+                    }
+                }
+            }
+        }},
+        { "max-errors=", "maximum number of errors before stopping compilation (default: 20).", (int m) => _maxErrors = m },
         { "c|compile-only=", "don't run, compile only requires a file name", (o) =>
         {
             _compileOnly = !string.IsNullOrEmpty(o);
             _outputFileName = o;
         }}
     };
-
-    private static bool _displayHelpAndQuit;
-    private static bool _displayVersionAndQuit;
-    private static bool _generateModuleDocsAndQuit;
-    private static bool _disassembleCompiledScript;
-    private static bool _optimizeCode;
-    private static bool _compileOnly;
-    private static string _outputFileName = "a.evx";
         
     public async Task Run(string[] args)
     {
@@ -70,23 +109,28 @@ public partial class EvmFrontEnd
 
         if (_optimizeCode)
         {
-            _compiler.OptimizeCodeGeneration = true;
+            _compilerOptions.OptimizeCodeGeneration = true;
         }
 
         switch (extra.Count)
         {
             case 0:
+            {
                 Terminate(
                     "Fatal: no input file.",
                     exitCode: ExitCode.NoInputFiles
                 );
                 break;
+            }
+
             case > 1:
+            {
                 Terminate(
                     "Fatal: too many input files.",
                     exitCode: ExitCode.TooManyInputFiles
                 );
                 break;
+            }
         }
 
         var scriptPath = extra.First();
@@ -105,29 +149,37 @@ public partial class EvmFrontEnd
             
         var source = await File.ReadAllTextAsync(scriptPath);
 
+        _compilerOptions.MaxErrors = _maxErrors;
+        _compilerOptions.WarningsAsErrors = _warnAsError;
+        
+        foreach (var code in _warnAsErrorCodes)
+        {
+            _compilerOptions.WarningsAsErrorsCodes.Add(code);
+        }
+        
+        foreach (var code in _noWarnCodes)
+        {
+            _compilerOptions.SuppressedCodes.Add(code);
+        }
+
+        _compiler = new Compiler(_compilerOptions);
         Chunk rootChunk = null!;
         try
         {
             rootChunk = _compiler.Compile(source, scriptPath);
         }
-        catch (LexerException le)
-        {
-            Terminate(
-                $"Syntax error in {scriptPath} ({le.Line}:{le.Column}): {le.Message}",
-                exitCode: ExitCode.LexerError
-            );
-        }
-        catch (ParserException pe)
-        {
-            Terminate(
-                $"Syntax error in {scriptPath} ({pe.Line}:{pe.Column}): {pe.Message}",
-                exitCode: ExitCode.ParserError
-            );
-        }
         catch (CompilerException ce)
         {
-            var msg = $"Compilation error in {scriptPath}:\n" +
-                      $"  {ce.Log.Messages[^1]}";
+            var formatter = DiagnosticFormatter.GetByName(_diagnosticsFormat);
+            if (formatter is RichDiagnosticFormatter rich)
+            {
+                rich.SourceProvider = path => path == scriptPath ? source : (File.Exists(path) ? File.ReadAllText(path) : null);
+            }
+
+            var diagnostics = ce.Log.Diagnostics;
+            var msg = diagnostics.Count > 0
+                ? formatter.FormatAll(diagnostics)
+                : $"Compilation error in {scriptPath}:\n  {ce.Message}";
 
             if (ce.InnerException is not null 
                 and not ParserException 
@@ -147,7 +199,17 @@ public partial class EvmFrontEnd
 
         if (_compiler.Log.HasAnyMessages)
         {
-            Console.WriteLine(_compiler.Log.ToString());
+            var formatter = DiagnosticFormatter.GetByName(_diagnosticsFormat);
+            if (formatter is RichDiagnosticFormatter rich)
+            {
+                rich.SourceProvider = path => path == scriptPath ? source : (File.Exists(path) ? File.ReadAllText(path) : null);
+            }
+
+            var diagnostics = _compiler.Log.Diagnostics;
+            if (diagnostics.Count > 0)
+            {
+                Console.WriteLine(formatter.FormatAll(diagnostics));
+            }
         }
 
         if (_compileOnly)
@@ -341,14 +403,9 @@ public partial class EvmFrontEnd
 
         var sb = new StringBuilder();
             
-        if (top is NativeStackFrame)
-        {
-            scriptTop = callStack[1].As<ScriptStackFrame>();
-        }
-        else
-        {
-            scriptTop = top.As<ScriptStackFrame>();
-        }
+        scriptTop = top is NativeStackFrame 
+            ? callStack[1].As<ScriptStackFrame>() 
+            : top.As<ScriptStackFrame>();
 
         var dd = scriptTop.Chunk.DebugDatabase;
 

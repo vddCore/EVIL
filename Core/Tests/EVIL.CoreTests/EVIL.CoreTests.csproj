@@ -23,5 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\EVIL.Grammar\EVIL.Grammar.csproj" />
+    <ProjectReference Include="..\..\EVIL.Analysis\EVIL.Analysis.csproj" />
+    <ProjectReference Include="..\..\EVIL.Diagnostics\EVIL.Diagnostics.csproj" />
   </ItemGroup>
 </Project>

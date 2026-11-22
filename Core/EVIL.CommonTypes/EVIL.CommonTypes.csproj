@@ -2,29 +2,9 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>    
-    
+
     <Version>1.1.0</Version>
-    
+
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="Diagnostics\CompilerDiagnostics.CodeGen.cs">
-      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Diagnostics\CompilerDiagnostics.Expressions.cs">
-      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Diagnostics\CompilerDiagnostics.Lexical.cs">
-      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Diagnostics\CompilerDiagnostics.Scoping.cs">
-      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Diagnostics\CompilerDiagnostics.Style.cs">
-      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
-    </Compile>
-    <Compile Update="Diagnostics\CompilerDiagnostics.Syntax.cs">
-      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
 </Project>

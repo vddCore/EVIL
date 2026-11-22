@@ -3,11 +3,12 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         
-        <Version>4.6.0</Version>
+        <Version>4.7.0</Version>
         
         <IsPackable>false</IsPackable>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\EVIL.CommonTypes\EVIL.CommonTypes.csproj"/>
+        <ProjectReference Include="..\EVIL.Diagnostics\EVIL.Diagnostics.csproj"/>
     </ItemGroup>
 </Project>

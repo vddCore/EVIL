@@ -2,8 +2,10 @@ namespace EVIL.evil;
 
 using System;
 using System.Text;
+using EVIL.Analysis;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.Runtime;
+using EVIL.Diagnostics;
 using EVIL.Grammar;
 using EVIL.Lexical;
 
@@ -20,6 +22,8 @@ public partial class EvmFrontEnd
         sb.AppendLine($"        EVIL lexer: v{GetAssemblyVersionFromType<Lexer>()}");
         sb.AppendLine($"       EVIL parser: v{GetAssemblyVersionFromType<Parser>()}");
         sb.AppendLine($"     EVIL.Ceres VM: v{GetAssemblyVersionFromType<CeresVM>()}");
+        sb.AppendLine($"     EVIL.Analysis: v{GetAssemblyVersionFromType<AnalyzerDriver>()}");
+        sb.AppendLine($"  EVIL.Diagnostics: v{GetAssemblyVersionFromType<Diagnostic>()}");
         sb.AppendLine($"EVIL.Ceres.Runtime: v{GetAssemblyVersionFromType<RuntimeModule>()}");
 
         return sb.ToString();

@@ -119,7 +119,7 @@ fn value_is_native_type_via_interpolated_string {
 }
 
 #[test]
-fn value_is_native_type_via_interpolated_string {
+fn value_is_not_native_type_via_interpolated_string {
   val testval = __new_dummy_object();
   val injected_string = "EVIL.Ceres.LanguageTests.DummyNativeClass2";
   

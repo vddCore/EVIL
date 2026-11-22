@@ -1,7 +1,7 @@
 ﻿namespace EVIL.Lexical;
 
 using System;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 
 public class LexerException : Exception
 {

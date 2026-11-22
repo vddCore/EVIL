@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Grammar;
 using EVIL.Grammar.AST.Expressions;

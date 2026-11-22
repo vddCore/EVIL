@@ -11,7 +11,7 @@ using Shouldly;
 public class EvilModuleTest : ModuleTest<EvilModule>
 {
     [Test]
-    public void Compile()
+    public void Compile_ReturnsCompiledChunk_WhenSourceValid()
     {
         var t = EvilTestResult(
             "fn test() {" +
@@ -31,10 +31,59 @@ public class EvilModuleTest : ModuleTest<EvilModule>
 
         scriptTable["success"].ShouldBe(true);
         testResult.ShouldBe("i was compiled from within evil :dobry_jezu:");
+        scriptTable["diagnostics"].Type.ShouldBe(DynamicValueType.Array);
     }
 
     [Test]
-    public void Reflect()
+    public void Compile_ReturnsStructuredDiagnostics_OnWarning()
+    {
+        var t = EvilTestResult(
+            "fn test() {" +
+            "   val result = evil.compile('val unused = 42; val _used = 100;');" +
+            "   ret result;" +
+            "}"
+        ).Table!;
+
+        t["success"].ShouldBe(true);
+        var diags = t["diagnostics"].Array!;
+        diags.Length.ShouldBe(1);
+        var first = diags[0].Table!;
+        first["id"].ShouldBe("EV8003");
+        first["severity_name"].ShouldBe("Warning");
+    }
+
+    [Test]
+    public void Compile_ReturnsStructuredDiagnostics_OnError()
+    {
+        var t = EvilTestResult(
+            "fn test() {" +
+            "   val result = evil.compile('val = 42;');" +
+            "   ret result;" +
+            "}"
+        ).Table!;
+
+        t["success"].ShouldBe(false);
+        var diags = t["diagnostics"].Array!;
+        diags.Length.ShouldBeGreaterThanOrEqualTo(1);
+    }
+
+    [Test]
+    public void DiagnosticSeverity_ReturnsExpectedValues()
+    {
+        var t = EvilTestResult(
+            "fn test() -> evil.diagnostic.severity;"
+        ).Table!;
+
+        t["HIDDEN"].ShouldBe(0);
+        t["INFO"].ShouldBe(1);
+        t["WARNING"].ShouldBe(2);
+        t["ERROR"].ShouldBe(3);
+        t["FATAL"].ShouldBe(4);
+        t["INTERNAL_ERROR"].ShouldBe(5);
+    }
+
+    [Test]
+    public void Reflect_ReturnsAllRequiredInformation()
     {
         var t = EvilTestResult(
             "#[attrib] fn reflected(a, b = 'hi', rw c = 21) {" +

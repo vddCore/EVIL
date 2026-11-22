@@ -5,8 +5,10 @@ fn out_of_scope_evaluates_to_global {
   
   {
     val b = 21;
+    assert.equal(b, 21);
   }
   
+  assert.equal(a, 10);
   assert.equal(b, 33);
 }
 
@@ -76,6 +78,7 @@ fn inner_block_can_mutate_outer_rw {
 fn assigning_outside_defined_scope_has_no_effect {
   {
     val x = 10;
+    assert.equal(x, 10);
   }
 
   x = 999;
@@ -131,6 +134,7 @@ fn nested_function_scope_closure_behavior {
 fn scope_does_not_leak_after_block_exit {
   {
     val spooky = "👻";
+    assert.equal(spooky, "👻");
   }
 
   assert.equal(spooky, nil);

@@ -8,9 +8,9 @@ using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine.Scoping;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar;
-using EVIL.Grammar.Analysis;
+using EVIL.Analysis;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
@@ -56,29 +56,27 @@ public partial class Compiler : AstVisitor
         
     private int Line { get; set; }
     private int Column { get; set; }
-
+    
     public string CurrentFileName { get; private set; } = string.Empty;
 
-    private SourceLocation GetLocation(AstNode node) 
-        => new(CurrentFileName, node.Line, node.Column);
-
-    private SourceLocation GetLocation(int line, int column) 
-        => new(CurrentFileName, line, column);
-
-    public CompilerLog Log { get; } = new();
-    public bool OptimizeCodeGeneration { get; set; }
+    public CompilerOptions Options { get; }
+    public CompilerLog Log { get; }
     public AnalyzerDriver AnalyzerDriver { get; set; } = AnalyzerDriver.CreateDefault();
-    public bool EnableAnalyzers { get; set; } = true;
 
-    public Compiler(bool optimizeCodeGeneration = false)
+    public Compiler(CompilerOptions? compilerOptions = null)
     {
-        OptimizeCodeGeneration = optimizeCodeGeneration;
+        Options = (compilerOptions ??= CompilerOptions.Default);
+        Log = new CompilerLog(this);
     }
 
     public Chunk Compile(string source, string fileName = "")
     {
         CurrentFileName = fileName;
-        var parser = new Parser(Log, fileName);
+        
+        var parser = new Parser(Log, fileName)
+        {
+            MaxErrors = Options.MaxErrors
+        };
 
         try
         {
@@ -89,7 +87,14 @@ public partial class Compiler : AstVisitor
                 throw new CompilerException(Log);
             }
 
-            return Compile(program, fileName);
+            var chunk = Compile(program, fileName);
+
+            if (Log.HasErrors)
+            {
+                throw new CompilerException(Log);
+            }
+
+            return chunk;
         }
         catch (LexerException le)
         {
@@ -123,13 +128,19 @@ public partial class Compiler : AstVisitor
         _closedScopes.Clear();
         _chunks.Clear();
 
-        if (EnableAnalyzers && AnalyzerDriver != null)
+        if (Options.EnableAnalyzers)
         {
             AnalyzerDriver.Analyze(programNode, CurrentFileName, Log);
         }
 
         return InRootChunkDo(() => Visit(programNode));
     }
+    
+    private SourceLocation GetLocation(AstNode node) 
+        => new(CurrentFileName, node.Line, node.Column);
+
+    private SourceLocation GetLocation(int line, int column) 
+        => new(CurrentFileName, line, column);
         
     private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
     {
@@ -152,10 +163,12 @@ public partial class Compiler : AstVisitor
         var hash = SHA1.HashData(fileNameBytes);
         var chunkName = "!_root_chunk";
         var sb = new StringBuilder();
+        
         for (var i = 0; i < hash.Length; i++)
         {
             sb.Append(hash[i].ToString("X2"));
         }
+        
         chunkName += "!" + sb;
 
         _rootChunk = new Chunk(chunkName);

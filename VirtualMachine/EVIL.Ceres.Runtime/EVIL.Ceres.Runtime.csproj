@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EVIL.Ceres\EVIL.Ceres.csproj"/>
+    <ProjectReference Include="..\..\Core\EVIL.Diagnostics\EVIL.Diagnostics.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

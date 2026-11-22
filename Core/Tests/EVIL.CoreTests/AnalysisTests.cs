@@ -1,10 +1,10 @@
 namespace EVIL.CoreTests;
 
 using System.Linq;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar;
-using EVIL.Grammar.Analysis;
-using EVIL.Grammar.Analysis.Analyzers;
+using EVIL.Analysis;
+using EVIL.Analysis.Analyzers;
 using EVIL.Grammar.AST.Statements;
 using NUnit.Framework;
 using Shouldly;
@@ -144,6 +144,42 @@ public class AnalysisTests
         var diag = bag.Diagnostics.First();
         diag.Id.ShouldBe("EV8003");
         diag.Message.ShouldContain("'unused'");
+    }
+
+    [Test]
+    public void UnusedVariableAnalyzer_TakesIntoAccountSelfInvocationTarget()
+    {
+        var source = "val t = {};\nt::func();";
+        var (_, bag) = ParseAndAnalyze(source, new UnusedVariableAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UnusedVariableAnalyzer_TakesIntoAccountTargetedFnPrimaryTarget()
+    {
+        var source = "val obj = {};\nloc fn obj::say_hi() {}";
+        var (_, bag) = ParseAndAnalyze(source, new UnusedVariableAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UnusedVariableAnalyzer_TakesIntoAccountSelfFnExpression()
+    {
+        var source = "val t = [1, 2];\nval _tbl = { __get: self::fn(k) -> t[k] };";
+        var (_, bag) = ParseAndAnalyze(source, new UnusedVariableAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UnusedVariableAnalyzer_TakesIntoAccountIsExpressionManagedTypeName()
+    {
+        var source = "val type_name = \"System.String\";\nval _b = 123 is NativeObject \"${type_name}\";";
+        var (_, bag) = ParseAndAnalyze(source, new UnusedVariableAnalyzer());
+
+        bag.Count.ShouldBe(0);
     }
 
     [Test]

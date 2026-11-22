@@ -2,7 +2,7 @@
 
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler

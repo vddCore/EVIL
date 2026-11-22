@@ -8,14 +8,16 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     
-    <Version>11.0.0</Version>
+    <Version>11.1.0</Version>
     
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\EVIL.CommonTypes\EVIL.CommonTypes.csproj"/>
+    <ProjectReference Include="..\..\Core\EVIL.Diagnostics\EVIL.Diagnostics.csproj"/>
     <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj"/>
+    <ProjectReference Include="..\..\Core\EVIL.Analysis\EVIL.Analysis.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

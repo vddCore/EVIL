@@ -3,7 +3,7 @@
 using System;
 using System.Globalization;
 using System.Text;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 
 public class Lexer
 {

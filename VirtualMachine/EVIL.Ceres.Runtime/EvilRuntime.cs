@@ -14,7 +14,10 @@ using EVIL.Ceres.TranslationEngine;
 
 public sealed class EvilRuntime(VirtualMachineBase vm)
 {
-    private readonly Compiler _compiler = new();
+    private readonly Compiler _compiler = new(new CompilerOptions
+    {
+        EnableAnalyzers = false
+    });
 
     private Table Global => vm.Global;
 

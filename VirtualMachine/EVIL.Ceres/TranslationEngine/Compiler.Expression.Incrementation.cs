@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
@@ -39,6 +39,7 @@ public partial class Compiler
 
             Visit(ie.Indexable);
             Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempTarget);
+            
             Visit(ie.KeyExpression);
             Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempKey);
 

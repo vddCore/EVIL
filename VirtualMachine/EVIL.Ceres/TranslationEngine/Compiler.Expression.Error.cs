@@ -1,7 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
@@ -30,7 +30,7 @@ public partial class Compiler
 
         if (errorExpression.ImplicitMessageConstant != null)
         {
-            Visit(errorExpression.ImplicitMessageConstant!);
+            Visit(errorExpression.ImplicitMessageConstant);
             Chunk.CodeGenerator.Emit(
                 OpCode.LDSTR, 
                 (int)Chunk.StringPool.FetchOrAdd("msg")

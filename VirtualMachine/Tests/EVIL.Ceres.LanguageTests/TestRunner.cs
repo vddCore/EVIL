@@ -61,7 +61,12 @@ public class TestRunner
 
     private int Compile(out List<TestSet> testSets)
     {
-        var compiler = new Compiler(Options.OptimizeCodeGeneration);
+        var compilerOptions = CompilerOptions.Default with
+        {
+            OptimizeCodeGeneration = Options.OptimizeCodeGeneration
+        };
+        
+        var compiler = new Compiler(compilerOptions);
         compiler.RegisterAttributeProcessor("approximate", AttributeProcessors.ApproximateAttribute);
         compiler.RegisterAttributeProcessor("disasm", AttributeProcessors.DisasmAttribute);
 

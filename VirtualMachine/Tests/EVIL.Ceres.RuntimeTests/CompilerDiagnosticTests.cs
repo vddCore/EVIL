@@ -2,7 +2,7 @@ namespace EVIL.Ceres.RuntimeTests;
 
 using System.Linq;
 using EVIL.Ceres.TranslationEngine;
-using EVIL.CommonTypes.Diagnostics;
+using EVIL.Diagnostics;
 using NUnit.Framework;
 using Shouldly;
 
@@ -14,7 +14,7 @@ public class CompilerDiagnosticTests
     {
         var compiler = new Compiler();
         var source = "val = 1;\nval b = 2;\nval = 3;\nval c = 4;";
-        
+
         Should.Throw<CompilerException>(() => compiler.Compile(source, "test.vil"));
 
         compiler.Log.HasErrors.ShouldBeTrue();
@@ -29,7 +29,7 @@ public class CompilerDiagnosticTests
         var source = "val a = 10;\nval a = 20;";
 
         var ex = Should.Throw<CompilerException>(() => compiler.Compile(source, "dup.vil"));
-        
+
         compiler.Log.HasErrors.ShouldBeTrue();
         var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV2001");
         diag.ShouldNotBeNull();
@@ -137,7 +137,7 @@ public class CompilerDiagnosticTests
     [Test]
     public void Compiler_WhenEnableAnalyzersIsFalse_DoesNotRunAnalyzers()
     {
-        var compiler = new Compiler { EnableAnalyzers = false };
+        var compiler = new Compiler(CompilerOptions.Default with { EnableAnalyzers = false });
         var source = "val _x = 1;\nval _y = by _x { 1 => \"one\" };";
 
         compiler.Compile(source, "no_analyzers.vil");
@@ -230,5 +230,64 @@ public class CompilerDiagnosticTests
 
         compiler.Log.HasErrors.ShouldBeFalse();
         compiler.Log.WarningCount.ShouldBe(0);
+    }
+
+    [Test]
+    public void Compiler_WarningsAsErrors_ElevatesAllWarningsToErrors()
+    {
+        var compiler = new Compiler(CompilerOptions.Default with { WarningsAsErrors = true });
+        var source = "val unusedVar = 10;\nval _used = 20;";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "warnaserror.vil"));
+
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8003");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Error);
+    }
+
+    [Test]
+    public void Compiler_WarningsAsErrorsCodes_ElevatesSpecificWarningOnly()
+    {
+        var options = CompilerOptions.Default;
+        options.WarningsAsErrorsCodes.Add("EV8003");
+        
+        var compiler = new Compiler(options);
+        var source = "val unusedVar = 10;\nval _used = 20;";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "warnaserror_code.vil"));
+
+        compiler.Log.HasErrors.ShouldBeTrue();
+        var diag = compiler.Log.Diagnostics.FirstOrDefault(d => d.Id == "EV8003");
+        diag.ShouldNotBeNull();
+        diag.Severity.ShouldBe(DiagnosticSeverity.Error);
+    }
+
+    [Test]
+    public void Compiler_SuppressedCodes_IgnoresSpecifiedWarning()
+    {
+        var options = CompilerOptions.Default;
+        options.SuppressedCodes.Add("EV8003");
+        
+        var compiler = new Compiler(options);
+        var source = "val unusedVar = 10;\nval _used = 20;";
+
+        compiler.Compile(source, "nowarn.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(0);
+        compiler.Log.Diagnostics.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void Compiler_MaxErrors_LimitsCollectedErrors()
+    {
+        var options = CompilerOptions.Default with { MaxErrors = 2 };
+        var compiler = new Compiler(options);
+        var source = "val = 1;\nval = 2;\nval = 3;\nval = 4;\nval = 5;";
+
+        Should.Throw<CompilerException>(() => compiler.Compile(source, "max_errors.vil"));
+
+        compiler.Log.ErrorCount.ShouldBeLessThanOrEqualTo(2);
     }
 }

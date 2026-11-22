@@ -2,6 +2,8 @@
 
 using static EVIL.CommonTypes.TypeSystem.DynamicValueType;
 
+using System.Collections.Generic;
+using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
@@ -9,19 +11,38 @@ using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime.Extensions;
 using EVIL.Ceres.TranslationEngine;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
+using EVIL.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 
 public sealed class EvilModule : RuntimeModule
 {
     public override string FullyQualifiedName => "evil";
 
-    private static Table _severities = new Table()
+    private static readonly Table _severities = new Table
     {
         { "VERBOSE", (int)CompilerMessageSeverity.Verbose },
         { "WARNING", (int)CompilerMessageSeverity.Warning },
         { "FATAL", (int)CompilerMessageSeverity.Fatal },
         { "INTERNAL_FAILURE", (int)CompilerMessageSeverity.InternalFailure },
     }.Freeze();
+
+    private static readonly Table _diagnosticSeverities = new Table
+    {
+        { "HIDDEN", (int)DiagnosticSeverity.Hidden },
+        { "INFO", (int)DiagnosticSeverity.Info },
+        { "WARNING", (int)DiagnosticSeverity.Warning },
+        { "ERROR", (int)DiagnosticSeverity.Error },
+        { "FATAL", (int)DiagnosticSeverity.Fatal },
+        { "INTERNAL_ERROR", (int)DiagnosticSeverity.InternalError },
+    }.Freeze();
+
+    [RuntimeModuleGetter("diagnostic.severity")]
+    [EvilDocProperty(
+        EvilDocPropertyMode.Get,
+        "Retrieves a table mapping diagnostic severity names to numeric representations."
+    )]
+    private static DynamicValue DiagnosticSeverityValues(DynamicValue _)
+        => _diagnosticSeverities;
 
     [RuntimeModuleGetter("compiler.severity")]
     [EvilDocProperty(
@@ -68,19 +89,92 @@ public sealed class EvilModule : RuntimeModule
             return new Table
             {
                 { "success", true },
-                { "chunk", rootChunk }
+                { "chunk", rootChunk },
+                { "diagnostics", DiagnosticsToDynamicValue(compiler.Log.Diagnostics) },
+                { "log", compiler.Log.ToDynamicValue() }
             };
         }
         catch (CompilerException e)
         {
-                
             return new Table
             {
                 { "success", false },
                 { "message", e.Message },
+                { "diagnostics", DiagnosticsToDynamicValue(e.Log.Diagnostics) },
                 { "log", e.Log.ToDynamicValue() }
             };
         }
+    }
+
+    private static Array DiagnosticsToDynamicValue(IEnumerable<Diagnostic> diagnostics)
+    {
+        var list = diagnostics.ToList();
+        var array = new Array(list.Count);
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var d = list[i];
+            var table = new Table
+            {
+                { "id", d.Id },
+                { "title", d.Descriptor.Title },
+                { "severity", (int)d.Severity },
+                { "severity_name", d.Severity.ToString() },
+                { "category", d.Descriptor.Category.ToString() },
+                { "message", d.Message },
+                { "file_name", d.Location.FilePath ?? DynamicValue.Nil },
+                { "line", d.Location.Line },
+                { "column", d.Location.Column },
+                { "end_line", d.Location.EndLine },
+                { "end_column", d.Location.EndColumn },
+                { "offset", d.Location.Offset },
+                { "length", d.Location.Length }
+            };
+
+            if (d.RelatedLocations is { Count: > 0 })
+            {
+                var relArray = new Array(d.RelatedLocations.Count);
+                for (var j = 0; j < d.RelatedLocations.Count; j++)
+                {
+                    var rel = d.RelatedLocations[j];
+                    relArray[j] = new Table
+                    {
+                        { "file_name", rel.Location.FilePath ?? DynamicValue.Nil },
+                        { "line", rel.Location.Line },
+                        { "column", rel.Location.Column },
+                        { "message", rel.Message }
+                    };
+                }
+                table["related_locations"] = relArray;
+            }
+            else
+            {
+                table["related_locations"] = new Array(0);
+            }
+
+            if (d.SuggestedFixes is { Count: > 0 })
+            {
+                var fixArray = new Array(d.SuggestedFixes.Count);
+                for (var j = 0; j < d.SuggestedFixes.Count; j++)
+                {
+                    var fix = d.SuggestedFixes[j];
+                    fixArray[j] = new Table
+                    {
+                        { "title", fix.Title },
+                        { "replacement", fix.ReplacementText }
+                    };
+                }
+                table["code_fixes"] = fixArray;
+            }
+            else
+            {
+                table["code_fixes"] = new Array(0);
+            }
+
+            array[i] = table;
+        }
+
+        return array;
     }
 
     [RuntimeModuleFunction("reflect")]
@@ -151,9 +245,9 @@ public sealed class EvilModule : RuntimeModule
                 param["name"] = parameterName;
             }
 
-            if (chunk.ParameterInitializers.ContainsKey(i))
+            if (chunk.ParameterInitializers.TryGetValue(i, out var initializer))
             {
-                param["default_value"] = chunk.ParameterInitializers[i];
+                param["default_value"] = initializer;
             }
 
             if (chunk.DebugDatabase.TryGetParameterRwState(i, out var rw))
