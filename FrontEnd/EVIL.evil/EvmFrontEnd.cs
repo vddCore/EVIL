@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;

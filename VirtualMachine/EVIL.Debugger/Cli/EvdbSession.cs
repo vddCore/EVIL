@@ -8,6 +8,7 @@ using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 
 public sealed class EvdbSession
 {

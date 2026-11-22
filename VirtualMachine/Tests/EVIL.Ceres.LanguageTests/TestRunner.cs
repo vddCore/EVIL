@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
@@ -234,7 +235,7 @@ public class TestRunner
                 }
             }
 
-            var verb = (ignored > 1 || ignored == 0)
+            var verb = ignored is > 1 or 0
                 ? "were"
                 : "was";
 

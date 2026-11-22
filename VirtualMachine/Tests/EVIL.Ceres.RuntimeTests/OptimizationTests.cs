@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.RuntimeTests;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.CommonTypes.TypeSystem;
 using NUnit.Framework;
