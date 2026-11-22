@@ -1,5 +1,7 @@
 namespace EVIL.Ceres.RuntimeTests;
 
+using System;
+using System.Collections.Generic;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
@@ -980,6 +982,116 @@ public class OptimizationTests : TestBase
             Assert.That(result.Array![0].Number, Is.EqualTo(30.0));
             Assert.That(result.Array![1].String, Is.EqualTo("Item(10)"));
         }
+    }
+
+    [Test]
+    public void Table_LazyStorage_PureArrayAndEmptyTables_PreserveZeroHashPart()
+    {
+        var table = new ExecutionEngine.Collections.Table();
+        Assert.That(table.Length, Is.EqualTo(0));
+
+        // Reading non-existent keys must not instantiate hash part or fail
+        Assert.That(table.TryGetValue("nonexistent", out var val), Is.False);
+        Assert.That(val, Is.EqualTo(DynamicValue.Nil));
+        Assert.That(table.Contains("nonexistent"), Is.False);
+
+        // Writing dense integer keys must populate array part only
+        table.Set(0, 10);
+        table.Set(1, 20);
+        table.Set(2, 30);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Length, Is.EqualTo(3));
+            Assert.That(table.TryGetValue(0, out var v0), Is.True);
+            Assert.That(v0.Number, Is.EqualTo(10.0));
+            Assert.That(table.TryGetValue(1, out var v1), Is.True);
+            Assert.That(v1.Number, Is.EqualTo(20.0));
+            Assert.That(table.TryGetValue(2, out var v2), Is.True);
+            Assert.That(v2.Number, Is.EqualTo(30.0));
+        }
+
+        // Keys and Values arrays reflect array part elements
+        var keys = table.GetKeys();
+        var values = table.GetValues();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(keys.Length, Is.EqualTo(3));
+            Assert.That(values.Length, Is.EqualTo(3));
+            Assert.That(values[0].Number, Is.EqualTo(10.0));
+            Assert.That(values[1].Number, Is.EqualTo(20.0));
+            Assert.That(values[2].Number, Is.EqualTo(30.0));
+        }
+
+        // Enumerator yields array elements
+        var enumerated = new List<KeyValuePair<DynamicValue, DynamicValue>>(table);
+        Assert.That(enumerated, Has.Count.EqualTo(3));
+
+        // Setting a string key lazily allocates hash part and integrates with Length
+        table.Set("foo", "bar");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Length, Is.EqualTo(4));
+            Assert.That(table.TryGetValue("foo", out var vFoo), Is.True);
+            Assert.That(vFoo.String, Is.EqualTo("bar"));
+        }
+    }
+
+    [Test]
+    public void Table_ScalableArrayPart_PowerOfTwoGrowthUpTo65536()
+    {
+        var table = new ExecutionEngine.Collections.Table();
+        const int elementCount = 4096; // Exceeds old 1024 cap
+
+        for (var i = 0; i < elementCount; i++)
+        {
+            table.Set(i, i * 3);
+        }
+
+        Assert.That(table.Length, Is.EqualTo(elementCount));
+
+        for (var i = 0; i < elementCount; i++)
+        {
+            Assert.That(table.TryGetValue(i, out var v), Is.True);
+            Assert.That(v.Number, Is.EqualTo(i * 3.0));
+        }
+
+        // Setting to Nil decreases count and retains correct remaining elements
+        table.Set(100, DynamicValue.Nil);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Length, Is.EqualTo(elementCount - 1));
+            Assert.That(table.TryGetValue(100, out _), Is.False);
+            Assert.That(table.TryGetValue(101, out var v101), Is.True);
+            Assert.That(v101.Number, Is.EqualTo(101 * 3.0));
+        }
+    }
+
+    [Test]
+    public void Table_MemoryFootprint_EmptyTables_SignificantReduction()
+    {
+        const int tableCount = 100_000;
+        var tables = new ExecutionEngine.Collections.Table[tableCount];
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
+        var memBefore = GC.GetTotalMemory(true);
+
+        for (var i = 0; i < tableCount; i++)
+        {
+            tables[i] = new ExecutionEngine.Collections.Table();
+        }
+
+        var memAfter = GC.GetTotalMemory(false);
+        var bytesUsed = memAfter - memBefore;
+
+        // GC.KeepAlive to ensure tables array is not collected prematurely
+        GC.KeepAlive(tables);
+
+        // Before Phase 3, 100k tables took ~30-35 MB due to eager Dictionary allocation.
+        // With lazy storage, 100k empty Table instances take < 10 MB (typically ~4.8 - 6 MB).
+        Assert.That(bytesUsed, Is.LessThan(12 * 1024 * 1024), $"Used {bytesUsed / (1024.0 * 1024.0):F2} MB");
     }
 
     [Test]
@@ -2325,7 +2437,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "dce_ret_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2398,7 +2510,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "dce_throw_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2469,7 +2581,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "dce_break_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2514,7 +2626,7 @@ public class OptimizationTests : TestBase
             }
         }
 
-        Assert.That(opcodes.FindAll(op => op == OpCode.ADD).Count, Is.EqualTo(1));
+        Assert.That(opcodes.FindAll(op => op == OpCode.ADD), Has.Count.EqualTo(1));
 
         var result = EvilTestResult(script);
         using (Assert.EnterMultipleScope())
@@ -2542,7 +2654,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "dce_skip_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2616,7 +2728,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "dce_ifelse_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
