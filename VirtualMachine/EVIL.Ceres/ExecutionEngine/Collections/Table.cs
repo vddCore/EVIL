@@ -45,6 +45,41 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     public const string SetMetaKey = "__set";
     public const string GetMetaKey = "__get";
 
+    public static readonly DynamicValue AddMetaKeyVal = new(AddMetaKey);
+    public static readonly DynamicValue SubtractMetaKeyVal = new(SubtractMetaKey);
+    public static readonly DynamicValue MultiplyMetaKeyVal = new(MultiplyMetaKey);
+    public static readonly DynamicValue DivideMetaKeyVal = new(DivideMetaKey);
+    public static readonly DynamicValue ModuloMetaKeyVal = new(ModuloMetaKey);
+    public static readonly DynamicValue ShiftLeftMetaKeyVal = new(ShiftLeftMetaKey);
+    public static readonly DynamicValue ShiftRightMetaKeyVal = new(ShiftRightMetaKey);
+    public static readonly DynamicValue ArithmeticNegateMetaKeyVal = new(ArithmeticNegateMetaKey);
+    public static readonly DynamicValue LogicalNotMetaKeyVal = new(LogicalNotMetaKey);
+    public static readonly DynamicValue LogicalOrMetaKeyVal = new(LogicalOrMetaKey);
+    public static readonly DynamicValue LogicalAndMetaKeyVal = new(LogicalAndMetaKey);
+    public static readonly DynamicValue BitwiseOrMetaKeyVal = new(BitwiseOrMetaKey);
+    public static readonly DynamicValue BitwiseXorMetaKeyVal = new(BitwiseXorMetaKey);
+    public static readonly DynamicValue BitwiseAndMetaKeyVal = new(BitwiseAndMetaKey);
+    public static readonly DynamicValue BitwiseNotMetaKeyVal = new(BitwiseNotMetaKey);
+    public static readonly DynamicValue DeepEqualMetaKeyVal = new(DeepEqualMetaKey);
+    public static readonly DynamicValue DeepNotEqualMetaKeyVal = new(DeepNotEqualMetaKey);
+    public static readonly DynamicValue EqualMetaKeyVal = new(EqualMetaKey);
+    public static readonly DynamicValue NotEqualMetaKeyVal = new(NotEqualMetaKey);
+    public static readonly DynamicValue GreaterThanMetaKeyVal = new(GreaterThanMetaKey);
+    public static readonly DynamicValue GreaterEqualMetaKeyVal = new(GreaterEqualMetaKey);
+    public static readonly DynamicValue LessThanMetaKeyVal = new(LessThanMetaKey);
+    public static readonly DynamicValue LessEqualMetaKeyVal = new(LessEqualMetaKey);
+    public static readonly DynamicValue InvokeMetaKeyVal = new(InvokeMetaKey);
+    public static readonly DynamicValue LengthMetaKeyVal = new(LengthMetaKey);
+    public static readonly DynamicValue ToStringMetaKeyVal = new(ToStringMetaKey);
+    public static readonly DynamicValue ToNumberMetaKeyVal = new(ToNumberMetaKey);
+    public static readonly DynamicValue ExistsMetaKeyVal = new(ExistsMetaKey);
+    public static readonly DynamicValue IncrementMetaKeyVal = new(IncrementMetaKey);
+    public static readonly DynamicValue DecrementMetaKeyVal = new(DecrementMetaKey);
+    public static readonly DynamicValue SetMetaKeyVal = new(SetMetaKey);
+    public static readonly DynamicValue GetMetaKeyVal = new(GetMetaKey);
+
+    public MetamethodFlags MetamethodFlags { get; set; }
+
     private const int MaxArrayPartCapacity = 1024;
 
     private DynamicValue[]? _arrayPart;
@@ -129,6 +164,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         {
             MetaTable = other.MetaTable?.ShallowCopy();
             IsFrozen = other.IsFrozen;
+            MetamethodFlags = other.MetamethodFlags;
 
             if (other._arrayPart != null)
             {
@@ -152,6 +188,47 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static MetamethodFlags GetMetamethodFlag(string name)
+    {
+        return name switch
+        {
+            AddMetaKey => MetamethodFlags.Add,
+            SubtractMetaKey => MetamethodFlags.Sub,
+            MultiplyMetaKey => MetamethodFlags.Mul,
+            DivideMetaKey => MetamethodFlags.Div,
+            ModuloMetaKey => MetamethodFlags.Mod,
+            ShiftLeftMetaKey => MetamethodFlags.Shl,
+            ShiftRightMetaKey => MetamethodFlags.Shr,
+            ArithmeticNegateMetaKey => MetamethodFlags.Aneg,
+            LogicalNotMetaKey => MetamethodFlags.Lnot,
+            LogicalOrMetaKey => MetamethodFlags.Lor,
+            LogicalAndMetaKey => MetamethodFlags.Land,
+            BitwiseOrMetaKey => MetamethodFlags.Bor,
+            BitwiseXorMetaKey => MetamethodFlags.Bxor,
+            BitwiseAndMetaKey => MetamethodFlags.Band,
+            BitwiseNotMetaKey => MetamethodFlags.Bnot,
+            DeepEqualMetaKey => MetamethodFlags.Deq,
+            DeepNotEqualMetaKey => MetamethodFlags.Dne,
+            EqualMetaKey => MetamethodFlags.Eq,
+            NotEqualMetaKey => MetamethodFlags.Ne,
+            GreaterThanMetaKey => MetamethodFlags.Gt,
+            GreaterEqualMetaKey => MetamethodFlags.Gte,
+            LessThanMetaKey => MetamethodFlags.Lt,
+            LessEqualMetaKey => MetamethodFlags.Lte,
+            InvokeMetaKey => MetamethodFlags.Invoke,
+            LengthMetaKey => MetamethodFlags.Len,
+            ToStringMetaKey => MetamethodFlags.ToStr,
+            ToNumberMetaKey => MetamethodFlags.ToNum,
+            ExistsMetaKey => MetamethodFlags.Exists,
+            IncrementMetaKey => MetamethodFlags.Inc,
+            DecrementMetaKey => MetamethodFlags.Dec,
+            SetMetaKey => MetamethodFlags.Set,
+            GetMetaKey => MetamethodFlags.Get,
+            _ => MetamethodFlags.None
+        };
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsIntegerKey(DynamicValue key, out int index)
@@ -159,7 +236,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         if (key.Type == DynamicValueType.Number)
         {
             var num = key.Number;
-            if (num >= 0 && num <= int.MaxValue && (long)num == num)
+            if (num is >= 0 and <= int.MaxValue && (long)num == num)
             {
                 index = (int)num;
                 return true;
@@ -182,12 +259,16 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     public void Set(DynamicValue key, DynamicValue value)
     {
         if (IsFrozen)
+        {
             return;
+        }
 
         (key, value) = OnBeforeSet(key, value);
 
         if (key == Nil)
+        {
             return;
+        }
 
         if (value == Nil)
         {
@@ -257,6 +338,26 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
+        if (key.Type == DynamicValueType.String)
+        {
+            var str = key.String;
+            if (str is { Length: > 2 } && str[0] == '_' && str[1] == '_')
+            {
+                var flag = GetMetamethodFlag(str);
+                if (flag != MetamethodFlags.None)
+                {
+                    if (value == Nil)
+                    {
+                        MetamethodFlags &= ~flag;
+                    }
+                    else
+                    {
+                        MetamethodFlags |= flag;
+                    }
+                }
+            }
+        }
+
         OnAfterSet(key, value);
     }
 
@@ -300,10 +401,9 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
 
     protected virtual DynamicValue OnIndex(DynamicValue key)
     {
-        if (OnTryGetValue(key, out var val))
-            return val;
-
-        return Nil;
+        return OnTryGetValue(key, out var val) 
+            ? val 
+            : Nil;
     }
 
     public bool Contains(DynamicValue key)
@@ -316,7 +416,9 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         if (IsIntegerKey(key, out var index) && _arrayPart != null && (uint)index < (uint)_arrayPart.Length)
         {
             if (_arrayPart[index] != Nil)
+            {
                 return true;
+            }
         }
 
         return _hashPart.ContainsKey(key);
@@ -331,6 +433,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         }
 
         _hashPart.Clear();
+        MetamethodFlags = MetamethodFlags.None;
     }
 
     public Table Freeze(bool deep = false)
@@ -344,14 +447,18 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 for (var idx = 0; idx < _arrayPart.Length; idx++)
                 {
                     if (_arrayPart[idx].Type == DynamicValueType.Table)
+                    {
                         _arrayPart[idx].Table!.Freeze(deep);
+                    }
                 }
             }
 
             foreach (var value in _hashPart.Values)
             {
                 if (value.Type == DynamicValueType.Table)
+                {
                     value.Table!.Freeze(deep);
+                }
             }
         }
 
@@ -369,14 +476,18 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 for (var idx = 0; idx < _arrayPart.Length; idx++)
                 {
                     if (_arrayPart[idx].Type == DynamicValueType.Table)
+                    {
                         _arrayPart[idx].Table!.Unfreeze(deep);
+                    }
                 }
             }
 
             foreach (var value in _hashPart.Values)
             {
                 if (value.Type == DynamicValueType.Table)
+                {
                     value.Table!.Unfreeze(deep);
+                }
             }
         }
 
@@ -435,7 +546,8 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     {
         var copy = new Table
         {
-            MetaTable = MetaTable?.ShallowCopy()
+            MetaTable = MetaTable?.ShallowCopy(),
+            MetamethodFlags = MetamethodFlags
         };
 
         if (_arrayPart != null)
@@ -457,7 +569,8 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     {
         var copy = new Table
         {
-            MetaTable = MetaTable?.DeepCopy()
+            MetaTable = MetaTable?.DeepCopy(),
+            MetamethodFlags = MetamethodFlags
         };
 
         if (_arrayPart != null)

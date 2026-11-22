@@ -3,6 +3,7 @@ namespace EVIL.Ceres.RuntimeTests;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
+using EVIL.Ceres.Runtime;
 using EVIL.CommonTypes.TypeSystem;
 using NUnit.Framework;
 
@@ -897,6 +898,87 @@ public class OptimizationTests : TestBase
             Assert.That(result.Array![3].Number, Is.EqualTo(3.0));
             Assert.That(result.Array![4].Number, Is.EqualTo(1.0));
             Assert.That(result.Array![5].Number, Is.EqualTo(3.0));
+        }
+    }
+
+    [Test]
+    public void Table_MetamethodFlags_TracksAdditionRemovalAndClear()
+    {
+        var table = new ExecutionEngine.Collections.Table();
+        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.None));
+
+        table.Set(ExecutionEngine.Collections.Table.AddMetaKey, 1);
+        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.Add));
+
+        table.Set(ExecutionEngine.Collections.Table.ToStringMetaKey, 2);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.MetamethodFlags.HasFlag(ExecutionEngine.Collections.MetamethodFlags.Add), Is.True);
+            Assert.That(table.MetamethodFlags.HasFlag(ExecutionEngine.Collections.MetamethodFlags.ToStr), Is.True);
+        }
+
+        // Setting non-metamethod property should not affect flags
+        table.Set("customProp", 42);
+        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.Add | ExecutionEngine.Collections.MetamethodFlags.ToStr));
+
+        // Setting metamethod to nil should clear the flag
+        table.Set(ExecutionEngine.Collections.Table.AddMetaKey, DynamicValue.Nil);
+        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.ToStr));
+
+        // Clear should reset all flags
+        table.Clear();
+        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.None));
+    }
+
+    [Test]
+    public void Table_MetamethodFlags_PreservedAcrossCopies()
+    {
+        var original = new ExecutionEngine.Collections.Table();
+        original.Set(ExecutionEngine.Collections.Table.MultiplyMetaKey, 1);
+        original.Set(ExecutionEngine.Collections.Table.InvokeMetaKey, 2);
+
+        var shallow = original.ShallowCopy();
+        var deep = original.DeepCopy();
+        var ctorCopy = new ExecutionEngine.Collections.Table(original);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(shallow.MetamethodFlags, Is.EqualTo(original.MetamethodFlags));
+            Assert.That(deep.MetamethodFlags, Is.EqualTo(original.MetamethodFlags));
+            Assert.That(ctorCopy.MetamethodFlags, Is.EqualTo(original.MetamethodFlags));
+        }
+    }
+
+    [Test]
+    public void Table_Metamethod_ScriptDispatchAndFastRejection()
+    {
+        var runtime = new EvilRuntime(VM);
+        runtime.RegisterBuiltInModules();
+
+        var script = """
+            fn test() {
+                val mt = {
+                    __add: fn(a, b) -> a.num + b.num,
+                    __tostr: fn(a) -> "Item(" + @a.num + ")"
+                };
+
+                val x = { num: 10 };
+                val y = { num: 20 };
+                tbl.set_mt(x, mt);
+                tbl.set_mt(y, mt);
+
+                val sum = x + y;
+                val str = @x;
+                ret [sum, str];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].Number, Is.EqualTo(30.0));
+            Assert.That(result.Array![1].String, Is.EqualTo("Item(10)"));
         }
     }
 

@@ -582,45 +582,65 @@ public class Lexer
                         case 'a':
                             str += '\a';
                             break;
+                        
                         case 'b':
                             str += '\b';
                             break;
+                        
                         case 'f':
                             str += '\f';
                             break;
+                        
                         case 'n':
                             str += '\n';
                             break;
+                        
                         case 'r':
                             str += '\r';
                             break;
+                        
                         case 't':
                             str += '\t';
                             break;
+                        
                         case 'x':
                         case 'u':
                             Advance();
                             str += GetUnicodeSequence();
                             continue;
+                        
                         case 'v':
                             str += '\v';
                             break;
+                        
                         case '"':
                             str += '"';
                             break;
+                        
                         case '\'':
                             str += '\'';
                             break;
+                        
                         case '\\':
                             str += '\\';
                             break;
+
                         case '$':
+                        {
                             if (delimiter == '"')
+                            {
                                 str += "\\$";
+                            }
                             else
+                            {
                                 str += '$';
+                            }
+
                             break;
+                        }
+
                         default:
+                        {
                             ReportLexerError(
                                 CompilerDiagnostics.UnexpectedCharacter,
                                 new SourceLocation(FilePath, State.Line, State.Column),
@@ -628,6 +648,7 @@ public class Lexer
                             );
                             str += State.Character;
                             break;
+                        }
                     }
 
                     Advance();
@@ -685,7 +706,7 @@ public class Lexer
                             continue;
                         }
 
-                        if (State.Character == '"' || State.Character == '\'')
+                        if (State.Character is '"' or '\'')
                         {
                             var quote = State.Character;
                             str += quote;

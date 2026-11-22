@@ -176,7 +176,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.AddMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Add, Table.AddMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -185,7 +185,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.AddMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Add, Table.AddMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -203,7 +203,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.SubtractMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Sub, Table.SubtractMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -212,7 +212,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.SubtractMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Sub, Table.SubtractMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -230,7 +230,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.MultiplyMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Mul, Table.MultiplyMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -239,7 +239,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.MultiplyMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Mul, Table.MultiplyMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -257,7 +257,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.DivideMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Div, Table.DivideMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -266,7 +266,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.DivideMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Div, Table.DivideMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -284,7 +284,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.ModuloMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Mod, Table.ModuloMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -293,7 +293,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.ModuloMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Mod, Table.ModuloMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -311,7 +311,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.ShiftLeftMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Shl, Table.ShiftLeftMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -320,7 +320,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.ShiftLeftMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Shl, Table.ShiftLeftMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -338,7 +338,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.ShiftRightMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Shr, Table.ShiftRightMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -347,7 +347,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.ShiftRightMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Shr, Table.ShiftRightMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -370,7 +370,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.ArithmeticNegateMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Aneg, Table.ArithmeticNegateMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -387,7 +387,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.LogicalNotMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Lnot, Table.LogicalNotMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -405,7 +405,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.LogicalOrMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Lor, Table.LogicalOrMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -414,7 +414,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.LogicalOrMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Lor, Table.LogicalOrMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -432,7 +432,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.LogicalAndMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Land, Table.LogicalAndMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -441,7 +441,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.LogicalAndMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Land, Table.LogicalAndMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -459,7 +459,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.BitwiseOrMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Bor, Table.BitwiseOrMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -468,7 +468,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.BitwiseOrMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Bor, Table.BitwiseOrMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -486,7 +486,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.BitwiseXorMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Bxor, Table.BitwiseXorMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -495,7 +495,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.BitwiseXorMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Bxor, Table.BitwiseXorMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -513,7 +513,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.BitwiseAndMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Band, Table.BitwiseAndMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -522,7 +522,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.BitwiseAndMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Band, Table.BitwiseAndMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -539,7 +539,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.BitwiseNotMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Bnot, Table.BitwiseNotMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -557,7 +557,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.DeepEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Deq, Table.DeepEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -566,7 +566,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.DeepEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Deq, Table.DeepEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -584,7 +584,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.DeepNotEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Dne, Table.DeepNotEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -593,7 +593,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.DeepNotEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Dne, Table.DeepNotEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -611,7 +611,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.EqualMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Eq, Table.EqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -620,7 +620,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.EqualMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Eq, Table.EqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -638,7 +638,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.NotEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Ne, Table.NotEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -647,7 +647,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.NotEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Ne, Table.NotEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -665,7 +665,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.GreaterThanMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Gt, Table.GreaterThanMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -674,7 +674,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.GreaterThanMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Gt, Table.GreaterThanMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -692,7 +692,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.GreaterEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Gte, Table.GreaterEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -701,7 +701,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.GreaterEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Gte, Table.GreaterEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -719,7 +719,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.LessThanMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Lt, Table.LessThanMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -728,7 +728,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.LessThanMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Lt, Table.LessThanMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -746,7 +746,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.LessEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Lte, Table.LessEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -755,7 +755,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.LessEqualMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Lte, Table.LessEqualMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a, b);
                             break;
@@ -789,7 +789,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.InvokeMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Invoke, Table.InvokeMetaKeyVal, out var chunk))
                         {
                             var overrideArgs = new DynamicValue[args.Length + 1];
                             overrideArgs[0] = a;
@@ -990,7 +990,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.LengthMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Len, Table.LengthMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1007,7 +1007,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.ToStringMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.ToStr, Table.ToStringMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1024,7 +1024,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.ToNumberMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.ToNum, Table.ToNumberMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1139,7 +1139,7 @@ internal class ExecutionUnit
 
                     if (b.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(b.Table!, Table.ExistsMetaKey, out var chunk))
+                        if (FindMetaFunction(b.Table!, MetamethodFlags.Exists, Table.ExistsMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, b, a);
                             break;
@@ -1164,7 +1164,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.IncrementMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Inc, Table.IncrementMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1181,7 +1181,7 @@ internal class ExecutionUnit
 
                     if (a.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(a.Table!, Table.DecrementMetaKey, out var chunk))
+                        if (FindMetaFunction(a.Table!, MetamethodFlags.Dec, Table.DecrementMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, a);
                             break;
@@ -1269,7 +1269,7 @@ internal class ExecutionUnit
 
                     if (c.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(c.Table!, Table.SetMetaKey, out var chunk))
+                        if (FindMetaFunction(c.Table!, MetamethodFlags.Set, Table.SetMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, c, b, a);
                             break;
@@ -1326,10 +1326,8 @@ internal class ExecutionUnit
                         }
 
                         var mt = tbl.MetaTable;
-                        if (mt != null)
+                        if (mt != null && (mt.MetamethodFlags & MetamethodFlags.Get) != 0 && mt.TryGetValue(Table.GetMetaKeyVal, out var value))
                         {
-                            var value = mt[Table.GetMetaKey];
-
                             if (value.Type == DynamicValueType.Chunk)
                             {
                                 InvokeChunk(value.Chunk!, c, a);
@@ -1582,23 +1580,50 @@ internal class ExecutionUnit
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool FindMetaFunction(Table table, MetamethodFlags flag, DynamicValue opKeyVal, [MaybeNullWhen(false)] out Chunk chunk)
+    {
+        var mt = table.MetaTable;
+        if (mt == null || (mt.MetamethodFlags & flag) == 0)
+        {
+            chunk = null;
+            return false;
+        }
+
+        if (mt.TryGetValue(opKeyVal, out var value) && value.Type == DynamicValueType.Chunk)
+        {
+            chunk = value.Chunk!;
+            return true;
+        }
+
+        chunk = null;
+        return false;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool FindMetaFunction(Table table, string op, [MaybeNullWhen(false)] out Chunk chunk)
     {
-        if (!table.HasMetaTable)
+        var mt = table.MetaTable;
+        if (mt == null)
         {
             chunk = null;
             return false;
         }
 
-        var value = table.MetaTable![op];
-        if (value.Type != DynamicValueType.Chunk)
+        var flag = Table.GetMetamethodFlag(op);
+        if (flag != MetamethodFlags.None && (mt.MetamethodFlags & flag) == 0)
         {
             chunk = null;
             return false;
         }
 
-        chunk = value.Chunk!;
-        return true;
+        if (mt.TryGetValue(op, out var value) && value.Type == DynamicValueType.Chunk)
+        {
+            chunk = value.Chunk!;
+            return true;
+        }
+
+        chunk = null;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
