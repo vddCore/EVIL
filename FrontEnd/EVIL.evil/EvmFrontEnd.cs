@@ -5,15 +5,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.Runtime;
 using EVIL.Ceres.TranslationEngine;
 using EVIL.CommonTypes.TypeSystem;
 using EVIL.Diagnostics.Formatters;
+using EVIL.Debugger;
+using EVIL.Debugger.Cli;
+using EVIL.Debugger.Dap;
 using EVIL.Grammar;
 using Mono.Options;
 
@@ -34,12 +39,15 @@ public partial class EvmFrontEnd
     private static bool _disassembleCompiledScript;
     private static bool _optimizeCode;
     private static bool _compileOnly;
+    private static bool _debugMode;
+    private static bool _dapMode;
     private static string _outputFileName = "a.evx";
     private static string _diagnosticsFormat = "standard";
     private static bool _warnAsError;
     private static int _maxErrors = 64;
     private static readonly List<string> _noWarnCodes = [];
     private static readonly List<string> _warnAsErrorCodes = [];
+    private static readonly ManualResetEventSlim _crashHandled = new(false);
 
     private static readonly OptionSet _options = new()
     {
@@ -48,6 +56,8 @@ public partial class EvmFrontEnd
         { "g|gen-docs", "generate documentation for all detected native modules.", (g) => _generateModuleDocsAndQuit = g != null },
         { "d|disasm", "disassemble the compiled script.", (d) => _disassembleCompiledScript = d != null },
         { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null },
+        { "debug", "start script in interactive CLI debugger (evdb).", (b) => _debugMode = b != null },
+        { "dap", "start Debug Adapter Protocol (DAP) server over stdio.", (p) => _dapMode = p != null },
         { "f|diagnostics-format=", "diagnostics formatting style: standard, rich, or json (default: standard).", f => _diagnosticsFormat = f },
         { "w|warn-as-error:", "treat warnings as errors (optionally comma-separated error codes, e.g. EV8003).", w =>
         {
@@ -110,6 +120,13 @@ public partial class EvmFrontEnd
         if (_optimizeCode)
         {
             _compilerOptions.OptimizeCodeGeneration = true;
+        }
+
+        if (_dapMode)
+        {
+            var server = new DapServer(Console.OpenStandardInput(), Console.OpenStandardOutput());
+            await server.RunAsync();
+            return;
         }
 
         switch (extra.Count)
@@ -253,13 +270,28 @@ public partial class EvmFrontEnd
             Terminate(msg);
         }
 
-        _vm.Run();
+        if (_debugMode)
+        {
+            var debugger = new DebuggerSession(_vm);
+            var evdb = new EvdbSession(_vm, debugger, scriptPath);
+            debugger.Pause();
+
+            _vm.MainFiber.Schedule(rootChunk, scriptArgs);
+            _vm.Run();
+            await _vm.MainFiber.BlockUntilFinishedAsync();
+            _vm.Stop();
+            return;
+        }
+
         _vm.MainFiber.Schedule(rootChunk, scriptArgs);
+        _vm.Run();
         await _vm.MainFiber.BlockUntilFinishedAsync();
 
-        while (_vm.MainFiber.State == FiberState.Crashed)
+        if (_vm.MainFiber.State == FiberState.Crashed)
         {
-            await Task.Delay(1);
+            _crashHandled.Wait(TimeSpan.FromSeconds(5));
+            _vm.Stop();
+            Environment.Exit((int)ExitCode.RuntimeError);
         }
         
         _vm.Stop();
@@ -379,53 +411,76 @@ public partial class EvmFrontEnd
         
     private static void CrashHandler(Fiber fiber, Exception exception)
     {
-        var fiberArray = _vm.Scheduler.Fibers.ToArray();
-        var fiberIndex = Array.IndexOf(fiberArray, fiber);
-
-        StackFrame[] callStack;
-
-        if (exception is UserUnhandledExceptionException uuee)
+        try
         {
-            callStack = uuee.EvilStackTrace;
-        }
-        else
-        {
-            callStack = fiber.CallStack.ToArray();
-        }
+            var fiberArray = _vm.Scheduler.Fibers.ToArray();
+            var fiberIndex = Array.IndexOf(fiberArray, fiber);
 
-        TerminateWithError(fiberIndex, callStack, exception);
+            StackFrame[] callStack;
+
+            if (exception is UserUnhandledExceptionException uuee)
+            {
+                callStack = uuee.EvilStackTrace;
+            }
+            else
+            {
+                callStack = fiber.CallStack.ToArray();
+            }
+
+            TerminateWithError(fiberIndex, callStack, exception);
+        }
+        finally
+        {
+            _crashHandled.Set();
+        }
     }
 
     private static void TerminateWithError(int fiberIndex, StackFrame[] callStack, Exception exception)
     {
-        var top = callStack[0];
-        ScriptStackFrame? scriptTop = null;
-
         var sb = new StringBuilder();
-            
-        scriptTop = top is NativeStackFrame 
-            ? callStack[1].As<ScriptStackFrame>() 
-            : top.As<ScriptStackFrame>();
 
-        var dd = scriptTop.Chunk.DebugDatabase;
-
-        sb.Append($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name}");
-            
-        if (!string.IsNullOrEmpty(scriptTop.Chunk.DebugDatabase.DefinedInFile))
+        if (callStack.Length == 0)
         {
-            sb.Append($" (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}");
-                
-            if (scriptTop.Chunk.DebugDatabase.DefinedOnLine > 0)
-            {
-                sb.Append($", on line {scriptTop.Chunk.DebugDatabase.DefinedOnLine}");
-            }
-
-            sb.Append(')');
+            sb.AppendLine($"Runtime error in fiber {fiberIndex}: {exception.Message}");
+            Terminate(sb.ToString(), exitCode: ExitCode.RuntimeError);
+            return;
         }
-        sb.AppendLine(": ");
-            
-        sb.Append($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: ");
-        sb.Append(exception.Message);
+
+        ScriptStackFrame? scriptTop = null;
+        for (var i = 0; i < callStack.Length; i++)
+        {
+            if (callStack[i] is ScriptStackFrame ssf)
+            {
+                scriptTop = ssf;
+                break;
+            }
+        }
+
+        if (scriptTop != null)
+        {
+            var dd = scriptTop.Chunk.DebugDatabase;
+            sb.Append($"Runtime error in fiber {fiberIndex}, function {scriptTop.Chunk.Name}");
+                
+            if (!string.IsNullOrEmpty(scriptTop.Chunk.DebugDatabase.DefinedInFile))
+            {
+                sb.Append($" (def. in {scriptTop.Chunk.DebugDatabase.DefinedInFile}");
+                    
+                if (scriptTop.Chunk.DebugDatabase.DefinedOnLine > 0)
+                {
+                    sb.Append($", on line {scriptTop.Chunk.DebugDatabase.DefinedOnLine}");
+                }
+
+                sb.Append(')');
+            }
+            sb.AppendLine(": ");
+                
+            sb.Append($"{dd.DefinedInFile}:{dd.GetLineForIP((int)scriptTop.PreviousOpCodeIP)}: ");
+            sb.Append(exception.Message);
+        }
+        else
+        {
+            sb.AppendLine($"Runtime error in fiber {fiberIndex}: {exception.Message}");
+        }
 
         if (exception is UserUnhandledExceptionException uuee)
         {

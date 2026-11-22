@@ -24,5 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\EVIL.Ceres.Runtime\EVIL.Ceres.Runtime.csproj"/>
     <ProjectReference Include="..\..\EVIL.Ceres\EVIL.Ceres.csproj"/>
+    <ProjectReference Include="..\..\EVIL.Debugger\EVIL.Debugger.csproj"/>
   </ItemGroup>
 </Project>

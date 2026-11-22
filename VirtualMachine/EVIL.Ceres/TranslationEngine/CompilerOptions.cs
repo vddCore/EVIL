@@ -5,14 +5,14 @@ using System.Collections.Generic;
 
 public record CompilerOptions
 {
-    public static readonly CompilerOptions Default = new()
+    public static CompilerOptions Default => new()
     {
         OptimizeCodeGeneration = true,
         EnableAnalyzers = true,
         MaxErrors = 64,
         WarningsAsErrors = false,
-        WarningsAsErrorsCodes = [],
-        SuppressedCodes = []
+        WarningsAsErrorsCodes = new(StringComparer.OrdinalIgnoreCase),
+        SuppressedCodes = new(StringComparer.OrdinalIgnoreCase)
     };
 
     public bool OptimizeCodeGeneration { get; set; } = true;

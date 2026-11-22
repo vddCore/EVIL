@@ -47,6 +47,26 @@ internal class ExecutionUnit
 
         for (var stepIndex = 0; stepIndex < maxInstructions; stepIndex++)
         {
+            var debugger = _fiber.DebuggerSession;
+            if (debugger != null)
+            {
+                var ip = (int)frame.IP;
+                var nextOp = frame.PeekOpCode();
+                if (debugger.ShouldBreakAt(_fiber, frame, ip, nextOp, out var reason))
+                {
+                    debugger.OnBreakEncountered(_fiber, frame, ip, nextOp, reason);
+                    if (_fiber.State != FiberState.Running || _callStack.Count == 0)
+                    {
+                        return;
+                    }
+                    if (_callStack.Peek() is not ScriptStackFrame activeFrame)
+                    {
+                        return;
+                    }
+                    frame = activeFrame;
+                }
+            }
+
             var opCode = frame.FetchOpCode();
 
             DynamicValue a;

@@ -11,6 +11,7 @@ public abstract class VirtualMachineBase
     public Table Global { get; }
     public FiberScheduler Scheduler { get; }
     public Fiber MainFiber { get; }
+    public IDebuggerSession? DebuggerSession { get; set; }
     
     protected VirtualMachineBase(FiberCrashHandler? crashHandler = null)
         : this(new Table(), crashHandler)

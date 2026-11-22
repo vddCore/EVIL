@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Version>1.0.0</Version>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.Ceres\EVIL.Ceres.csproj" />
+    <ProjectReference Include="..\EVIL.Ceres.Runtime\EVIL.Ceres.Runtime.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.CommonTypes\EVIL.CommonTypes.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.Diagnostics\EVIL.Diagnostics.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.Grammar\EVIL.Grammar.csproj" />
+  </ItemGroup>
+</Project>

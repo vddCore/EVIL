@@ -23,6 +23,12 @@ public sealed class FiberScheduler(
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void ProcessFiber(Fiber fiber)
     {
+        var debugger = vm.DebuggerSession;
+        if (debugger is { IsPaused: true, IsAllFibersFrozen: true } && fiber != debugger.ActiveFiber)
+        {
+            return;
+        }
+
         var state = fiber.State;
         
         switch (state)

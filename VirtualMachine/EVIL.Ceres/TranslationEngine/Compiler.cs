@@ -14,6 +14,7 @@ using EVIL.Analysis;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
+using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 public partial class Compiler : AstVisitor
@@ -264,8 +265,28 @@ public partial class Compiler : AstVisitor
         {
             node = expression.Reduce();
         }
+        else if (node is Statement stmt and not BlockStatement)
+        {
+            MarkStatementBoundary(stmt);
+        }
 
         base.Visit(node);
+    }
+
+    private void MarkStatementBoundary(Statement stmt)
+    {
+        if (_chunks.Count > 0)
+        {
+            var currentIP = Chunk.CodeGenerator.IP;
+            Chunk.DebugDatabase.AddStatementRecord(
+                currentIP,
+                stmt.Line,
+                stmt.Column,
+                stmt.Line,
+                stmt.Column,
+                isStepBoundary: true
+            );
+        }
     }
 
     public void RegisterAttributeProcessor(string attributeName, AttributeProcessor processor)

@@ -8,6 +8,8 @@ using System.Linq;
 public sealed class DebugDatabase : IEquatable<DebugDatabase>
 {
     private readonly Dictionary<int, HashSet<int>> _records = new();
+    private readonly Dictionary<int, StatementDebugRecord> _statementRecords = new();
+    private readonly Dictionary<int, List<int>> _lineRecords = new();
 
     private readonly Dictionary<int, string> _parameterNames = new();
     private readonly Dictionary<int, bool> _parameterRwStates = new();
@@ -18,19 +20,95 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
     public int DefinedOnLine { get; internal set; } = -1;
     public string DefinedInFile { get; internal set; } = string.Empty;
 
+    public IReadOnlyDictionary<int, StatementDebugRecord> StatementRecords => _statementRecords;
+
     public void AddDebugRecord(int line, int ip)
     {
         if (!_records.TryGetValue(line, out var addresses))
         {
-            addresses = new HashSet<int>();
+            addresses = [];
             _records.Add(line, addresses);
         }
 
         addresses.Add(ip);
+
+        if (!_lineRecords.TryGetValue(line, out var list))
+        {
+            list = [];
+            _lineRecords.Add(line, list);
+        }
+
+        if (!list.Contains(ip))
+        {
+            list.Add(ip);
+        }
+    }
+
+    public void AddStatementRecord(
+        int ip,
+        int line,
+        int column,
+        int endLine,
+        int endColumn,
+        bool isStepBoundary = true)
+    {
+        var record = new StatementDebugRecord(
+            ip, 
+            line,
+            column,
+            endLine,
+            endColumn,
+            isStepBoundary
+        );
+        
+        _statementRecords[ip] = record;
+        AddDebugRecord(line, ip);
+    }
+
+    public bool TryGetStatementAtIP(int ip, out StatementDebugRecord record)
+        => _statementRecords.TryGetValue(ip, out record!);
+
+    public int GetFirstIPForLine(int line)
+    {
+        if (_lineRecords.TryGetValue(line, out var ips) && ips.Count > 0)
+        {
+            return ips[0];
+        }
+
+        if (_records.TryGetValue(line, out var set) && set.Count > 0)
+        {
+            return set.Min();
+        }
+
+        return -1;
+    }
+
+    public IReadOnlyList<StatementDebugRecord> GetStatementsForLine(int line)
+    {
+        if (!_lineRecords.TryGetValue(line, out var ips))
+        {
+            return [];
+        }
+
+        var result = new List<StatementDebugRecord>(ips.Count);
+        foreach (var ip in ips)
+        {
+            if (_statementRecords.TryGetValue(ip, out var rec))
+            {
+                result.Add(rec);
+            }
+        }
+
+        return result;
     }
 
     public int GetLineForIP(int ip)
     {
+        if (_statementRecords.TryGetValue(ip, out var stmt))
+        {
+            return stmt.Line;
+        }
+
         foreach (var kvp in _records)
         {
             if (kvp.Value.Contains(ip))
@@ -99,6 +177,7 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
         => _localRwStates.TryGetValue(id, out rw);
 
     public bool IsEmpty => _records.Count == 0
+                           && _statementRecords.Count == 0
                            && _parameterNames.Count == 0
                            && _localNames.Count == 0
                            && DefinedOnLine == -1;
@@ -106,6 +185,8 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
     public void Strip()
     {
         _records.Clear();
+        _statementRecords.Clear();
+        _lineRecords.Clear();
         _parameterNames.Clear();
         _localNames.Clear();
         DefinedOnLine = -1;
@@ -125,6 +206,17 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
 
             foreach (var addr in record.Value)
                 bw.Write(addr);
+        }
+
+        bw.Write(_statementRecords.Count);
+        foreach (var (ip, stmt) in _statementRecords)
+        {
+            bw.Write(ip);
+            bw.Write(stmt.Line);
+            bw.Write(stmt.Column);
+            bw.Write(stmt.EndLine);
+            bw.Write(stmt.EndColumn);
+            bw.Write(stmt.IsStepBoundary);
         }
 
         bw.Write(_localNames.Count);
@@ -166,6 +258,18 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
             }
         }
 
+        var stmtCount = br.ReadInt32();
+        for (var i = 0; i < stmtCount; i++)
+        {
+            var ip = br.ReadInt32();
+            var line = br.ReadInt32();
+            var col = br.ReadInt32();
+            var endLine = br.ReadInt32();
+            var endCol = br.ReadInt32();
+            var isStep = br.ReadBoolean();
+            AddStatementRecord(ip, line, col, endLine, endCol, isStep);
+        }
+
         var localNameCount = br.ReadInt32();
         for (var i = 0; i < localNameCount; i++)
         {
@@ -199,7 +303,11 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
             recordsEqual &= kvp.Value.SequenceEqual(other._records[kvp.Key]);
         }
 
+        var stmtEqual = _statementRecords.Count == other._statementRecords.Count
+                        && _statementRecords.Keys.All(k => other._statementRecords.TryGetValue(k, out var v) && v == _statementRecords[k]);
+
         return recordsEqual
+               && stmtEqual
                && _parameterNames.SequenceEqual(other._parameterNames)
                && _parameterRwStates.SequenceEqual(other._parameterRwStates)
                && _localNames.SequenceEqual(other._localNames)
@@ -216,6 +324,7 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
     public override int GetHashCode()
         => HashCode.Combine(
             _records,
+            _statementRecords,
             _parameterNames,
             _localNames,
             DefinedOnLine,
