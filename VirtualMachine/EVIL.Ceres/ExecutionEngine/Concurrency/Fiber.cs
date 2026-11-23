@@ -30,7 +30,7 @@ public sealed class Fiber
     private readonly ExecutionUnit _executionUnit;
     private FiberCrashHandler? _crashHandler;
 
-    internal FiberState _state;
+    internal volatile FiberState _state;
 
     internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
     internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
@@ -38,7 +38,16 @@ public sealed class Fiber
     public Fiber? Parent { get; internal set; }
     
     public FiberCrashHandler? CrashHandler => _crashHandler;
-    public IReadOnlySet<Fiber> WaitingFor => _waitingFor;
+    public IReadOnlySet<Fiber> WaitingFor
+    {
+        get
+        {
+            lock (_waitingFor)
+            {
+                return new HashSet<Fiber>(_waitingFor);
+            }
+        }
+    }
         
     public IReadOnlyDictionary<string, ClosureContext> ClosureContexts => _closureContexts;
 
@@ -129,6 +138,10 @@ public sealed class Fiber
         {
             Resume();
         }
+        else
+        {
+            VirtualMachine.Scheduler.Wake();
+        }
     }
 
     public void BlockUntilFinished()
@@ -206,7 +219,7 @@ public sealed class Fiber
                             }
                             else
                             {
-                                _state = FiberState.Finished;
+                                EnterFinishedState();
                                 return;
                             }
                         }
@@ -231,7 +244,7 @@ public sealed class Fiber
                             }
                             else
                             {
-                                _state = FiberState.Finished;
+                                EnterFinishedState();
                             }
                         }
                     }
@@ -296,12 +309,17 @@ public sealed class Fiber
 
     public void Await()
     {
-        if (_waitingFor.Count == 0)
+        lock (_waitingFor)
         {
-            return;
+            if (_waitingFor.Count == 0)
+            {
+                return;
+            }
+
+            _state = FiberState.Awaiting;
         }
 
-        _state = FiberState.Awaiting;
+        VirtualMachine.Scheduler.Wake();
     }
 
     public void WaitFor(Fiber fiber)
@@ -311,61 +329,83 @@ public sealed class Fiber
             throw new FiberException("A fiber cannot wait for self.");
         }
 
-        if (fiber._state == FiberState.Finished)
+        lock (_waitingFor)
         {
-            return;
+            if (fiber._state == FiberState.Finished)
+            {
+                return;
+            }
+
+            _waitingFor.Add(fiber);
+            _state = FiberState.Awaiting;
         }
 
-        _waitingFor.Add(fiber);
-        Await();
+        VirtualMachine.Scheduler.Wake();
     }
 
     public void StopWaitingFor(Fiber fiber)
     {
-        _waitingFor.Remove(fiber);
-
-        if (_state == FiberState.Awaiting)
+        var resumed = false;
+        lock (_waitingFor)
         {
-            if (_waitingFor.Count == 0)
+            _waitingFor.Remove(fiber);
+
+            if (_state == FiberState.Awaiting && _waitingFor.Count == 0)
             {
                 _state = FiberState.Running;
+                resumed = true;
             }
+        }
+
+        if (resumed)
+        {
+            VirtualMachine.Scheduler.Wake();
         }
     }
 
     public void WaitForAll(params Fiber[] fibers)
     {
-        for (var i = 0; i < fibers.Length; i++)
+        lock (_waitingFor)
         {
-            var fiber = fibers[i];
-
-            if (fiber == this)
+            for (var i = 0; i < fibers.Length; i++)
             {
-                throw new FiberException("A fiber cannot wait for self.");
+                var fiber = fibers[i];
+
+                if (fiber == this)
+                {
+                    throw new FiberException("A fiber cannot wait for self.");
+                }
+
+                if (fiber._state == FiberState.Finished)
+                {
+                    continue;
+                }
+
+                _waitingFor.Add(fibers[i]);
             }
 
-            if (fiber._state == FiberState.Finished)
+            if (_waitingFor.Count != 0)
             {
-                continue;
+                _state = FiberState.Awaiting;
             }
-
-            _waitingFor.Add(fibers[i]);
         }
 
-        Await();
+        VirtualMachine.Scheduler.Wake();
     }
         
     public void Resume()
     {
-        if (_state == FiberState.Awaiting)
+        lock (_waitingFor)
         {
-            if (_waitingFor.Count != 0)
+            if (_state == FiberState.Awaiting && _waitingFor.Count != 0)
             {
                 return;
             }
+
+            _state = FiberState.Running;
         }
 
-        _state = FiberState.Running;
+        VirtualMachine.Scheduler.Wake();
     }
 
     public void Stop()
@@ -575,7 +615,13 @@ public sealed class Fiber
     
     internal void CheckAwaiteesCrashing()
     {
-        foreach (var fiber in _waitingFor)
+        Fiber[] waitingFor;
+        lock (_waitingFor)
+        {
+            waitingFor = [.. _waitingFor];
+        }
+
+        foreach (var fiber in waitingFor)
         {
             if (fiber._state == FiberState.Crashed)
             {
@@ -595,15 +641,25 @@ public sealed class Fiber
 
     internal void RemoveFinishedAwaitees()
     {
-        _waitingFor.RemoveWhere(
-            x => x._state is FiberState.Finished 
-                          or FiberState.Crashed
-        );
+        lock (_waitingFor)
+        {
+            _waitingFor.RemoveWhere(
+                x => x._state is FiberState.Finished
+                              or FiberState.Crashed
+            );
+        }
     }
 
     private void EnterCrashState()
     {
         _state = FiberState.Crashed;
+        VirtualMachine.Scheduler.Wake();
+    }
+
+    private void EnterFinishedState()
+    {
+        _state = FiberState.Finished;
+        VirtualMachine.Scheduler.Wake();
     }
 
     private void Invoke(Chunk chunk, DynamicValue[] args)
@@ -655,7 +711,7 @@ public sealed class Fiber
         {
             return null;
         }
-        
+
         if (localCount < _localsPool.Length)
         {
             var pool = _localsPool[localCount];

@@ -3,6 +3,7 @@ namespace EVIL.Ceres.ExecutionEngine.Concurrency;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
@@ -14,20 +15,22 @@ public sealed class FiberScheduler(
 {
     private FiberCrashHandler _defaultCrashHandler = defaultCrashHandler;
     private volatile bool _running;
+    private int _idlePassCount;
+    private readonly AutoResetEvent _workAvailable = new(false);
+    
+    internal int IdlePassCount => Volatile.Read(ref _idlePassCount);
     
     public bool IsRunning => _running;
-    
     public ConcurrentFiberCollection Fibers { get; } = new(initialCapacity);
-
     public FiberCrashHandler DefaultCrashHandler => _defaultCrashHandler;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void ProcessFiber(Fiber fiber)
+    private bool ProcessFiber(Fiber fiber)
     {
         var debugger = vm.DebuggerSession;
         if (debugger is { IsPaused: true, IsAllFibersFrozen: true } && fiber != debugger.ActiveFiber)
         {
-            return;
+            return false;
         }
 
         var state = fiber.State;
@@ -35,13 +38,10 @@ public sealed class FiberScheduler(
         switch (state)
         {
             case FiberState.Fresh:
-                fiber.Resume();
-                break;
-            
             case FiberState.Paused:
             case FiberState.Crashed:
-            case FiberState.Finished when fiber.ImmuneToCollection:
-                return;
+            case FiberState.Finished:
+                return false;
             
             case FiberState.Awaiting:
                 fiber.CheckAwaiteesCrashing();
@@ -57,7 +57,10 @@ public sealed class FiberScheduler(
         if (fiber.State == FiberState.Running)
         {
             fiber.Step();
+            return fiber.State == FiberState.Running;
         }
+
+        return false;
     }
     
     public void Run()
@@ -66,11 +69,13 @@ public sealed class FiberScheduler(
         
         while (_running)
         {
+            var hasRunnableFiber = false;
+
             try
             {
                 foreach (var (_, fiber) in Fibers.Entries)
                 {
-                    ProcessFiber(fiber);
+                    hasRunnableFiber |= ProcessFiber(fiber);
                 }
                 
                 Fibers.RemoveFinished();
@@ -81,12 +86,25 @@ public sealed class FiberScheduler(
                  * Suppress exception from bubbling up,
                  * causing a StackOverflowException
                  ***/
+                hasRunnableFiber = true;
+            }
+
+            if (!hasRunnableFiber && _running)
+            {
+                Interlocked.Increment(ref _idlePassCount);
+                _workAvailable.WaitOne();
             }
         }
     }
     
-    public void Stop() 
-        => _running = false;
+    public void Stop()
+    {
+        _running = false;
+        _workAvailable.Set();
+    }
+
+    internal void Wake()
+        => _workAvailable.Set();
     
     public void SetDefaultCrashHandler(FiberCrashHandler crashHandler) => 
         _defaultCrashHandler = crashHandler;
@@ -125,6 +143,8 @@ public sealed class FiberScheduler(
         }
         
         Fibers.Add(fiber);
+        Wake();
+        
         return fiber;
     }
     

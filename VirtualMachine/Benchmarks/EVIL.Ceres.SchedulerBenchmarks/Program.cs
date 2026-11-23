@@ -1,6 +1,9 @@
+namespace EVIL.Ceres.SchedulerBenchmarks;
+
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading;
 using EVIL.Ceres.ExecutionEngine;
@@ -22,7 +25,7 @@ internal static class Program
         Console.WriteLine($"# runtime={RuntimeInformation.FrameworkDescription}");
         Console.WriteLine($"# os={RuntimeInformation.OSDescription}");
         Console.WriteLine($"# processors={Environment.ProcessorCount}");
-        Console.WriteLine($"# server_gc={System.Runtime.GCSettings.IsServerGC}");
+        Console.WriteLine($"# server_gc={GCSettings.IsServerGC}");
         Console.WriteLine($"# idle_duration_ms={duration.TotalMilliseconds.ToString(CultureInfo.InvariantCulture)}");
         Console.WriteLine($"# repetitions={repetitions}");
         Console.WriteLine($"# active_iterations_per_fiber={iterationsPerFiber}");
@@ -72,14 +75,14 @@ internal static class Program
             using var process = Process.GetCurrentProcess();
             process.Refresh();
             var cpuStart = process.TotalProcessorTime;
-            var allocationStart = GC.GetTotalAllocatedBytes(false);
+            var allocationStart = GC.GetTotalAllocatedBytes();
             var wall = Stopwatch.StartNew();
             Thread.Sleep(duration);
             wall.Stop();
             process.Refresh();
 
             var cpu = process.TotalProcessorTime - cpuStart;
-            var allocatedBytes = GC.GetTotalAllocatedBytes(false) - allocationStart;
+            var allocatedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
             WriteRow(
                 "idle_cpu",
                 state,
@@ -179,7 +182,7 @@ internal static class Program
             process.Refresh();
 
             var cpu = process.TotalProcessorTime - cpuStart;
-            var allocatedBytes = GC.GetTotalAllocatedBytes(false) - allocationStart;
+            var allocatedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
             var operations = (double)fiberCount * iterationsPerFiber;
             
             WriteRow(
@@ -266,7 +269,7 @@ internal static class Program
                 throw new InvalidOperationException($"{crashCount} latency workload fibers crashed.");
             }
 
-            var allocatedBytes = GC.GetTotalAllocatedBytes(false) - allocationStart;
+            var allocatedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
             Array.Sort(latencies);
             WriteRow(
                 "latency",
@@ -298,13 +301,13 @@ internal static class Program
         thread.Start();
 
         if (!SpinWait.SpinUntil(
-                () => vm.Scheduler.IsRunning && vm.MainFiber.State == FiberState.Finished,
+                () => vm.Scheduler.IsRunning,
                 StartupTimeout
             ))
         {
             vm.Scheduler.Stop();
             thread.Join(StartupTimeout);
-            throw new TimeoutException("The scheduler did not complete its initial idle pass.");
+            throw new TimeoutException("The scheduler did not start.");
         }
 
         return thread;

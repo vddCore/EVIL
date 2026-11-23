@@ -19,8 +19,10 @@ public sealed class DebuggerSession : IDebuggerSession
     private int _stepStartLine;
     private Chunk? _stepStartChunk;
     private Fiber? _stepTargetFiber;
+    private volatile Fiber? _activeFiber;
     private volatile bool _pauseRequested;
     private volatile bool _isPaused;
+    private volatile bool _isAllFibersFrozen = true;
     
     public event Action<Fiber, ScriptStackFrame, StopReason>? OnStopped;
     public event Action<Fiber>? OnResumed;
@@ -48,9 +50,36 @@ public sealed class DebuggerSession : IDebuggerSession
     public VirtualMachineBase VirtualMachine { get; }
     public BreakpointManager BreakpointManager { get; } = new();
 
-    public Fiber? ActiveFiber { get; set; }
+    public Fiber? ActiveFiber
+    {
+        get => _activeFiber;
+        set
+        {
+            if (_activeFiber == value)
+            {
+                return;
+            }
+
+            _activeFiber = value;
+            VirtualMachine.Scheduler.Wake();
+        }
+    }
+
     public bool IsPaused => _isPaused;
-    public bool IsAllFibersFrozen { get; set; } = true;
+    public bool IsAllFibersFrozen
+    {
+        get => _isAllFibersFrozen;
+        set
+        {
+            if (_isAllFibersFrozen == value)
+            {
+                return;
+            }
+
+            _isAllFibersFrozen = value;
+            VirtualMachine.Scheduler.Wake();
+        }
+    }
 
     public DebuggerSession(VirtualMachineBase vm)
     {
@@ -183,6 +212,8 @@ public sealed class DebuggerSession : IDebuggerSession
     {
         _isPaused = false;
         _resumeEvent.Set();
+        
+        VirtualMachine.Scheduler.Wake();
     }
 
     public bool ShouldBreakAt(Fiber fiber, ScriptStackFrame frame, int ip, OpCode opCode, out StopReason reason)
