@@ -103,7 +103,7 @@ public class FiberSchedulerOptimizationTests
         try
         {
             var schedulerReady = SpinWait.SpinUntil(
-                () => vm.Scheduler.IsRunning && vm.Scheduler.IdlePassCount > 0,
+                () => vm.Scheduler is { IsRunning: true, IdlePassCount: > 0 },
                 TestTimeout
             );
             Assert.That(schedulerReady, Is.True, "The scheduler did not complete its initial idle pass.");
@@ -347,6 +347,65 @@ public class FiberSchedulerOptimizationTests
             {
                 WaitUntilCollected(vm, fiber);
                 Assert.That(fiber.PopValue().Boolean, Is.True);
+            }
+        }
+        finally
+        {
+            vm.Scheduler.Stop();
+            await schedulerTask.WaitAsync(TestTimeout);
+        }
+    }
+
+    [Test]
+    public async Task Scheduler_CollectsFibersCreatedConcurrentlyAfterIdle()
+    {
+        const int creatorCount = 8;
+        const int fibersPerCreator = 8;
+        var vm = new CeresVM();
+        var chunk = new Compiler().Compile("fn work() -> true;", "scheduler_concurrent_creation.vil")["work"]!;
+        var fibers = new Fiber[creatorCount][];
+        var schedulerTask = Task.Run(vm.Scheduler.Run);
+
+        try
+        {
+            WaitForIdlePass(vm, 1);
+            using var barrier = new Barrier(creatorCount + 1);
+            var createTasks = Enumerable.Range(0, creatorCount).Select(creator => Task.Factory.StartNew(
+                () =>
+                {
+                    if (!barrier.SignalAndWait(TestTimeout))
+                    {
+                        throw new TimeoutException("Concurrent fiber creation did not start together.");
+                    }
+
+                    var createdFibers = new Fiber[fibersPerCreator];
+                    for (var i = 0; i < createdFibers.Length; i++)
+                    {
+                        createdFibers[i] = vm.Scheduler.CreateFiber(false);
+                        createdFibers[i].Schedule(chunk);
+                    }
+
+                    fibers[creator] = createdFibers;
+                },
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
+            )).ToArray();
+
+            if (!barrier.SignalAndWait(TestTimeout))
+            {
+                throw new TimeoutException("Concurrent fiber creation did not start together.");
+            }
+
+            await Task.WhenAll(createTasks).WaitAsync(TestTimeout);
+
+            foreach (var creatorFibers in fibers)
+            {
+                foreach (var fiber in creatorFibers)
+                {
+                    WaitUntilCollected(vm, fiber);
+                    Assert.That(fiber.PopValue().Boolean, Is.True);
+                }
             }
         }
         finally

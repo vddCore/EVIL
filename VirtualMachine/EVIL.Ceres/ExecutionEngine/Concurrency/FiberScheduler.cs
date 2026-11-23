@@ -73,12 +73,11 @@ public sealed class FiberScheduler(
 
             try
             {
-                foreach (var (_, fiber) in Fibers.Entries)
+                foreach (var (id, fiber) in Fibers.Entries)
                 {
                     hasRunnableFiber |= ProcessFiber(fiber);
+                    Fibers.RemoveFinished(id, fiber);
                 }
-                
-                Fibers.RemoveFinished();
             }
             catch
             {

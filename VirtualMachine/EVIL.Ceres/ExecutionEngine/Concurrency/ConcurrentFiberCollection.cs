@@ -34,6 +34,16 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
         => _fibers.TryRemove(id, out _);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void RemoveFinished(int id, Fiber fiber)
+    {
+        if ((fiber.State is FiberState.Finished or FiberState.Crashed) 
+             && !fiber.ImmuneToCollection)
+        {
+            Remove(id);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveFinished()
     {
         var toRemove = ArrayPool<int>.Shared.Rent(_fibers.Count);
