@@ -89,8 +89,8 @@ echo 'val x = 42;' | ./evil_parser
 - **Logical**: `&&`, `||`
 - **Bitwise**: `&`, `|`, `^`, `~`, `<<`, `>>`
 - **Assignment**: `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, `??=`
-- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `:` (method call), `?:` (safe method call), `?(` (safe invocation), `::` (targeted fn / self::fn), `!` (postfix non-nil assertion)
-- **Functions & Closures**: `=>` (association / arm), `->` (expression body / arm), `...` (extra arguments / varargs), `*` (variadic forwarding)
+- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `:` (method call), `?:` (safe method call), `?(` (safe invocation), `::` (targeted fn / self::fn), `!` (postfix non-nil assertion), `...?` (nil-tolerant table spread)
+- **Functions, Closures & Spreads**: `=>` (association / arm), `->` (expression body / arm), `...` (extra arguments / varargs / table spread), `*` (variadic forwarding)
 - **Nil Coalescing**: `??`
 
 ---

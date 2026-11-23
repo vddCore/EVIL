@@ -65,6 +65,11 @@ public class Lexer
 
             switch (State.Character)
             {
+                case '.' when Peek() == '.' && Peek(2) == '.' && Peek(3) == '?':
+                    Advance(3);
+                    State.CurrentToken = Token.SafeSpread with { Line = line, Column = col };
+                    break;
+
                 case '.' when Peek() == '.' && Peek(2) == '.':
                     Advance(2);
                     State.CurrentToken = Token.Ellipsis with { Line = line, Column = col };

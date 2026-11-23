@@ -15,7 +15,7 @@ void yyerror(const char *s);
 %define parse.error verbose
 %locations
 %glr-parser
-%expect 6
+%expect 13
 %expect-rr 1
 
 /* Keywords */
@@ -95,6 +95,7 @@ void yyerror(const char *s);
 
 %token TOKEN_INCREMENT "++"
 %token TOKEN_DECREMENT "--"
+%token TOKEN_SAFE_SPREAD "...?"
 %token TOKEN_ELLIPSIS "..."
 %token TOKEN_ASSOCIATE "=>"
 %token TOKEN_RIGHT_ARROW "->"
@@ -649,6 +650,8 @@ table_entry
     | IDENTIFIER ':' self_fn_expression %dprec 2
     | assignment_expression TOKEN_ASSOCIATE assignment_expression
     | assignment_expression TOKEN_ASSOCIATE self_fn_expression
+    | TOKEN_SAFE_SPREAD assignment_expression %dprec 2
+    | TOKEN_ELLIPSIS assignment_expression %dprec 2
     ;
 
 self_fn_expression

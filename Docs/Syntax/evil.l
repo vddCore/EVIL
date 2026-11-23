@@ -126,6 +126,7 @@ NUMBER            ([0-9]+\.[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-
 "||"                    { return TOKEN_LOGICAL_OR; }
 "++"                    { return TOKEN_INCREMENT; }
 "--"                    { return TOKEN_DECREMENT; }
+"...?"                  { return TOKEN_SAFE_SPREAD; }
 "..."                   { return TOKEN_ELLIPSIS; }
 "=>"                    { return TOKEN_ASSOCIATE; }
 "->"                    { return TOKEN_RIGHT_ARROW; }

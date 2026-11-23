@@ -541,6 +541,19 @@ public static class InstructionDecoder
                 break;
             }
 
+            case OpCode.TABSPRD:
+            {
+                var isNilTolerant = reader.ReadByte();
+                
+                operands.Add(new InstructionOperand(
+                    OperandKind.ImmediateByte,
+                    isNilTolerant,
+                    isNilTolerant == 1 ? "NIL_TOLERANT" : "STRICT"
+                ));
+                
+                break;
+            }
+
             case OpCode.YIELD:
             {
                 var count = reader.ReadInt32();

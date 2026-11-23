@@ -1630,6 +1630,49 @@ internal class ExecutionUnit
                     break;
                 }
 
+                case OpCode.TABSPRD:
+                {
+                    var isNilTolerant = frame.FetchByte() > 0;
+                    a = PopValue();
+                    c = PeekValue();
+
+                    if (c.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to spread into a {c.Type} value."
+                        );
+                    }
+
+                    if (a.Type == DynamicValueType.Nil)
+                    {
+                        if (!isNilTolerant)
+                        {
+                            throw new UnsupportedDynamicValueOperationException(
+                                "Attempt to spread a Nil value."
+                            );
+                        }
+
+                        break;
+                    }
+
+                    if (a.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Attempt to spread a {a.Type} value."
+                        );
+                    }
+
+                    var dest = c.Table!;
+                    var src = a.Table!;
+
+                    foreach (var (key, value) in src)
+                    {
+                        dest.Set(key, value);
+                    }
+
+                    break;
+                }
+
                 case OpCode.YIELD:
                 {
                     var argumentCount = frame.FetchInt32();

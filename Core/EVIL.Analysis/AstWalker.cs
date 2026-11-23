@@ -455,6 +455,11 @@ public class AstWalker : AstVisitor
         Visit(keyValuePairExpression.ValueNode);
     }
 
+    protected override void Visit(TableSpreadExpression tableSpreadExpression)
+    {
+        Visit(tableSpreadExpression.Target);
+    }
+
     protected override void Visit(ByArmNode byArmNode)
     {
         Visit(byArmNode.Selector);

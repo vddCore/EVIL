@@ -61,6 +61,7 @@ public enum TokenType
     ElvisArray,
     SafeColon,
     ElvisInvocation,
+    SafeSpread,
     DoubleColon,
     Semicolon,
     LParenthesis,

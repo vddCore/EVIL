@@ -1,0 +1,130 @@
+#[test]
+fn spread_nil_tolerant_on_nil_literal {
+  val t = { ...?nil };
+  assert.is_of_type(t, Table);
+  assert.equal(#t, 0);
+}
+
+#[test]
+fn spread_nil_tolerant_on_nil_variable {
+  val x = nil;
+  val t = { ...?x };
+  assert.is_of_type(t, Table);
+  assert.equal(#t, 0);
+}
+
+#[test]
+fn spread_nil_tolerant_preserves_surrounding_keys {
+  val x = nil;
+  val t = { a: 1, ...?x, b: 2 };
+  assert.is_of_type(t, Table);
+  assert.equal(#t, 2);
+  assert.equal(t.a, 1);
+  assert.equal(t.b, 2);
+}
+
+#[test]
+fn spread_nil_tolerant_merges_table {
+  val t1 = { x: 10, y: 20 };
+  val t2 = { ...?t1, z: 30 };
+  assert.equal(#t2, 3);
+  assert.equal(t2.x, 10);
+  assert.equal(t2.y, 20);
+  assert.equal(t2.z, 30);
+}
+
+#[test]
+fn spread_overwrites_earlier_keys {
+  val t1 = { a: 99 };
+  val t2 = { a: 1, ...?t1 };
+  assert.equal(t2.a, 99);
+}
+
+#[test]
+fn later_keys_overwrite_spread {
+  val t1 = { a: 99 };
+  val t2 = { ...?t1, a: 42 };
+  assert.equal(t2.a, 42);
+}
+
+#[test]
+fn spread_multiple_tables_with_interleaved_nil {
+  val a = { x: 1 };
+  val b = nil;
+  val c = { y: 2, z: 3 };
+  val d = nil;
+  val res = { ...?a, ...?b, ...?c, ...?d, w: 4 };
+  assert.equal(#res, 4);
+  assert.equal(res.x, 1);
+  assert.equal(res.y, 2);
+  assert.equal(res.z, 3);
+  assert.equal(res.w, 4);
+}
+
+#[test]
+fn spread_in_with_expression_with_nil {
+  val base = { a: 1, b: 2 };
+  val derived = base with { ...?nil, c: 3 };
+  assert.equal(#derived, 3);
+  assert.equal(derived.a, 1);
+  assert.equal(derived.b, 2);
+  assert.equal(derived.c, 3);
+  assert.equal(#base, 2);
+  assert(base.c is Nil);
+}
+
+#[test]
+fn spread_in_with_expression_with_table {
+  val base = { a: 1, b: 2 };
+  val extra = { b: 20, c: 30 };
+  val derived = base with { ...?extra, d: 40 };
+  assert.equal(#derived, 4);
+  assert.equal(derived.a, 1);
+  assert.equal(derived.b, 20);
+  assert.equal(derived.c, 30);
+  assert.equal(derived.d, 40);
+  assert.equal(base.b, 2);
+}
+
+#[test]
+fn strict_spread_succeeds_on_table {
+  val a = { greeting: "hello" };
+  val b = { ...a, target: "world" };
+  assert.equal(#b, 2);
+  assert.equal(b.greeting, "hello");
+  assert.equal(b.target, "world");
+}
+
+#[test]
+fn strict_spread_throws_on_nil {
+  assert.throws(fn -> { ...nil });
+  val n = nil;
+  assert.throws(fn -> { ...n });
+}
+
+#[test]
+fn spread_throws_on_non_table {
+  assert.throws(fn -> { ...42 });
+  assert.throws(fn -> { ...?42 });
+  assert.throws(fn -> { ..."string" });
+  assert.throws(fn -> { ...?"string" });
+  assert.throws(fn -> { ...?array(10) });
+}
+
+#[test]
+fn spread_with_computed_keys {
+  val key = "dynamic_key";
+  val t = { [key] => 500, ...?{ standard: 100 } };
+  assert.equal(t.dynamic_key, 500);
+  assert.equal(t.standard, 100);
+}
+
+#[test]
+fn spread_preserves_integer_keys {
+  val t1 = { 10, 20, 30 };
+  val t2 = { ...?t1, name: "items" };
+  assert.equal(t2[0], 10);
+  assert.equal(t2[1], 20);
+  assert.equal(t2[2], 30);
+  assert.equal(t2.name, "items");
+}

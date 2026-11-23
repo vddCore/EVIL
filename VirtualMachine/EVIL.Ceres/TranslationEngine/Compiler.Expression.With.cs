@@ -25,11 +25,17 @@ public partial class Compiler
         var initializers = withExpression.TableExpansionExpression.Initializers;
         for (var i = 0; i < initializers.Count; i++)
         {
-            var kvp = (KeyValuePairExpression)initializers[i];
-
-            Visit(kvp.ValueNode);
-            Visit(kvp.KeyNode);
-            Chunk.CodeGenerator.Emit(OpCode.ELINIT);
+            if (initializers[i] is TableSpreadExpression spread)
+            {
+                Visit(spread);
+            }
+            else if (initializers[i] is KeyValuePairExpression kvp)
+            {
+                Visit(kvp.ValueNode);
+                Visit(kvp.KeyNode);
+                
+                Chunk.CodeGenerator.Emit(OpCode.ELINIT);
+            }
         }
     }
 }

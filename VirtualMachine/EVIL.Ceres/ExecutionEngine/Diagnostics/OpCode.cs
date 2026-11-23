@@ -105,6 +105,7 @@ public enum OpCode : byte
     SETPROP_B,
     GETPROP,
     GETPROP_B,
+    TABSPRD,
     INDEX,
     INOCT,
     TABCLN,
@@ -117,5 +118,5 @@ public enum OpCode : byte
     ENTER,
     THROW,
     LEAVE,
-    ERRNEW,
+    ERRNEW
 }

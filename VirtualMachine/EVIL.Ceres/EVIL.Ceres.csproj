@@ -201,6 +201,9 @@
     <Compile Update="TranslationEngine\Compiler.Expression.NonNilAssertion.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.TableSpread.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

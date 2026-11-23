@@ -280,6 +280,21 @@ public class LexerTests
     }
 
     [Test]
+    public void SafeSpreadTokens()
+    {
+        _lexer.LoadSource("{ ...?opts, ...strict }");
+
+        Expect(LBrace);
+        Expect(SafeSpread);
+        ExpectExact((TokenType.Identifier, "opts"));
+        Expect(Comma);
+        Expect(Ellipsis);
+        ExpectExact((TokenType.Identifier, "strict"));
+        Expect(RBrace);
+        Expect(EOF);
+    }
+
+    [Test]
     public void InterpolatedStringExpressions()
     {
         _lexer.LoadSource(

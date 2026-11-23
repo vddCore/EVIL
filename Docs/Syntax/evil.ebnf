@@ -277,7 +277,8 @@ table_entry
     = assignment_expression
     | self_fn_expression
     | identifier, ":", ( assignment_expression | self_fn_expression )
-    | assignment_expression, "=>", ( assignment_expression | self_fn_expression ) ;
+    | assignment_expression, "=>", ( assignment_expression | self_fn_expression )
+    | ( "..." | "...?" ), assignment_expression ;
 
 self_fn_expression
     = "self", "::", "fn", [ "(", [ parameter_list ], ")" ], ( block_statement | "->", assignment_expression ) ;
