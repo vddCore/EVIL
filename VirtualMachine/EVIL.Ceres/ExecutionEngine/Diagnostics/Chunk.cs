@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
@@ -26,7 +27,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private List<BlockProtectionInfo> _protectedBlocks;
     private readonly ConcurrentDictionary<int, SwitchTable> _switchTables = new();
     private readonly HashSet<int> _targetedLabels = [];
-
+    private PropertyInlineCache[]? _propertyInlineCaches;
     private readonly Serializer _serializer;
 
     public const byte FormatVersion = 3;
@@ -235,8 +236,23 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         DebugDatabase = new DebugDatabase();
     }
 
-    public SwitchTable GetSwitchTable(int opCodeIp)
-        => _switchTables.GetOrAdd(opCodeIp, BuildSwitchTable);
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void EnsurePropertyInlineCaches(int opOffset)
+    {
+        var newLen = Math.Max(opOffset + 1, Math.Max(Code.Length, 16));
+        Array.Resize(ref _propertyInlineCaches, newLen);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref PropertyInlineCache GetPropertyInlineCache(int opOffset)
+    {
+        if (_propertyInlineCaches == null || (uint)opOffset >= (uint)_propertyInlineCaches.Length)
+        {
+            EnsurePropertyInlineCaches(opOffset);
+        }
+
+        return ref _propertyInlineCaches![opOffset];
+    }
 
     private SwitchTable BuildSwitchTable(int opCodeIp)
     {
@@ -290,6 +306,9 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         return new SwitchTable(defaultIp, cases);
     }
+    
+    public SwitchTable GetSwitchTable(int opCodeIp)
+        => _switchTables.GetOrAdd(opCodeIp, BuildSwitchTable);
 
     public void BackpatchLabels()
     {
@@ -566,7 +585,8 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             _labels = _labels,
             _attributes = _attributes,
             _parameterInitializers = _parameterInitializers,
-            _protectedBlocks = _protectedBlocks
+            _protectedBlocks = _protectedBlocks,
+            _propertyInlineCaches = _propertyInlineCaches
         };
 
         return clone;
@@ -576,6 +596,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     {
         _code.Dispose();
         CodeGenerator.Dispose();
+        _propertyInlineCaches = null;
     }
 
     public bool Equals(Chunk? other)

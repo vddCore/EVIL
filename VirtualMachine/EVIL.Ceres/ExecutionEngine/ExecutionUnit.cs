@@ -1352,6 +1352,7 @@ internal class ExecutionUnit
                 case OpCode.GETPROP_B:
                 case OpCode.GETPROP:
                 {
+                    var opOffset = (int)(frame.IP - 1);
                     var strId = opCode == OpCode.GETPROP_B 
                         ? frame.FetchByte() 
                         : frame.FetchInt32();
@@ -1393,8 +1394,39 @@ internal class ExecutionUnit
                     if (c.Type == DynamicValueType.Table)
                     {
                         var tbl = c.Table!;
+                        ref var ic = ref frame.Chunk.GetPropertyInlineCache(opOffset);
+
+                        // monomorph cache hit.
+                        if (tbl.Shape != null && tbl.Shape == ic.Shape0)
+                        {
+                            PushValue(tbl.ShapeSlots![ic.Slot0]);
+                            break;
+                        }
+
+                        // bimorph cache hit.
+                        if (tbl.Shape != null && tbl.Shape == ic.Shape1)
+                        {
+                            PushValue(tbl.ShapeSlots![ic.Slot1]);
+                            break;
+                        }
+
+                        // cache miss.
                         if (tbl.TryGetValue(key, out var val))
                         {
+                            if (tbl.Shape != null && key.String != null && tbl.Shape.TryGetSlot(key.String, out var slot))
+                            {
+                                if (ic.Shape0 == null)
+                                {
+                                    ic.Shape0 = tbl.Shape;
+                                    ic.Slot0 = slot;
+                                }
+                                else if (ic.Shape1 == null && tbl.Shape != ic.Shape0)
+                                {
+                                    ic.Shape1 = tbl.Shape;
+                                    ic.Slot1 = slot;
+                                }
+                            }
+
                             PushValue(val);
                             break;
                         }
@@ -1434,6 +1466,7 @@ internal class ExecutionUnit
                 case OpCode.SETPROP_B:
                 case OpCode.SETPROP:
                 {
+                    var opOffset = (int)(frame.IP - 1);
                     var strId = opCode == OpCode.SETPROP_B 
                         ? frame.FetchByte()
                         : frame.FetchInt32();
@@ -1444,11 +1477,53 @@ internal class ExecutionUnit
 
                     if (c.Type == DynamicValueType.Table)
                     {
-                        if (FindMetaFunction(c.Table!, MetamethodFlags.Set, Table.SetMetaKeyVal, out var chunk))
+                        var tbl = c.Table!;
+                        ref var ic = ref frame.Chunk.GetPropertyInlineCache(opOffset);
+
+                        // cache hit, no __set.
+                        if (!tbl.IsFrozen
+                            && a != DynamicValue.Nil 
+                            && tbl.Shape != null
+                            && tbl.Shape == ic.Shape0 
+                            && !FindMetaFunction(tbl, MetamethodFlags.Set, Table.SetMetaKeyVal, out _))
+                        {
+                            tbl.ShapeSlots![ic.Slot0] = a;
+                            tbl.IncrementVersion();
+                            break;
+                        }
+
+                        if (!tbl.IsFrozen 
+                            && a != DynamicValue.Nil
+                            && tbl.Shape != null 
+                            && tbl.Shape == ic.Shape1
+                            && !FindMetaFunction(tbl, MetamethodFlags.Set, Table.SetMetaKeyVal, out _))
+                        {
+                            tbl.ShapeSlots![ic.Slot1] = a;
+                            tbl.IncrementVersion();
+                            break;
+                        }
+
+                        if (FindMetaFunction(tbl, MetamethodFlags.Set, Table.SetMetaKeyVal, out var chunk))
                         {
                             InvokeChunk(chunk, c, key, a);
                             break;
                         }
+
+                        tbl.Set(key, a);
+                        if (tbl.Shape != null && key.String != null && tbl.Shape.TryGetSlot(key.String, out var slot))
+                        {
+                            if (ic.Shape0 == null)
+                            {
+                                ic.Shape0 = tbl.Shape;
+                                ic.Slot0 = slot;
+                            }
+                            else if (ic.Shape1 == null && tbl.Shape != ic.Shape0)
+                            {
+                                ic.Shape1 = tbl.Shape;
+                                ic.Slot1 = slot;
+                            }
+                        }
+                        break;
                     }
 
                     c.SetEntry(key, a);

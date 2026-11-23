@@ -988,9 +988,12 @@ public class OptimizationTests : TestBase
         var table = new Table();
         Assert.That(table.Length, Is.EqualTo(0));
 
-        Assert.That(table.TryGetValue("nonexistent", out var val), Is.False);
-        Assert.That(val, Is.EqualTo(DynamicValue.Nil));
-        Assert.That(table.Contains("nonexistent"), Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.TryGetValue("nonexistent", out var val), Is.False);
+            Assert.That(val, Is.EqualTo(DynamicValue.Nil));
+            Assert.That(table.Contains("nonexistent"), Is.False);
+        }
 
         table.Set(0, 10);
         table.Set(1, 20);
@@ -998,7 +1001,7 @@ public class OptimizationTests : TestBase
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(table.Length, Is.EqualTo(3));
+            Assert.That(table, Has.Length.EqualTo(3));
             Assert.That(table.TryGetValue(0, out var v0), Is.True);
             Assert.That(v0.Number, Is.EqualTo(10.0));
             Assert.That(table.TryGetValue(1, out var v1), Is.True);
@@ -1011,8 +1014,8 @@ public class OptimizationTests : TestBase
         var values = table.GetValues();
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(keys.Length, Is.EqualTo(3));
-            Assert.That(values.Length, Is.EqualTo(3));
+            Assert.That(keys, Has.Length.EqualTo(3));
+            Assert.That(values, Has.Length.EqualTo(3));
             Assert.That(values[0].Number, Is.EqualTo(10.0));
             Assert.That(values[1].Number, Is.EqualTo(20.0));
             Assert.That(values[2].Number, Is.EqualTo(30.0));
@@ -1024,7 +1027,7 @@ public class OptimizationTests : TestBase
         table.Set("foo", "bar");
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(table.Length, Is.EqualTo(4));
+            Assert.That(table, Has.Length.EqualTo(4));
             Assert.That(table.TryGetValue("foo", out var vFoo), Is.True);
             Assert.That(vFoo.String, Is.EqualTo("bar"));
         }
@@ -1041,18 +1044,21 @@ public class OptimizationTests : TestBase
             table.Set(i, i * 3);
         }
 
-        Assert.That(table.Length, Is.EqualTo(elementCount));
+        Assert.That(table, Has.Length.EqualTo(elementCount));
 
         for (var i = 0; i < elementCount; i++)
         {
-            Assert.That(table.TryGetValue(i, out var v), Is.True);
-            Assert.That(v.Number, Is.EqualTo(i * 3.0));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(table.TryGetValue(i, out var v), Is.True);
+                Assert.That(v.Number, Is.EqualTo(i * 3.0));
+            }
         }
 
         table.Set(100, DynamicValue.Nil);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(table.Length, Is.EqualTo(elementCount - 1));
+            Assert.That(table, Has.Length.EqualTo(elementCount - 1));
             Assert.That(table.TryGetValue(100, out _), Is.False);
             Assert.That(table.TryGetValue(101, out var v101), Is.True);
             Assert.That(v101.Number, Is.EqualTo(101 * 3.0));
@@ -1205,6 +1211,189 @@ public class OptimizationTests : TestBase
             Assert.That(v0.String, Is.SameAs(v0Again.String));
             Assert.That(pool.GetDynamicValue(-1), Is.EqualTo(DynamicValue.Nil));
             Assert.That(pool.GetDynamicValue(999), Is.EqualTo(DynamicValue.Nil));
+        }
+    }
+
+    [Test]
+    public void TableShape_TransitionsAndSlotResolution_SharedDescriptor()
+    {
+        var empty = TableShape.Empty;
+        Assert.That(empty.PropertyCount, Is.EqualTo(0));
+
+        var shapeX1 = empty.Transition("x", out var slotX1);
+        var shapeX2 = empty.Transition("x", out var slotX2);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(shapeX1, Is.SameAs(shapeX2));
+            Assert.That(slotX1, Is.EqualTo(0));
+            Assert.That(slotX2, Is.EqualTo(0));
+        }
+
+        var shapeXY = shapeX1.Transition("y", out var slotY);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(shapeXY.PropertyCount, Is.EqualTo(2));
+            Assert.That(slotY, Is.EqualTo(1));
+
+            Assert.That(shapeXY.TryGetSlot("x", out var resolvedX), Is.True);
+            Assert.That(resolvedX, Is.EqualTo(0));
+            Assert.That(shapeXY.TryGetSlot("y", out var resolvedY), Is.True);
+            Assert.That(resolvedY, Is.EqualTo(1));
+            Assert.That(shapeXY.TryGetSlot("z", out _), Is.False);
+
+            Assert.That(shapeXY.PropertyKeys, Has.Length.EqualTo(2));
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(shapeXY.PropertyKeys[0].String, Is.EqualTo("x"));
+            Assert.That(shapeXY.PropertyKeys[1].String, Is.EqualTo("y"));
+        }
+    }
+
+    [Test]
+    public void Table_InlineCache_MonomorphicHit_FastPath()
+    {
+        var script = """
+            fn test() {
+                val pt = { x: 10, y: 20 };
+                rw val sum = 0;
+                for (rw val i = 0; i < 1000; i++) {
+                    sum += pt.x;
+                }
+                ret sum;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "ic_mono_test");
+        var testChunk = chunk["test"]!;
+
+        VM.MainFiber.Schedule(chunk);
+        VM.MainFiber.Schedule(testChunk, false);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+        var result = VM.MainFiber.PopValue();
+
+        Assert.That(result.Number, Is.EqualTo(10000.0));
+
+        // Find instruction offset for GETPROP pt.x
+        var disasm = InstructionDecoder.Decode(testChunk);
+        var getProp = System.Linq.Enumerable.FirstOrDefault(disasm.Instructions, i => i.OpCode is OpCode.GETPROP_B or OpCode.GETPROP);
+        Assert.That(getProp, Is.Not.Null);
+
+        ref var ic = ref testChunk.GetPropertyInlineCache(getProp!.Offset);
+        Assert.That(ic.Shape0, Is.Not.Null);
+        Assert.That(ic.Slot0, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void Table_InlineCache_BimorphicHit_FastPath()
+    {
+        var script = """
+            fn readX(t) -> t.x;
+
+            fn test() {
+                val p1 = { x: 5, y: 10 };
+                val p2 = { x: 15, z: 20 };
+                rw val sum = 0;
+                for (rw val i = 0; i < 500; i++) {
+                    sum += readX(p1);
+                    sum += readX(p2);
+                }
+                ret sum;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "ic_bimorphic_test");
+        var readXChunk = chunk["readX"]!;
+        var testChunk = chunk["test"]!;
+
+        VM.MainFiber.Schedule(chunk);
+        VM.MainFiber.Schedule(testChunk, false);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+        var result = VM.MainFiber.PopValue();
+
+        // (5 + 15) * 500 = 10000
+        Assert.That(result.Number, Is.EqualTo(10000.0));
+
+        var disasm = InstructionDecoder.Decode(readXChunk);
+        var getProp = System.Linq.Enumerable.FirstOrDefault(disasm.Instructions, i => i.OpCode is OpCode.GETPROP_B or OpCode.GETPROP);
+        Assert.That(getProp, Is.Not.Null);
+
+        ref var ic = ref readXChunk.GetPropertyInlineCache(getProp!.Offset);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(ic.Shape0, Is.Not.Null);
+            Assert.That(ic.Shape1, Is.Not.Null);
+            Assert.That(ic.Shape0, Is.Not.EqualTo(ic.Shape1));
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(ic.Slot0, Is.EqualTo(0));
+            Assert.That(ic.Slot1, Is.EqualTo(0));
+        }
+    }
+
+    [Test]
+    public void Table_InlineCache_SetProp_InPlaceUpdate()
+    {
+        var script = """
+            fn test() {
+                val pt = { x: 1, y: 2 };
+                for (rw val i = 0; i < 500; i++) {
+                    pt.x = i;
+                }
+                ret pt.x;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Number, Is.EqualTo(499.0));
+    }
+
+    [Test]
+    public void Table_InlineCache_DemotionOnNilOrNonString()
+    {
+        var script = """
+            fn test() {
+                val pt = { x: 10, y: 20 };
+                pt.x = nil;
+                ret { hasX: pt.x != nil, y: pt.y, len: #pt };
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.Table));
+        
+        var tbl = result.Table!;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tbl["hasX"].Boolean, Is.False);
+            Assert.That(tbl["y"].Number, Is.EqualTo(20.0));
+            Assert.That(tbl["len"].Number, Is.EqualTo(1.0));
+        }
+    }
+
+    [Test]
+    public void Table_InlineCache_FrozenTable_RejectsSetProp()
+    {
+        var script = """
+            fn test(pt) {
+                pt.x = 999;
+                ret pt.x;
+            }
+            """;
+
+        var pt = new Table { { "x", 10 }, { "y", 20 } };
+        pt.Freeze();
+
+        var result = EvilTestResult(script, pt);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Number, Is.EqualTo(10.0));
+            Assert.That(pt["x"].Number, Is.EqualTo(10.0));
         }
     }
 
