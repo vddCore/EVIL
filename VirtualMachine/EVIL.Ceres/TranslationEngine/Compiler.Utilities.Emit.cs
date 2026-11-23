@@ -129,7 +129,8 @@ public partial class Compiler
                     sym.Id,
                     ownerScope.Chunk.Name,
                     closureType,
-                    ReferenceEquals(ownerScope.Chunk, _rootChunk)
+                    ReferenceEquals(ownerScope.Chunk, _rootChunk),
+                    ownerScope.Chunk.ClosureOwnerId
                 );
 
                 try
@@ -253,7 +254,8 @@ public partial class Compiler
                     sym.Id,
                     ownerScope.Chunk.Name,
                     closureType,
-                    ReferenceEquals(ownerScope.Chunk, _rootChunk)
+                    ReferenceEquals(ownerScope.Chunk, _rootChunk),
+                    ownerScope.Chunk.ClosureOwnerId
                 );
 
                 try

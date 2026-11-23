@@ -82,6 +82,9 @@ public sealed partial class Chunk
         private void WriteName(BinaryWriter bw)
             => bw.Write(_chunk.Name);
 
+        private void WriteClosureOwnerIdentity(BinaryWriter bw)
+            => bw.Write(_chunk.ClosureOwnerId.ToByteArray());
+
         private void WriteParameterInfo(BinaryWriter bw)
         {
             if (_chunk.Flags.HasFlag(ChunkFlags.HasParameters))
@@ -116,6 +119,7 @@ public sealed partial class Chunk
                     bw.Write(closure.EnclosedFunctionName);
                     bw.Write((int)closure.Type);
                     bw.Write(closure.IsSharedScope);
+                    bw.Write(closure.EnclosedOwnerId.ToByteArray());
                 }
             }
         }
@@ -223,6 +227,7 @@ public sealed partial class Chunk
             {
                 WriteHeader(bw);
                 WriteName(bw);
+                WriteClosureOwnerIdentity(bw);
                 WriteParameterInfo(bw);
                 WriteClosureInfo(bw);
                 WriteSubChunks(bw);

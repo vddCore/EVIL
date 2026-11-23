@@ -1,5 +1,6 @@
 namespace EVIL.Ceres.ExecutionEngine;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -1971,7 +1972,12 @@ internal class ExecutionUnit
         return _evaluationStack.PopArguments(count);
     }
 
-    private ScriptStackFrame? FindClosureSourceFrame(string enclosedFunctionName)
+    private static bool IsClosureOwner(Chunk chunk, ClosureInfo closure)
+        => closure.EnclosedOwnerId != default
+            ? chunk.ClosureOwnerId == closure.EnclosedOwnerId
+            : chunk.Name == closure.EnclosedFunctionName;
+
+    private ScriptStackFrame? FindClosureSourceFrame(ClosureInfo closure)
     {
         var currentFiber = _fiber;
 
@@ -1982,7 +1988,7 @@ internal class ExecutionUnit
             for (var i = callStack.Count - 1; i >= 0; i--)
             {
                 var frame = callStack[i].As<ScriptStackFrame>();
-                if (frame.Chunk.Name == enclosedFunctionName)
+                if (IsClosureOwner(frame.Chunk, closure))
                 {
                     return frame;
                 }
@@ -1994,21 +2000,69 @@ internal class ExecutionUnit
         return null;
     }
 
+    private bool TryGetSharedUpvalue(ClosureInfo closure, out Upvalue upvalue)
+        => closure.EnclosedOwnerId != Guid.Empty
+            ? _fiber.TryGetSharedUpvalue(
+                closure.EnclosedOwnerId,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                out upvalue
+            )
+            : _fiber.TryGetSharedUpvalue(
+                closure.EnclosedFunctionName,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                out upvalue
+            );
+
+    private bool TryGetClosedUpvalue(ClosureInfo closure, out Upvalue upvalue)
+        => closure.EnclosedOwnerId != Guid.Empty
+            ? _fiber.TryGetClosedUpvalue(
+                closure.EnclosedOwnerId,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                out upvalue
+            )
+            : _fiber.TryGetClosedUpvalue(
+                closure.EnclosedFunctionName,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                out upvalue
+            );
+
+    private void RegisterSharedUpvalue(ClosureInfo closure, Upvalue upvalue)
+    {
+        if (closure.EnclosedOwnerId != Guid.Empty)
+        {
+            _fiber.RegisterSharedUpvalue(
+                closure.EnclosedOwnerId,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                upvalue
+            );
+        }
+        else
+        {
+            _fiber.RegisterSharedUpvalue(
+                closure.EnclosedFunctionName,
+                closure.EnclosedId,
+                closure.Type == ClosureType.Local,
+                upvalue
+            );
+        }
+    }
+
     private Upvalue ResolveUpvalue(ScriptStackFrame frame, ClosureInfo closure)
     {
         if (closure.IsSharedScope)
         {
-            if (_fiber.TryGetSharedUpvalue(
-                    closure.EnclosedFunctionName,
-                    closure.EnclosedId,
-                    closure.Type == ClosureType.Local,
-                    out var shared))
+            if (TryGetSharedUpvalue(closure, out var shared))
             {
                 return shared;
             }
 
             Upvalue? upval = null;
-            if (frame.Chunk.Name == closure.EnclosedFunctionName)
+            if (IsClosureOwner(frame.Chunk, closure))
             {
                 if (closure.Type == ClosureType.Local)
                 {
@@ -2025,7 +2079,7 @@ internal class ExecutionUnit
             }
             else
             {
-                var targetFrame = FindClosureSourceFrame(closure.EnclosedFunctionName);
+                var targetFrame = FindClosureSourceFrame(closure);
                 if (targetFrame != null)
                 {
                     if (closure.Type == ClosureType.Local)
@@ -2041,29 +2095,19 @@ internal class ExecutionUnit
                         upval = targetFrame.Upvalues[closure.EnclosedId];
                     }
                 }
-                else if (
-                    _fiber.TryGetClosedUpvalue(
-                        closure.EnclosedFunctionName,
-                        closure.EnclosedId,
-                        closure.Type == ClosureType.Local,
-                        out var closed))
+                else if (TryGetClosedUpvalue(closure, out var closed))
                 {
                     upval = closed;
                 }
             }
 
             upval ??= new Upvalue(DynamicValue.Nil);
-            _fiber.RegisterSharedUpvalue(
-                closure.EnclosedFunctionName,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                upval
-            );
+            RegisterSharedUpvalue(closure, upval);
 
             return upval;
         }
 
-        if (frame.Chunk.Name == closure.EnclosedFunctionName)
+        if (IsClosureOwner(frame.Chunk, closure))
         {
             if (closure.Type == ClosureType.Local)
             {
@@ -2090,7 +2134,7 @@ internal class ExecutionUnit
             return frame.Upvalues[closure.EnclosedId];
         }
 
-        var sourceFrame = FindClosureSourceFrame(closure.EnclosedFunctionName);
+        var sourceFrame = FindClosureSourceFrame(closure);
         if (sourceFrame != null)
         {
             if (closure.Type == ClosureType.Local)
@@ -2110,11 +2154,7 @@ internal class ExecutionUnit
             }
         }
 
-        if (_fiber.TryGetClosedUpvalue(
-                closure.EnclosedFunctionName,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                out var closedVal))
+        if (TryGetClosedUpvalue(closure, out var closedVal))
         {
             return closedVal;
         }

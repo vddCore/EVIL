@@ -30,9 +30,10 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private PropertyInlineCache[]? _propertyInlineCaches;
     private readonly Serializer _serializer;
 
-    public const byte FormatVersion = 3;
+    public const byte FormatVersion = 4;
 
     public string Name { get; set; }
+    internal Guid ClosureOwnerId { get; private set; }
     public Chunk? Parent { get; private set; }
 
     public StringPool StringPool { get; }
@@ -135,6 +136,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _serializer = new Serializer(this);
 
         Name = name;
+        ClosureOwnerId = Guid.NewGuid();
         StringPool = new StringPool();
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
@@ -164,6 +166,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _serializer = new Serializer(this);
 
         Name = name;
+        ClosureOwnerId = Guid.NewGuid();
         StringPool = new StringPool();
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
@@ -193,6 +196,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _serializer = new Serializer(this);
 
         Name = name;
+        ClosureOwnerId = Guid.NewGuid();
         StringPool = new StringPool(stringConstants);
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
@@ -222,6 +226,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _serializer = new Serializer(this);
 
         Name = name;
+        ClosureOwnerId = Guid.NewGuid();
         StringPool = stringPool;
         CodeGenerator = new CodeGenerator(_code, _labels)
         {
@@ -383,6 +388,22 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         string enclosedFunctionName,
         ClosureType closureType,
         bool isSharedScope)
+        => AllocateClosure(
+            nestingLevel,
+            enclosedId,
+            enclosedFunctionName,
+            closureType,
+            isSharedScope,
+            default
+        );
+
+    internal (int Id, ClosureInfo Closure) AllocateClosure(
+        int nestingLevel,
+        int enclosedId,
+        string enclosedFunctionName,
+        ClosureType closureType,
+        bool isSharedScope,
+        Guid enclosedOwnerId)
     {
         var id = ClosureCount;
         var ret = new ClosureInfo(
@@ -390,7 +411,8 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             enclosedId,
             enclosedFunctionName,
             closureType,
-            isSharedScope
+            isSharedScope,
+            enclosedOwnerId
         );
 
         _closures.Add(ret);
@@ -591,6 +613,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         {
             Parent = Parent,
             Name = Name,
+            ClosureOwnerId = ClosureOwnerId,
             LocalCount = LocalCount,
             ParameterCount = ParameterCount,
             DebugDatabase = DebugDatabase,
@@ -627,6 +650,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         if (ReferenceEquals(this, other)) return true;
 
         return Name == other.Name
+               && ClosureOwnerId == other.ClosureOwnerId
                && IsSelfAware == other.IsSelfAware
                && ParameterCount == other.ParameterCount
                && _parameterInitializers.SequenceEqual(other._parameterInitializers)
@@ -653,6 +677,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         var hashCode = new HashCode();
 
         hashCode.Add(Name);
+        hashCode.Add(ClosureOwnerId);
         hashCode.Add(IsSelfAware);
         hashCode.Add(ParameterCount);
         hashCode.Add(_parameterInitializers);

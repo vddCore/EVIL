@@ -63,6 +63,25 @@ public class DisassemblyFormatterTests : TestBase
     }
 
     [Test]
+    public void DisassemblyFormatter_ShowsReadableRootChunkName()
+    {
+        var chunk = Compiler.Compile("val value = 1;", "src/disassembly_root.vil");
+        var sw = new StringWriter();
+
+        DisassemblyFormatter.FormatChunk(
+            chunk.Disassemble(),
+            sw,
+            new DisassemblyFormatOptions
+            {
+                ShowChunkHeader = true,
+                ColorMode = ColorMode.Never
+            }
+        );
+
+        Assert.That(sw.ToString(), Does.Contain(".CHUNK !_root_chunk!disassembly_root.vil"));
+    }
+
+    [Test]
     public void DisassemblyFormatter_HighlightsActiveIPWithGutterCursor()
     {
         var script = """

@@ -1,6 +1,8 @@
 ﻿namespace EVIL.Ceres.RuntimeTests;
 
+using System;
 using System.IO;
+using System.Security.Cryptography;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.TranslationEngine;
 using EVIL.Grammar;
@@ -10,6 +12,20 @@ public class Serialization
 {
     private readonly Parser _parser = new();
     private readonly Compiler _compiler = new();
+
+    private static void WriteLegacyV3Header(BinaryWriter writer, string name, ChunkFlags flags)
+    {
+        writer.Write(new byte[] { (byte)'E', (byte)'V', (byte)'C', 0x06, 3 });
+        writer.Write(0L);
+        writer.Write((int)flags);
+        writer.Write(name);
+    }
+
+    private static void WriteEmptyLegacyV3CodeArea(BinaryWriter writer)
+    {
+        writer.Write(0);
+        writer.Write(MD5.HashData(Array.Empty<byte>()));
+    }
 
     [SetUp]
     public void Setup()
@@ -88,5 +104,89 @@ public class Serialization
         Assert.That(chunk.SubChunks[3].DebugDatabase.DefinedInFile, Is.EqualTo("generated_chunk_names.vil"));
         Assert.That(chunk.SubChunks[0].DebugDatabase.DefinedInFile, Is.EqualTo("generated_chunk_names.vil"));
         Assert.That(chunk.SubChunks[2].DebugDatabase.DefinedInFile, Is.EqualTo("generated_chunk_names.vil"));
+    }
+
+    [Test]
+    public void ChunkDeserialize_V3ClosureMetadataUsesLegacyNameFallback()
+    {
+        using var legacyStream = new MemoryStream();
+        using (var writer = new BinaryWriter(legacyStream, System.Text.Encoding.UTF8, true))
+        {
+            WriteLegacyV3Header(writer, "legacy-root", ChunkFlags.HasSubChunks);
+            writer.Write(1);
+
+            WriteLegacyV3Header(writer, "legacy-child", ChunkFlags.HasClosures);
+            writer.Write(1);
+            writer.Write(1);
+            writer.Write(0);
+            writer.Write("legacy-root");
+            writer.Write((int)ClosureType.Local);
+            writer.Write(true);
+            writer.Write(0);
+            WriteEmptyLegacyV3CodeArea(writer);
+
+            writer.Write(0);
+            writer.Write(0);
+            WriteEmptyLegacyV3CodeArea(writer);
+        }
+
+        legacyStream.Position = 0;
+        var legacyChunk = Chunk.Deserialize(legacyStream, out var legacyVersion, out _);
+        var legacyClosure = legacyChunk.SubChunks[0].Closures[0];
+
+        using var upgradedStream = new MemoryStream();
+        legacyChunk.Serialize(upgradedStream);
+        upgradedStream.Position = 0;
+        var upgradedChunk = Chunk.Deserialize(upgradedStream, out var upgradedVersion, out _);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(legacyVersion, Is.EqualTo(3));
+            Assert.That(legacyClosure.EnclosedFunctionName, Is.EqualTo("legacy-root"));
+            Assert.That(legacyClosure.EnclosedOwnerId, Is.EqualTo(Guid.Empty));
+            Assert.That(upgradedVersion, Is.EqualTo(Chunk.FormatVersion));
+            Assert.That(upgradedChunk.SubChunks[0].Closures[0].EnclosedFunctionName, Is.EqualTo("legacy-root"));
+            Assert.That(upgradedChunk.SubChunks[0].Closures[0].EnclosedOwnerId, Is.EqualTo(Guid.Empty));
+        }
+    }
+
+    [Test]
+    public void RootChunk_UsesReadableSourceBasedName()
+    {
+        const string fileName = "src/demo.vil";
+        var chunk = new Compiler().Compile("val value = 1;", fileName);
+        var sameSourceName = new Compiler().Compile("val value = 2;", fileName);
+        var unnamedChunk = new Compiler().Compile("val value = 3;", string.Empty);
+        var windowsPathChunk = new Compiler().Compile("val value = 4;", @"C:\src\windows_demo.vil");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(chunk.Name, Is.EqualTo("!_root_chunk!demo.vil"));
+            Assert.That(sameSourceName.Name, Is.EqualTo(chunk.Name));
+            Assert.That(sameSourceName.ClosureOwnerId, Is.Not.EqualTo(chunk.ClosureOwnerId));
+            Assert.That(unnamedChunk.Name, Is.EqualTo("!_root_chunk"));
+            Assert.That(windowsPathChunk.Name, Is.EqualTo("!_root_chunk!windows_demo.vil"));
+            Assert.That(chunk.DebugDatabase.DefinedInFile, Is.EqualTo(fileName));
+        }
+    }
+
+    [Test]
+    public void ChunkSerializeDeserialize_PreservesClosureOwnerIdentities()
+    {
+        var originalChunk = new Compiler().Compile(
+            "val value = 1; val closure = fn() -> value;",
+            "identity_round_trip.vil"
+        );
+
+        using var stream = new MemoryStream();
+        originalChunk.Serialize(stream);
+        stream.Position = 0;
+        var deserializedChunk = Chunk.Deserialize(stream, out _, out _);
+
+        Assert.That(deserializedChunk.ClosureOwnerId, Is.EqualTo(originalChunk.ClosureOwnerId));
+        Assert.That(
+            deserializedChunk.SubChunks[0].Closures[0].EnclosedOwnerId,
+            Is.EqualTo(originalChunk.SubChunks[0].Closures[0].EnclosedOwnerId)
+        );
     }
 }

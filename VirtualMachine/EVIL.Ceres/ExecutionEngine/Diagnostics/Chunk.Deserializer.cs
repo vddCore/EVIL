@@ -2,6 +2,7 @@
 
 using static EVIL.Ceres.ExecutionEngine.TypeSystem.DynamicValue;
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -106,6 +107,10 @@ public sealed partial class Chunk
                 ReadHeader(br, out version, out timestamp, out var flags);
 
                 chunk = new Chunk(ReadName(br));
+                if (version >= 4)
+                {
+                    chunk.ClosureOwnerId = new Guid(br.ReadBytes(16));
+                }
 
                 if (flags.HasFlag(ChunkFlags.IsSelfAware))
                 {
@@ -143,13 +148,23 @@ public sealed partial class Chunk
 
                     for (var i = 0; i < closureCount; i++)
                     {
+                        var nestingLevel = br.ReadInt32();
+                        var enclosedId = br.ReadInt32();
+                        var enclosedFunctionName = br.ReadString();
+                        var closureType = (ClosureType)br.ReadInt32();
+                        var isSharedScope = br.ReadBoolean();
+                        var enclosedOwnerId = version >= 4
+                            ? new Guid(br.ReadBytes(16))
+                            : Guid.Empty;
+
                         chunk._closures.Add(
                             new ClosureInfo(
-                                br.ReadInt32(),
-                                br.ReadInt32(),
-                                br.ReadString(),
-                                (ClosureType)br.ReadInt32(),
-                                br.ReadBoolean()
+                                nestingLevel,
+                                enclosedId,
+                                enclosedFunctionName,
+                                closureType,
+                                isSharedScope,
+                                enclosedOwnerId
                             )
                         );
                     }

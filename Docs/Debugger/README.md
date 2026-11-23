@@ -49,7 +49,7 @@ evil --debug path/to/script.vil
 The debugger pauses execution on entry at the first statement of the script, displays a source context snippet, and gives you an interactive `(evdb)` prompt:
 
 ```text
-[evdb] Stopped (Pause) at game.vil:1 in function '!_root_chunk' (IP: 0x0000)
+[evdb] Stopped (Pause) at game.vil:1 in function '!_root_chunk!game.vil' (IP: 0x0000)
 =>    1: val Entity = {
       2:   new: self::fn(name, health = 100) -> {
       3:     name: name,
@@ -127,7 +127,7 @@ evil --debug combat.vil
 
 Output:
 ```text
-[evdb] Stopped (Pause) at combat.vil:1 in function '!_root_chunk' (IP: 0x0000)
+[evdb] Stopped (Pause) at combat.vil:1 in function '!_root_chunk!combat.vil' (IP: 0x0000)
 =>    1: val Entity = {
       2:   new: self::fn(name, hp = 100) -> {
       3:     name: name,

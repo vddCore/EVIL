@@ -1,5 +1,6 @@
 namespace EVIL.Ceres.ExecutionEngine.Concurrency;
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -95,12 +96,27 @@ public sealed class FiberScheduler(
         FiberCrashHandler? crashHandler = null,
         Dictionary<string, ClosureContext>? closureContexts = null,
         Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null)
+        => CreateFiberWithOwnerUpvalues(
+            immunized,
+            crashHandler,
+            closureContexts,
+            sharedUpvalues,
+            null
+        );
+
+    internal Fiber CreateFiberWithOwnerUpvalues(
+        bool immunized,
+        FiberCrashHandler? crashHandler,
+        Dictionary<string, ClosureContext>? closureContexts,
+        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues,
+        Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue>? sharedOwnerUpvalues)
     {
         var fiber = new Fiber(
             vm,
             crashHandler ?? DefaultCrashHandler,
             closureContexts,
-            sharedUpvalues
+            sharedUpvalues,
+            sharedOwnerUpvalues
         );
         
         if (immunized)

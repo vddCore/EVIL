@@ -2,8 +2,7 @@ namespace EVIL.Ceres.TranslationEngine;
 
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
+using System.IO;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
@@ -158,19 +157,10 @@ public partial class Compiler : AstVisitor
 
     private Chunk InRootChunkDo(Action action)
     {
-        var fileNameBytes = Encoding.UTF8
-            .GetBytes(CurrentFileName + Random.Shared.Next());
-            
-        var hash = SHA1.HashData(fileNameBytes);
-        var chunkName = "!_root_chunk";
-        var sb = new StringBuilder();
-        
-        for (var i = 0; i < hash.Length; i++)
-        {
-            sb.Append(hash[i].ToString("X2"));
-        }
-        
-        chunkName += "!" + sb;
+        var sourceName = Path.GetFileName(CurrentFileName.Replace('\\', Path.DirectorySeparatorChar));
+        var chunkName = string.IsNullOrEmpty(sourceName)
+            ? "!_root_chunk"
+            : $"!_root_chunk!{sourceName}";
 
         _rootChunk = new Chunk(chunkName);
         _rootChunk.DebugDatabase.DefinedInFile = CurrentFileName;

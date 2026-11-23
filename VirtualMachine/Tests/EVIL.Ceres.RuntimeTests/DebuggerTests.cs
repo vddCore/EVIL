@@ -170,7 +170,7 @@ public class DebuggerTests
         vm.Stop();
 
         stoppedFunctions.Count.ShouldBe(2);
-        stoppedFunctions[0].ShouldContain("!_root_chunk");
+        stoppedFunctions[0].ShouldBe("!_root_chunk!test_step_into.vil");
         stoppedFunctions[1].ShouldBe("compute");
     }
 

@@ -7,6 +7,7 @@ public record ClosureInfo
     public int NestingLevel { get; }
     public int EnclosedId { get; }
     public string EnclosedFunctionName { get; }
+    internal Guid EnclosedOwnerId { get; }
         
     public ClosureType Type { get; }
         
@@ -17,11 +18,13 @@ public record ClosureInfo
         int enclosedId,
         string enclosedFunctionName,
         ClosureType type,
-        bool isSharedScope)
+        bool isSharedScope,
+        Guid enclosedOwnerId = default)
     {
         NestingLevel = nestingLevel;
         EnclosedId = enclosedId;
         EnclosedFunctionName = enclosedFunctionName;
+        EnclosedOwnerId = enclosedOwnerId;
         Type = type;
         IsSharedScope = isSharedScope;
     }
@@ -31,6 +34,7 @@ public record ClosureInfo
         return NestingLevel == other?.NestingLevel
                && EnclosedId == other.EnclosedId
                && EnclosedFunctionName == other.EnclosedFunctionName
+               && EnclosedOwnerId == other.EnclosedOwnerId
                && Type == other.Type
                && IsSharedScope == other.IsSharedScope;
     }
@@ -40,6 +44,7 @@ public record ClosureInfo
             NestingLevel,
             EnclosedId,
             EnclosedFunctionName,
+            EnclosedOwnerId,
             Type,
             IsSharedScope
         );

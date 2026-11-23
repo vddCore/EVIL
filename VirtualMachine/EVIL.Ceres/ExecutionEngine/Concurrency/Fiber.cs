@@ -20,6 +20,8 @@ public sealed class Fiber
     private readonly Dictionary<string, ClosureContext> _closureContexts;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _sharedUpvalues;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _closedUpvalues = new();
+    private readonly Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue> _sharedOwnerUpvalues;
+    private readonly Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue> _closedOwnerUpvalues = new();
 
     private readonly Stack<ScriptStackFrame> _scriptFramePool = new();
     private readonly Stack<DynamicValue[]>[] _argumentsPool = new Stack<DynamicValue[]>[16];
@@ -72,7 +74,8 @@ public sealed class Fiber
     internal Fiber(
         VirtualMachineBase virtualMachine,
         Dictionary<string, ClosureContext>? closureContexts = null,
-        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null)
+        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null,
+        Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue>? sharedOwnerUpvalues = null)
     {
         VirtualMachine = virtualMachine;
 
@@ -83,6 +86,7 @@ public sealed class Fiber
         _callStack = new CallStack();
         _closureContexts = closureContexts ?? new Dictionary<string, ClosureContext>();
         _sharedUpvalues = sharedUpvalues ?? new Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>();
+        _sharedOwnerUpvalues = sharedOwnerUpvalues ?? new Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue>();
             
         _executionUnit = new ExecutionUnit(
             virtualMachine.Global,
@@ -98,8 +102,9 @@ public sealed class Fiber
         VirtualMachineBase virtualMachine, 
         FiberCrashHandler fiberCrashHandler,
         Dictionary<string, ClosureContext>? closureContexts = null,
-        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null) 
-        : this(virtualMachine, closureContexts, sharedUpvalues)
+        Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>? sharedUpvalues = null,
+        Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue>? sharedOwnerUpvalues = null)
+        : this(virtualMachine, closureContexts, sharedUpvalues, sharedOwnerUpvalues)
     {
         SetCrashHandler(fiberCrashHandler);
     }
@@ -472,6 +477,18 @@ public sealed class Fiber
     public void SaveClosedUpvalue(string funcName, int slot, bool isLocal, Upvalue upvalue)
         => _closedUpvalues[(funcName, slot, isLocal)] = upvalue;
 
+    internal bool TryGetSharedUpvalue(Guid ownerId, int slot, bool isLocal, out Upvalue upvalue)
+        => _sharedOwnerUpvalues.TryGetValue((ownerId, slot, isLocal), out upvalue!);
+
+    internal void RegisterSharedUpvalue(Guid ownerId, int slot, bool isLocal, Upvalue upvalue)
+        => _sharedOwnerUpvalues[(ownerId, slot, isLocal)] = upvalue;
+
+    internal bool TryGetClosedUpvalue(Guid ownerId, int slot, bool isLocal, out Upvalue upvalue)
+        => _closedOwnerUpvalues.TryGetValue((ownerId, slot, isLocal), out upvalue!);
+
+    internal void SaveClosedUpvalue(Guid ownerId, int slot, bool isLocal, Upvalue upvalue)
+        => _closedOwnerUpvalues[(ownerId, slot, isLocal)] = upvalue;
+
     public void SetCrashHandler(FiberCrashHandler? crashHandler)
     {
         _crashHandler = crashHandler;
@@ -492,11 +509,12 @@ public sealed class Fiber
         FiberCrashHandler? crashHandler = null,
         Dictionary<string, ClosureContext>? closureContexts = null)
     {
-        var fiber = VirtualMachine.Scheduler.CreateFiber(
+        var fiber = VirtualMachine.Scheduler.CreateFiberWithOwnerUpvalues(
             immunized,
             crashHandler,
             closureContexts ?? _closureContexts,
-            _sharedUpvalues
+            _sharedUpvalues,
+            _sharedOwnerUpvalues
         );
 
         fiber.Parent = this;

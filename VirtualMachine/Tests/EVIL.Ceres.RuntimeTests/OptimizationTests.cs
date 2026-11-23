@@ -2,6 +2,7 @@ namespace EVIL.Ceres.RuntimeTests;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
@@ -67,6 +68,7 @@ public class OptimizationTests : TestBase
             // Code and StringPool must have a shared ref between clones.
             Assert.That(clone.Code, Is.SameAs(originalCode));
             Assert.That(clone.StringPool, Is.SameAs(originalPool));
+            Assert.That(clone.ClosureOwnerId, Is.EqualTo(chunk.ClosureOwnerId));
         }
         Assert.That(clone.Code, Has.Length.EqualTo(3));
     }
@@ -108,6 +110,80 @@ public class OptimizationTests : TestBase
             Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
             Assert.That(result.Number, Is.EqualTo(249500.0));
         }
+    }
+
+    [Test]
+    public void Closure_SameSourceRootsKeepCapturedLocalsIsolatedAfterReturning()
+    {
+        var firstRoot = Compiler.Compile(
+            "val value = \"first\"; first_closure = fn() -> value;",
+            "same_source.vil"
+        );
+        var secondRoot = Compiler.Compile(
+            "val value = \"second\"; second_closure = fn() -> value;",
+            "same_source.vil"
+        );
+        var invokeClosures = Compiler.Compile(
+            "first_result = first_closure(); second_result = second_closure();",
+            "invoke_closures.vil"
+        );
+
+        VM.MainFiber.Schedule(firstRoot, false);
+        VM.MainFiber.Schedule(secondRoot, false);
+        VM.MainFiber.Schedule(invokeClosures, false);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+
+        Assert.That(VM.Global["first_result"].String, Is.EqualTo("first"));
+        Assert.That(VM.Global["second_result"].String, Is.EqualTo("second"));
+        Assert.That(firstRoot.Name, Is.EqualTo(secondRoot.Name));
+        Assert.That(firstRoot.ClosureOwnerId, Is.Not.EqualTo(secondRoot.ClosureOwnerId));
+    }
+
+    [Test]
+    public void Closure_LegacyNameBasedOwnerFallbackResolvesClosedCapture()
+    {
+        var root = Compiler.Compile(
+            "val value = \"legacy\"; legacy_closure = fn() -> value;",
+            "legacy_owner.vil"
+        );
+
+        using var stream = new MemoryStream();
+        root.Serialize(stream);
+        var serialized = stream.ToArray();
+        var ownerIdBytes = root.ClosureOwnerId.ToByteArray();
+
+        int FindOwnerId(int start)
+        {
+            for (var i = start; i <= serialized.Length - ownerIdBytes.Length; i++)
+            {
+                if (serialized.AsSpan(i, ownerIdBytes.Length).SequenceEqual(ownerIdBytes))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        var rootOwnerIdOffset = FindOwnerId(0);
+        var closureOwnerIdOffset = FindOwnerId(rootOwnerIdOffset + ownerIdBytes.Length);
+        Assert.That(closureOwnerIdOffset, Is.GreaterThan(rootOwnerIdOffset));
+        System.Array.Clear(serialized, closureOwnerIdOffset, ownerIdBytes.Length);
+
+        using var legacyStream = new MemoryStream(serialized);
+        var legacyCompatibleRoot = Chunk.Deserialize(legacyStream, out _, out _);
+        var invokeClosure = Compiler.Compile(
+            "legacy_result = legacy_closure();",
+            "invoke_legacy_closure.vil"
+        );
+
+        VM.MainFiber.Schedule(legacyCompatibleRoot, false);
+        VM.MainFiber.Schedule(invokeClosure, false);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+
+        Assert.That(VM.Global["legacy_result"].String, Is.EqualTo("legacy"));
     }
 
     [Test]

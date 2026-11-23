@@ -533,6 +533,7 @@ public sealed record ScriptStackFrame : StackFrame
                 {
                     upval.Close();
                     Fiber.SaveClosedUpvalue(Chunk.Name, i, true, upval);
+                    Fiber.SaveClosedUpvalue(Chunk.ClosureOwnerId, i, true, upval);
                 }
             }
         }
@@ -547,6 +548,7 @@ public sealed record ScriptStackFrame : StackFrame
                 {
                     upval.Close();
                     Fiber.SaveClosedUpvalue(Chunk.Name, i, false, upval);
+                    Fiber.SaveClosedUpvalue(Chunk.ClosureOwnerId, i, false, upval);
                 }
             }
         }
@@ -559,7 +561,9 @@ public sealed record ScriptStackFrame : StackFrame
                 {
                     if (_openLocalUpvalues == null || i >= _openLocalUpvalues.Length || _openLocalUpvalues[i] == null)
                     {
-                        Fiber.SaveClosedUpvalue(Chunk.Name, i, true, new Upvalue(Locals[i]));
+                        var upvalue = new Upvalue(Locals[i]);
+                        Fiber.SaveClosedUpvalue(Chunk.Name, i, true, upvalue);
+                        Fiber.SaveClosedUpvalue(Chunk.ClosureOwnerId, i, true, upvalue);
                     }
                 }
             }
@@ -567,7 +571,9 @@ public sealed record ScriptStackFrame : StackFrame
             {
                 if (_openArgumentUpvalues == null || i >= _openArgumentUpvalues.Length || _openArgumentUpvalues[i] == null)
                 {
-                    Fiber.SaveClosedUpvalue(Chunk.Name, i, false, new Upvalue(Arguments[i]));
+                    var upvalue = new Upvalue(Arguments[i]);
+                    Fiber.SaveClosedUpvalue(Chunk.Name, i, false, upvalue);
+                    Fiber.SaveClosedUpvalue(Chunk.ClosureOwnerId, i, false, upvalue);
                 }
             }
         }
