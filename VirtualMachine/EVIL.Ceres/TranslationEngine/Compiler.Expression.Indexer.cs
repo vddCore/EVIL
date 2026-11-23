@@ -10,22 +10,37 @@ public partial class Compiler
     {
         if (indexerExpression.IsConditional)
         {
-            var endIndexerLabel = Chunk.CreateLabel();
-            var indexLabel = Chunk.CreateLabel();
-            
-            indexerExpression.SetTag("end_label", endIndexerLabel);
-            Visit(indexerExpression.Indexable);
+            var isPartOfOuterChain = false;
+            int endIndexerLabel = 0;
 
-            if (Options.OptimizeCodeGeneration)
+            if (Options.OptimizeCodeGeneration 
+                && indexerExpression.Parent is IndexerExpression outer 
+                && outer.IsConditional 
+                && outer.Indexable == indexerExpression)
             {
-                var parent = indexerExpression;
-                while (parent.Parent is IndexerExpression { IsConditional: true } outer)
+                var root = outer;
+                while (root.Parent is IndexerExpression p 
+                       && p.IsConditional 
+                       && p.Indexable == root)
                 {
-                    parent = outer;
+                    root = p;
                 }
 
-                endIndexerLabel = parent.GetTag<int>("end_label");
+                if (root.HasTag("safe_nav_end_label"))
+                {
+                    isPartOfOuterChain = true;
+                    endIndexerLabel = root.GetTag<int>("safe_nav_end_label");
+                }
             }
+
+            if (!isPartOfOuterChain)
+            {
+                endIndexerLabel = Chunk.CreateLabel();
+                indexerExpression.SetTag("safe_nav_end_label", endIndexerLabel);
+            }
+
+            var indexLabel = Chunk.CreateLabel();
+            Visit(indexerExpression.Indexable);
 
             Chunk.CodeGenerator.Emit(OpCode.DUP);
             Chunk.CodeGenerator.Emit(OpCode.VJMP, indexLabel);
@@ -48,7 +63,10 @@ public partial class Compiler
                 );
             }
             
-            Chunk.UpdateLabel(endIndexerLabel, Chunk.CodeGenerator.IP);
+            if (!isPartOfOuterChain)
+            {
+                Chunk.UpdateLabel(endIndexerLabel, Chunk.CodeGenerator.IP);
+            }
         }
         else
         {

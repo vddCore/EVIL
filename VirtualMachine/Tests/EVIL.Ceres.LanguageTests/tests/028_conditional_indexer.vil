@@ -186,3 +186,92 @@ fn elvis_stack_balance_on_nil {
   assert.equal(r2, nil);
   assert.equal(r3, nil);
 }
+
+#[test]
+fn elvis_assignment_on_nil_is_noop {
+  val a = nil;
+  a?.prop = 42;
+  assert.equal(a, nil);
+}
+
+#[test]
+fn elvis_assignment_on_valid_target {
+  val a = { prop: 10 };
+  a?.prop = 42;
+  assert.equal(a.prop, 42);
+}
+
+#[test]
+fn elvis_assignment_short_circuits_rhs {
+  val a = nil;
+  rw val side_effect = 0;
+  a?.prop = (side_effect = 1);
+  assert.equal(side_effect, 0);
+}
+
+#[test]
+fn elvis_dynamic_index_assignment_on_nil {
+  val a = nil;
+  val k = "key";
+  a?[k] = 99;
+  assert.equal(a, nil);
+}
+
+#[test]
+fn elvis_dynamic_index_assignment_on_valid_target {
+  val a = { key: 1 };
+  val k = "key";
+  a?[k] = 99;
+  assert.equal(a.key, 99);
+}
+
+#[test]
+fn elvis_compound_assignment_on_nil {
+  val a = nil;
+  a?.count += 5;
+  assert.equal(a, nil);
+}
+
+#[test]
+fn elvis_compound_assignment_on_valid_target {
+  val a = { count: 10 };
+  a?.count += 5;
+  assert.equal(a.count, 15);
+}
+
+#[test]
+fn elvis_coalesce_assignment_on_nil {
+  val a = nil;
+  a?.setting ??= "default";
+  assert.equal(a, nil);
+}
+
+#[test]
+fn elvis_coalesce_assignment_on_valid_target {
+  val a = { setting: nil };
+  a?.setting ??= "default";
+  assert.equal(a.setting, "default");
+  
+  a?.setting ??= "override";
+  assert.equal(a.setting, "default");
+}
+
+#[test]
+fn elvis_assignment_expression_value {
+  val a = nil;
+  val res1 = (a?.prop = 42);
+  assert.equal(res1, nil);
+
+  val b = { prop: 0 };
+  val res2 = (b?.prop = 42);
+  assert.equal(res2, 42);
+  assert.equal(b.prop, 42);
+}
+
+#[test]
+fn elvis_multi_hop_assignment_when_middle_is_nil {
+  val a = { b: nil };
+  rw val executed = 0;
+  a?.b?.c = (executed = 1);
+  assert.equal(executed, 0);
+}
