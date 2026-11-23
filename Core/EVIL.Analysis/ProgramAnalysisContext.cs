@@ -6,15 +6,22 @@ using EVIL.Grammar.AST.Miscellaneous;
 
 public readonly struct ProgramAnalysisContext
 {
-    public ProgramNode Program { get; }
     public string FilePath { get; }
+    
+    public ProgramNode Program { get; }
     public IDiagnosticSink DiagnosticSink { get; }
+    public GlobalSymbolResolver SymbolResolver { get; }
 
-    public ProgramAnalysisContext(ProgramNode program, string filePath, IDiagnosticSink diagnosticSink)
+    public ProgramAnalysisContext(string filePath,
+        ProgramNode program,
+        IDiagnosticSink diagnosticSink,
+        GlobalSymbolResolver? symbolResolver = null)
     {
-        Program = program;
         FilePath = filePath;
+        
+        Program = program;
         DiagnosticSink = diagnosticSink;
+        SymbolResolver = symbolResolver ?? GlobalSymbolResolver.Default;
     }
 
     public void ReportDiagnostic(Diagnostic diagnostic) 

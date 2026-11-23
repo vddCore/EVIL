@@ -12,6 +12,8 @@ public sealed class AnalysisContext
     public IReadOnlyDictionary<Type, List<Action<SyntaxNodeAnalysisContext>>> SyntaxNodeActions => _syntaxNodeActions;
     public IReadOnlyList<Action<ProgramAnalysisContext>> ProgramActions => _programActions;
 
+    public GlobalSymbolResolver SymbolResolver { get; } = new();
+
     public void RegisterSyntaxNodeAction<TNode>(Action<SyntaxNodeAnalysisContext<TNode>> action) where TNode : AstNode
     {
         var nodeType = typeof(TNode);
@@ -22,11 +24,9 @@ public sealed class AnalysisContext
         }
 
         actions.Add(ctx => action(
-            new SyntaxNodeAnalysisContext<TNode>(
+            new SyntaxNodeAnalysisContext<TNode>(ctx.FilePath,
                 (TNode)ctx.Node,
-                ctx.FilePath,
-                ctx.DiagnosticSink
-            )
+                ctx.DiagnosticSink, ctx.SymbolResolver)
         ));
     }
 

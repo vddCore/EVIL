@@ -31,7 +31,7 @@ internal class Scope
     {
         var sym = Find(name);
 
-        if (sym != null && !sym.Value.IsClosure)
+        if (sym is { IsClosure: false })
         {
             throw new DuplicateSymbolException(
                 sym.Value.Symbol,
@@ -62,7 +62,7 @@ internal class Scope
     {
         var sym = Find(name);
 
-        if (sym != null && !sym.Value.IsClosure)
+        if (sym is { IsClosure: false })
         {
             throw new DuplicateSymbolException(
                 sym.Value.Symbol,

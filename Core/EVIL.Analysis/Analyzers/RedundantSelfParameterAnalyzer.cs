@@ -6,7 +6,9 @@ using EVIL.Grammar.AST.Statements;
 
 public sealed class RedundantSelfParameterAnalyzer : IDiagnosticAnalyzer
 {
-    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [CompilerDiagnostics.RedundantSelfParameter];
+    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
+        CompilerDiagnostics.RedundantSelfParameter
+    ];
 
     public void Initialize(AnalysisContext context)
     {

@@ -6,7 +6,9 @@ using EVIL.Grammar.AST.Expressions;
 
 public sealed class MissingByElseArmAnalyzer : IDiagnosticAnalyzer
 {
-    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [CompilerDiagnostics.NoDefaultByArm];
+    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
+        CompilerDiagnostics.NoDefaultByArm
+    ];
 
     public void Initialize(AnalysisContext context)
     {

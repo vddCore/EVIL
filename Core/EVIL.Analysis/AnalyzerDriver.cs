@@ -41,6 +41,14 @@ public sealed class AnalyzerDriver
         driver.AddAnalyzer(new UnreachableCodeAnalyzer());
         driver.AddAnalyzer(new CatchlessTryAnalyzer());
         driver.AddAnalyzer(new TableDuplicateKeyAnalyzer());
+        driver.AddAnalyzer(new DangerousUnsafeDerefAfterElvisAnalyzer());
+        driver.AddAnalyzer(new RedundantSafeNavigationAnalyzer());
+        driver.AddAnalyzer(new InvalidConditionalAssignmentAnalyzer());
+        driver.AddAnalyzer(new RedundantNullCoalesceAnalyzer());
+        driver.AddAnalyzer(new UncheckedNilInvocationAnalyzer());
+        driver.AddAnalyzer(new NilComparisonTypeMismatchAnalyzer());
+        driver.AddAnalyzer(new NilBranchExhaustivenessAnalyzer());
+        driver.AddAnalyzer(new UncheckedGlobalDereferenceAnalyzer());
         return driver;
     }
 
@@ -54,7 +62,9 @@ public sealed class AnalyzerDriver
             analyzer.Initialize(context);
         }
 
-        var programContext = new ProgramAnalysisContext(program, filePath, sink);
+        context.SymbolResolver.IndexProgram(program);
+
+        var programContext = new ProgramAnalysisContext(filePath, program, sink, context.SymbolResolver);
         foreach (var action in context.ProgramActions)
         {
             action(programContext);
@@ -70,7 +80,7 @@ public sealed class AnalyzerDriver
                 {
                     if (registeredType.IsAssignableFrom(nodeType))
                     {
-                        var syntaxCtx = new SyntaxNodeAnalysisContext(node, filePath, sink);
+                        var syntaxCtx = new SyntaxNodeAnalysisContext(filePath, node, sink, context.SymbolResolver);
                         foreach (var action in actionList)
                         {
                             action(syntaxCtx);

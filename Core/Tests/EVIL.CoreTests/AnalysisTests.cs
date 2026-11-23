@@ -29,16 +29,24 @@ public class AnalysisTests
     }
 
     [Test]
-    public void AnalyzerDriver_CreateDefault_IncludesAllSixAnalyzers()
+    public void AnalyzerDriver_CreateDefault_IncludesAllFourteenAnalyzers()
     {
         var driver = AnalyzerDriver.CreateDefault();
-        driver.Analyzers.Count.ShouldBe(6);
+        driver.Analyzers.Count.ShouldBe(14);
         driver.Analyzers.ShouldContain(a => a is MissingByElseArmAnalyzer);
         driver.Analyzers.ShouldContain(a => a is RedundantSelfParameterAnalyzer);
         driver.Analyzers.ShouldContain(a => a is UnusedVariableAnalyzer);
         driver.Analyzers.ShouldContain(a => a is UnreachableCodeAnalyzer);
         driver.Analyzers.ShouldContain(a => a is CatchlessTryAnalyzer);
         driver.Analyzers.ShouldContain(a => a is TableDuplicateKeyAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is DangerousUnsafeDerefAfterElvisAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is RedundantSafeNavigationAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is InvalidConditionalAssignmentAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is RedundantNullCoalesceAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is UncheckedNilInvocationAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is NilComparisonTypeMismatchAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is NilBranchExhaustivenessAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is UncheckedGlobalDereferenceAnalyzer);
     }
 
     [Test]
@@ -296,4 +304,363 @@ public class AnalysisTests
             });
         }
     }
+
+    #region RFC-0005 Nil-Safety Analyzer Tests
+
+    [Test]
+    public void DangerousUnsafeDerefAfterElvisAnalyzer_ReportsEV8007_WhenUnsafeFollowsSafe()
+    {
+        var source = "val a = nil; val _x = a?.b.c;";
+        var (_, bag) = ParseAndAnalyze(source, new DangerousUnsafeDerefAfterElvisAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8007");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'c'");
+    }
+
+    [Test]
+    public void DangerousUnsafeDerefAfterElvisAnalyzer_NoWarning_WhenChainIsAllSafe()
+    {
+        var source = "val a = nil; val _x = a?.b?.c;";
+        var (_, bag) = ParseAndAnalyze(source, new DangerousUnsafeDerefAfterElvisAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void DangerousUnsafeDerefAfterElvisAnalyzer_NoWarning_WhenNoSafeNavigation()
+    {
+        var source = "val a = { b: { c: 1 } }; val _x = a.b.c;";
+        var (_, bag) = ParseAndAnalyze(source, new DangerousUnsafeDerefAfterElvisAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void RedundantSafeNavigationAnalyzer_ReportsEV8008_OnTableLiteral()
+    {
+        var source = "val _x = { prop: 1 }?.prop;";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantSafeNavigationAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8008");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void RedundantSafeNavigationAnalyzer_ReportsEV8008_OnArrayLiteral()
+    {
+        var source = "val _x = [1, 2]?[0];";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantSafeNavigationAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8008");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void RedundantSafeNavigationAnalyzer_ReportsEV8008_OnBuiltinSingleton()
+    {
+        var source = "val _x = math?.sqrt;";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantSafeNavigationAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8008");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("math");
+    }
+
+    [Test]
+    public void RedundantSafeNavigationAnalyzer_NoWarning_OnAmbientGlobal()
+    {
+        var source = "val _x = CONFIG?.port;";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantSafeNavigationAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void RedundantSafeNavigationAnalyzer_NoWarning_OnLocalVariable()
+    {
+        var source = "val a = nil; val _x = a?.prop;";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantSafeNavigationAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void InvalidConditionalAssignmentAnalyzer_ReportsEV8009_OnUnsafeChainTarget()
+    {
+        var source = "val a = { b: nil }; a?.b.c = 10;";
+        var (_, bag) = ParseAndAnalyze(source, new InvalidConditionalAssignmentAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8009");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Error);
+    }
+
+    [Test]
+    public void InvalidConditionalAssignmentAnalyzer_ReportsEV8009_OnImmutableLiteral()
+    {
+        var source = "val _x = ({ }?.prop = 10);";
+        var (_, bag) = ParseAndAnalyze(source, new InvalidConditionalAssignmentAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8009");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Error);
+    }
+
+    [Test]
+    public void InvalidConditionalAssignmentAnalyzer_NoWarning_OnValidSafeAssignment()
+    {
+        var source = "val a = nil; a?.prop = 10;";
+        var (_, bag) = ParseAndAnalyze(source, new InvalidConditionalAssignmentAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void InvalidConditionalAssignmentAnalyzer_NoWarning_OnChainedSafeAssignment()
+    {
+        var source = "val a = nil; a?.b?.c = 10;";
+        var (_, bag) = ParseAndAnalyze(source, new InvalidConditionalAssignmentAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void RedundantNullCoalesceAnalyzer_ReportsEV8010_OnGuaranteedNonNilLiteral()
+    {
+        var source = "val _x = { } ?? { default: 1 };";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8010");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void RedundantNullCoalesceAnalyzer_ReportsEV8010_OnRightHandNil()
+    {
+        var source = "val a = nil; val _x = a ?? nil;";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8010");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("nil");
+    }
+
+    [Test]
+    public void RedundantNullCoalesceAnalyzer_NoWarning_OnAmbientGlobal()
+    {
+        var source = "val _x = CONFIG ?? { default: 1 };";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void RedundantNullCoalesceAnalyzer_NoWarning_OnNullableExpression()
+    {
+        var source = "val user = nil; val _x = user?.name ?? \"anon\";";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedNilInvocationAnalyzer_ReportsEV8011_OnConditionalIndexInvocation()
+    {
+        var source = "val obj = nil; (obj?.callback)();";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedNilInvocationAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8011");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'callback'");
+    }
+
+    [Test]
+    public void UncheckedNilInvocationAnalyzer_NoWarning_OnNormalInvocation()
+    {
+        var source = "val obj = { callback: fn() {} }; obj.callback();";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedNilInvocationAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void NilComparisonTypeMismatchAnalyzer_ReportsEV8012_OnRelationalComparison()
+    {
+        var source = "val score = 10; val _x = score > nil;";
+        var (_, bag) = ParseAndAnalyze(source, new NilComparisonTypeMismatchAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8012");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'>'");
+    }
+
+    [Test]
+    public void NilComparisonTypeMismatchAnalyzer_ReportsEV8012_OnReversedRelationalComparison()
+    {
+        var source = "val count = 5; val _y = nil <= count;";
+        var (_, bag) = ParseAndAnalyze(source, new NilComparisonTypeMismatchAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8012");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'<='");
+    }
+
+    [Test]
+    public void NilComparisonTypeMismatchAnalyzer_NoWarning_OnEqualityComparison()
+    {
+        var source = "val score = 10; val _x = score == nil; val _y = score != nil;";
+        var (_, bag) = ParseAndAnalyze(source, new NilComparisonTypeMismatchAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void NilBranchExhaustivenessAnalyzer_ReportsEV8013_WhenNilAndElseMissing()
+    {
+        var source = "val user = nil; val _x = by (user?.status) { 1 => \"active\", 2 => \"inactive\" };";
+        var (_, bag) = ParseAndAnalyze(source, new NilBranchExhaustivenessAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8013");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void NilBranchExhaustivenessAnalyzer_NoWarning_WhenElsePresent()
+    {
+        var source = "val user = nil; val _x = by (user?.status) { 1 => \"active\", else: \"unknown\" };";
+        var (_, bag) = ParseAndAnalyze(source, new NilBranchExhaustivenessAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void NilBranchExhaustivenessAnalyzer_NoWarning_WhenNilArmPresent()
+    {
+        var source = "val user = nil; val _x = by (user?.status) { 1 => \"active\", nil => \"none\" };";
+        var (_, bag) = ParseAndAnalyze(source, new NilBranchExhaustivenessAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void NilBranchExhaustivenessAnalyzer_NoWarning_WhenQualifierNotConditional()
+    {
+        var source = "val user = { status: 1 }; val _x = by (user.status) { 1 => \"active\" };";
+        var (_, bag) = ParseAndAnalyze(source, new NilBranchExhaustivenessAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_ReportsEV8014_OnAmbientGlobal()
+    {
+        var source = "val _port = CONFIG.port;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8014");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'CONFIG'");
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnSafeNavigation()
+    {
+        var source = "val _port = CONFIG?.port;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnBuiltinSingleton()
+    {
+        var source = "val _x = math.sqrt;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnLocalVariable()
+    {
+        var source = "val local_cfg = { port: 8080 }; val _port = local_cfg.port;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnParameter()
+    {
+        var source = "fn test(param_cfg) { val _port = param_cfg.port; }";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnLoopVariable()
+    {
+        var source = "val items = [{ a: 1 }]; each (rw val item : items) { val _x = item.a; }";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void DefaultAnalyzerDriver_RunsAllAnalyzersCleanlyOnIdiomaticScript()
+    {
+        var source = @"
+            fn process_user(user) {
+                val name = user?.name ?? ""anonymous"";
+                val age = user?.profile?.age;
+                val active = by (user?.status) {
+                    1 -> true,
+                    nil -> false,
+                    else: false
+                };
+                ret { name: name, age: age, active: active };
+            }
+
+            val u = { name: ""Alice"", profile: { age: 30 }, status: 1 };
+            val _res = process_user(u);
+        ";
+
+        var driver = AnalyzerDriver.CreateDefault();
+        var parserBag = new DiagnosticBag();
+        var parser = new Parser(parserBag, "test.vil");
+        var program = parser.Parse(source);
+
+        var analysisBag = new DiagnosticBag();
+        driver.Analyze(program, "test.vil", analysisBag);
+
+        analysisBag.Count.ShouldBe(0);
+    }
+
+    #endregion
 }

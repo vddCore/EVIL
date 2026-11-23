@@ -6,7 +6,9 @@ using EVIL.Grammar.AST.Statements;
 
 public sealed class CatchlessTryAnalyzer : IDiagnosticAnalyzer
 {
-    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [CompilerDiagnostics.CatchlessTry];
+    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
+        CompilerDiagnostics.CatchlessTry
+    ];
 
     public void Initialize(AnalysisContext context)
     {

@@ -9,7 +9,9 @@ using EVIL.Grammar.AST.Expressions;
 
 public sealed class TableDuplicateKeyAnalyzer : IDiagnosticAnalyzer
 {
-    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [CompilerDiagnostics.TableDuplicateKey];
+    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
+        CompilerDiagnostics.TableDuplicateKey
+    ];
 
     public void Initialize(AnalysisContext context)
     {
@@ -18,7 +20,10 @@ public sealed class TableDuplicateKeyAnalyzer : IDiagnosticAnalyzer
 
     private static void AnalyzeTableExpression(SyntaxNodeAnalysisContext<TableExpression> context)
     {
-        if (!context.Node.Keyed) return;
+        if (!context.Node.Keyed)
+        {
+            return;
+        }
 
         var seenKeys = new HashSet<string>();
 

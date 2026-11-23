@@ -19,4 +19,10 @@
       <_Parameter1>EVIL.CoreTests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Analyzers\UnusedVariableAnalyzer.ScopeVariableWalker.cs">
+      <DependentUpon>UnusedVariableAnalyzer.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

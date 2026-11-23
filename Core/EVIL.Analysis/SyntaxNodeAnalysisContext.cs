@@ -5,15 +5,23 @@ using EVIL.Grammar.AST.Base;
 
 public readonly struct SyntaxNodeAnalysisContext
 {
-    public AstNode Node { get; }
     public string FilePath { get; }
+    
+    public AstNode Node { get; }
     public IDiagnosticSink DiagnosticSink { get; }
+    public GlobalSymbolResolver SymbolResolver { get; }
 
-    public SyntaxNodeAnalysisContext(AstNode node, string filePath, IDiagnosticSink diagnosticSink)
+    public SyntaxNodeAnalysisContext(
+        string filePath,
+        AstNode node,
+        IDiagnosticSink diagnosticSink,
+        GlobalSymbolResolver? symbolResolver = null)
     {
-        Node = node;
         FilePath = filePath;
+        
+        Node = node;
         DiagnosticSink = diagnosticSink;
+        SymbolResolver = symbolResolver ?? GlobalSymbolResolver.Default;
     }
 
     public void ReportDiagnostic(Diagnostic diagnostic)
@@ -28,15 +36,23 @@ public readonly struct SyntaxNodeAnalysisContext
 
 public readonly struct SyntaxNodeAnalysisContext<TNode> where TNode : AstNode
 {
-    public TNode Node { get; }
     public string FilePath { get; }
+    
+    public TNode Node { get; }
     public IDiagnosticSink DiagnosticSink { get; }
+    public GlobalSymbolResolver SymbolResolver { get; }
 
-    public SyntaxNodeAnalysisContext(TNode node, string filePath, IDiagnosticSink diagnosticSink)
+    public SyntaxNodeAnalysisContext(
+        string filePath,
+        TNode node,
+        IDiagnosticSink diagnosticSink,
+        GlobalSymbolResolver? symbolResolver = null)
     {
-        Node = node;
         FilePath = filePath;
+        
+        Node = node;
         DiagnosticSink = diagnosticSink;
+        SymbolResolver = symbolResolver ?? GlobalSymbolResolver.Default;
     }
 
     public void ReportDiagnostic(Diagnostic diagnostic) 

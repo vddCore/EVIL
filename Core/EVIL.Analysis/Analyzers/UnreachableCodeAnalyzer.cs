@@ -7,7 +7,9 @@ using EVIL.Grammar.AST.Statements;
 
 public sealed class UnreachableCodeAnalyzer : IDiagnosticAnalyzer
 {
-    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [CompilerDiagnostics.UnreachableCode];
+    public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
+        CompilerDiagnostics.UnreachableCode
+    ];
 
     public void Initialize(AnalysisContext context)
     {
@@ -25,6 +27,7 @@ public sealed class UnreachableCodeAnalyzer : IDiagnosticAnalyzer
             if (TryGetTerminatorName(stmt, out var terminatorName))
             {
                 var nextStmt = statements[i + 1];
+                
                 context.ReportDiagnostic(
                     CompilerDiagnostics.UnreachableCode.Create(
                         context.GetLocation(nextStmt),
