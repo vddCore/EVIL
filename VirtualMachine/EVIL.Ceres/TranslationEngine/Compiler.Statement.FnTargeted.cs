@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.TranslationEngine;
 
-using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Expressions;
@@ -42,14 +41,8 @@ public partial class Compiler
             
         var targetedChunkName = $"{primaryName}::{fnTargetedStatement.SecondaryIdentifier.Name}";
             
-        if (Chunk.SubChunks.FirstOrDefault(x => x.Name.StartsWith(targetedChunkName)) != null)
-        {
-            var postfix = Chunk.SubChunks.Count(x => x.Name.StartsWith(targetedChunkName));
-            targetedChunkName = $"{targetedChunkName}_{postfix}";
-        }
-            
         var id = InNamedSubChunkDo(
-            $"{targetedChunkName}",
+            targetedChunkName,
             () =>
             {
                 InNewClosedScopeDo(() =>
@@ -71,7 +64,9 @@ public partial class Compiler
                         Visit(fnTargetedStatement.AttributeList);
                     }
                 });
-            }, out var wasExistingReplaced, out var replacedChunk
+            }, out var wasExistingReplaced, 
+               out var replacedChunk,
+               allocateNewVersionOnRedefinition: true
         );
             
         if (wasExistingReplaced)

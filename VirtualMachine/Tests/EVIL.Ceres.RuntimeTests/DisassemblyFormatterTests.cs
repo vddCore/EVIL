@@ -32,6 +32,37 @@ public class DisassemblyFormatterTests : TestBase
     }
 
     [Test]
+    public void DisassemblyFormatter_ShowsCanonicalIndexedAndTargetedChunkNames()
+    {
+        var script = """
+            val obj = {};
+            loc fn obj.bar() -> 1;
+            loc fn obj::baz() -> 2;
+            loc fn obj.bar() -> 3;
+            """;
+
+        var chunk = Compiler.Compile(script, "generated_chunk_names.vil");
+        var sw = new StringWriter();
+        DisassemblyFormatter.FormatChunk(
+            chunk.Disassemble(),
+            sw,
+            new DisassemblyFormatOptions
+            {
+                ShowChunkHeader = true,
+                IncludeSubChunks = true,
+                ColorMode = ColorMode.Never
+            }
+        );
+
+        var output = sw.ToString();
+
+        Assert.That(output, Does.Contain(".CHUNK obj.bar"));
+        Assert.That(output, Does.Contain(".CHUNK obj::baz"));
+        Assert.That(output, Does.Contain("subchunk 0 'obj.bar'"));
+        Assert.That(output, Does.Contain("subchunk 1 'obj::baz'"));
+    }
+
+    [Test]
     public void DisassemblyFormatter_HighlightsActiveIPWithGutterCursor()
     {
         var script = """

@@ -432,7 +432,18 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         }
     }
         
-    public (int Id, Chunk SubChunk) AllocateNamedSubChunk(string name, out bool wasReplaced, out Chunk replacedChunk)
+    public (int Id, Chunk SubChunk) AllocateNamedSubChunk(
+        string name,
+        out bool wasReplaced,
+        out Chunk replacedChunk
+    ) => AllocateNamedSubChunk(name, false, out wasReplaced, out replacedChunk);
+
+    internal (int Id, Chunk SubChunk) AllocateNamedSubChunk(
+        string name,
+        bool allocateNewVersionOnRedefinition,
+        out bool wasReplaced,
+        out Chunk replacedChunk
+    )
     {
         var id = SubChunkCount;
         wasReplaced = false;
@@ -442,11 +453,19 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         if (_namedSubChunkLookup.TryGetValue(name, out var existingId))
         {
-            id = existingId;
             replacedChunk = _subChunks[existingId];
-                
-            _subChunks[existingId] = chunk;
             wasReplaced = true;
+
+            if (allocateNewVersionOnRedefinition)
+            {
+                _subChunks.Add(chunk);
+                _namedSubChunkLookup[name] = id;
+            }
+            else
+            {
+                id = existingId;
+                _subChunks[existingId] = chunk;
+            }
         }
         else
         {

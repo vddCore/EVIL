@@ -133,7 +133,7 @@ public class CompilerDiagnosticTests
     }
 
     [Test]
-    public void Compiler_IndexedFunctionRedefinition_ReusesItsNamedChild()
+    public void Compiler_IndexedFunctionRedefinition_PreservesEachDefinitionChunk()
     {
         var compiler = new Compiler();
         var source = """
@@ -149,20 +149,21 @@ public class CompilerDiagnosticTests
         compiler.Log.Diagnostics.First(d => d.Id == "EV4008")
                 .Severity
                 .ShouldBe(DiagnosticSeverity.Warning);
-        root.SubChunkCount.ShouldBe(1);
-        root.NamedSubChunkLookup["obj.bar"].ShouldBe(0);
-        root.SubChunks[0].Name.ShouldBe("obj.bar");
+        root.SubChunkCount.ShouldBe(2);
+        root.NamedSubChunkLookup["obj.bar"].ShouldBe(1);
+        root.SubChunks.Select(chunk => chunk.Name).ShouldBe(["obj.bar", "obj.bar"]);
+        root["obj.bar"].ShouldBeSameAs(root.SubChunks[1]);
 
         var subChunkIds = InstructionDecoder.Decode(root).Instructions
             .Where(instruction => instruction.OpCode == OpCode.LDCNK)
             .Select(instruction => (int)instruction.Operands[0].RawValue)
             .ToArray();
 
-        subChunkIds.ShouldBe([0, 0]);
+        subChunkIds.ShouldBe([0, 1]);
     }
 
     [Test]
-    public void Compiler_TargetedFunctionRedefinition_ReusesItsNamedChild()
+    public void Compiler_TargetedFunctionRedefinition_PreservesEachDefinitionChunk()
     {
         var compiler = new Compiler();
         var source = """
@@ -178,18 +179,19 @@ public class CompilerDiagnosticTests
         compiler.Log.Diagnostics.First(d => d.Id == "EV4007")
                 .Severity
                 .ShouldBe(DiagnosticSeverity.Warning);
-        root.SubChunkCount.ShouldBe(1);
-        root.NamedSubChunkLookup["obj::bar"].ShouldBe(0);
-        root.SubChunks[0].Name.ShouldBe("obj::bar");
-        root.SubChunks[0].IsSelfAware.ShouldBeTrue();
-        root.SubChunks[0].ParameterCount.ShouldBe(1);
+        root.SubChunkCount.ShouldBe(2);
+        root.NamedSubChunkLookup["obj::bar"].ShouldBe(1);
+        root.SubChunks.Select(chunk => chunk.Name).ShouldBe(["obj::bar", "obj::bar"]);
+        root["obj::bar"].ShouldBeSameAs(root.SubChunks[1]);
+        root.SubChunks.ShouldAllBe(chunk => chunk.IsSelfAware);
+        root.SubChunks.ShouldAllBe(chunk => chunk.ParameterCount == 1);
 
         var subChunkIds = InstructionDecoder.Decode(root).Instructions
             .Where(instruction => instruction.OpCode == OpCode.LDCNK)
             .Select(instruction => (int)instruction.Operands[0].RawValue)
             .ToArray();
 
-        subChunkIds.ShouldBe([0, 0]);
+        subChunkIds.ShouldBe([0, 1]);
     }
 
     [Test]
@@ -207,20 +209,52 @@ public class CompilerDiagnosticTests
         var root = compiler.Compile(source, "redef_indexed_collisions.vil");
 
         compiler.Log.HasErrors.ShouldBeFalse();
-        root.SubChunkCount.ShouldBe(3);
+        root.SubChunkCount.ShouldBe(4);
         root.NamedSubChunkLookup["obj.barExtra"].ShouldBe(0);
-        root.NamedSubChunkLookup["obj.bar"].ShouldBe(1);
+        root.NamedSubChunkLookup["obj.bar"].ShouldBe(3);
         root.NamedSubChunkLookup["obj.bar_1"].ShouldBe(2);
         root.SubChunks
             .Select(chunk => chunk.Name)
-            .ShouldBe(["obj.barExtra", "obj.bar", "obj.bar_1"]);
+            .ShouldBe(["obj.barExtra", "obj.bar", "obj.bar_1", "obj.bar"]);
 
         var subChunkIds = InstructionDecoder.Decode(root).Instructions
             .Where(instruction => instruction.OpCode == OpCode.LDCNK)
             .Select(instruction => (int)instruction.Operands[0].RawValue)
             .ToArray();
 
-        subChunkIds.ShouldBe([0, 1, 2, 1]);
+        subChunkIds.ShouldBe([0, 1, 2, 3]);
+    }
+
+    [Test]
+    public void Compiler_TargetedFunctionPrefixAndSuffixNamesRemainDistinct()
+    {
+        var compiler = new Compiler();
+        var source = """
+            val obj = {};
+            loc fn obj::barExtra() -> 1;
+            loc fn obj::bar() -> 2;
+            loc fn obj::bar_1() -> 3;
+            loc fn obj::bar() -> 4;
+            """;
+
+        var root = compiler.Compile(source, "redef_targeted_collisions.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        root.SubChunkCount.ShouldBe(4);
+        root.NamedSubChunkLookup["obj::barExtra"].ShouldBe(0);
+        root.NamedSubChunkLookup["obj::bar"].ShouldBe(3);
+        root.NamedSubChunkLookup["obj::bar_1"].ShouldBe(2);
+        root.SubChunks
+            .Select(chunk => chunk.Name)
+            .ShouldBe(["obj::barExtra", "obj::bar", "obj::bar_1", "obj::bar"]);
+
+        var subChunkIds = InstructionDecoder.Decode(root).Instructions
+            .Where(instruction => instruction.OpCode == OpCode.LDCNK)
+            .Select(instruction => (int)instruction.Operands[0].RawValue)
+            .ToArray();
+
+        subChunkIds.ShouldBe([0, 1, 2, 3]);
     }
 
     [Test]

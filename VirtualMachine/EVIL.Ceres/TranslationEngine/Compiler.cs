@@ -226,9 +226,20 @@ public partial class Compiler : AstVisitor
         return result.Id;
     }
 
-    private int InNamedSubChunkDo(string name, Action action, out bool wasReplaced, out Chunk replacedChunk)
+    private int InNamedSubChunkDo(
+        string name,
+        Action action,
+        out bool wasReplaced,
+        out Chunk replacedChunk,
+        bool allocateNewVersionOnRedefinition = false
+    )
     {
-        var result = Chunk.AllocateNamedSubChunk(name, out wasReplaced, out replacedChunk);
+        var result = Chunk.AllocateNamedSubChunk(
+            name,
+            allocateNewVersionOnRedefinition,
+            out wasReplaced,
+            out replacedChunk
+        );
         result.SubChunk.DebugDatabase.DefinedInFile = CurrentFileName;
         result.SubChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
         result.SubChunk.LabelUpdated = OnChunkLabelUpdated;

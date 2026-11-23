@@ -145,6 +145,24 @@ public class OptimizationTests : TestBase
     }
 
     [Test]
+    public void FunctionGeneration_IndexedRedefinition_PreservesEarlierFunctionBody()
+    {
+        var script = """
+            fn test() {
+                val obj = {};
+                loc fn obj.bar() -> "first";
+                val first = obj.bar();
+                loc fn obj.bar() -> "second";
+                ret first + obj.bar();
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.String, Is.EqualTo("firstsecond"));
+    }
+
+    [Test]
     public void FunctionGeneration_TargetedRedefinition_InvokesReplacement()
     {
         var script = """
@@ -162,6 +180,24 @@ public class OptimizationTests : TestBase
     }
 
     [Test]
+    public void FunctionGeneration_TargetedRedefinition_PreservesEarlierFunctionBody()
+    {
+        var script = """
+            fn test() {
+                val obj = {};
+                loc fn obj::bar() -> "first";
+                val first = obj:bar();
+                loc fn obj::bar() -> "second";
+                ret first + obj:bar();
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.String, Is.EqualTo("firstsecond"));
+    }
+
+    [Test]
     public void FunctionGeneration_IndexedPrefixAndSuffixNames_PreserveAssignments()
     {
         var script = """
@@ -172,6 +208,25 @@ public class OptimizationTests : TestBase
                 loc fn obj.bar_1() -> 3;
                 loc fn obj.bar() -> 4;
                 ret obj.bar() + obj.barExtra() + obj.bar_1();
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.Number, Is.EqualTo(8.0));
+    }
+
+    [Test]
+    public void FunctionGeneration_TargetedPrefixAndSuffixNames_PreserveAssignments()
+    {
+        var script = """
+            fn test() {
+                val obj = {};
+                loc fn obj::barExtra() -> 1;
+                loc fn obj::bar() -> 2;
+                loc fn obj::bar_1() -> 3;
+                loc fn obj::bar() -> 4;
+                ret obj:bar() + obj:barExtra() + obj:bar_1();
             }
             """;
 
