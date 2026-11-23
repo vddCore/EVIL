@@ -30,28 +30,62 @@ public partial class Compiler
 
     protected override void Visit(InvocationExpression invocationExpression)
     {
-        Visit(invocationExpression.ArgumentList);
+        if (invocationExpression.IsConditional)
+        {
+            var callLabel = Chunk.CreateLabel();
+            var endLabel = Chunk.CreateLabel();
+            var tempCallee = Chunk.AllocateLocal();
 
-        if (IsInTailPosition(invocationExpression)
-            && invocationExpression.Callee is SymbolReferenceExpression varRef
-            && varRef.Identifier == Chunk.Name
-            && !invocationExpression.ArgumentList.IsVariadic)
-        {
-            Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);
-        }
-        else
-        {
             Visit(invocationExpression.Callee);
+            Chunk.CodeGenerator.Emit(OpCode.DUP);
+            Chunk.CodeGenerator.Emit(OpCode.VJMP, callLabel);
+            // Callee is nil: DUP left nil on stack. Jump directly to end!
+            Chunk.CodeGenerator.Emit(OpCode.JUMP, endLabel);
+
+            Chunk.UpdateLabel(callLabel, Chunk.CodeGenerator.IP);
+            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempCallee);
+
+            Visit(invocationExpression.ArgumentList);
+            Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempCallee);
+
             Chunk.CodeGenerator.Emit(
                 OpCode.INVOKE,
                 invocationExpression.ArgumentList.Arguments.Count
             );
-                
+
             Chunk.CodeGenerator.Emit(
                 invocationExpression.ArgumentList.IsVariadic
                     ? (byte)1
                     : (byte)0
             );
+
+            Chunk.UpdateLabel(endLabel, Chunk.CodeGenerator.IP);
+        }
+        else
+        {
+            Visit(invocationExpression.ArgumentList);
+
+            if (IsInTailPosition(invocationExpression)
+                && invocationExpression.Callee is SymbolReferenceExpression varRef
+                && varRef.Identifier == Chunk.Name
+                && !invocationExpression.ArgumentList.IsVariadic)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.TAILINVOKE);
+            }
+            else
+            {
+                Visit(invocationExpression.Callee);
+                Chunk.CodeGenerator.Emit(
+                    OpCode.INVOKE,
+                    invocationExpression.ArgumentList.Arguments.Count
+                );
+                    
+                Chunk.CodeGenerator.Emit(
+                    invocationExpression.ArgumentList.IsVariadic
+                        ? (byte)1
+                        : (byte)0
+                );
+            }
         }
     }
 }

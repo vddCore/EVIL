@@ -21,7 +21,11 @@ public class Lexer
         FilePath = filePath;
     }
 
-    private void ReportLexerError(DiagnosticDescriptor descriptor, SourceLocation location, string fallbackMessage, params object[] args)
+    private void ReportLexerError(
+        DiagnosticDescriptor descriptor,
+        SourceLocation location,
+        string fallbackMessage,
+        params object[] args)
     {
         if (DiagnosticSink != null)
         {
@@ -29,7 +33,10 @@ public class Lexer
         }
         else
         {
-            var msg = args.Length > 0 ? string.Format(fallbackMessage, args) : fallbackMessage;
+            var msg = args.Length > 0 
+                ? string.Format(fallbackMessage, args) 
+                : fallbackMessage;
+            
             throw new LexerException(msg, location);
         }
     }
@@ -40,7 +47,9 @@ public class Lexer
         State.Reset();
 
         if (_sourceCode.Length != 0)
+        {
             State.Character = _sourceCode[0];
+        }
 
         NextToken();
     }
@@ -60,45 +69,57 @@ public class Lexer
                     Advance(2);
                     State.CurrentToken = Token.Ellipsis with { Line = line, Column = col };
                     break;
+                
                 case '-' when Peek() == '>':
                     Advance();
                     State.CurrentToken = Token.RightArrow with { Line = line, Column = col };
                     break;
+                
                 case '-' when Peek() == '-':
                     Advance();
                     State.CurrentToken = Token.Decrement with { Line = line, Column = col };
                     break;
+                
                 case '-' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignSubtract with { Line = line, Column = col };
                     break;
+                
                 case '-':
                     State.CurrentToken = Token.Minus with { Line = line, Column = col };
                     break;
+                
                 case '.' when char.IsDigit(Peek()):
                     State.CurrentToken = GetDecimalNumber() with { Line = line, Column = col };
                     return;
+                
                 case '.':
                     State.CurrentToken = Token.Dot with { Line = line, Column = col };
                     break;
+                
                 case '+' when Peek() == '+':
                     Advance();
                     State.CurrentToken = Token.Increment with { Line = line, Column = col };
                     break;
+                
                 case '+' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignAdd with { Line = line, Column = col };
                     break;
+                
                 case '+':
                     State.CurrentToken = Token.Plus with { Line = line, Column = col };
                     break;
+                
                 case '*' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignMultiply with { Line = line, Column = col };
                     break;
+                
                 case '*':
                     State.CurrentToken = Token.Asterisk with { Line = line, Column = col };
                     break;
+                
                 case '/' when Peek() == '/':
                     SkipLineComment();
 
@@ -115,59 +136,84 @@ public class Lexer
                     Advance();
                     State.CurrentToken = Token.AssignDivide with { Line = line, Column = col };
                     break;
+                
                 case '/':
                     State.CurrentToken = Token.Slash with { Line = line, Column = col };
                     break;
+                
                 case '?' when Peek() == '?' && Peek(2) == '=':
                     Advance();
                     Advance();
                     State.CurrentToken = Token.AssignCoalesce with { Line = line, Column = col };
                     break;
+                
                 case '?' when Peek() == '?':
                     Advance();
                     State.CurrentToken = Token.DoubleQuestionMark with { Line = line, Column = col };
                     break;
+                
                 case '?' when Peek() == '.':
                     Advance();
                     State.CurrentToken = Token.Elvis with { Line = line, Column = col };
                     break;
+                
                 case '?' when Peek() == '[':
                     Advance();
                     State.CurrentToken = Token.ElvisArray with { Line = line, Column = col };
                     break;
+                
+                case '?' when Peek() == ':':
+                    Advance();
+                    State.CurrentToken = Token.SafeColon with { Line = line, Column = col };
+                    break;
+                
+                case '?' when Peek() == '(':
+                    Advance();
+                    State.CurrentToken = Token.ElvisInvocation with { Line = line, Column = col };
+                    break;
+                
                 case '?':
                     State.CurrentToken = Token.QuestionMark with { Line = line, Column = col };
                     break;
+                
                 case '%' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignModulo with { Line = line, Column = col };
                     break;
+                
                 case '%':
                     State.CurrentToken = Token.Modulo with { Line = line, Column = col };
                     break;
+                
                 case '=' when Peek() == '>':
                     Advance();
                     State.CurrentToken = Token.Associate with { Line = line, Column = col };
                     break;
+                
                 case '=' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.Equal with { Line = line, Column = col };
                     break;
+                
                 case '=':
                     State.CurrentToken = Token.Assign with { Line = line, Column = col };
                     break;
+                
                 case '<' when Peek() == '=' && Peek(2) == '=' && Peek(3) == '>':
                     Advance(3);
                     State.CurrentToken = Token.DeepEqual with { Line = line, Column = col };
                     break;
+                
                 case '<' when Peek() == '!' && Peek(2) == '=' && Peek(3) == '>':
                     Advance(3);
                     State.CurrentToken = Token.DeepNotEqual with { Line = line, Column = col };
                     break;
+                
                 case '<' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.LessThanOrEqual with { Line = line, Column = col };
                     break;
+                
                 case '<' when Peek() == '<':
                 {
                     Advance();
@@ -183,13 +229,16 @@ public class Lexer
 
                     break;
                 }
+                
                 case '<':
                     State.CurrentToken = Token.LessThan with { Line = line, Column = col };
                     break;
+                
                 case '>' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.GreaterThanOrEqual with { Line = line, Column = col };
                     break;
+                
                 case '>' when Peek() == '>':
                 {
                     Advance();
@@ -205,104 +254,134 @@ public class Lexer
 
                     break;
                 }
+                
                 case '>':
                     State.CurrentToken = Token.GreaterThan with { Line = line, Column = col };
                     break;
+                
                 case '&' when Peek() == '&':
                     Advance();
                     State.CurrentToken = Token.LogicalAnd with { Line = line, Column = col };
                     break;
+                
                 case '&' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignBitwiseAnd with { Line = line, Column = col };
                     break;
+                
                 case '&':
                     State.CurrentToken = Token.BitwiseAnd with { Line = line, Column = col };
                     break;
+                
                 case '|' when Peek() == '|':
                     Advance();
                     State.CurrentToken = Token.LogicalOr with { Line = line, Column = col };
                     break;
+                
                 case '|' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignBitwiseOr with { Line = line, Column = col };
                     break;
+                
                 case '|':
                     State.CurrentToken = Token.BitwiseOr with { Line = line, Column = col };
                     break;
+                
                 case '^' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.AssignBitwiseXor with { Line = line, Column = col };
                     break;
+                
                 case '^':
                     State.CurrentToken = Token.BitwiseXor with { Line = line, Column = col };
                     break;
+                
                 case '~':
                     State.CurrentToken = Token.BitwiseNot with { Line = line, Column = col };
                     break;
+                
                 case ',':
                     State.CurrentToken = Token.Comma with { Line = line, Column = col };
                     break;
+                
                 case ':' when Peek() == ':':
                     Advance();
                     State.CurrentToken = Token.DoubleColon with { Line = line, Column = col };
                     break;
+                
                 case ':':
                     State.CurrentToken = Token.Colon with { Line = line, Column = col };
                     break;
+                
                 case ';':
                     State.CurrentToken = Token.Semicolon with { Line = line, Column = col };
                     break;
+                
                 case '(':
                     State.CurrentToken = Token.LParenthesis with { Line = line, Column = col };
                     break;
+                
                 case ')':
                     State.CurrentToken = Token.RParenthesis with { Line = line, Column = col };
                     break;
+                
                 case '!' when Peek() == 'i' && Peek(2) == 'n' && !IsLegalIdentifierCharacter(Peek(3)):
                     Advance(2);
                     State.CurrentToken = Token.NotIn with { Line = line, Column = col };
                     break;
+                
                 case '!' when Peek() == 'i' && Peek(2) == 's' && !IsLegalIdentifierCharacter(Peek(3)):
                     Advance(2);
                     State.CurrentToken = Token.IsNot with { Line = line, Column = col };
                     break;
+                
                 case '!' when Peek() == '=':
                     Advance();
                     State.CurrentToken = Token.NotEqual with { Line = line, Column = col };
                     break;
+                
                 case '!':
                     State.CurrentToken = Token.LogicalNot with { Line = line, Column = col };
                     break;
+                
                 case '[':
                     State.CurrentToken = Token.LBracket with { Line = line, Column = col };
                     break;
+                
                 case ']':
                     State.CurrentToken = Token.RBracket with { Line = line, Column = col };
                     break;
+                
                 case '{':
                     State.CurrentToken = Token.LBrace with { Line = line, Column = col };
                     break;
+                
                 case '}':
                     State.CurrentToken = Token.RBrace with { Line = line, Column = col };
                     break;
+                
                 case (char)0:
                     State.CurrentToken = Token.EOF with { Line = line, Column = col };
                     break;
+                
                 case '"':
                 case '\'':
                     State.CurrentToken = GetString() with { Line = line, Column = col };
                     break;
+                
                 case '#' when Peek() == '[':
                     Advance();
                     State.CurrentToken = Token.AttributeList with { Line = line, Column = col };
                     break;
+                
                 case '#':
                     State.CurrentToken = Token.Length with { Line = line, Column = col };
                     break;
+                
                 case '@':
                     State.CurrentToken = Token.AsString with { Line = line, Column = col };
                     break;
+                
                 case '$':
                     State.CurrentToken = Token.AsNumber with { Line = line, Column = col };
                     break;
@@ -341,7 +420,6 @@ public class Lexer
                 Advance();
                 break;
             }
-
             Advance();
             break;
         }

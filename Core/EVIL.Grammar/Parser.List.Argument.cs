@@ -10,10 +10,20 @@ public partial class Parser
 {
     private ArgumentList ArgumentList()
     {
+        int line, col;
+        
         var arguments = new List<Expression>();
         var isVariadic = false;
-
-        var (line, col) = Match(Token.LParenthesis);
+        
+        if (CurrentToken.Type == TokenType.ElvisInvocation)
+        {
+            (line, col) = Match(Token.ElvisInvocation);
+        }
+        else
+        {
+            (line, col) = Match(Token.LParenthesis);
+        }
+        
         while (CurrentToken.Type != TokenType.RParenthesis)
         {
             switch (CurrentToken.Type)
@@ -44,6 +54,7 @@ public partial class Parser
                         new ExtraArgumentsExpression(true) 
                             { Line = xline, Column = xcol }
                     );
+                    
                     break;
                 }
 
@@ -59,6 +70,7 @@ public partial class Parser
 
             Match(Token.Comma, "Expected $expected or ')', got $actual");
         }
+        
         Match(Token.RParenthesis);
 
         return new ArgumentList(arguments, isVariadic)

@@ -7,11 +7,16 @@ public sealed class InvocationExpression : Expression
 {
     public Expression Callee { get; }
     public ArgumentList ArgumentList { get; }
+    public bool IsConditional { get; }
 
-    public InvocationExpression(Expression callee, ArgumentList argumentList)
+    public InvocationExpression(
+        Expression callee,
+        ArgumentList argumentList,
+        bool isConditional = false)
     {
         Callee = callee;
         ArgumentList = argumentList;
+        IsConditional = isConditional;
 
         Reparent(Callee);
         Reparent(ArgumentList);

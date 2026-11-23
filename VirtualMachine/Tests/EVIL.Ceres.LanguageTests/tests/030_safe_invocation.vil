@@ -1,0 +1,153 @@
+#[test]
+fn safe_method_on_nil_returns_nil {
+  val a = nil;
+  val r = a?:foo(1, 2);
+  assert.equal(r, nil);
+}
+
+#[test]
+fn safe_method_on_valid_target {
+  val t = {
+    count: 10,
+    add: self::fn(x) -> self.count + x
+  };
+  val r = t?:add(5);
+  assert.equal(r, 15);
+}
+
+#[test]
+fn safe_method_short_circuits_args {
+  val a = nil;
+  rw val side_effect = 0;
+  val r = a?:foo((side_effect = 1));
+  assert.equal(r, nil);
+  assert.equal(side_effect, 0);
+}
+
+#[test]
+fn safe_method_no_args {
+  val a = nil;
+  val r1 = a?:foo();
+  assert.equal(r1, nil);
+
+  val t = {
+    greet: self::fn -> "hello"
+  };
+  val r2 = t?:greet();
+  assert.equal(r2, "hello");
+}
+
+#[test]
+fn safe_method_multiple_args {
+  val calc = {
+    sum3: self::fn(a, b, c) -> a + b + c
+  };
+  assert.equal(calc?:sum3(1, 2, 3), 6);
+}
+
+#[test]
+fn safe_method_chaining {
+  val root = {
+    child: {
+      get_val: self::fn -> 42
+    }
+  };
+  assert.equal(root?.child?:get_val(), 42);
+
+  val empty = { child: nil };
+  assert.equal(empty?.child?:get_val(), nil);
+}
+
+#[test]
+fn safe_method_discard_stack_balance {
+  val a = nil;
+  a?:foo(1, 2);
+  assert.equal(a, nil);
+
+  val t = {
+    count: 0,
+    inc: self::fn -> self.count++
+  };
+  t?:inc();
+  assert.equal(t.count, 1);
+}
+
+#[test]
+fn safe_fn_on_nil_returns_nil {
+  val f = nil;
+  val r = f?(1, 2);
+  assert.equal(r, nil);
+}
+
+#[test]
+fn safe_fn_on_valid_target {
+  val f = fn(x, y) -> x * y;
+  val r = f?(3, 4);
+  assert.equal(r, 12);
+}
+
+#[test]
+fn safe_fn_short_circuits_args {
+  val f = nil;
+  rw val side_effect = 0;
+  val r = f?((side_effect = 1));
+  assert.equal(r, nil);
+  assert.equal(side_effect, 0);
+}
+
+#[test]
+fn safe_fn_no_args {
+  val f = nil;
+  assert.equal(f?(), nil);
+
+  val g = fn -> "world";
+  assert.equal(g?(), "world");
+}
+
+#[test]
+fn safe_fn_in_table_lookup {
+  val tbl = {
+    callback: fn(msg) -> "msg: " + msg
+  };
+  assert.equal(tbl?.callback?("hi"), "msg: hi");
+  assert.equal(tbl?.missing?("hi"), nil);
+}
+
+#[test]
+fn safe_fn_in_array {
+  val arr = array { fn(x) -> x + 10, nil };
+  assert.equal(arr[0]?(5), 15);
+  assert.equal(arr[1]?(5), nil);
+}
+
+#[test]
+fn safe_fn_discard_stack_balance {
+  val f = nil;
+  f?(1, 2);
+  assert.equal(f, nil);
+
+  rw val called = 0;
+  val g = fn { called = 1; };
+  g?();
+  assert.equal(called, 1);
+}
+
+#[test]
+fn safe_method_and_fn_combined {
+  val obj = {
+    get_fn: self::fn -> fn(x) -> x * 10
+  };
+  assert.equal(obj?:get_fn()?(5), 50);
+
+  val nil_obj = nil;
+  assert.equal(nil_obj?:get_fn()?(5), nil);
+}
+
+#[test]
+fn safe_call_with_null_coalescing {
+  val a = nil;
+  assert.equal(a?:foo() ?? "fallback", "fallback");
+
+  val f = nil;
+  assert.equal(f?() ?? 999, 999);
+}

@@ -101,6 +101,8 @@ void yyerror(const char *s);
 
 %token TOKEN_ELVIS "?."
 %token TOKEN_ELVIS_ARRAY "?["
+%token TOKEN_SAFE_COLON "?:"
+%token TOKEN_ELVIS_INVOCATION "?("
 %token TOKEN_DOUBLE_QUESTION "??"
 %token TOKEN_DOUBLE_COLON "::"
 
@@ -139,7 +141,7 @@ void yyerror(const char *s);
 %precedence TOKEN_YIELD
 %precedence UNARY PREFIX
 %precedence POSTFIX TOKEN_INCREMENT TOKEN_DECREMENT
-%left '.' TOKEN_ELVIS TOKEN_ELVIS_ARRAY '[' '(' TOKEN_DOUBLE_COLON
+%left '.' TOKEN_ELVIS TOKEN_ELVIS_ARRAY TOKEN_SAFE_COLON TOKEN_ELVIS_INVOCATION '[' '(' TOKEN_DOUBLE_COLON
 
 %start program
 
@@ -580,11 +582,13 @@ unary_expression
 postfix_expression
     : primary_expression
     | postfix_expression '(' argument_list_opt ')'
+    | postfix_expression TOKEN_ELVIS_INVOCATION argument_list_opt ')'
     | postfix_expression '[' assignment_expression ']'
     | postfix_expression '.' IDENTIFIER
     | postfix_expression TOKEN_ELVIS IDENTIFIER
     | postfix_expression TOKEN_ELVIS_ARRAY assignment_expression ']'
     | postfix_expression ':' IDENTIFIER '(' argument_list_opt ')'
+    | postfix_expression TOKEN_SAFE_COLON IDENTIFIER '(' argument_list_opt ')'
     | postfix_expression TOKEN_INCREMENT %prec POSTFIX
     | postfix_expression TOKEN_DECREMENT %prec POSTFIX
     ;

@@ -305,8 +305,6 @@ public class AnalysisTests
         }
     }
 
-    #region RFC-0005 Nil-Safety Analyzer Tests
-
     [Test]
     public void DangerousUnsafeDerefAfterElvisAnalyzer_ReportsEV8007_WhenUnsafeFollowsSafe()
     {
@@ -501,6 +499,37 @@ public class AnalysisTests
     }
 
     [Test]
+    public void UncheckedNilInvocationAnalyzer_NoWarning_OnSafeFunctionInvocation()
+    {
+        var source = "val obj = nil; obj?.callback?();";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedNilInvocationAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedNilInvocationAnalyzer_ReportsEV8011_OnUncheckedSelfInvocation()
+    {
+        var source = "val obj = nil; obj?.child:method();";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedNilInvocationAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8011");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+        diag.Message.ShouldContain("'method'");
+    }
+
+    [Test]
+    public void UncheckedNilInvocationAnalyzer_NoWarning_OnSafeSelfInvocation()
+    {
+        var source = "val obj = nil; obj?.child?:method();";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedNilInvocationAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
     public void NilComparisonTypeMismatchAnalyzer_ReportsEV8012_OnRelationalComparison()
     {
         var source = "val score = 10; val _x = score > nil;";
@@ -661,6 +690,4 @@ public class AnalysisTests
 
         analysisBag.Count.ShouldBe(0);
     }
-
-    #endregion
 }

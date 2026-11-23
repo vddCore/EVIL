@@ -3,12 +3,14 @@
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
+using EVIL.Lexical;
 
 public partial class Parser
 {
     private InvocationExpression InvocationExpression(Expression callee)
     {
         var (line, col) = (_lexer.State.Line, _lexer.State.Column);
+        var isConditional = CurrentToken.Type == TokenType.ElvisInvocation;
 
         if (callee is NilConstant)
         {
@@ -19,7 +21,7 @@ public partial class Parser
         }
 
         var argumentList = ArgumentList();            
-        var expr = new InvocationExpression(callee, argumentList) 
+        var expr = new InvocationExpression(callee, argumentList, isConditional) 
             { Line = line, Column = col };
 
         return expr;

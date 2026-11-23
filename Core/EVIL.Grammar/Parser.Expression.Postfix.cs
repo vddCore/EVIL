@@ -10,11 +10,13 @@ public partial class Parser
     private readonly List<TokenType> _postfixOperators =
     [
         TokenType.LParenthesis,
+        TokenType.ElvisInvocation,
         TokenType.LBracket,
         TokenType.Dot,
         TokenType.Elvis,
         TokenType.ElvisArray,
         TokenType.Colon,
+        TokenType.SafeColon,
         TokenType.Increment,
         TokenType.Decrement
     ];
@@ -52,7 +54,7 @@ public partial class Parser
                     goto __incdec;
                 }
 
-                case TokenType.LParenthesis:
+                case TokenType.LParenthesis or TokenType.ElvisInvocation:
                 {
                     node = InvocationExpression(node);
                     break;
@@ -67,7 +69,7 @@ public partial class Parser
                     break;
                 }
 
-                case TokenType.Colon:
+                case TokenType.Colon or TokenType.SafeColon:
                 {
                     if (!IsSelfInvocation())
                     {
@@ -88,7 +90,7 @@ public partial class Parser
 
     private bool IsSelfInvocation()
     {
-        if (CurrentToken.Type != TokenType.Colon)
+        if (CurrentToken.Type is not (TokenType.Colon or TokenType.SafeColon))
         {
             return false;
         }
@@ -103,7 +105,7 @@ public partial class Parser
             return false;
         }
 
-        if (_ternaryDepth == 0)
+        if (CurrentToken.Type == TokenType.SafeColon || _ternaryDepth == 0)
         {
             return true;
         }

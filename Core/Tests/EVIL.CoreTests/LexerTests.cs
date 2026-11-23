@@ -264,6 +264,22 @@ public class LexerTests
     }
 
     [Test]
+    public void SafeInvocationTokens()
+    {
+        _lexer.LoadSource("obj?:method() func?(arg)");
+
+        ExpectExact((TokenType.Identifier, "obj"));
+        Expect(SafeColon);
+        ExpectExact((TokenType.Identifier, "method"));
+        Expect(LParenthesis, RParenthesis);
+        ExpectExact((TokenType.Identifier, "func"));
+        Expect(ElvisInvocation);
+        ExpectExact((TokenType.Identifier, "arg"));
+        Expect(RParenthesis);
+        Expect(EOF);
+    }
+
+    [Test]
     public void InterpolatedStringExpressions()
     {
         _lexer.LoadSource(

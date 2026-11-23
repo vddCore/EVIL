@@ -131,6 +131,8 @@ NUMBER            ([0-9]+\.[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-
 "->"                    { return TOKEN_RIGHT_ARROW; }
 "?."                    { return TOKEN_ELVIS; }
 "?["                    { return TOKEN_ELVIS_ARRAY; }
+"?:"                    { return TOKEN_SAFE_COLON; }
+"?("                    { return TOKEN_ELVIS_INVOCATION; }
 "??"                    { return TOKEN_DOUBLE_QUESTION; }
 "::"                    { return TOKEN_DOUBLE_COLON; }
 
