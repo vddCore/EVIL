@@ -14,6 +14,7 @@ public sealed class Fiber
 {
     private readonly Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
     private readonly HashSet<Fiber> _waitingFor;
+    private TaskCompletionSource<bool>? _completionSource;
 
     private readonly ValueStack _evaluationStack;
     private readonly CallStack _callStack;
@@ -146,19 +147,23 @@ public sealed class Fiber
 
     public void BlockUntilFinished()
     {
-        while (_state != FiberState.Finished && 
-               _state != FiberState.Crashed)
-        {
-            Thread.Sleep(1);
-        }
+        GetCompletionTask().GetAwaiter().GetResult();
     }
-        
-    public async Task BlockUntilFinishedAsync()
+
+    public Task BlockUntilFinishedAsync()
+        => GetCompletionTask();
+
+    private Task GetCompletionTask()
     {
-        while (_state != FiberState.Finished &&
-               _state != FiberState.Crashed)
+        lock (_waitingFor)
         {
-            await Task.Delay(1);
+            if (IsTerminal())
+            {
+                return Task.CompletedTask;
+            }
+
+            _completionSource ??= new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            return _completionSource.Task;
         }
     }
 
@@ -402,6 +407,11 @@ public sealed class Fiber
                 return;
             }
 
+            if (IsTerminal())
+            {
+                _completionSource = null;
+            }
+
             _state = FiberState.Running;
         }
 
@@ -440,9 +450,14 @@ public sealed class Fiber
         lock (_waitingFor)
         {
             _waitingFor.Clear();
+
+            if (IsTerminal())
+            {
+                _completionSource = null;
+            }
+
+            _state = FiberState.Fresh;
         }
-            
-        _state = FiberState.Fresh;
     }
 
     public void Immunize()
@@ -652,15 +667,31 @@ public sealed class Fiber
 
     private void EnterCrashState()
     {
-        _state = FiberState.Crashed;
+        lock (_waitingFor)
+        {
+            _state = FiberState.Crashed;
+            SignalCompletionWaiters();
+        }
+
         VirtualMachine.Scheduler.Wake();
     }
 
     private void EnterFinishedState()
     {
-        _state = FiberState.Finished;
+        lock (_waitingFor)
+        {
+            _state = FiberState.Finished;
+            SignalCompletionWaiters();
+        }
+
         VirtualMachine.Scheduler.Wake();
     }
+
+    private bool IsTerminal()
+        => _state is FiberState.Finished or FiberState.Crashed;
+
+    private void SignalCompletionWaiters()
+        => _completionSource?.TrySetResult(true);
 
     private void Invoke(Chunk chunk, DynamicValue[] args)
     {

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Concurrency;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
@@ -15,12 +16,13 @@ internal static class Program
 {
     private static readonly TimeSpan StartupTimeout = TimeSpan.FromSeconds(10);
 
-    private static int Main(string[] args)
+    private static async Task<int> Main(string[] args)
     {
         var duration = TimeSpan.FromSeconds(args.Length > 0 ? int.Parse(args[0]) : 1);
         var repetitions = args.Length > 1 ? int.Parse(args[1]) : 3;
         const int latencySamples = 50;
         const int iterationsPerFiber = 100_000;
+        const int completionWaitIterations = 10_000;
 
         Console.WriteLine($"# runtime={RuntimeInformation.FrameworkDescription}");
         Console.WriteLine($"# os={RuntimeInformation.OSDescription}");
@@ -30,6 +32,7 @@ internal static class Program
         Console.WriteLine($"# repetitions={repetitions}");
         Console.WriteLine($"# active_iterations_per_fiber={iterationsPerFiber}");
         Console.WriteLine($"# latency_samples_per_repetition={latencySamples}");
+        Console.WriteLine($"# completion_wait_iterations={completionWaitIterations}");
         Console.WriteLine("metric,workload,fiber_count,repetition,wall_ms,cpu_ms,cpu_percent,allocated_bytes,operations_per_second,p50_us,p95_us");
 
         foreach (var state in new[] { "paused", "awaiting" })
@@ -56,6 +59,25 @@ internal static class Program
             for (var repetition = 1; repetition <= repetitions; repetition++)
             {
                 WriteLatencyResult(workload, repetition, latencySamples);
+            }
+        }
+
+        foreach (var waitMode in new[]
+                 {
+                     "async_polling_reference",
+                     "async_notification",
+                     "sync_polling_reference",
+                     "sync_notification"
+                 })
+        {
+            for (var repetition = 1; repetition <= repetitions; repetition++)
+            {
+                await WriteCompletionWaitResult(
+                    waitMode,
+                    repetition,
+                    latencySamples,
+                    completionWaitIterations
+                );
             }
         }
 
@@ -288,6 +310,100 @@ internal static class Program
         finally
         {
             StopScheduler(vm, schedulerThread);
+        }
+    }
+
+    private static async Task WriteCompletionWaitResult(
+        string waitMode,
+        int repetition,
+        int sampleCount,
+        int iterationsPerFiber)
+    {
+        var vm = new CeresVM();
+        var source = $"fn work() {{ rw val i = 0; while (i < {iterationsPerFiber}) {{ i += 1; }} }}";
+        var chunk = new Compiler().Compile(source, "scheduler_completion_wait.vil")["work"]!;
+        var warmupFiber = CreatePausedFiber(vm);
+        var schedulerThread = StartScheduler(vm);
+        var latencies = new double[sampleCount];
+
+        try
+        {
+            warmupFiber.Schedule(chunk, false);
+            warmupFiber.Resume();
+            await WaitForCompletion(warmupFiber, waitMode);
+
+            var allocationStart = GC.GetTotalAllocatedBytes(true);
+            var wall = Stopwatch.StartNew();
+
+            for (var i = 0; i < sampleCount; i++)
+            {
+                var fiber = vm.Scheduler.CreateFiber(false);
+                var startedAt = Stopwatch.GetTimestamp();
+                fiber.Schedule(chunk);
+                await WaitForCompletion(fiber, waitMode);
+                latencies[i] = Stopwatch.GetElapsedTime(startedAt).TotalMicroseconds;
+            }
+
+            wall.Stop();
+            var allocatedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
+            Array.Sort(latencies);
+            WriteRow(
+                "completion_wait",
+                waitMode,
+                1,
+                repetition,
+                wall.Elapsed.TotalMilliseconds,
+                null,
+                null,
+                allocatedBytes,
+                sampleCount / wall.Elapsed.TotalSeconds,
+                Percentile(latencies, 0.50),
+                Percentile(latencies, 0.95)
+            );
+        }
+        finally
+        {
+            StopScheduler(vm, schedulerThread);
+        }
+    }
+
+    private static Task WaitForCompletion(Fiber fiber, string waitMode)
+    {
+        var isAsync = waitMode.StartsWith("async_", StringComparison.Ordinal);
+        var useNotification = waitMode.EndsWith("notification", StringComparison.Ordinal);
+
+        if (isAsync)
+        {
+            return useNotification
+                ? fiber.BlockUntilFinishedAsync()
+                : WaitForCompletionByPollingAsync(fiber);
+        }
+
+        if (useNotification)
+        {
+            fiber.BlockUntilFinished();
+        }
+        else
+        {
+            WaitForCompletionByPolling(fiber);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static async Task WaitForCompletionByPollingAsync(Fiber fiber)
+    {
+        while (fiber.State != FiberState.Finished && fiber.State != FiberState.Crashed)
+        {
+            await Task.Delay(1);
+        }
+    }
+
+    private static void WaitForCompletionByPolling(Fiber fiber)
+    {
+        while (fiber.State != FiberState.Finished && fiber.State != FiberState.Crashed)
+        {
+            Thread.Sleep(1);
         }
     }
 
