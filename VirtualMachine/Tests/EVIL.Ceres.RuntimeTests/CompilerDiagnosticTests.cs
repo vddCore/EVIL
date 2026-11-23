@@ -1,16 +1,71 @@
 namespace EVIL.Ceres.RuntimeTests;
 
+using System;
+using System.Collections;
 using System.Linq;
+using System.Reflection;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.TranslationEngine;
 using EVIL.Diagnostics;
+using EVIL.Grammar.AST.Base;
+using EVIL.Grammar.AST.Constants;
 using NUnit.Framework;
 using Shouldly;
 
 [TestFixture]
 public class CompilerDiagnosticTests
 {
+    private sealed class ThrowingCompiler(Exception exception) : Compiler
+    {
+        protected override void Visit(AstNode node)
+        {
+            if (node is BooleanConstant)
+            {
+                throw exception;
+            }
+
+            base.Visit(node);
+        }
+    }
+
+    private static int GetCompilerCollectionCount(Compiler compiler, string fieldName)
+    {
+        var field = typeof(Compiler).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+        return ((ICollection)field!.GetValue(compiler)!).Count;
+    }
+
+    private static object? GetCompilerField(Compiler compiler, string fieldName)
+    {
+        var field = typeof(Compiler)
+            .GetField(
+                fieldName,
+                BindingFlags.Instance 
+                | BindingFlags.NonPublic
+            );
+        
+        return field!.GetValue(compiler);
+    }
+
+    [Test]
+    public void Compiler_ThrowingNestedVisitor_RestoresTemporaryStateAndCanBeReused()
+    {
+        var expectedException = new InvalidOperationException("intentional visitor failure");
+        var compiler = new ThrowingCompiler(expectedException);
+        var source = "fn outer() { val child = fn() { while (true) { break; } }; }";
+
+        var actualException = Should.Throw<InvalidOperationException>(() => compiler.Compile(source, "throwing.vil"));
+
+        actualException.ShouldBeSameAs(expectedException);
+        GetCompilerCollectionCount(compiler, "_chunks").ShouldBe(0);
+        GetCompilerCollectionCount(compiler, "_closedScopes").ShouldBe(0);
+        GetCompilerCollectionCount(compiler, "_loopDescent").ShouldBe(0);
+        GetCompilerField(compiler, "_isUnreachable").ShouldBe(false);
+
+        var recoveredChunk = compiler.Compile("fn recovered() -> 1;", "recovered.vil");
+        recoveredChunk.SubChunks.Select(chunk => chunk.Name).ShouldContain("recovered");
+    }
+
     [Test]
     public void Compiler_WithMultipleSyntaxErrors_CollectsAllErrorsInLog()
     {

@@ -167,32 +167,48 @@ public partial class Compiler : AstVisitor
         _rootChunk.CodeGenerator.OpCodeEmitted = OnChunkOpCodeEmitted;
         _rootChunk.LabelUpdated = OnChunkLabelUpdated;
 
+        var wasUnreachable = _isUnreachable;
         _chunks.Push(_rootChunk);
+        try
         {
             _isUnreachable = false;
             InNewClosedScopeDo(action);
             FinalizeChunk();
+
+            return _rootChunk;
         }
-    
-        return _chunks.Pop();
+        finally
+        {
+            _chunks.Pop();
+            _isUnreachable = wasUnreachable;
+        }
     }
 
     private void InNewLocalScopeDo(Action action)
     {
-        CurrentScope = CurrentScope.Descend();
+        var previousScope = CurrentScope;
+        CurrentScope = previousScope.Descend();
+        try
         {
             action();
         }
-        CurrentScope = CurrentScope.Parent!;
+        finally
+        {
+            CurrentScope = previousScope;
+        }
     }
 
     private void InNewClosedScopeDo(Action action)
     {
         _closedScopes.Insert(0, Scope.CreateRoot(Chunk));
+        try
         {
             action();
         }
-        _closedScopes.RemoveAt(0);
+        finally
+        {
+            _closedScopes.RemoveAt(0);
+        }
     }
 
     private int InAnonymousSubChunkDo(Action action)
@@ -206,12 +222,15 @@ public partial class Compiler : AstVisitor
         _isUnreachable = false;
 
         _chunks.Push(result.SubChunk);
+        try
         {
             action();
         }
-        _chunks.Pop();
-
-        _isUnreachable = wasUnreachable;
+        finally
+        {
+            _chunks.Pop();
+            _isUnreachable = wasUnreachable;
+        }
 
         return result.Id;
     }
@@ -238,12 +257,15 @@ public partial class Compiler : AstVisitor
         _isUnreachable = false;
 
         _chunks.Push(result.SubChunk);
+        try
         {
             action();
         }
-        _chunks.Pop();
-
-        _isUnreachable = wasUnreachable;
+        finally
+        {
+            _chunks.Pop();
+            _isUnreachable = wasUnreachable;
+        }
 
         return result.Id;
     }
@@ -251,10 +273,14 @@ public partial class Compiler : AstVisitor
     private void InNewLoopDo(Loop.LoopKind kind, Action action, bool needsExtraLabel)
     {
         _loopDescent.Push(new Loop(Chunk, kind, needsExtraLabel));
+        try
         {
             action();
         }
-        _loopDescent.Pop();
+        finally
+        {
+            _loopDescent.Pop();
+        }
     }
 
     protected override void Visit(AstNode node)
