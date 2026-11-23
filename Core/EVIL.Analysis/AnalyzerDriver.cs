@@ -44,7 +44,7 @@ public sealed class AnalyzerDriver
         driver.AddAnalyzer(new DangerousUnsafeDerefAfterElvisAnalyzer());
         driver.AddAnalyzer(new RedundantSafeNavigationAnalyzer());
         driver.AddAnalyzer(new InvalidConditionalAssignmentAnalyzer());
-        driver.AddAnalyzer(new RedundantNullCoalesceAnalyzer());
+        driver.AddAnalyzer(new RedundantNilCoalesceAnalyzer());
         driver.AddAnalyzer(new UncheckedNilInvocationAnalyzer());
         driver.AddAnalyzer(new NilComparisonTypeMismatchAnalyzer());
         driver.AddAnalyzer(new NilBranchExhaustivenessAnalyzer());

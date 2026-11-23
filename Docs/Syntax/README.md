@@ -89,9 +89,9 @@ echo 'val x = 42;' | ./evil_parser
 - **Logical**: `&&`, `||`
 - **Bitwise**: `&`, `|`, `^`, `~`, `<<`, `>>`
 - **Assignment**: `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, `??=`
-- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `:` (method call), `?:` (safe method call), `?(` (safe invocation), `::` (targeted fn / self::fn)
+- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `:` (method call), `?:` (safe method call), `?(` (safe invocation), `::` (targeted fn / self::fn), `!` (postfix non-nil assertion)
 - **Functions & Closures**: `=>` (association / arm), `->` (expression body / arm), `...` (extra arguments / varargs), `*` (variadic forwarding)
-- **Null Coalescing**: `??`
+- **Nil Coalescing**: `??`
 
 ---
 
@@ -160,26 +160,26 @@ statement
 
 From lowest to highest precedence:
 
-| Level | Expression Type | Operators / Constructs | Associativity |
-| :---: | :--- | :--- | :---: |
-| 1 | Assignment & Arrow Function | `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `\|=`, `^=`, `<<=`, `>>=`, `??=`, `fn -> expr` | Right |
-| 2 | Conditional (Ternary) | `? :` | Right |
-| 3 | Null-Coalescing | `??`, `?? throw expr` | Right |
-| 4 | Logical OR | `\|\|` | Left |
-| 5 | Logical AND | `&&` | Left |
-| 6 | Bitwise OR | `\|` | Left |
-| 7 | Bitwise XOR | `^` | Left |
-| 8 | Bitwise AND | `&` | Left |
-| 9 | Equality | `==`, `!=`, `<==>`, `<!=>` | Left |
-| 10 | Relational & Type Check | `<`, `>`, `<=`, `>=`, `in`, `!in`, `is`, `!is` | Left |
-| 11 | Bitwise Shift | `<<`, `>>` | Left |
-| 12 | Additive | `+`, `-` | Left |
-| 13 | Multiplicative | `*`, `/`, `%` | Left |
-| 14 | Pattern | `by (expr) { ... }`, `expr with { ... }` | Non-assoc / Left |
-| 15 | Prefix | `++expr`, `--expr` | Right |
-| 16 | Unary | `+`, `-`, `!`, `~`, `@`, `#`, `$` | Right |
-| 17 | Postfix | `expr()`, `expr[]`, `expr.id`, `expr?.id`, `expr?[idx]`, `expr:method()`, `expr++`, `expr--` | Left |
-| 18 | Primary | Identifiers, literals, tables `{...}`, arrays `[...]` / `array(...)`, parenthesized `(...)`, block functions `fn(...) {...}`, `typeof(...)`, `yield expr(...)`, `error(...)` | Atomic |
+| Level | Expression Type             | Operators / Constructs                                                                                                                                                       |  Associativity   |
+|:-----:|:----------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------:|
+|   1   | Assignment & Arrow Function | `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `\|=`, `^=`, `<<=`, `>>=`, `??=`, `fn -> expr`                                                                                      |      Right       |
+|   2   | Conditional (Ternary)       | `? :`                                                                                                                                                                        |      Right       |
+|   3   | Nil-Coalescing             | `??`, `?? throw expr`                                                                                                                                                        |      Right       |
+|   4   | Logical OR                  | `\|\|`                                                                                                                                                                       |       Left       |
+|   5   | Logical AND                 | `&&`                                                                                                                                                                         |       Left       |
+|   6   | Bitwise OR                  | `\|`                                                                                                                                                                         |       Left       |
+|   7   | Bitwise XOR                 | `^`                                                                                                                                                                          |       Left       |
+|   8   | Bitwise AND                 | `&`                                                                                                                                                                          |       Left       |
+|   9   | Equality                    | `==`, `!=`, `<==>`, `<!=>`                                                                                                                                                   |       Left       |
+|  10   | Relational & Type Check     | `<`, `>`, `<=`, `>=`, `in`, `!in`, `is`, `!is`                                                                                                                               |       Left       |
+|  11   | Bitwise Shift               | `<<`, `>>`                                                                                                                                                                   |       Left       |
+|  12   | Additive                    | `+`, `-`                                                                                                                                                                     |       Left       |
+|  13   | Multiplicative              | `*`, `/`, `%`                                                                                                                                                                |       Left       |
+|  14   | Pattern                     | `by (expr) { ... }`, `expr with { ... }`                                                                                                                                     | Non-assoc / Left |
+|  15   | Prefix                      | `++expr`, `--expr`                                                                                                                                                           |      Right       |
+|  16   | Unary                       | `+`, `-`, `!`, `~`, `@`, `#`, `$`                                                                                                                                            |      Right       |
+|  17   | Postfix                     | `expr()`, `expr[]`, `expr!.id`, `expr!!`, `expr.id`, `expr?.id`, `expr?[idx]`, `expr:method()`, `expor?:method()` expr++`, `expr--`                                                                                 |       Left       |
+|  18   | Primary                     | Identifiers, literals, tables `{...}`, arrays `[...]` / `array(...)`, parenthesized `(...)`, block functions `fn(...) {...}`, `typeof(...)`, `yield expr(...)`, `error(...)` |      Atomic      |
 
 ---
 

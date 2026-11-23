@@ -42,7 +42,7 @@ public class AnalysisTests
         driver.Analyzers.ShouldContain(a => a is DangerousUnsafeDerefAfterElvisAnalyzer);
         driver.Analyzers.ShouldContain(a => a is RedundantSafeNavigationAnalyzer);
         driver.Analyzers.ShouldContain(a => a is InvalidConditionalAssignmentAnalyzer);
-        driver.Analyzers.ShouldContain(a => a is RedundantNullCoalesceAnalyzer);
+        driver.Analyzers.ShouldContain(a => a is RedundantNilCoalesceAnalyzer);
         driver.Analyzers.ShouldContain(a => a is UncheckedNilInvocationAnalyzer);
         driver.Analyzers.ShouldContain(a => a is NilComparisonTypeMismatchAnalyzer);
         driver.Analyzers.ShouldContain(a => a is NilBranchExhaustivenessAnalyzer);
@@ -337,6 +337,15 @@ public class AnalysisTests
     }
 
     [Test]
+    public void DangerousUnsafeDerefAfterElvisAnalyzer_NoWarning_WhenProtectedByNonNilAssertion()
+    {
+        var source = "val a = nil; val _x = a?.b!.c;";
+        var (_, bag) = ParseAndAnalyze(source, new DangerousUnsafeDerefAfterElvisAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
     public void RedundantSafeNavigationAnalyzer_ReportsEV8008_OnTableLiteral()
     {
         var source = "val _x = { prop: 1 }?.prop;";
@@ -371,6 +380,18 @@ public class AnalysisTests
         diag.Id.ShouldBe("EV8008");
         diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
         diag.Message.ShouldContain("math");
+    }
+
+    [Test]
+    public void RedundantSafeNavigationAnalyzer_ReportsEV8008_OnNonNilAssertion()
+    {
+        var source = "val user = nil; val _x = user!?.prop;";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantSafeNavigationAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8008");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
     }
 
     [Test]
@@ -434,10 +455,10 @@ public class AnalysisTests
     }
 
     [Test]
-    public void RedundantNullCoalesceAnalyzer_ReportsEV8010_OnGuaranteedNonNilLiteral()
+    public void RedundantNilCoalesceAnalyzer_ReportsEV8010_OnGuaranteedNonNilLiteral()
     {
         var source = "val _x = { } ?? { default: 1 };";
-        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNilCoalesceAnalyzer());
 
         bag.Count.ShouldBe(1);
         var diag = bag.Diagnostics.First();
@@ -446,10 +467,10 @@ public class AnalysisTests
     }
 
     [Test]
-    public void RedundantNullCoalesceAnalyzer_ReportsEV8010_OnRightHandNil()
+    public void RedundantNilCoalesceAnalyzer_ReportsEV8010_OnRightHandNil()
     {
         var source = "val a = nil; val _x = a ?? nil;";
-        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNilCoalesceAnalyzer());
 
         bag.Count.ShouldBe(1);
         var diag = bag.Diagnostics.First();
@@ -459,19 +480,31 @@ public class AnalysisTests
     }
 
     [Test]
-    public void RedundantNullCoalesceAnalyzer_NoWarning_OnAmbientGlobal()
+    public void RedundantNilCoalesceAnalyzer_ReportsEV8010_OnNonNilAssertion()
+    {
+        var source = "val user = nil; val _x = user! ?? \"fallback\";";
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNilCoalesceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8010");
+        diag.Severity.ShouldBe(DiagnosticSeverity.Warning);
+    }
+
+    [Test]
+    public void RedundantNilCoalesceAnalyzer_NoWarning_OnAmbientGlobal()
     {
         var source = "val _x = CONFIG ?? { default: 1 };";
-        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNilCoalesceAnalyzer());
 
         bag.Count.ShouldBe(0);
     }
 
     [Test]
-    public void RedundantNullCoalesceAnalyzer_NoWarning_OnNullableExpression()
+    public void RedundantNilCoalesceAnalyzer_NoWarning_OnNilableExpression()
     {
         var source = "val user = nil; val _x = user?.name ?? \"anon\";";
-        var (_, bag) = ParseAndAnalyze(source, new RedundantNullCoalesceAnalyzer());
+        var (_, bag) = ParseAndAnalyze(source, new RedundantNilCoalesceAnalyzer());
 
         bag.Count.ShouldBe(0);
     }

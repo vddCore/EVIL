@@ -140,7 +140,7 @@ void yyerror(const char *s);
 %left TOKEN_WITH
 %precedence TOKEN_YIELD
 %precedence UNARY PREFIX
-%precedence POSTFIX TOKEN_INCREMENT TOKEN_DECREMENT
+%precedence POSTFIX TOKEN_INCREMENT TOKEN_DECREMENT '!'
 %left '.' TOKEN_ELVIS TOKEN_ELVIS_ARRAY TOKEN_SAFE_COLON TOKEN_ELVIS_INVOCATION '[' '(' TOKEN_DOUBLE_COLON
 
 %start program
@@ -423,7 +423,7 @@ conditional_expression
     | coalescing_expression '?' assignment_expression ':' conditional_expression
     ;
 
-/* Level 3: Null-Coalescing */
+/* Level 3: Nil-Coalescing */
 coalescing_expression
     : logical_or_expression
     | logical_or_expression TOKEN_DOUBLE_QUESTION coalescing_rhs
@@ -591,6 +591,7 @@ postfix_expression
     | postfix_expression TOKEN_SAFE_COLON IDENTIFIER '(' argument_list_opt ')'
     | postfix_expression TOKEN_INCREMENT %prec POSTFIX
     | postfix_expression TOKEN_DECREMENT %prec POSTFIX
+    | postfix_expression '!' %prec POSTFIX
     ;
 
 argument_list_opt

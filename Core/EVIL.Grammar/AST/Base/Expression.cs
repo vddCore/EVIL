@@ -10,7 +10,8 @@ public abstract class Expression : AstNode
             or SelfInvocationExpression
             or IncrementationExpression
             or DecrementationExpression
-            or YieldExpression;
+            or YieldExpression
+            or NonNilAssertionExpression;
         
     public virtual Expression Reduce() => this;
 }

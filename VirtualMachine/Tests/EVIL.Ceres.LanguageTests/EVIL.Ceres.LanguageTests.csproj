@@ -127,6 +127,9 @@
     <None Update="tests\030_safe_invocation.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="tests\031_non_nil_assertion.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

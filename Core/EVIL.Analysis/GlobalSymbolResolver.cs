@@ -29,7 +29,7 @@ public sealed class GlobalSymbolResolver
 
         foreach (var stmt in program.Statements)
         {
-            if (stmt is FnStatement fn && fn.Identifier != null)
+            if (stmt is FnStatement fn)
             {
                 if (!fn.IsLocalDefinition)
                 {
@@ -259,6 +259,7 @@ public sealed class GlobalSymbolResolver
             SelfExpression => true,
             TypeOfExpression => true,
             IsExpression => true,
+            NonNilAssertionExpression => true,
             SymbolReferenceExpression sym => IsKnownNonNilSingleton(sym.Identifier) 
                                           || IsDeclaredTopLevelFunction(sym.Identifier),
             _ => false

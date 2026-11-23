@@ -18,7 +18,8 @@ public partial class Parser
         TokenType.Colon,
         TokenType.SafeColon,
         TokenType.Increment,
-        TokenType.Decrement
+        TokenType.Decrement,
+        TokenType.LogicalNot
     ];
 
     private Expression PostfixExpression()
@@ -77,6 +78,17 @@ public partial class Parser
                     }
 
                     node = SelfInvocationExpression(node);
+                    break;
+                }
+
+                case TokenType.LogicalNot:
+                {
+                    var (line, col) = Match(Token.LogicalNot);
+                    node = new NonNilAssertionExpression(node)
+                    {
+                        Line = line,
+                        Column = col
+                    };
                     break;
                 }
             }

@@ -307,6 +307,11 @@ public class AstWalker : AstVisitor
         Visit(decrementationExpression.Target);
     }
 
+    protected override void Visit(NonNilAssertionExpression nonNilAssertionExpression)
+    {
+        Visit(nonNilAssertionExpression.Operand);
+    }
+
     protected override void Visit(TableExpression tableExpression)
     {
         foreach (var init in tableExpression.Initializers)

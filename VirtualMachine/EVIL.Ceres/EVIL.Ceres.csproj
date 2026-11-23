@@ -198,6 +198,9 @@
     <Compile Update="TranslationEngine\Compiler.Diagnostic.Statement.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Update="TranslationEngine\Compiler.Expression.NonNilAssertion.cs">
+      <DependentUpon>Compiler.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

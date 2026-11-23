@@ -20,9 +20,9 @@ public static partial class CompilerDiagnostics
         DiagnosticCategory.Inspection, DiagnosticSeverity.Error
     );
 
-    public static readonly DiagnosticDescriptor RedundantNullCoalesce = new(
-        "EV8010", "Redundant Null Coalescing",
-        "Null-coalescing operator '??' is redundant because the left operand '{0}' is guaranteed non-nil.",
+    public static readonly DiagnosticDescriptor RedundantNilCoalesce = new(
+        "EV8010", "Redundant Nil Coalescing",
+        "Nil-coalescing operator '??' is redundant because the left operand '{0}' is guaranteed non-nil.",
         DiagnosticCategory.Inspection, DiagnosticSeverity.Warning
     );
 

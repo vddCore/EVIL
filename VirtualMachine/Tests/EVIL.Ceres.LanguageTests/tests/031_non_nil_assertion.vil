@@ -1,0 +1,108 @@
+#[test]
+fn non_nil_assertion_on_string {
+  val s = "hello";
+  assert.equal(s!, "hello");
+}
+
+#[test]
+fn non_nil_assertion_on_number {
+  val n = 42;
+  assert.equal(n!, 42);
+}
+
+#[test]
+fn non_nil_assertion_on_table {
+  val t = { a: 10, b: "ok" };
+  assert.equal(t!.a, 10);
+  assert.equal(t!.b, "ok");
+}
+
+#[test]
+fn non_nil_assertion_on_array {
+  val arr = array { 100, 200 };
+  assert.equal(arr![1], 200);
+}
+
+#[test]
+fn non_nil_assertion_on_function_return {
+  loc fn get_num -> 777;
+  assert.equal(get_num()!, 777);
+}
+
+#[test]
+fn non_nil_assertion_throws_on_nil_variable {
+  val x = nil;
+  assert.throws(fn -> x!);
+}
+
+#[test]
+fn non_nil_assertion_throws_on_nil_call {
+  loc fn get_nil -> nil;
+  assert.throws(fn -> get_nil()!);
+}
+
+#[test]
+fn non_nil_assertion_throws_on_nil_member {
+  val t = { a: nil };
+  assert.throws(fn -> t.a!);
+}
+
+#[test]
+fn non_nil_assertion_error_message_content {
+  val my_var = nil;
+  rw val caught_msg = "";
+  
+  try {
+    my_var!;
+  } catch (e) {
+    caught_msg = e;
+  }
+  
+  assert.is_true(str.starts_with(caught_msg, "NilAssertionException"));
+  assert.is_true(str.index_of(caught_msg, "my_var") != -1);
+}
+
+#[test]
+fn non_nil_assertion_in_elvis_chain {
+  val user = { address: { zip: 90210 } };
+  assert.equal(user?.address!.zip, 90210);
+
+  val nil_addr = { address: nil };
+  assert.throws(fn -> nil_addr?.address!.zip);
+}
+
+#[test]
+fn non_nil_assertion_on_function_invocation {
+  val f = fn(x) -> x * 2;
+  assert.equal(f!(21), 42);
+
+  val nil_fn = nil;
+  assert.throws(fn -> nil_fn!(21));
+}
+
+#[test]
+fn non_nil_assertion_statement_discard {
+  val x = 10;
+  x!;
+  assert.equal(x, 10);
+
+  val n = nil;
+  assert.throws(fn { n!; });
+}
+
+#[test]
+fn non_nil_assertion_chained_double_exclamation {
+  val x = "ok";
+  assert.equal(x!!, "ok");
+
+  val y = nil;
+  assert.throws(fn -> y!!);
+}
+
+#[test]
+fn non_nil_assertion_binary_arithmetic {
+  val a = 5;
+  val b = 10;
+  
+  assert.equal(a! + b!, 15);
+}

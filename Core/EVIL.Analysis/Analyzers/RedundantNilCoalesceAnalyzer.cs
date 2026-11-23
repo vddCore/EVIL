@@ -5,10 +5,10 @@ using EVIL.Diagnostics;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 
-public sealed class RedundantNullCoalesceAnalyzer : IDiagnosticAnalyzer
+public sealed class RedundantNilCoalesceAnalyzer : IDiagnosticAnalyzer
 {
     public IReadOnlyCollection<DiagnosticDescriptor> SupportedDiagnostics { get; } = [
-        CompilerDiagnostics.RedundantNullCoalesce
+        CompilerDiagnostics.RedundantNilCoalesce
     ];
 
     public void Initialize(AnalysisContext context)
@@ -23,7 +23,7 @@ public sealed class RedundantNullCoalesceAnalyzer : IDiagnosticAnalyzer
         if (node.Right is NilConstant)
         {
             context.ReportDiagnostic(
-                CompilerDiagnostics.RedundantNullCoalesce.Create(
+                CompilerDiagnostics.RedundantNilCoalesce.Create(
                     context.GetLocation(node),
                     "nil"
                 )
@@ -43,7 +43,7 @@ public sealed class RedundantNullCoalesceAnalyzer : IDiagnosticAnalyzer
             };
 
             context.ReportDiagnostic(
-                CompilerDiagnostics.RedundantNullCoalesce.Create(
+                CompilerDiagnostics.RedundantNilCoalesce.Create(
                     context.GetLocation(node),
                     leftName
                 )
