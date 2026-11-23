@@ -1,6 +1,8 @@
 namespace EVIL.Ceres.RuntimeTests;
 
 using System.Linq;
+using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.TranslationEngine;
 using EVIL.Diagnostics;
 using NUnit.Framework;
@@ -91,6 +93,134 @@ public class CompilerDiagnosticTests
         compiler.Compile(source, "redef_targeted.vil");
 
         compiler.Log.HasErrors.ShouldBeFalse();
+    }
+
+    [Test]
+    public void Compiler_NamedFunctionReplacement_UsesStableChildIdentityWithMixedChildren()
+    {
+        var compiler = new Compiler();
+        var source = """
+            fn foo() -> 1;
+            val anonymous = fn() -> 2;
+            fn other() -> 3;
+            fn test() -> foo();
+            fn foo() -> 4;
+            fn padding() -> 99;
+            """;
+
+        var root = compiler.Compile(source, "redef_mixed.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.Diagnostics.First(d => d.Id == "EV4006")
+                .Severity
+                .ShouldBe(DiagnosticSeverity.Warning);
+        
+        root.SubChunkCount.ShouldBe(5);
+        root.NamedSubChunkLookup["foo"].ShouldBe(0);
+        root["foo"].ShouldBeSameAs(root.SubChunks[0]);
+        root.SubChunks[0].Name.ShouldBe("foo");
+        root.NamedSubChunkLookup.Values.ShouldNotContain(1);
+        root.SubChunks[2].Name.ShouldBe("other");
+        root.SubChunks[3].Name.ShouldBe("test");
+        root.SubChunks[4].Name.ShouldBe("padding");
+
+        var subChunkIds = InstructionDecoder.Decode(root).Instructions
+            .Where(instruction => instruction.OpCode == OpCode.LDCNK)
+            .Select(instruction => (int)instruction.Operands[0].RawValue)
+            .ToArray();
+
+        subChunkIds.ShouldBe([0, 1, 2, 3, 0, 4]);
+    }
+
+    [Test]
+    public void Compiler_IndexedFunctionRedefinition_ReusesItsNamedChild()
+    {
+        var compiler = new Compiler();
+        var source = """
+            val obj = {};
+            loc fn obj.bar() -> 1;
+            loc fn obj.bar() -> 2;
+            """;
+
+        var root = compiler.Compile(source, "redef_indexed.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        compiler.Log.Diagnostics.First(d => d.Id == "EV4008")
+                .Severity
+                .ShouldBe(DiagnosticSeverity.Warning);
+        root.SubChunkCount.ShouldBe(1);
+        root.NamedSubChunkLookup["obj.bar"].ShouldBe(0);
+        root.SubChunks[0].Name.ShouldBe("obj.bar");
+
+        var subChunkIds = InstructionDecoder.Decode(root).Instructions
+            .Where(instruction => instruction.OpCode == OpCode.LDCNK)
+            .Select(instruction => (int)instruction.Operands[0].RawValue)
+            .ToArray();
+
+        subChunkIds.ShouldBe([0, 0]);
+    }
+
+    [Test]
+    public void Compiler_TargetedFunctionRedefinition_ReusesItsNamedChild()
+    {
+        var compiler = new Compiler();
+        var source = """
+            val obj = {};
+            loc fn obj::bar() -> 1;
+            loc fn obj::bar() -> 2;
+            """;
+
+        var root = compiler.Compile(source, "redef_targeted.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        compiler.Log.WarningCount.ShouldBe(1);
+        compiler.Log.Diagnostics.First(d => d.Id == "EV4007")
+                .Severity
+                .ShouldBe(DiagnosticSeverity.Warning);
+        root.SubChunkCount.ShouldBe(1);
+        root.NamedSubChunkLookup["obj::bar"].ShouldBe(0);
+        root.SubChunks[0].Name.ShouldBe("obj::bar");
+        root.SubChunks[0].IsSelfAware.ShouldBeTrue();
+        root.SubChunks[0].ParameterCount.ShouldBe(1);
+
+        var subChunkIds = InstructionDecoder.Decode(root).Instructions
+            .Where(instruction => instruction.OpCode == OpCode.LDCNK)
+            .Select(instruction => (int)instruction.Operands[0].RawValue)
+            .ToArray();
+
+        subChunkIds.ShouldBe([0, 0]);
+    }
+
+    [Test]
+    public void Compiler_IndexedFunctionPrefixAndSuffixNamesRemainDistinct()
+    {
+        var compiler = new Compiler();
+        var source = """
+            val obj = {};
+            loc fn obj.barExtra() -> 1;
+            loc fn obj.bar() -> 2;
+            loc fn obj.bar_1() -> 3;
+            loc fn obj.bar() -> 4;
+            """;
+
+        var root = compiler.Compile(source, "redef_indexed_collisions.vil");
+
+        compiler.Log.HasErrors.ShouldBeFalse();
+        root.SubChunkCount.ShouldBe(3);
+        root.NamedSubChunkLookup["obj.barExtra"].ShouldBe(0);
+        root.NamedSubChunkLookup["obj.bar"].ShouldBe(1);
+        root.NamedSubChunkLookup["obj.bar_1"].ShouldBe(2);
+        root.SubChunks
+            .Select(chunk => chunk.Name)
+            .ShouldBe(["obj.barExtra", "obj.bar", "obj.bar_1"]);
+
+        var subChunkIds = InstructionDecoder.Decode(root).Instructions
+            .Where(instruction => instruction.OpCode == OpCode.LDCNK)
+            .Select(instruction => (int)instruction.Operands[0].RawValue)
+            .ToArray();
+
+        subChunkIds.ShouldBe([0, 1, 2, 1]);
     }
 
     [Test]

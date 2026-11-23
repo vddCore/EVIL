@@ -111,6 +111,76 @@ public class OptimizationTests : TestBase
     }
 
     [Test]
+    public void FunctionGeneration_NamedRedefinitionWithMixedChildren_InvokesReplacement()
+    {
+        var script = """
+            fn foo() -> 1;
+            val anonymous = fn() -> 2;
+            fn other() -> 3;
+            fn test() -> foo();
+            fn foo() -> 4;
+            fn padding() -> 99;
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.Number, Is.EqualTo(4.0));
+    }
+
+    [Test]
+    public void FunctionGeneration_IndexedRedefinition_InvokesReplacement()
+    {
+        var script = """
+            fn test() {
+                val obj = {};
+                loc fn obj.bar() -> 1;
+                loc fn obj.bar() -> 2;
+                ret obj.bar();
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.Number, Is.EqualTo(2.0));
+    }
+
+    [Test]
+    public void FunctionGeneration_TargetedRedefinition_InvokesReplacement()
+    {
+        var script = """
+            fn test() {
+                val obj = {};
+                loc fn obj::bar() -> 1;
+                loc fn obj::bar() -> 2;
+                ret obj:bar();
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.Number, Is.EqualTo(2.0));
+    }
+
+    [Test]
+    public void FunctionGeneration_IndexedPrefixAndSuffixNames_PreserveAssignments()
+    {
+        var script = """
+            fn test() {
+                val obj = {};
+                loc fn obj.barExtra() -> 1;
+                loc fn obj.bar() -> 2;
+                loc fn obj.bar_1() -> 3;
+                loc fn obj.bar() -> 4;
+                ret obj.bar() + obj.barExtra() + obj.bar_1();
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.Number, Is.EqualTo(8.0));
+    }
+
+    [Test]
     public void Closure_DeeplyNested_CapturesAllLevelsCorrectly()
     {
         var script = """

@@ -72,3 +72,4 @@ public class TableSpreadParserTests : ParserTestBase
         withExpr.TableExpansionExpression.Initializers[1].ShouldBeOfType<KeyValuePairExpression>();
     }
 }
+    
