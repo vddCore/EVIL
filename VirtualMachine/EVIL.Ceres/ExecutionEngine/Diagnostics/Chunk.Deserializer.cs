@@ -28,6 +28,12 @@ public sealed partial class Chunk
             }
 
             version = signature[4];
+            if (version != FormatVersion)
+            {
+                throw new ChunkDeserializationException(
+                    $"Unsupported chunk format version '{version}'. Expected version '{FormatVersion}'."
+                );
+            }
         }
 
         private static void ReadHeader(
@@ -107,10 +113,7 @@ public sealed partial class Chunk
                 ReadHeader(br, out version, out timestamp, out var flags);
 
                 chunk = new Chunk(ReadName(br));
-                if (version >= 4)
-                {
-                    chunk.ClosureOwnerId = new Guid(br.ReadBytes(16));
-                }
+                chunk.ClosureOwnerId = new Guid(br.ReadBytes(16));
 
                 if (flags.HasFlag(ChunkFlags.IsSelfAware))
                 {
@@ -153,9 +156,7 @@ public sealed partial class Chunk
                         var enclosedFunctionName = br.ReadString();
                         var closureType = (ClosureType)br.ReadInt32();
                         var isSharedScope = br.ReadBoolean();
-                        var enclosedOwnerId = version >= 4
-                            ? new Guid(br.ReadBytes(16))
-                            : Guid.Empty;
+                        var enclosedOwnerId = new Guid(br.ReadBytes(16));
 
                         chunk._closures.Add(
                             new ClosureInfo(

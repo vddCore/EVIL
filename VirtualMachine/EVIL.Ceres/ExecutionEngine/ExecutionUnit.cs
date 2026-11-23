@@ -1973,9 +1973,7 @@ internal class ExecutionUnit
     }
 
     private static bool IsClosureOwner(Chunk chunk, ClosureInfo closure)
-        => closure.EnclosedOwnerId != default
-            ? chunk.ClosureOwnerId == closure.EnclosedOwnerId
-            : chunk.Name == closure.EnclosedFunctionName;
+        => chunk.ClosureOwnerId == closure.EnclosedOwnerId;
 
     private ScriptStackFrame? FindClosureSourceFrame(ClosureInfo closure)
     {
@@ -2001,56 +1999,28 @@ internal class ExecutionUnit
     }
 
     private bool TryGetSharedUpvalue(ClosureInfo closure, out Upvalue upvalue)
-        => closure.EnclosedOwnerId != Guid.Empty
-            ? _fiber.TryGetSharedUpvalue(
-                closure.EnclosedOwnerId,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                out upvalue
-            )
-            : _fiber.TryGetSharedUpvalue(
-                closure.EnclosedFunctionName,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                out upvalue
-            );
+        => _fiber.TryGetSharedUpvalue(
+            closure.EnclosedOwnerId,
+            closure.EnclosedId,
+            closure.Type == ClosureType.Local,
+            out upvalue
+        );
 
     private bool TryGetClosedUpvalue(ClosureInfo closure, out Upvalue upvalue)
-        => closure.EnclosedOwnerId != Guid.Empty
-            ? _fiber.TryGetClosedUpvalue(
-                closure.EnclosedOwnerId,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                out upvalue
-            )
-            : _fiber.TryGetClosedUpvalue(
-                closure.EnclosedFunctionName,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                out upvalue
-            );
+        => _fiber.TryGetClosedUpvalue(
+            closure.EnclosedOwnerId,
+            closure.EnclosedId,
+            closure.Type == ClosureType.Local,
+            out upvalue
+        );
 
     private void RegisterSharedUpvalue(ClosureInfo closure, Upvalue upvalue)
-    {
-        if (closure.EnclosedOwnerId != Guid.Empty)
-        {
-            _fiber.RegisterSharedUpvalue(
-                closure.EnclosedOwnerId,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                upvalue
-            );
-        }
-        else
-        {
-            _fiber.RegisterSharedUpvalue(
-                closure.EnclosedFunctionName,
-                closure.EnclosedId,
-                closure.Type == ClosureType.Local,
-                upvalue
-            );
-        }
-    }
+        => _fiber.RegisterSharedUpvalue(
+            closure.EnclosedOwnerId,
+            closure.EnclosedId,
+            closure.Type == ClosureType.Local,
+            upvalue
+        );
 
     private Upvalue ResolveUpvalue(ScriptStackFrame frame, ClosureInfo closure)
     {

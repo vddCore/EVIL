@@ -141,52 +141,6 @@ public class OptimizationTests : TestBase
     }
 
     [Test]
-    public void Closure_LegacyNameBasedOwnerFallbackResolvesClosedCapture()
-    {
-        var root = Compiler.Compile(
-            "val value = \"legacy\"; legacy_closure = fn() -> value;",
-            "legacy_owner.vil"
-        );
-
-        using var stream = new MemoryStream();
-        root.Serialize(stream);
-        var serialized = stream.ToArray();
-        var ownerIdBytes = root.ClosureOwnerId.ToByteArray();
-
-        int FindOwnerId(int start)
-        {
-            for (var i = start; i <= serialized.Length - ownerIdBytes.Length; i++)
-            {
-                if (serialized.AsSpan(i, ownerIdBytes.Length).SequenceEqual(ownerIdBytes))
-                {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        var rootOwnerIdOffset = FindOwnerId(0);
-        var closureOwnerIdOffset = FindOwnerId(rootOwnerIdOffset + ownerIdBytes.Length);
-        Assert.That(closureOwnerIdOffset, Is.GreaterThan(rootOwnerIdOffset));
-        System.Array.Clear(serialized, closureOwnerIdOffset, ownerIdBytes.Length);
-
-        using var legacyStream = new MemoryStream(serialized);
-        var legacyCompatibleRoot = Chunk.Deserialize(legacyStream, out _, out _);
-        var invokeClosure = Compiler.Compile(
-            "legacy_result = legacy_closure();",
-            "invoke_legacy_closure.vil"
-        );
-
-        VM.MainFiber.Schedule(legacyCompatibleRoot, false);
-        VM.MainFiber.Schedule(invokeClosure, false);
-        VM.MainFiber.Resume();
-        VM.MainFiber.BlockUntilFinished();
-
-        Assert.That(VM.Global["legacy_result"].String, Is.EqualTo("legacy"));
-    }
-
-    [Test]
     public void FunctionGeneration_NamedRedefinitionWithMixedChildren_InvokesReplacement()
     {
         var script = """
