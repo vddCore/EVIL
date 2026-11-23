@@ -1276,7 +1276,6 @@ public class OptimizationTests : TestBase
 
         Assert.That(result.Number, Is.EqualTo(10000.0));
 
-        // Find instruction offset for GETPROP pt.x
         var disasm = InstructionDecoder.Decode(testChunk);
         var getProp = System.Linq.Enumerable.FirstOrDefault(disasm.Instructions, i => i.OpCode is OpCode.GETPROP_B or OpCode.GETPROP);
         Assert.That(getProp, Is.Not.Null);
@@ -1395,6 +1394,158 @@ public class OptimizationTests : TestBase
             Assert.That(result.Number, Is.EqualTo(10.0));
             Assert.That(pt["x"].Number, Is.EqualTo(10.0));
         }
+    }
+
+    [Test]
+    public void Table_StructEnumerator_TraversesAllPhases_ArrayShapeAndHash()
+    {
+        var t = new Table();
+        t[0] = 100;
+        t[1] = 200;
+        t["x"] = 10;
+        t["y"] = 20;
+
+        var visited = new List<(DynamicValue Key, DynamicValue Value)>();
+        foreach (var kvp in t)
+        {
+            visited.Add((kvp.Key, kvp.Value));
+        }
+
+        Assert.That(visited, Has.Count.EqualTo(4));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(visited[0], Is.EqualTo(((DynamicValue)0.0, (DynamicValue)100.0)));
+            Assert.That(visited[1], Is.EqualTo(((DynamicValue)1.0, (DynamicValue)200.0)));
+            Assert.That(visited[2].Key.String, Is.EqualTo("x"));
+            Assert.That(visited[2].Value.Number, Is.EqualTo(10.0));
+            Assert.That(visited[3].Key.String, Is.EqualTo("y"));
+            Assert.That(visited[3].Value.Number, Is.EqualTo(20.0));
+        }
+    }
+
+    [Test]
+    public void Table_StructEnumerator_DirectForeach_ZeroAllocations()
+    {
+        var t = new Table { { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 4 } };
+
+        var a = GC.GetAllocatedBytesForCurrentThread();
+        var e = t.GetEnumerator();
+        var b = GC.GetAllocatedBytesForCurrentThread();
+        while (e.MoveNext())
+        {
+            var k = e.CurrentKey;
+            var v = e.CurrentValue;
+        }
+        var c = GC.GetAllocatedBytesForCurrentThread();
+        e.Dispose();
+        var d = GC.GetAllocatedBytesForCurrentThread();
+
+        Assert.That(b - a, Is.EqualTo(0), "GetEnumerator allocated");
+        Assert.That(c - b, Is.EqualTo(0), "MoveNext allocated");
+        Assert.That(d - c, Is.EqualTo(0), "Dispose allocated");
+
+        var dummy = 0.0;
+        foreach (var kvp in t)
+        {
+            dummy += kvp.Value.Number;
+        }
+
+        var startAlloc = GC.GetAllocatedBytesForCurrentThread();
+        for (var i = 0; i < 10000; i++)
+        {
+            foreach (var kvp in t)
+            {
+                dummy += kvp.Value.Number;
+            }
+        }
+        var endAlloc = GC.GetAllocatedBytesForCurrentThread();
+
+        Assert.That(endAlloc - startAlloc, Is.EqualTo(0), $"foreach allocated {endAlloc - startAlloc}");
+        Assert.That(dummy, Is.GreaterThan(0));
+    }
+
+    [Test]
+    public void Table_EachLoop_ScriptExecution_NestedLoopsAndBreak()
+    {
+        var script = """
+            fn test() {
+                val t1 = { a: 1, b: 2 };
+                val t2 = { x: 10, y: 20 };
+                rw val sum = 0;
+                each (rw val k1, v1 : t1) {
+                    each (rw val k2, v2 : t2) {
+                        sum += v1 * v2;
+                        if (k2 == "x") {
+                            break;
+                        }
+                    }
+                }
+                ret sum;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        // (1 * 10) + (2 * 10) = 30
+        Assert.That(result.Number, Is.EqualTo(30.0));
+    }
+
+    [Test]
+    public void Table_EachLoop_ScriptExecution_ArrayIteration()
+    {
+        var script = """
+            fn test() {
+                val arr = array { 10, 20, 30, 40 };
+                rw val sum = 0;
+                each (rw val idx, v : arr) {
+                    sum += idx + v;
+                }
+                ret sum;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        // (0 + 10) + (1 + 20) + (2 + 30) + (3 + 40) = 106
+        Assert.That(result.Number, Is.EqualTo(106.0));
+    }
+
+    [Test]
+    public void Table_EachLoop_ScriptExecution_ZeroGCCollections()
+    {
+        var script = """
+            fn test(t) {
+                rw val sum = 0;
+                for (rw val i = 0; i < 10000; i++) {
+                    each (rw val k, v : t) {
+                        sum += v;
+                    }
+                }
+                ret sum;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "zero_gc_test");
+        var testChunk = chunk["test"]!;
+        var t = new Table { { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 4 } };
+
+        VM.MainFiber.Schedule(chunk);
+        VM.MainFiber.Schedule(testChunk, false, t);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+        var warmupResult = VM.MainFiber.PopValue();
+        Assert.That(warmupResult.Number, Is.EqualTo(100000.0));
+
+        var allocBefore = GC.GetAllocatedBytesForCurrentThread();
+
+        VM.MainFiber.Schedule(chunk);
+        VM.MainFiber.Schedule(testChunk, false, t);
+        VM.MainFiber.Resume();
+        VM.MainFiber.BlockUntilFinished();
+        var result = VM.MainFiber.PopValue();
+
+        var allocAfter = GC.GetAllocatedBytesForCurrentThread();
+
+        Assert.That(result.Number, Is.EqualTo(100000.0));
+        Assert.That(allocAfter - allocBefore, Is.LessThan(1024));
     }
 
     [Test]

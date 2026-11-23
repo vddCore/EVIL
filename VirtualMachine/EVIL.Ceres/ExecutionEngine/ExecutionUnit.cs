@@ -1729,19 +1729,17 @@ internal class ExecutionUnit
                 case OpCode.NEXT:
                 {
                     var isKeyValue = frame.FetchInt32() != 0;
-                    var enumerator = frame.CurrentEnumerator ?? throw new VirtualMachineException(
-                        "Attempt to iterate without an active iterator."
-                    );
+                    ref var enumerator = ref frame.CurrentEnumerator;
 
                     var next = enumerator.MoveNext();
 
                     if (next)
                     {
-                        PushValue(enumerator.Current.Value);
+                        PushValue(enumerator.CurrentValue);
 
                         if (isKeyValue)
                         {
-                            PushValue(enumerator.Current.Key);
+                            PushValue(enumerator.CurrentKey);
                         }
                     }
 

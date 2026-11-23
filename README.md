@@ -156,7 +156,7 @@ Shared/
 ## Have you used an eyy-ayy to build this?
 I can't believe we're living in times I have to write this. **Fuck no**. Why would I take fun out of my comfort project.
 
-Shame where shame's due though, I used an LLM to generate the Flex/Bison rules from the source code. Because that's anything BUT fun.
+Shame where shame's due though, I used an LLM to generate the Flex/Bison rules from the source code and to implement some micro-optimizations. Because that's anything BUT fun.
 
 ## License
 EVIL is licensed under LGPLv3. See [LICENSE.md](LICENSE.md) for details.

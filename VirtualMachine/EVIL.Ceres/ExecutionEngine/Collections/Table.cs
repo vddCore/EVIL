@@ -79,31 +79,27 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     public static readonly DynamicValue SetMetaKeyVal = new(SetMetaKey);
     public static readonly DynamicValue GetMetaKeyVal = new(GetMetaKey);
 
-    public MetamethodFlags MetamethodFlags { get; set; }
 
     private const int MaxArrayPartCapacity = 65536;
 
     private DynamicValue[]? _arrayPart;
-    private int _arrayPartCount;
-    private Dictionary<DynamicValue, DynamicValue>? _hashPart;
 
     public TableShape? Shape { get; private set; }
     public DynamicValue[]? ShapeSlots { get; private set; }
     public uint Version { get; private set; }
 
-    public DynamicValue this[DynamicValue key]
-    {
-        get => Index(key);
-        set => Set(key, value);
-    }
-
+    internal DynamicValue[]? ArrayPart => _arrayPart;
+    
+    internal int ArrayPartCount { get; private set; }
+    internal Dictionary<DynamicValue, DynamicValue>? HashPart { get; private set; }
+    
     public bool IsFrozen { get; private set; }
 
     public int Length
     {
         get
         {
-            var count = _arrayPartCount;
+            var count = ArrayPartCount;
             if (Shape != null && ShapeSlots != null)
             {
                 for (var i = 0; i < ShapeSlots.Length; i++)
@@ -115,17 +111,24 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 }
             }
 
-            if (_hashPart != null)
+            if (HashPart != null)
             {
-                count += _hashPart.Count;
+                count += HashPart.Count;
             }
 
             return count;
         }
     }
 
+    public MetamethodFlags MetamethodFlags { get; set; }
     public Table? MetaTable { get; set; }
     public bool HasMetaTable => MetaTable != null;
+    
+    public DynamicValue this[DynamicValue key]
+    {
+        get => Index(key);
+        set => Set(key, value);
+    }
 
     public Table()
     {
@@ -141,7 +144,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     {
         if (capacity > 0)
         {
-            _hashPart = new(capacity);
+            HashPart = new(capacity);
         }
     }
 
@@ -157,7 +160,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        _arrayPartCount = count;
+        ArrayPartCount = count;
     }
 
     public Table(ReadOnlySpan<DynamicValue> arrayPart)
@@ -175,7 +178,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        _arrayPartCount = count;
+        ArrayPartCount = count;
     }
 
     public static Table CreateKeyed(ReadOnlySpan<DynamicValue> items)
@@ -249,15 +252,15 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             {
                 _arrayPart = new DynamicValue[other._arrayPart.Length];
                 System.Array.Copy(other._arrayPart, _arrayPart, other._arrayPart.Length);
-                _arrayPartCount = other._arrayPartCount;
+                ArrayPartCount = other.ArrayPartCount;
             }
 
-            if (other._hashPart is { Count: > 0 })
+            if (other.HashPart is { Count: > 0 })
             {
-                _hashPart = new(other._hashPart.Count);
-                foreach (var kvp in other._hashPart)
+                HashPart = new(other.HashPart.Count);
+                foreach (var kvp in other.HashPart)
                 {
-                    _hashPart[kvp.Key] = kvp.Value;
+                    HashPart[kvp.Key] = kvp.Value;
                 }
             }
         }
@@ -351,7 +354,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Dictionary<DynamicValue, DynamicValue> EnsureHashPart(int capacity = 0)
     {
-        return _hashPart ??= capacity > 0
+        return HashPart ??= capacity > 0
             ? new Dictionary<DynamicValue, DynamicValue>(capacity)
             : new Dictionary<DynamicValue, DynamicValue>();
     }
@@ -411,7 +414,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 if (_arrayPart[idx] != Nil)
                 {
                     _arrayPart[idx] = Nil;
-                    _arrayPartCount--;
+                    ArrayPartCount--;
                     
                     IncrementVersion();
                 }
@@ -426,15 +429,15 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                         && slot < ShapeSlots.Length && ShapeSlots[slot] != Nil)
                     {
                         DemoteShapeToHashPart();
-                        _hashPart!.Remove(key);
+                        HashPart!.Remove(key);
                         IncrementVersion();
                     }
                 }
             }
 
-            if (_hashPart is { Count: > 0 })
+            if (HashPart is { Count: > 0 })
             {
-                if (_hashPart.Remove(key))
+                if (HashPart.Remove(key))
                 {
                     IncrementVersion();
                 }
@@ -448,13 +451,13 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 {
                     if (_arrayPart[index] == Nil)
                     {
-                        _arrayPartCount++;
+                        ArrayPartCount++;
                     }
 
                     _arrayPart[index] = value;
-                    if (_hashPart is { Count: > 0 })
+                    if (HashPart is { Count: > 0 })
                     {
-                        _hashPart.Remove(key);
+                        HashPart.Remove(key);
                     }
                 }
                 else if (_arrayPart == null && index < 8)
@@ -464,11 +467,11 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                     _arrayPart = new DynamicValue[initialCap];
                     System.Array.Fill(_arrayPart, Nil);
                     _arrayPart[index] = value;
-                    _arrayPartCount = 1;
+                    ArrayPartCount = 1;
                     
-                    if (_hashPart is { Count: > 0 })
+                    if (HashPart is { Count: > 0 })
                     {
-                        _hashPart.Remove(key);
+                        HashPart.Remove(key);
                     }
                 }
                 else if (_arrayPart != null && index < MaxArrayPartCapacity && index <= _arrayPart.Length * 2)
@@ -483,11 +486,11 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                     System.Array.Fill(_arrayPart, Nil, oldLen, newLen - oldLen);
                     
                     _arrayPart[index] = value;
-                    _arrayPartCount++;
+                    ArrayPartCount++;
                     
-                    if (_hashPart is { Count: > 0 })
+                    if (HashPart is { Count: > 0 })
                     {
-                        _hashPart.Remove(key);
+                        HashPart.Remove(key);
                     }
                 }
                 else
@@ -509,7 +512,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                             ShapeSlots![slot] = value;
                             IncrementVersion();
                         }
-                        else if (_hashPart == null && Shape.PropertyCount < 64)
+                        else if (HashPart == null && Shape.PropertyCount < 64)
                         {
                             var nextShape = Shape.Transition(key.String, out var newSlot);
                             var newSlots = new DynamicValue[nextShape.PropertyCount];
@@ -528,7 +531,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                             IncrementVersion();
                         }
                     }
-                    else if (GetType() == typeof(Table) && _hashPart == null && (_arrayPart == null || _arrayPartCount == 0))
+                    else if (GetType() == typeof(Table) && HashPart == null && (_arrayPart == null || ArrayPartCount == 0))
                     {
                         var shape = TableShape.Empty.Transition(key.String, out var slot);
                         var slots = new DynamicValue[1];
@@ -626,7 +629,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        if (_hashPart != null && _hashPart.TryGetValue(key, out var hashVal))
+        if (HashPart != null && HashPart.TryGetValue(key, out var hashVal))
         {
             value = hashVal;
             return true;
@@ -671,7 +674,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        return _hashPart != null && _hashPart.ContainsKey(key);
+        return HashPart != null && HashPart.ContainsKey(key);
     }
 
     public void Clear()
@@ -679,13 +682,13 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         if (_arrayPart != null)
         {
             System.Array.Fill(_arrayPart, Nil);
-            _arrayPartCount = 0;
+            ArrayPartCount = 0;
         }
 
         Shape = null;
         ShapeSlots = null;
         
-        _hashPart?.Clear();
+        HashPart?.Clear();
         
         MetamethodFlags = MetamethodFlags.None;
         IncrementVersion();
@@ -719,9 +722,9 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 }
             }
 
-            if (_hashPart != null)
+            if (HashPart != null)
             {
-                foreach (var value in _hashPart.Values)
+                foreach (var value in HashPart.Values)
                 {
                     if (value.Type == DynamicValueType.Table)
                     {
@@ -762,9 +765,9 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
                 }
             }
 
-            if (_hashPart != null)
+            if (HashPart != null)
             {
-                foreach (var value in _hashPart.Values)
+                foreach (var value in HashPart.Values)
                 {
                     if (value.Type == DynamicValueType.Table)
                     {
@@ -782,7 +785,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         var keys = new Array(Length);
         var i = 0;
 
-        if (_arrayPart != null && _arrayPartCount > 0)
+        if (_arrayPart != null && ArrayPartCount > 0)
         {
             for (var idx = 0; idx < _arrayPart.Length; idx++)
             {
@@ -806,9 +809,9 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        if (_hashPart != null)
+        if (HashPart != null)
         {
-            foreach (var key in _hashPart.Keys)
+            foreach (var key in HashPart.Keys)
             {
                 keys[i++] = key;
             }
@@ -822,7 +825,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         var values = new Array(Length);
         var i = 0;
 
-        if (_arrayPart != null && _arrayPartCount > 0)
+        if (_arrayPart != null && ArrayPartCount > 0)
         {
             for (var idx = 0; idx < _arrayPart.Length; idx++)
             {
@@ -844,9 +847,9 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        if (_hashPart != null)
+        if (HashPart != null)
         {
-            foreach (var value in _hashPart.Values)
+            foreach (var value in HashPart.Values)
             {
                 values[i++] = value;
             }
@@ -875,15 +878,15 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         {
             copy._arrayPart = new DynamicValue[_arrayPart.Length];
             System.Array.Copy(_arrayPart, copy._arrayPart, _arrayPart.Length);
-            copy._arrayPartCount = _arrayPartCount;
+            copy.ArrayPartCount = ArrayPartCount;
         }
 
-        if (_hashPart is { Count: > 0 })
+        if (HashPart is { Count: > 0 })
         {
-            copy._hashPart = new Dictionary<DynamicValue, DynamicValue>(_hashPart.Count);
-            foreach (var kvp in _hashPart)
+            copy.HashPart = new Dictionary<DynamicValue, DynamicValue>(HashPart.Count);
+            foreach (var kvp in HashPart)
             {
-                copy._hashPart[kvp.Key] = kvp.Value;
+                copy.HashPart[kvp.Key] = kvp.Value;
             }
         }
 
@@ -913,7 +916,7 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         if (_arrayPart != null)
         {
             copy._arrayPart = new DynamicValue[_arrayPart.Length];
-            copy._arrayPartCount = _arrayPartCount;
+            copy.ArrayPartCount = ArrayPartCount;
             for (var i = 0; i < _arrayPart.Length; i++)
             {
                 var val = _arrayPart[i];
@@ -921,18 +924,18 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
             }
         }
 
-        if (_hashPart is { Count: > 0 })
+        if (HashPart is { Count: > 0 })
         {
-            copy._hashPart = new Dictionary<DynamicValue, DynamicValue>(_hashPart.Count);
-            foreach (var kvp in _hashPart)
+            copy.HashPart = new Dictionary<DynamicValue, DynamicValue>(HashPart.Count);
+            foreach (var kvp in HashPart)
             {
                 if (kvp.Value.Type == DynamicValueType.Table)
                 {
-                    copy._hashPart[kvp.Key] = kvp.Value.Table!.DeepCopy();
+                    copy.HashPart[kvp.Key] = kvp.Value.Table!.DeepCopy();
                 }
                 else
                 {
-                    copy._hashPart[kvp.Key] = kvp.Value;
+                    copy.HashPart[kvp.Key] = kvp.Value;
                 }
             }
         }
@@ -1000,49 +1003,12 @@ public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject
         return ret;
     }
 
-    public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>> GetEnumerator()
-    {
-        if (_arrayPart != null && _arrayPartCount > 0)
-        {
-            for (var idx = 0; idx < _arrayPart.Length; idx++)
-            {
-                if (_arrayPart[idx] != Nil)
-                {
-                    yield return new KeyValuePair<DynamicValue, DynamicValue>(
-                        (double)idx,
-                        _arrayPart[idx]
-                    );
-                }
-            }
-        }
+    public TableValueEnumerator GetEnumerator()
+        => new(this);
 
-        if (Shape != null && ShapeSlots != null)
-        {
-            var keys = Shape.PropertyKeys;
-            for (var i = 0; i < ShapeSlots.Length; i++)
-            {
-                var val = ShapeSlots[i];
-                if (val != Nil)
-                {
-                    yield return new KeyValuePair<DynamicValue, DynamicValue>(
-                        keys[i],
-                        val
-                    );
-                }
-            }
-        }
-
-        if (_hashPart != null)
-        {
-            foreach (var kvp in _hashPart)
-            {
-                yield return kvp;
-            }
-        }
-    }
+    IEnumerator<KeyValuePair<DynamicValue, DynamicValue>> IEnumerable<KeyValuePair<DynamicValue, DynamicValue>>.GetEnumerator()
+        => new TableValueEnumerator(this);
 
     IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+        => new TableValueEnumerator(this);
 }

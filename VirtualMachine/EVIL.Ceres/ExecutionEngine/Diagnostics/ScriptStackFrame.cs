@@ -19,7 +19,8 @@ public sealed record ScriptStackFrame : StackFrame
     private Upvalue?[]? _openArgumentUpvalues;
     private Stack<BlockProtectionInfo>? _blockProtectorStack;
         
-    private Stack<IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>>? _collectionEnumerators;
+    private ValueEnumerator[]? _enumeratorStack;
+    private int _enumeratorCount;
     private bool _argumentsRented;
     private bool _localsRented;
 
@@ -34,23 +35,22 @@ public sealed record ScriptStackFrame : StackFrame
     public Stack<BlockProtectionInfo> BlockProtectorStack => _blockProtectorStack ??= new();
 
     public CallFrame CallFrame => new(Chunk, Upvalues, (int)PreviousOpCodeIP, (int)IP);
-
     public long PreviousOpCodeIP { get; private set; }
     public long IP => _chunkReader.IP;
 
     public bool IsProtectedState => _blockProtectorStack is { Count: > 0 };
 
-    public IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>? CurrentEnumerator
+    internal ref ValueEnumerator CurrentEnumerator
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            if (_collectionEnumerators != null 
-                && _collectionEnumerators.TryPeek(out var enumerator))
+            if (_enumeratorCount <= 0 || _enumeratorStack == null)
             {
-                return enumerator;
+                throw new VirtualMachineException("Attempt to iterate without an active iterator.");
             }
 
-            return null;
+            return ref _enumeratorStack[_enumeratorCount - 1];
         }
     }
 
@@ -105,7 +105,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         if (chunk.ParameterCount == 0)
         {
@@ -152,7 +152,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 1);
         Arguments = fiber.RentArguments(len);
@@ -192,7 +192,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 2);
         Arguments = fiber.RentArguments(len);
@@ -233,7 +233,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 3);
         Arguments = fiber.RentArguments(len);
@@ -275,7 +275,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 4);
         Arguments = fiber.RentArguments(len);
@@ -318,7 +318,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         var paramCount = chunk.ParameterCount;
         if (paramCount == 0 && argumentCount == 0)
@@ -368,7 +368,7 @@ public sealed record ScriptStackFrame : StackFrame
         PreviousOpCodeIP = 0;
         _extraArguments = null;
         _blockProtectorStack?.Clear();
-        _collectionEnumerators?.Clear();
+        ClearEnumerators();
 
         if (chunk.ParameterCount == 0 && args.Length == 0)
         {
@@ -615,20 +615,51 @@ public sealed record ScriptStackFrame : StackFrame
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void PushEnumerator(Table table)
     {
-        _collectionEnumerators ??= new();
-        _collectionEnumerators.Push(table.GetEnumerator());
+        EnsureEnumeratorCapacity();
+        _enumeratorStack![_enumeratorCount++] = new ValueEnumerator(table);
     }
         
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void PushEnumerator(EvilArray array)
     {
-        _collectionEnumerators ??= new();
-        _collectionEnumerators.Push(array.GetEnumerator());
+        EnsureEnumeratorCapacity();
+        _enumeratorStack![_enumeratorCount++] = new ValueEnumerator(array);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void PopEnumerator()
-        => _collectionEnumerators?.Pop();
+    {
+        if (_enumeratorCount > 0)
+        {
+            _enumeratorCount--;
+            _enumeratorStack![_enumeratorCount].Dispose();
+            _enumeratorStack![_enumeratorCount] = default(ValueEnumerator);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void EnsureEnumeratorCapacity()
+    {
+        if (_enumeratorStack == null)
+        {
+            _enumeratorStack = new ValueEnumerator[4];
+        }
+        else if (_enumeratorCount >= _enumeratorStack.Length)
+        {
+            Array.Resize(ref _enumeratorStack, _enumeratorStack.Length * 2);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void ClearEnumerators()
+    {
+        while (_enumeratorCount > 0)
+        {
+            _enumeratorCount--;
+            _enumeratorStack![_enumeratorCount] = default(ValueEnumerator);
+            _enumeratorStack![_enumeratorCount].Dispose();
+        }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal OpCode PeekOpCode()

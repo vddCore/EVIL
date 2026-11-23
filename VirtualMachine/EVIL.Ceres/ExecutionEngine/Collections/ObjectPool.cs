@@ -11,16 +11,25 @@ public sealed class ObjectPool<T> where T : class
 
     public ObjectPool(Func<T> objectGenerator, int maxSize = 50)
     {
-        _objectGenerator = objectGenerator ?? throw new ArgumentNullException(nameof(objectGenerator));
+        _objectGenerator = objectGenerator ?? throw new ArgumentNullException(
+            nameof(objectGenerator)
+        );
+        
         _maxSize = maxSize;
-        _objects = new ConcurrentBag<T>();
+        _objects = [];
     }
 
-    public T Get() => _objects.TryTake(out T? item) ? item : _objectGenerator();
+    public T Get() => _objects.TryTake(out T? item) 
+        ? item 
+        : _objectGenerator();
 
     public void Return(T item)
     {
-        if (item == null) throw new ArgumentNullException(nameof(item));
+        if (item == null)
+        {
+            throw new ArgumentNullException(nameof(item));
+        }
+        
         if (_objects.Count < _maxSize)
         {
             _objects.Add(item);
