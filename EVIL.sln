@@ -60,6 +60,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Syntax", "Syntax", "{FD2371
 		Docs\Syntax\README.md = Docs\Syntax\README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{2CF20A87-FD43-4776-A17F-737BC82C8B63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EVIL.Ceres.SchedulerBenchmarks", "VirtualMachine\Benchmarks\EVIL.Ceres.SchedulerBenchmarks\EVIL.Ceres.SchedulerBenchmarks.csproj", "{4666E70C-A03B-4FBB-8F2B-4A5B29F3CDF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +130,10 @@ Global
 		{D7B30777-FBB8-4323-BC72-4035A233E7EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7B30777-FBB8-4323-BC72-4035A233E7EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7B30777-FBB8-4323-BC72-4035A233E7EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4666E70C-A03B-4FBB-8F2B-4A5B29F3CDF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4666E70C-A03B-4FBB-8F2B-4A5B29F3CDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4666E70C-A03B-4FBB-8F2B-4A5B29F3CDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4666E70C-A03B-4FBB-8F2B-4A5B29F3CDF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,5 +161,7 @@ Global
 		{834AD06C-519F-4DA3-9CFD-45556606FD34} = {24C79A7F-AD81-452E-84F1-F47CBBBC1D3B}
 		{D7B30777-FBB8-4323-BC72-4035A233E7EE} = {24C79A7F-AD81-452E-84F1-F47CBBBC1D3B}
 		{FD2371A9-C735-4A5E-B91E-220F8E3835D3} = {F12F3290-6350-44AC-9A28-FAFCB371BAC0}
+		{2CF20A87-FD43-4776-A17F-737BC82C8B63} = {F5F839A9-37E0-4339-BF6B-F21ACCAEB87F}
+		{4666E70C-A03B-4FBB-8F2B-4A5B29F3CDF9} = {2CF20A87-FD43-4776-A17F-737BC82C8B63}
 	EndGlobalSection
 EndGlobal
