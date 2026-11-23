@@ -2,6 +2,7 @@ namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Diagnostics;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 using EVIL.Grammar.AST.Statements;
 
@@ -17,53 +18,84 @@ public partial class Compiler
             if (decrementationExpression.Parent is ExpressionStatement)
             {
                 Chunk.CodeGenerator.Emit(OpCode.DEC);
-                EmitVarSet(vre.Identifier);
             }
             else if (decrementationExpression.IsPrefix)
             {
                 Chunk.CodeGenerator.Emit(OpCode.DEC);
                 Chunk.CodeGenerator.Emit(OpCode.DUP);
-                EmitVarSet(vre.Identifier);
             }
             else
             {
                 Chunk.CodeGenerator.Emit(OpCode.DUP);
                 Chunk.CodeGenerator.Emit(OpCode.DEC);
-                EmitVarSet(vre.Identifier);
             }
+            EmitVarSet(vre.Identifier);
         }
         else if (decrementationExpression.Target is IndexerExpression ie)
         {
-            var tempTarget = Chunk.AllocateLocal();
-            var tempKey = Chunk.AllocateLocal();
-
-            Visit(ie.Indexable);
-            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempTarget);
-            Visit(ie.KeyExpression);
-            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempKey);
-
-            Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
-            Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
-            Chunk.CodeGenerator.Emit(ie.CreateTableIfNonExistent ? OpCode.INOCT : OpCode.INDEX);
-
-            if (decrementationExpression.Parent is ExpressionStatement)
+            if (!ie.CreateTableIfNonExistent 
+                && ie.KeyExpression is StringConstant { IsInterpolated: false } sc)
             {
-                Chunk.CodeGenerator.Emit(OpCode.DEC);
-            }
-            else if (decrementationExpression.IsPrefix)
-            {
-                Chunk.CodeGenerator.Emit(OpCode.DEC);
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
+                var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
+                var tempTarget = Chunk.AllocateLocal();
+
+                Visit(ie.Indexable);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempTarget);
+
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.EmitGetProp(strId);
+
+                if (decrementationExpression.Parent is ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                }
+                else if (decrementationExpression.IsPrefix)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
+                else
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                }
+
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.EmitSetProp(strId);
             }
             else
             {
-                Chunk.CodeGenerator.Emit(OpCode.DUP);
-                Chunk.CodeGenerator.Emit(OpCode.DEC);
-            }
+                var tempTarget = Chunk.AllocateLocal();
+                var tempKey = Chunk.AllocateLocal();
 
-            Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
-            Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
-            Chunk.CodeGenerator.Emit(OpCode.ELSET);
+                Visit(ie.Indexable);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempTarget);
+                Visit(ie.KeyExpression);
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, tempKey);
+
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
+                Chunk.CodeGenerator.Emit(ie.CreateTableIfNonExistent ? OpCode.INOCT : OpCode.INDEX);
+
+                if (decrementationExpression.Parent is ExpressionStatement)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                }
+                else if (decrementationExpression.IsPrefix)
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                }
+                else
+                {
+                    Chunk.CodeGenerator.Emit(OpCode.DUP);
+                    Chunk.CodeGenerator.Emit(OpCode.DEC);
+                }
+
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempTarget);
+                Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, tempKey);
+                Chunk.CodeGenerator.Emit(OpCode.ELSET);
+            }
         }
         else
         {

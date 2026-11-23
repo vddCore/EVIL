@@ -73,15 +73,12 @@ public sealed class CodeGenerator : IDisposable
         _opCodeAddresses.Push(IP);
         _writer.Write((byte)value);
 
-        if (value is OpCode.JUMP or OpCode.FJMP or OpCode.TJMP or OpCode.VJMP or OpCode.NJMP)
-        {
-            _nextOperandIsJumpFixup = true;
-        }
-        else
-        {
-            _nextOperandIsJumpFixup = false;
-        }
-
+        _nextOperandIsJumpFixup = value is OpCode.JUMP 
+                                        or OpCode.FJMP
+                                        or OpCode.TJMP 
+                                        or OpCode.VJMP
+                                        or OpCode.NJMP;
+        
         OpCodeEmitted?.Invoke(_opCodeAddresses.Peek(), value);
     }
 
@@ -107,7 +104,7 @@ public sealed class CodeGenerator : IDisposable
         {
             Emit(OpCode.LDONE);
         }
-        else if (value >= sbyte.MinValue && value <= sbyte.MaxValue && Math.Truncate(value) == value && !(value == 0.0 && double.IsNegative(value)))
+        else if (value is >= sbyte.MinValue and <= sbyte.MaxValue && Math.Truncate(value) == value && !(value == 0.0 && double.IsNegative(value)))
         {
             Emit(OpCode.LDNUM_I8, (byte)(sbyte)value);
         }
@@ -152,6 +149,14 @@ public sealed class CodeGenerator : IDisposable
                 EmitSetClosure(operand);
                 return;
             
+            case OpCode.GETPROP:
+                EmitGetProp(operand);
+                return;
+
+            case OpCode.SETPROP:
+                EmitSetProp(operand);
+                return;
+
             case OpCode.LDTYPE:
                 Emit(OpCode.LDTYPE, (byte)operand);
                 return;
@@ -315,6 +320,39 @@ public sealed class CodeGenerator : IDisposable
                 break;
             }
         }
+    }
+        
+    public void EmitGetProp(int operand)
+    {
+        if ((uint)operand <= byte.MaxValue)
+        {
+            Emit(OpCode.GETPROP_B, (byte)operand);
+        }
+        else
+        {
+            Emit(OpCode.GETPROP);
+            Emit(operand);
+        }
+    }
+
+    public void EmitSetProp(int operand)
+    {
+        if ((uint)operand <= byte.MaxValue)
+        {
+            Emit(OpCode.SETPROP_B, (byte)operand);
+        }
+        else
+        {
+            Emit(OpCode.SETPROP);
+            Emit(operand);
+        }
+    }
+
+    public void Emit(OpCode value, int operand1, int operand2)
+    {
+        Emit(value);
+        Emit(operand1);
+        Emit(operand2);
     }
         
     public void Emit(OpCode value, byte operand)

@@ -1349,10 +1349,172 @@ internal class ExecutionUnit
                     break;
                 }
 
+                case OpCode.GETPROP_B:
+                case OpCode.GETPROP:
+                {
+                    var strId = opCode == OpCode.GETPROP_B 
+                        ? frame.FetchByte() 
+                        : frame.FetchInt32();
+                    
+                    var key = frame.Chunk.StringPool.GetDynamicValue(strId);
+                    c = PopValue(); // target
+
+                    switch (c.Type)
+                    {
+                        case DynamicValueType.String:
+                        {
+                            c = _global.Index("str");
+
+                            if (c.Type != DynamicValueType.Table)
+                            {
+                                throw new UnsupportedDynamicValueOperationException(
+                                    "Attempt to index a String using a String, but no `str' support table found."
+                                );
+                            }
+
+                            break;
+                        }
+
+                        case DynamicValueType.Array:
+                        {
+                            c = _global.Index("arr");
+
+                            if (c.Type != DynamicValueType.Table)
+                            {
+                                throw new UnsupportedDynamicValueOperationException(
+                                    "Attempt to index an Array using a String, but no `arr' support table found."
+                                );
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if (c.Type == DynamicValueType.Table)
+                    {
+                        var tbl = c.Table!;
+                        if (tbl.TryGetValue(key, out var val))
+                        {
+                            PushValue(val);
+                            break;
+                        }
+
+                        var mt = tbl.MetaTable;
+                        if (mt != null && (mt.MetamethodFlags & MetamethodFlags.Get) != 0 && mt.TryGetValue(Table.GetMetaKeyVal, out var value))
+                        {
+                            if (value.Type == DynamicValueType.Chunk)
+                            {
+                                InvokeChunk(
+                                    value.Chunk!,
+                                    c,
+                                    key
+                                );
+                                
+                                break;
+                            }
+
+                            if (value.Type == DynamicValueType.Table)
+                            {
+                                PushValue(
+                                    value.Table!.Index(key)
+                                );
+                                
+                                break;
+                            }
+                        }
+
+                        PushValue(DynamicValue.Nil);
+                        break;
+                    }
+
+                    PushValue(c.Index(key));
+                    break;
+                }
+
+                case OpCode.SETPROP_B:
+                case OpCode.SETPROP:
+                {
+                    var strId = opCode == OpCode.SETPROP_B 
+                        ? frame.FetchByte()
+                        : frame.FetchInt32();
+                    
+                    var key = frame.Chunk.StringPool.GetDynamicValue(strId);
+                    c = PopValue(); // table
+                    a = PopValue(); // value
+
+                    if (c.Type == DynamicValueType.Table)
+                    {
+                        if (FindMetaFunction(c.Table!, MetamethodFlags.Set, Table.SetMetaKeyVal, out var chunk))
+                        {
+                            InvokeChunk(chunk, c, key, a);
+                            break;
+                        }
+                    }
+
+                    c.SetEntry(key, a);
+                    break;
+                }
+
+                case OpCode.INVOKEMETHOD:
+                {
+                    var strId = frame.FetchInt32();
+                    var argumentCount = frame.FetchInt32();
+                    var key = frame.Chunk.StringPool.GetDynamicValue(strId);
+
+                    var args = PopArguments(argumentCount);
+                    var receiver = PopValue();
+
+                    var method = receiver.Index(key);
+                    if (method.Type == DynamicValueType.Chunk)
+                    {
+                        var callArgs = new DynamicValue[argumentCount + 1];
+                        callArgs[0] = receiver;
+                        
+                        Array.Copy(args, 0, callArgs, 1, argumentCount);
+                        InvokeChunk(method.Chunk!, callArgs);
+  
+                        break;
+                    }
+
+                    if (method.Type == DynamicValueType.NativeFunction)
+                    {
+                        var callArgs = new DynamicValue[argumentCount + 1];
+                        callArgs[0] = receiver;
+                        
+                        Array.Copy(args, 0, callArgs, 1, argumentCount);
+                        
+                        _callStack.Push(new NativeStackFrame(
+                            method.NativeFunction!
+                        ));
+                        
+                        _fiber.OnNativeFunctionInvoke?.Invoke(
+                            _fiber, 
+                            method.NativeFunction!
+                        );
+                        
+                        var value = method.NativeFunction!.Invoke(
+                            _fiber, 
+                            callArgs
+                        );
+                        
+                        if (_callStack.Peek() is NativeStackFrame)
+                        {
+                            PushValue(value);
+                            _callStack.Pop();
+                        }
+                        
+                        break;
+                    }
+
+                    throw new UnsupportedDynamicValueOperationException(
+                        $"Attempt to invoke method '{key.String}', but member is not a function."
+                    );
+                }
+
                 case OpCode.INOCT:
                 {
-                    a = PopValue(); // Key
-                    c = PopValue(); // Table
+                    a = PopValue(); // key
+                    c = PopValue(); // table
 
                     if (c.Type != DynamicValueType.Table)
                     {
@@ -1362,7 +1524,8 @@ internal class ExecutionUnit
                     }
 
                     var tbl = c.Table!;
-                    if (!tbl.TryGetValue(a, out var value) || value == DynamicValue.Nil)
+                    if (!tbl.TryGetValue(a, out var value) 
+                        || value == DynamicValue.Nil)
                     {
                         value = new Table();
                         tbl.Set(a, value);
@@ -1384,10 +1547,9 @@ internal class ExecutionUnit
                         );
                     }
 
-                    PushValue(
-                        isDeepClone
-                            ? a.Table!.DeepCopy()
-                            : a.Table!.ShallowCopy()
+                    PushValue(isDeepClone
+                        ? a.Table!.DeepCopy()
+                        : a.Table!.ShallowCopy()
                     );
 
                     break;
@@ -1568,12 +1730,6 @@ internal class ExecutionUnit
             if (_callStack.Count != currentDepth)
             {
                 frame = (_callStack.Peek() as ScriptStackFrame)!;
-
-                if (frame == null)
-                {
-                    return;
-                }
-
                 currentDepth = _callStack.Count;
             }
         }

@@ -40,7 +40,9 @@ public static class InstructionDecoder
                     RawBytes = raw,
                     Mnemonic = $"INVALID(0x{code[startIp]:X2})",
                     Operands = [],
-                    Line = chunk.HasDebugInfo ? chunk.DebugDatabase.GetLineForIP(startIp) : -1
+                    Line = chunk.HasDebugInfo 
+                        ? chunk.DebugDatabase.GetLineForIP(startIp) 
+                        : -1
                 });
             }
         }
@@ -82,22 +84,26 @@ public static class InstructionDecoder
             case OpCode.LDNUM:
             {
                 var num = reader.ReadDouble();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateDouble,
                     num,
                     num.ToString(CultureInfo.InvariantCulture)
                 ));
+                
                 break;
             }
 
             case OpCode.LDNUM_I8:
             {
                 var numI8 = (sbyte)reader.ReadByte();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateByte,
                     numI8,
                     numI8.ToString(CultureInfo.InvariantCulture)
                 ));
+                
                 break;
             }
 
@@ -105,6 +111,7 @@ public static class InstructionDecoder
             {
                 var strId = reader.ReadInt32();
                 string? strVal = null;
+                
                 if (strId >= 0 && strId < chunk.StringPool.Count)
                 {
                     strVal = chunk.StringPool[strId];
@@ -128,6 +135,7 @@ public static class InstructionDecoder
             {
                 var chunkId = reader.ReadInt32();
                 string? chunkName = null;
+                
                 if (chunkId >= 0 && chunkId < chunk.SubChunks.Count)
                 {
                     chunkName = chunk.SubChunks[chunkId].Name;
@@ -140,6 +148,7 @@ public static class InstructionDecoder
                     chunkId.ToString(),
                     chunkName
                 ));
+                
                 break;
             }
 
@@ -155,6 +164,7 @@ public static class InstructionDecoder
                     typeByte.ToString(),
                     dynamicType.ToString()
                 ));
+                
                 break;
             }
 
@@ -188,6 +198,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     localName
                 ));
+                
                 break;
             }
 
@@ -196,6 +207,7 @@ public static class InstructionDecoder
             {
                 int slot = reader.ReadByte();
                 string? localName = null;
+                
                 if (chunk.HasDebugInfo && chunk.DebugDatabase.TryGetLocalName(slot, out var name))
                 {
                     localName = name;
@@ -208,6 +220,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     localName
                 ));
+                
                 break;
             }
 
@@ -216,6 +229,7 @@ public static class InstructionDecoder
             {
                 var slot = reader.ReadInt32();
                 string? localName = null;
+                
                 if (chunk.HasDebugInfo && chunk.DebugDatabase.TryGetLocalName(slot, out var name))
                 {
                     localName = name;
@@ -228,6 +242,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     localName
                 ));
+                
                 break;
             }
 
@@ -266,6 +281,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     paramName
                 ));
+                
                 break;
             }
 
@@ -274,6 +290,7 @@ public static class InstructionDecoder
             {
                 int slot = reader.ReadByte();
                 string? paramName = null;
+                
                 if (chunk.HasDebugInfo && chunk.DebugDatabase.TryGetParameterName(slot, out var name))
                 {
                     paramName = name;
@@ -291,6 +308,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     paramName
                 ));
+                
                 break;
             }
 
@@ -299,6 +317,7 @@ public static class InstructionDecoder
             {
                 var slot = reader.ReadInt32();
                 string? paramName = null;
+                
                 if (chunk.HasDebugInfo && chunk.DebugDatabase.TryGetParameterName(slot, out var name))
                 {
                     paramName = name;
@@ -316,6 +335,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     paramName
                 ));
+                
                 break;
             }
 
@@ -343,6 +363,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     annotation
                 ));
+                
                 break;
             }
 
@@ -350,6 +371,7 @@ public static class InstructionDecoder
             case OpCode.SETCLOSURE_B:
             {
                 int slot = reader.ReadByte();
+                
                 annotation = GetClosureInfo(chunk, slot);
                 operands.Add(new InstructionOperand(
                     OperandKind.ClosureSlot,
@@ -357,6 +379,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     annotation
                 ));
+                
                 break;
             }
 
@@ -371,6 +394,7 @@ public static class InstructionDecoder
                     slot.ToString(),
                     annotation
                 ));
+                
                 break;
             }
 
@@ -394,6 +418,7 @@ public static class InstructionDecoder
                     $"0x{target:X8}",
                     $"L_{target:X4}"
                 ));
+                
                 break;
             }
 
@@ -413,6 +438,7 @@ public static class InstructionDecoder
                     isVariadic,
                     isVariadic == 1 ? "VARARGS" : "EXACT"
                 ));
+                
                 break;
             }
 
@@ -445,20 +471,32 @@ public static class InstructionDecoder
                         case DynamicValueType.Nil:
                             valStr = "nil";
                             break;
+                        
                         case DynamicValueType.Boolean:
-                            valStr = reader.ReadBoolean().ToString().ToLowerInvariant();
+                            valStr = reader.ReadBoolean()
+                                           .ToString()
+                                           .ToLowerInvariant();
                             break;
+                        
                         case DynamicValueType.Number:
-                            valStr = reader.ReadDouble().ToString(CultureInfo.InvariantCulture);
+                            valStr = reader.ReadDouble()
+                                           .ToString(CultureInfo.InvariantCulture);
                             break;
+                        
                         case DynamicValueType.String:
                             var strId = reader.ReadInt32();
-                            var s = strId >= 0 && strId < chunk.StringPool.Count ? chunk.StringPool[strId] : null;
+                            
+                            var s = strId >= 0 && strId < chunk.StringPool.Count 
+                                ? chunk.StringPool[strId] 
+                                : null;
+                            
                             valStr = s != null ? Literalize(s) : "<null>";
                             break;
+                        
                         case DynamicValueType.TypeCode:
                             valStr = ((DynamicValueType)reader.ReadByte()).ToString();
                             break;
+                        
                         default:
                             valStr = $"<{type}>";
                             break;
@@ -480,55 +518,65 @@ public static class InstructionDecoder
             case OpCode.XARGS:
             {
                 var mode = reader.ReadByte();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateByte,
                     mode,
                     mode == 0 ? "ARRAY" : "UNPACKED"
                 ));
+                
                 break;
             }
 
             case OpCode.TABCLN:
             {
                 var isDeep = reader.ReadByte();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateByte,
                     isDeep,
                     isDeep == 1 ? "DEEP" : "SHALLOW"
                 ));
+                
                 break;
             }
 
             case OpCode.YIELD:
             {
                 var count = reader.ReadInt32();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateInt32,
                     count,
                     count.ToString()
                 ));
+                
                 break;
             }
 
             case OpCode.NEXT:
             {
                 var isKeyValue = reader.ReadInt32();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateInt32,
                     isKeyValue,
                     isKeyValue != 0 ? "KEY_VALUE" : "VALUE_ONLY"
                 ));
+                
                 break;
             }
 
             case OpCode.ENTER:
             {
                 var blockId = reader.ReadInt32();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ProtectedBlockId,
                     blockId,
                     blockId.ToString()
                 ));
+                
                 break;
             }
 
@@ -537,11 +585,97 @@ public static class InstructionDecoder
             case OpCode.STRCAT:
             {
                 var count = reader.ReadInt32();
+                
                 operands.Add(new InstructionOperand(
                     OperandKind.ImmediateInt32,
                     count,
                     count.ToString()
                 ));
+                
+                break;
+            }
+
+            case OpCode.GETPROP_B:
+            case OpCode.SETPROP_B:
+            {
+                var strId = (int)reader.ReadByte();
+                string? strVal = null;
+                
+                if (strId >= 0 && strId < chunk.StringPool.Count)
+                {
+                    strVal = chunk.StringPool[strId];
+                    annotation = strVal != null ? Literalize(strVal) : "<null>";
+                }
+                else
+                {
+                    annotation = "<???>";
+                }
+
+                operands.Add(new InstructionOperand(
+                    OperandKind.StringPoolIndex,
+                    strId,
+                    strId.ToString(),
+                    strVal
+                ));
+                
+                break;
+            }
+
+            case OpCode.GETPROP:
+            case OpCode.SETPROP:
+            {
+                var strId = reader.ReadInt32();
+                string? strVal = null;
+                
+                if (strId >= 0 && strId < chunk.StringPool.Count)
+                {
+                    strVal = chunk.StringPool[strId];
+                    annotation = strVal != null ? Literalize(strVal) : "<null>";
+                }
+                else
+                {
+                    annotation = "<???>";
+                }
+
+                operands.Add(new InstructionOperand(
+                    OperandKind.StringPoolIndex,
+                    strId,
+                    strId.ToString(),
+                    strVal
+                ));
+                
+                break;
+            }
+
+            case OpCode.INVOKEMETHOD:
+            {
+                var strId = reader.ReadInt32();
+                var argCount = reader.ReadInt32();
+                string? strVal = null;
+                
+                if (strId >= 0 && strId < chunk.StringPool.Count)
+                {
+                    strVal = chunk.StringPool[strId];
+                    annotation = $"method {Literalize(strVal ?? string.Empty)} with {argCount} args";
+                }
+                else
+                {
+                    annotation = "<???>";
+                }
+
+                operands.Add(new InstructionOperand(
+                    OperandKind.StringPoolIndex,
+                    strId,
+                    strId.ToString(),
+                    strVal
+                ));
+                
+                operands.Add(new InstructionOperand(
+                    OperandKind.ImmediateInt32,
+                    argCount,
+                    argCount.ToString()
+                ));
+                
                 break;
             }
         }
@@ -552,6 +686,7 @@ public static class InstructionDecoder
 
         StatementDebugRecord? stmt = null;
         var line = -1;
+        
         if (chunk.HasDebugInfo)
         {
             chunk.DebugDatabase.TryGetStatementAtIP(startIp, out stmt);

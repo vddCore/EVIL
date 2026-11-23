@@ -20,7 +20,6 @@ public partial class Compiler
                     invocationExpression.ArgumentList.Arguments.Count
                 );
 
-                Chunk.CodeGenerator.Emit(OpCode.YRET);
                 break;
             }
 
@@ -39,15 +38,13 @@ public partial class Compiler
                     selfInvocationExpression.Identifier.Name
                 );
             
-                Chunk.CodeGenerator.Emit(OpCode.LDSTR, (int)identifierNameId);
-                Chunk.CodeGenerator.Emit(OpCode.INDEX);
+                Chunk.CodeGenerator.EmitGetProp((int)identifierNameId);
             
                 Chunk.CodeGenerator.Emit(
                     OpCode.YIELD,
                     selfInvocationExpression.ArgumentList.Arguments.Count + 1 /* Implicit `self' */
                 );
 
-                Chunk.CodeGenerator.Emit(OpCode.YRET);
                 break;
             }
 
@@ -56,5 +53,7 @@ public partial class Compiler
                     $"Unsupported yield invocation type: {yieldExpression.Invocation.GetType().FullName}"
                 );
         }
+
+        Chunk.CodeGenerator.Emit(OpCode.YRET);
     }
 }

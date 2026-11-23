@@ -3,6 +3,7 @@
 using System.Linq;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Diagnostics;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Statements;
 
 public partial class Compiler
@@ -46,7 +47,14 @@ public partial class Compiler
             Log.Report(
                 CompilerDiagnostics.FnIndexedStatementRedefinedExistingChunk.Create(
                     GetLocation(fnIndexedStatement),
-                    [new RelatedLocation(new SourceLocation(replacedChunk.DebugDatabase.DefinedInFile, replacedChunk.DebugDatabase.DefinedOnLine, 1), "Previously defined here")],
+                    [new RelatedLocation(
+                        new SourceLocation(
+                            replacedChunk.DebugDatabase.DefinedInFile,
+                            replacedChunk.DebugDatabase.DefinedOnLine, 
+                            1
+                        ), 
+                        "Previously defined here"
+                    )],
                     replacedChunk.Name,
                     fnIndexedStatement.Line,
                     replacedChunk.DebugDatabase.DefinedInFile,
@@ -61,8 +69,17 @@ public partial class Compiler
         );
 
         Visit(fnIndexedStatement.Indexer.Indexable);
-        Visit(fnIndexedStatement.Indexer.KeyExpression);
-            
-        Chunk.CodeGenerator.Emit(OpCode.ELSET);
+
+        if (!fnIndexedStatement.Indexer.CreateTableIfNonExistent
+            && fnIndexedStatement.Indexer.KeyExpression is StringConstant { IsInterpolated: false } sc)
+        {
+            var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
+            Chunk.CodeGenerator.EmitSetProp(strId);
+        }
+        else
+        {
+            Visit(fnIndexedStatement.Indexer.KeyExpression);
+            Chunk.CodeGenerator.Emit(OpCode.ELSET);
+        }
     }
 }

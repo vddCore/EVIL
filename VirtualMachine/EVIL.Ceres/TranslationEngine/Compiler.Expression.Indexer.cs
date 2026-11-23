@@ -1,6 +1,7 @@
 namespace EVIL.Ceres.TranslationEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
+using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Expressions;
 
 public partial class Compiler
@@ -30,26 +31,44 @@ public partial class Compiler
             Chunk.CodeGenerator.Emit(OpCode.VJMP, indexLabel);
             Chunk.CodeGenerator.Emit(OpCode.JUMP, endIndexerLabel);
             Chunk.UpdateLabel(indexLabel, Chunk.CodeGenerator.IP);
-            Visit(indexerExpression.KeyExpression);
-            
-            Chunk.CodeGenerator.Emit(
-                indexerExpression.CreateTableIfNonExistent 
-                    ? OpCode.INOCT 
-                    : OpCode.INDEX
-            );
+
+            if (!indexerExpression.CreateTableIfNonExistent 
+                && indexerExpression.KeyExpression is StringConstant { IsInterpolated: false } sc)
+            {
+                var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
+                Chunk.CodeGenerator.EmitGetProp(strId);
+            }
+            else
+            {
+                Visit(indexerExpression.KeyExpression);
+                Chunk.CodeGenerator.Emit(
+                    indexerExpression.CreateTableIfNonExistent 
+                        ? OpCode.INOCT 
+                        : OpCode.INDEX
+                );
+            }
             
             Chunk.UpdateLabel(endIndexerLabel, Chunk.CodeGenerator.IP);
         }
         else
         {
             Visit(indexerExpression.Indexable);
-            Visit(indexerExpression.KeyExpression);
-            
-            Chunk.CodeGenerator.Emit(
-                indexerExpression.CreateTableIfNonExistent 
-                    ? OpCode.INOCT 
-                    : OpCode.INDEX
-            );
+
+            if (!indexerExpression.CreateTableIfNonExistent
+                && indexerExpression.KeyExpression is StringConstant { IsInterpolated: false } sc)
+            {
+                var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
+                Chunk.CodeGenerator.EmitGetProp(strId);
+            }
+            else
+            {
+                Visit(indexerExpression.KeyExpression);
+                Chunk.CodeGenerator.Emit(
+                    indexerExpression.CreateTableIfNonExistent 
+                        ? OpCode.INOCT 
+                        : OpCode.INDEX
+                );
+            }
         }
     }
 }

@@ -32,6 +32,7 @@ public enum OpCode : byte
     DEC,
     INVOKE,
     TAILINVOKE,
+    INVOKEMETHOD,
     SWITCH,
     SETGLOBAL,
     GETGLOBAL,
@@ -100,6 +101,10 @@ public enum OpCode : byte
     TABINIT,
     ELINIT,
     ELSET,
+    SETPROP,
+    SETPROP_B,
+    GETPROP,
+    GETPROP_B,
     INDEX,
     INOCT,
     TABCLN,
@@ -112,5 +117,5 @@ public enum OpCode : byte
     ENTER,
     THROW,
     LEAVE,
-    ERRNEW
+    ERRNEW,
 }

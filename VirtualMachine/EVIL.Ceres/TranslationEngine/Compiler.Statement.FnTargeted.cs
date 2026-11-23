@@ -56,7 +56,7 @@ public partial class Compiler
                 {
                     Chunk.DebugDatabase.DefinedOnLine = fnTargetedStatement.Line;
                     Chunk.MarkSelfAware();
-                    /* implicit `self' */ Chunk.AllocateParameter();
+                    Chunk.AllocateParameter(); /* implicit `self' */ 
 
                     if (fnTargetedStatement.ParameterList != null)
                     {
@@ -79,7 +79,14 @@ public partial class Compiler
             Log.Report(
                 CompilerDiagnostics.FnTargetedStatementRedefinedExistingChunk.Create(
                     GetLocation(fnTargetedStatement),
-                    [new RelatedLocation(new SourceLocation(replacedChunk.DebugDatabase.DefinedInFile, replacedChunk.DebugDatabase.DefinedOnLine, 1), "Previously defined here")],
+                    [new RelatedLocation(
+                        new SourceLocation(
+                            replacedChunk.DebugDatabase.DefinedInFile, 
+                            replacedChunk.DebugDatabase.DefinedOnLine,
+                            1
+                        ), 
+                        "Previously defined here"
+                    )],
                     replacedChunk.Name,
                     fnTargetedStatement.Line,
                     replacedChunk.DebugDatabase.DefinedInFile,
@@ -102,11 +109,10 @@ public partial class Compiler
             EmitVarGet(primaryName);
         }
             
-        Chunk.CodeGenerator.Emit(
-            OpCode.LDSTR,
-            (int)Chunk.StringPool.FetchOrAdd(fnTargetedStatement.SecondaryIdentifier.Name)
+        var identifierNameId = (int)Chunk.StringPool.FetchOrAdd(
+            fnTargetedStatement.SecondaryIdentifier.Name
         );
-            
-        Chunk.CodeGenerator.Emit(OpCode.ELSET);
+        
+        Chunk.CodeGenerator.EmitSetProp(identifierNameId);
     }
 }

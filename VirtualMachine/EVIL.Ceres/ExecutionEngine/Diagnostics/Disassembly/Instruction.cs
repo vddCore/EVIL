@@ -29,7 +29,7 @@ public sealed class Instruction
                                    or OpCode.VJMP;
 
     public bool IsReturn => OpCode is OpCode.RET or OpCode.YRET;
-    public bool IsCall => OpCode is OpCode.INVOKE or OpCode.TAILINVOKE;
+    public bool IsCall => OpCode is OpCode.INVOKE or OpCode.TAILINVOKE or OpCode.INVOKEMETHOD;
     public bool IsThrow => OpCode is OpCode.THROW;
     public bool IsYield => OpCode is OpCode.YIELD;
 

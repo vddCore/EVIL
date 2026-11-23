@@ -2,6 +2,7 @@ namespace EVIL.Ceres.RuntimeTests;
 
 using System;
 using System.Collections.Generic;
+using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
@@ -813,7 +814,7 @@ public class OptimizationTests : TestBase
     [Test]
     public void Table_TryGetValue_DenseIntegerAndHashKeys_RetrievesValuesCorrectly()
     {
-        var table = new ExecutionEngine.Collections.Table();
+        var table = new Table();
         table.Set(0, 100);
         table.Set(1, 200);
         table.Set("name", "Ceres");
@@ -840,7 +841,7 @@ public class OptimizationTests : TestBase
     [Test]
     public void Table_TryGetValue_SetToNil_ReturnsFalse()
     {
-        var table = new ExecutionEngine.Collections.Table();
+        var table = new Table();
         table.Set("key", "value");
         using (Assert.EnterMultipleScope())
         {
@@ -906,42 +907,39 @@ public class OptimizationTests : TestBase
     [Test]
     public void Table_MetamethodFlags_TracksAdditionRemovalAndClear()
     {
-        var table = new ExecutionEngine.Collections.Table();
-        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.None));
+        var table = new Table();
+        Assert.That(table.MetamethodFlags, Is.EqualTo(MetamethodFlags.None));
 
-        table.Set(ExecutionEngine.Collections.Table.AddMetaKey, 1);
-        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.Add));
+        table.Set(Table.AddMetaKey, 1);
+        Assert.That(table.MetamethodFlags, Is.EqualTo(MetamethodFlags.Add));
 
-        table.Set(ExecutionEngine.Collections.Table.ToStringMetaKey, 2);
+        table.Set(Table.ToStringMetaKey, 2);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(table.MetamethodFlags.HasFlag(ExecutionEngine.Collections.MetamethodFlags.Add), Is.True);
-            Assert.That(table.MetamethodFlags.HasFlag(ExecutionEngine.Collections.MetamethodFlags.ToStr), Is.True);
+            Assert.That(table.MetamethodFlags.HasFlag(MetamethodFlags.Add), Is.True);
+            Assert.That(table.MetamethodFlags.HasFlag(MetamethodFlags.ToStr), Is.True);
         }
 
-        // Setting non-metamethod property should not affect flags
         table.Set("customProp", 42);
-        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.Add | ExecutionEngine.Collections.MetamethodFlags.ToStr));
+        Assert.That(table.MetamethodFlags, Is.EqualTo(MetamethodFlags.Add | MetamethodFlags.ToStr));
 
-        // Setting metamethod to nil should clear the flag
-        table.Set(ExecutionEngine.Collections.Table.AddMetaKey, DynamicValue.Nil);
-        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.ToStr));
+        table.Set(Table.AddMetaKey, DynamicValue.Nil);
+        Assert.That(table.MetamethodFlags, Is.EqualTo(MetamethodFlags.ToStr));
 
-        // Clear should reset all flags
         table.Clear();
-        Assert.That(table.MetamethodFlags, Is.EqualTo(ExecutionEngine.Collections.MetamethodFlags.None));
+        Assert.That(table.MetamethodFlags, Is.EqualTo(MetamethodFlags.None));
     }
 
     [Test]
     public void Table_MetamethodFlags_PreservedAcrossCopies()
     {
-        var original = new ExecutionEngine.Collections.Table();
-        original.Set(ExecutionEngine.Collections.Table.MultiplyMetaKey, 1);
-        original.Set(ExecutionEngine.Collections.Table.InvokeMetaKey, 2);
+        var original = new Table();
+        original.Set(Table.MultiplyMetaKey, 1);
+        original.Set(Table.InvokeMetaKey, 2);
 
         var shallow = original.ShallowCopy();
         var deep = original.DeepCopy();
-        var ctorCopy = new ExecutionEngine.Collections.Table(original);
+        var ctorCopy = new Table(original);
 
         using (Assert.EnterMultipleScope())
         {
@@ -987,15 +985,13 @@ public class OptimizationTests : TestBase
     [Test]
     public void Table_LazyStorage_PureArrayAndEmptyTables_PreserveZeroHashPart()
     {
-        var table = new ExecutionEngine.Collections.Table();
+        var table = new Table();
         Assert.That(table.Length, Is.EqualTo(0));
 
-        // Reading non-existent keys must not instantiate hash part or fail
         Assert.That(table.TryGetValue("nonexistent", out var val), Is.False);
         Assert.That(val, Is.EqualTo(DynamicValue.Nil));
         Assert.That(table.Contains("nonexistent"), Is.False);
 
-        // Writing dense integer keys must populate array part only
         table.Set(0, 10);
         table.Set(1, 20);
         table.Set(2, 30);
@@ -1011,7 +1007,6 @@ public class OptimizationTests : TestBase
             Assert.That(v2.Number, Is.EqualTo(30.0));
         }
 
-        // Keys and Values arrays reflect array part elements
         var keys = table.GetKeys();
         var values = table.GetValues();
         using (Assert.EnterMultipleScope())
@@ -1023,11 +1018,9 @@ public class OptimizationTests : TestBase
             Assert.That(values[2].Number, Is.EqualTo(30.0));
         }
 
-        // Enumerator yields array elements
         var enumerated = new List<KeyValuePair<DynamicValue, DynamicValue>>(table);
         Assert.That(enumerated, Has.Count.EqualTo(3));
 
-        // Setting a string key lazily allocates hash part and integrates with Length
         table.Set("foo", "bar");
         using (Assert.EnterMultipleScope())
         {
@@ -1040,8 +1033,8 @@ public class OptimizationTests : TestBase
     [Test]
     public void Table_ScalableArrayPart_PowerOfTwoGrowthUpTo65536()
     {
-        var table = new ExecutionEngine.Collections.Table();
-        const int elementCount = 4096; // Exceeds old 1024 cap
+        var table = new Table();
+        const int elementCount = 4096;
 
         for (var i = 0; i < elementCount; i++)
         {
@@ -1056,7 +1049,6 @@ public class OptimizationTests : TestBase
             Assert.That(v.Number, Is.EqualTo(i * 3.0));
         }
 
-        // Setting to Nil decreases count and retains correct remaining elements
         table.Set(100, DynamicValue.Nil);
         using (Assert.EnterMultipleScope())
         {
@@ -1071,7 +1063,7 @@ public class OptimizationTests : TestBase
     public void Table_MemoryFootprint_EmptyTables_SignificantReduction()
     {
         const int tableCount = 100_000;
-        var tables = new ExecutionEngine.Collections.Table[tableCount];
+        var tables = new Table[tableCount];
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
@@ -1080,18 +1072,140 @@ public class OptimizationTests : TestBase
 
         for (var i = 0; i < tableCount; i++)
         {
-            tables[i] = new ExecutionEngine.Collections.Table();
+            tables[i] = new Table();
         }
 
         var memAfter = GC.GetTotalMemory(false);
         var bytesUsed = memAfter - memBefore;
 
-        // GC.KeepAlive to ensure tables array is not collected prematurely
         GC.KeepAlive(tables);
-
-        // Before Phase 3, 100k tables took ~30-35 MB due to eager Dictionary allocation.
-        // With lazy storage, 100k empty Table instances take < 10 MB (typically ~4.8 - 6 MB).
+        
+        // lazy storage yay.
         Assert.That(bytesUsed, Is.LessThan(12 * 1024 * 1024), $"Used {bytesUsed / (1024.0 * 1024.0):F2} MB");
+    }
+
+    [Test]
+    public void Table_BytecodeSpecialization_GetPropAndSetProp_EmittedAndExecuted()
+    {
+        var script = """
+            fn test() {
+                val point = { x: 10, y: 20 };
+                point.x = 42;
+                point.y += 8;
+                ret point.x + point.y;
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "getprop_setprop_test");
+        var testChunk = chunk["test"]!;
+
+        var sw = new System.IO.StringWriter();
+        Disassembler.Disassemble(testChunk, sw);
+        var disasm = sw.ToString();
+
+        Assert.That(disasm, Does.Contain("GETPROP_B").Or.Contain("GETPROP"));
+        Assert.That(disasm, Does.Contain("SETPROP_B").Or.Contain("SETPROP"));
+
+        var disassembly = InstructionDecoder.Decode(testChunk);
+        var getPropInstr = System.Linq.Enumerable.FirstOrDefault(disassembly.Instructions, i => i.OpCode is OpCode.GETPROP_B or OpCode.GETPROP);
+        Assert.That(getPropInstr, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(getPropInstr!.Operands, Has.Count.EqualTo(1));
+            Assert.That(getPropInstr.Operands[0].Kind, Is.EqualTo(OperandKind.StringPoolIndex));
+        }
+
+        var setPropInstr = System.Linq.Enumerable.FirstOrDefault(disassembly.Instructions, i => i.OpCode is OpCode.SETPROP_B or OpCode.SETPROP);
+        Assert.That(setPropInstr, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(setPropInstr!.Operands, Has.Count.EqualTo(1));
+            Assert.That(setPropInstr.Operands[0].Kind, Is.EqualTo(OperandKind.StringPoolIndex));
+        }
+
+        var result = EvilTestResult(script);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(70.0));
+        }
+    }
+
+    [Test]
+    public void Table_BytecodeSpecialization_SelfInvocation_EmitsGetProp()
+    {
+        var script = """
+            fn test() {
+                val calculator = {
+                    baseVal: 100,
+                    add: fn(self, amount) {
+                        ret self.baseVal + amount;
+                    }
+                };
+                ret calculator:add(50);
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "self_inv_test");
+        var testChunk = chunk["test"]!;
+
+        var sw = new System.IO.StringWriter();
+        Disassembler.Disassemble(testChunk, sw);
+        var disasm = sw.ToString();
+
+        Assert.That(disasm, Does.Contain("GETPROP_B").Or.Contain("GETPROP"));
+
+        var result = EvilTestResult(script);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(150.0));
+        }
+    }
+
+    [Test]
+    public void Table_BytecodeSpecialization_MetatableInterception_Preserved()
+    {
+        var script = """
+            fn test(t) {
+                ret t.customProp;
+            }
+            """;
+
+        var mt = new Table();
+        var handlerChunk = Compiler.Compile("fn get_handler(t, k) -> 999;", "handler_chunk");
+        mt.Set(Table.GetMetaKeyVal, handlerChunk["get_handler"]!);
+
+        var t = new Table
+        {
+            MetaTable = mt
+        };
+
+        var result = EvilTestResult(script, t);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Number));
+            Assert.That(result.Number, Is.EqualTo(999.0));
+        }
+    }
+
+    [Test]
+    public void StringPool_GetDynamicValue_PreInternsAndCachesEntries()
+    {
+        var pool = new StringPool(["first", "second", "third"]);
+        var v0 = pool.GetDynamicValue(0);
+        var v1 = pool.GetDynamicValue(1);
+        var v0Again = pool.GetDynamicValue(0);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(v0.Type, Is.EqualTo(DynamicValueType.String));
+            Assert.That(v0.String, Is.EqualTo("first"));
+            Assert.That(v1.String, Is.EqualTo("second"));
+            Assert.That(v0.String, Is.SameAs(v0Again.String));
+            Assert.That(pool.GetDynamicValue(-1), Is.EqualTo(DynamicValue.Nil));
+            Assert.That(pool.GetDynamicValue(999), Is.EqualTo(DynamicValue.Nil));
+        }
     }
 
     [Test]
@@ -1236,7 +1350,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "num_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1402,7 +1516,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "locals_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1490,7 +1604,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "params_test");
         var workerChunk = chunk["worker"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = workerChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1579,7 +1693,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "closure_compact_test");
         var closureChunk = chunk["test"]!.SubChunks[0];
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = closureChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1697,7 +1811,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "fold_arithmetic_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1769,7 +1883,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "fold_string_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1848,7 +1962,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "fold_bitwise_bool_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -1943,7 +2057,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "fold_relational_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2028,7 +2142,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "fold_subexpr_test");
         var testChunk = chunk["test"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = testChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2104,7 +2218,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "by_switch_test");
         var matchChunk = chunk["match_fn"]!;
 
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         var reader = matchChunk.SpawnCodeReader();
         while (reader.IP < reader.Length)
         {
@@ -2325,7 +2439,7 @@ public class OptimizationTests : TestBase
         var chunk = Compiler.Compile(script, "by_fallback");
         var matchChunk = chunk["match_dynamic"]!;
         var reader = matchChunk.SpawnCodeReader();
-        var opcodes = new System.Collections.Generic.List<OpCode>();
+        var opcodes = new List<OpCode>();
         
         while (reader.IP < reader.Length)
         {
