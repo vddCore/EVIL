@@ -442,6 +442,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 
         if (_namedSubChunkLookup.TryGetValue(name, out var existingId))
         {
+            id = existingId;
             replacedChunk = _subChunks[existingId];
                 
             _subChunks[existingId] = chunk;
@@ -577,7 +578,9 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             IsSelfAware = IsSelfAware,
             IsSpecialName = IsSpecialName,
             MayThrow = MayThrow,
-            Upvalues = Upvalues != null ? (Upvalue[])Upvalues.Clone() : null,
+            Upvalues = Upvalues != null 
+                ? (Upvalue[])Upvalues.Clone() 
+                : null,
             _subChunks = _subChunks,
             _namedSubChunkLookup = _namedSubChunkLookup,
             _closures = _closures,
