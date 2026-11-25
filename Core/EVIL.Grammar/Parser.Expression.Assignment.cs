@@ -7,8 +7,8 @@ using EVIL.Lexical;
 
 public partial class Parser
 {
-    private static readonly List<TokenType> _assignmentOperators = new()
-    {
+    private static readonly List<TokenType> _assignmentOperators =
+    [
         TokenType.Assign,
         TokenType.AssignAdd,
         TokenType.AssignSubtract,
@@ -21,7 +21,7 @@ public partial class Parser
         TokenType.AssignShiftLeft,
         TokenType.AssignShiftRight,
         TokenType.AssignCoalesce
-    };
+    ];
 
     private Expression AssignmentExpression()
     {
@@ -30,6 +30,15 @@ public partial class Parser
             
         while (_assignmentOperators.Contains(token.Type))
         {
+            if (node is IndexerExpression { IsRange: true }
+                or IndexerExpression { IsFromEndIndex: true })
+            {
+                throw new ParserException(
+                    "Range and from-end indexers are not assignable.",
+                    (node.Line, node.Column)
+                );
+            }
+
             if (node.IsConstant)
             {
                 throw new ParserException(

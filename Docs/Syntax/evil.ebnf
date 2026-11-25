@@ -237,15 +237,23 @@ postfix_expression
 postfix_suffix
     = "(", [ argument_list ], ")"
     | "?(", [ argument_list ], ")"
-    | "[", assignment_expression, "]"
+    | "[", index_argument, "]"
     | ".", identifier
     | "?.", identifier
-    | "?[", assignment_expression, "]"
+    | "?[", index_argument, "]"
     | ":", identifier, "(", [ argument_list ], ")"
     | "?:", identifier, "(", [ argument_list ], ")"
     | "++"
     | "--"
     | "!" ;
+
+index_argument
+    = assignment_expression
+    | "#", assignment_expression
+    | [ range_bound ], "..", [ range_bound ] ;
+
+range_bound
+    = [ "#" ], assignment_expression ;
 
 argument_list
     = arg_item, { ",", arg_item }, [ "," ] ;

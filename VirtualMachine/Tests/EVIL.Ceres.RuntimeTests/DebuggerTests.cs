@@ -129,6 +129,45 @@ public class DebuggerTests
     }
 
     [Test]
+    public async Task Debugger_StepInstruction_CrossesSchedulerSliceBoundary()
+    {
+        const int instructionStepCount = 40;
+        var (vm, _, compiler) = CreateEnvironment();
+        var session = new DebuggerSession(vm);
+        var source = string.Join(
+            "\n",
+            Enumerable.Range(0, 48).Select(index => $"val value{index} = {index};")
+        );
+        var chunk = compiler.Compile(source, "test_step_instruction_slice.vil");
+        var instructionPointers = new List<int>();
+
+        session.OnStopped += (fiber, frame, reason) =>
+        {
+            instructionPointers.Add((int)frame.IP);
+            if (instructionPointers.Count < instructionStepCount)
+            {
+                session.StepInstruction();
+            }
+            else
+            {
+                session.Continue();
+            }
+        };
+
+        session.StepInstruction();
+        vm.Run();
+        vm.MainFiber.Schedule(chunk);
+        await vm.MainFiber.BlockUntilFinishedAsync();
+        vm.Stop();
+
+        instructionPointers.Count.ShouldBe(instructionStepCount);
+        for (var index = 1; index < instructionPointers.Count; index++)
+        {
+            instructionPointers[index].ShouldBeGreaterThan(instructionPointers[index - 1]);
+        }
+    }
+
+    [Test]
     public async Task Debugger_StepInto_DescendsIntoFunctionCall()
     {
         var (vm, _, compiler) = CreateEnvironment();

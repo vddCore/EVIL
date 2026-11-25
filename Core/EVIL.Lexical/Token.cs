@@ -69,6 +69,7 @@ public readonly struct Token(TokenType type, TokenClass @class, string value)
     public static readonly Token ShiftLeft = new(TokenType.ShiftLeft, TokenClass.Operator, "<<");
     public static readonly Token ShiftRight = new(TokenType.ShiftRight, TokenClass.Operator, ">>");
     public static readonly Token Ellipsis = new(TokenType.Ellipsis, TokenClass.Operator, "...");
+    public static readonly Token Range = new(TokenType.Range, TokenClass.Operator, "..");
     public static readonly Token Associate = new(TokenType.Associate, TokenClass.Operator, "=>");
     public static readonly Token RightArrow = new(TokenType.RightArrow, TokenClass.Operator, "->");
     public static readonly Token Decrement = new(TokenType.Decrement, TokenClass.Operator, "--");

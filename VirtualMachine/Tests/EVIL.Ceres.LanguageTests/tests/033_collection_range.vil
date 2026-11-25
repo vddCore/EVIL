@@ -1,0 +1,142 @@
+#[test]
+fn array_slice_bounds {
+  val values = [0, 1, 2, 3, 4];
+
+  val middle = values[1..4];
+  assert.is_of_type(middle, Array);
+  assert.equal(#middle, 3);
+  assert.equal(middle[0], 1);
+  assert.equal(middle[1], 2);
+  assert.equal(middle[2], 3);
+
+  val prefix = values[..3];
+  assert.equal(#prefix, 3);
+  assert.equal(prefix[2], 2);
+
+  val suffix = values[3..];
+  assert.equal(#suffix, 2);
+  assert.equal(suffix[0], 3);
+  assert.equal(suffix[1], 4);
+
+  assert.equal(#values[2..2], 0);
+  assert.equal(#values[#0..], 0);
+}
+
+#[test]
+fn array_slice_from_end {
+  val values = [0, 1, 2, 3, 4];
+
+  assert.equal(values[#-1], 4);
+  assert.equal(values[#-5], 0);
+
+  val without_last = values[..#-1];
+  assert.equal(#without_last, 4);
+  assert.equal(without_last[3], 3);
+
+  val last_two = values[#-2..#0];
+  assert.equal(#last_two, 2);
+  assert.equal(last_two[0], 3);
+  assert.equal(last_two[1], 4);
+}
+
+#[test]
+fn array_slice_is_a_shallow_copy {
+  val values = [{ value: 1 }, { value: 2 }];
+  val copy = values[..];
+
+  assert.is_of_type(copy, Array);
+  assert.equal(#copy, #values);
+  copy[0].value = 3;
+  assert.equal(values[0].value, 3);
+
+  copy[1] = { value: 4 };
+  assert.equal(values[1].value, 2);
+}
+
+#[test]
+fn string_slice_bounds {
+  val value = "range";
+
+  assert.equal(value[1..4], "ang");
+  assert.equal(value[..2], "ra");
+  assert.equal(value[2..], "nge");
+  assert.equal(value[#-1], "e");
+  assert.equal(value[..#-1], "rang");
+  assert.equal(value[..], "range");
+  assert.equal(value[2..2], "");
+  assert.equal(""[..], "");
+  assert.equal(#([][..]), 0);
+}
+
+#[test]
+fn collection_slice_rejects_invalid_bounds_and_receivers {
+  val values = [0, 1, 2, 3, 4];
+
+  assert.throws(fn -> values[-1..]);
+  assert.throws(fn -> values[..6]);
+  assert.throws(fn -> values[4..2]);
+  assert.throws(fn -> values[1.5..]);
+  assert.throws(fn -> values[..1.5]);
+  assert.throws(fn -> values[NaN..]);
+  assert.throws(fn -> values[Infinity..]);
+  assert.throws(fn -> values["one"..]);
+  assert.throws(fn -> values[#1]);
+  assert.throws(fn -> values[#-6]);
+  assert.throws(fn -> 42[..]);
+  assert.throws(fn -> values[{}..]);
+}
+
+#[test]
+fn slice_bounds_evaluate_once_left_to_right {
+  rw val calls = 0;
+  rw val target_calls = 0;
+  val values = [10, 20, 30, 40];
+  
+  loc fn next_bound() {
+    calls += 1;
+    ret calls;
+  }
+  
+  loc fn next_collection() {
+    target_calls += 1;
+    ret values;
+  }
+
+  val selected = next_collection()[next_bound()..next_bound()];
+
+  assert.equal(target_calls, 1);
+  assert.equal(calls, 2);
+  assert.equal(#selected, 1);
+  assert.equal(selected[0], 20);
+}
+
+#[test]
+fn conditional_slice_skips_bounds_for_nil_target {
+  rw val calls = 0;
+  
+  loc fn next_bound() {
+    calls += 1;
+    ret calls;
+  }
+
+  val value = nil;
+  assert.equal(value?[next_bound()..next_bound()], nil);
+  assert.equal(calls, 0);
+
+  val values = [1, 2, 3];
+  assert.equal(values?[1..3][0], 2);
+}
+
+#[test]
+fn collection_range_keeps_existing_syntax {
+  val values = [1, 2, 3];
+  val object = { value: 7 };
+  val spread = { ...object, ...?nil };
+
+  assert.equal(5 ^ 3, 6);
+  assert.equal(values[(#values - 1)], 3);
+  assert.equal(object.value, 7);
+  assert.equal(spread.value, 7);
+  assert.equal(values[0], 1);
+  assert.is_of_type([values[1], values[2]], Array);
+}

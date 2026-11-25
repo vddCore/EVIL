@@ -295,6 +295,25 @@ public class LexerTests
     }
 
     [Test]
+    public void RangeTokenDoesNotChangeDotOrSpreadTokens()
+    {
+        _lexer.LoadSource("1..4 . .. ... ...? .5");
+
+        ExpectExact(
+            (TokenType.Number, "1"),
+            (TokenType.Range, ".."),
+            (TokenType.Number, "4"),
+            (TokenType.Dot, "."),
+            (TokenType.Range, ".."),
+            (TokenType.Ellipsis, "..."),
+            (TokenType.SafeSpread, "...?"),
+            (TokenType.Number, ".5")
+        );
+
+        Expect(EOF);
+    }
+
+    [Test]
     public void InterpolatedStringExpressions()
     {
         _lexer.LoadSource(

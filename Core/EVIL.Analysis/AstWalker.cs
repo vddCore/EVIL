@@ -294,7 +294,21 @@ public class AstWalker : AstVisitor
     protected override void Visit(IndexerExpression indexerExpression)
     {
         Visit(indexerExpression.Indexable);
-        Visit(indexerExpression.KeyExpression);
+
+        if (indexerExpression.KeyExpression != null)
+        {
+            Visit(indexerExpression.KeyExpression);
+        }
+
+        if (indexerExpression.StartExpression != null)
+        {
+            Visit(indexerExpression.StartExpression);
+        }
+
+        if (indexerExpression.EndExpression != null)
+        {
+            Visit(indexerExpression.EndExpression);
+        }
     }
 
     protected override void Visit(IncrementationExpression incrementationExpression)
@@ -414,12 +428,16 @@ public class AstWalker : AstVisitor
     {
         if (stringConstant.IsInterpolated)
         {
-            var segments = InterpolatedStringParser.ParseSegments(stringConstant, throwOnError: false);
+            var segments = InterpolatedStringParser.ParseSegments(
+                stringConstant, 
+                throwOnError: false
+            );
+            
             foreach (var segment in segments)
             {
-                if (segment is { Kind: InterpolatedSegmentKind.Expression, Expr: not null })
+                if (segment is { Kind: InterpolatedSegmentKind.Expression, Expression: not null })
                 {
-                    Visit(segment.Expr);
+                    Visit(segment.Expression);
                 }
             }
         }

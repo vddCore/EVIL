@@ -47,21 +47,7 @@ public partial class Compiler
             Chunk.CodeGenerator.Emit(OpCode.JUMP, endIndexerLabel);
             Chunk.UpdateLabel(indexLabel, Chunk.CodeGenerator.IP);
 
-            if (!indexerExpression.CreateTableIfNonExistent 
-                && indexerExpression.KeyExpression is StringConstant { IsInterpolated: false } sc)
-            {
-                var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
-                Chunk.CodeGenerator.EmitGetProp(strId);
-            }
-            else
-            {
-                Visit(indexerExpression.KeyExpression);
-                Chunk.CodeGenerator.Emit(
-                    indexerExpression.CreateTableIfNonExistent 
-                        ? OpCode.INOCT 
-                        : OpCode.INDEX
-                );
-            }
+            EmitIndexerLookup(indexerExpression);
             
             if (!isPartOfOuterChain)
             {
@@ -71,22 +57,64 @@ public partial class Compiler
         else
         {
             Visit(indexerExpression.Indexable);
+            EmitIndexerLookup(indexerExpression);
+        }
+    }
 
-            if (!indexerExpression.CreateTableIfNonExistent
-                && indexerExpression.KeyExpression is StringConstant { IsInterpolated: false } sc)
+    private void EmitIndexerLookup(IndexerExpression indexerExpression)
+    {
+        if (indexerExpression.IsRange || indexerExpression.IsFromEndIndex)
+        {
+            var flags = (SliceFlags)0;
+
+            if (indexerExpression.StartExpression != null)
             {
-                var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
-                Chunk.CodeGenerator.EmitGetProp(strId);
+                Visit(indexerExpression.StartExpression);
+                
+                flags |= SliceFlags.StartPresent;
+
+                if (indexerExpression.StartIsFromEnd 
+                    || indexerExpression.IsFromEndIndex)
+                {
+                    flags |= SliceFlags.StartFromEnd;
+                }
             }
-            else
+
+            if (indexerExpression.EndExpression != null)
             {
-                Visit(indexerExpression.KeyExpression);
-                Chunk.CodeGenerator.Emit(
-                    indexerExpression.CreateTableIfNonExistent 
-                        ? OpCode.INOCT 
-                        : OpCode.INDEX
-                );
+                Visit(indexerExpression.EndExpression);
+                
+                flags |= SliceFlags.EndPresent;
+
+                if (indexerExpression.EndIsFromEnd)
+                {
+                    flags |= SliceFlags.EndFromEnd;
+                }
             }
+
+            if (indexerExpression.IsFromEndIndex)
+            {
+                flags |= SliceFlags.ScalarResult;
+            }
+
+            Chunk.CodeGenerator.Emit(OpCode.SLICE, (byte)flags);
+            return;
+        }
+
+        if (!indexerExpression.CreateTableIfNonExistent
+            && indexerExpression.KeyExpression is StringConstant { IsInterpolated: false } sc)
+        {
+            var strId = (int)Chunk.StringPool.FetchOrAdd(sc.Value);
+            Chunk.CodeGenerator.EmitGetProp(strId);
+        }
+        else
+        {
+            Visit(indexerExpression.KeyExpression!);
+            Chunk.CodeGenerator.Emit(
+                indexerExpression.CreateTableIfNonExistent
+                    ? OpCode.INOCT
+                    : OpCode.INDEX
+            );
         }
     }
 }

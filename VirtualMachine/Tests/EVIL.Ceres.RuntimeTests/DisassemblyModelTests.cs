@@ -48,6 +48,46 @@ public class DisassemblyModelTests : TestBase
     }
 
     [Test]
+    public void InstructionDecoder_DecodesSliceFlagsWithoutDesynchronizing()
+    {
+        var script = """
+            fn from_end(values) {
+                ret values[#-1];
+            }
+            fn range(values) {
+                ret values[..#-1];
+            }
+            """;
+
+        var chunk = Compiler.Compile(script, "test_slice_disassembly");
+        var fromEndInstructions = chunk["from_end"]!.Disassemble().Instructions;
+        var rangeInstructions = chunk["range"]!.Disassemble().Instructions;
+        var fromEndSlice = fromEndInstructions.Single(i => i.OpCode == OpCode.SLICE);
+        var rangeSlice = rangeInstructions.Single(i => i.OpCode == OpCode.SLICE);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(fromEndSlice.Length, Is.EqualTo(2));
+            Assert.That(fromEndSlice.Operands, Has.Count.EqualTo(1));
+            Assert.That(fromEndSlice.Operands[0].Kind, Is.EqualTo(OperandKind.ImmediateByte));
+            Assert.That(fromEndSlice.Operands[0].RawValue, Is.EqualTo((byte)21));
+            Assert.That(
+                fromEndSlice.Operands[0].FormattedText,
+                Is.EqualTo("START|START_FROM_END|SCALAR")
+            );
+
+            Assert.That(rangeSlice.Length, Is.EqualTo(2));
+            Assert.That(rangeSlice.Operands[0].RawValue, Is.EqualTo((byte)10));
+            Assert.That(
+                rangeSlice.Operands[0].FormattedText,
+                Is.EqualTo("END|END_FROM_END")
+            );
+            Assert.That(fromEndInstructions[^1].OpCode, Is.EqualTo(OpCode.RET));
+            Assert.That(rangeInstructions[^1].OpCode, Is.EqualTo(OpCode.RET));
+        }
+    }
+
+    [Test]
     public void InstructionDecoder_CorrectlyDecodesXargsWithoutDesynchronizing()
     {
         var script = """

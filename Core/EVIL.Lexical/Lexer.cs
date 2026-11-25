@@ -74,6 +74,11 @@ public class Lexer
                     Advance(2);
                     State.CurrentToken = Token.Ellipsis with { Line = line, Column = col };
                     break;
+
+                case '.' when Peek() == '.':
+                    Advance();
+                    State.CurrentToken = Token.Range with { Line = line, Column = col };
+                    break;
                 
                 case '-' when Peek() == '>':
                     Advance();
@@ -482,6 +487,10 @@ public class Lexer
             {
                 number += State.Character;
                 Advance();
+            }
+            else if (State.Character == '.' && Peek() == '.')
+            {
+                break;
             }
             else if (State.Character == '.')
             {

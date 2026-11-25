@@ -328,6 +328,95 @@ public class FiberSchedulerOptimizationTests
     }
 
     [Test]
+    public async Task Scheduler_DeduplicatesConcurrentResumeWhileFiberIsStepping()
+    {
+        const int resumeCount = 8;
+        var vm = new CeresVM();
+        using var stepEntered = new ManualResetEventSlim();
+        using var releaseStep = new ManualResetEventSlim();
+        var activeInvocations = 0;
+        var maximumActiveInvocations = 0;
+        var invocationCount = 0;
+        vm.Global["block"] = new DynamicValue((NativeFunction)((_, _) =>
+        {
+            var active = Interlocked.Increment(ref activeInvocations);
+            while (true)
+            {
+                var observedMaximum = Volatile.Read(ref maximumActiveInvocations);
+                if (active <= observedMaximum
+                    || Interlocked.CompareExchange(
+                        ref maximumActiveInvocations,
+                        active,
+                        observedMaximum
+                    ) == observedMaximum)
+                {
+                    break;
+                }
+            }
+
+            Interlocked.Increment(ref invocationCount);
+            try
+            {
+                stepEntered.Set();
+                if (!releaseStep.Wait(TestTimeout))
+                {
+                    throw new TimeoutException("The fiber did not leave its running slice.");
+                }
+
+                return DynamicValue.Nil;
+            }
+            finally
+            {
+                Interlocked.Decrement(ref activeInvocations);
+            }
+        }));
+
+        var chunk = new Compiler().Compile("fn work() { block(); }", "scheduler_resume_during_step.vil");
+        var fiber = vm.Scheduler.CreateFiber(false);
+        fiber.Schedule(chunk["work"]!, false);
+        fiber.Resume();
+        var schedulerTask = Task.Run(vm.Scheduler.Run);
+
+        try
+        {
+            Assert.That(stepEntered.Wait(TestTimeout), Is.True, "The fiber did not enter its running slice.");
+            using var resumeBarrier = new Barrier(resumeCount + 1);
+            var resumeTasks = Enumerable.Range(0, resumeCount).Select(_ => Task.Factory.StartNew(
+                () =>
+                {
+                    if (!resumeBarrier.SignalAndWait(TestTimeout))
+                    {
+                        throw new TimeoutException("Concurrent resumes did not start together.");
+                    }
+
+                    fiber.Resume();
+                },
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
+            )).ToArray();
+
+            if (!resumeBarrier.SignalAndWait(TestTimeout))
+            {
+                throw new TimeoutException("Concurrent resumes did not start together.");
+            }
+
+            await Task.WhenAll(resumeTasks).WaitAsync(TestTimeout);
+            releaseStep.Set();
+            WaitUntilCollected(vm, fiber);
+
+            Assert.That(invocationCount, Is.EqualTo(1));
+            Assert.That(maximumActiveInvocations, Is.EqualTo(1));
+        }
+        finally
+        {
+            releaseStep.Set();
+            vm.Scheduler.Stop();
+            await schedulerTask.WaitAsync(TestTimeout);
+        }
+    }
+
+    [Test]
     public async Task Scheduler_ProgressesWithManyPausedAndAwaitingFibers()
     {
         const int pausedFiberCount = 512;

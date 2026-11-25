@@ -16,7 +16,7 @@ void yyerror(const char *s);
 %locations
 %glr-parser
 %expect 13
-%expect-rr 1
+%expect-rr 30
 
 /* Keywords */
 %token TOKEN_FN "fn"
@@ -97,6 +97,7 @@ void yyerror(const char *s);
 %token TOKEN_DECREMENT "--"
 %token TOKEN_SAFE_SPREAD "...?"
 %token TOKEN_ELLIPSIS "..."
+%token TOKEN_RANGE ".."
 %token TOKEN_ASSOCIATE "=>"
 %token TOKEN_RIGHT_ARROW "->"
 
@@ -584,15 +585,35 @@ postfix_expression
     : primary_expression
     | postfix_expression '(' argument_list_opt ')'
     | postfix_expression TOKEN_ELVIS_INVOCATION argument_list_opt ')'
-    | postfix_expression '[' assignment_expression ']'
+    | postfix_expression '[' index_argument ']'
     | postfix_expression '.' IDENTIFIER
     | postfix_expression TOKEN_ELVIS IDENTIFIER
-    | postfix_expression TOKEN_ELVIS_ARRAY assignment_expression ']'
+    | postfix_expression TOKEN_ELVIS_ARRAY index_argument ']'
     | postfix_expression ':' IDENTIFIER '(' argument_list_opt ')'
     | postfix_expression TOKEN_SAFE_COLON IDENTIFIER '(' argument_list_opt ')'
     | postfix_expression TOKEN_INCREMENT %prec POSTFIX
     | postfix_expression TOKEN_DECREMENT %prec POSTFIX
     | postfix_expression '!' %prec POSTFIX
+    ;
+
+/* A leading '#' in an index bound means from-end; parenthesized length
+   expressions remain ordinary bound expressions. Dynamic precedence makes
+   the GLR reference parser select the marker interpretation. */
+index_argument
+    : assignment_expression %dprec 1
+    | '#' assignment_expression %dprec 2
+    | range_bound TOKEN_RANGE range_bound_opt
+    | TOKEN_RANGE range_bound_opt
+    ;
+
+range_bound
+    : assignment_expression %dprec 1
+    | '#' assignment_expression %dprec 2
+    ;
+
+range_bound_opt
+    : /* empty */
+    | range_bound
     ;
 
 argument_list_opt

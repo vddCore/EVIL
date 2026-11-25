@@ -1350,6 +1350,27 @@ internal class ExecutionUnit
                     break;
                 }
 
+                case OpCode.SLICE:
+                {
+                    var flags = (SliceFlags)frame.FetchByte();
+                    DynamicValue? end = null;
+                    DynamicValue? start = null;
+                    
+                    if (flags.HasFlag(SliceFlags.EndPresent))
+                    {
+                        end = PopValue();
+                    }
+                    
+                    if (flags.HasFlag(SliceFlags.StartPresent))
+                    {
+                        start = PopValue();
+                    }
+
+                    c = PopValue();
+                    PushValue(c.Slice(start, end, flags));
+                    break;
+                }
+
                 case OpCode.GETPROP_B:
                 case OpCode.GETPROP:
                 {

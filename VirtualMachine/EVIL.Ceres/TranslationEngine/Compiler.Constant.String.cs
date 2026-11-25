@@ -41,10 +41,10 @@ public partial class Compiler
 
             if (meaningfulSegments.Count == 1)
             {
-                var seg = meaningfulSegments[0];
-                if (seg.Kind == InterpolatedSegmentKind.Literal)
+                var segment = meaningfulSegments[0];
+                if (segment.Kind == InterpolatedSegmentKind.Literal)
                 {
-                    var id = Chunk.StringPool.FetchOrAdd(seg.Text);
+                    var id = Chunk.StringPool.FetchOrAdd(segment.Text);
                     
                     Chunk.CodeGenerator.Emit(
                         OpCode.LDSTR, 
@@ -53,7 +53,7 @@ public partial class Compiler
                 }
                 else
                 {
-                    Visit(seg.Expr!);
+                    Visit(segment.Expression!);
                     Chunk.CodeGenerator.Emit(OpCode.TOSTRING);
                 }
 
@@ -73,7 +73,7 @@ public partial class Compiler
                 }
                 else
                 {
-                    Visit(segment.Expr!);
+                    Visit(segment.Expression!);
                     Chunk.CodeGenerator.Emit(OpCode.TOSTRING);
                 }
             }

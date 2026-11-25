@@ -38,7 +38,7 @@ public static class InstructionDecoder
                     Length = 1,
                     OpCode = (OpCode)code[startIp],
                     RawBytes = raw,
-                    Mnemonic = $"INVALID(0x{code[startIp]:X2})",
+                    Mnemonic = $"INVALID (0x{code[startIp]:X2})",
                     Operands = [],
                     Line = chunk.HasDebugInfo 
                         ? chunk.DebugDatabase.GetLineForIP(startIp) 
@@ -551,6 +551,53 @@ public static class InstructionDecoder
                     isNilTolerant == 1 ? "NIL_TOLERANT" : "STRICT"
                 ));
                 
+                break;
+            }
+
+            case OpCode.SLICE:
+            {
+                var flags = reader.ReadByte();
+                var flagNames = new List<string>();
+
+                if ((flags & (byte)SliceFlags.StartPresent) != 0)
+                {
+                    flagNames.Add("START");
+                }
+                
+                if ((flags & (byte)SliceFlags.EndPresent) != 0)
+                {
+                    flagNames.Add("END");
+                }
+                
+                if ((flags & (byte)SliceFlags.StartFromEnd) != 0)
+                {
+                    flagNames.Add("START_FROM_END");
+                }
+                
+                if ((flags & (byte)SliceFlags.EndFromEnd) != 0)
+                {
+                    flagNames.Add("END_FROM_END");
+                }
+                
+                if ((flags & (byte)SliceFlags.ScalarResult) != 0)
+                {
+                    flagNames.Add("SCALAR");
+                }
+                
+                if ((flags & 0xE0) != 0)
+                {
+                    flagNames.Add($"RESERVED_0x{flags & 0xE0:X2}");
+                }
+
+                operands.Add(new InstructionOperand(
+                    OperandKind.ImmediateByte,
+                    flags,
+                    flagNames.Count == 0 
+                        ? "NONE" 
+                        : string.Join("|", flagNames
+                    )
+                ));
+
                 break;
             }
 

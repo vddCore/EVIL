@@ -33,6 +33,15 @@ public partial class Parser
             case TokenType.Increment:
             {
                 var (line, col) = Match(Token.Increment);
+
+                if (node is IndexerExpression { IsRange: true }
+                         or IndexerExpression { IsFromEndIndex: true })
+                {
+                    throw new ParserException(
+                        "Range and from-end indexers are not assignable.",
+                        (line, col)
+                    );
+                }
                 
                 return new IncrementationExpression(node, false)
                     { Line = line, Column = col };
@@ -40,6 +49,15 @@ public partial class Parser
             case TokenType.Decrement:
             {
                 var (line, col) = Match(Token.Decrement);
+
+                if (node is IndexerExpression { IsRange: true }
+                         or IndexerExpression { IsFromEndIndex: true })
+                {
+                    throw new ParserException(
+                        "Range and from-end indexers are not assignable.",
+                        (line, col)
+                    );
+                }
                 
                 return new DecrementationExpression(node, false) 
                     { Line = line, Column = col};
@@ -96,7 +114,7 @@ public partial class Parser
             token = CurrentToken;
         }
 
-    __exit:
+        __exit:
         return node;
     }
 
@@ -231,7 +249,7 @@ public partial class Parser
             k++;
         }
 
-    __done:
+        __done:
         return colonsFound >= _ternaryDepth;
     }
 }

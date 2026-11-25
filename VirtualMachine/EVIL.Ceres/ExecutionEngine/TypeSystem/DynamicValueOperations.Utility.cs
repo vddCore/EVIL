@@ -2,10 +2,14 @@ namespace EVIL.Ceres.ExecutionEngine.TypeSystem;
 
 using System;
 using EVIL.Ceres.ExecutionEngine.Collections;
+using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.CommonTypes.TypeSystem;
 
 public static partial class DynamicValueOperations
 {
+    private const double LongRangeUpperExclusive = 9223372036854775808d;
+    private const double LongRangeLowerInclusive = -9223372036854775808d;
+    
     public static DynamicValue Contains(this DynamicValue a, DynamicValue b)
     {
         if (a.Type == DynamicValueType.String)
@@ -118,6 +122,137 @@ public static partial class DynamicValueOperations
         }
     }
 
+    internal static DynamicValue Slice(
+        this DynamicValue value,
+        DynamicValue? startValue,
+        DynamicValue? endValue,
+        SliceFlags flags)
+    {
+        const SliceFlags knownFlags = SliceFlags.StartPresent
+                                      | SliceFlags.EndPresent
+                                      | SliceFlags.StartFromEnd
+                                      | SliceFlags.EndFromEnd
+                                      | SliceFlags.ScalarResult;
+
+        if ((flags & ~knownFlags) != 0
+            || (flags.HasFlag(SliceFlags.StartFromEnd) && !flags.HasFlag(SliceFlags.StartPresent))
+            || (flags.HasFlag(SliceFlags.EndFromEnd) && !flags.HasFlag(SliceFlags.EndPresent))
+            || (flags.HasFlag(SliceFlags.StartPresent) != startValue.HasValue)
+            || (flags.HasFlag(SliceFlags.EndPresent) != endValue.HasValue))
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                "Invalid SLICE instruction flags."
+            );
+        }
+
+        if (value.Type is not (DynamicValueType.Array or DynamicValueType.String))
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                $"Attempt to slice a non-sliceable {value.Type} value."
+            );
+        }
+
+        var length = value.Type == DynamicValueType.Array
+            ? value.Array!.Length
+            : value.String!.Length;
+        var isScalar = flags.HasFlag(SliceFlags.ScalarResult);
+
+        if (isScalar && (!flags.HasFlag(SliceFlags.StartPresent) || flags.HasFlag(SliceFlags.EndPresent)))
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                "Invalid scalar SLICE instruction flags."
+            );
+        }
+
+        var start = flags.HasFlag(SliceFlags.StartPresent)
+            ? ResolveSliceBound(startValue!.Value, flags.HasFlag(SliceFlags.StartFromEnd), length)
+            : 0L;
+        
+        var end = flags.HasFlag(SliceFlags.EndPresent)
+            ? ResolveSliceBound(endValue!.Value, flags.HasFlag(SliceFlags.EndFromEnd), length)
+            : length;
+
+        if (isScalar)
+        {
+            if (start < 0 || start >= length)
+            {
+                throw new UnsupportedDynamicValueOperationException(
+                    $"Index {start} was out of bounds for a collection of length {length}."
+                );
+            }
+
+            return value.Type == DynamicValueType.Array
+                ? value.Array![(int)start]
+                : new DynamicValue(value.String![(int)start]);
+        }
+
+        if (start < 0 || end < 0 || start > end || end > length)
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                $"Slice bounds [{start}..{end}] are invalid for a collection of length {length}."
+            );
+        }
+
+        var sliceLength = (int)(end - start);
+        if (value.Type == DynamicValueType.String)
+        {
+            return new DynamicValue(value.String!.Substring((int)start, sliceLength));
+        }
+
+        var items = new DynamicValue[sliceLength];
+        for (var i = 0; i < sliceLength; i++)
+        {
+            items[i] = value.Array![(int)start + i];
+        }
+
+        return new DynamicValue(new Collections.Array(items));
+    }
+
+    private static long ResolveSliceBound(DynamicValue value, bool fromEnd, int length)
+    {
+        if (value.Type != DynamicValueType.Number)
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                $"A slice bound must be a Number, not a {value.Type}."
+            );
+        }
+
+        var number = value.Number;
+        if (!double.IsFinite(number))
+        {
+            throw new UnsupportedDynamicValueOperationException("Slice bounds must be finite numbers.");
+        }
+
+        if (number % 1 != 0)
+        {
+            throw new UnsupportedDynamicValueOperationException("Slice bounds must be integral numbers.");
+        }
+        
+        if (number < LongRangeLowerInclusive || number >= LongRangeUpperExclusive)
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                "Slice bound is outside the range of representable indices."
+            );
+        }
+
+        var bound = (long)number;
+        if (!fromEnd)
+        {
+            return bound;
+        }
+
+        try
+        {
+            return checked(length + bound);
+        }
+        catch (OverflowException)
+        {
+            throw new UnsupportedDynamicValueOperationException(
+                "Resolved from-end slice bound is outside the range of representable indices."
+            );
+        }
+    }
+
     public static DynamicValue ShiftLeft(this DynamicValue a, DynamicValue b)
     {
         if (b.Type != DynamicValueType.Number)
@@ -142,7 +277,7 @@ public static partial class DynamicValueOperations
                 return DynamicValue.EmptyString;
             }
 
-            return new(str.Substring(amount));
+            return new(str[amount..]);
         }
 
         throw new UnsupportedDynamicValueOperationException(

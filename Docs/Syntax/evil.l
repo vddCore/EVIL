@@ -27,7 +27,7 @@ void yyerror(const char *s);
 IDENTIFIER_CHAR   [a-zA-Z0-9_]
 IDENTIFIER        [a-zA-Z_]{IDENTIFIER_CHAR}*
 HEX_INTEGER       0x[0-9a-fA-F]+
-NUMBER            ([0-9]+\.[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+|[0-9]+
+NUMBER            ([0-9]+\.[0-9]+|\.[0-9]+)([eE][+-]?[0-9]+)?|[0-9]+\.[eE][+-]?[0-9]+|[0-9]+[eE][+-]?[0-9]+|[0-9]+
 
 %%
 
@@ -128,6 +128,7 @@ NUMBER            ([0-9]+\.[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-
 "--"                    { return TOKEN_DECREMENT; }
 "...?"                  { return TOKEN_SAFE_SPREAD; }
 "..."                   { return TOKEN_ELLIPSIS; }
+".."                    { return TOKEN_RANGE; }
 "=>"                    { return TOKEN_ASSOCIATE; }
 "->"                    { return TOKEN_RIGHT_ARROW; }
 "?."                    { return TOKEN_ELVIS; }
@@ -181,6 +182,8 @@ NUMBER            ([0-9]+\.[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-
 
     /* Numbers & Identifiers */
 {HEX_INTEGER}           { return TOKEN_HEX_INTEGER; }
+[0-9]+\./[^.0-9\n]    { return TOKEN_NUMBER; }
+[0-9]+\.$              { return TOKEN_NUMBER; }
 {NUMBER}                { return TOKEN_NUMBER; }
 {IDENTIFIER}            { return IDENTIFIER; }
 

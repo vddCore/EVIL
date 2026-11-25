@@ -118,5 +118,6 @@ public enum OpCode : byte
     ENTER,
     THROW,
     LEAVE,
-    ERRNEW
+    ERRNEW,
+    SLICE
 }

@@ -22,6 +22,7 @@ public enum TokenType
     ShiftLeft,
         
     Ellipsis,
+    Range,
     Associate,
     RightArrow,
         

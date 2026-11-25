@@ -89,7 +89,8 @@ echo 'val x = 42;' | ./evil_parser
 - **Logical**: `&&`, `||`
 - **Bitwise**: `&`, `|`, `^`, `~`, `<<`, `>>`
 - **Assignment**: `=`, `+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, `??=`
-- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `:` (method call), `?:` (safe method call), `?(` (safe invocation), `::` (targeted fn / self::fn), `!` (postfix non-nil assertion), `...?` (nil-tolerant table spread)
+- **Navigation & Access**: `.`, `?.` (elvis property), `?[` (elvis indexer), `..` (half-open collection range inside indexers), `:` (method call), `?:` (safe method call), `?(` (safe invocation), `::` (targeted fn / self::fn), `!` (postfix non-nil assertion), `...?` (nil-tolerant table spread)
+- **Collection from-end bounds**: `#` before an index or range bound (e.g. `values[#-1]`); parenthesize a length expression when using it as a bound (e.g. `values[(#values - 1)]`)
 - **Functions, Closures & Spreads**: `=>` (association / arm), `->` (expression body / arm), `...` (extra arguments / varargs / table spread), `*` (variadic forwarding)
 - **Nil Coalescing**: `??`
 
@@ -196,3 +197,6 @@ From lowest to highest precedence:
 
 4. **Argument List with Variadic Forwarding (`*`)**:
    EVIL allows forwarding extra variadic arguments directly to a callee via `f(*)`. This is explicitly modeled in `argument_list` alongside standard `assignment_expression` arguments.
+
+5. **Collection Ranges (`..`)**:
+   A range is recognized only inside normal or conditional indexers (`items[1..4]`, `items[..3]`, `items[3..]`). Bounds are half-open, may use a leading `#` for signed from-end offsets, and are not assignable. `#` remains the length operator outside index bounds, so parenthesize a bound expression that starts with length; `^` remains binary XOR.

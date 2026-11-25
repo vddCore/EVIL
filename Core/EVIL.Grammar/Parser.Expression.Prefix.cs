@@ -15,16 +15,36 @@ public partial class Parser
             case TokenType.Increment:
             {
                 var (line, col) = Match(Token.Increment);
+                var target = UnaryExpression();
                 
-                return new IncrementationExpression(UnaryExpression(), true) 
+                if (target is IndexerExpression { IsRange: true }
+                           or IndexerExpression { IsFromEndIndex: true })
+                {
+                    throw new ParserException(
+                        "Range and from-end indexers are not assignable.",
+                        (line, col)
+                    );
+                }
+
+                return new IncrementationExpression(target, true)
                     { Line = line, Column = col };
             }
             
             case TokenType.Decrement:
             {
                 var (line, col) = Match(Token.Decrement);
+                var target = UnaryExpression();
                 
-                return new DecrementationExpression(UnaryExpression(), true) 
+                if (target is IndexerExpression { IsRange: true }
+                           or IndexerExpression { IsFromEndIndex: true })
+                {
+                    throw new ParserException(
+                        "Range and from-end indexers are not assignable.",
+                        (line, col)
+                    );
+                }
+
+                return new DecrementationExpression(target, true)
                     { Line = line, Column = col };
             }
 

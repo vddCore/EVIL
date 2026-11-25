@@ -3,6 +3,7 @@ namespace EVIL.Ceres.TranslationEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
+
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.TypeSystem;
 using EVIL.Ceres.TranslationEngine.Diagnostics;
@@ -136,6 +137,8 @@ public partial class Compiler : AstVisitor
         return InRootChunkDo(() => Visit(programNode));
     }
     
+
+    
     private SourceLocation GetLocation(AstNode node) 
         => new(CurrentFileName, node.Line, node.Column);
 
@@ -143,9 +146,7 @@ public partial class Compiler : AstVisitor
         => new(CurrentFileName, line, column);
         
     private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
-    {
-        Chunk.DebugDatabase.AddDebugRecord(Line, ip);
-    }
+        => Chunk.DebugDatabase.AddDebugRecord(Line, ip);
 
     private void OnChunkLabelUpdated(int labelId, int ip)
     {
@@ -282,24 +283,7 @@ public partial class Compiler : AstVisitor
             _loopDescent.Pop();
         }
     }
-
-    protected override void Visit(AstNode node)
-    {
-        Line = node.Line;
-        Column = node.Column;
-
-        if (node is Expression expression)
-        {
-            node = expression.Reduce();
-        }
-        else if (node is Statement stmt and not BlockStatement)
-        {
-            MarkStatementBoundary(stmt);
-        }
-
-        base.Visit(node);
-    }
-
+    
     private void MarkStatementBoundary(Statement stmt)
     {
         if (_chunks.Count > 0)
@@ -321,7 +305,11 @@ public partial class Compiler : AstVisitor
         if (!_attributeProcessors.TryGetValue(attributeName, out var list))
         {
             list = [];
-            _attributeProcessors.Add(attributeName, list);
+            
+            _attributeProcessors.Add(
+                attributeName, 
+                list
+            );
         }
 
         list.Add(processor);
