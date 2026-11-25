@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.ExecutionEngine;
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -1820,8 +1819,15 @@ internal class ExecutionUnit
 
                 case OpCode.ENTER:
                 {
-                    var blockId = frame.FetchInt32();
-                    frame.EnterProtectedBlock(blockId);
+                    var regionId = frame.FetchInt32();
+                    frame.EnterProtectedBlock(regionId);
+                    break;
+                }
+
+                case OpCode.RETRY:
+                {
+                    var regionId = frame.FetchInt32();
+                    frame.RetryProtectedBlock(regionId);
                     break;
                 }
 
@@ -1835,7 +1841,15 @@ internal class ExecutionUnit
 
                 case OpCode.LEAVE:
                 {
-                    frame.ExitProtectedBlock();
+                    var regionId = frame.FetchInt32();
+                    frame.ExitProtectedBlock(regionId, ProtectedRegionPhase.Body);
+                    break;
+                }
+
+                case OpCode.LEAVE_H:
+                {
+                    var regionId = frame.FetchInt32();
+                    frame.ExitProtectedBlock(regionId, ProtectedRegionPhase.Handler);
                     break;
                 }
 

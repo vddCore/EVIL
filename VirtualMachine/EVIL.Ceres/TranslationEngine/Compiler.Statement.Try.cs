@@ -8,29 +8,29 @@ public partial class Compiler
     protected override void Visit(TryStatement tryStatement)
     {
         var statementEndLabel = Chunk.CreateLabel();
-        var enterInsnLabel = Chunk.CreateLabel();
-            
-        Chunk.CodeGenerator.Emit(OpCode.ENTER, Chunk.ProtectedBlocks.Count);
-            
-        _blockProtectors.Push(Chunk.AllocateBlockProtector());
+        var regionId = Chunk.ProtectedRegions.Count;
+        var region = Chunk.AllocateProtectedRegion();
+
+        Chunk.CodeGenerator.Emit(OpCode.ENTER, regionId);
+
+        _blockProtectors.Push(regionId);
         {
-            BlockProtector.EnterLabelId = enterInsnLabel;
-            BlockProtector.StartAddress = Chunk.CodeGenerator.IP;
+            region.BodyStartAddress = Chunk.CodeGenerator.IP;
             Visit(tryStatement.InnerStatement);
-            BlockProtector.Length = Chunk.CodeGenerator.IP - BlockProtector.StartAddress;
+            region.BodyEndAddress = Chunk.CodeGenerator.IP;
             if (!_isUnreachable)
             {
-                Chunk.CodeGenerator.Emit(OpCode.LEAVE);
+                Chunk.CodeGenerator.Emit(OpCode.LEAVE, regionId);
                 Chunk.CodeGenerator.Emit(OpCode.JUMP, statementEndLabel);
             }
-            BlockProtector.HandlerAddress = Chunk.CodeGenerator.IP;
+            region.HandlerAddress = Chunk.CodeGenerator.IP;
 
             if (tryStatement.HandlerStatement != null)
             {
                 InNewLocalScopeDo(() =>
                 {
                     _isUnreachable = false;
-                    Chunk.CodeGenerator.Emit(OpCode.LEAVE);
+                    Chunk.CodeGenerator.Emit(OpCode.LEAVE_H, regionId);
 
                     if (tryStatement.HandlerExceptionLocal != null)
                     {
@@ -55,7 +55,8 @@ public partial class Compiler
             else
             {
                 _isUnreachable = false;
-                Chunk.CodeGenerator.Emit(OpCode.LEAVE);
+                
+                Chunk.CodeGenerator.Emit(OpCode.LEAVE_H, regionId);
                 Chunk.CodeGenerator.Emit(OpCode.POP);
             }
         }

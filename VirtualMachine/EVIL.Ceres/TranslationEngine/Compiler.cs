@@ -14,7 +14,6 @@ using EVIL.Analysis;
 using EVIL.Grammar.AST.Base;
 using EVIL.Grammar.AST.Constants;
 using EVIL.Grammar.AST.Miscellaneous;
-using EVIL.Grammar.AST.Statements;
 using EVIL.Lexical;
 
 public partial class Compiler : AstVisitor
@@ -24,7 +23,7 @@ public partial class Compiler : AstVisitor
 
     private readonly Stack<Chunk> _chunks = [];
     private readonly Dictionary<string, List<AttributeProcessor>> _attributeProcessors = [];
-    private readonly Stack<BlockProtectionInfo> _blockProtectors = [];
+    private readonly Stack<int> _blockProtectors = [];
     private readonly Stack<Loop> _loopDescent = [];
     private readonly List<Scope> _closedScopes = [];
 
@@ -53,7 +52,7 @@ public partial class Compiler : AstVisitor
 
     private Chunk Chunk => _chunks.Peek();
     private Loop Loop => _loopDescent.Peek();
-    private BlockProtectionInfo BlockProtector => _blockProtectors.Peek();        
+    private int BlockProtector => _blockProtectors.Peek();
         
     private int Line { get; set; }
     private int Column { get; set; }

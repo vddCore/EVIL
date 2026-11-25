@@ -89,12 +89,12 @@ public sealed partial class Chunk
             return attribute;
         }
 
-        private static BlockProtectionInfo ReadProtectedBlock(BinaryReader br)
+        private static BlockProtectionInfo ReadProtectedRegion(BinaryReader br)
         {
             return new BlockProtectionInfo
             {
-                StartAddress = br.ReadInt32(),
-                Length = br.ReadInt32(),
+                BodyStartAddress = br.ReadInt32(),
+                BodyEndAddress = br.ReadInt32(),
                 HandlerAddress = br.ReadInt32()
             };
         }
@@ -172,16 +172,16 @@ public sealed partial class Chunk
                 }
 
                 if (flags.HasFlag(ChunkFlags.HasSubChunks))
-                {                       
+                {
                     var subChunkCount = br.ReadInt32();
                     for (var i = 0; i < subChunkCount; i++)
                     {
                         var subChunk = Deserialize(stream, out _, out _);
-                            
+
                         chunk._subChunks.Add(subChunk);
                         subChunk.Parent = chunk;
                     }
-                        
+
                     var lookupCount = br.ReadInt32();
                     for (var i = 0; i < lookupCount; i++)
                     {
@@ -222,7 +222,7 @@ public sealed partial class Chunk
 
                     for (var i = 0; i < blockCount; i++)
                     {
-                        chunk._protectedBlocks.Add(ReadProtectedBlock(br));
+                        chunk._protectedRegions.Add(ReadProtectedRegion(br));
                     }
                 }
 
@@ -241,16 +241,13 @@ public sealed partial class Chunk
                 var code = br.ReadBytes(codeAreaLength);
 
                 var md5sum = br.ReadBytes(16);
-                using (var md5 = MD5.Create())
-                {
-                    var sum = md5.ComputeHash(code);
+                var sum = MD5.HashData(code);
 
-                    if (!md5sum.SequenceEqual(sum))
-                    {
-                        throw new ChunkDeserializationException("Code area checksum mismatch.");
-                    }
+                if (!md5sum.SequenceEqual(sum))
+                {
+                    throw new ChunkDeserializationException("Code area checksum mismatch.");
                 }
-                        
+
                 chunk._code.Write(code);
                 chunk._code.Seek(0, SeekOrigin.Begin);
             }

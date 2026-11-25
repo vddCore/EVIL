@@ -705,6 +705,7 @@ public sealed class Fiber
     {
         lock (CallStack)
         {
+            var exceptionObject = PeekValue();
             var scriptFrame = CallStack.Peek().As<ScriptStackFrame>();
                 
             while (CallStack.Count > 1 && !scriptFrame.IsProtectedState)
@@ -717,13 +718,13 @@ public sealed class Fiber
 
             if (scriptFrame.IsProtectedState)
             {
-                var info = scriptFrame.BlockProtectorStack.Peek();
-                scriptFrame.JumpAbsolute(info.HandlerAddress);
+                var activation = scriptFrame.BeginProtectedHandler();
+                EvaluationStack.RestoreTo(activation.EvaluationStackDepth);
+                EvaluationStack.Push(exceptionObject);
+                scriptFrame.JumpAbsolute(activation.Region.HandlerAddress);
             }
             else
             {
-                var exceptionObject = PeekValue();
-
                 throw new UserUnhandledExceptionException(
                     "A user-unhandled exception has been thrown.",
                     exceptionObject,

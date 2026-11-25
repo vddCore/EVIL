@@ -19,9 +19,10 @@ public partial class Compiler
         }
         
         Chunk.CodeGenerator.Emit(
-            OpCode.JUMP, 
-            BlockProtector.EnterLabelId
+            OpCode.RETRY,
+            BlockProtector
         );
+        
         _isUnreachable = true;
     }
 }

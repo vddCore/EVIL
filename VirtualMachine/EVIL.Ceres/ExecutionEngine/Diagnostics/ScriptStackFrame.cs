@@ -17,7 +17,7 @@ public sealed record ScriptStackFrame : StackFrame
     private EvilArray? _extraArguments;
     private Upvalue?[]? _openLocalUpvalues;
     private Upvalue?[]? _openArgumentUpvalues;
-    private Stack<BlockProtectionInfo>? _blockProtectorStack;
+    private Stack<ProtectedRegionActivation>? _protectedRegionStack;
         
     private ValueEnumerator[]? _enumeratorStack;
     private int _enumeratorCount;
@@ -32,13 +32,13 @@ public sealed record ScriptStackFrame : StackFrame
 
     public DynamicValue[]? Locals { get; private set; }
     public Upvalue[]? Upvalues { get; private set; }
-    public Stack<BlockProtectionInfo> BlockProtectorStack => _blockProtectorStack ??= new();
+    public Stack<ProtectedRegionActivation> ProtectedRegionStack => _protectedRegionStack ??= new();
 
     public CallFrame CallFrame => new(Chunk, Upvalues, (int)PreviousOpCodeIP, (int)IP);
     public long PreviousOpCodeIP { get; private set; }
     public long IP => _chunkReader.IP;
 
-    public bool IsProtectedState => _blockProtectorStack is { Count: > 0 };
+    public bool IsProtectedState => _protectedRegionStack is { Count: > 0 };
 
     internal ref ValueEnumerator CurrentEnumerator
     {
@@ -104,7 +104,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         if (chunk.ParameterCount == 0)
@@ -151,7 +151,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 1);
@@ -191,7 +191,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 2);
@@ -232,7 +232,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 3);
@@ -274,7 +274,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         var len = Math.Max(chunk.ParameterCount, 4);
@@ -317,7 +317,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         var paramCount = chunk.ParameterCount;
@@ -367,7 +367,7 @@ public sealed record ScriptStackFrame : StackFrame
         Chunk = chunk ?? throw new InvalidOperationException("Attempt to invoke a null chunk.");
         PreviousOpCodeIP = 0;
         _extraArguments = null;
-        _blockProtectorStack?.Clear();
+        _protectedRegionStack?.Clear();
         ClearEnumerators();
 
         if (chunk.ParameterCount == 0 && args.Length == 0)
@@ -576,15 +576,82 @@ public sealed record ScriptStackFrame : StackFrame
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void EnterProtectedBlock(int blockId)
+    internal void EnterProtectedBlock(int regionId)
     {
-        _blockProtectorStack ??= new();
-        _blockProtectorStack.Push(Chunk.ProtectedBlocks[blockId]);
+        var region = Chunk.ProtectedRegions[regionId];
+        ProtectedRegionStack.Push(
+            new ProtectedRegionActivation(
+                regionId,
+                region,
+                Fiber.EvaluationStack.Count
+            )
+        );
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal BlockProtectionInfo ExitProtectedBlock()
-        => _blockProtectorStack!.Pop();
+    internal void RetryProtectedBlock(int regionId)
+    {
+        var region = Chunk.ProtectedRegions[regionId];
+        var stack = ProtectedRegionStack;
+
+        if (stack.Count > 0 && stack.Peek().RegionId == regionId)
+        {
+            var activation = stack.Peek();
+            if (activation.Phase != ProtectedRegionPhase.Body)
+            {
+                throw new VirtualMachineException(
+                    "Cannot retry a protected region outside its body."
+                );
+            }
+
+            Fiber.EvaluationStack.RestoreTo(activation.EvaluationStackDepth);
+        }
+        else
+        {
+            stack.Push(
+                new ProtectedRegionActivation(regionId, region, Fiber.EvaluationStack.Count)
+            );
+        }
+
+        JumpAbsolute(region.BodyStartAddress);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void ExitProtectedBlock(int regionId, ProtectedRegionPhase expectedPhase)
+    {
+        var stack = ProtectedRegionStack;
+        if (stack.Count == 0)
+        {
+            throw new VirtualMachineException("Attempt to leave a protected region without an active region.");
+        }
+
+        var activation = stack.Peek();
+        if (activation.RegionId != regionId || activation.Phase != expectedPhase)
+        {
+            throw new VirtualMachineException("Protected-region activation is out of balance.");
+        }
+
+        stack.Pop();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal ProtectedRegionActivation BeginProtectedHandler()
+    {
+        var stack = ProtectedRegionStack;
+        if (stack.Count == 0)
+        {
+            throw new VirtualMachineException("Attempt to handle an exception without an active protected region.");
+        }
+
+        var activation = stack.Peek();
+        if (activation.Phase != ProtectedRegionPhase.Body)
+        {
+            throw new VirtualMachineException("Protected-region handler is already active.");
+        }
+
+        activation.BeginHandlerTransfer();
+        return activation;
+    }
         
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal DynamicValue[] GetExtraArguments()

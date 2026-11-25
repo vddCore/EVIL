@@ -78,6 +78,24 @@ public sealed class ValueStack(int initialCapacity = 1024)
         _Array.Clear(_items, 0, Count);
         Count = 0;
     }
+
+    internal void RestoreTo(int count)
+    {
+        if (count < 0 || count > Count)
+        {
+            throw new InvalidOperationException(
+                "Invalid evaluation stack checkpoint."
+            );
+        }
+
+        _Array.Clear(
+            _items,
+            count,
+            Count - count
+        );
+        
+        Count = count;
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DynamicValue[] PopArguments(int count)
@@ -93,8 +111,16 @@ public sealed class ValueStack(int initialCapacity = 1024)
         }
 
         var args = new DynamicValue[count];
+        
         Count -= count;
-        _Array.Copy(_items, Count, args, 0, count);
+        _Array.Copy(
+            _items,
+            Count,
+            args,
+            0,
+            count
+        );
+        
         return args;
     }
 

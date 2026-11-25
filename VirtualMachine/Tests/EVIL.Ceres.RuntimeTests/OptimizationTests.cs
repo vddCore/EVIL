@@ -725,6 +725,38 @@ public class OptimizationTests : TestBase
     }
 
     [Test]
+    public void ExceptionUnwinding_RestoresProtectedEvaluationStackDepth()
+    {
+        var script = """
+            fn throwing_inner() {
+                throw "expected";
+            }
+
+            fn test() {
+                rw val caught = nil;
+                try {
+                    val ignored = 41 + throwing_inner();
+                } catch (e) {
+                    caught = e;
+                }
+
+                val subsequent = 6 * 7;
+                ret [caught, subsequent];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].String, Is.EqualTo("expected"));
+            Assert.That(result.Array![1].Number, Is.EqualTo(42.0));
+            Assert.That(VM.MainFiber.EvaluationStack.Count, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
     public void Jump_Backpatching_EncodesDirectTargetAddressesInBytecode()
     {
         var script = """

@@ -628,13 +628,16 @@ public static class InstructionDecoder
             }
 
             case OpCode.ENTER:
+            case OpCode.RETRY:
+            case OpCode.LEAVE:
+            case OpCode.LEAVE_H:
             {
-                var blockId = reader.ReadInt32();
+                var regionId = reader.ReadInt32();
                 
                 operands.Add(new InstructionOperand(
                     OperandKind.ProtectedBlockId,
-                    blockId,
-                    blockId.ToString()
+                    regionId,
+                    regionId.ToString()
                 ));
                 
                 break;

@@ -265,3 +265,53 @@ fn try_catchless_retry {
   
   assert.equal(count, 4);
 }
+
+#[test]
+fn try_body_retry_does_not_retain_completed_protection {
+  rw val retry_count = 0;
+  rw val unexpected_catch_count = 0;
+  rw val throw_count = 0;
+  rw val result;
+
+  try {
+    try {
+      if (retry_count++ < 3) {
+        retry;
+      }
+    } catch (e) {
+      unexpected_catch_count++;
+    }
+
+    throw ++throw_count;
+  } catch (e) {
+    result = e;
+  }
+
+  assert.equal(retry_count, 4);
+  assert.equal(unexpected_catch_count, 0);
+  assert.equal(throw_count, 1);
+  assert.equal(result, 1);
+}
+
+#[test]
+fn try_catchless_body_retry_does_not_retain_completed_protection {
+  rw val retry_count = 0;
+  rw val throw_count = 0;
+  rw val result;
+
+  try {
+    try {
+      if (retry_count++ < 3) {
+        retry;
+      }
+    }
+
+    throw ++throw_count;
+  } catch (e) {
+    result = e;
+  }
+
+  assert.equal(retry_count, 4);
+  assert.equal(throw_count, 1);
+  assert.equal(result, 1);
+}

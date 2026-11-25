@@ -24,13 +24,13 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private Dictionary<string, ClosureContext> _closureContexts;
     private List<Chunk> _subChunks;
     private Dictionary<string, int> _namedSubChunkLookup;
-    private List<BlockProtectionInfo> _protectedBlocks;
+    private List<BlockProtectionInfo> _protectedRegions;
     private readonly ConcurrentDictionary<int, SwitchTable> _switchTables = new();
     private readonly HashSet<int> _targetedLabels = [];
     private PropertyInlineCache[]? _propertyInlineCaches;
     private readonly Serializer _serializer;
 
-    public const byte FormatVersion = 4;
+    public const byte FormatVersion = 5;
 
     public string Name { get; set; }
     internal Guid ClosureOwnerId { get; private set; }
@@ -55,7 +55,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public IReadOnlyDictionary<string, ClosureContext> ClosureContexts => _closureContexts;
     public IReadOnlyList<Chunk> SubChunks => _subChunks;
     public IReadOnlyDictionary<string, int> NamedSubChunkLookup => _namedSubChunkLookup;
-    public IReadOnlyList<BlockProtectionInfo> ProtectedBlocks => _protectedBlocks;
+    public IReadOnlyList<BlockProtectionInfo> ProtectedRegions => _protectedRegions;
 
     public Upvalue[]? Upvalues { get; set; }
     public byte[] Code => _cachedCode ??= FinalizeAndGetCode();
@@ -112,7 +112,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             if (IsSpecialName)
                 ret |= ChunkFlags.IsSpecialName;
 
-            if (ProtectedBlocks.Count > 0)
+            if (ProtectedRegions.Count > 0)
                 ret |= ChunkFlags.HasProtectedBlocks;
 
             if (MayThrow)
@@ -132,7 +132,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _closureContexts = new Dictionary<string, ClosureContext>();
         _subChunks = new List<Chunk>();
         _namedSubChunkLookup = new Dictionary<string, int>();
-        _protectedBlocks = new List<BlockProtectionInfo>();
+        _protectedRegions = new List<BlockProtectionInfo>();
         _serializer = new Serializer(this);
 
         Name = name;
@@ -162,7 +162,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _closureContexts = new Dictionary<string, ClosureContext>();
         _subChunks = new List<Chunk>();
         _namedSubChunkLookup = new Dictionary<string, int>();
-        _protectedBlocks = new List<BlockProtectionInfo>();
+        _protectedRegions = new List<BlockProtectionInfo>();
         _serializer = new Serializer(this);
 
         Name = name;
@@ -192,7 +192,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _closureContexts = new Dictionary<string, ClosureContext>();
         _subChunks = new List<Chunk>();
         _namedSubChunkLookup = new Dictionary<string, int>();
-        _protectedBlocks = new List<BlockProtectionInfo>();
+        _protectedRegions = new List<BlockProtectionInfo>();
         _serializer = new Serializer(this);
 
         Name = name;
@@ -222,7 +222,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         _closureContexts = new Dictionary<string, ClosureContext>();
         _subChunks = new List<Chunk>();
         _namedSubChunkLookup = new Dictionary<string, int>();
-        _protectedBlocks = new List<BlockProtectionInfo>();
+        _protectedRegions = new List<BlockProtectionInfo>();
         _serializer = new Serializer(this);
 
         Name = name;
@@ -394,7 +394,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             enclosedFunctionName,
             closureType,
             isSharedScope,
-            default
+            Guid.Empty
         );
 
     internal (int Id, ClosureInfo Closure) AllocateClosure(
@@ -517,10 +517,11 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         return _labels.Count - 1;
     }
 
-    public BlockProtectionInfo AllocateBlockProtector()
+    public BlockProtectionInfo AllocateProtectedRegion()
     {
         var info = new BlockProtectionInfo();
-        _protectedBlocks.Add(info);
+        _protectedRegions.Add(info);
+        
         return info;
     }
 
@@ -630,7 +631,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
             _labels = _labels,
             _attributes = _attributes,
             _parameterInitializers = _parameterInitializers,
-            _protectedBlocks = _protectedBlocks,
+            _protectedRegions = _protectedRegions,
             _propertyInlineCaches = _propertyInlineCaches
         };
 
@@ -660,7 +661,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
                && _attributes.SequenceEqual(other._attributes)
                && _subChunks.SequenceEqual(other._subChunks)
                && _namedSubChunkLookup.SequenceEqual(other._namedSubChunkLookup)
-               && _protectedBlocks.SequenceEqual(other._protectedBlocks)
+               && _protectedRegions.SequenceEqual(other._protectedRegions)
                && StringPool.Equals(other.StringPool)
                && Code.SequenceEqual(other.Code)
                && DebugDatabase.Equals(other.DebugDatabase);
@@ -688,7 +689,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         hashCode.Add(_attributes);
         hashCode.Add(_subChunks);
         hashCode.Add(_namedSubChunkLookup);
-        hashCode.Add(_protectedBlocks);
+        hashCode.Add(_protectedRegions);
         hashCode.Add(StringPool);
         hashCode.Add(Code);
         hashCode.Add(DebugDatabase);

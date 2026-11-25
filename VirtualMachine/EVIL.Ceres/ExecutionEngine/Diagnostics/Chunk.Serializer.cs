@@ -181,12 +181,12 @@ public sealed partial class Chunk
         {
             if (_chunk.Flags.HasFlag(ChunkFlags.HasProtectedBlocks))
             {
-                bw.Write(_chunk.ProtectedBlocks.Count);
+                bw.Write(_chunk.ProtectedRegions.Count);
 
-                foreach (var block in _chunk.ProtectedBlocks)
+                foreach (var block in _chunk.ProtectedRegions)
                 {
-                    bw.Write(block.StartAddress);
-                    bw.Write(block.Length);
+                    bw.Write(block.BodyStartAddress);
+                    bw.Write(block.BodyEndAddress);
                     bw.Write(block.HandlerAddress);
                 }
             }
@@ -214,11 +214,7 @@ public sealed partial class Chunk
         {
             bw.Write(_chunk.Code.Length);
             bw.Write(_chunk.Code);
-
-            using (var md5 = MD5.Create())
-            {
-                bw.Write(md5.ComputeHash(_chunk.Code));
-            }
+            bw.Write(MD5.HashData(_chunk.Code));
         }
 
         public void Write(Stream stream)

@@ -59,6 +59,28 @@ public class Serialization
     }
 
     [Test]
+    public void ChunkSerializeDeserialize_PreservesProtectedRegions()
+    {
+        var originalChunk = new Compiler().Compile("try { throw 1; } catch (e) { }");
+
+        using var stream = new MemoryStream();
+        originalChunk.Serialize(stream);
+        stream.Position = 0;
+        var deserializedChunk = Chunk.Deserialize(stream, out var version, out _);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(version, Is.EqualTo(5));
+            Assert.That(deserializedChunk, Is.EqualTo(originalChunk));
+            Assert.That(deserializedChunk.ProtectedRegions, Has.Count.EqualTo(1));
+            Assert.That(
+                deserializedChunk.ProtectedRegions[0],
+                Is.EqualTo(originalChunk.ProtectedRegions[0])
+            );
+        }
+    }
+
+    [Test]
     public void ChunkSerializeDeserialize_PreservesGeneratedNamesAndDebugLocations()
     {
         var compiler = new Compiler();
@@ -94,13 +116,13 @@ public class Serialization
 
     [TestCase(0)]
     [TestCase(3)]
-    [TestCase(5)]
+    [TestCase(4)]
+    [TestCase(6)]
     public void ChunkDeserialize_RejectsUnsupportedVersions(int version)
     {
-        using var stream = new MemoryStream(new byte[]
-        {
+        using var stream = new MemoryStream([
             (byte)'E', (byte)'V', (byte)'C', 0x06, (byte)version
-        });
+        ]);
 
         var exception = Assert.Throws<ChunkDeserializationException>(
             () => Chunk.Deserialize(stream, out _, out _)

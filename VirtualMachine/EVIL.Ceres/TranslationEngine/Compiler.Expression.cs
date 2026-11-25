@@ -4,7 +4,7 @@ using EVIL.Grammar.AST.Base;
 
 public partial class Compiler
 {
-    protected override void Visit(Expression? expression)
+    protected void Visit(Expression? expression)
     {
         if (expression != null)
         {

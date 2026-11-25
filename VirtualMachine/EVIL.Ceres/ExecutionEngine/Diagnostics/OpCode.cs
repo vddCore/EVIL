@@ -116,8 +116,10 @@ public enum OpCode : byte
     NEXT,
     EEND,
     ENTER,
+    RETRY,
     THROW,
     LEAVE,
+    LEAVE_H,
     ERRNEW,
     SLICE
 }
