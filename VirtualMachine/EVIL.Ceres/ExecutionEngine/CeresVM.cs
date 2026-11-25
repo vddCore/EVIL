@@ -1,6 +1,5 @@
 namespace EVIL.Ceres.ExecutionEngine;
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EVIL.Ceres.ExecutionEngine.Collections;
@@ -8,7 +7,15 @@ using EVIL.Ceres.ExecutionEngine.Diagnostics.Debugging;
 
 public class CeresVM : VirtualMachineBase
 {
-    public bool IsRunning { get; private set; }
+    private sealed class RunnerState
+    {
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
+    private readonly Lock _runnerLock = new();
+    private RunnerState? _runner;
+
+    public bool IsRunning => Volatile.Read(ref _runner) is not null;
 
     public CeresVM(FiberCrashHandler? crashHandler = null) 
         : base(crashHandler)
@@ -22,47 +29,87 @@ public class CeresVM : VirtualMachineBase
 
     public async Task RunAsync()
     {
-        if (IsRunning)
-            return;
-
-        IsRunning = true;
+        var runner = TryClaimRunner();
+        if (runner == null)
         {
-            await Task.Run(async () =>
-            {
-                Scheduler.Run();
-                while (Scheduler.IsRunning)
-                {
-                    await Task.Delay(TimeSpan.FromTicks(1));
-                }
-            });
+            return;
         }
-        IsRunning = false;
+
+        try
+        {
+            await Task.Run(() => RunScheduler(runner));
+        }
+        catch
+        {
+            CompleteRunner(runner);
+            throw;
+        }
     }
 
     public void Run()
     {
-        if (IsRunning)
-            return;
-
-        new Thread(() =>
+        var runner = TryClaimRunner();
+        if (runner == null)
         {
-            IsRunning = true;
-            {
-                Scheduler.Run();
-                while (Scheduler.IsRunning)
-                {
-                    Thread.Sleep(TimeSpan.FromTicks(1));
-                }
-            }
-            IsRunning = false;
-        }).Start();
+            return;
+        }
+
+        try
+        {
+            new Thread(() => RunScheduler(runner)).Start();
+        }
+        catch
+        {
+            CompleteRunner(runner);
+            throw;
+        }
     }
 
     public void Stop()
     {
-        if (!IsRunning)
+        var runner = Volatile.Read(ref _runner);
+        if (runner == null)
+        {
             return;
-        
-        Scheduler.Stop();
+        }
+
+        runner.Started.Task.GetAwaiter().GetResult();
+
+        lock (_runnerLock)
+        {
+            if (ReferenceEquals(Volatile.Read(ref _runner), runner))
+            {
+                Scheduler.Stop();
+            }
+        }
+    }
+
+    private RunnerState? TryClaimRunner()
+    {
+        lock (_runnerLock)
+        {
+            var runner = new RunnerState();
+            return Interlocked.CompareExchange(ref _runner, runner, null) == null
+                ? runner
+                : null;
+        }
+    }
+
+    private void RunScheduler(RunnerState runner)
+    {
+        try
+        {
+            Scheduler.Run(() => runner.Started.TrySetResult());
+        }
+        finally
+        {
+            CompleteRunner(runner);
+        }
+    }
+
+    private void CompleteRunner(RunnerState runner)
+    {
+        runner.Started.TrySetResult();
+        Interlocked.CompareExchange(ref _runner, null, runner);
     }
 }

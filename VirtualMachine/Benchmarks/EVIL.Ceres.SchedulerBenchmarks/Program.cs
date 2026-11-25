@@ -3,6 +3,7 @@ namespace EVIL.Ceres.SchedulerBenchmarks;
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -54,7 +55,28 @@ internal static class Program
             }
         }
 
-        foreach (var workload in new[] { "schedule_to_completion", "schedule_to_parent_completion" })
+        foreach (var runnableFiberCount in new[] { 1, 8 })
+        {
+            foreach (var waitingFiberCount in new[] { 100, 1000 })
+            {
+                for (var repetition = 1; repetition <= repetitions; repetition++)
+                {
+                    WriteMixedAwaitResult(
+                        runnableFiberCount,
+                        waitingFiberCount,
+                        repetition,
+                        duration
+                    );
+                }
+            }
+        }
+
+        string[] workloads = [
+            "schedule_to_completion",
+            "schedule_to_parent_completion"
+        ];
+            
+        foreach (var workload in workloads)
         {
             for (var repetition = 1; repetition <= repetitions; repetition++)
             {
@@ -62,13 +84,15 @@ internal static class Program
             }
         }
 
-        foreach (var waitMode in new[]
-                 {
-                     "async_polling_reference",
-                     "async_notification",
-                     "sync_polling_reference",
-                     "sync_notification"
-                 })
+        string[] modes =
+        [
+            "async_polling_reference",
+            "async_notification",
+            "sync_polling_reference",
+            "sync_notification"
+        ];
+            
+        foreach (var waitMode in modes)
         {
             for (var repetition = 1; repetition <= repetitions; repetition++)
             {
@@ -166,7 +190,10 @@ internal static class Program
 
         for (var i = 0; i < fibers.Length; i++)
         {
-            fibers[i] = CreatePausedFiber(vm, (_, _) => Interlocked.Increment(ref crashCount));
+            fibers[i] = CreatePausedFiber(
+                vm, 
+                (_, _) => Interlocked.Increment(ref crashCount)
+            );
         }
 
         var warmupFiber = CreatePausedFiber(vm);
@@ -219,6 +246,119 @@ internal static class Program
                 operations / wall.Elapsed.TotalSeconds,
                 null,
                 null
+            );
+        }
+        finally
+        {
+            StopScheduler(vm, schedulerThread);
+        }
+    }
+
+    private static void WriteMixedAwaitResult(
+        int runnableFiberCount,
+        int waitingFiberCount,
+        int repetition,
+        TimeSpan duration)
+    {
+        var vm = new CeresVM();
+        var compiler = new Compiler();
+        var chunk = compiler.Compile(
+            "fn work() { while (true) { } } fn parent() { } fn complete() { }",
+            "scheduler_mixed_await.vil"
+        );
+        var runnableFibers = new Fiber[runnableFiberCount];
+
+        for (var i = 0; i < runnableFibers.Length; i++)
+        {
+            runnableFibers[i] = CreatePausedFiber(vm);
+            runnableFibers[i].Schedule(chunk["work"]!, false);
+        }
+
+        var target = CreatePausedFiber(vm);
+        var waitingFibers = new Fiber[waitingFiberCount];
+
+        for (var i = 0; i < waitingFibers.Length; i++)
+        {
+            waitingFibers[i] = CreatePausedFiber(vm);
+            waitingFibers[i].Schedule(chunk["parent"]!, false);
+            waitingFibers[i].WaitFor(target);
+        }
+
+        var schedulerThread = StartScheduler(vm);
+
+        try
+        {
+            for (var i = 0; i < runnableFibers.Length; i++)
+            {
+                runnableFibers[i].Resume();
+            }
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(250));
+
+            var workload = $"runnable_{runnableFiberCount}_waiting_{waitingFiberCount}";
+            using var process = Process.GetCurrentProcess();
+            process.Refresh();
+            var cpuStart = process.TotalProcessorTime;
+            var allocationStart = GC.GetTotalAllocatedBytes(true);
+            var wall = Stopwatch.StartNew();
+            Thread.Sleep(duration);
+            wall.Stop();
+            process.Refresh();
+
+            var cpu = process.TotalProcessorTime - cpuStart;
+            var allocatedBytes = GC.GetTotalAllocatedBytes() - allocationStart;
+            WriteRow(
+                "mixed_await_polling",
+                workload,
+                runnableFiberCount + waitingFiberCount + 1,
+                repetition,
+                wall.Elapsed.TotalMilliseconds,
+                cpu.TotalMilliseconds,
+                cpu.TotalMilliseconds / wall.Elapsed.TotalMilliseconds * 100,
+                allocatedBytes,
+                null,
+                null,
+                null
+            );
+
+            process.Refresh();
+            var wakeCpuStart = process.TotalProcessorTime;
+            var wakeAllocationStart = GC.GetTotalAllocatedBytes(true);
+            var wakeStartedAt = Stopwatch.GetTimestamp();
+            target.Schedule(chunk["complete"]!, false);
+            target.Resume();
+            if (!SpinWait.SpinUntil(
+                    () => vm.Scheduler.Fibers.Count == runnableFiberCount + 1,
+                    StartupTimeout
+                ))
+            {
+                var registryStates = string.Join(
+                    ",",
+                    vm.Scheduler.Fibers.Entries.Select(entry => $"{entry.Key}:{entry.Value.State}")
+                );
+                throw new TimeoutException(
+                    $"The mixed-await wake cycle stalled: target={target.State}, " +
+                    $"waiter={waitingFibers[0].State}, dependencies={waitingFibers[0].WaitingFor.Count}, " +
+                    $"runnable={runnableFibers[0].State}, registry={registryStates}."
+                );
+            }
+
+            var wakeLatency = Stopwatch.GetElapsedTime(wakeStartedAt).TotalMicroseconds;
+            process.Refresh();
+            var wakeCpu = process.TotalProcessorTime - wakeCpuStart;
+            var wakeAllocatedBytes = GC.GetTotalAllocatedBytes() - wakeAllocationStart;
+            WriteRow(
+                "mixed_await_wake_cycle",
+                workload,
+                runnableFiberCount + waitingFiberCount + 1,
+                repetition,
+                wakeLatency / 1000,
+                wakeCpu.TotalMilliseconds,
+                wakeCpu.TotalMilliseconds / (wakeLatency / 1000) * 100,
+                wakeAllocatedBytes,
+                null,
+                wakeLatency,
+                wakeLatency
             );
         }
         finally
@@ -416,10 +556,7 @@ internal static class Program
         };
         thread.Start();
 
-        if (!SpinWait.SpinUntil(
-                () => vm.Scheduler.IsRunning,
-                StartupTimeout
-            ))
+        if (!SpinWait.SpinUntil(() => vm.Scheduler.IsRunning, StartupTimeout))
         {
             vm.Scheduler.Stop();
             thread.Join(StartupTimeout);
@@ -444,6 +581,7 @@ internal static class Program
         var fiber = vm.Scheduler.CreateFiber(false, crashHandler);
         fiber.Resume();
         fiber.Yield();
+        
         return fiber;
     }
 

@@ -12,26 +12,32 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
 {
     private int _nextId = 0;
 
-    private readonly ConcurrentDictionary<int, Fiber> _fibers = new(
+    internal ConcurrentDictionary<int, Fiber> ConcurrentEntries { get; } = new(
         Environment.ProcessorCount, 
         initialCapacity
     );
     
-    public int Count => _fibers.Count;
-    public IReadOnlyDictionary<int, Fiber> Entries => _fibers;
-    
+    public int Count => ConcurrentEntries.Count;
+    public IReadOnlyDictionary<int, Fiber> Entries => ConcurrentEntries;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Add(Fiber fiber)
     {
         var id = Interlocked.Increment(ref _nextId);
-        _fibers.TryAdd(id, fiber);
+        fiber.RegistryId = id;
+        ConcurrentEntries.TryAdd(id, fiber);
         
         return id;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(int id) 
-        => _fibers.TryRemove(id, out _);
+        => ConcurrentEntries.TryRemove(id, out _);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal bool Contains(int id, Fiber fiber)
+        => ConcurrentEntries.TryGetValue(id, out var registeredFiber)
+           && ReferenceEquals(registeredFiber, fiber);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void RemoveFinished(int id, Fiber fiber)
@@ -46,10 +52,13 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveFinished()
     {
-        var toRemove = ArrayPool<int>.Shared.Rent(_fibers.Count);
+        var toRemove = ArrayPool<int>.Shared.Rent(
+            ConcurrentEntries.Count
+        );
+        
         var removeCount = 0;
         
-        foreach (var (id, fiber) in _fibers)
+        foreach (var (id, fiber) in ConcurrentEntries)
         {
             if (fiber.State is FiberState.Finished 
                             or FiberState.Crashed 
@@ -64,12 +73,15 @@ public sealed class ConcurrentFiberCollection(int initialCapacity = 16)
             Remove(toRemove[i]);
         }
         
-        ArrayPool<int>.Shared.Return(toRemove, clearArray: true);
+        ArrayPool<int>.Shared.Return(
+            toRemove,
+            clearArray: true
+        );
     }
     
     public void Clear() 
-        => _fibers.Clear();
+        => ConcurrentEntries.Clear();
     
-    public Fiber[] ToArray() 
-        => _fibers.Values.ToArray();
+    public Fiber[] ToArray() => [..ConcurrentEntries.OrderBy(entry => entry.Key)
+                                                    .Select(entry => entry.Value)];
 }

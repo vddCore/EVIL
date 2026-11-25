@@ -12,12 +12,19 @@ using EVIL.Ceres.ExecutionEngine.TypeSystem;
 
 public sealed class Fiber
 {
+    private const int ProcessingBatchQuantum = 32;
+    
+    private static long _nextLockOrderId;
+
     private readonly Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
     private readonly HashSet<Fiber> _waitingFor;
+    private readonly HashSet<Fiber> _waitingOn;
+    private readonly HashSet<Fiber> _pendingAwaiteeCrashes;
+    private readonly long _lockOrderId = Interlocked.Increment(ref _nextLockOrderId);
+    
     private TaskCompletionSource<bool>? _completionSource;
+    private int _queued;
 
-    private readonly ValueStack _evaluationStack;
-    private readonly CallStack _callStack;
     private readonly Dictionary<string, ClosureContext> _closureContexts;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _sharedUpvalues;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _closedUpvalues = new();
@@ -32,20 +39,25 @@ public sealed class Fiber
     private FiberCrashHandler? _crashHandler;
 
     internal volatile FiberState _state;
+    internal int RegistryId { get; set; }
 
     internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
     internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
 
     public Fiber? Parent { get; internal set; }
     
-    public FiberCrashHandler? CrashHandler => _crashHandler;
+    public FiberCrashHandler? CrashHandler 
+        => _crashHandler;
+    
     public IReadOnlySet<Fiber> WaitingFor
     {
         get
         {
             lock (_waitingFor)
             {
-                return new HashSet<Fiber>(_waitingFor);
+                return new HashSet<Fiber>(
+                    _waitingFor
+                );
             }
         }
     }
@@ -59,27 +71,8 @@ public sealed class Fiber
 
     public bool ImmuneToCollection { get; private set; }
 
-    public ValueStack EvaluationStack
-    {
-        get
-        {
-            lock (_evaluationStack)
-            {
-                return _evaluationStack;
-            }
-        }
-    }
-
-    public CallStack CallStack
-    {
-        get
-        {
-            lock (_callStack)
-            {
-                return _callStack;
-            }
-        }
-    }
+    public ValueStack EvaluationStack { get; }
+    public CallStack CallStack { get; }
 
     internal Fiber(
         VirtualMachineBase virtualMachine,
@@ -91,9 +84,11 @@ public sealed class Fiber
 
         _scheduledChunks = new Queue<(Chunk, DynamicValue[])>();
         _waitingFor = [];
+        _waitingOn = [];
+        _pendingAwaiteeCrashes = [];
 
-        _evaluationStack = new ValueStack();
-        _callStack = new CallStack();
+        EvaluationStack = new ValueStack();
+        CallStack = new CallStack();
         _closureContexts = closureContexts ?? new Dictionary<string, ClosureContext>();
         _sharedUpvalues = sharedUpvalues ?? new Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue>();
         _sharedOwnerUpvalues = sharedOwnerUpvalues ?? new Dictionary<(Guid OwnerId, int Slot, bool IsLocal), Upvalue>();
@@ -101,8 +96,8 @@ public sealed class Fiber
         _executionUnit = new ExecutionUnit(
             virtualMachine.Global,
             this,
-            _evaluationStack,
-            _callStack
+            EvaluationStack,
+            CallStack
         );
 
         _state = FiberState.Fresh;
@@ -117,6 +112,37 @@ public sealed class Fiber
         : this(virtualMachine, closureContexts, sharedUpvalues, sharedOwnerUpvalues)
     {
         SetCrashHandler(fiberCrashHandler);
+    }
+    
+    internal void TryQueueForExecution()
+    {
+        if (_state != FiberState.Running
+            || Interlocked.CompareExchange(ref _queued, 1, 0) != 0)
+        {
+            return;
+        }
+
+        VirtualMachine.Scheduler.EnqueueReady(RegistryId, this);
+    }
+
+    internal void ClearQueued()
+        => Volatile.Write(ref _queued, 0);
+    
+    private Task GetCompletionTask()
+    {
+        lock (_waitingFor)
+        {
+            if (IsTerminal())
+            {
+                return Task.CompletedTask;
+            }
+
+            _completionSource ??= new TaskCompletionSource<bool>(
+                TaskCreationOptions.RunContinuationsAsynchronously
+            );
+            
+            return _completionSource.Task;
+        }
     }
 
     public void Schedule(Chunk chunk, params DynamicValue[] args)
@@ -152,20 +178,6 @@ public sealed class Fiber
 
     public Task BlockUntilFinishedAsync()
         => GetCompletionTask();
-
-    private Task GetCompletionTask()
-    {
-        lock (_waitingFor)
-        {
-            if (IsTerminal())
-            {
-                return Task.CompletedTask;
-            }
-
-            _completionSource ??= new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            return _completionSource.Task;
-        }
-    }
 
     public string StackTrace(bool skipNativeFrames)
     {
@@ -210,11 +222,11 @@ public sealed class Fiber
                 return;
             }
 
-            if (_callStack.Count == 0)
+            if (CallStack.Count == 0)
             {
-                lock (_callStack)
+                lock (CallStack)
                 {
-                    if (_callStack.Count == 0)
+                    if (CallStack.Count == 0)
                     {
                         lock (_scheduledChunks)
                         {
@@ -232,14 +244,13 @@ public sealed class Fiber
                 }
             }
 
-            const int batchQuantum = 32;
-            _executionUnit.Step(batchQuantum);
+            _executionUnit.Step(ProcessingBatchQuantum);
 
-            if (_callStack.Count == 0)
+            if (CallStack.Count == 0)
             {
-                lock (_callStack)
+                lock (CallStack)
                 {
-                    if (_callStack.Count == 0)
+                    if (CallStack.Count == 0)
                     {
                         lock (_scheduledChunks)
                         {
@@ -314,17 +325,26 @@ public sealed class Fiber
 
     public void Await()
     {
+        var hasPendingCrash = false;
         lock (_waitingFor)
         {
-            if (_waitingFor.Count == 0)
+            if (_waitingFor.Count == 0 && _pendingAwaiteeCrashes.Count == 0)
             {
                 return;
             }
 
             _state = FiberState.Awaiting;
+            hasPendingCrash = _pendingAwaiteeCrashes.Count != 0;
         }
 
-        VirtualMachine.Scheduler.Wake();
+        if (hasPendingCrash)
+        {
+            VirtualMachine.Scheduler.EnqueuePendingAwaiteeCrash(this);
+        }
+        else
+        {
+            VirtualMachine.Scheduler.Wake();
+        }
     }
 
     public void WaitFor(Fiber fiber)
@@ -334,75 +354,128 @@ public sealed class Fiber
             throw new FiberException("A fiber cannot wait for self.");
         }
 
-        lock (_waitingFor)
+        var shouldWake = true;
+        var pendingCrash = false;
+        WithOrderedLocks([this, fiber], () =>
         {
             if (fiber._state == FiberState.Finished)
             {
+                shouldWake = false;
                 return;
             }
 
-            _waitingFor.Add(fiber);
-            _state = FiberState.Awaiting;
-        }
+            if (fiber._state == FiberState.Crashed)
+            {
+                _pendingAwaiteeCrashes.Add(fiber);
+                pendingCrash = true;
+            }
+            else if (_waitingFor.Add(fiber))
+            {
+                fiber._waitingOn.Add(this);
+            }
 
-        VirtualMachine.Scheduler.Wake();
+            _state = FiberState.Awaiting;
+        });
+
+        if (shouldWake)
+        {
+            if (pendingCrash)
+            {
+                VirtualMachine.Scheduler.EnqueuePendingAwaiteeCrash(this);
+            }
+            else
+            {
+                VirtualMachine.Scheduler.Wake();
+            }
+        }
     }
 
     public void StopWaitingFor(Fiber fiber)
     {
         var resumed = false;
-        lock (_waitingFor)
+        WithOrderedLocks([this, fiber], () =>
         {
             _waitingFor.Remove(fiber);
+            fiber._waitingOn.Remove(this);
+            _pendingAwaiteeCrashes.Remove(fiber);
 
-            if (_state == FiberState.Awaiting && _waitingFor.Count == 0)
+            if (_state == FiberState.Awaiting
+                && _waitingFor.Count == 0
+                && _pendingAwaiteeCrashes.Count == 0)
             {
                 _state = FiberState.Running;
                 resumed = true;
             }
-        }
+        });
 
         if (resumed)
         {
-            VirtualMachine.Scheduler.Wake();
+            TryQueueForExecution();
         }
     }
 
     public void WaitForAll(params Fiber[] fibers)
     {
-        lock (_waitingFor)
-        {
-            for (var i = 0; i < fibers.Length; i++)
-            {
-                var fiber = fibers[i];
+        var requestedFibers = new Fiber[fibers.Length];
+        System.Array.Copy(fibers, requestedFibers, fibers.Length);
 
-                if (fiber == this)
-                {
-                    throw new FiberException("A fiber cannot wait for self.");
-                }
+        for (var i = 0; i < requestedFibers.Length; i++)
+        {
+            if (requestedFibers[i] == this)
+            {
+                throw new FiberException("A fiber cannot wait for self.");
+            }
+        }
+
+        var lockFibers = new Fiber[requestedFibers.Length + 1];
+        System.Array.Copy(requestedFibers, lockFibers, requestedFibers.Length);
+        lockFibers[^1] = this;
+
+        var pendingCrash = false;
+        WithOrderedLocks(lockFibers, () =>
+        {
+            for (var i = 0; i < requestedFibers.Length; i++)
+            {
+                var fiber = requestedFibers[i];
 
                 if (fiber._state == FiberState.Finished)
                 {
                     continue;
                 }
 
-                _waitingFor.Add(fibers[i]);
+                if (fiber._state == FiberState.Crashed)
+                {
+                    _pendingAwaiteeCrashes.Add(fiber);
+                    pendingCrash = true;
+                }
+                else if (_waitingFor.Add(fiber))
+                {
+                    fiber._waitingOn.Add(this);
+                }
             }
 
-            if (_waitingFor.Count != 0)
+            if (_waitingFor.Count != 0 || _pendingAwaiteeCrashes.Count != 0)
             {
                 _state = FiberState.Awaiting;
             }
-        }
+        });
 
-        VirtualMachine.Scheduler.Wake();
+        if (pendingCrash)
+        {
+            VirtualMachine.Scheduler.EnqueuePendingAwaiteeCrash(this);
+        }
+        else
+        {
+            VirtualMachine.Scheduler.Wake();
+        }
     }
         
     public void Resume()
     {
         lock (_waitingFor)
         {
-            if (_state == FiberState.Awaiting && _waitingFor.Count != 0)
+            if (_state == FiberState.Awaiting
+                && (_waitingFor.Count != 0 || _pendingAwaiteeCrashes.Count != 0))
             {
                 return;
             }
@@ -415,7 +488,7 @@ public sealed class Fiber
             _state = FiberState.Running;
         }
 
-        VirtualMachine.Scheduler.Wake();
+        TryQueueForExecution();
     }
 
     public void Stop()
@@ -425,11 +498,11 @@ public sealed class Fiber
             _scheduledChunks.Clear();
         }
 
-        lock (_callStack)
+        lock (CallStack)
         {
-            while (_callStack.Count > 0)
+            while (CallStack.Count > 0)
             {
-                var f = _callStack.Pop();
+                var f = CallStack.Pop();
                 if (f is ScriptStackFrame ssf)
                 {
                     ReturnScriptFrame(ssf);
@@ -441,22 +514,54 @@ public sealed class Fiber
     public void Reset()
     {
         Stop();
-            
-        lock (_evaluationStack)
+
+        lock (EvaluationStack)
         {
-            _evaluationStack.Clear();
+            EvaluationStack.Clear();
         }
 
-        lock (_waitingFor)
+        while (true)
         {
-            _waitingFor.Clear();
-
-            if (IsTerminal())
+            Fiber[] waitingFor;
+            lock (_waitingFor)
             {
-                _completionSource = null;
+                waitingFor = new Fiber[_waitingFor.Count];
+                _waitingFor.CopyTo(waitingFor);
             }
 
-            _state = FiberState.Fresh;
+            var lockFibers = new Fiber[waitingFor.Length + 1];
+            System.Array.Copy(waitingFor, lockFibers, waitingFor.Length);
+            lockFibers[^1] = this;
+
+            var reset = false;
+            WithOrderedLocks(lockFibers, () =>
+            {
+                if (!_waitingFor.SetEquals(waitingFor))
+                {
+                    return;
+                }
+
+                foreach (var fiber in waitingFor)
+                {
+                    fiber._waitingOn.Remove(this);
+                }
+
+                _waitingFor.Clear();
+                _pendingAwaiteeCrashes.Clear();
+
+                if (IsTerminal())
+                {
+                    _completionSource = null;
+                }
+
+                _state = FiberState.Fresh;
+                reset = true;
+            });
+
+            if (reset)
+            {
+                break;
+            }
         }
     }
 
@@ -472,41 +577,41 @@ public sealed class Fiber
 
     public void PushValue(DynamicValue value)
     {
-        lock (_evaluationStack)
+        lock (EvaluationStack)
         {
-            _evaluationStack.Push(value);
+            EvaluationStack.Push(value);
         }
     }
 
     public DynamicValue PeekValue()
     {
-        lock (_evaluationStack)
+        lock (EvaluationStack)
         {
-            return _evaluationStack.Peek();
+            return EvaluationStack.Peek();
         }
     }
 
     public bool TryPeekValue(out DynamicValue value)
     {
-        lock (_evaluationStack)
+        lock (EvaluationStack)
         {
-            return _evaluationStack.TryPeek(out value);
+            return EvaluationStack.TryPeek(out value);
         }
     }
 
     public DynamicValue PopValue()
     {
-        lock (_evaluationStack)
+        lock (EvaluationStack)
         {
-            return _evaluationStack.Pop();
+            return EvaluationStack.Pop();
         }
     }
 
     public bool TryPopValue(out DynamicValue value)
     {
-        lock (_evaluationStack)
+        lock (EvaluationStack)
         {
-            return _evaluationStack.TryPop(out value);
+            return EvaluationStack.TryPop(out value);
         }
     }
 
@@ -578,19 +683,19 @@ public sealed class Fiber
 
     public DynamicValue ThrowFromNative(DynamicValue value)
     {
-        lock (_callStack)
-        lock (_evaluationStack)
+        lock (CallStack)
+        lock (EvaluationStack)
         {              
-            var frame = _callStack.Peek();
+            var frame = CallStack.Peek();
             if (frame is NativeStackFrame nsf)
             {
                 nsf.HasThrown = true;
-                _callStack.Pop();
+                CallStack.Pop();
             }
                 
-            _evaluationStack.Push(value);
+            EvaluationStack.Push(value);
                 
-            UnwindTryHandle(_callStack.ToArray());
+            UnwindTryHandle(CallStack.ToArray());
         }
             
         return DynamicValue.Nil;
@@ -598,16 +703,16 @@ public sealed class Fiber
         
     internal void UnwindTryHandle(StackFrame[] callStackCopy)
     {
-        lock (_callStack)
+        lock (CallStack)
         {
-            var scriptFrame = _callStack.Peek().As<ScriptStackFrame>();
+            var scriptFrame = CallStack.Peek().As<ScriptStackFrame>();
                 
-            while (_callStack.Count > 1 && !scriptFrame.IsProtectedState)
+            while (CallStack.Count > 1 && !scriptFrame.IsProtectedState)
             {
                 scriptFrame.CloseUpvalues();
-                _callStack.Pop();
+                CallStack.Pop();
                 ReturnScriptFrame(scriptFrame);
-                scriptFrame = _callStack.Peek().As<ScriptStackFrame>();
+                scriptFrame = CallStack.Peek().As<ScriptStackFrame>();
             }
 
             if (scriptFrame.IsProtectedState)
@@ -628,63 +733,178 @@ public sealed class Fiber
         }
     }
     
-    internal void CheckAwaiteesCrashing()
+    internal void ProcessPendingAwaiteeCrashes()
     {
-        Fiber[] waitingFor;
+        Fiber[] pendingCrashes;
         lock (_waitingFor)
         {
-            waitingFor = [.. _waitingFor];
+            if (_pendingAwaiteeCrashes.Count == 0)
+            {
+                return;
+            }
+
+            pendingCrashes = new Fiber[_pendingAwaiteeCrashes.Count];
+            _pendingAwaiteeCrashes.CopyTo(pendingCrashes);
+            _pendingAwaiteeCrashes.Clear();
         }
 
-        foreach (var fiber in waitingFor)
+        foreach (var fiber in pendingCrashes)
         {
-            if (fiber._state == FiberState.Crashed)
+            if (IsTerminal())
             {
-                try
-                {
-                    PushValue(fiber.PeekValue());
-                    UnwindTryHandle(_callStack.ToArray());
-                }
-                catch (Exception e)
-                {
-                    EnterCrashState();
-                    _crashHandler?.Invoke(this, e);
-                }
+                break;
+            }
+
+            try
+            {
+                PushValue(fiber.PeekValue());
+                UnwindTryHandle(CallStack.ToArray());
+            }
+            catch (Exception e)
+            {
+                EnterCrashState();
+                _crashHandler?.Invoke(this, e);
+            }
+        }
+
+        lock (_waitingFor)
+        {
+            if (_state == FiberState.Awaiting
+                && _waitingFor.Count == 0
+                && _pendingAwaiteeCrashes.Count == 0)
+            {
+                _state = FiberState.Running;
             }
         }
     }
 
-    internal void RemoveFinishedAwaitees()
-    {
-        lock (_waitingFor)
-        {
-            _waitingFor.RemoveWhere(
-                x => x._state is FiberState.Finished
-                              or FiberState.Crashed
-            );
-        }
-    }
-
     private void EnterCrashState()
-    {
-        lock (_waitingFor)
-        {
-            _state = FiberState.Crashed;
-            SignalCompletionWaiters();
-        }
-
-        VirtualMachine.Scheduler.Wake();
-    }
+        => EnterTerminalState(FiberState.Crashed);
 
     private void EnterFinishedState()
+        => EnterTerminalState(FiberState.Finished);
+
+    private void EnterTerminalState(FiberState terminalState)
     {
-        lock (_waitingFor)
+        while (true)
         {
-            _state = FiberState.Finished;
-            SignalCompletionWaiters();
+            Fiber[] waiters;
+            lock (_waitingFor)
+            {
+                waiters = new Fiber[_waitingOn.Count];
+                _waitingOn.CopyTo(waiters);
+            }
+
+            var lockFibers = new Fiber[waiters.Length + 1];
+            System.Array.Copy(
+                waiters,
+                lockFibers,
+                waiters.Length
+            );
+            lockFibers[^1] = this;
+
+            var transitioned = false;
+            WithOrderedLocks(lockFibers, () =>
+            {
+                if (_waitingOn.Count != waiters.Length)
+                {
+                    return;
+                }
+
+                foreach (var waiter in waiters)
+                {
+                    if (!_waitingOn.Contains(waiter))
+                    {
+                        return;
+                    }
+                }
+
+                if (!IsTerminal())
+                {
+                    _state = terminalState;
+                    SignalCompletionWaiters();
+
+                    foreach (var waiter in waiters)
+                    {
+                        if (!waiter._waitingFor.Remove(this))
+                        {
+                            continue;
+                        }
+
+                        if (terminalState == FiberState.Crashed)
+                        {
+                            waiter._pendingAwaiteeCrashes.Add(this);
+                        }
+
+                        if (terminalState == FiberState.Finished
+                            && waiter._state == FiberState.Awaiting
+                            && waiter._waitingFor.Count == 0
+                            && waiter._pendingAwaiteeCrashes.Count == 0)
+                        {
+                            waiter._state = FiberState.Running;
+                        }
+                    }
+
+                    _waitingOn.Clear();
+                }
+
+                transitioned = true;
+            });
+
+            if (!transitioned)
+            {
+                continue;
+            }
+
+            foreach (var waiter in waiters)
+            {
+                if (terminalState == FiberState.Crashed)
+                {
+                    waiter.VirtualMachine.Scheduler.EnqueuePendingAwaiteeCrash(waiter);
+                }
+                else
+                {
+                    waiter.TryQueueForExecution();
+                }
+            }
+
+            VirtualMachine.Scheduler.Wake();
+            return;
+        }
+    }
+
+    private static void WithOrderedLocks(Fiber[] fibers, Action action)
+    {
+        System.Array.Sort(fibers, static (left, right) => left._lockOrderId.CompareTo(right._lockOrderId));
+
+        var uniqueCount = 0;
+        for (var i = 0; i < fibers.Length; i++)
+        {
+            if (uniqueCount != 0 && ReferenceEquals(fibers[i], fibers[uniqueCount - 1]))
+            {
+                continue;
+            }
+
+            fibers[uniqueCount++] = fibers[i];
         }
 
-        VirtualMachine.Scheduler.Wake();
+        var lockCount = 0;
+        try
+        {
+            for (; lockCount < uniqueCount; lockCount++)
+            {
+                Monitor.Enter(fibers[lockCount]._waitingFor);
+            }
+
+            action();
+        }
+        finally
+        {
+            for (var i = lockCount - 1; i >= 0; i--)
+            {
+                Monitor.Exit(fibers[i]._waitingFor);
+            }
+        }
     }
 
     private bool IsTerminal()
@@ -695,10 +915,7 @@ public sealed class Fiber
 
     private void Invoke(Chunk chunk, DynamicValue[] args)
     {
-        lock (_callStack)
-        {
-            _callStack.Push(RentScriptFrame(chunk, args));
-        }
+        CallStack.Push(RentScriptFrame(chunk, args));
     }
 
     internal DynamicValue[] RentArguments(int len)
