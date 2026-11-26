@@ -8,9 +8,16 @@ using EVIL.Core.Grammar.AST.Expressions;
 using EVIL.Core.Grammar.AST.Miscellaneous;
 using EVIL.Core.Grammar.AST.Statements;
 
-public sealed class GlobalSymbolResolver
+public sealed partial class GlobalSymbolResolver
 {
     public static readonly GlobalSymbolResolver Default = new();
+
+    private static readonly Dictionary<Type, Func<string, AstNode, bool>> LexicalScopeScanners = new();
+
+    static GlobalSymbolResolver()
+    {
+        RegisterScanners();
+    }
 
     public static readonly HashSet<string> BuiltInSymbols = new(StringComparer.Ordinal)
     {
@@ -18,7 +25,7 @@ public sealed class GlobalSymbolResolver
         "dofile", "require", "print", "fs", "time", "core", "debug", 
         "convert"
     };
-
+    
     private readonly HashSet<string> _declaredTopLevelFunctions = new(StringComparer.Ordinal);
     private readonly HashSet<string> _declaredTopLevelVariables = new(StringComparer.Ordinal);
     private readonly HashSet<string> _ambientConfiguredGlobals = new(StringComparer.Ordinal);
@@ -66,152 +73,22 @@ public sealed class GlobalSymbolResolver
     public void AddAmbientConfigured(string identifier)
         => _ambientConfiguredGlobals.Add(identifier);
 
+    private static void RegisterScanner<TNode>(Func<string, TNode, bool> scanner)
+        where TNode : AstNode
+    {
+        LexicalScopeScanners.Add(typeof(TNode), (identifier, node) => scanner(identifier, (TNode)node));
+    }
+
     public static bool IsInLexicalScope(string identifier, AstNode? fromNode)
     {
         var current = fromNode;
+
         while (current != null)
         {
-            if (current is BlockStatement block)
+            if (LexicalScopeScanners.TryGetValue(current.GetType(), out var scanner)
+                && scanner(identifier, current))
             {
-                foreach (var stmt in block.Statements)
-                {
-                    if (stmt is ValStatement val)
-                    {
-                        foreach (var identifierNode in val.DeclaredIdentifiers)
-                        {
-                            if (identifierNode.Name == identifier)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    else if (stmt is FnStatement { IsLocalDefinition: true } fn 
-                             && fn.Identifier?.Name == identifier)
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (current is FnStatement fn)
-            {
-                if (fn.ParameterList != null)
-                {
-                    foreach (var param in fn.ParameterList.Parameters)
-                    {
-                        if (param.Identifier.Name == identifier)
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                if (fn.IsLocalDefinition && fn.Identifier?.Name == identifier)
-                {
-                    return true;
-                }
-            }
-            else if (current is FnExpression fnExpr)
-            {
-                if (fnExpr.ParameterList != null)
-                {
-                    foreach (var param in fnExpr.ParameterList.Parameters)
-                    {
-                        if (param.Identifier.Name == identifier)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (current is SelfFnExpression selfFn)
-            {
-                if (selfFn.ParameterList != null)
-                {
-                    foreach (var param in selfFn.ParameterList.Parameters)
-                    {
-                        if (param.Identifier.Name == identifier)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (current is FnTargetedStatement fnTargeted)
-            {
-                if (fnTargeted.ParameterList != null)
-                {
-                    foreach (var param in fnTargeted.ParameterList.Parameters)
-                    {
-                        if (param.Identifier.Name == identifier)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (current is FnIndexedStatement fnIndexed)
-            {
-                if (fnIndexed.ParameterList != null)
-                {
-                    foreach (var param in fnIndexed.ParameterList.Parameters)
-                    {
-                        if (param.Identifier.Name == identifier)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (current is EachStatement each)
-            {
-                if (each.KeyIdentifier?.Name == identifier || each.ValueIdentifier?.Name == identifier)
-                {
-                    return true;
-                }
-            }
-            else if (current is ForStatement forStmt)
-            {
-                foreach (var init in forStmt.Assignments)
-                {
-                    if (init is ValStatement val)
-                    {
-                        foreach (var identifierNode in val.DeclaredIdentifiers)
-                        {
-                            if (identifierNode.Name == identifier)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-            else if (current is TryStatement tryStmt)
-            {
-                if (tryStmt.HandlerExceptionLocal?.Name == identifier)
-                {
-                    return true;
-                }
-            }
-            else if (current is ProgramNode prog)
-            {
-                foreach (var stmt in prog.Statements)
-                {
-                    if (stmt is ValStatement val)
-                    {
-                        foreach (var identifierNode in val.DeclaredIdentifiers)
-                        {
-                            if (identifierNode.Name == identifier)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    else if (stmt is FnStatement { IsLocalDefinition: true } progFn 
-                             && progFn.Identifier?.Name == identifier)
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
 
             current = current.Parent;

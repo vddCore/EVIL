@@ -677,6 +677,27 @@ public class AnalysisTests
     }
 
     [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnLocalVariablesInInterpolatedExpressions()
+    {
+        var source = "fn test() { val t = { name: \"EVIL\" }; val arr = array { 100 }; val _result = $\"${t.name} ${arr[0]}\"; }";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_ReportsAmbientGlobalInInterpolatedExpression()
+    {
+        var source = "val _port = $\"${CONFIG.port}\";";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8014");
+        diag.Message.ShouldContain("'CONFIG'");
+    }
+
+    [Test]
     public void UncheckedGlobalDereferenceAnalyzer_NoWarning_OnParameter()
     {
         var source = "fn test(param_cfg) { val _port = param_cfg.port; }";
@@ -692,6 +713,42 @@ public class AnalysisTests
         var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
 
         bag.Count.ShouldBe(0);
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_ReportsAmbientGlobalOutsideNestedBlockScope()
+    {
+        var source = "if (true) { val local_cfg = { port: 8080 }; val _inside = local_cfg.port; } val _outside = local_cfg.port;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8014");
+        diag.Message.ShouldContain("'local_cfg'");
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_ReportsAmbientGlobalOutsideForScope()
+    {
+        var source = "for (rw val loop_cfg = {}; true; loop_cfg = {}) { val _inside = loop_cfg.port; } val _outside = loop_cfg.port;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8014");
+        diag.Message.ShouldContain("'loop_cfg'");
+    }
+
+    [Test]
+    public void UncheckedGlobalDereferenceAnalyzer_ReportsAmbientGlobalOutsideCatchScope()
+    {
+        var source = "try { throw 1; } catch (caught) { val _inside = caught.port; } val _outside = caught.port;";
+        var (_, bag) = ParseAndAnalyze(source, new UncheckedGlobalDereferenceAnalyzer());
+
+        bag.Count.ShouldBe(1);
+        var diag = bag.Diagnostics.First();
+        diag.Id.ShouldBe("EV8014");
+        diag.Message.ShouldContain("'caught'");
     }
 
     [Test]

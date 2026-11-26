@@ -11,12 +11,22 @@ public static class InterpolatedStringParser
 {
     public static List<InterpolatedSegment> ParseSegments(StringConstant stringConstant, bool throwOnError = true)
     {
-        return ParseSegments(
+        var segments = ParseSegments(
             stringConstant.Value,
             stringConstant.Line,
             stringConstant.Column,
             throwOnError
         );
+
+        foreach (var segment in segments)
+        {
+            if (segment.Expression is { } expression)
+            {
+                expression.Parent = stringConstant;
+            }
+        }
+
+        return segments;
     }
 
     public static List<InterpolatedSegment> ParseSegments(

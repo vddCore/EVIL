@@ -26,5 +26,8 @@
     <Compile Update="Analyzers\UnusedVariableAnalyzer.ScopeVariableWalker.cs">
       <DependentUpon>UnusedVariableAnalyzer.cs</DependentUpon>
     </Compile>
+    <Compile Update="GlobalSymbolResolver.Scanners.cs">
+      <DependentUpon>GlobalSymbolResolver.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
