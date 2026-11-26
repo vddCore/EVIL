@@ -19,6 +19,11 @@ internal static class Program
 
     private static async Task<int> Main(string[] args)
     {
+        if (args.FirstOrDefault() == "protected-regions")
+        {
+            return ProtectedRegionBenchmarks.Run(args.Skip(1).ToArray());
+        }
+
         var duration = TimeSpan.FromSeconds(args.Length > 0 ? int.Parse(args[0]) : 1);
         var repetitions = args.Length > 1 ? int.Parse(args[1]) : 3;
         const int latencySamples = 50;

@@ -695,40 +695,57 @@ public sealed class Fiber
                 
             EvaluationStack.Push(value);
                 
-            UnwindTryHandle(CallStack.ToArray());
+            UnwindTryHandle();
         }
             
         return DynamicValue.Nil;
     }
         
-    internal void UnwindTryHandle(StackFrame[] callStackCopy)
+    internal void UnwindTryHandle()
     {
         lock (CallStack)
         {
             var exceptionObject = PeekValue();
-            var scriptFrame = CallStack.Peek().As<ScriptStackFrame>();
-                
-            while (CallStack.Count > 1 && !scriptFrame.IsProtectedState)
+            ScriptStackFrame? handlerFrame = null;
+
+            for (var index = 0; index < CallStack.Count; index++)
             {
+                var candidate = CallStack[index].As<ScriptStackFrame>();
+                if (candidate.IsProtectedState)
+                {
+                    handlerFrame = candidate;
+                    break;
+                }
+            }
+
+            var callStackCopy = handlerFrame == null ? CallStack.ToArray() : null;
+
+            while (CallStack.Count > 1)
+            {
+                var scriptFrame = CallStack.Peek().As<ScriptStackFrame>();
+                if (ReferenceEquals(scriptFrame, handlerFrame))
+                {
+                    break;
+                }
+
                 scriptFrame.CloseUpvalues();
                 CallStack.Pop();
                 ReturnScriptFrame(scriptFrame);
-                scriptFrame = CallStack.Peek().As<ScriptStackFrame>();
             }
 
-            if (scriptFrame.IsProtectedState)
+            if (handlerFrame != null)
             {
-                var activation = scriptFrame.BeginProtectedHandler();
+                var activation = handlerFrame.BeginProtectedHandler();
                 EvaluationStack.RestoreTo(activation.EvaluationStackDepth);
                 EvaluationStack.Push(exceptionObject);
-                scriptFrame.JumpAbsolute(activation.Region.HandlerAddress);
+                handlerFrame.JumpAbsolute(activation.Region.HandlerAddress);
             }
             else
             {
                 throw new UserUnhandledExceptionException(
                     "A user-unhandled exception has been thrown.",
                     exceptionObject,
-                    callStackCopy
+                    callStackCopy!
                 );
             }
         }
@@ -759,7 +776,7 @@ public sealed class Fiber
             try
             {
                 PushValue(fiber.PeekValue());
-                UnwindTryHandle(CallStack.ToArray());
+                UnwindTryHandle();
             }
             catch (Exception e)
             {

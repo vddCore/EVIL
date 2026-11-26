@@ -649,7 +649,9 @@ public sealed record ScriptStackFrame : StackFrame
             throw new VirtualMachineException("Protected-region handler is already active.");
         }
 
+        stack.Pop();
         activation.BeginHandlerTransfer();
+        stack.Push(activation);
         return activation;
     }
         

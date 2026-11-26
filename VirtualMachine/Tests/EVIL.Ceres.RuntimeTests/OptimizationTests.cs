@@ -3,6 +3,8 @@ namespace EVIL.Ceres.RuntimeTests;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using EVIL.Ceres.ExecutionEngine;
 using EVIL.Ceres.ExecutionEngine.Collections;
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 using EVIL.Ceres.ExecutionEngine.Diagnostics.Disassembly;
@@ -754,6 +756,32 @@ public class OptimizationTests : TestBase
             Assert.That(result.Array![1].Number, Is.EqualTo(42.0));
             Assert.That(VM.MainFiber.EvaluationStack.Count, Is.EqualTo(1));
         }
+    }
+
+    [Test]
+    public void ProtectedRegionActivation_UsesValueStorage()
+    {
+        Assert.That(typeof(ProtectedRegionActivation).IsValueType, Is.True);
+    }
+
+    [Test]
+    public void ExceptionUnwinding_UnhandledExceptionRetainsOriginalCallStackOrder()
+    {
+        var source = """
+            fn outer() { middle(); }
+            fn middle() { inner(); }
+            fn inner() { throw "expected"; }
+            fn test() { outer(); }
+            """;
+        var exception = Assert.Throws<Exception>(() => EvilTestResult(source));
+        Assert.That(exception!.InnerException, Is.InstanceOf<UserUnhandledExceptionException>());
+        var frameNames = ((UserUnhandledExceptionException)exception.InnerException!)
+            .EvilStackTrace
+            .OfType<ScriptStackFrame>()
+            .Select(frame => frame.Chunk.Name)
+            .ToArray();
+
+        Assert.That(frameNames, Is.EqualTo(new[] { "inner", "middle", "outer", "test" }));
     }
 
     [Test]

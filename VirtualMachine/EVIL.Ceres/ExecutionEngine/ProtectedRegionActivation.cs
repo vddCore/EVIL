@@ -2,7 +2,7 @@ namespace EVIL.Ceres.ExecutionEngine;
 
 using EVIL.Ceres.ExecutionEngine.Diagnostics;
 
-public sealed class ProtectedRegionActivation(
+public struct ProtectedRegionActivation(
     int regionId,
     BlockProtectionInfo region,
     int evaluationStackDepth)

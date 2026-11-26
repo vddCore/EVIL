@@ -1833,9 +1833,7 @@ internal class ExecutionUnit
 
                 case OpCode.THROW:
                 {
-                    _fiber.UnwindTryHandle(
-                        _callStack.ToArray()
-                    );
+                    _fiber.UnwindTryHandle();
                     break;
                 }
 
