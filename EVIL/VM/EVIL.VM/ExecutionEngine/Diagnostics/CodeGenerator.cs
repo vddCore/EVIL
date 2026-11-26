@@ -335,6 +335,12 @@ public sealed class CodeGenerator : IDisposable
         }
     }
 
+    public void EmitGetTableField(int stringPoolIndex)
+    {
+        Emit(OpCode.TABGET);
+        Emit(stringPoolIndex);
+    }
+
     public void EmitSetProp(int operand)
     {
         if ((uint)operand <= byte.MaxValue)

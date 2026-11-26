@@ -59,7 +59,7 @@ public class TokenVocabularyTests : LexerTestBase
         _lexer.LoadSource(
             "= += -= *= /= %= &= |= ^= >>= <<= ??= " +
             "+ - / * % & ~ | ^ << >> " +
-            "... .. => -> -- ++ && || ! <==> <!=> == != > < >= <= " +
+            "... .. => -> <- -- ++ && || ! <==> <!=> == != > < >= <= " +
             "# $ @ ? ?? ?. ?[ ?: ?( ...? :: ; , . { } [ ] ( ) #[ " +
             "array self error in !in is !is typeof"
         );
@@ -70,7 +70,7 @@ public class TokenVocabularyTests : LexerTestBase
             AssignShiftRight, AssignShiftLeft, AssignCoalesce,
             Plus, Minus, Slash, Asterisk, Modulo, BitwiseAnd, BitwiseNot,
             BitwiseOr, BitwiseXor, ShiftLeft, ShiftRight,
-            Ellipsis, Range, Associate, RightArrow, Decrement, Increment,
+            Ellipsis, Range, Associate, RightArrow, LeftArrow, Decrement, Increment,
             LogicalAnd, LogicalOr, LogicalNot, DeepEqual, DeepNotEqual,
             Equal, NotEqual, GreaterThan, LessThan, GreaterThanOrEqual,
             LessThanOrEqual,

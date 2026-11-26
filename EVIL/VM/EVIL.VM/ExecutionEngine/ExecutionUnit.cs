@@ -1229,6 +1229,41 @@ internal class ExecutionUnit
                     break;
                 }
 
+                case OpCode.ARRDEC:
+                {
+                    var count = frame.FetchInt32();
+                    var source = PopValue();
+
+                    if (count < 0)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Invalid array deconstruction size '{count}'."
+                        );
+                    }
+
+                    if (source.Type != DynamicValueType.Array)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Array deconstruction requires an Array, but received a {source.Type}."
+                        );
+                    }
+
+                    var array = source.Array!;
+                    if (array.Length < count)
+                    {
+                        throw new ArrayException(
+                            $"Array deconstruction requires at least {count} elements, but the array contains {array.Length}."
+                        );
+                    }
+
+                    for (var i = 0; i < count; i++)
+                    {
+                        PushValue(array[i]);
+                    }
+
+                    break;
+                }
+
                 case OpCode.TABINIT:
                 {
                     var count = frame.FetchInt32();
@@ -1318,34 +1353,29 @@ internal class ExecutionUnit
 
                     if (c.Type == DynamicValueType.Table)
                     {
-                        var tbl = c.Table!;
-                        if (tbl.TryGetValue(a, out var val))
-                        {
-                            PushValue(val);
-                            break;
-                        }
-
-                        var mt = tbl.MetaTable;
-                        if (mt != null && (mt.MetamethodFlags & MetamethodFlags.Get) != 0 && mt.TryGetValue(Table.GetMetaKeyVal, out var value))
-                        {
-                            if (value.Type == DynamicValueType.Chunk)
-                            {
-                                InvokeChunk(value.Chunk!, c, a);
-                                break;
-                            }
-
-                            if (value.Type == DynamicValueType.Table)
-                            {
-                                PushValue(value.Table!.Index(a));
-                                break;
-                            }
-                        }
-
-                        PushValue(DynamicValue.Nil);
+                        IndexTable(c, a);
                         break;
                     }
 
                     PushValue(c.Index(a));
+                    break;
+                }
+
+                case OpCode.TABGET:
+                {
+                    var key = frame.Chunk.StringPool.GetDynamicValue(
+                        frame.FetchInt32()
+                    );
+                    var source = PopValue();
+
+                    if (source.Type != DynamicValueType.Table)
+                    {
+                        throw new UnsupportedDynamicValueOperationException(
+                            $"Table deconstruction requires a Table, but received a {source.Type}."
+                        );
+                    }
+
+                    IndexTable(source, key);
                     break;
                 }
 
@@ -1453,7 +1483,9 @@ internal class ExecutionUnit
                         }
 
                         var mt = tbl.MetaTable;
-                        if (mt != null && (mt.MetamethodFlags & MetamethodFlags.Get) != 0 && mt.TryGetValue(Table.GetMetaKeyVal, out var value))
+                        if (mt != null 
+                            && (mt.MetamethodFlags & MetamethodFlags.Get) != 0
+                            && mt.TryGetValue(Table.GetMetaKeyVal, out var value))
                         {
                             if (value.Type == DynamicValueType.Chunk)
                             {
@@ -1883,6 +1915,36 @@ internal class ExecutionUnit
                 currentDepth = _callStack.Count;
             }
         }
+    }
+
+    private void IndexTable(DynamicValue tableValue, DynamicValue key)
+    {
+        var table = tableValue.Table!;
+        if (table.TryGetValue(key, out var value))
+        {
+            PushValue(value);
+            return;
+        }
+
+        var metaTable = table.MetaTable;
+        if (metaTable != null
+            && (metaTable.MetamethodFlags & MetamethodFlags.Get) != 0
+            && metaTable.TryGetValue(Table.GetMetaKeyVal, out var getValue))
+        {
+            if (getValue.Type == DynamicValueType.Chunk)
+            {
+                InvokeChunk(getValue.Chunk!, tableValue, key);
+                return;
+            }
+
+            if (getValue.Type == DynamicValueType.Table)
+            {
+                PushValue(getValue.Table!.Index(key));
+                return;
+            }
+        }
+
+        PushValue(DynamicValue.Nil);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

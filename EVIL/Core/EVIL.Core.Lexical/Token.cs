@@ -1,6 +1,7 @@
 ﻿namespace EVIL.Core.Lexical;
 
 using System;
+using System.Collections.Generic;
 
 public readonly struct Token(TokenType type, TokenClass @class, string value)
     : IEquatable<Token>
@@ -11,6 +12,14 @@ public readonly struct Token(TokenType type, TokenClass @class, string value)
 
     public int Line { get; init; }
     public int Column { get; init; }
+
+    public Dictionary<string, object?> Tags { get; } = new();
+
+    public T? GetTag<T>(string tagName)
+        => (T?)Tags.GetValueOrDefault(tagName, null);
+    
+    public void SetTag<T>(string tagName, T? value)
+        => Tags[tagName] = value;
 
     public static Token CreateHexInteger(string value)
         => new(TokenType.HexInteger, TokenClass.Literal, value);
@@ -72,6 +81,7 @@ public readonly struct Token(TokenType type, TokenClass @class, string value)
     public static readonly Token Range = new(TokenType.Range, TokenClass.Operator, "..");
     public static readonly Token Associate = new(TokenType.Associate, TokenClass.Operator, "=>");
     public static readonly Token RightArrow = new(TokenType.RightArrow, TokenClass.Operator, "->");
+    public static readonly Token LeftArrow = new(TokenType.LeftArrow, TokenClass.Operator, "<-");
     public static readonly Token Decrement = new(TokenType.Decrement, TokenClass.Operator, "--");
     public static readonly Token Increment = new(TokenType.Increment, TokenClass.Operator, "++");
     public static readonly Token LogicalAnd = new(TokenType.LogicalAnd, TokenClass.Operator, "&&");

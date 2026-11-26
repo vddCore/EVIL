@@ -188,6 +188,21 @@
     <Compile Update="Parser.Statement.While.cs">
       <DependentUpon>Parser.cs</DependentUpon>
     </Compile>
+    <Compile Update="AST\Statements\ValDeclarator.cs">
+      <DependentUpon>ValStatement.cs</DependentUpon>
+    </Compile>
+    <Compile Update="AST\Statements\ValStatement.Declarator.Array.cs">
+      <DependentUpon>ValStatement.Declarator.cs</DependentUpon>
+    </Compile>
+    <Compile Update="AST\Statements\ValStatement.Declarator.Identifier.cs">
+      <DependentUpon>ValStatement.Declarator.cs</DependentUpon>
+    </Compile>
+    <Compile Update="AST\Statements\ValStatement.Declarator.Table.cs">
+      <DependentUpon>ValStatement.Declarator.cs</DependentUpon>
+    </Compile>
+    <Compile Update="AST\Statements\ValStatement.Declarator.cs">
+      <DependentUpon>ValStatement.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

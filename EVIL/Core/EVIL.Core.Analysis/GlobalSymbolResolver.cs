@@ -15,7 +15,8 @@ public sealed class GlobalSymbolResolver
     public static readonly HashSet<string> BuiltInSymbols = new(StringComparer.Ordinal)
     {
         "math", "io", "tbl", "arr", "str", "evil", "assert",
-        "dofile", "require", "print", "fs", "time", "core", "debug", "convert"
+        "dofile", "require", "print", "fs", "time", "core", "debug", 
+        "convert"
     };
 
     private readonly HashSet<string> _declaredTopLevelFunctions = new(StringComparer.Ordinal);
@@ -42,9 +43,9 @@ public sealed class GlobalSymbolResolver
             }
             else if (stmt is ValStatement val)
             {
-                foreach (var def in val.Definitions)
+                foreach (var identifier in val.DeclaredIdentifiers)
                 {
-                    _declaredTopLevelVariables.Add(def.Key.Name);
+                    _declaredTopLevelVariables.Add(identifier.Name);
                 }
             }
         }
@@ -76,9 +77,9 @@ public sealed class GlobalSymbolResolver
                 {
                     if (stmt is ValStatement val)
                     {
-                        foreach (var def in val.Definitions)
+                        foreach (var identifierNode in val.DeclaredIdentifiers)
                         {
-                            if (def.Key.Name == identifier)
+                            if (identifierNode.Name == identifier)
                             {
                                 return true;
                             }
@@ -174,9 +175,9 @@ public sealed class GlobalSymbolResolver
                 {
                     if (init is ValStatement val)
                     {
-                        foreach (var def in val.Definitions)
+                        foreach (var identifierNode in val.DeclaredIdentifiers)
                         {
-                            if (def.Key.Name == identifier)
+                            if (identifierNode.Name == identifier)
                             {
                                 return true;
                             }
@@ -197,9 +198,9 @@ public sealed class GlobalSymbolResolver
                 {
                     if (stmt is ValStatement val)
                     {
-                        foreach (var def in val.Definitions)
+                        foreach (var identifierNode in val.DeclaredIdentifiers)
                         {
-                            if (def.Key.Name == identifier)
+                            if (identifierNode.Name == identifier)
                             {
                                 return true;
                             }

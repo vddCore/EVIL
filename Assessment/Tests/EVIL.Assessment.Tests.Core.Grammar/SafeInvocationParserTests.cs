@@ -1,4 +1,4 @@
-namespace EVIL.Assessment.Tests.Core.Grammar.ParserTests;
+namespace EVIL.Assessment.Tests.Core.Grammar;
 
 using EVIL.Core.Grammar.AST.Expressions;
 using EVIL.Core.Grammar.AST.Statements;

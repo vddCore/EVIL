@@ -15,7 +15,24 @@ public partial class Parser
 
     private Expression ShiftExpression()
     {
-        var node = AdditiveExpression();
+        return ShiftExpressionCore(
+            AdditiveExpression()
+        );
+    }
+
+    private Expression ShiftExpressionFrom(Expression firstTerm)
+    {
+        return ShiftExpressionCore(
+            AdditiveExpression(
+                MultiplicativeExpression(
+                    firstTerm
+                )
+            )
+        );
+    }
+
+    private Expression ShiftExpressionCore(Expression node)
+    {
         var token = CurrentToken;
 
         while (_shiftOperators.Contains(token.Type))
@@ -30,6 +47,7 @@ public partial class Parser
             else if (token.Type == TokenType.ShiftRight)
             {
                 var (line, col) = Match(Token.ShiftRight);
+                
                 node = new BinaryExpression(node, AdditiveExpression(), BinaryOperationType.ShiftRight)
                     { Line = line, Column = col };
             }

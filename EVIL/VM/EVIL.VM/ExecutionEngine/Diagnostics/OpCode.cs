@@ -99,6 +99,8 @@ public enum OpCode : byte
     TABNEW,
     ARRINIT,
     TABINIT,
+    ARRDEC,
+    TABGET,
     ELINIT,
     ELSET,
     SETPROP,

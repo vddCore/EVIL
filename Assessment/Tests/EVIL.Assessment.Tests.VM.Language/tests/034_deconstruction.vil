@@ -1,0 +1,170 @@
+#[test]
+fn array_pattern_binds_from_zero_and_ignores_trailing_values {
+  val [first, second] <- [10, nil, 30];
+
+  assert.equal(first, 10);
+  assert.equal(second, nil);
+}
+
+#[test]
+fn array_pattern_evaluates_source_once_and_supports_mutable_bindings {
+  rw val calls = 0;
+  loc fn create_source() {
+    calls += 1;
+    ret [3, 4, 5];
+  }
+
+  val [first, rw second] <- create_source();
+  second = 12;
+
+  assert.equal(calls, 1);
+  assert.equal(first, 3);
+  assert.equal(second, 12);
+}
+
+loc fn array_pattern_wrong_type() {
+  val [item] <- 42;
+}
+
+loc fn array_pattern_too_short() {
+  val [first, second] <- [1];
+}
+
+#[test]
+fn array_pattern_rejects_wrong_type_and_short_arrays {
+  assert.throws(fn -> array_pattern_wrong_type());
+  assert.throws(fn -> array_pattern_too_short());
+}
+
+#[test]
+fn array_pattern_failure_does_not_store_bindings {
+  rw val saved = nil;
+  loc fn save_source(source, values) {
+    saved = source;
+    ret values;
+  }
+
+  try {
+    val [first, second] <- save_source(fn -> first, [1]);
+  } catch (e) {
+    assert(e is Error);
+  }
+
+  assert.equal(saved(), nil);
+}
+
+#[test]
+fn table_pattern_reads_aliases_string_keys_and_missing_values {
+  val {name, points: score, ['total points']: total, missing} <- {
+    name: "Ada",
+    points: 12,
+    'total points' => 42,
+    extra: true
+  };
+
+  assert.equal(name, "Ada");
+  assert.equal(score, 12);
+  assert.equal(total, 42);
+  assert.equal(missing, nil);
+}
+
+#[test]
+fn table_pattern_supports_mutable_bindings {
+  val {rw name, points: rw score} <- { name: "Ada", points: 12 };
+  name = "Grace";
+  score = 15;
+
+  assert.equal(name, "Grace");
+  assert.equal(score, 15);
+}
+
+#[test]
+fn table_pattern_evaluates_once_and_preserves_getter_order {
+  rw val source_calls = 0;
+  rw val getter_calls = 0;
+  rw val lookup_order = "";
+
+  loc fn create_source() {
+    source_calls += 1;
+    val table = {};
+    val meta = {
+      __get: fn(t, key) {
+        getter_calls += 1;
+        lookup_order += key;
+        if (key == "second") {
+          ret 2;
+        }
+        ret 1;
+      }
+    };
+    tbl.set_mt(table, meta);
+    ret table;
+  }
+
+  val {first, second} <- create_source();
+
+  assert.equal(source_calls, 1);
+  assert.equal(getter_calls, 2);
+  assert.equal(lookup_order, "firstsecond");
+  assert.equal(first, 1);
+  assert.equal(second, 2);
+}
+
+loc fn table_pattern_wrong_type() {
+  val {item} <- 42;
+}
+
+#[test]
+fn table_pattern_requires_a_table {
+  assert.throws(fn -> table_pattern_wrong_type());
+}
+
+#[test]
+fn table_pattern_failure_does_not_store_bindings {
+  rw val saved = nil;
+  loc fn save_source(source, table) {
+    saved = source;
+    ret table;
+  }
+
+  val table = {};
+  val meta = {
+    __get: fn(t, key) {
+      if (key == "first") {
+        ret 1;
+      }
+      throw error("getter failed");
+    }
+  };
+  tbl.set_mt(table, meta);
+
+  try {
+    val {first, second} <- save_source(fn -> first, table);
+  } catch (e) {
+    assert(e is Error);
+  }
+
+  assert.equal(saved(), nil);
+}
+
+#[test]
+fn deconstruction_keeps_single_returns_indexing_multiplication_and_spreads {
+  loc fn single_return() -> [4, 5];
+  loc fn sum(a, b) -> a + b;
+  val forward = fn -> sum(*);
+
+  rw val right = 2;
+  val less_than_decremented = 1<--right;
+  assert.equal(less_than_decremented, false);
+  assert.equal(right, 1);
+
+  val [first, second] <- single_return();
+  val negated_source = {};
+  val negation_meta = { __aneg: fn(t) -> [7] };
+  tbl.set_mt(negated_source, negation_meta);
+  val [negative] <-- negated_source;
+
+  assert.equal(first + second * 2, 14);
+  assert.equal(negative, 7);
+  assert.equal(forward(first, second), 9);
+}

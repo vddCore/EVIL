@@ -16,7 +16,11 @@ public partial class Parser
 
     private Expression MultiplicativeExpression()
     {
-        var node = PatternExpression();
+        return MultiplicativeExpression(PatternExpression());
+    }
+
+    private Expression MultiplicativeExpression(Expression node)
+    {
         var token = CurrentToken;
 
         while (_multiplicativeOperators.Contains(token.Type))

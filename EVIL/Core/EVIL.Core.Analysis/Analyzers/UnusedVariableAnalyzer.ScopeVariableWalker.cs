@@ -127,10 +127,10 @@ public sealed partial class UnusedVariableAnalyzer
 
         protected override void Visit(ValStatement valStatement)
         {
-            foreach (var kvp in valStatement.Definitions)
+            foreach (var identifier in valStatement.DeclaredIdentifiers)
             {
-                var name = kvp.Key.Name;
-                var location = new SourceLocation(_filePath, kvp.Key.Line, kvp.Key.Column);
+                var name = identifier.Name;
+                var location = new SourceLocation(_filePath, identifier.Line, identifier.Column);
                 CurrentScope.Variables.Add(new VariableInfo(name, location));
             }
 

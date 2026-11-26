@@ -88,6 +88,29 @@ public class DisassemblyModelTests : EvilTest
     }
 
     [Test]
+    public void InstructionDecoder_DecodesTableFieldKeysWithoutDesynchronizing()
+    {
+        var chunk = Compiler.Compile(
+            "val {name, points: score} <- source;",
+            "test_table_pattern_disassembly"
+        );
+        var instructions = chunk.Disassemble().Instructions;
+        var tableGets = instructions.Where(i => i.OpCode == OpCode.TABGET).ToArray();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tableGets, Has.Length.EqualTo(2));
+            Assert.That(tableGets[0].Length, Is.EqualTo(5));
+            Assert.That(tableGets[0].Operands, Has.Count.EqualTo(1));
+            Assert.That(tableGets[0].Operands[0].Kind, Is.EqualTo(OperandKind.StringPoolIndex));
+            Assert.That(tableGets[0].Operands[0].ResolvedSymbol, Is.EqualTo("name"));
+            Assert.That(tableGets[1].Length, Is.EqualTo(5));
+            Assert.That(tableGets[1].Operands[0].ResolvedSymbol, Is.EqualTo("points"));
+            Assert.That(instructions[^1].OpCode, Is.EqualTo(OpCode.RET));
+        }
+    }
+
+    [Test]
     public void InstructionDecoder_CorrectlyDecodesXargsWithoutDesynchronizing()
     {
         var script = """

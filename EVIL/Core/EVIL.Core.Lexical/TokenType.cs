@@ -25,6 +25,7 @@ public enum TokenType
     Range,
     Associate,
     RightArrow,
+    LeftArrow,
         
     Dot,
     QuestionMark,

@@ -3,6 +3,7 @@
 using System.IO;
 using EVIL.VirtualMachine.ExecutionEngine;
 using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Grammar;
 using NUnit.Framework;
@@ -55,6 +56,68 @@ public class SerializationTests
             Assert.That(version, Is.EqualTo(Chunk.FormatVersion));
             Assert.That(chunk, Is.EqualTo(originalChunk));
         }
+    }
+
+    [Test]
+    public void ChunkSerializeDeserialize_PreservesArrayDeconstructionOperand()
+    {
+        var originalChunk = _compiler.Compile("val [first, second] <- [1, 2];");
+
+        using var stream = new MemoryStream();
+        originalChunk.Serialize(stream);
+        stream.Position = 0;
+        var chunk = Chunk.Deserialize(stream, out var version, out _);
+
+        Assert.That(version, Is.EqualTo(Chunk.FormatVersion));
+        Assert.That(chunk, Is.EqualTo(originalChunk));
+
+        Instruction? deconstruction = null;
+        foreach (var instruction in chunk.Disassemble().Instructions)
+        {
+            if (instruction.OpCode == OpCode.ARRDEC)
+            {
+                deconstruction = instruction;
+                break;
+            }
+        }
+
+        Assert.That(deconstruction, Is.Not.Null);
+        Assert.That(deconstruction!.Operands, Has.Count.EqualTo(1));
+        Assert.That(deconstruction.Operands[0].Kind, Is.EqualTo(OperandKind.ImmediateInt32));
+        Assert.That(deconstruction.Operands[0].RawValue, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ChunkSerializeDeserialize_PreservesTableFieldKeys()
+    {
+        var originalChunk = _compiler.Compile(
+            "val {name, points: score, ['total points']: total} <- source;"
+        );
+
+        using var stream = new MemoryStream();
+        originalChunk.Serialize(stream);
+        stream.Position = 0;
+        var chunk = Chunk.Deserialize(stream, out var version, out _);
+
+        Assert.That(version, Is.EqualTo(Chunk.FormatVersion));
+        Assert.That(chunk, Is.EqualTo(originalChunk));
+
+        var expectedKeys = new[] { "name", "points", "total points" };
+        var keyIndex = 0;
+        foreach (var instruction in chunk.Disassemble().Instructions)
+        {
+            if (instruction.OpCode != OpCode.TABGET)
+            {
+                continue;
+            }
+
+            Assert.That(instruction.Operands, Has.Count.EqualTo(1));
+            Assert.That(instruction.Operands[0].Kind, Is.EqualTo(OperandKind.StringPoolIndex));
+            Assert.That(instruction.Operands[0].ResolvedSymbol, Is.EqualTo(expectedKeys[keyIndex]));
+            keyIndex++;
+        }
+
+        Assert.That(keyIndex, Is.EqualTo(expectedKeys.Length));
     }
 
     [Test]

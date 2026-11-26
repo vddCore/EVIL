@@ -1,7 +1,6 @@
 namespace EVIL.Assessment.Tests.Core.Grammar;
 
 using System.Linq;
-using EVIL.Assessment.Tests.Core.Grammar.ParserTests;
 using EVIL.Core.Grammar;
 using EVIL.Core.Grammar.AST.Expressions;
 using EVIL.Core.Grammar.AST.Statements;

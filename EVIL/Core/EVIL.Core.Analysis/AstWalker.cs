@@ -53,12 +53,9 @@ public class AstWalker : AstVisitor
 
     protected override void Visit(ValStatement valStatement)
     {
-        foreach (var kvp in valStatement.Definitions)
+        foreach (var initializer in valStatement.Initializers)
         {
-            if (kvp.Value != null)
-            {
-                Visit(kvp.Value);
-            }
+            Visit(initializer);
         }
     }
 

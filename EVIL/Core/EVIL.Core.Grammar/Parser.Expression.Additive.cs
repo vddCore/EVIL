@@ -7,15 +7,19 @@ using EVIL.Core.Lexical;
 
 public partial class Parser
 {
-    private static readonly TokenType[] _additiveOperators = new[]
-    {
+    private static readonly TokenType[] _additiveOperators =
+    [
         TokenType.Plus,
-        TokenType.Minus,
-    };
+        TokenType.Minus
+    ];
 
     private Expression AdditiveExpression()
     {
-        var node = MultiplicativeExpression();
+        return AdditiveExpression(MultiplicativeExpression());
+    }
+
+    private Expression AdditiveExpression(Expression node)
+    {
         var token = CurrentToken;
 
         while (_additiveOperators.Contains(token.Type))

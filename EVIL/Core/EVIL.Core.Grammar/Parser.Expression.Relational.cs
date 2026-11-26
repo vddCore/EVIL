@@ -12,6 +12,7 @@ public partial class Parser
     private static readonly TokenType[] _comparisonOperators =
     [
         TokenType.LessThan,
+        TokenType.LeftArrow,
         TokenType.GreaterThan,
         TokenType.LessThanOrEqual,
         TokenType.GreaterThanOrEqual,
@@ -36,6 +37,45 @@ public partial class Parser
 
                     node = new BinaryExpression(node, ShiftExpression(), BinaryOperationType.Less)
                         { Line = line, Column = col };
+                    break;
+                }
+
+                case TokenType.LeftArrow:
+                {
+                    var hasTrailingMinus = CurrentToken.GetTag<bool>("HasTrailingMinus");
+                    var (line, col) = Match(Token.LeftArrow);
+                    Expression right;
+                    if (hasTrailingMinus)
+                    {
+                        Match(Token.Minus);
+                        right = ShiftExpressionFrom(
+                            PatternExpression(
+                                DecrementExpression(
+                                    line, 
+                                    col + 1
+                                )
+                            )
+                        );
+                    }
+                    else
+                    {
+                        var negativeOperand = new UnaryExpression(
+                            PrefixExpression(),
+                            UnaryOperationType.Minus
+                        ) { Line = line, Column = col + 1 };
+                        
+                        right = ShiftExpressionFrom(
+                            PatternExpression(
+                                negativeOperand
+                            )
+                        );
+                    }
+
+                    node = new BinaryExpression(
+                        node,
+                        right,
+                        BinaryOperationType.Less
+                    ) { Line = line, Column = col };
                     break;
                 }
                 
@@ -113,7 +153,8 @@ public partial class Parser
                     StringConstant? nativeTypeConstant = null;
                     if (typeCodeConstant.Value == DynamicValueType.NativeObject)
                     {
-                        if (CurrentToken.Type == TokenType.PlainString || CurrentToken is { Type: TokenType.InterpolatedString })
+                        if (CurrentToken.Type == TokenType.PlainString 
+                            || CurrentToken is { Type: TokenType.InterpolatedString })
                         {
                             var constant = ConstantExpression();
                         

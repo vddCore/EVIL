@@ -33,19 +33,7 @@ public partial class Parser
             case TokenType.Decrement:
             {
                 var (line, col) = Match(Token.Decrement);
-                var target = UnaryExpression();
-                
-                if (target is IndexerExpression { IsRange: true }
-                           or IndexerExpression { IsFromEndIndex: true })
-                {
-                    throw new ParserException(
-                        "Range and from-end indexers are not assignable.",
-                        (line, col)
-                    );
-                }
-
-                return new DecrementationExpression(target, true)
-                    { Line = line, Column = col };
+                return DecrementExpression(line, col);
             }
 
             default:
@@ -53,5 +41,22 @@ public partial class Parser
                 return UnaryExpression();
             }
         }
+    }
+
+    private Expression DecrementExpression(int line, int column)
+    {
+        var target = UnaryExpression();
+
+        if (target is IndexerExpression { IsRange: true }
+                   or IndexerExpression { IsFromEndIndex: true })
+        {
+            throw new ParserException(
+                "Range and from-end indexers are not assignable.",
+                (line, column)
+            );
+        }
+
+        return new DecrementationExpression(target, true)
+            { Line = line, Column = column };
     }
 }

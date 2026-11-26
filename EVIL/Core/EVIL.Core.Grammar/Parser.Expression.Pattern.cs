@@ -13,16 +13,20 @@ public partial class Parser
         }
         else
         {
-            var node = PrefixExpression();
-            var token = CurrentToken;
-
-            while (token.Type == TokenType.With)
-            {
-                node = WithExpression(node);
-                token = CurrentToken;
-            }
-
-            return node;
+            return PatternExpression(PrefixExpression());
         }
+    }
+
+    private Expression PatternExpression(Expression node)
+    {
+        var token = CurrentToken;
+
+        while (token.Type == TokenType.With)
+        {
+            node = WithExpression(node);
+            token = CurrentToken;
+        }
+
+        return node;
     }
 }

@@ -108,6 +108,7 @@ public static class InstructionDecoder
             }
 
             case OpCode.LDSTR:
+            case OpCode.TABGET:
             {
                 var strId = reader.ReadInt32();
                 string? strVal = null;
@@ -644,6 +645,7 @@ public static class InstructionDecoder
             }
 
             case OpCode.ARRINIT:
+            case OpCode.ARRDEC:
             case OpCode.TABINIT:
             case OpCode.STRCAT:
             {

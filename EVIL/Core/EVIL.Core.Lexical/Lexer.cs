@@ -222,6 +222,15 @@ public class Lexer
                     Advance(3);
                     State.CurrentToken = Token.DeepNotEqual with { Line = line, Column = col };
                     break;
+
+                case '<' when Peek() == '-':
+                {
+                    var hasTrailingMinus = Peek(2) == '-';
+                    Advance();
+                    State.CurrentToken = Token.LeftArrow with { Line = line, Column = col };
+                    State.CurrentToken.SetTag("HasTrailingMinus", hasTrailingMinus);
+                    break;
+                }
                 
                 case '<' when Peek() == '=':
                     Advance();
