@@ -4,6 +4,7 @@ using System.Globalization;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Constants;
+using EVIL.Core.Grammar.StringInterpolation;
 using EVIL.Core.Lexical;
 
 public partial class Parser
@@ -79,8 +80,14 @@ public partial class Parser
             case TokenType.InterpolatedString:
             {
                 var (line, col) = Match(Token.InterpolatedString);
+                var segments = InterpolatedStringParser.ParseSegments(
+                    token.Value,
+                    line,
+                    col,
+                    ParseInterpolatedExpression
+                );
 
-                return new StringConstant(token.Value, true)
+                return new StringConstant(token.Value, true, segments)
                     { Line = line, Column = col };
             }
             case TokenType.Nil:
@@ -178,7 +185,7 @@ public partial class Parser
             {
                 throw new ParserException(
                     $"Unexpected token {token}",
-                    (_lexer.State.Line, _lexer.State.Column)
+                    (token.Line, token.Column)
                 );
             }
         }

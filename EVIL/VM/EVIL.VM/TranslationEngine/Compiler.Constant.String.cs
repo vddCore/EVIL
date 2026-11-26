@@ -11,7 +11,7 @@ public partial class Compiler
     {
         if (stringConstant.IsInterpolated)
         {
-            var segments = InterpolatedStringParser.ParseSegments(stringConstant);
+            var segments = stringConstant.Segments;
 
             var hasExpressions = segments.Any(s => s.Kind == InterpolatedSegmentKind.Expression);
             if (!hasExpressions)

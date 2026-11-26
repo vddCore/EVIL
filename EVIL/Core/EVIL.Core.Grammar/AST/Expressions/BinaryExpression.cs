@@ -1,9 +1,11 @@
 ﻿namespace EVIL.Core.Grammar.AST.Expressions;
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Constants;
+using EVIL.Core.Grammar.StringInterpolation;
 
 public sealed class BinaryExpression : Expression
 {
@@ -41,6 +43,49 @@ public sealed class BinaryExpression : Expression
         TypeCodeConstant tc => tc.Value.ToString(),
         _ => null
     };
+
+    private static IReadOnlyList<InterpolatedSegment> GetStringSegments(StringConstant stringConstant)
+    {
+        if (stringConstant.IsInterpolated && stringConstant.Segments.Count > 0)
+        {
+            return stringConstant.Segments;
+        }
+
+        return [new InterpolatedSegment(InterpolatedSegmentKind.Literal, stringConstant.Value)];
+    }
+
+    private static IReadOnlyList<InterpolatedSegment> CombineStringSegments(
+        IReadOnlyList<InterpolatedSegment> left,
+        IReadOnlyList<InterpolatedSegment> right)
+    {
+        var segments = new List<InterpolatedSegment>(left.Count + right.Count);
+        AppendSegments(segments, left);
+        AppendSegments(segments, right);
+        return segments;
+    }
+
+    private static void AppendSegments(
+        List<InterpolatedSegment> target,
+        IReadOnlyList<InterpolatedSegment> segments)
+    {
+        foreach (var segment in segments)
+        {
+            if (segment.Kind == InterpolatedSegmentKind.Literal
+                && target.Count > 0
+                && target[^1].Kind == InterpolatedSegmentKind.Literal)
+            {
+                var previous = target[^1];
+                target[^1] = new InterpolatedSegment(
+                    InterpolatedSegmentKind.Literal,
+                    previous.Text + segment.Text
+                );
+            }
+            else
+            {
+                target.Add(segment);
+            }
+        }
+    }
 
     public override Expression Reduce()
     {
@@ -132,8 +177,15 @@ public sealed class BinaryExpression : Expression
             switch (Type)
             {
                 case BinaryOperationType.Add:
-                    return new StringConstant(lsc.Value + rsc.Value, lsc.IsInterpolated || rsc.IsInterpolated)
+                {
+                    var isInterpolated = lsc.IsInterpolated || rsc.IsInterpolated;
+                    var segments = isInterpolated
+                        ? CombineStringSegments(GetStringSegments(lsc), GetStringSegments(rsc))
+                        : null;
+
+                    return new StringConstant(lsc.Value + rsc.Value, isInterpolated, segments)
                         .CopyMetadata<StringConstant>(this);
+                }
 
                 case BinaryOperationType.Equal:
                 case BinaryOperationType.DeepEqual:
@@ -195,7 +247,14 @@ public sealed class BinaryExpression : Expression
                 var rStr = GetConstantStringRepresentation(right);
                 if (rStr != null)
                 {
-                    return new StringConstant(lscAdd.Value + rStr, lscAdd.IsInterpolated)
+                    var segments = lscAdd.IsInterpolated
+                        ? CombineStringSegments(
+                            GetStringSegments(lscAdd),
+                            [new InterpolatedSegment(InterpolatedSegmentKind.Literal, rStr)]
+                        )
+                        : null;
+
+                    return new StringConstant(lscAdd.Value + rStr, lscAdd.IsInterpolated, segments)
                         .CopyMetadata<StringConstant>(this);
                 }
             }
@@ -204,7 +263,14 @@ public sealed class BinaryExpression : Expression
                 var lStr = GetConstantStringRepresentation(left);
                 if (lStr != null)
                 {
-                    return new StringConstant(lStr + rscAdd.Value, rscAdd.IsInterpolated)
+                    var segments = rscAdd.IsInterpolated
+                        ? CombineStringSegments(
+                            [new InterpolatedSegment(InterpolatedSegmentKind.Literal, lStr)],
+                            GetStringSegments(rscAdd)
+                        )
+                        : null;
+
+                    return new StringConstant(lStr + rscAdd.Value, rscAdd.IsInterpolated, segments)
                         .CopyMetadata<StringConstant>(this);
                 }
             }

@@ -42,11 +42,16 @@ public class Lexer
     }
 
     public void LoadSource(string source)
+        => LoadSource(source, 1, 1);
+
+    public void LoadSource(string source, int line, int column)
     {
         ArgumentNullException.ThrowIfNull(source);
 
         _sourceCode = source;
         State.Reset();
+        State.Line = line;
+        State.Column = column;
 
         if (_sourceCode.Length != 0)
         {

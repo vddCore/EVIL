@@ -3,37 +3,16 @@ namespace EVIL.Core.Grammar.StringInterpolation;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using EVIL.Core.Grammar.AST.Constants;
+using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Expressions;
-using EVIL.Core.Lexical;
 
 public static class InterpolatedStringParser
 {
-    public static List<InterpolatedSegment> ParseSegments(StringConstant stringConstant, bool throwOnError = true)
-    {
-        var segments = ParseSegments(
-            stringConstant.Value,
-            stringConstant.Line,
-            stringConstant.Column,
-            throwOnError
-        );
-
-        foreach (var segment in segments)
-        {
-            if (segment.Expression is { } expression)
-            {
-                expression.Parent = stringConstant;
-            }
-        }
-
-        return segments;
-    }
-
     public static List<InterpolatedSegment> ParseSegments(
         string templateString,
-        int line = 0,
-        int column = 0,
-        bool throwOnError = true)
+        int line,
+        int column,
+        Func<string, int, int, Expression> parseExpression)
     {
         var segments = new List<InterpolatedSegment>();
         var currentLiteral = new StringBuilder();
@@ -160,42 +139,21 @@ public static class InterpolatedStringParser
                         currentLiteral.Clear();
                     }
 
-                    try
-                    {
-                        var parser = new Parser();
-                        var exprNode = parser.ParseExpression(exprSource);
-                        
-                        segments.Add(
-                            new InterpolatedSegment(
-                                InterpolatedSegmentKind.Expression,
-                                exprSource, 
-                                exprNode
-                            )
-                        );
-                    }
-                    catch (Exception) when (!throwOnError)
-                    {
-                        segments.Add(
-                            new InterpolatedSegment(
-                                InterpolatedSegmentKind.Literal,
-                                exprSource
-                            )
-                        );
-                    }
-                    catch (ParserException pe)
-                    {
-                        throw new ParserException(
-                            $"Error in interpolated expression: {pe.Message}",
-                            (line, column)
-                        );
-                    }
-                    catch (LexerException le)
-                    {
-                        throw new ParserException(
-                            $"Error in interpolated expression: {le.Message}",
-                            (line, column)
-                        );
-                    }
+                    var (expressionLine, expressionColumn) = GetSourceLocation(
+                        templateString,
+                        line,
+                        column + 1,
+                        exprStart
+                    );
+                    var exprNode = parseExpression(exprSource, expressionLine, expressionColumn);
+
+                    segments.Add(
+                        new InterpolatedSegment(
+                            InterpolatedSegmentKind.Expression,
+                            exprSource,
+                            exprNode
+                        )
+                    );
 
                     i = j + 1; /* skip closing '}' */
                     continue;
@@ -213,6 +171,13 @@ public static class InterpolatedStringParser
                 }
 
                 var identifier = templateString.Substring(idStart, j - idStart);
+                var (expressionLine, expressionColumn) = GetSourceLocation(
+                    templateString,
+                    line,
+                    column + 1,
+                    idStart
+                );
+
                 if (currentLiteral.Length > 0)
                 {
                     segments.Add(
@@ -227,8 +192,8 @@ public static class InterpolatedStringParser
 
                 var exprNode = new SymbolReferenceExpression(identifier)
                 {
-                    Line = line,
-                    Column = column
+                    Line = expressionLine,
+                    Column = expressionColumn
                 };
                 
                 segments.Add(
@@ -258,5 +223,27 @@ public static class InterpolatedStringParser
         }
 
         return segments;
+    }
+
+    private static (int Line, int Column) GetSourceLocation(
+        string templateString,
+        int line,
+        int column,
+        int offset)
+    {
+        for (var i = 0; i < offset; i++)
+        {
+            if (templateString[i] == '\n')
+            {
+                line++;
+                column = 1;
+            }
+            else
+            {
+                column++;
+            }
+        }
+
+        return (line, column);
     }
 }

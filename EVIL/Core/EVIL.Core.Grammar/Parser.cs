@@ -45,16 +45,39 @@ public partial class Parser
     }
 
     public Expression ParseExpression(string expressionSource)
+        => ParseExpression(expressionSource, 1, 1);
+
+    private Expression ParseExpression(string expressionSource, int line, int column)
     {
         _functionDescent = 0;
         _loopDescent = 0;
         _ternaryDepth = 0;
-        _lexer.LoadSource(expressionSource);
+        _lexer.LoadSource(expressionSource, line, column);
 
         var expression = AssignmentExpression();
         Match(Token.EOF);
 
         return expression;
+    }
+
+    private Expression ParseInterpolatedExpression(string expressionSource, int line, int column)
+    {
+        var parser = new Parser(DiagnosticSink, FilePath)
+        {
+            MaxErrors = MaxErrors
+        };
+
+        try
+        {
+            return parser.ParseExpression(expressionSource, line, column);
+        }
+        catch (ParserException exception) when (FilePath != null && exception.Location.FilePath == null)
+        {
+            throw new ParserException(
+                exception.Message,
+                new SourceLocation(FilePath, exception.Line, exception.Column)
+            );
+        }
     }
 
     public void Synchronize()

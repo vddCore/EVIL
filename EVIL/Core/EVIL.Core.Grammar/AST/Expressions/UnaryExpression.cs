@@ -89,7 +89,11 @@ public sealed class UnaryExpression : Expression
                 }
 
                 case UnaryOperationType.ToString:
-                    return new StringConstant(stringConstant.Value, stringConstant.IsInterpolated)
+                    return new StringConstant(
+                        stringConstant.Value,
+                        stringConstant.IsInterpolated,
+                        stringConstant.Segments
+                    )
                         .CopyMetadata<StringConstant>(this);
 
                 case UnaryOperationType.LogicalNot:

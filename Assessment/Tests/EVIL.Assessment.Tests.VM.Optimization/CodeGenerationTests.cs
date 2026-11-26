@@ -428,7 +428,7 @@ public class CodeGenerationTests : EvilTest
     {
         var script = """
             fn test() {
-                val result = "${"string"+"string"}.";
+                val result = "${"string"+"string"}." + " suffix";
                 ret result;
             }
             """;
@@ -437,8 +437,48 @@ public class CodeGenerationTests : EvilTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
-            Assert.That(result.String, Is.EqualTo("stringstring."));
+            Assert.That(result.String, Is.EqualTo("stringstring. suffix"));
         }
+    }
+
+    [Test]
+    public void StringInterpolation_ConstantConcatenation_PreservesMultipleEmbeddedExpressions()
+    {
+        var script = """
+            fn test() {
+                val name = "EVIL";
+                val both = "first $name" + " and second $name";
+                val right = "first $name" + 42;
+                val left = 42 + " and $name";
+                ret [both, right, left];
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.Array));
+            Assert.That(result.Array![0].String, Is.EqualTo("first EVIL and second EVIL"));
+            Assert.That(result.Array![1].String, Is.EqualTo("first EVIL42"));
+            Assert.That(result.Array![2].String, Is.EqualTo("42 and EVIL"));
+        }
+    }
+
+    [Test]
+    public void StringInterpolation_UnaryStringConversion_PreservesSegments()
+    {
+        var script = """
+            fn test() {
+                val name = "EVIL";
+                ret @"name: $name";
+            }
+            """;
+
+        var result = EvilTestResult(script);
+
+        Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
+        Assert.That(result.String, Is.EqualTo("name: EVIL"));
     }
 
     [Test]

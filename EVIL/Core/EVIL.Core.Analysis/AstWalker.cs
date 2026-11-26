@@ -8,7 +8,6 @@ using EVIL.Core.Grammar.AST.Diagnostics;
 using EVIL.Core.Grammar.AST.Expressions;
 using EVIL.Core.Grammar.AST.Miscellaneous;
 using EVIL.Core.Grammar.AST.Statements;
-using EVIL.Core.Grammar.StringInterpolation;
 
 public class AstWalker : AstVisitor
 {
@@ -423,19 +422,11 @@ public class AstWalker : AstVisitor
 
     protected override void Visit(StringConstant stringConstant)
     {
-        if (stringConstant.IsInterpolated)
+        foreach (var segment in stringConstant.Segments)
         {
-            var segments = InterpolatedStringParser.ParseSegments(
-                stringConstant, 
-                throwOnError: false
-            );
-            
-            foreach (var segment in segments)
+            if (segment.Expression is { } expression)
             {
-                if (segment is { Kind: InterpolatedSegmentKind.Expression, Expression: not null })
-                {
-                    Visit(segment.Expression);
-                }
+                Visit(expression);
             }
         }
     }
