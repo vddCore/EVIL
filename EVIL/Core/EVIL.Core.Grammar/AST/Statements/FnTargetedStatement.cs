@@ -1,0 +1,36 @@
+namespace EVIL.Core.Grammar.AST.Statements;
+
+using EVIL.Core.Grammar.AST.Base;
+using EVIL.Core.Grammar.AST.Expressions;
+using EVIL.Core.Grammar.AST.Miscellaneous;
+
+public class FnTargetedStatement : Statement
+{
+    public AstNode PrimaryTarget { get; }
+    public IdentifierNode SecondaryIdentifier { get; }
+    public AttributeList? AttributeList { get; }
+    public ParameterList? ParameterList { get; }
+    public Statement InnerStatement { get; }
+
+    public bool IsSelfTargeting => PrimaryTarget is SelfExpression;
+        
+    public FnTargetedStatement(
+        AstNode primaryTarget,
+        IdentifierNode secondaryIdentifier,
+        AttributeList? attributeList,
+        ParameterList? parameterList,
+        Statement innerStatement)
+    {
+        PrimaryTarget = primaryTarget;
+        SecondaryIdentifier = secondaryIdentifier;
+        AttributeList = attributeList;
+        ParameterList = parameterList;
+        InnerStatement = innerStatement;
+
+        Reparent(PrimaryTarget);
+        Reparent(SecondaryIdentifier);
+        Reparent(AttributeList);
+        Reparent(ParameterList);
+        Reparent(InnerStatement);
+    }
+}

@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>EVIL.Core.Diagnostics</AssemblyName>
+    <RootNamespace>EVIL.Core.Diagnostics</RootNamespace>
+    <Nullable>enable</Nullable>
+
+    <Version>2.0.0</Version>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>EVIL.Assessment.Tests.Core.Grammar</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CompilerDiagnostics.CodeGen.cs">
+      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
+    </Compile>
+    <Compile Update="CompilerDiagnostics.Expressions.cs">
+      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
+    </Compile>
+    <Compile Update="CompilerDiagnostics.Lexical.cs">
+      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
+    </Compile>
+    <Compile Update="CompilerDiagnostics.Scoping.cs">
+      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
+    </Compile>
+    <Compile Update="CompilerDiagnostics.Style.cs">
+      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
+    </Compile>
+    <Compile Update="CompilerDiagnostics.Syntax.cs">
+      <DependentUpon>CompilerDiagnostics.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

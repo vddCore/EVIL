@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="4.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\EVIL\VM\EVIL.VM\EVIL.VM.csproj" />
+    <ProjectReference Include="..\..\..\EVIL\Core\EVIL.Core.Grammar\EVIL.Core.Grammar.csproj" />
+  </ItemGroup>
+</Project>

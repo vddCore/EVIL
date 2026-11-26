@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>EVIL.Core.Analysis</AssemblyName>
+    <RootNamespace>EVIL.Core.Analysis</RootNamespace>
+    <Nullable>enable</Nullable>
+
+    <Version>2.0.0</Version>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.Core.Common\EVIL.Core.Common.csproj" />
+    <ProjectReference Include="..\EVIL.Core.Diagnostics\EVIL.Core.Diagnostics.csproj" />
+    <ProjectReference Include="..\EVIL.Core.Grammar\EVIL.Core.Grammar.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>EVIL.Assessment.Tests.Core.Grammar</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Analyzers\UnusedVariableAnalyzer.ScopeVariableWalker.cs">
+      <DependentUpon>UnusedVariableAnalyzer.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

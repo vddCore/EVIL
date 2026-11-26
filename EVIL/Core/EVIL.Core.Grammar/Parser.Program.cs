@@ -1,0 +1,66 @@
+﻿namespace EVIL.Core.Grammar;
+
+using System.Collections.Generic;
+using EVIL.Core.Diagnostics;
+using EVIL.Core.Grammar.AST.Base;
+using EVIL.Core.Grammar.AST.Diagnostics;
+using EVIL.Core.Grammar.AST.Miscellaneous;
+using EVIL.Core.Lexical;
+
+public partial class Parser
+{
+    private ProgramNode Program()
+    {
+        var statementList = new List<Statement>();
+
+        if (CurrentToken == Token.Empty)
+        {
+            throw new ParserException(
+                "Internal error: lexer is in an invalid state (current token is empty?).",
+                new SourceLocation(FilePath, -1, -1)
+            );
+        }
+
+        while (CurrentToken.Type != TokenType.EOF)
+        {
+            if (DiagnosticSink != null)
+            {
+                if (DiagnosticSink.ErrorCount >= MaxErrors)
+                {
+                    break;
+                }
+
+                try
+                {
+                    statementList.Add(Statement());
+                }
+                catch (ParserException pe)
+                {
+                    ReportParserException(pe);
+                    statementList.Add(new DiagnosticNode(pe.Message)
+                    {
+                        Line = pe.Line,
+                        Column = pe.Column
+                    });
+                    Synchronize();
+                }
+                catch (LexerException le)
+                {
+                    ReportLexerException(le);
+                    statementList.Add(new DiagnosticNode(le.Message)
+                    {
+                        Line = le.Line,
+                        Column = le.Column
+                    });
+                    Synchronize();
+                }
+            }
+            else
+            {
+                statementList.Add(Statement());
+            }
+        }
+
+        return new ProgramNode(statementList);
+    }
+}

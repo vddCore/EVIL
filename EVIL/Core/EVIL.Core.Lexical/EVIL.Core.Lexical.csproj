@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <AssemblyName>EVIL.Core.Lexical</AssemblyName>
+        <RootNamespace>EVIL.Core.Lexical</RootNamespace>
+        <Nullable>enable</Nullable>
+        
+        <Version>7.0.0</Version>
+        
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\EVIL.Core.Common\EVIL.Core.Common.csproj" />
+        <ProjectReference Include="..\EVIL.Core.Diagnostics\EVIL.Core.Diagnostics.csproj" />
+    </ItemGroup>
+</Project>

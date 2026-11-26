@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>EVIL.FrontEnd.evil</RootNamespace>
+    <Version>1.9.3</Version>
+    <IsPackable>false</IsPackable>
+    <PackageId>EVIL.FE</PackageId>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\VM\EVIL.VM.Runtime\EVIL.VM.Runtime.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+    
+    <ProjectReference Include="..\..\VM\EVIL.VM\EVIL.VM.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+    
+    <ProjectReference Include="..\..\VM\EVIL.VM.Debugger\EVIL.VM.Debugger.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+    
+    <ProjectReference Include="..\..\Core\EVIL.Core.Common\EVIL.Core.Common.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+    
+    <ProjectReference Include="..\..\Core\EVIL.Core.Diagnostics\EVIL.Core.Diagnostics.csproj">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </ProjectReference>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="config\default.imports">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

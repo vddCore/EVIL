@@ -36,19 +36,21 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Run language tests (code optimizations disabled)
-      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
-      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
+      working-directory: Assessment/Tests/EVIL.Assessment.Tests.VM.Language/bin/${{ matrix.configuration }}/net9.0
+      run: dotnet EVIL.Assessment.Tests.VM.Language.dll tests --fail-on-compiler-errors --fail-on-test-errors
       
     - name: Run language tests (code optimizations enabled)
-      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
-      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors -o   
+      working-directory: Assessment/Tests/EVIL.Assessment.Tests.VM.Language/bin/${{ matrix.configuration }}/net9.0
+      run: dotnet EVIL.Assessment.Tests.VM.Language.dll tests --fail-on-compiler-errors --fail-on-test-errors -o
     
     - name: Create NuGet packages
       run: |
-        dotnet pack
+        dotnet pack -c $Configuration
         mkdir evil-nuget-latest
-        mv PackageProjects/EVIL.Parser/bin/${{ matrix.configuration }}/*.nupkg evil-nuget-latest/
-        mv PackageProjects/EVIL.VM/bin/${{ matrix.configuration }}/*.nupkg evil-nuget-latest/
+        mv Deployment/EVIL.Deployment.Core/bin/${{ matrix.configuration }}/*.nupkg evil-nuget-latest/
+        mv Deployment/EVIL.Deployment.VM/bin/${{ matrix.configuration }}/*.nupkg evil-nuget-latest/
+      env:
+        Configuration: ${{ matrix.configuration }}
 
     - name: Upload built artifact
       uses: actions/upload-artifact@v4.6.1

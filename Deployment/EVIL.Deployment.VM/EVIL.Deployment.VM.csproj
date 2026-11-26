@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Pack">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+
+    <AssemblyName>EVIL.Deployment.VM</AssemblyName>
+    <RootNamespace>EVIL.Deployment.VM</RootNamespace>
+    <PackageId>EVIL.Deployment.VM</PackageId>
+
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>7.0.0</Version>
+    
+    <Authors>Aura Cichoń</Authors>
+    <Description>
+      Complete embeddable EVIL scripting suite including parser, compiler, virtual machine and the runtime library system.
+    </Description>
+
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageIcon>evil_logo.png</PackageIcon>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/vddCore/EVIL</RepositoryUrl>
+    
+    <PackageReadmeFile>nuget.readme.md</PackageReadmeFile>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.Deployment.Core\EVIL.Deployment.Core.csproj" />
+
+    <ProjectReference Include="..\..\EVIL\VM\EVIL.VM.Runtime\EVIL.VM.Runtime.csproj"
+                      PrivateAssets="all" />
+    
+    <ProjectReference Include="..\..\EVIL\VM\EVIL.VM\EVIL.VM.csproj"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\Shared\artwork\evil_logo.png" PackagePath="\" />
+    <Content Include="..\..\Shared\docs\nuget.readme.md" PackagePath="\" />
+    
+    <Content Include="$(OutDir)EVIL.VirtualMachine.dll" PackagePath="lib\$(TargetFramework)\EVIL.VirtualMachine.dll"/>
+    <Content Include="$(OutDir)EVIL.VirtualMachine.Runtime.dll" PackagePath="lib\$(TargetFramework)\EVIL.VirtualMachine.Runtime.dll"/>
+  </ItemGroup>
+</Project>

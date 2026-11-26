@@ -37,15 +37,15 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Run language tests (code optimizations disabled)
-      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
-      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors
+      working-directory: Assessment/Tests/EVIL.Assessment.Tests.VM.Language/bin/${{ matrix.configuration }}/net9.0
+      run: dotnet EVIL.Assessment.Tests.VM.Language.dll tests --fail-on-compiler-errors --fail-on-test-errors
 
     - name: Run language tests (code optimizations enabled)
-      working-directory: VirtualMachine/Tests/EVIL.Ceres.LanguageTests/bin/${{ matrix.configuration }}/net9.0
-      run: ./LanguageTestRunner tests --fail-on-compiler-errors --fail-on-test-errors -o
+      working-directory: Assessment/Tests/EVIL.Assessment.Tests.VM.Language/bin/${{ matrix.configuration }}/net9.0
+      run: dotnet EVIL.Assessment.Tests.VM.Language.dll tests --fail-on-compiler-errors --fail-on-test-errors -o
 
     - name: Publish to directory
-      run: dotnet publish FrontEnd/EVIL.evil/EVIL.evil.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
+      run: dotnet publish EVIL/FE/EVIL.FE/EVIL.FE.csproj -c $Configuration -r $RuntimeIdentifier --no-self-contained -p:PublishSingleFile=true
       env:
         Configuration: ${{ matrix.configuration }}
         RuntimeIdentifier: ${{ matrix.runtime-identifier }}
@@ -54,12 +54,12 @@ jobs:
       id: package_version
       uses: MWin10/get-csproj-version-fork@v1.5.0
       with:
-        file: FrontEnd/EVIL.evil/EVIL.evil.csproj
+        file: EVIL/FE/EVIL.FE/EVIL.FE.csproj
 
     - name: Pack artifact
       uses: actions/upload-artifact@v4.6.1
       with:
         name: evil-${{ steps.package_version.outputs.version }}_${{ matrix.runtime-identifier }}-${{ matrix.configuration }}
-        path: FrontEnd/EVIL.evil/bin/${{ matrix.configuration }}/net9.0/${{ matrix.runtime-identifier }}/publish
+        path: EVIL/FE/EVIL.FE/bin/${{ matrix.configuration }}/net9.0/${{ matrix.runtime-identifier }}/publish
         if-no-files-found: error
         retention-days: 90

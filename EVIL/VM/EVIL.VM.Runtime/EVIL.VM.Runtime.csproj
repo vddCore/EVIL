@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>EVIL.VirtualMachine.Runtime</AssemblyName>
+    <RootNamespace>EVIL.VirtualMachine.Runtime</RootNamespace>
+    <Nullable>enable</Nullable>
+
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <Version>0.17.2</Version>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EVIL.VM\EVIL.VM.csproj" />
+    <ProjectReference Include="..\..\Core\EVIL.Core.Diagnostics\EVIL.Core.Diagnostics.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ScriptBuiltins\dofile.vil" />
+    <EmbeddedResource Include="ScriptBuiltins\require.vil" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Modules\DebugModule.GC.cs">
+      <DependentUpon>DebugModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.Directory.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.File.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.Path.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Modules\FsModule.Utilities.cs">
+      <DependentUpon>FsModule.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

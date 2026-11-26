@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Pack">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+
+    <AssemblyName>EVIL.Deployment.Parser</AssemblyName>
+    <RootNamespace>EVIL.Deployment.Parser</RootNamespace>
+    <PackageId>EVIL.Deployment.Core</PackageId>
+
+    <IncludeBuildOutput>false</IncludeBuildOutput>    
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>4.0.0</Version>
+    
+    <Authors>Aura Cichoń</Authors>
+    <Description>
+      A package containing EVIL parser only. Useful for constructing analyzers, transpilers, etc.
+      If you need a complete embeddable scripting solution in your project, you should use EVIL.VM instead.
+    </Description>
+    
+    <PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
+    <PackageIcon>evil_logo.png</PackageIcon>
+    
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/vddCore/EVIL</RepositoryUrl>
+    
+    <PackageReadmeFile>nuget.readme.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EVIL\Core\EVIL.Core.Common\EVIL.Core.Common.csproj" PrivateAssets="all" />    
+    <ProjectReference Include="..\..\EVIL\Core\EVIL.Core.Grammar\EVIL.Core.Grammar.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\EVIL\Core\EVIL.Core.Lexical\EVIL.Core.Lexical.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\EVIL\Core\EVIL.Core.Analysis\EVIL.Core.Analysis.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\..\EVIL\Core\EVIL.Core.Diagnostics\EVIL.Core.Diagnostics.csproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\Shared\artwork\evil_logo.png" PackagePath="\" />
+    <Content Include="..\..\Shared\docs\nuget.readme.md" PackagePath="\" />
+
+    <Content Include="$(OutDir)EVIL.Core.Common.dll" PackagePath="lib\$(TargetFramework)\EVIL.Core.Common.dll" />
+    <Content Include="$(OutDir)EVIL.Core.Grammar.dll" PackagePath="lib\$(TargetFramework)\EVIL.Core.Grammar.dll" />
+    <Content Include="$(OutDir)EVIL.Core.Lexical.dll" PackagePath="lib\$(TargetFramework)\EVIL.Core.Lexical.dll" />
+    <Content Include="$(OutDir)EVIL.Core.Analysis.dll" PackagePath="lib\$(TargetFramework)\EVIL.Core.Analysis.dll" />
+    <Content Include="$(OutDir)EVIL.Core.Diagnostics.dll" PackagePath="lib\$(TargetFramework)\EVIL.Core.Diagnostics.dll" />
+  </ItemGroup>
+</Project>

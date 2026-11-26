@@ -1,0 +1,18 @@
+namespace EVIL.Assessment.Tests.VM.Debugger.Utilities;
+
+using EVIL.VirtualMachine.ExecutionEngine;
+using EVIL.VirtualMachine.Runtime;
+using EVIL.VirtualMachine.TranslationEngine;
+
+internal static class DebuggerTestEnvironment
+{
+    public static (VirtualMachine VM, EvilRuntime Runtime, Compiler Compiler) Create()
+    {
+        var vm = new VirtualMachine();
+        var runtime = new EvilRuntime(vm);
+        runtime.RegisterBuiltInModules();
+        runtime.RegisterBuiltInFunctions();
+        var compiler = new Compiler();
+        return (vm, runtime, compiler);
+    }
+}
