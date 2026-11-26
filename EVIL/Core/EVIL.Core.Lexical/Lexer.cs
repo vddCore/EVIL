@@ -43,6 +43,8 @@ public class Lexer
 
     public void LoadSource(string source)
     {
+        ArgumentNullException.ThrowIfNull(source);
+
         _sourceCode = source;
         State.Reset();
 
@@ -56,6 +58,8 @@ public class Lexer
 
     public void NextToken()
     {
+        EnsureSourceLoaded();
+
         while (true)
         {
             SkipWhitespace();
@@ -437,6 +441,8 @@ public class Lexer
 
     public Token PeekToken(int howFar)
     {
+        EnsureSourceLoaded();
+
         var prevState = State with { };
         var token = Token.Empty;
 
@@ -448,6 +454,12 @@ public class Lexer
 
         State = prevState;
         return token;
+    }
+
+    private void EnsureSourceLoaded()
+    {
+        if (_sourceCode is null)
+            throw new InvalidOperationException("No source has been loaded.");
     }
 
     private Token GetHexNumber()

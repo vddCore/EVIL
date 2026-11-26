@@ -424,6 +424,24 @@ public class CodeGenerationTests : EvilTest
     }
 
     [Test]
+    public void StringInterpolation_NestedStringConcatenation_EvaluatesCorrectly()
+    {
+        var script = """
+            fn test() {
+                val result = "${"string"+"string"}.";
+                ret result;
+            }
+            """;
+
+        var result = EvilTestResult(script);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Type, Is.EqualTo(DynamicValueType.String));
+            Assert.That(result.String, Is.EqualTo("stringstring."));
+        }
+    }
+
+    [Test]
     public void StringInterpolation_SingleExpression_ConvertsToStringDirectly()
     {
         var script = """
