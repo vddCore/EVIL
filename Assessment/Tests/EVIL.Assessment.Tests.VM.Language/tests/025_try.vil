@@ -97,7 +97,12 @@ fn try_require {
   try { result = require("doesnt_exist"); }
   catch (e) { result = e.msg; }
 
-  assert(#result > 70);
+  assert(
+    str.starts_with(
+      result, 
+      "require: Unable to find the requested file 'doesnt_exist' in any of the known lookup paths:"
+    )
+  );
 }
 
 loc fn throwing_by(value) -> by typeof(value) {

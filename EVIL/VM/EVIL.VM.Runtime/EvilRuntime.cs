@@ -23,10 +23,11 @@ public sealed class EvilRuntime(VirtualMachineBase vm)
 
     public void RegisterBuiltInFunctions()
     {
+        var scriptResourcePrefix = $"{typeof(EvilRuntime).Namespace}.ScriptBuiltins.";
         var scriptNames = Assembly
             .GetExecutingAssembly()
             .GetManifestResourceNames()
-            .Where(x => x.StartsWith("EVIL.VirtualMachine.Runtime.ScriptBuiltins"));
+            .Where(x => x.StartsWith(scriptResourcePrefix, StringComparison.Ordinal));
 
         foreach (var scriptName in scriptNames)
         {

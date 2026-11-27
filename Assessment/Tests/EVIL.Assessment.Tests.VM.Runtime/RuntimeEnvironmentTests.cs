@@ -1,5 +1,8 @@
 namespace EVIL.Assessment.Tests.VM.Runtime;
 
+using System;
+using System.Threading.Tasks;
+using EVIL.Core.Common.TypeSystem;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Collections;
 using EVIL.VM.Runtime;
@@ -23,6 +26,18 @@ public class RuntimeEnvironmentTests
     {
         _vm.Stop();
         _evilRuntime = null!;
+    }
+
+    [Test]
+    public async Task BuiltInFunctionsRegistered()
+    {
+        _evilRuntime.RegisterBuiltInModules();
+        _evilRuntime.RegisterBuiltInFunctions();
+
+        await _vm.MainFiber.BlockUntilFinishedAsync().WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.That(_vm.Global["dofile"].Type, Is.Not.EqualTo(DynamicValueType.Nil));
+        Assert.That(_vm.Global["require"].Type, Is.Not.EqualTo(DynamicValueType.Nil));
     }
 
     [Test]
