@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EVIL.VM.ExecutionEngine.Collections;
 using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Marshaling;
 
 public class VirtualMachine : VirtualMachineBase
 {
@@ -17,13 +18,13 @@ public class VirtualMachine : VirtualMachineBase
 
     public bool IsRunning => Volatile.Read(ref _runner) is not null;
 
-    public VirtualMachine(FiberCrashHandler? crashHandler = null) 
-        : base(crashHandler)
+    public VirtualMachine(FiberCrashHandler? crashHandler = null, MarshalingRegistry? marshal = null)
+        : base(crashHandler, marshal)
     {
     }
 
-    public VirtualMachine(Table global, FiberCrashHandler? crashHandler = null) 
-        : base(global, crashHandler)
+    public VirtualMachine(Table global, FiberCrashHandler? crashHandler = null, MarshalingRegistry? marshal = null)
+        : base(global, crashHandler, marshal)
     {
     }
 

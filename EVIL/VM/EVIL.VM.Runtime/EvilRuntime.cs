@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Marshaling;
 using EVIL.VM.ExecutionEngine.TypeSystem;
 using EVIL.VM.Runtime.Extensions;
 using EVIL.VM.Runtime.Modules;
@@ -14,6 +15,8 @@ using EVIL.VM.TranslationEngine;
 
 public sealed class EvilRuntime(VirtualMachineBase vm)
 {
+    public MarshalingRegistry Marshaling => vm.Marshal;
+
     private readonly Compiler _compiler = new(new CompilerOptions
     {
         EnableAnalyzers = false

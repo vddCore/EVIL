@@ -1,0 +1,20 @@
+#[test]
+fn clr_point_is_adapted_to_an_evil_table {
+  val point = marshaling.create_point(3, 4);
+
+  assert.is_of_type(point, Table);
+  assert.equal(point.x, 3);
+  assert.equal(point.y, 4);
+}
+
+#[test]
+fn evil_table_is_adapted_back_to_a_clr_point {
+  assert.equal(marshaling.sum_point({ x: 3, y: 4 }), 7);
+}
+
+#[test]
+fn adapted_point_round_trips_through_native_callbacks {
+  val point = marshaling.create_point(6, 8);
+
+  assert.equal(marshaling.sum_point(point), 14);
+}

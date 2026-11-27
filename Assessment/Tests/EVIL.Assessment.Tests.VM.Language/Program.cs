@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using EVIL.Assessment.Tests.VM.Language;
+using EVIL.Assessment.Tests.VM.Language.TestModules;
 using EVIL.VM.ExecutionEngine;
 
 var vm = new VirtualMachine();
+vm.Marshal.Register(new MarshalingTestPointAdapter());
+vm.Marshal.Freeze();
 vm.Run();
 
 var failOnCompilerErrors = false;

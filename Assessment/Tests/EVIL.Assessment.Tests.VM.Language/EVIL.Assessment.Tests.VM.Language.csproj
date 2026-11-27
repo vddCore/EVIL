@@ -136,6 +136,9 @@
     <None Update="tests\033_collection_range.vil">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="tests\034_dotnet_marshaling.vil">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

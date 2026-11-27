@@ -1,12 +1,13 @@
-namespace EVIL.Assessment.Tests.VM.Language;
+namespace EVIL.Assessment.Tests.VM.Language.TestModules;
 
-using static EVIL.VM.ExecutionEngine.TypeSystem.DynamicValue;
 using EVIL.VM.ExecutionEngine.Collections;
 using EVIL.VM.ExecutionEngine.Concurrency;
 using EVIL.VM.ExecutionEngine.TypeSystem;
 using EVIL.VM.Runtime;
 using EVIL.VM.Runtime.Extensions;
 using EVIL.VM.TranslationEngine;
+
+using static EVIL.VM.ExecutionEngine.TypeSystem.DynamicValue;
 
 public class AssertModule : RuntimeModule
 {

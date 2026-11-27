@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EVIL.Assessment.Tests.VM.Language.TestModules;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Concurrency;
