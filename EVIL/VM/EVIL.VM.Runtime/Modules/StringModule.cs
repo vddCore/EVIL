@@ -1,8 +1,4 @@
-﻿namespace EVIL.VirtualMachine.Runtime.Modules;
-
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
-
-using Array = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+﻿namespace EVIL.VM.Runtime.Modules;
 
 using System;
 using System.Globalization;
@@ -10,11 +6,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
+using static EVIL.VM.ExecutionEngine.TypeSystem.DynamicValue;
+
+using Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 public sealed class StringModule : RuntimeModule
 {
@@ -98,7 +97,7 @@ public sealed class StringModule : RuntimeModule
             .OptionalStringAt(1, "utf-8", out var encoding);
 
         var bytes = Encoding.GetEncoding(encoding).GetBytes(str);
-        var array = new ExecutionEngine.Collections.Array(bytes.Length);
+        var array = new Array(bytes.Length);
 
         for (var i = 0; i < bytes.Length; i++)
         {
@@ -120,7 +119,7 @@ public sealed class StringModule : RuntimeModule
         args.ExpectExactly(1)
             .ExpectStringAt(0, out var str);
 
-        var array = ExecutionEngine.Collections.Array.FromString(str);
+        var array = Array.FromString(str);
 
         for (var i = 0; i < array.Length; i++)
         {

@@ -1,9 +1,8 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
+namespace EVIL.VM.ExecutionEngine.Collections;
 
 using System;
 using System.Runtime.CompilerServices;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-
+using EVIL.VM.ExecutionEngine.TypeSystem;
 using _Array = System.Array;
 
 public sealed class ValueStack(int initialCapacity = 1024)

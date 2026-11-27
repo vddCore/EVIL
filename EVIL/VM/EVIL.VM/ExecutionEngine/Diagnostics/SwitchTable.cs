@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed class SwitchTable
 {

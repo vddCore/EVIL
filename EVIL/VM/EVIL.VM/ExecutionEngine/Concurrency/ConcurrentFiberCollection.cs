@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Concurrency;
+namespace EVIL.VM.ExecutionEngine.Concurrency;
 
 using System;
 using System.Buffers;

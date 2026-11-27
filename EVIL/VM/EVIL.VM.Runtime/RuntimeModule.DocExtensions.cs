@@ -1,10 +1,10 @@
-namespace EVIL.VirtualMachine.Runtime;
+namespace EVIL.VM.Runtime;
 
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public static class RuntimeModuleDocExtensions
 {

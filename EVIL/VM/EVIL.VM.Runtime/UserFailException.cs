@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.Runtime;
+namespace EVIL.VM.Runtime;
 
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public class UserFailException : EvilRuntimeException
 {

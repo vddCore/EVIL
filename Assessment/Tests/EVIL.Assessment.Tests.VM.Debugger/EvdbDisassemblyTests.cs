@@ -2,10 +2,10 @@ namespace EVIL.Assessment.Tests.VM.Debugger;
 
 using System;
 using System.IO;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Assessment.Tests.Base;
-using EVIL.VirtualMachine.Debugger;
-using EVIL.VirtualMachine.Debugger.Cli;
+using EVIL.VM.Debugger;
+using EVIL.VM.Debugger.Cli;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 using NUnit.Framework;
 using Shouldly;
 

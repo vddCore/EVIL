@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime;
 using EVIL.Assessment.Tests.Base;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime;
 using NUnit.Framework;
 
 [TestFixture]

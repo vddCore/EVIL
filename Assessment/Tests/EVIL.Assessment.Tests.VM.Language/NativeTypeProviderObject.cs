@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Language;
 
-using EVIL.VirtualMachine.ExecutionEngine.Marshaling;
+using EVIL.VM.ExecutionEngine.Marshaling;
 
 public class NativeTypeProviderObject : INativeTypeProvider
 {

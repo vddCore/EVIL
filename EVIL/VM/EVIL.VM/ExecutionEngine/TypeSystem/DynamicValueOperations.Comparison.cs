@@ -1,8 +1,7 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
+namespace EVIL.VM.ExecutionEngine.TypeSystem;
 
 using EVIL.Core.Common.TypeSystem;
+using static DynamicValue;
 
 public static partial class DynamicValueOperations
 {

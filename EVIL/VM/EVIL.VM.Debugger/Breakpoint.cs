@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.Debugger;
+namespace EVIL.VM.Debugger;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed class Breakpoint : IBreakpoint
 {

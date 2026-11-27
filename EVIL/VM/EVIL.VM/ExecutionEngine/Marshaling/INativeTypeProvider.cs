@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Marshaling;
+﻿namespace EVIL.VM.ExecutionEngine.Marshaling;
 
 public interface INativeTypeProvider
 {

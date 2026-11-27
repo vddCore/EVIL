@@ -1,9 +1,9 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Language;
 
 using System;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Grammar;
 using EVIL.Core.Lexical;
+using EVIL.VM.TranslationEngine;
 
 public class TestBuildPhaseException : Exception
 {

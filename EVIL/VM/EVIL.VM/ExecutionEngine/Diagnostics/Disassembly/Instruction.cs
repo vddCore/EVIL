@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed class Instruction
 {

@@ -1,15 +1,14 @@
-namespace EVIL.VirtualMachine.Runtime.Modules;
-
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
-
-using Array = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+namespace EVIL.VM.Runtime.Modules;
 
 using System;
 using System.IO;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
+using static EVIL.VM.ExecutionEngine.TypeSystem.DynamicValue;
+
+using Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 public partial class FsModule
 {
@@ -40,7 +39,7 @@ public partial class FsModule
     private static DynamicValue GetRestrictedPathChars(DynamicValue _)
     {
         var invalidPathChars = Path.GetInvalidPathChars();
-        var array = new ExecutionEngine.Collections.Array(invalidPathChars.Length);
+        var array = new Array(invalidPathChars.Length);
 
         for (var i = 0; i < invalidPathChars.Length; i++)
             array[i] = invalidPathChars[i];

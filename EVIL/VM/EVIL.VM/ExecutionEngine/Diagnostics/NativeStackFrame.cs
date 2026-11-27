@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 public sealed record NativeStackFrame(NativeFunction NativeFunction)
     : StackFrame

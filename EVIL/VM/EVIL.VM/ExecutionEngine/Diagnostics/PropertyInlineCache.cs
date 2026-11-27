@@ -1,6 +1,6 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Collections;
 
 public struct PropertyInlineCache
 {

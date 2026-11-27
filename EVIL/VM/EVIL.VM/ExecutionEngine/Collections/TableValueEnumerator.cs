@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
+namespace EVIL.VM.ExecutionEngine.Collections;
 
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public struct TableValueEnumerator : IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>
 {

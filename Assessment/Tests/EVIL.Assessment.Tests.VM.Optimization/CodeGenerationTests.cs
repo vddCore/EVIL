@@ -1,10 +1,10 @@
 namespace EVIL.Assessment.Tests.VM.Optimization;
 
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Assessment.Tests.Base;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 using NUnit.Framework;
 
 [TestFixture]

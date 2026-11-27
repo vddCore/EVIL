@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly.Rendering;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly.Rendering;
 
 internal sealed class AnsiPalette
 {

@@ -1,8 +1,8 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine;
+﻿namespace EVIL.VM.TranslationEngine;
 
 using EVIL.Core.Diagnostics;
-using ExecutionEngine.Diagnostics;
 using EVIL.Core.Grammar.AST.Statements;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public partial class Compiler
 {

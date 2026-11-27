@@ -1,11 +1,11 @@
-﻿namespace EVIL.VirtualMachine.Runtime.Extensions;
+﻿namespace EVIL.VM.Runtime.Extensions;
 
 using System.Diagnostics.CodeAnalysis;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public static partial class FunctionArguments
 {

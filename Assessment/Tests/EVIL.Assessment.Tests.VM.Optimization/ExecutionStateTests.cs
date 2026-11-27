@@ -4,13 +4,13 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Assessment.Tests.Base;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 
 [TestFixture]

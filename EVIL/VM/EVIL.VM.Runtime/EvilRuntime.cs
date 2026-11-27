@@ -1,16 +1,16 @@
-﻿namespace EVIL.VirtualMachine.Runtime;
+﻿namespace EVIL.VM.Runtime;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
-using EVIL.VirtualMachine.Runtime.Modules;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
+using EVIL.VM.Runtime.Modules;
+using EVIL.VM.TranslationEngine;
 
 public sealed class EvilRuntime(VirtualMachineBase vm)
 {

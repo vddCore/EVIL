@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine.Runtime;
+﻿namespace EVIL.VM.Runtime;
 
 using System;
 

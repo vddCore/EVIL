@@ -1,10 +1,10 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
+namespace EVIL.VM.ExecutionEngine.Collections.Serialization;
 
 using System;
 using System.IO;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 internal static class TableSerializer
 {

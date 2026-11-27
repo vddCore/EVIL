@@ -1,11 +1,11 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Runtime.ModuleTests;
 
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.Runtime.Modules;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
+using static EVIL.VM.ExecutionEngine.TypeSystem.DynamicValue;
 
 public class EvilModuleTest : ModuleTest<EvilModule>
 {

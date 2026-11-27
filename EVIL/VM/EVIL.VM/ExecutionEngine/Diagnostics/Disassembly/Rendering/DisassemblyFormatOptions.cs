@@ -1,9 +1,8 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly.Rendering;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly.Rendering;
 
 using System;
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed class DisassemblyFormatOptions
 {

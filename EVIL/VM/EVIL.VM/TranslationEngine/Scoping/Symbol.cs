@@ -1,6 +1,6 @@
-namespace EVIL.VirtualMachine.TranslationEngine.Scoping;
+namespace EVIL.VM.TranslationEngine.Scoping;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 internal record Symbol(
     string Name, 
@@ -11,12 +11,15 @@ internal record Symbol(
     int DefinedOnColumn,
     ClosureInfo? ClosureInfo)
 {
-    public string TypeName => Type.ToString().ToLower();
+    public string TypeName => Type
+        .ToString()
+        .ToLower();
         
     public enum SymbolType
     {
         Local,
         Parameter,
-        Closure
+        Closure,
+        Global
     }
 }

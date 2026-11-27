@@ -6,12 +6,12 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.TranslationEngine;
-using EVIL.VirtualMachine.Debugger;
-using EVIL.VirtualMachine.Debugger.Dap;
+using EVIL.VM.Debugger;
+using EVIL.VM.Debugger.Dap;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.Runtime;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 using Shouldly;
 

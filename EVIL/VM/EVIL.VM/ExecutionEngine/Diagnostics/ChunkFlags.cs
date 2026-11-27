@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 

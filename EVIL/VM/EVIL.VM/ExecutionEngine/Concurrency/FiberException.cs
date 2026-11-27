@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Concurrency;
+namespace EVIL.VM.ExecutionEngine.Concurrency;
 
 public sealed class FiberException : VirtualMachineException
 {

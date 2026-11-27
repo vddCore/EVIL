@@ -1,11 +1,11 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed partial class Chunk
 {

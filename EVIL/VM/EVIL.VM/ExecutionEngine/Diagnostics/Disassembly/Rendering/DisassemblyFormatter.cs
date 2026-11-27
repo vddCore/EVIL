@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly.Rendering;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly.Rendering;
 
 using System;
 using System.Collections.Generic;
@@ -6,10 +6,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public static class DisassemblyFormatter
 {

@@ -6,10 +6,10 @@ using System.Globalization;
 using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Threading;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.TranslationEngine;
 
 internal static class ProtectedRegionBenchmarks
 {

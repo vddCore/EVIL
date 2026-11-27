@@ -1,23 +1,26 @@
-namespace EVIL.VirtualMachine.TranslationEngine.Scoping;
+namespace EVIL.VM.TranslationEngine.Scoping;
 
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 internal class Scope
 {
+    private readonly IReadOnlyDictionary<string, Symbol>? _replSymbols;
+    
     public Chunk Chunk { get; }
     public Scope? Parent { get; }
 
     public Dictionary<string, Symbol> Symbols { get; } = new();
     public Dictionary<string, Symbol> Closures { get; } = new();
 
-    private Scope(Chunk functionName)
+    private Scope(Chunk functionName, IReadOnlyDictionary<string, Symbol>? replSymbols = null)
     {
         Chunk = functionName;
+        _replSymbols = replSymbols;
     }
 
     private Scope(Chunk functionName, Scope parent)
-        : this(functionName)
+        : this(functionName, parent._replSymbols)
     {
         Parent = parent;
     }
@@ -132,6 +135,11 @@ internal class Scope
             currentScope = currentScope.Parent;
         }
 
+        if (_replSymbols?.TryGetValue(name, out var replSymbol) == true)
+        {
+            return (false, replSymbol);
+        }
+
         return null;
     }
 
@@ -154,6 +162,8 @@ internal class Scope
     public Scope Descend()
         => new(Chunk, this);
 
-    public static Scope CreateRoot(Chunk chunk)
-        => new(chunk);
+    public static Scope CreateRoot(
+        Chunk chunk,
+        IReadOnlyDictionary<string, Symbol>? replSymbols = null)
+        => new(chunk, replSymbols);
 }

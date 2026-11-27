@@ -3,9 +3,9 @@ namespace EVIL.Assessment.Tests.VM;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.Runtime;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 using Shouldly;
 

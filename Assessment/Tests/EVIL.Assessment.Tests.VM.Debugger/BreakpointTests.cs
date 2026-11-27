@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EVIL.Assessment.Tests.VM.Debugger.Utilities;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.Debugger;
+using EVIL.VM.Debugger;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 using NUnit.Framework;
 using Shouldly;
 

@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
+namespace EVIL.VM.ExecutionEngine.Collections.Serialization;
 
 using System;
 

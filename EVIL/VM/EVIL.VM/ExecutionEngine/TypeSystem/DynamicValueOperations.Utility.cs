@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+namespace EVIL.VM.ExecutionEngine.TypeSystem;
 
 using System;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public static partial class DynamicValueOperations
 {

@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine;
+namespace EVIL.VM.ExecutionEngine;
 
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public class VirtualMachine : VirtualMachineBase
 {

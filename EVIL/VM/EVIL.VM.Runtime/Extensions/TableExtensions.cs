@@ -1,9 +1,9 @@
-﻿namespace EVIL.VirtualMachine.Runtime.Extensions;
+﻿namespace EVIL.VM.Runtime.Extensions;
 
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public static class TableExtensions
 {

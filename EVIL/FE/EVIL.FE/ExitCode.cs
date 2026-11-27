@@ -1,4 +1,4 @@
-namespace EVIL.FrontEnd.evil;
+namespace EVIL.FE;
 
 public enum ExitCode
 {

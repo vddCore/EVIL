@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>EVIL.VirtualMachine</AssemblyName>
-    <RootNamespace>EVIL.VirtualMachine</RootNamespace>
     <Nullable>enable</Nullable>
     
     <NoWarn>SYSLIB0011;CA2255</NoWarn>
@@ -10,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     
-    <Version>14.0.0</Version>
+    <Version>15.1.7</Version>
     
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -22,8 +20,7 @@
     <InternalsVisibleTo Include="EVIL.Assessment.Tests.VM.Optimization" />
     <InternalsVisibleTo Include="EVIL.Assessment.Tests.VM.Runtime" />
     <InternalsVisibleTo Include="EVIL.Assessment.Tests.VM.Serialization" />
-    
-    <InternalsVisibleTo Include="EVIL.VirtualMachine.Debugger" />
+    <InternalsVisibleTo Include="EVIL.VM.Debugger" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.TranslationEngine;
+namespace EVIL.VM.TranslationEngine;
 
 using System;
-using EVIL.VirtualMachine.TranslationEngine.Diagnostics;
+using EVIL.VM.TranslationEngine.Diagnostics;
 
 public class CompilerException : Exception
 {

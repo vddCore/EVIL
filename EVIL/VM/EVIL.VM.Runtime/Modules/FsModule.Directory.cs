@@ -1,14 +1,13 @@
-namespace EVIL.VirtualMachine.Runtime.Modules;
-
-using Array = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+namespace EVIL.VM.Runtime.Modules;
 
 using System;
 using System.IO;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
+using Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 public partial class FsModule
 {

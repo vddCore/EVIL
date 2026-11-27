@@ -1,10 +1,9 @@
-namespace EVIL.VirtualMachine.Runtime.Modules;
+namespace EVIL.VM.Runtime.Modules;
 
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
 using static EVIL.Core.Common.TypeSystem.DynamicValueType;
-
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
 
 public class ConvertModule : RuntimeModule
 {

@@ -1,9 +1,9 @@
 namespace EVIL.Assessment.Tests.VM.Optimization;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Assessment.Tests.Base;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 using NUnit.Framework;
 
 [TestFixture]

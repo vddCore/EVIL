@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 using System;
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public interface IDebuggerSession
 {

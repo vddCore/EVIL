@@ -1,17 +1,16 @@
 namespace EVIL.Assessment.Tests.VM.Serialization;
 
-using Array = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+using Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 using System;
 using System.IO;
-
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Collections.Serialization;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 using Shouldly;
 

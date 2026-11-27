@@ -1,6 +1,6 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine;
+﻿namespace EVIL.VM.TranslationEngine;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 internal class Loop
 {

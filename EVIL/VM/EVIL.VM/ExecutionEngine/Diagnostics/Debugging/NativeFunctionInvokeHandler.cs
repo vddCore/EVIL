@@ -1,5 +1,5 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Concurrency;
 
 public delegate void NativeFunctionInvokeHandler(Fiber fiber, NativeFunction nativeFunction);

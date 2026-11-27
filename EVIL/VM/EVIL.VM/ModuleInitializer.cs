@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine;
+﻿namespace EVIL.VM;
 
 using System;
 using System.Runtime.CompilerServices;

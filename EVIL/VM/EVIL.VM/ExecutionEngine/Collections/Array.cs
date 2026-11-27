@@ -1,11 +1,10 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
-
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
+namespace EVIL.VM.ExecutionEngine.Collections;
 
 using System.Collections;
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using static TypeSystem.DynamicValue;
 
 public class Array : IDynamicValueCollection, IIndexableObject, IWriteableObject
 {

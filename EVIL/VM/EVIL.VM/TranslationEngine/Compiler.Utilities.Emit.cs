@@ -1,11 +1,12 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine;
+﻿namespace EVIL.VM.TranslationEngine;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.TranslationEngine.Scoping;
 using EVIL.Core.Diagnostics;
 using EVIL.Core.Grammar;
 using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Expressions;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.TranslationEngine.Scoping;
+using Scope = EVIL.VM.TranslationEngine.Scoping.Scope;
 
 public partial class Compiler
 {
@@ -43,9 +44,18 @@ public partial class Compiler
 
     private void FinalizeChunk()
     {
+        var returnsReplExpression = ReferenceEquals(
+            Chunk,
+            _rootChunk
+        ) && _replExpressionStatement != null;
+
         if (!_isUnreachable)
         {
-            Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            if (!returnsReplExpression)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.LDNIL);
+            }
+
             Chunk.CodeGenerator.Emit(OpCode.RET);
         }
 
@@ -62,7 +72,11 @@ public partial class Compiler
             var level = symbolInfo.Value.ClosedScopeLevel;
             var sym = symbolInfo.Value.Symbol;
 
-            if (level == 0)
+            if (sym.Type == Symbol.SymbolType.Global)
+            {
+                EmitGlobalSet(identifier);
+            }
+            else if (level == 0)
             {
                 switch (sym.Type)
                 {
@@ -167,12 +181,7 @@ public partial class Compiler
         }
         else
         {
-            Chunk.CodeGenerator.Emit(
-                OpCode.LDSTR,
-                (int)Chunk.StringPool.FetchOrAdd(identifier)
-            );
-
-            Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
+            EmitGlobalSet(identifier);
         }
     }
 
@@ -186,7 +195,11 @@ public partial class Compiler
             var level = symbolInfo.Value.ClosedScopeLevel;
             var sym = symbolInfo.Value.Symbol;
 
-            if (level == 0)
+            if (sym.Type == Symbol.SymbolType.Global)
+            {
+                EmitGlobalGet(identifier);
+            }
+            else if (level == 0)
             {
                 switch (sym.Type)
                 {
@@ -292,16 +305,29 @@ public partial class Compiler
         }
         else
         {
-            Chunk.CodeGenerator.Emit(
-                OpCode.LDSTR,
-                (int)Chunk.StringPool.FetchOrAdd(identifier)
-            );
-
-            Chunk.CodeGenerator.Emit(OpCode.GETGLOBAL);
+            EmitGlobalGet(identifier);
         }
     }
 
-    private (int ClosedScopeLevel, Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
+    private void EmitGlobalSet(string identifier)
+    {
+        Chunk.CodeGenerator.Emit(
+            OpCode.LDSTR,
+            (int)Chunk.StringPool.FetchOrAdd(identifier)
+        );
+        Chunk.CodeGenerator.Emit(OpCode.SETGLOBAL);
+    }
+
+    private void EmitGlobalGet(string identifier)
+    {
+        Chunk.CodeGenerator.Emit(
+            OpCode.LDSTR,
+            (int)Chunk.StringPool.FetchOrAdd(identifier)
+        );
+        Chunk.CodeGenerator.Emit(OpCode.GETGLOBAL);
+    }
+
+    private (int ClosedScopeLevel, Scoping.Symbol Symbol, Scope OwnerScope)? FindSymbolInClosedScopes(string identifier)
     {
         for (var i = 0; i < _closedScopes.Count; i++)
         {

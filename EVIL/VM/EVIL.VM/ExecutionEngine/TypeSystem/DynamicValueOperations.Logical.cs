@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+namespace EVIL.VM.ExecutionEngine.TypeSystem;
 
 public static partial class DynamicValueOperations
 {

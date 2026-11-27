@@ -1,25 +1,29 @@
-namespace EVIL.VirtualMachine.TranslationEngine;
+namespace EVIL.VM.TranslationEngine;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.TranslationEngine.Diagnostics;
-using EVIL.VirtualMachine.TranslationEngine.Scoping;
+using EVIL.Core.Analysis;
 using EVIL.Core.Diagnostics;
 using EVIL.Core.Grammar;
-using EVIL.Core.Analysis;
 using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Constants;
+using EVIL.Core.Grammar.AST.Expressions;
 using EVIL.Core.Grammar.AST.Miscellaneous;
+using EVIL.Core.Grammar.AST.Statements;
 using EVIL.Core.Lexical;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.TranslationEngine.Diagnostics;
+using EVIL.VM.TranslationEngine.Repl;
+using EVIL.VM.TranslationEngine.Scoping;
 
 public partial class Compiler : AstVisitor
 {
     private Chunk _rootChunk = null!;
     private bool _isUnreachable;
+    private Dictionary<string, Symbol>? _replSymbols;
+    private ExpressionStatement? _replExpressionStatement;
 
     private readonly Stack<Chunk> _chunks = [];
     private readonly Dictionary<string, List<AttributeProcessor>> _attributeProcessors = [];
@@ -53,15 +57,16 @@ public partial class Compiler : AstVisitor
     private Chunk Chunk => _chunks.Peek();
     private Loop Loop => _loopDescent.Peek();
     private int BlockProtector => _blockProtectors.Peek();
-        
+
     private int Line { get; set; }
     private int Column { get; set; }
-    
+
     public string CurrentFileName { get; private set; } = string.Empty;
 
     public CompilerOptions Options { get; }
     public CompilerLog Log { get; }
     public AnalyzerDriver AnalyzerDriver { get; set; } = AnalyzerDriver.CreateDefault();
+    public bool HasReplResult { get; private set; }
 
     public Compiler(CompilerOptions? compilerOptions = null)
     {
@@ -72,7 +77,8 @@ public partial class Compiler : AstVisitor
     public Chunk Compile(string source, string fileName = "")
     {
         CurrentFileName = fileName;
-        
+        HasReplResult = false;
+
         var parser = new Parser(Log, fileName)
         {
             MaxErrors = Options.MaxErrors
@@ -124,6 +130,7 @@ public partial class Compiler : AstVisitor
     public Chunk Compile(ProgramNode programNode, string fileName = "")
     {
         CurrentFileName = fileName;
+        HasReplResult = false;
         _isUnreachable = false;
         _closedScopes.Clear();
         _chunks.Clear();
@@ -135,15 +142,55 @@ public partial class Compiler : AstVisitor
 
         return InRootChunkDo(() => Visit(programNode));
     }
-    
 
+    public Chunk CompileForRepl(
+        ProgramNode programNode,
+        ReplCompilerSession session,
+        string fileName = "")
+    {
+        Log.Clear();
+        var replSymbols = session.CreateSnapshot();
+        _replSymbols = replSymbols;
+        
+        if (programNode.Statements is [ExpressionStatement expressionStatement])
+        {
+            _replExpressionStatement = expressionStatement.Expression is not (
+                AssignmentExpression 
+                or IncrementationExpression 
+                or DecrementationExpression
+            ) ? expressionStatement 
+              : null;
+        }
+
+        try
+        {
+            var chunk = Compile(programNode, fileName);
+
+            if (Log.HasErrors)
+            {
+                throw new CompilerException(Log);
+            }
+
+            session.Commit(replSymbols);
+            HasReplResult = _replExpressionStatement != null;
+            return chunk;
+        }
+        finally
+        {
+            _replSymbols = null;
+            _replExpressionStatement = null;
+        }
+    }
     
-    private SourceLocation GetLocation(AstNode node) 
+    public ReplCompilerSession CreateReplSession()
+        => new(this);
+
+    private SourceLocation GetLocation(AstNode node)
         => new(CurrentFileName, node.Line, node.Column);
 
-    private SourceLocation GetLocation(int line, int column) 
+    private SourceLocation GetLocation(int line, int column)
         => new(CurrentFileName, line, column);
-        
+
     private void OnChunkOpCodeEmitted(int ip, OpCode opCode)
         => Chunk.DebugDatabase.AddDebugRecord(Line, ip);
 
@@ -200,7 +247,7 @@ public partial class Compiler : AstVisitor
 
     private void InNewClosedScopeDo(Action action)
     {
-        _closedScopes.Insert(0, Scope.CreateRoot(Chunk));
+        _closedScopes.Insert(0, Scope.CreateRoot(Chunk, _replSymbols));
         try
         {
             action();
@@ -282,7 +329,7 @@ public partial class Compiler : AstVisitor
             _loopDescent.Pop();
         }
     }
-    
+
     private void MarkStatementBoundary(Statement stmt)
     {
         if (_chunks.Count > 0)
@@ -304,9 +351,9 @@ public partial class Compiler : AstVisitor
         if (!_attributeProcessors.TryGetValue(attributeName, out var list))
         {
             list = [];
-            
+
             _attributeProcessors.Add(
-                attributeName, 
+                attributeName,
                 list
             );
         }
@@ -320,16 +367,16 @@ public partial class Compiler : AstVisitor
         {
             case BooleanConstant boolConst:
                 return boolConst.Value;
-            
+
             case NilConstant:
                 return DynamicValue.Nil;
-            
+
             case NumberConstant numConst:
                 return numConst.Value;
-            
+
             case StringConstant stringConst:
                 return stringConst.Value;
-            
+
             case TypeCodeConstant typeCodeConst:
                 return typeCodeConst.Value;
 

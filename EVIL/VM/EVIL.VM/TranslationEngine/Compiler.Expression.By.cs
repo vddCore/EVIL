@@ -1,14 +1,14 @@
-namespace EVIL.VirtualMachine.TranslationEngine;
+namespace EVIL.VM.TranslationEngine;
 
 using System;
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Constants;
 using EVIL.Core.Grammar.AST.Expressions;
 using EVIL.Core.Grammar.AST.Miscellaneous;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public partial class Compiler
 {

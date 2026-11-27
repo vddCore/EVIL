@@ -1,13 +1,12 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Concurrency;
+namespace EVIL.VM.ExecutionEngine.Concurrency;
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed class FiberScheduler(
     VirtualMachineBase vm,

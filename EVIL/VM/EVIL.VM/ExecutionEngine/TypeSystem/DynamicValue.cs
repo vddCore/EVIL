@@ -1,15 +1,14 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-
-using Collections_Array = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+namespace EVIL.VM.ExecutionEngine.TypeSystem;
 
 using System;
 using System.IO;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Collections.Serialization;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using Collections_Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 public readonly struct DynamicValue : IEquatable<DynamicValue>
 {

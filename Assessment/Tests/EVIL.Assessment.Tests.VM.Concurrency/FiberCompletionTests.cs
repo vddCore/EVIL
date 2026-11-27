@@ -3,10 +3,10 @@ namespace EVIL.Assessment.Tests.VM.Concurrency;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 
 [TestFixture]

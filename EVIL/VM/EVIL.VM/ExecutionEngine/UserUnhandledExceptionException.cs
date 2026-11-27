@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.ExecutionEngine;
+namespace EVIL.VM.ExecutionEngine;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public class UserUnhandledExceptionException : VirtualMachineException
 {

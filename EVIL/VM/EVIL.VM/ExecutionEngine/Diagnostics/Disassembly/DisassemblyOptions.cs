@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 
 public class DisassemblyOptions
 {

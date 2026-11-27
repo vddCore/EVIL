@@ -1,13 +1,13 @@
-namespace EVIL.VirtualMachine.Debugger;
+namespace EVIL.VM.Debugger;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed class BreakpointManager
 {

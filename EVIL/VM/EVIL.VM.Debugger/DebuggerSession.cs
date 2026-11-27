@@ -1,14 +1,14 @@
-namespace EVIL.VirtualMachine.Debugger;
+namespace EVIL.VM.Debugger;
 
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.TranslationEngine;
 
 public sealed class DebuggerSession : IDebuggerSession
 {

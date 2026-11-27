@@ -1,6 +1,6 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
+﻿namespace EVIL.VM.ExecutionEngine.Collections;
 
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public interface IIndexableObject
 {

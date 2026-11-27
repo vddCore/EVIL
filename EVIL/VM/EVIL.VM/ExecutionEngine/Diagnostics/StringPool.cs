@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed class StringPool : IEquatable<StringPool>
 {

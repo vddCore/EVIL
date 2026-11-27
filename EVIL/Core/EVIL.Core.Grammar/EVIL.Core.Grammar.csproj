@@ -5,7 +5,7 @@
     <RootNamespace>EVIL.Core.Grammar</RootNamespace>
     <Nullable>enable</Nullable>
 
-    <Version>11.0.0</Version>
+    <Version>12.0.0</Version>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>

@@ -1,9 +1,9 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
+namespace EVIL.VM.ExecutionEngine.Collections;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 internal sealed class ArrayEnumerator : IEnumerator<KeyValuePair<DynamicValue, DynamicValue>>, ICloneable
 {

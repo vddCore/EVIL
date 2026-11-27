@@ -1,4 +1,4 @@
-namespace EVIL.FrontEnd.evil;
+namespace EVIL.FE;
 
 using System;
 using System.Collections.Generic;
@@ -7,23 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly.Rendering;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.Core.Diagnostics.Formatters;
-using EVIL.VirtualMachine.Debugger;
-using EVIL.VirtualMachine.Debugger.Cli;
-using EVIL.VirtualMachine.Debugger.Dap;
 using EVIL.Core.Grammar;
+using EVIL.VM.Debugger;
+using EVIL.VM.Debugger.Cli;
+using EVIL.VM.Debugger.Dap;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly.Rendering;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime;
+using EVIL.VM.TranslationEngine;
 using Mono.Options;
-
-using EvilArray = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+using EvilArray = EVIL.VM.ExecutionEngine.Collections.Array;
 
 public partial class EvmFrontEnd
 {
@@ -44,6 +43,7 @@ public partial class EvmFrontEnd
     private static bool _disasmNoSource;
     private static bool _optimizeCode;
     private static bool _compileOnly;
+    private static bool _replMode;
     private static bool _debugMode;
     private static bool _dapMode;
     private static string _outputFileName = "a.evx";
@@ -68,6 +68,7 @@ public partial class EvmFrontEnd
         { "no-subchunks", "do not recurse into nested subchunks during disassembly.", (s) => _disasmNoSubchunks = s != null },
         { "no-source", "disable source code interleaving in disassembly.", (s) => _disasmNoSource = s != null },
         { "o|optimize", "optimize generated code.", (o) => _optimizeCode = o != null },
+        { "repl", "start an interactive EVIL REPL.", (r) => _replMode = r != null },
         { "debug", "start script in interactive CLI debugger (evdb).", (b) => _debugMode = b != null },
         { "dap", "start Debug Adapter Protocol (DAP) server over stdio.", (p) => _dapMode = p != null },
         { "f|diagnostics-format=", "diagnostics formatting style: standard, rich, or json (default: standard).", f => _diagnosticsFormat = f },
@@ -111,6 +112,7 @@ public partial class EvmFrontEnd
         
     public async Task Run(string[] args)
     {
+        _replMode = false;
         var extra = InitializeOptions(args);
 
         if (_displayHelpAndQuit)
@@ -138,6 +140,22 @@ public partial class EvmFrontEnd
         {
             var server = new DapServer(Console.OpenStandardInput(), Console.OpenStandardOutput());
             await server.RunAsync();
+            return;
+        }
+
+        if (_replMode || extra.Count == 0)
+        {
+            var replSession = new ReplSession(
+                Console.In,
+                Console.Out,
+                ConfigureCompilerOptions()
+            );
+
+            Console.Out.WriteLine(
+                BuildVersionBanner()
+            );
+            
+            await replSession.RunAsync();
             return;
         }
 
@@ -370,6 +388,24 @@ public partial class EvmFrontEnd
         }
 
         return fileNames;
+    }
+
+    private static CompilerOptions ConfigureCompilerOptions()
+    {
+        _compilerOptions.MaxErrors = _maxErrors;
+        _compilerOptions.WarningsAsErrors = _warnAsError;
+
+        foreach (var code in _warnAsErrorCodes)
+        {
+            _compilerOptions.WarningsAsErrorsCodes.Add(code);
+        }
+
+        foreach (var code in _noWarnCodes)
+        {
+            _compilerOptions.SuppressedCodes.Add(code);
+        }
+
+        return _compilerOptions;
     }
 
     private void GenerateModuleDocs()

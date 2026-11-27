@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.Debugger.Dap.Messages;
+namespace EVIL.VM.Debugger.Dap.Messages;
 
 using System.Text.Json.Serialization;
 

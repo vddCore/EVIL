@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EVIL.Assessment.Tests.VM.Debugger.Utilities;
-using EVIL.VirtualMachine.Debugger;
+using EVIL.VM.Debugger;
 using NUnit.Framework;
 using Shouldly;
 

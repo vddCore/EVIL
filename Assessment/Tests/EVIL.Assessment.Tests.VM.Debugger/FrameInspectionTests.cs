@@ -2,8 +2,8 @@ namespace EVIL.Assessment.Tests.VM.Debugger;
 
 using System.Threading.Tasks;
 using EVIL.Assessment.Tests.VM.Debugger.Utilities;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Debugger;
+using EVIL.VM.Debugger;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 using NUnit.Framework;
 using Shouldly;
 

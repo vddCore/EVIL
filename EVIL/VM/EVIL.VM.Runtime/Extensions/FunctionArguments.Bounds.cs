@@ -1,6 +1,6 @@
-﻿namespace EVIL.VirtualMachine.Runtime.Extensions;
+﻿namespace EVIL.VM.Runtime.Extensions;
 
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public static partial class FunctionArguments
 {

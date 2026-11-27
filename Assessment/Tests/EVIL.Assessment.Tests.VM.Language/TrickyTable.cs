@@ -1,9 +1,9 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Language;
 
 using System;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public class TrickyTable : Table
 {

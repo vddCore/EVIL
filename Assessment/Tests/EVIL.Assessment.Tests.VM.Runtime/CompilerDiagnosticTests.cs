@@ -4,12 +4,12 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Diagnostics;
 using EVIL.Core.Grammar.AST.Base;
 using EVIL.Core.Grammar.AST.Constants;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 using Shouldly;
 

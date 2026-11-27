@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public sealed record StatementDebugRecord(
     int IP,

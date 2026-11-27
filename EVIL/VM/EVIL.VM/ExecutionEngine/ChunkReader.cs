@@ -1,7 +1,7 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine;
+﻿namespace EVIL.VM.ExecutionEngine;
 
 using System.Runtime.CompilerServices;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public sealed class ChunkReader
 {

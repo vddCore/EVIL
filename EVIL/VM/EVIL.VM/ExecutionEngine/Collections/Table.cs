@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
+namespace EVIL.VM.ExecutionEngine.Collections;
 
 using System;
 using System.Collections;
@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections.Serialization;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 using static TypeSystem.DynamicValue;
 
 public class Table : IDynamicValueCollection, IIndexableObject, IWriteableObject

@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 using System.Collections.Concurrent;
@@ -8,9 +8,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
 {

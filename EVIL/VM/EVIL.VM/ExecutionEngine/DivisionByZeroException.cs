@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine;
+namespace EVIL.VM.ExecutionEngine;
 
 public class DivisionByZeroException : RecoverableVirtualMachineException
 {

@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.Debugger.Dap;
+namespace EVIL.VM.Debugger.Dap;
 
 using System;
 using System.Collections.Concurrent;
@@ -10,13 +10,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.Debugger.Dap.Messages;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.Debugger.Dap.Messages;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime;
+using EVIL.VM.TranslationEngine;
 
 public sealed class DapServer
 {
@@ -38,7 +39,7 @@ public sealed class DapServer
 
     private readonly ConcurrentDictionary<
         int,
-        IReadOnlyDictionary<string, EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue>
+        IReadOnlyDictionary<string, DynamicValue>
     > _scopeVariablesLookup = [];
     
     private int _nextFrameId = 1;
@@ -465,7 +466,7 @@ public sealed class DapServer
 
                 if (_session?.ActiveFiber?.CallStack.Peek() is ScriptStackFrame ssf)
                 {
-                    _session.SetFrameLocal(ssf, name, new EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue(valStr));
+                    _session.SetFrameLocal(ssf, name, new DynamicValue(valStr));
                 }
 
                 SendSuccessResponse(req, new { value = valStr });

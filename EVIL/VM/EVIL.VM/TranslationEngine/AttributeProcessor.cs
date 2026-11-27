@@ -1,5 +1,5 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine;
+﻿namespace EVIL.VM.TranslationEngine;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public delegate void AttributeProcessor(ChunkAttribute attribute, Chunk chunk);

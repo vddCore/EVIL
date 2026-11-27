@@ -1,16 +1,16 @@
-namespace EVIL.VirtualMachine.Debugger.Cli;
+namespace EVIL.VM.Debugger.Cli;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly.Rendering;
-using System.Globalization;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly.Rendering;
 
 public sealed class EvdbSession
 {

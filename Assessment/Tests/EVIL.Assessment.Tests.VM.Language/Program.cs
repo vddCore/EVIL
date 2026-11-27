@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-
-using EVIL.VirtualMachine.ExecutionEngine;
 using EVIL.Assessment.Tests.VM.Language;
+using EVIL.VM.ExecutionEngine;
 
 var vm = new VirtualMachine();
 vm.Run();

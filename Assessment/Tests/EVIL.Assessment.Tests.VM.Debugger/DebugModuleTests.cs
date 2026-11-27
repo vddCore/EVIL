@@ -1,9 +1,9 @@
 namespace EVIL.Assessment.Tests.VM.Debugger;
 
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.Runtime.Modules;
 using EVIL.Assessment.Tests.Base;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.Runtime;
+using EVIL.VM.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
 

@@ -2,9 +2,9 @@ namespace EVIL.Assessment.Tests.VM.Debugger;
 
 using System;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
 using EVIL.Assessment.Tests.Base;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 using NUnit.Framework;
 
 [TestFixture]

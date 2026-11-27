@@ -1,11 +1,10 @@
-namespace EVIL.VirtualMachine.Runtime.Modules;
-
-using static EVIL.VirtualMachine.Runtime.EvilDocPropertyMode;
-using static EVIL.Core.Common.TypeSystem.DynamicValueType;
+namespace EVIL.VM.Runtime.Modules;
 
 using System.IO;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using static EvilDocPropertyMode;
+using static EVIL.Core.Common.TypeSystem.DynamicValueType;
 
 public partial class FsModule : RuntimeModule
 {

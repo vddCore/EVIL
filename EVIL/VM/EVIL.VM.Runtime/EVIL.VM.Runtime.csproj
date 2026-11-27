@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>EVIL.VirtualMachine.Runtime</AssemblyName>
-    <RootNamespace>EVIL.VirtualMachine.Runtime</RootNamespace>
+    <AssemblyName>EVIL.VM.Runtime</AssemblyName>
+    <RootNamespace>EVIL.VM.Runtime</RootNamespace>
     <Nullable>enable</Nullable>
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <Version>0.17.2</Version>
+    <Version>0.19.1</Version>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>

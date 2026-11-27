@@ -1,11 +1,11 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Marshaling;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Marshaling;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed record ChunkAttribute : IDynamicValueProvider
 {

@@ -1,6 +1,6 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Runtime.ModuleTests;
 
-using EVIL.VirtualMachine.Runtime.Modules;
+using EVIL.VM.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
 

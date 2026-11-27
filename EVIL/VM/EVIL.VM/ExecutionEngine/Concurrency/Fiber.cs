@@ -1,14 +1,14 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Concurrency;
+namespace EVIL.VM.ExecutionEngine.Concurrency;
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed class Fiber
 {
@@ -16,7 +16,7 @@ public sealed class Fiber
     
     private static long _nextLockOrderId;
 
-    private readonly Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
+    private readonly Queue<(Diagnostics.Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
     private readonly HashSet<Fiber> _waitingFor;
     private readonly HashSet<Fiber> _waitingOn;
     private readonly HashSet<Fiber> _pendingAwaiteeCrashes;

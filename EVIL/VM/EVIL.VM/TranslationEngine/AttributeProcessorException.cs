@@ -1,7 +1,7 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine;
+﻿namespace EVIL.VM.TranslationEngine;
 
 using System;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public class AttributeProcessorException : Exception
 {

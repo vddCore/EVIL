@@ -1,13 +1,11 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 public static class InstructionDecoder
 {

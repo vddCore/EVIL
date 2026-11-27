@@ -1,13 +1,13 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
+namespace EVIL.VM.ExecutionEngine.Collections.Serialization;
 
 using System;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using System.Runtime.Serialization.Formatters.Binary;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 internal static class DynamicValueSerializer
 {

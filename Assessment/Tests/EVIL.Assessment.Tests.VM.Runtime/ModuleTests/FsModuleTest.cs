@@ -1,8 +1,8 @@
 namespace EVIL.Assessment.Tests.VM.Runtime.ModuleTests;
 
 using System.IO;
-using EVIL.VirtualMachine.Runtime.Modules;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
 

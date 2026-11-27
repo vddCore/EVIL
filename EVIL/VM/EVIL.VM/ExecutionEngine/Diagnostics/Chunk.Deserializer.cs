@@ -1,14 +1,13 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using static TypeSystem.DynamicValue;
 
 public sealed partial class Chunk
 {

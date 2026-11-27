@@ -1,6 +1,6 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Marshaling;
+﻿namespace EVIL.VM.ExecutionEngine.Marshaling;
 
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public interface IDynamicValueProvider
 {

@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.TranslationEngine;
+namespace EVIL.VM.TranslationEngine;
 
 using System;
-using EVIL.VirtualMachine.TranslationEngine.Scoping;
+using EVIL.VM.TranslationEngine.Scoping;
 
 public class DuplicateSymbolException : Exception
 {

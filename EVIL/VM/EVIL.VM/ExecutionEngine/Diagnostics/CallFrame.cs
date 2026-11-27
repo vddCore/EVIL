@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 public readonly struct CallFrame(Chunk chunk, Upvalue[]? upvalues, int basePointer, int returnIp)
 {

@@ -1,13 +1,12 @@
 namespace EVIL.Assessment.Tests.VM.Language;
 
-using static EVIL.VirtualMachine.ExecutionEngine.TypeSystem.DynamicValue;
-
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.Runtime.Extensions;
-using EVIL.VirtualMachine.TranslationEngine;
+using static EVIL.VM.ExecutionEngine.TypeSystem.DynamicValue;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime;
+using EVIL.VM.Runtime.Extensions;
+using EVIL.VM.TranslationEngine;
 
 public class AssertModule : RuntimeModule
 {

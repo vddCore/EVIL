@@ -1,8 +1,8 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Language;
 
 using System;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public static class AttributeProcessors
 {

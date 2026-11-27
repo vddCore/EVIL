@@ -40,7 +40,7 @@
     <Content Include="..\..\Shared\artwork\evil_logo.png" PackagePath="\" />
     <Content Include="..\..\Shared\docs\nuget.readme.md" PackagePath="\" />
     
-    <Content Include="$(OutDir)EVIL.VirtualMachine.dll" PackagePath="lib\$(TargetFramework)\EVIL.VirtualMachine.dll"/>
-    <Content Include="$(OutDir)EVIL.VirtualMachine.Runtime.dll" PackagePath="lib\$(TargetFramework)\EVIL.VirtualMachine.Runtime.dll"/>
+    <Content Include="$(OutDir)EVIL.VM.dll" PackagePath="lib\$(TargetFramework)\EVIL.VM.dll"/>
+    <Content Include="$(OutDir)EVIL.VM.Runtime.dll" PackagePath="lib\$(TargetFramework)\EVIL.VM.Runtime.dll"/>
   </ItemGroup>
 </Project>

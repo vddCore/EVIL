@@ -1,12 +1,11 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections.Serialization;
-
-using Array = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+namespace EVIL.VM.ExecutionEngine.Collections.Serialization;
 
 using System;
 using System.IO;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 internal static class ArraySerializer
 {

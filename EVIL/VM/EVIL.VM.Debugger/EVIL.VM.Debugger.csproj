@@ -1,10 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>EVIL.VirtualMachine.Debugger</AssemblyName>
-    <RootNamespace>EVIL.VirtualMachine.Debugger</RootNamespace>
     <Nullable>enable</Nullable>
-    <Version>2.0.0</Version>
+    <Version>4.1.1</Version>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 

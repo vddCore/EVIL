@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine;
+﻿namespace EVIL.VM.TranslationEngine;
 
 using EVIL.Core.Diagnostics;
 

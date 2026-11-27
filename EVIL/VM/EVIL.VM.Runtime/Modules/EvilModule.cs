@@ -1,18 +1,17 @@
-﻿namespace EVIL.VirtualMachine.Runtime.Modules;
-
-using static EVIL.Core.Common.TypeSystem.DynamicValueType;
+﻿namespace EVIL.VM.Runtime.Modules;
 
 using System.Collections.Generic;
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
-using EVIL.VirtualMachine.TranslationEngine;
-using EVIL.VirtualMachine.TranslationEngine.Diagnostics;
-using EVIL.Core.Diagnostics;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.Core.Diagnostics;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
+using EVIL.VM.TranslationEngine;
+using EVIL.VM.TranslationEngine.Diagnostics;
+using static EVIL.Core.Common.TypeSystem.DynamicValueType;
 
 public sealed class EvilModule : RuntimeModule
 {

@@ -1,7 +1,7 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Runtime.ModuleTests;
 
-using EVIL.VirtualMachine.Runtime;
 using EVIL.Assessment.Tests.Base;
+using EVIL.VM.Runtime;
 
 public abstract class ModuleTest<T> : EvilTest
     where T : RuntimeModule, new()

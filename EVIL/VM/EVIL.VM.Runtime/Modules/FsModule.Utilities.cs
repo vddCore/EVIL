@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.Runtime.Modules;
+namespace EVIL.VM.Runtime.Modules;
 
 using System;
 using System.IO;

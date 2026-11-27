@@ -1,9 +1,9 @@
-﻿namespace EVIL.VirtualMachine.Runtime.Modules;
+﻿namespace EVIL.VM.Runtime.Modules;
 
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
 
 public sealed class CoreModule : RuntimeModule
 {

@@ -3,8 +3,8 @@ namespace EVIL.Assessment.Tests.VM.Debugger;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.Debugger;
+using EVIL.VM.Debugger;
+using EVIL.VM.ExecutionEngine;
 using NUnit.Framework;
 
 [TestFixture]

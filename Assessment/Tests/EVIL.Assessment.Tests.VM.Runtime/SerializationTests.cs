@@ -1,11 +1,11 @@
 ﻿namespace EVIL.Assessment.Tests.VM.Runtime;
 
 using System.IO;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Grammar;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 
 public class SerializationTests

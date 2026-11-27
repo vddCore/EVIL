@@ -1,11 +1,10 @@
-namespace EVIL.VirtualMachine.Runtime.Modules;
-
-using static EVIL.Core.Common.TypeSystem.DynamicValueType;
+namespace EVIL.VM.Runtime.Modules;
 
 using System.Linq;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.Runtime.Extensions;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.Runtime.Extensions;
+using static EVIL.Core.Common.TypeSystem.DynamicValueType;
 
 public class ArrayModule : RuntimeModule
 {

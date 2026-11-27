@@ -1,8 +1,8 @@
 namespace EVIL.Assessment.Tests.VM.Runtime;
 
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.Runtime;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.Runtime;
 using NUnit.Framework;
 
 public class RuntimeEnvironmentTests

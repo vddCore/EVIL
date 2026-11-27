@@ -1,7 +1,7 @@
 namespace EVIL.Assessment.Tests.VM.Language;
 
 using System.Collections.Generic;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public class TestSet
 {

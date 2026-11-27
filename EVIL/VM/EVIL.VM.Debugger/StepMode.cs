@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.Debugger;
+namespace EVIL.VM.Debugger;
 
 public enum StepMode
 {

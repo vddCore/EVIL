@@ -1,30 +1,32 @@
-namespace EVIL.FrontEnd.evil;
+namespace EVIL.FE;
 
 using System;
 using System.Text;
 using EVIL.Core.Analysis;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.Runtime;
 using EVIL.Core.Diagnostics;
 using EVIL.Core.Grammar;
 using EVIL.Core.Lexical;
+using EVIL.VM.Debugger;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.Runtime;
 
 public partial class EvmFrontEnd
 {
     private static string BuildVersionBanner()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Integrated EVIL front-end environment.");
-        sb.AppendLine("This project is distributed under GPLv3 license.");
+        sb.AppendLine("Integrated EVIL front-end environment / REPL.");
+        sb.AppendLine("This component is distributed under GPLv3 license.");
         sb.AppendLine();
         sb.AppendLine("--[component versions]--------");
-        sb.AppendLine($"     EVM front-end: v{GetAssemblyVersionFromType<EvmFrontEnd>()}");
-        sb.AppendLine($"        EVIL lexer: v{GetAssemblyVersionFromType<Lexer>()}");
-        sb.AppendLine($"       EVIL parser: v{GetAssemblyVersionFromType<Parser>()}");
-        sb.AppendLine($"     EVIL.VirtualMachine VM: v{GetAssemblyVersionFromType<VirtualMachine>()}");
-        sb.AppendLine($"     EVIL.Core.Analysis: v{GetAssemblyVersionFromType<AnalyzerDriver>()}");
-        sb.AppendLine($"  EVIL.Core.Diagnostics: v{GetAssemblyVersionFromType<Diagnostic>()}");
-        sb.AppendLine($"EVIL.VirtualMachine.Runtime: v{GetAssemblyVersionFromType<RuntimeModule>()}");
+        sb.AppendLine($"              EVIL.FE: v{GetAssemblyVersionFromType<EvmFrontEnd>()}");
+        sb.AppendLine($"    EVIL.Core.Lexical: v{GetAssemblyVersionFromType<Lexer>()}");
+        sb.AppendLine($"    EVIL.Core.Grammar: v{GetAssemblyVersionFromType<Parser>()}");
+        sb.AppendLine($"   EVIL.Core.Analysis: v{GetAssemblyVersionFromType<AnalyzerDriver>()}");
+        sb.AppendLine($"EVIL.Core.Diagnostics: v{GetAssemblyVersionFromType<Diagnostic>()}");
+        sb.AppendLine($"              EVIL.VM: v{GetAssemblyVersionFromType<VirtualMachine>()}");
+        sb.AppendLine($"     EVIL.VM.Debugger: v{GetAssemblyVersionFromType<DebuggerSession>()}");
+        sb.AppendLine($"      EVIL.VM.Runtime: v{GetAssemblyVersionFromType<RuntimeModule>()}");
 
         return sb.ToString();
     }

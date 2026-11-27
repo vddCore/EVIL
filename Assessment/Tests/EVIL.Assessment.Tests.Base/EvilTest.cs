@@ -2,11 +2,11 @@
 
 using System;
 using System.Threading;
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
-using EVIL.VirtualMachine.TranslationEngine;
 using EVIL.Core.Grammar;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
 
 public abstract class EvilTest

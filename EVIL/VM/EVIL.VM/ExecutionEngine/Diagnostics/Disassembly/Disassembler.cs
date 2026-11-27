@@ -1,7 +1,7 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly;
+namespace EVIL.VM.ExecutionEngine.Diagnostics.Disassembly;
 
 using System.IO;
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Disassembly.Rendering;
+using EVIL.VM.ExecutionEngine.Diagnostics.Disassembly.Rendering;
 
 public static class Disassembler
 {

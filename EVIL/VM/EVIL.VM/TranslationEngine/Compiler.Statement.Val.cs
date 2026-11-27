@@ -1,9 +1,11 @@
-namespace EVIL.VirtualMachine.TranslationEngine;
+namespace EVIL.VM.TranslationEngine;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using System;
 using EVIL.Core.Diagnostics;
 using EVIL.Core.Grammar.AST.Miscellaneous;
 using EVIL.Core.Grammar.AST.Statements;
+using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.TranslationEngine.Scoping;
 
 public partial class Compiler
 {
@@ -13,7 +15,7 @@ public partial class Compiler
         {
             if (declarator is IdentifierValDeclarator identifierDeclarator)
             {
-                var localId = RegisterValLocal(
+                var symbol = RegisterValSymbol(
                     valStatement,
                     identifierDeclarator.Identifier,
                     valStatement.ReadWrite
@@ -22,7 +24,7 @@ public partial class Compiler
                 if (identifierDeclarator.Initializer != null)
                 {
                     Visit(identifierDeclarator.Initializer);
-                    Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, localId);
+                    EmitValBindingSet(symbol);
                 }
             }
             else if (declarator is ArrayPatternValDeclarator arrayPattern)
@@ -40,11 +42,11 @@ public partial class Compiler
         ValStatement valStatement,
         ArrayPatternValDeclarator arrayPattern)
     {
-        var localIds = new int[arrayPattern.Bindings.Count];
+        var symbols = new Symbol[arrayPattern.Bindings.Count];
         for (var i = 0; i < arrayPattern.Bindings.Count; i++)
         {
             var binding = arrayPattern.Bindings[i];
-            localIds[i] = RegisterValLocal(
+            symbols[i] = RegisterValSymbol(
                 valStatement,
                 binding.Identifier,
                 valStatement.ReadWrite || binding.ReadWrite
@@ -56,22 +58,18 @@ public partial class Compiler
         Line = valStatement.Line;
         Column = valStatement.Column;
         Chunk.CodeGenerator.Emit(OpCode.ARRDEC, arrayPattern.Bindings.Count);
-
-        for (var i = localIds.Length - 1; i >= 0; i--)
-        {
-            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, localIds[i]);
-        }
+        StoreValBindings(symbols);
     }
 
     private void CompileTablePattern(
         ValStatement valStatement,
         TablePatternValDeclarator tablePattern)
     {
-        var localIds = new int[tablePattern.Fields.Count];
+        var symbols = new Symbol[tablePattern.Fields.Count];
         for (var i = 0; i < tablePattern.Fields.Count; i++)
         {
             var binding = tablePattern.Fields[i].Binding;
-            localIds[i] = RegisterValLocal(
+            symbols[i] = RegisterValSymbol(
                 valStatement,
                 binding.Identifier,
                 valStatement.ReadWrite || binding.ReadWrite
@@ -92,28 +90,105 @@ public partial class Compiler
             Chunk.CodeGenerator.EmitGetTableField(key);
         }
 
-        for (var i = localIds.Length - 1; i >= 0; i--)
+        StoreValBindings(symbols);
+    }
+
+    private void StoreValBindings(Symbol[] symbols)
+    {
+        if (symbols[0].Type != Symbol.SymbolType.Global)
         {
-            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, localIds[i]);
+            for (var i = symbols.Length - 1; i >= 0; i--)
+            {
+                Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, symbols[i].Id);
+            }
+
+            return;
+        }
+
+        var temporaryIds = new int[symbols.Length];
+        for (var i = 0; i < temporaryIds.Length; i++)
+        {
+            temporaryIds[i] = Chunk.AllocateLocal();
+        }
+
+        for (var i = temporaryIds.Length - 1; i >= 0; i--)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, temporaryIds[i]);
+        }
+
+        for (var i = 0; i < temporaryIds.Length; i++)
+        {
+            Chunk.CodeGenerator.Emit(OpCode.GETLOCAL, temporaryIds[i]);
+            EmitVarSet(symbols[i].Name);
         }
     }
 
-    private int RegisterValLocal(
+    private void EmitValBindingSet(Symbol symbol)
+    {
+        if (symbol.Type == Symbol.SymbolType.Global)
+        {
+            EmitVarSet(symbol.Name);
+        }
+        else
+        {
+            Chunk.CodeGenerator.Emit(OpCode.SETLOCAL, symbol.Id);
+        }
+    }
+
+    private Symbol RegisterValSymbol(
         ValStatement valStatement,
         IdentifierNode identifier,
         bool readWrite)
     {
+        if (_replSymbols != null
+            && ReferenceEquals(Chunk, _rootChunk)
+            && CurrentScope.Parent == null)
+        {
+            if (_replSymbols.TryGetValue(identifier.Name, out var existingSymbol))
+            {
+                Log.TerminateWithFatal(
+                    CompilerDiagnostics.DuplicateSymbolInScope.Create(
+                        GetLocation(identifier),
+                        [new RelatedLocation(
+                            new SourceLocation(CurrentFileName, existingSymbol.DefinedOnLine, existingSymbol.DefinedOnColumn),
+                            "Previously defined here"
+                        )],
+                        identifier.Name,
+                        existingSymbol.TypeName,
+                        existingSymbol.DefinedOnLine,
+                        existingSymbol.DefinedOnColumn
+                    )
+                );
+            }
+
+            var globalSymbol = new Symbol(
+                identifier.Name,
+                -1,
+                Symbol.SymbolType.Global,
+                readWrite,
+                valStatement.Line,
+                valStatement.Column,
+                null
+            );
+
+            _replSymbols.Add(identifier.Name, globalSymbol);
+            return globalSymbol;
+        }
+
         var localId = Chunk.AllocateLocal();
 
         try
         {
-            CurrentScope.DefineLocal(
+            var symbol = CurrentScope.DefineLocal(
                 identifier.Name,
                 localId,
                 readWrite,
                 valStatement.Line,
                 valStatement.Column
             );
+
+            Chunk.DebugDatabase.SetLocalName(localId, identifier.Name, readWrite);
+            return symbol;
         }
         catch (DuplicateSymbolException dse)
         {
@@ -133,10 +208,8 @@ public partial class Compiler
             );
 
             // Return just in case - TerminateWithFatal should never return, ever.
-            return localId;
         }
 
-        Chunk.DebugDatabase.SetLocalName(localId, identifier.Name, readWrite);
-        return localId;
+        throw new InvalidOperationException("Unreachable code after a fatal compiler diagnostic.");
     }
 }

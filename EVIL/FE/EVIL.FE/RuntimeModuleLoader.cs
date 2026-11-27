@@ -1,11 +1,11 @@
-namespace EVIL.FrontEnd.evil;
+namespace EVIL.FE;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using EVIL.VirtualMachine.Runtime;
+using EVIL.VM.Runtime;
 
 public class RuntimeModuleLoader(EvilRuntime runtime)
 {

@@ -1,4 +1,4 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics.Debugging;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics.Debugging;
 
 using System;
 using System.Collections.Generic;

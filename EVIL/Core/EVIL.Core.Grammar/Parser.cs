@@ -35,13 +35,20 @@ public partial class Parser
         _ternaryDepth = 0;
         _lexer.LoadSource(source);
 
-        var programNode = Program();
-        if (DiagnosticSink == null || DiagnosticSink.ErrorCount < MaxErrors)
+        try
         {
-            Match(Token.EOF);
-        }
+            var programNode = Program();
+            if (DiagnosticSink == null || DiagnosticSink.ErrorCount < MaxErrors)
+            {
+                Match(Token.EOF);
+            }
 
-        return programNode;
+            return programNode;
+        }
+        catch (ParserException exception) when (CurrentToken.Type == TokenType.EOF && !exception.IsIncomplete)
+        {
+            throw new ParserException(exception.Message, exception.Location, isIncomplete: true);
+        }
     }
 
     public Expression ParseExpression(string expressionSource)

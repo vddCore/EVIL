@@ -1,6 +1,6 @@
-namespace EVIL.VirtualMachine.ExecutionEngine;
+namespace EVIL.VM.ExecutionEngine;
 
-using EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Diagnostics;
 
 public struct ProtectedRegionActivation(
     int regionId,

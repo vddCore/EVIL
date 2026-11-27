@@ -1,4 +1,4 @@
-namespace EVIL.VirtualMachine.ExecutionEngine.Collections;
+namespace EVIL.VM.ExecutionEngine.Collections;
 
 internal enum EnumeratorKind : byte
 {

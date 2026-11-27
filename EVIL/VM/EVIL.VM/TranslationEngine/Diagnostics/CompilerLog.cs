@@ -1,17 +1,16 @@
-﻿namespace EVIL.VirtualMachine.TranslationEngine.Diagnostics;
+﻿namespace EVIL.VM.TranslationEngine.Diagnostics;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Marshaling;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
 using EVIL.Core.Diagnostics;
 using EVIL.Core.Diagnostics.Formatters;
-
-using EvilArray = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Marshaling;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EvilArray = EVIL.VM.ExecutionEngine.Collections.Array;
 
 public sealed class CompilerLog : IDynamicValueProvider, IDiagnosticSink
 {

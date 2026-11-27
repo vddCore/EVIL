@@ -1,8 +1,8 @@
 namespace EVIL.Assessment.Tests.VM.Debugger.Utilities;
 
-using EVIL.VirtualMachine.ExecutionEngine;
-using EVIL.VirtualMachine.Runtime;
-using EVIL.VirtualMachine.TranslationEngine;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.Runtime;
+using EVIL.VM.TranslationEngine;
 
 internal static class DebuggerTestEnvironment
 {

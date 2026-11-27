@@ -1,15 +1,13 @@
-﻿namespace EVIL.VirtualMachine.ExecutionEngine.Diagnostics;
-
-using EvilArray = EVIL.VirtualMachine.ExecutionEngine.Collections.Array;
-using Array = System.Array;
+﻿namespace EVIL.VM.ExecutionEngine.Diagnostics;
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
-using EVIL.VirtualMachine.ExecutionEngine.Collections;
-using EVIL.VirtualMachine.ExecutionEngine.Concurrency;
-using EVIL.VirtualMachine.ExecutionEngine.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
+using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.TypeSystem;
+using EvilArray = EVIL.VM.ExecutionEngine.Collections.Array;
+using Array = System.Array;
 
 public sealed record ScriptStackFrame : StackFrame
 {

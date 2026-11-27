@@ -2,7 +2,7 @@
 
 using System;
 using System.IO;
-using EVIL.VirtualMachine.Runtime.Modules;
+using EVIL.VM.Runtime.Modules;
 using NUnit.Framework;
 using Shouldly;
 
