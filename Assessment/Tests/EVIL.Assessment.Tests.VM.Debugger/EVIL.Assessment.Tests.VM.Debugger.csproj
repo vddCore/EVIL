@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\EVIL\FE\EVIL.FE\EVIL.FE.csproj" />
     <ProjectReference Include="..\..\..\EVIL\VM\EVIL.VM.Runtime\EVIL.VM.Runtime.csproj" />
     <ProjectReference Include="..\..\..\EVIL\VM\EVIL.VM\EVIL.VM.csproj" />
     <ProjectReference Include="..\..\..\EVIL\VM\EVIL.VM.Debugger\EVIL.VM.Debugger.csproj" />

@@ -1,6 +1,5 @@
-namespace EVIL.FE;
+namespace EVIL.FE.Utilities;
 
-using System;
 using System.Text;
 using EVIL.Core.Analysis;
 using EVIL.Core.Diagnostics;
@@ -10,9 +9,9 @@ using EVIL.VM.Debugger;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.Runtime;
 
-public partial class EvmFrontEnd
+internal class VersionTools
 {
-    private static string BuildVersionBanner()
+    public static string BuildVersionBanner()
     {
         var sb = new StringBuilder();
         sb.AppendLine("Integrated EVIL front-end environment / REPL.");
@@ -39,28 +38,5 @@ public partial class EvmFrontEnd
         var version = name.Version!;
 
         return $"{version.Major}.{version.Minor}.{version.Build}";
-    }
-        
-    private static void Message(string msg)
-    {
-        Console.WriteLine(msg);
-    }
-
-    private static void Terminate(string? msg = null, bool writeHelp = false, ExitCode exitCode = ExitCode.OK)
-    {
-        if (msg != null)
-        {
-            Message(msg);
-        }
-
-        if (writeHelp)
-        {
-            _options.WriteOptionDescriptions(
-                Console.Out
-            );
-        }
-
-        Console.Out.Flush();
-        Environment.Exit((int)exitCode);
     }
 }

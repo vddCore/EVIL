@@ -10,6 +10,11 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <InternalsVisibleTo Include="EVIL.Assessment.Tests.VM.Debugger" />
+    <InternalsVisibleTo Include="EVIL.Assessment.Tests.FE" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\..\VM\EVIL.VM.Runtime\EVIL.VM.Runtime.csproj">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </ProjectReference>

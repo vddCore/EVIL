@@ -1,4 +1,4 @@
-namespace EVIL.VM.Debugger.Cli;
+namespace EVIL.FE.Debugger;
 
 internal static class StringResources
 {

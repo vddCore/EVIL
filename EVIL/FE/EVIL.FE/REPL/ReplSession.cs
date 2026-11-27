@@ -1,4 +1,4 @@
-namespace EVIL.FE;
+namespace EVIL.FE.REPL;
 
 using System;
 using System.IO;
@@ -8,6 +8,7 @@ using EVIL.Core.Diagnostics.Formatters;
 using EVIL.Core.Grammar;
 using EVIL.Core.Grammar.AST.Miscellaneous;
 using EVIL.Core.Lexical;
+using EVIL.FE.Utilities;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Concurrency;
 using EVIL.VM.ExecutionEngine.Diagnostics;
@@ -25,6 +26,8 @@ public sealed class ReplSession
 
     private readonly TextReader _input;
     private readonly TextWriter _output;
+    private readonly LineEditor _lineEditor = new();
+    private readonly Func<ConsoleKeyInfo>? _readKey;
     private readonly VirtualMachine _vm;
     private readonly EvilRuntime _runtime;
     private readonly RuntimeModuleLoader _runtimeModuleLoader;
@@ -34,10 +37,23 @@ public sealed class ReplSession
 
     private Exception? _runtimeException;
 
-    public ReplSession(TextReader input, TextWriter output, CompilerOptions? compilerOptions = null)
+    public ReplSession(
+        TextReader input,
+        TextWriter output,
+        CompilerOptions? compilerOptions = null,
+        Func<ConsoleKeyInfo>? readKey = null
+    )
     {
         _input = input;
         _output = output;
+        _readKey = readKey ?? (
+            ReferenceEquals(input, Console.In)
+            && ReferenceEquals(output, Console.Out)
+            && !Console.IsInputRedirected
+            && !Console.IsOutputRedirected
+                ? () => Console.ReadKey(intercept: true)
+                : null
+        );
         _vm = new VirtualMachine(HandleRuntimeException);
         _runtime = new EvilRuntime(_vm);
         _runtimeModuleLoader = new RuntimeModuleLoader(_runtime);
@@ -130,7 +146,7 @@ public sealed class ReplSession
             
             await _output.FlushAsync();
 
-            var line = await _input.ReadLineAsync();
+            var line = await _lineEditor.ReadLineAsync(_input, _output, _readKey);
             if (line == null)
             {
                 return;

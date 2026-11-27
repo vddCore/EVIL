@@ -1,7 +1,11 @@
 namespace EVIL.Assessment.Tests.FE;
 
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using EVIL.FE;
+using EVIL.FE.REPL;
 using Shouldly;
 
 [TestFixture]
@@ -79,6 +83,29 @@ public class ReplSessionTests
         output.ToString().ShouldNotContain("Syntax error:");
     }
 
+    [Test]
+    public async Task RunAsync_ExecutesEditedInputAndCanResubmitItFromHistory()
+    {
+        using var output = new StringWriter();
+        var keys = new Queue<ConsoleKeyInfo>([
+            Character('6'),
+            Character('*'),
+            Character('7'),
+            Character(';'),
+            Special(ConsoleKey.LeftArrow),
+            Special(ConsoleKey.LeftArrow),
+            Character('2'),
+            Special(ConsoleKey.Enter),
+            Special(ConsoleKey.UpArrow),
+            Special(ConsoleKey.Enter),
+            new ConsoleKeyInfo('\u0004', ConsoleKey.D, false, false, true)
+        ]);
+
+        await new ReplSession(TextReader.Null, output, readKey: keys.Dequeue).RunAsync();
+
+        output.ToString().Split(Environment.NewLine).Count(line => line == "162").ShouldBe(2);
+    }
+
     [TestCase(false)]
     [TestCase(true)]
     public async Task FrontEnd_EntersReplWhenNoScriptOrReplOptionIsProvided(bool useReplOption)
@@ -127,5 +154,15 @@ public class ReplSessionTests
         }
 
         output.ToString().ShouldNotContain(">>> ");
+    }
+
+    private static ConsoleKeyInfo Character(char character)
+    {
+        return new ConsoleKeyInfo(character, ConsoleKey.NoName, false, false, false);
+    }
+
+    private static ConsoleKeyInfo Special(ConsoleKey key)
+    {
+        return new ConsoleKeyInfo('\0', key, false, false, false);
     }
 }

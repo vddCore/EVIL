@@ -1,10 +1,12 @@
-namespace EVIL.VM.Debugger.Cli;
+namespace EVIL.FE.Debugger;
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using EVIL.FE.Utilities;
+using EVIL.VM.Debugger;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Concurrency;
 using EVIL.VM.ExecutionEngine.Diagnostics;
@@ -17,6 +19,8 @@ public sealed class EvdbSession
     private readonly VirtualMachine _vm;
     private readonly DebuggerSession _debugger;
     private readonly string _initialScriptPath;
+    private readonly LineEditor _lineEditor = new();
+    private readonly Func<ConsoleKeyInfo>? _readKey;
     private readonly Dictionary<string, string[]> _sourceFiles = new(StringComparer.OrdinalIgnoreCase);
 
     internal ScriptStackFrame? ActiveFrame { get; set; }
@@ -26,11 +30,21 @@ public sealed class EvdbSession
     private StepMode _lastStepMode = StepMode.None;
     private bool _disasmOnStep;
 
-    public EvdbSession(VirtualMachine vm, DebuggerSession debugger, string scriptPath)
+    public EvdbSession(
+        VirtualMachine vm,
+        DebuggerSession debugger,
+        string scriptPath,
+        Func<ConsoleKeyInfo>? readKey = null
+    )
     {
         _vm = vm;
         _debugger = debugger;
         _initialScriptPath = scriptPath;
+        _readKey = readKey ?? (
+            !Console.IsInputRedirected && !Console.IsOutputRedirected
+                ? () => Console.ReadKey(intercept: true)
+                : null
+        );
 
         _debugger.OnStopped += HandleStopped;
         _debugger.OnBreakpointBound += bp =>
@@ -85,7 +99,13 @@ public sealed class EvdbSession
             Console.Write("(evdb) ");
             Console.ResetColor();
 
-            var line = Console.ReadLine();
+            var line = _lineEditor.ReadLineAsync(
+                Console.In, 
+                Console.Out,
+                _readKey
+            ).GetAwaiter()
+             .GetResult();
+            
             if (line == null)
             {
                 break;

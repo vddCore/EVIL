@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.Core.Diagnostics.Formatters;
 using EVIL.Core.Grammar;
+using EVIL.FE.Debugger;
+using EVIL.FE.REPL;
+using EVIL.FE.Utilities;
 using EVIL.VM.Debugger;
-using EVIL.VM.Debugger.Cli;
 using EVIL.VM.Debugger.Dap;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Concurrency;
@@ -117,18 +119,25 @@ public partial class EvmFrontEnd
 
         if (_displayHelpAndQuit)
         {
-            Terminate(writeHelp: true);
+            Diagnostics.Terminate(null, () =>
+            {
+                _options.WriteOptionDescriptions(
+                    Console.Out
+                );
+            });
         }
 
         if (_displayVersionAndQuit)
         {
-            Terminate(BuildVersionBanner());
+            Diagnostics.Terminate(
+                VersionTools.BuildVersionBanner()
+            );
         }
 
         if (_generateModuleDocsAndQuit)
         {
             GenerateModuleDocs();
-            Terminate();
+            Diagnostics.Terminate();
         }
 
         if (_optimizeCode)
@@ -152,7 +161,7 @@ public partial class EvmFrontEnd
             );
 
             Console.Out.WriteLine(
-                BuildVersionBanner()
+                VersionTools.BuildVersionBanner()
             );
             
             await replSession.RunAsync();
@@ -163,7 +172,7 @@ public partial class EvmFrontEnd
         {
             case 0:
             {
-                Terminate(
+                Diagnostics.Terminate(
                     "Fatal: no input file.",
                     exitCode: ExitCode.NoInputFiles
                 );
@@ -172,7 +181,7 @@ public partial class EvmFrontEnd
 
             case > 1:
             {
-                Terminate(
+                Diagnostics.Terminate(
                     "Fatal: too many input files.",
                     exitCode: ExitCode.TooManyInputFiles
                 );
@@ -183,7 +192,7 @@ public partial class EvmFrontEnd
         var scriptPath = extra.First();
         if (!File.Exists(scriptPath))
         {
-            Terminate(
+            Diagnostics.Terminate(
                 "Fatal: input file does not exist.",
                 exitCode: ExitCode.InputFileDoesNotExist
             );
@@ -235,7 +244,7 @@ public partial class EvmFrontEnd
                 msg += $"\n\n {ce.InnerException.Message}";
             }
                 
-            Terminate(msg, exitCode: ExitCode.CompilerError);
+            Diagnostics.Terminate(msg, exitCode: ExitCode.CompilerError);
         }
 
         if (_disassembleCompiledScript)
@@ -267,7 +276,7 @@ public partial class EvmFrontEnd
                 var targetChunk = FindChunk(rootChunk, _disassembleTarget);
                 if (targetChunk == null)
                 {
-                    Terminate($"Fatal: function or subchunk '{_disassembleTarget}' not found in '{scriptPath}'.", exitCode: ExitCode.GenericError);
+                    Diagnostics.Terminate($"Fatal: function or subchunk '{_disassembleTarget}' not found in '{scriptPath}'.", exitCode: ExitCode.GenericError);
                     return;
                 }
 
@@ -314,7 +323,7 @@ public partial class EvmFrontEnd
             }
             catch (Exception e)
             {
-                Terminate($"Fatal: unable to write executable to disk - {e.Message}");
+                Diagnostics.Terminate($"Fatal: unable to write executable to disk - {e.Message}");
             }
 
             return;
@@ -336,13 +345,13 @@ public partial class EvmFrontEnd
                 msg += $"{ce.Message}\n{ce.Log}";
             }
 
-            Terminate(msg);
+            Diagnostics.Terminate(msg);
         }
 
         if (_debugMode)
         {
             var debugger = new DebuggerSession(_vm);
-            var evdb = new EvdbSession(_vm, debugger, scriptPath);
+            _ = new EvdbSession(_vm, debugger, scriptPath);
             debugger.Pause();
 
             _vm.MainFiber.Schedule(rootChunk, scriptArgs);
@@ -381,7 +390,7 @@ public partial class EvmFrontEnd
         }
         catch (OptionException oe)
         {
-            Terminate(
+            Diagnostics.Terminate(
                 $"Fatal: {oe.Message}\nrun with `--help' to see usage instructions",
                 exitCode: ExitCode.GenericError
             );
@@ -449,7 +458,7 @@ public partial class EvmFrontEnd
                 sb.AppendLine($"Failed to load user runtime module '{rmle.FilePath}'.");
                 sb.AppendLine(rmle.ToString());
                     
-                Terminate(sb.ToString(), exitCode: ExitCode.ModuleLoaderFailed);
+                Diagnostics.Terminate(sb.ToString(), exitCode: ExitCode.ModuleLoaderFailed);
             }
         }
 
@@ -529,7 +538,12 @@ public partial class EvmFrontEnd
         if (callStack.Length == 0)
         {
             sb.AppendLine($"Runtime error in fiber {fiberIndex}: {exception.Message}");
-            Terminate(sb.ToString(), exitCode: ExitCode.RuntimeError);
+            
+            Diagnostics.Terminate(
+                sb.ToString(),
+                exitCode: ExitCode.RuntimeError
+            );
+            
             return;
         }
 
@@ -589,7 +603,10 @@ public partial class EvmFrontEnd
         sb.AppendLine("Stack trace:");
         sb.Append(Fiber.StackTrace(callStack));
             
-        Terminate(sb.ToString(), exitCode: ExitCode.RuntimeError);
+        Diagnostics.Terminate(
+            sb.ToString(),
+            exitCode: ExitCode.RuntimeError
+        );
     }
 
     private static Chunk? FindChunk(Chunk chunk, string name)
@@ -603,6 +620,7 @@ public partial class EvmFrontEnd
         {
             var sub = chunk.SubChunks[i];
             var found = FindChunk(sub, name);
+            
             if (found != null)
             {
                 return found;
