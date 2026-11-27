@@ -12,11 +12,9 @@ using EVIL.VM.ExecutionEngine.TypeSystem;
 
 public sealed class Fiber
 {
-    private const int ProcessingBatchQuantum = 32;
-    
     private static long _nextLockOrderId;
 
-    private readonly Queue<(Diagnostics.Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
+    private readonly Queue<(Chunk Chunk, DynamicValue[] Arguments)> _scheduledChunks;
     private readonly HashSet<Fiber> _waitingFor;
     private readonly HashSet<Fiber> _waitingOn;
     private readonly HashSet<Fiber> _pendingAwaiteeCrashes;
@@ -26,7 +24,8 @@ public sealed class Fiber
     private int _queued;
     private int _activeExecutionSteps;
     private int _memoryTrimInProgress;
-
+    private ushort _processingBatchQuantum = 32;
+    
     private readonly Dictionary<string, ClosureContext> _closureContexts;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _sharedUpvalues;
     private readonly Dictionary<(string FunctionName, int Slot, bool IsLocal), Upvalue> _closedUpvalues = new();
@@ -45,8 +44,23 @@ public sealed class Fiber
     internal ChunkInvokeHandler? OnChunkInvoke { get; private set; }
     internal NativeFunctionInvokeHandler? OnNativeFunctionInvoke { get; private set; }
 
+    public ushort ProcessingBatchQuantum
+    {
+        get => _processingBatchQuantum;
+        set
+        {
+            if (value < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), value,
+                    "Processing batch quantum must be greater than zero."
+                );
+            }
+            
+            _processingBatchQuantum = value;
+        }
+    }
+    
     public Fiber? Parent { get; internal set; }
-
     public FiberCrashHandler? CrashHandler { get; private set; }
 
     public IReadOnlySet<Fiber> WaitingFor
@@ -268,7 +282,7 @@ public sealed class Fiber
                 }
             }
 
-            _executionUnit.Step(ProcessingBatchQuantum);
+            _executionUnit.Step(_processingBatchQuantum);
 
             if (CallStack.Count == 0)
             {

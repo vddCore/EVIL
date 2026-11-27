@@ -31,7 +31,7 @@ internal class ExecutionUnit
 
     public void Step() => Step(1);
 
-    public void Step(int maxInstructions)
+    public void Step(ushort maxInstructions)
     {
         if (_callStack.Count == 0 || _fiber.State != FiberState.Running)
         {
