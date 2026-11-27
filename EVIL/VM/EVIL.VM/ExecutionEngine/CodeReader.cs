@@ -1,15 +1,17 @@
 ﻿namespace EVIL.VM.ExecutionEngine;
 
+using System;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using EVIL.VM.ExecutionEngine.Diagnostics;
 
-public sealed class ChunkReader
+public sealed class CodeReader
 {
     private byte[] _memory;
     public long IP;
     public long Length { get; private set; }
 
-    public ChunkReader(byte[] memory)
+    public CodeReader(byte[] memory)
     {
         _memory = memory;
         Length = memory.Length;
@@ -35,40 +37,24 @@ public sealed class ChunkReader
         => _memory[IP++] != 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe int ReadInt32()
+    public int ReadInt32()
     {
-        fixed (byte* ptr = &_memory[IP])
-        {
-            int value = Unsafe.ReadUnaligned<int>(ptr);
-            IP += sizeof(int);
-            
-            return value;
-        }
+        var value = BinaryPrimitives.ReadInt32LittleEndian(_memory.AsSpan((int)IP, sizeof(int)));
+        IP += sizeof(int);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe long ReadInt64()
+    public long ReadInt64()
     {
-        fixed (byte* ptr = &_memory[IP])
-        {
-            long value = Unsafe.ReadUnaligned<long>(ptr);
-            IP += sizeof(long);
-            
-            return value;
-        }
+        var value = BinaryPrimitives.ReadInt64LittleEndian(_memory.AsSpan((int)IP, sizeof(long)));
+        IP += sizeof(long);
+        return value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe double ReadDouble()
-    {
-        fixed (byte* ptr = &_memory[IP])
-        {
-            double value = Unsafe.ReadUnaligned<double>(ptr);
-            IP += sizeof(double);
-            
-            return value;
-        }
-    }
+    public double ReadDouble()
+        => BitConverter.Int64BitsToDouble(ReadInt64());
 
     public void JumpRelative(long offset)
         => IP += offset;

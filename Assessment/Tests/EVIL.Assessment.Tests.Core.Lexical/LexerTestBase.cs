@@ -2,7 +2,6 @@ namespace EVIL.Assessment.Tests.Core.Lexical;
 
 using EVIL.Core.Lexical;
 using Shouldly;
-using static EVIL.Core.Lexical.Token;
 
 public abstract class LexerTestBase
 {

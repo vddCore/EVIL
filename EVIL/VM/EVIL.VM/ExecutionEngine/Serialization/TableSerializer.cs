@@ -1,9 +1,10 @@
-namespace EVIL.VM.ExecutionEngine.Collections.Serialization;
+namespace EVIL.VM.ExecutionEngine.Serialization;
 
 using System;
 using System.IO;
 using System.Text;
 using EVIL.Core.Common.TypeSystem;
+using EVIL.VM.ExecutionEngine.Collections;
 using EVIL.VM.ExecutionEngine.TypeSystem;
 
 internal static class TableSerializer
@@ -12,7 +13,7 @@ internal static class TableSerializer
     {
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
         {
-            bw.Write(new[] { (byte)'E', (byte)'V', (byte)'T' });
+            bw.Write("EVT"u8.ToArray());
             bw.Write(table.Length);
 
             foreach (var (key, value) in table)

@@ -4,11 +4,12 @@ using Array = EVIL.VM.ExecutionEngine.Collections.Array;
 
 using System;
 using System.IO;
+using System.Text;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Collections;
-using EVIL.VM.ExecutionEngine.Collections.Serialization;
 using EVIL.VM.ExecutionEngine.Concurrency;
+using EVIL.VM.ExecutionEngine.Serialization;
 using EVIL.VM.ExecutionEngine.TypeSystem;
 using EVIL.VM.TranslationEngine;
 using NUnit.Framework;
@@ -152,6 +153,38 @@ public class DynamicValueSerializerTests
         }
     }
 
+    [TestCase(-1)]
+    [TestCase(67_108_865)]
+    public void ChunkDeserializeRejectsInvalidEmbeddedLength(int length)
+    {
+        AssertMalformedEmbeddedChunk(CreateChunkEnvelope(length, []));
+    }
+
+    [Test]
+    public void ChunkDeserializeRejectsShortEmbeddedPayload()
+    {
+        var chunk = new Compiler().Compile("ret 1234;");
+        using var chunkStream = new MemoryStream();
+        chunk.Serialize(chunkStream);
+        var frame = chunkStream.ToArray();
+
+        AssertMalformedEmbeddedChunk(CreateChunkEnvelope(frame.Length + 1, frame));
+    }
+
+    [Test]
+    public void ChunkDeserializeRejectsExtraEmbeddedPayloadBytes()
+    {
+        var chunk = new Compiler().Compile("ret 1234;");
+        using var chunkStream = new MemoryStream();
+        chunk.Serialize(chunkStream);
+        var frame = chunkStream.ToArray();
+        var extendedFrame = new byte[frame.Length + 1];
+        System.Array.Copy(frame, extendedFrame, frame.Length);
+        extendedFrame[^1] = 0xA5;
+
+        AssertMalformedEmbeddedChunk(CreateChunkEnvelope(extendedFrame.Length, extendedFrame));
+    }
+
     [Test]
     public void TypeCodeSerializeDeserialize()
     {
@@ -230,5 +263,24 @@ public class DynamicValueSerializerTests
     private static DynamicValue TestNativeFunction(Fiber fiber, params DynamicValue[] args)
     {
         return 2137;
+    }
+
+    private static byte[] CreateChunkEnvelope(int length, byte[] payload)
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+        {
+            writer.Write((byte)DynamicValueType.Chunk);
+            writer.Write(length);
+            writer.Write(payload);
+        }
+
+        return stream.ToArray();
+    }
+
+    private static void AssertMalformedEmbeddedChunk(byte[] envelope)
+    {
+        using var stream = new MemoryStream(envelope);
+        Should.Throw<SerializationException>(() => DynamicValue.Deserialize(stream));
     }
 }

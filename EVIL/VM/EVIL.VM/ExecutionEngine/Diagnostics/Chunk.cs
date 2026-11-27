@@ -30,11 +30,11 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     private PropertyInlineCache[]? _propertyInlineCaches;
     private readonly Serializer _serializer;
 
-    public const byte FormatVersion = 5;
+    public const byte FormatVersion = 6;
 
     public string Name { get; set; }
-    internal Guid ClosureOwnerId { get; private set; }
-    public Chunk? Parent { get; private set; }
+    internal Guid ClosureOwnerId { get; private init; }
+    public Chunk? Parent { get; private init; }
 
     public StringPool StringPool { get; }
     public CodeGenerator CodeGenerator { get; }
@@ -44,8 +44,9 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
     public int LocalCount { get; private set; }
     public int ClosureCount => Closures.Count;
     public int SubChunkCount => SubChunks.Count;
+    
     public bool IsSelfAware { get; private set; }
-    public bool IsSpecialName { get; private set; }
+    public bool IsSpecialName { get; private init; }
     public bool MayThrow { get; private set; }
 
     public IReadOnlyList<int> Labels => _labels;
@@ -355,9 +356,9 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
         return _code.ToArray();
     }
 
-    public ChunkReader SpawnCodeReader()
+    public CodeReader SpawnCodeReader()
     {
-        return new ChunkReader(Code);
+        return new CodeReader(Code);
     }
 
     public void MarkThrowing()
@@ -657,6 +658,7 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
                && _parameterInitializers.SequenceEqual(other._parameterInitializers)
                && LocalCount == other.LocalCount
                && _closures.SequenceEqual(other._closures)
+               && ClosureContextsEqual(other)
                && _labels.SequenceEqual(other._labels)
                && _attributes.SequenceEqual(other._attributes)
                && _subChunks.SequenceEqual(other._subChunks)
@@ -666,6 +668,14 @@ public sealed partial class Chunk : IDisposable, IEquatable<Chunk>
                && Code.SequenceEqual(other.Code)
                && DebugDatabase.Equals(other.DebugDatabase);
     }
+
+    private bool ClosureContextsEqual(Chunk other)
+        => _closureContexts.Count == other._closureContexts.Count
+           && _closureContexts.All(kvp =>
+               other._closureContexts.TryGetValue(kvp.Key, out var context)
+               && kvp.Value.EnclosedFunctionName == context.EnclosedFunctionName
+               && kvp.Value.Values.SequenceEqual(context.Values)
+           );
 
     public override bool Equals(object? obj)
     {

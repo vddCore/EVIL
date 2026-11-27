@@ -60,7 +60,7 @@ public static class InstructionDecoder
     public static bool TryDecodeNext(
         Chunk chunk,
         byte[] code,
-        ChunkReader reader,
+        CodeReader reader,
         HashSet<int> jumpTargets,
         out Instruction instruction)
     {

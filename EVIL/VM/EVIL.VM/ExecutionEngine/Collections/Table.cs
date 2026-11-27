@@ -7,7 +7,7 @@ using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using EVIL.Core.Common.TypeSystem;
-using EVIL.VM.ExecutionEngine.Collections.Serialization;
+using EVIL.VM.ExecutionEngine.Serialization;
 using EVIL.VM.ExecutionEngine.TypeSystem;
 using static TypeSystem.DynamicValue;
 

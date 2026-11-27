@@ -11,7 +11,7 @@ using Array = System.Array;
 
 public sealed record ScriptStackFrame : StackFrame
 {
-    private readonly ChunkReader _chunkReader;
+    private readonly CodeReader _codeReader;
     private EvilArray? _extraArguments;
     private Upvalue?[]? _openLocalUpvalues;
     private Upvalue?[]? _openArgumentUpvalues;
@@ -34,7 +34,7 @@ public sealed record ScriptStackFrame : StackFrame
 
     public CallFrame CallFrame => new(Chunk, Upvalues, (int)PreviousOpCodeIP, (int)IP);
     public long PreviousOpCodeIP { get; private set; }
-    public long IP => _chunkReader.IP;
+    public long IP => _codeReader.IP;
 
     public bool IsProtectedState => _protectedRegionStack is { Count: > 0 };
 
@@ -57,7 +57,7 @@ public sealed record ScriptStackFrame : StackFrame
         Fiber = fiber;
         Chunk = null!;
         Arguments = [];
-        _chunkReader = new ChunkReader([]);
+        _codeReader = new CodeReader([]);
     }
 
     internal ScriptStackFrame(Fiber fiber, Chunk chunk, DynamicValue[] args)
@@ -140,7 +140,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void Reset(Fiber fiber, Chunk chunk, DynamicValue a)
@@ -180,7 +180,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void Reset(Fiber fiber, Chunk chunk, DynamicValue a, DynamicValue b)
@@ -221,7 +221,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void Reset(Fiber fiber, Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c)
@@ -263,7 +263,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void Reset(Fiber fiber, Chunk chunk, DynamicValue a, DynamicValue b, DynamicValue c, DynamicValue d)
@@ -306,7 +306,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void Reset(Fiber fiber, Chunk chunk, ValueStack stack, int argumentCount)
@@ -356,7 +356,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void Reset(Fiber fiber, Chunk chunk, DynamicValue[] args)
@@ -409,7 +409,7 @@ public sealed record ScriptStackFrame : StackFrame
         }
 
         Upvalues = chunk.Upvalues;
-        _chunkReader.Reset(chunk.Code);
+        _codeReader.Reset(chunk.Code);
     }
 
     internal void ReleaseArrays(Fiber fiber)
@@ -732,38 +732,38 @@ public sealed record ScriptStackFrame : StackFrame
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal OpCode PeekOpCode()
-        => _chunkReader.PeekOpCode();
+        => _codeReader.PeekOpCode();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal OpCode FetchOpCode()
     {
         PreviousOpCodeIP = IP;
-        return (OpCode)_chunkReader.ReadByte();
+        return (OpCode)_codeReader.ReadByte();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal byte FetchByte()
-        => _chunkReader.ReadByte();
+        => _codeReader.ReadByte();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal double FetchDouble()
-        => _chunkReader.ReadDouble();
+        => _codeReader.ReadDouble();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal int FetchInt32()
-        => _chunkReader.ReadInt32();
+        => _codeReader.ReadInt32();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal long FetchInt64()
-        => _chunkReader.ReadInt64();
+        => _codeReader.ReadInt64();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void JumpAbsolute(long address)
-        => _chunkReader.JumpAbsolute(address);
+        => _codeReader.JumpAbsolute(address);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void JumpRelative(long offset)
-        => _chunkReader.JumpRelative(offset);
+        => _codeReader.JumpRelative(offset);
 
     public override string ToString()
         => $"{Chunk?.Name ?? "<anonymous>"}:({Chunk?.DebugDatabase.GetLineForIP((int)PreviousOpCodeIP) ?? 0}) @ {PreviousOpCodeIP:X8}";

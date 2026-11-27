@@ -66,7 +66,7 @@ public class DebugModuleTests : EvilTest
         );
 
         s.ShouldContain(
-            "at clr!EVIL.VirtualMachine.Runtime.Modules.DebugModule::StackTraceString",
+            "at clr!EVIL.VM.Runtime.Modules.DebugModule::StackTraceString",
             Case.Sensitive
         );
 

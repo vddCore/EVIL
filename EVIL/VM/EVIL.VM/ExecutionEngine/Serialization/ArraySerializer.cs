@@ -1,4 +1,4 @@
-namespace EVIL.VM.ExecutionEngine.Collections.Serialization;
+namespace EVIL.VM.ExecutionEngine.Serialization;
 
 using System;
 using System.IO;
@@ -13,7 +13,7 @@ internal static class ArraySerializer
     {
         using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
         {
-            bw.Write(new[] { (byte)'E', (byte)'V', (byte)'A' });
+            bw.Write("EVA"u8.ToArray());
             bw.Write(array.Length);
 
             for (var i = 0; i < array.Length; i++)

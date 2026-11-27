@@ -1,6 +1,5 @@
 namespace EVIL.Assessment.Tests.Core.Lexical;
 
-using EVIL.Core.Lexical;
 using static EVIL.Core.Lexical.Token;
 
 public class LiteralInterpolationTests : LexerTestBase

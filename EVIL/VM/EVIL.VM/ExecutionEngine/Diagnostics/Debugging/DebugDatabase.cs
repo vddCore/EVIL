@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EVIL.VM.ExecutionEngine;
+using EVIL.VM.ExecutionEngine.Serialization;
 
 public sealed class DebugDatabase : IEquatable<DebugDatabase>
 {
@@ -20,7 +22,8 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
     public int DefinedOnLine { get; internal set; } = -1;
     public string DefinedInFile { get; internal set; } = string.Empty;
 
-    public IReadOnlyDictionary<int, StatementDebugRecord> StatementRecords => _statementRecords;
+    public IReadOnlyDictionary<int, StatementDebugRecord> StatementRecords 
+        => _statementRecords;
 
     public void AddDebugRecord(int line, int ip)
     {
@@ -188,27 +191,32 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
         _statementRecords.Clear();
         _lineRecords.Clear();
         _parameterNames.Clear();
+        _parameterRwStates.Clear();
         _localNames.Clear();
+        _localRwStates.Clear();
         DefinedOnLine = -1;
         DefinedInFile = string.Empty;
     }
 
-    internal void Serialize(BinaryWriter bw)
+    internal void Serialize(
+        BinaryWriter bw,
+        Action<BinaryWriter, string> writeString,
+        Action<BinaryWriter, int> writeCount)
     {
         bw.Write(DefinedOnLine);
-        bw.Write(DefinedInFile);
+        writeString(bw, DefinedInFile);
 
-        bw.Write(_records.Count);
+        writeCount(bw, _records.Count);
         foreach (var record in _records)
         {
             bw.Write(record.Key);
-            bw.Write(record.Value.Count);
+            writeCount(bw, record.Value.Count);
 
             foreach (var addr in record.Value)
                 bw.Write(addr);
         }
 
-        bw.Write(_statementRecords.Count);
+        writeCount(bw, _statementRecords.Count);
         foreach (var (ip, stmt) in _statementRecords)
         {
             bw.Write(ip);
@@ -219,75 +227,132 @@ public sealed class DebugDatabase : IEquatable<DebugDatabase>
             bw.Write(stmt.IsStepBoundary);
         }
 
-        bw.Write(_localNames.Count);
+        writeCount(bw, _localNames.Count);
         foreach (var localKvp in _localNames)
         {
             bw.Write(localKvp.Key);
-            bw.Write(localKvp.Value);
+            writeString(bw, localKvp.Value);
             bw.Write(_localRwStates[localKvp.Key]);
         }
 
-        bw.Write(_parameterNames.Count);
+        writeCount(bw, _parameterNames.Count);
         foreach (var paramKvp in _parameterNames)
         {
             bw.Write(paramKvp.Key);
-            bw.Write(paramKvp.Value);
+            writeString(bw, paramKvp.Value);
             bw.Write(_parameterRwStates[paramKvp.Key]);
         }
     }
 
-    internal void Deserialize(BinaryReader br)
+    internal void Deserialize(
+        BinaryChunkReader reader,
+        int parameterCount,
+        int localCount,
+        int codeLength)
     {
         Strip();
 
-        DefinedOnLine = br.ReadInt32();
-        DefinedInFile = br.ReadString();
+        DefinedOnLine = reader.ReadInt32();
+        if (DefinedOnLine < -1)
+        {
+            throw new ChunkDeserializationException("Invalid debug definition line.");
+        }
 
-        var recordCount = br.ReadInt32();
+        DefinedInFile = reader.ReadString();
+
+        var recordCount = reader.ReadCount(8);
+        var seenLines = new HashSet<int>();
         for (var i = 0; i < recordCount; i++)
         {
-            var line = br.ReadInt32();
-            var addrCount = br.ReadInt32();
+            var line = reader.ReadInt32();
+            var addrCount = reader.ReadCount(sizeof(int));
+            if (line < 0 || addrCount == 0 || !seenLines.Add(line))
+            {
+                throw new ChunkDeserializationException("Invalid or duplicate debug line record.");
+            }
 
+            var seenAddresses = new HashSet<int>();
             for (var j = 0; j < addrCount; j++)
             {
-                AddDebugRecord(
-                    line,
-                    br.ReadInt32()
-                );
+                var address = reader.ReadInt32();
+                ValidateCodeAddress(address, codeLength);
+                if (!seenAddresses.Add(address))
+                {
+                    throw new ChunkDeserializationException(
+                        "Debug line record contains a duplicate code address."
+                    );
+                }
+
+                AddDebugRecord(line, address);
             }
         }
 
-        var stmtCount = br.ReadInt32();
+        var stmtCount = reader.ReadCount(21);
         for (var i = 0; i < stmtCount; i++)
         {
-            var ip = br.ReadInt32();
-            var line = br.ReadInt32();
-            var col = br.ReadInt32();
-            var endLine = br.ReadInt32();
-            var endCol = br.ReadInt32();
-            var isStep = br.ReadBoolean();
+            var ip = reader.ReadInt32();
+            var line = reader.ReadInt32();
+            var col = reader.ReadInt32();
+            var endLine = reader.ReadInt32();
+            var endCol = reader.ReadInt32();
+            var isStep = reader.ReadBoolean();
+
+            ValidateCodeAddress(ip, codeLength);
+            if (line < 0 || !_records.TryGetValue(line, out var addresses)
+                || !addresses.Contains(ip) || _statementRecords.ContainsKey(ip))
+            {
+                throw new ChunkDeserializationException(
+                    "Invalid or duplicate statement debug record."
+                );
+            }
+
             AddStatementRecord(ip, line, col, endLine, endCol, isStep);
         }
 
-        var localNameCount = br.ReadInt32();
+        var localNameCount = reader.ReadCount(9);
+        var seenLocals = new HashSet<int>();
         for (var i = 0; i < localNameCount; i++)
         {
-            SetLocalName(
-                br.ReadInt32(),
-                br.ReadString(),
-                br.ReadBoolean()
-            );
+            var id = reader.ReadInt32();
+            var name = reader.ReadString();
+            var rw = reader.ReadBoolean();
+            if (id < 0 || id >= localCount || !seenLocals.Add(id))
+            {
+                throw new ChunkDeserializationException(
+                    $"Debug local name references invalid local '{id}'."
+                );
+            }
+
+            SetLocalName(id, name, rw);
         }
 
-        var paramNameCount = br.ReadInt32();
+        var paramNameCount = reader.ReadCount(9);
+        var seenParameters = new HashSet<int>();
         for (var i = 0; i < paramNameCount; i++)
         {
-            SetParameterName(
-                br.ReadInt32(),
-                br.ReadString(),
-                br.ReadBoolean()
-            );
+            var id = reader.ReadInt32();
+            var name = reader.ReadString();
+            var rw = reader.ReadBoolean();
+            if (id < 0 || id >= parameterCount || !seenParameters.Add(id))
+            {
+                throw new ChunkDeserializationException(
+                    $"Debug parameter name references invalid parameter '{id}'."
+                );
+            }
+
+            SetParameterName(id, name, rw);
+        }
+
+        reader.EnsureFullyConsumed("debug database");
+
+        static void ValidateCodeAddress(int address, int codeLength)
+        {
+            if (address < 0 || address > codeLength)
+            {
+                throw new ChunkDeserializationException(
+                    $"Invalid debug code address '{address}'."
+                );
+            }
         }
     }
 

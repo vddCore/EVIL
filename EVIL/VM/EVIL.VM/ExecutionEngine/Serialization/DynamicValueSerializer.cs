@@ -7,6 +7,7 @@ using System.Text;
 using System.Runtime.Serialization.Formatters.Binary;
 using EVIL.Core.Common.TypeSystem;
 using EVIL.VM.ExecutionEngine.Diagnostics;
+using EVIL.VM.ExecutionEngine.Serialization;
 using EVIL.VM.ExecutionEngine.TypeSystem;
 
 internal static class DynamicValueSerializer
@@ -178,15 +179,32 @@ internal static class DynamicValueSerializer
         try
         {
             var length = br.ReadInt32();
+            if (length < BinaryChunkLimits.MinimumFrameSize
+                || length > BinaryChunkLimits.MaximumFrameSize)
+            {
+                throw new InvalidDataException(
+                    $"Embedded chunk length '{length}' is outside the v6 limits."
+                );
+            }
+
             var data = br.ReadBytes(length);
+            if (data.Length != length)
+            {
+                throw new EndOfStreamException("Embedded chunk payload is truncated.");
+            }
 
             using (var ms = new MemoryStream(data))
             {
                 ms.Seek(0, SeekOrigin.Begin);
+                var chunk = Chunk.Deserialize(ms, out _, out _);
+                if (ms.Position != ms.Length)
+                {
+                    throw new InvalidDataException(
+                        "Embedded chunk payload contains trailing bytes."
+                    );
+                }
 
-                return new DynamicValue(
-                    Chunk.Deserialize(ms, out _, out _)
-                );
+                return new DynamicValue(chunk);
             }
         }
         catch (Exception e)
