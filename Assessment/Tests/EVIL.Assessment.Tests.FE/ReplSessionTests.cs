@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using EVIL.FE;
 using EVIL.FE.REPL;
+using EVIL.FE.REPL.SyntaxHighlighting;
 using Shouldly;
 
 [TestFixture]
@@ -31,6 +32,33 @@ public class ReplSessionTests
         await new ReplSession(input, output).RunAsync();
 
         output.ToString().ShouldContain("42");
+    }
+
+    [Test]
+    public async Task RunAsync_HighlightsSyntaxAndInterpolatedExpressionsWhileEditing()
+    {
+        const string source = "6 * 7;";
+        var keys = new Queue<ConsoleKeyInfo>(source
+            .Select(Character)
+            .Append(Special(ConsoleKey.Enter))
+            .Append(new ConsoleKeyInfo('\u0004', ConsoleKey.D, false, false, true)));
+        using var output = new StringWriter();
+
+        await new ReplSession(TextReader.Null, output, readKey: keys.Dequeue).RunAsync();
+
+        output.ToString().ShouldContain("\u001b[36m6");
+        output.ToString().ShouldContain("42");
+    }
+
+    [Test]
+    public void ReplSyntaxHighlighter_HighlightsInterpolatedExpressionsAsCode()
+    {
+        const string source = "\"value ${1 + 2}\"";
+        var rendered = new SyntaxHighlighter().Render(source, 0, source.Length);
+
+        rendered.ShouldContain("\u001b[32m\"value ");
+        rendered.ShouldContain("\u001b[36m1");
+        rendered.ShouldContain("\u001b[33m+");
     }
 
     [Test]

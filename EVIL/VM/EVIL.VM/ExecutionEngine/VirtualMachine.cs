@@ -23,7 +23,10 @@ public class VirtualMachine : VirtualMachineBase
     {
     }
 
-    public VirtualMachine(Table global, FiberCrashHandler? crashHandler = null, MarshalingRegistry? marshal = null)
+    public VirtualMachine(
+        Table global,
+        FiberCrashHandler? crashHandler = null,
+        MarshalingRegistry? marshal = null)
         : base(global, crashHandler, marshal)
     {
     }

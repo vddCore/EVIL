@@ -8,6 +8,7 @@ using EVIL.Core.Diagnostics.Formatters;
 using EVIL.Core.Grammar;
 using EVIL.Core.Grammar.AST.Miscellaneous;
 using EVIL.Core.Lexical;
+using EVIL.FE.REPL.SyntaxHighlighting;
 using EVIL.FE.Utilities;
 using EVIL.VM.ExecutionEngine;
 using EVIL.VM.ExecutionEngine.Concurrency;
@@ -27,6 +28,7 @@ public sealed class ReplSession
     private readonly TextReader _input;
     private readonly TextWriter _output;
     private readonly LineEditor _lineEditor = new();
+    private readonly SyntaxHighlighter _syntaxHighlighter = new();
     private readonly Func<ConsoleKeyInfo>? _readKey;
     private readonly VirtualMachine _vm;
     private readonly EvilRuntime _runtime;
@@ -146,7 +148,12 @@ public sealed class ReplSession
             
             await _output.FlushAsync();
 
-            var line = await _lineEditor.ReadLineAsync(_input, _output, _readKey);
+            var line = await _lineEditor.ReadLineAsync(
+                _input,
+                _output,
+                _readKey,
+                _syntaxHighlighter.Render
+            );
             if (line == null)
             {
                 return;

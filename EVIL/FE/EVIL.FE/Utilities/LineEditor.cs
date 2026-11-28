@@ -13,7 +13,8 @@ public sealed class LineEditor
     public async Task<string?> ReadLineAsync(
         TextReader input,
         TextWriter output,
-        Func<ConsoleKeyInfo>? readKey = null)
+        Func<ConsoleKeyInfo>? readKey = null,
+        Func<string, int, int, string>? render = null)
     {
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(output);
@@ -106,17 +107,14 @@ public sealed class LineEditor
                             caret++;
                         }
 
-                        for (var index = oldCaret; index < caret; index++)
-                        {
-                            await output
-                                .WriteAsync(buffer[index])
-                                .ConfigureAwait(false);
-                        }
+                        await output
+                            .WriteAsync(Render(buffer, oldCaret, caret - oldCaret, render))
+                            .ConfigureAwait(false);
                     }
                     else if (caret < buffer.Length)
                     {
                         await output
-                            .WriteAsync(buffer[caret])
+                            .WriteAsync(Render(buffer, caret, 1, render))
                             .ConfigureAwait(false);
 
                         caret++;
@@ -141,14 +139,11 @@ public sealed class LineEditor
 
                 case ConsoleKey.End:
                 {
-                    while (caret < buffer.Length)
-                    {
-                        await output
-                            .WriteAsync(buffer[caret])
-                            .ConfigureAwait(false);
+                    await output
+                        .WriteAsync(Render(buffer, caret, buffer.Length - caret, render))
+                        .ConfigureAwait(false);
 
-                        caret++;
-                    }
+                    caret = buffer.Length;
                     
                     break;
                 }
@@ -165,7 +160,8 @@ public sealed class LineEditor
                             buffer,
                             oldLength,
                             oldCaret,
-                            caret
+                            caret,
+                            render
                         ).ConfigureAwait(false);
                     }
 
@@ -183,7 +179,8 @@ public sealed class LineEditor
                             buffer,
                             oldLength,
                             oldCaret,
-                            caret
+                            caret,
+                            render
                         ).ConfigureAwait(false);
                     }
 
@@ -210,7 +207,8 @@ public sealed class LineEditor
                             buffer,
                             oldLength,
                             oldCaret,
-                            caret
+                            caret,
+                            render
                         ).ConfigureAwait(false);
                     }
 
@@ -236,7 +234,8 @@ public sealed class LineEditor
                             buffer,
                             oldLength,
                             oldCaret,
-                            caret
+                            caret,
+                            render
                         ).ConfigureAwait(false);
                     }
 
@@ -257,7 +256,8 @@ public sealed class LineEditor
                             buffer,
                             oldLength,
                             oldCaret,
-                            caret
+                            caret,
+                            render
                         ).ConfigureAwait(false);
                     }
 
@@ -282,7 +282,8 @@ public sealed class LineEditor
         StringBuilder buffer,
         int oldLength,
         int oldCaret,
-        int caret
+        int caret,
+        Func<string, int, int, string>? render
     )
     {
         await output.WriteAsync(
@@ -290,7 +291,7 @@ public sealed class LineEditor
         ).ConfigureAwait(false);
         
         await output.WriteAsync(
-            buffer.ToString()
+            Render(buffer, 0, buffer.Length, render)
         ).ConfigureAwait(false);
 
         var renderedLength = Math.Max(
@@ -308,5 +309,16 @@ public sealed class LineEditor
         await output.WriteAsync(
             new string('\b', renderedLength - caret)
         ).ConfigureAwait(false);
+    }
+
+    private static string Render(
+        StringBuilder buffer,
+        int start,
+        int length,
+        Func<string, int, int, string>? render)
+    {
+        var source = buffer.ToString();
+        return render?.Invoke(source, start, length)
+            ?? source.Substring(start, length);
     }
 }
