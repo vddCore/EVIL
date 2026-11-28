@@ -107,9 +107,14 @@ public sealed class LineEditor
                             caret++;
                         }
 
-                        await output
-                            .WriteAsync(Render(buffer, oldCaret, caret - oldCaret, render))
-                            .ConfigureAwait(false);
+                        await output.WriteAsync(
+                            Render(
+                                buffer,
+                                oldCaret,
+                                caret - oldCaret,
+                                render
+                            )
+                        ).ConfigureAwait(false);
                     }
                     else if (caret < buffer.Length)
                     {
@@ -139,12 +144,17 @@ public sealed class LineEditor
 
                 case ConsoleKey.End:
                 {
-                    await output
-                        .WriteAsync(Render(buffer, caret, buffer.Length - caret, render))
-                        .ConfigureAwait(false);
+                    await output.WriteAsync(
+                        Render(
+                            buffer, 
+                            caret, 
+                            buffer.Length - caret,
+                            render
+                        )
+                    ).ConfigureAwait(false);
 
                     caret = buffer.Length;
-                    
+
                     break;
                 }
 
